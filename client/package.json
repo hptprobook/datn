@@ -1,0 +1,48 @@
+{
+  "name": "client",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vite build --base=./",
+    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@mui/icons-material": "^5.15.14",
+    "@mui/material": "^5.15.14",
+    "@mui/styled-engine": "^5.15.14",
+    "@reduxjs/toolkit": "^2.2.2",
+    "axios": "^1.6.7",
+    "cors": "^2.8.5",
+    "date-fns": "^3.6.0",
+    "dayjs": "^1.11.11",
+    "draft-js": "^0.11.7",
+    "formik": "^2.4.5",
+    "jwt-decode": "^4.0.0",
+    "lodash": "^4.17.21",
+    "material-ui-confirm": "^3.0.11",
+    "react": "^18.2.0",
+    "react-cookie": "^7.1.4",
+    "react-dom": "^18.2.0",
+    "react-draft-wysiwyg": "^1.15.0",
+    "react-quill": "^2.0.0",
+    "react-redux": "^9.1.0",
+    "react-router-dom": "^6.22.3",
+    "react-toastify": "^10.0.5",
+    "socket.io-client": "^4.7.5",
+    "yup": "^1.4.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.56",
+    "@types/react-dom": "^18.2.19",
+    "@vitejs/plugin-react-swc": "^3.5.0",
+    "eslint": "^8.56.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.5",
+    "vite": "^5.1.4",
+    "vite-plugin-svgr": "^4.2.0"
+  }
+}
