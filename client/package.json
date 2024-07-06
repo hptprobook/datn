@@ -18,6 +18,8 @@
     "@reduxjs/toolkit": "^2.2.6",
     "axios": "^1.7.2",
     "date-fns": "^3.6.0",
+    "flowbite": "^2.4.1",
+    "flowbite-react": "^0.10.1",
     "formik": "^2.4.6",
     "jwt-decode": "^4.0.0",
     "lodash": "^4.17.21",
