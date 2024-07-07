@@ -38,7 +38,7 @@ export default function SearchBar() {
       {/* Model Tìm kiếm */}
       {isFocused && (
         <div
-          className="mt-16 fixed w-fvw bg-slate-400 bg-opacity-60 h-fvh left-0 top-0"
+          className="mt-16 fixed w-fvw bg-slate-400 bg-opacity-60 h-fvh left-0 top-0 z-50"
           onClick={handleOverlayClick}
         >
           <div

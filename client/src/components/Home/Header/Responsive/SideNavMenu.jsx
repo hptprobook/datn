@@ -39,7 +39,7 @@ export default function SideNavMenu({
     menuPath.length === 0 ? menu : menuPath[menuPath.length - 1].list || [];
 
   return (
-    <div>
+    <div className="z-10">
       {animateMenu && (
         <div>
           <div

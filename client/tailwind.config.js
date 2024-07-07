@@ -31,12 +31,16 @@ export default {
         fvh: '100vh',
         productImg: '300px',
         productItem: '450px',
+        slider: '500px',
+        banner: '450px',
+        post: '540px',
       },
       text: {
         xxs: '10px',
       },
       padding: {
         min: '0.125rem',
+        102: '28rem',
       },
       borderWidth: {
         df: '1px',
@@ -66,6 +70,13 @@ export default {
         '.text-clamp-2': {
           display: '-webkit-box',
           '-webkit-line-clamp': '2',
+          '-webkit-box-orient': 'vertical',
+          'text-overflow': 'ellipsis',
+          overflow: 'hidden',
+        },
+        '.text-clamp-3': {
+          display: '-webkit-box',
+          '-webkit-line-clamp': '3',
           '-webkit-box-orient': 'vertical',
           'text-overflow': 'ellipsis',
           overflow: 'hidden',

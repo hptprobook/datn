@@ -1,4 +1,5 @@
 import { FaRegUserCircle } from 'react-icons/fa';
+import { NavLink } from 'react-router-dom';
 
 export default function UserBar() {
   return (
@@ -9,13 +10,17 @@ export default function UserBar() {
           Chào mừng quý khách đến với w0w Store
         </p>
         <p className="mt-5 text-black">Bạn đã có tài khoản w0wStore</p>
-        <button className="w-full h-8 bg-red-700 rounded-md my-3 hover:shadow-md hover:shadow-gray-300">
-          Đăng nhập
-        </button>
+        <NavLink to={'/tai-khoan/dang-nhap'}>
+          <button className="w-full h-8 bg-red-700 rounded-md my-3 hover:shadow-md hover:shadow-gray-300">
+            Đăng nhập
+          </button>
+        </NavLink>
         <p className="pt-3 border-t border-gray-200 mb-3 text-black">hoặc</p>
-        <button className="w-full h-8 bg-white rounded-md text-black border-solid border-2 hover:bg-red-700 hover:text-white hover:border-red-700 transform transition duration-300">
-          Đăng ký thành viên
-        </button>
+        <NavLink to={'/tai-khoan/dang-ky'}>
+          <button className="w-full h-8 bg-white rounded-md text-black border-solid border-2 hover:bg-red-700 hover:text-white hover:border-red-700 transform transition duration-300">
+            Đăng ký thành viên
+          </button>
+        </NavLink>
       </div>
     </div>
   );

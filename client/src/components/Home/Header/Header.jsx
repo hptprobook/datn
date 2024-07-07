@@ -21,7 +21,7 @@ export default function Header() {
   return (
     <div>
       {/* Header dùng chung cho Window */}
-      <header className="w-full h-16 bg-amber-600 hidden lg:block">
+      <header className="w-full h-16 bg-amber-600 hidden lg:block z-10">
         <div className="max-w-container h-full mx-auto flex justify-between items-center">
           <NavLink to="/">
             <div>
@@ -49,7 +49,7 @@ export default function Header() {
       </header>
 
       {/* Header dùng chung cho Mobile & Tablet */}
-      <header className="w-full h-16 bg-amber-600 lg:hidden flex justify-between items-center px-4">
+      <header className="w-full h-16 bg-amber-600 lg:hidden flex justify-between items-center px-4 z-10">
         <div
           className="text-2xl text-gray-50 cursor-pointer"
           onClick={() => setOpenMenu(true)}
