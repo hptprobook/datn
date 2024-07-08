@@ -1,3 +1,4 @@
+/* eslint-disable import/no-unresolved */
 import { useState } from 'react';
 
 import Box from '@mui/material/Box';
@@ -15,22 +16,27 @@ import InputAdornment from '@mui/material/InputAdornment';
 
 import { useRouter } from 'src/routes/hooks';
 
+import { useAuth } from 'src/hooks/useAuth';
+
 import { bgGradient } from 'src/theme/css';
 
 import Logo from 'src/components/logo';
 import Iconify from 'src/components/iconify';
+
+import { handleToast } from 'src/hooks/toast';
 
 // ----------------------------------------------------------------------
 
 export default function LoginView() {
   const theme = useTheme();
 
-  const router = useRouter();
+  // const router = useRouter();
 
   const [showPassword, setShowPassword] = useState(false);
-
+  const { login } = useAuth();
   const handleClick = () => {
-    router.push('/dashboard');
+    handleToast('success', 'Login successfully');
+    login({ username: '1234' });
   };
 
   const renderForm = (
