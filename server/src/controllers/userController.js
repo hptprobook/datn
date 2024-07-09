@@ -192,6 +192,18 @@ const update = async (req, res) => {
   }
 };
 // admin
+
+const testUpdate = async (req, res) => {
+  try {
+    const user = await userModel.getUserAll();
+    return res.status(StatusCodes.OK).json(user);
+  } catch (error) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json('Có lỗi xảy ra xin thử lại sau');
+  }
+};
+
 const getUserAll = async (req, res) => {
   try {
     const user = await userModel.getUserAll();
@@ -231,4 +243,5 @@ export const usersController = {
   updateAdmin,
   changePassWord,
   getUserAll,
+  testUpdate,
 };
