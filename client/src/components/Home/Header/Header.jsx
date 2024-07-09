@@ -21,7 +21,7 @@ export default function Header() {
   return (
     <div>
       {/* Header dùng chung cho Window */}
-      <header className="w-full h-16 bg-amber-600 hidden lg:block z-10">
+      <header className="w-full h-16 bg-amber-600 hidden lg:block">
         <div className="max-w-container h-full mx-auto flex justify-between items-center">
           <NavLink to="/">
             <div>
