@@ -10,7 +10,8 @@
     "build-babel": "babel ./src -d ./build/src",
     "build": "npm run clean && npm run build-babel",
     "production": "npm run build && node ./build/src/server.js",
-    "dev": "cross-env BUILD_MODE=dev nodemon --exec babel-node ./src/server.js"
+    "dev": "cross-env BUILD_MODE=dev nodemon --exec babel-node ./src/server.js",
+    "swagger-autogen": "node swagger.js"
   },
   "dependencies": {
     "@babel/runtime": "^7.22.10",
@@ -26,7 +27,8 @@
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",
     "lodash": "^4.17.21",
-    "mongodb": "^6.7.0"
+    "mongodb": "^6.7.0",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.22.10",
@@ -42,6 +44,7 @@
     "eslint": "^8.47.0",
     "http-status-code": "^2.1.0",
     "kill-port": "^2.0.1",
-    "nodemon": "^3.0.1"
+    "nodemon": "^3.0.1",
+    "swagger-autogen": "^2.23.7"
   }
 }

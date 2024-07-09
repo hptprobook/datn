@@ -6,7 +6,7 @@ const isAdmin = async (req, res, next) => {
     if (user.role == 'admin') {
       next();
     } else {
-      return res.status(401).send({ message: 'Bạn không đủ thẩm quyền' });
+      return res.status(403).send({ message: 'Bạn không đủ thẩm quyền' });
     }
   } catch (error) {
     return res.status(401).send({ message: 'Có lỗi xảy ra xin thử lại sau' });

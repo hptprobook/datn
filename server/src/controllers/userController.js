@@ -7,10 +7,11 @@ import bcrypt from 'bcryptjs';
 import { env } from '~/config/environment';
 import { ERROR_MESSAGES } from '~/utils/errorMessage';
 
-const getUserMiddlewaresId = async (req, res) => {
+const getCurrentUser = async (req, res) => {
   try {
     const { user_id } = req.user;
     const user = await userModel.getUserID(user_id);
+
     if (user) {
       return res.status(StatusCodes.OK).json({
         user,
@@ -26,7 +27,7 @@ const getUserMiddlewaresId = async (req, res) => {
   }
 };
 
-const getUserID = async (req, res) => {
+const getUserById = async (req, res) => {
   try {
     const { id } = req.params;
     const user = await userModel.getUserID(id);
@@ -45,7 +46,7 @@ const getUserID = async (req, res) => {
   }
 };
 
-const getUserEmail = async (req, res) => {
+const getUserByEmail = async (req, res) => {
   // use
   try {
     const { email } = req.params;
@@ -173,7 +174,7 @@ const changePassWord = async (req, res) => {
   }
 };
 
-const update = async (req, res) => {
+const updateCurrentUser = async (req, res) => {
   const { user_id } = req.user;
   const data = req.body;
   if (data.password) {
@@ -193,34 +194,28 @@ const update = async (req, res) => {
 };
 // admin
 
-const testUpdate = async (req, res) => {
+const getAllUsers = async (req, res) => {
   try {
-    const user = await userModel.getUserAll();
-    return res.status(StatusCodes.OK).json(user);
+    let { pages, limit } = req.query;
+    const user = await userModel.getUserAll(pages, limit);
+    const countUsers = await userModel.countUserAll();
+    return res.status(StatusCodes.OK).json({
+      user,
+      countUsers,
+    });
   } catch (error) {
     return res
       .status(StatusCodes.BAD_REQUEST)
       .json('Có lỗi xảy ra xin thử lại sau');
   }
 };
-
-const getUserAll = async (req, res) => {
-  try {
-    const user = await userModel.getUserAll();
-    return res.status(StatusCodes.OK).json(user);
-  } catch (error) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json('Có lỗi xảy ra xin thử lại sau');
-  }
-};
-const updateAdmin = async (req, res) => {
-  const { user_id } = req.params;
+const updateUser = async (req, res) => {
+  const { id } = req.params;
   const data = req.body;
   if (data.password) {
     return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Lỗi bảo mật' });
   }
-  const dataUser = await userModel.update(user_id, data);
+  const dataUser = await userModel.update(id, data);
   if (dataUser?.error) {
     return res
       .status(StatusCodes.BAD_REQUEST)
@@ -232,16 +227,30 @@ const updateAdmin = async (req, res) => {
       .json({ message: 'Cập nhật thông tin thành công', dataUser });
   }
 };
+const deleteUser = async (req, res) => {
+  const { id } = req.params;
+  const dataUser = await userModel.deleteUser(id);
+  if (dataUser?.error) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
+  }
+  if (dataUser) {
+    return res
+      .status(StatusCodes.OK)
+      .json({ message: 'Xóa người dùng thành công' });
+  }
+};
 
 export const usersController = {
   register,
   login,
-  getUserID,
-  getUserMiddlewaresId,
-  getUserEmail,
-  update,
-  updateAdmin,
+  getUserById,
+  getCurrentUser,
+  getUserByEmail,
+  updateCurrentUser,
+  updateUser,
   changePassWord,
-  getUserAll,
-  testUpdate,
+  getAllUsers,
+  deleteUser,
 };
