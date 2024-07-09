@@ -5,7 +5,7 @@ import exitHook from 'async-exit-hook';
 import { CONNECT_DB, CLOSE_DB } from '~/config/mongodb';
 import { env } from '~/config/environment';
 import { errorHandlingMiddleware } from './middlewares/errorHandlingMiddleware';
-import { corsOptions } from './config/cors';
+// import { corsOptions } from './config/cors';
 import http from 'http';
 import cookieParser from 'cookie-parser';
 import { APIs } from './routes';
@@ -16,7 +16,7 @@ const START_SERVER = () => {
 
   app.use(cookieParser());
 
-  app.use(cors(corsOptions));
+  app.use(cors());
 
   app.use(express.json());
 
@@ -28,17 +28,9 @@ const START_SERVER = () => {
 
   app.use('/api', APIs);
 
-  if (env.BUILD_MODE === 'production') {
-    server.listen(env.APP_PORT, () => {
-      console.log(`Server is running at ${env.APP_PORT}`);
-    });
-  } else {
-    server.listen(env.APP_PORT, env.APP_HOST, () => {
-      console.log(
-        `Server is running at http://${env.APP_HOST}:${env.APP_PORT}/`
-      );
-    });
-  }
+  server.listen(env.HOST_URL, () => {
+    console.log(`Server is running at ${env.HOST_URL}`);
+  });
 
   exitHook(() => {
     CLOSE_DB().then(() => console.log('Disconnected from MongoDB Atlas'));

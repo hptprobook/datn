@@ -2,7 +2,7 @@
   "name": "server",
   "private": true,
   "version": "1.0.0",
-  "author": "Voi Tây Nguyên",
+  "author": "Wow",
   "description": "",
   "scripts": {
     "lint": "eslint src --ext js --report-unused-disable-directives --max-warnings 0",
