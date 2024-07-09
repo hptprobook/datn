@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 
 export default function UserBar() {
   return (
-    <div className="relative text-2xl text-gray-50 cursor-pointer group">
+    <div className="relative text-2xl text-gray-50 cursor-pointer group z-30">
       <FaRegUserCircle />
       <div className="absolute w-80 top-11 right-0 bg-gray-100 cursor-default py-4 px-8 text-xs text-center shadow-md shadow-gray-200 hidden group-hover:block before:absolute before:w-8 before:h-5 before:-top-5 before:right-0 before:bg-transparent">
         <p className="font-bold uppercase px-9 leading-5 text-black">

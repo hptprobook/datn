@@ -7,7 +7,7 @@ import NavBar from '~/components/Home/NavBar/NavBar';
 export default function MainLayout() {
   return (
     <React.Fragment>
-      <div className="sticky top-0 z-50">
+      <div className="sticky top-0 z-20">
         <Header />
         <NavBar />
       </div>
