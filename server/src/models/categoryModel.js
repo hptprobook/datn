@@ -1,14 +1,14 @@
 import { GET_DB } from '~/config/mongodb';
 import { ObjectId } from 'mongodb';
-import { SAVE_USER_SCHEMA, UPDATE_USER } from '~/utils/schema';
+import { SAVE_CATEGORY_SCHEMA, UPDATE_USER } from '~/utils/schema';
 
 const validateBeforeCreate = async (data) => {
-  return await SAVE_USER_SCHEMA.validateAsync(data, { abortEarly: false });
+  return await SAVE_CATEGORY_SCHEMA.validateAsync(data, { abortEarly: false });
 };
 
-const countUserAll = async () => {
+const countCategoryAll = async () => {
   try {
-    const db = await GET_DB().collection('users');
+    const db = await GET_DB().collection('categories');
     const totail = await db.countDocuments();
     return totail;
   } catch (error) {
@@ -19,11 +19,11 @@ const countUserAll = async () => {
   }
 };
 
-const getUserAll = async (page, limit) => {
+const getCategoriesAll = async (page, limit) => {
   try {
     page = parseInt(page) || 1;
-    limit = parseInt(limit) || 2;
-    const db = await GET_DB().collection('users');
+    limit = parseInt(limit) || 20;
+    const db = await GET_DB().collection('categories');
     const result = await db
       .find()
       .skip((page - 1) * limit)
@@ -39,11 +39,11 @@ const getUserAll = async (page, limit) => {
   }
 };
 
-const register = async (dataUser) => {
+const createCategory = async (dataCategory) => {
   try {
-    const validData = await validateBeforeCreate(dataUser);
+    const validData = await validateBeforeCreate(dataCategory);
     const db = await GET_DB();
-    const collection = db.collection('users');
+    const collection = db.collection('categories');
     const result = await collection.insertOne(validData);
     return result;
   } catch (error) {
@@ -89,20 +89,6 @@ const update = async (id, data) => {
     delete result.password;
     return result;
   } catch (error) {
-    console.log(error);
-    return {
-      error: true,
-    };
-  }
-};
-
-const updateByEmail = async (email, otp) => {
-  try {
-    const result = await GET_DB()
-      .collection('users')
-      .updateOne({ email: email }, { $set: { otp: otp } });
-    return result;
-  } catch (error) {
     return {
       error: true,
     };
@@ -122,13 +108,13 @@ const deleteUser = async (id) => {
   }
 };
 
-export const userModel = {
-  getUserAll,
-  register,
+export const categoryModel = {
+  getCategoriesAll,
+  countCategoryAll,
+  createCategory,
+
   getUserEmail,
   getUserID,
   update,
-  countUserAll,
   deleteUser,
-  updateByEmail,
 };

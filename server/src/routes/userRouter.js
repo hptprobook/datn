@@ -5,6 +5,15 @@ import verifyToken from '~/middlewares';
 import isAdmin from '~/middlewares/isAdmin';
 
 const Router = express.Router();
+
+// auth
+Router.post('/register', usersController.register);
+Router.post('/login', usersController.login);
+Router.post('/logout', verifyToken, usersController.logout);
+Router.post('/otps', usersController.getOtp);
+Router.post('/otps/reset-password', usersController.changePassWordByOtp);
+
+// user
 Router.get('/me', verifyToken, (req, res) => {
   // #swagger.tags = ['Users']
   // #swagger.summary = 'Get my data...'
@@ -12,8 +21,7 @@ Router.get('/me', verifyToken, (req, res) => {
 });
 Router.get('/:id', usersController.getUserById);
 Router.get('/email/:email', usersController.getUserByEmail);
-Router.post('/register', usersController.register);
-Router.post('/login', usersController.login);
+
 Router.put('/me', verifyToken, usersController.updateCurrentUser);
 Router.put('/me/password', verifyToken, usersController.changePassWord);
 
