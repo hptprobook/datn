@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { Outlet, Navigate, useRoutes } from 'react-router-dom';
 
-import DashboardLayout from 'src/layouts/dashboard';
+import { ProtectedRoute } from './components/ProtectedRoute';
 
 export const IndexPage = lazy(() => import('src/pages/app'));
 export const BlogPage = lazy(() => import('src/pages/blog'));
@@ -16,11 +16,11 @@ export default function Router() {
   const routes = useRoutes([
     {
       element: (
-        <DashboardLayout>
-          <Suspense>
-            <Outlet />
-          </Suspense>
-        </DashboardLayout>
+        <ProtectedRoute>
+            <Suspense>
+              <Outlet />
+            </Suspense>
+        </ProtectedRoute>
       ),
       children: [
         { element: <IndexPage />, index: true },

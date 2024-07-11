@@ -1,4 +1,4 @@
-export default function InputField({
+export default function InputField_Full({
   id,
   label,
   type = 'text',
@@ -6,7 +6,7 @@ export default function InputField({
   ...rest
 }) {
   return (
-    <div className="col-span-6 sm:col-span-3">
+    <div className="col-span-6">
       <label htmlFor={id} className="block text-sm font-medium text-gray-700">
         {label}
       </label>

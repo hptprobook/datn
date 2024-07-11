@@ -92,11 +92,17 @@ export default function SideNavMenu({
               ))}
             </div>
             <div className="flex justify-center gap-4 font-bold text-lg">
-              <NavLink to={'#'} className={'hover:text-red-500'}>
+              <NavLink
+                to={'/tai-khoan/dang-nhap'}
+                className={'hover:text-red-500'}
+              >
                 Đăng nhập
               </NavLink>
               <p>|</p>
-              <NavLink to={'#'} className={'hover:text-red-500'}>
+              <NavLink
+                to={'/tai-khoan/dang-ky'}
+                className={'hover:text-red-500'}
+              >
                 Đăng ký
               </NavLink>
             </div>
