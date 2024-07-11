@@ -11,7 +11,8 @@ Router.post('/register', usersController.register);
 Router.post('/login', usersController.login);
 Router.post('/logout', verifyToken, usersController.logout);
 Router.post('/otps', usersController.getOtp);
-Router.post('/otps/reset-password', usersController.changePassWordByOtp);
+Router.post('/otps/verify', usersController.checkOtp);
+Router.put('/otps/reset-password', usersController.changePassWordByOtp);
 
 // user
 Router.get('/me', verifyToken, (req, res) => {

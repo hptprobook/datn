@@ -290,10 +290,10 @@ const getOtp = async (req, res) => {
   }
 };
 
-const changePassWordByOtp = async (req, res) => {
+const checkOtp = async (req, res) => {
   try {
-    const { email, otp, passWord } = req.body;
-    if (!email || !otp || !passWord) {
+    const { email, otp } = req.body;
+    if (!email || !otp) {
       return res
         .status(StatusCodes.BAD_REQUEST)
         .json({ message: 'Không bỏ trống thông tin' });
@@ -310,21 +310,9 @@ const changePassWordByOtp = async (req, res) => {
         .json({ message: 'Tài khoản của bạn đang tạm khóa' });
     }
     if (user.otp === otp) {
-      const hash = await bcrypt.hashSync(passWord, 8);
-      if (!hash) {
-        return res
-          .status(StatusCodes.BAD_REQUEST)
-          .json({ message: 'Có lỗi bảo mật xảy ra' });
-      }
-      const data = {
-        passWord: hash,
-      };
-      const dataUser = await userModel.update(user._id.toString(), data);
-      if (dataUser) {
-        return res
-          .status(StatusCodes.OK)
-          .json({ message: 'Đổi mật khẩu thành công' });
-      }
+      return res
+        .status(StatusCodes.OK)
+        .json({ message: 'Nhập mật khẩu mới của bạn' });
     }
     return res
       .status(StatusCodes.BAD_REQUEST)
@@ -337,48 +325,48 @@ const changePassWordByOtp = async (req, res) => {
   }
 };
 
-// const changePassWordByOtp = async (req, res) => {
-//   try {
-//     const { email, passWord } = req.body;
-//     if (!passWord || !email) {
-//       return res
-//         .status(StatusCodes.BAD_REQUEST)
-//         .json({ message: 'Không bỏ trống thông tin' });
-//     }
-//     const user = await userModel.getUserEmail(email);
-//     if (!user) {
-//       return res
-//         .status(StatusCodes.BAD_REQUEST)
-//         .json({ message: 'Email không tồn tại' });
-//     }
-//     if (user.role == 'ban') {
-//       return res
-//         .status(StatusCodes.BAD_REQUEST)
-//         .json({ message: 'Tài khoản của bạn đang tạm khóa' });
-//     }
+const changePassWordByOtp = async (req, res) => {
+  try {
+    const { email, passWord } = req.body;
+    if (!passWord || !email) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Không bỏ trống thông tin' });
+    }
+    const user = await userModel.getUserEmail(email);
+    if (!user) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Email không tồn tại' });
+    }
+    if (user.role == 'ban') {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Tài khoản của bạn đang tạm khóa' });
+    }
 
-//     const hash = await bcrypt.hashSync(passWord, 8);
-//     if (!hash) {
-//       return res
-//         .status(StatusCodes.BAD_REQUEST)
-//         .json({ message: 'Có lỗi bảo mật xảy ra' });
-//     }
-//     const data = {
-//       passWord: hash,
-//     };
-//     const dataUser = await userModel.update(user._id.toString(), data);
-//     if (dataUser) {
-//       return res
-//         .status(StatusCodes.OK)
-//         .json({ message: 'Đổi mật khẩu thành công' });
-//     }
-//   } catch (error) {
-//     console.error('Error in getOtp:', error);
-//     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-//       message: 'Có lỗi xảy ra, xin thử lại sau',
-//     });
-//   }
-// };
+    const hash = await bcrypt.hashSync(passWord, 8);
+    if (!hash) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Có lỗi bảo mật xảy ra' });
+    }
+    const data = {
+      passWord: hash,
+    };
+    const dataUser = await userModel.update(user._id.toString(), data);
+    if (dataUser) {
+      return res
+        .status(StatusCodes.OK)
+        .json({ message: 'Đổi mật khẩu thành công' });
+    }
+  } catch (error) {
+    console.error('Error in getOtp:', error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: 'Có lỗi xảy ra, xin thử lại sau',
+    });
+  }
+};
 
 export const usersController = {
   getOtp,
@@ -393,5 +381,6 @@ export const usersController = {
   changePassWord,
   getAllUsers,
   deleteUser,
+  checkOtp,
   changePassWordByOtp,
 };
