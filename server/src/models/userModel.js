@@ -6,12 +6,29 @@ const validateBeforeCreate = async (data) => {
   return await SAVE_USER_SCHEMA.validateAsync(data, { abortEarly: false });
 };
 
-const getUserAll = async () => {
+const countUserAll = async () => {
   try {
+    const db = await GET_DB().collection('users');
+    const totail = await db.countDocuments();
+    return totail;
+  } catch (error) {
+    return {
+      success: false,
+      mgs: 'Có lỗi xảy ra xin thử lại sau',
+    };
+  }
+};
+
+const getUserAll = async (page, limit) => {
+  try {
+    page = parseInt(page) || 1;
+    limit = parseInt(limit) || 2;
     const db = await GET_DB().collection('users');
     const result = await db
       .find()
-      // .project({ email: 1, username: 1, _id: 0 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      // .project({ _id: 0, age:1 })
       .toArray();
     return result;
   } catch (error) {
@@ -72,6 +89,33 @@ const update = async (id, data) => {
     delete result.password;
     return result;
   } catch (error) {
+    console.log(error);
+    return {
+      error: true,
+    };
+  }
+};
+
+const updateByEmail = async (email, otp) => {
+  try {
+    const result = await GET_DB()
+      .collection('users')
+      .updateOne({ email: email }, { $set: { otp: otp } });
+    return result;
+  } catch (error) {
+    return {
+      error: true,
+    };
+  }
+};
+
+const deleteUser = async (id) => {
+  try {
+    const result = await GET_DB()
+      .collection('users')
+      .deleteOne({ _id: new ObjectId(id) });
+    return result;
+  } catch (error) {
     return {
       error: true,
     };
@@ -84,4 +128,7 @@ export const userModel = {
   getUserEmail,
   getUserID,
   update,
+  countUserAll,
+  deleteUser,
+  updateByEmail,
 };

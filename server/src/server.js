@@ -9,6 +9,9 @@ import { errorHandlingMiddleware } from './middlewares/errorHandlingMiddleware';
 import http from 'http';
 import cookieParser from 'cookie-parser';
 import { APIs } from './routes';
+
+import swaggerUi from 'swagger-ui-express';
+import swaggerFile from '../swagger_output.json';
 const START_SERVER = () => {
   const app = express();
 
@@ -17,6 +20,12 @@ const START_SERVER = () => {
   app.use(cookieParser());
 
   app.use(cors());
+  // app.use(
+  //   cors({
+  //     origin: 'http://localhost:5173',
+  //     credentials: true,
+  //   })
+  // );
 
   app.use(express.json());
 
@@ -25,6 +34,7 @@ const START_SERVER = () => {
   app.get('/', (req, res) => {
     res.send('Hello World!');
   });
+  app.use('/api/doc', swaggerUi.serve, swaggerUi.setup(swaggerFile));
 
   app.use('/api', APIs);
 

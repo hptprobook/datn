@@ -6,17 +6,29 @@ import isAdmin from '~/middlewares/isAdmin';
 
 const Router = express.Router();
 
-Router.get('/one', verifyToken, usersController.getUserMiddlewaresId);
-Router.get('/:id', usersController.getUserID);
-Router.get('/email/:email', usersController.getUserEmail);
-
-Router.post('/', usersController.register);
+// auth
+Router.post('/register', usersController.register);
 Router.post('/login', usersController.login);
-Router.put('/', verifyToken, usersController.update);
-Router.put('/changePass', verifyToken, usersController.changePassWord);
+Router.post('/logout', verifyToken, usersController.logout);
+Router.post('/otps', usersController.getOtp);
+Router.post('/otps/verify', usersController.checkOtp);
+Router.put('/otps/reset-password', usersController.changePassWordByOtp);
+
+// user
+Router.get('/me', verifyToken, (req, res) => {
+  // #swagger.tags = ['Users']
+  // #swagger.summary = 'Get my data...'
+  usersController.getCurrentUser(res, req);
+});
+Router.get('/:id', usersController.getUserById);
+Router.get('/email/:email', usersController.getUserByEmail);
+
+Router.put('/me', verifyToken, usersController.updateCurrentUser);
+Router.put('/me/password', verifyToken, usersController.changePassWord);
 
 // admin
-Router.get('/', verifyToken, isAdmin, usersController.getUserAll);
-Router.put('/updateAdmin/:user_id', verifyToken, usersController.updateAdmin);
+Router.get('/', verifyToken, isAdmin, usersController.getAllUsers);
+Router.put('/:id', verifyToken, isAdmin, usersController.updateUser);
+Router.delete('/:id', verifyToken, isAdmin, usersController.deleteUser);
 
 export const usersApi = Router;

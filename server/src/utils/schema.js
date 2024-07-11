@@ -3,11 +3,14 @@ import Joi from 'joi';
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators';
 
 export const SAVE_USER_SCHEMA = Joi.object({
-  username: Joi.string().min(3).max(30).required(),
+  firstName: Joi.string().min(3).max(30).required(),
+  lastName: Joi.string().min(2).max(30).required(),
   email: Joi.string().email().required(),
   //   password: Joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')).required(),
-  password: Joi.string().required(),
+  passWord: Joi.string().required(),
   otp: Joi.string(),
+  getNotify: Joi.boolean().default(false),
+
   phoneNumber: Joi.string()
     .pattern(/^[0-9]+$/)
     .min(10)
@@ -49,7 +52,7 @@ export const UPDATE_USER = Joi.object({
   username: Joi.string().min(3).max(30),
   // email: Joi.string().email().required(),
   //   password: Joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')).required(),
-  password: Joi.string(),
+  passWord: Joi.string(),
   otp: Joi.string(),
   phoneNumber: Joi.string()
     .pattern(/^[0-9]+$/)
@@ -85,5 +88,22 @@ export const UPDATE_USER = Joi.object({
     })
   ),
   // lastLogin: Joi.date(),
+  createdAt: Joi.date().timestamp('javascript').default(Date.now),
+});
+
+export const SAVE_CATEGORY_SCHEMA = Joi.object({
+  title: Joi.string().required(),
+  list: Joi.array().items(
+    Joi.object({
+      // id: Joi.string().required(),
+      title: Joi.string().max(50),
+      list: Joi.array().items(
+        Joi.object({
+          // id: Joi.string().required(),
+          title: Joi.string().max(50),
+        })
+      ),
+    })
+  ),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
 });
