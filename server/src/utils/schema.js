@@ -93,17 +93,30 @@ export const UPDATE_USER = Joi.object({
 
 export const SAVE_CATEGORY_SCHEMA = Joi.object({
   title: Joi.string().required(),
-  list: Joi.array().items(
-    Joi.object({
-      // id: Joi.string().required(),
-      title: Joi.string().max(50),
-      list: Joi.array().items(
-        Joi.object({
-          // id: Joi.string().required(),
-          title: Joi.string().max(50),
-        })
-      ),
-    })
-  ),
+  name: Joi.string().required(),
+  imageURL: Joi.string()
+    .required()
+    .pattern(OBJECT_ID_RULE)
+    .message(OBJECT_ID_RULE_MESSAGE),
+  description: Joi.string(),
+  slug: Joi.string(),
+  parentId: Joi.string(),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
+  updatedAt: Joi.date().timestamp('javascript').default(Date.now),
+});
+export const SAVE_SUPPLIER_SCHEMA = Joi.object({
+  fullName: Joi.string().required(),
+  phone: Joi.string().required(),
+  email: Joi.string().email().required(),
+  address: Joi.string().required(),
+});
+export const UPDATE_SUPPLIER = Joi.object({
+  fullName: Joi.string().required(),
+  phone: Joi.string()
+    .pattern(/^[0-9]+$/)
+    .min(10)
+    .max(15)
+    .required(),
+  email: Joi.string().email().required(),
+  address: Joi.string().required(),
 });

@@ -1,16 +1,16 @@
 /* eslint-disable semi */
-import express from 'express';
-import verifyToken from '~/middlewares';
-import isAdmin from '~/middlewares/isAdmin';
-import { categoryController } from '~/controllers/categoryController';
+import express from "express";
+import verifyToken from "~/middlewares";
+import isAdmin from "~/middlewares/isAdmin";
+import { categoryController } from "~/controllers/categoryController";
 
 const Router = express.Router();
 // Router.get('/me', verifyToken, (req, res) => {
 //   categoryController.getCurrentUser(res, req);
 // });
-Router.get('/test', categoryController.test);
+Router.get("/test", categoryController.test);
 
-Router.post('/', verifyToken, isAdmin, (req, res) => {
+Router.post("/", (req, res) => {
   categoryController.createCategory(req, res);
 });
 
