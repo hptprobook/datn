@@ -5,10 +5,13 @@ import exitHook from 'async-exit-hook';
 import { CONNECT_DB, CLOSE_DB } from '~/config/mongodb';
 import { env } from '~/config/environment';
 import { errorHandlingMiddleware } from './middlewares/errorHandlingMiddleware';
-import { corsOptions } from './config/cors';
+// import { corsOptions } from './config/cors';
 import http from 'http';
 import cookieParser from 'cookie-parser';
 import { APIs } from './routes';
+
+import swaggerUi from 'swagger-ui-express';
+import swaggerFile from '../swagger_output.json';
 const START_SERVER = () => {
   const app = express();
 
@@ -16,7 +19,13 @@ const START_SERVER = () => {
 
   app.use(cookieParser());
 
-  app.use(cors(corsOptions));
+  app.use(cors());
+  // app.use(
+  //   cors({
+  //     origin: 'http://localhost:5173',
+  //     credentials: true,
+  //   })
+  // );
 
   app.use(express.json());
 
@@ -25,20 +34,13 @@ const START_SERVER = () => {
   app.get('/', (req, res) => {
     res.send('Hello World!');
   });
+  app.use('/api/doc', swaggerUi.serve, swaggerUi.setup(swaggerFile));
 
   app.use('/api', APIs);
 
-  if (env.BUILD_MODE === 'production') {
-    server.listen(env.APP_PORT, () => {
-      console.log(`Server is running at ${env.APP_PORT}`);
-    });
-  } else {
-    server.listen(env.APP_PORT, env.APP_HOST, () => {
-      console.log(
-        `Server is running at http://${env.APP_HOST}:${env.APP_PORT}/`
-      );
-    });
-  }
+  server.listen(env.HOST_URL, () => {
+    console.log(`Server is running at ${env.HOST_URL}`);
+  });
 
   exitHook(() => {
     CLOSE_DB().then(() => console.log('Disconnected from MongoDB Atlas'));
