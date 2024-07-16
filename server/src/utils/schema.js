@@ -92,21 +92,31 @@ export const UPDATE_USER = Joi.object({
 });
 
 export const SAVE_CATEGORY_SCHEMA = Joi.object({
-  title: Joi.string().required(),
   name: Joi.string().required(),
-  imageURL: Joi.string()
-    .required()
-    .pattern(OBJECT_ID_RULE)
-    .message(OBJECT_ID_RULE_MESSAGE),
-  description: Joi.string(),
-  slug: Joi.string(),
-  parentId: Joi.string(),
+  imageURL: Joi.string().required(),
+  description: Joi.string().required(),
+  slug: Joi.string().required(),
+  parentId: Joi.string().required(),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(Date.now),
 });
+export const UPDATE_CATEGORY = Joi.object({
+  name: Joi.string().required(),
+  imageURL: Joi.string().required(),
+  description: Joi.string().required(),
+  slug: Joi.string().required(),
+  parentId: Joi.string().required(),
+  createdAt: Joi.date().timestamp('javascript').default(Date.now),
+  updatedAt: Joi.date().timestamp('javascript').default(Date.now),
+});
+
 export const SAVE_SUPPLIER_SCHEMA = Joi.object({
   fullName: Joi.string().required(),
-  phone: Joi.string().required(),
+  phone: Joi.string()
+    .pattern(/^[0-9]+$/)
+    .min(10)
+    .max(15)
+    .required(),
   email: Joi.string().email().required(),
   address: Joi.string().required(),
 });
