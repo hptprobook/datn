@@ -1,9 +1,9 @@
-import request from 'src/utils/request';
+import { get, put , post } from "src/utils/request";
 /* eslint-disable */
 const ProductsService = {
   getAllProducts: async () => {
     try {
-      const res = await request.get('products');
+      const res = await get('products');
       return res.data;
     } catch (err) {
       throw err;
@@ -11,7 +11,7 @@ const ProductsService = {
   },
   getProductById: async (id) => {
     try {
-      const res = await request.get(`products/${id}`);
+      const res = await get(`products/${id}`);
       return res.data;
     } catch (err) {
       throw err;
@@ -27,7 +27,7 @@ const ProductsService = {
   },
   createProduct: async (data) => {
     try {
-      const res = await request.post(`products`, data);
+      const res = await post(`products`, data);
       return res.data;
     } catch (err) {
       console.log(err);
@@ -36,7 +36,7 @@ const ProductsService = {
   },
   updateProduct: async (id, data) => {
     try {
-      const res = await request.put(`products/${id}`, data);
+      const res = await put(`products/${id}`, data);
       return res.data;
     } catch (err) {
       console.log(err);
