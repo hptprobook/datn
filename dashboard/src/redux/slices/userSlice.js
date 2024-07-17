@@ -1,12 +1,11 @@
-// src/redux/userSlice.js
-import { createSlice, createAsyncThunk, createAction } from "@reduxjs/toolkit";
+import { createSlice, createAction, createAsyncThunk } from "@reduxjs/toolkit";
 import UserService from "../services/user.service";
 
 export const fetchAllUsers = createAsyncThunk(
-    "users",
+    "users/fetchAll",
     async (_, { rejectWithValue }) => {
         try {
-            const response = await UserService.getAllUser();
+            const response = await UserService.getAllUsers();
             return response;
         } catch (err) {
             return rejectWithValue(err.response.data);
@@ -26,8 +25,8 @@ export const fetchUserById = createAsyncThunk(
     }
 );
 
-export const updateUserByID = createAsyncThunk(
-    "users/updateUserByID",
+export const updateUserById = createAsyncThunk(
+    "users/updateById",
     async ({ userId, data }, { rejectWithValue }) => {
         try {
             const response = await UserService.editUser(userId, data);
@@ -38,14 +37,15 @@ export const updateUserByID = createAsyncThunk(
     }
 );
 
-
 const initialState = {
     users: [],
     selectedUser: null,
     status: "idle", // 'idle' | 'loading' | 'succeeded' | 'failed'
     error: null,
 };
+
 export const setStatus = createAction('users/setStatus');
+
 const userSlice = createSlice({
     name: "users",
     initialState,
@@ -67,27 +67,27 @@ const userSlice = createSlice({
                 state.status = "loading";
             })
             .addCase(fetchUserById.fulfilled, (state, action) => {
-                state.status = "user already";
+                state.status = "succeeded";
                 state.selectedUser = action.payload;
             })
             .addCase(fetchUserById.rejected, (state, action) => {
                 state.status = "failed";
                 state.error = action.payload;
             })
-            .addCase(updateUserByID.pending, (state) => {
-                state.status = "update loading";
+            .addCase(updateUserById.pending, (state) => {
+                state.status = "loading";
             })
-            .addCase(updateUserByID.fulfilled, (state, action) => {
-                state.status = "update successful";
-                state.updateUser = action.payload;
+            .addCase(updateUserById.fulfilled, (state, action) => {
+                state.status = "succeeded";
+                state.selectedUser = action.payload;
             })
-            .addCase(updateUserByID.rejected, (state, action) => {
-                state.status = "update failed";
+            .addCase(updateUserById.rejected, (state, action) => {
+                state.status = "failed";
                 state.error = action.payload;
             })
             .addCase(setStatus, (state, action) => {
                 state.status = action.payload;
-            });;
+            });
     },
 });
 
