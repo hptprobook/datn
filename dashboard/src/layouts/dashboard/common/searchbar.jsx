@@ -65,7 +65,7 @@ export default function Searchbar() {
               autoFocus
               fullWidth
               disableUnderline
-              placeholder="Search…"
+              placeholder="Tìm kiếm..."
               startAdornment={
                 <InputAdornment position="start">
                   <Iconify
@@ -77,7 +77,7 @@ export default function Searchbar() {
               sx={{ mr: 1, fontWeight: 'fontWeightBold' }}
             />
             <Button variant="contained" onClick={handleClose}>
-              Search
+              Tìm kiếm
             </Button>
           </StyledSearchbar>
         </Slide>
