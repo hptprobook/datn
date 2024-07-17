@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-import daisyui from 'daisyui';
+import rippleui from 'rippleui';
 
 export default {
   content: [
@@ -67,7 +67,7 @@ export default {
     },
   },
   plugins: [
-    daisyui,
+    rippleui,
     function ({ addUtilities }) {
       const newUtilities = {
         '.text-clamp-2': {

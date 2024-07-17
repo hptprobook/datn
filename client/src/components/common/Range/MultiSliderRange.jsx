@@ -38,7 +38,7 @@ const MultiRangeSlider = ({ min, max }) => {
 
   return (
     <>
-      <h4>Lọc theo khoảng giá</h4>
+      <p>Lọc theo khoảng giá</p>
       <div className="sliderRange">
         <input
           type="range"

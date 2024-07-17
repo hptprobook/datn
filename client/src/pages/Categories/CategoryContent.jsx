@@ -1,7 +1,11 @@
+import { productSearchList } from '~/apis/mock_data';
+import ProductItem from '~/components/common/Product/ProductItem';
+
 export default function CategoryContent({ slug }) {
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4">{slug} w0wStore</h2>
+      <div className="divider"></div>
       <div className="mb-8">
         {/* Sorting Form */}
         <form className="flex space-x-4 items-center">
@@ -21,7 +25,13 @@ export default function CategoryContent({ slug }) {
       </div>
 
       {/* Content */}
-      <div>{/* Add your content here */}</div>
+      <div>
+        <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-2 lg:gap-6 lg:px-0">
+          {productSearchList.map((product) => (
+            <ProductItem key={product.id} product={product} />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

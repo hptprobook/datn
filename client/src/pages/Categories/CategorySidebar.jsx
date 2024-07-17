@@ -34,8 +34,8 @@ export default function CategorySidebar() {
     <div className="">
       {/* Slider Range */}
       <MultiRangeSlider min={0} max={100} />
-      <div className="space-y-2">
-        <details className="overflow-hidden rounded border border-gray-300 [&_summary::-webkit-details-marker]:hidden">
+      <div className="space-y-2 mt-12">
+        <details className="overflow-hidden rounded-md border border-gray-300 [&_summary::-webkit-details-marker]:hidden">
           <summary className="flex cursor-pointer items-center justify-between gap-2 bg-white p-4 text-gray-900 transition">
             <span className="text-sm font-medium"> Màu sắc </span>
 
@@ -73,22 +73,22 @@ export default function CategorySidebar() {
             </header>
 
             <ul className="space-y-1 border-t border-gray-200 p-4">
-              <div className="form-control">
-                <label className="cursor-pointer label flex gap-4 justify-start">
+              <div>
+                <label className="cursor-pointer label flex gap-4 items-center">
                   <input
                     type="checkbox"
                     checked={checkboxes.red}
                     onChange={() => handleCheckboxChange('red')}
-                    className="checkbox checkbox-error checkbox-sm"
+                    className="checkbox checkbox-error checkbox-sm border-red-600"
                   />
                   <span className="label-text">Đỏ</span>
                 </label>
-                <label className="cursor-pointer label flex gap-4 justify-start">
+                <label className="cursor-pointer label flex gap-4 items-center">
                   <input
                     type="checkbox"
                     checked={checkboxes.blue}
                     onChange={() => handleCheckboxChange('blue')}
-                    className="checkbox checkbox-error checkbox-sm"
+                    className="checkbox checkbox-error checkbox-sm border-red-600"
                   />
                   <span className="label-text">Xanh</span>
                 </label>
