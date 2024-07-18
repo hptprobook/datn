@@ -1,47 +1,53 @@
-import { lazy, Suspense } from 'react';
-import { Outlet, Navigate, useRoutes } from 'react-router-dom';
+import {lazy, Suspense} from 'react';
+import {Navigate, Outlet, useRoutes} from 'react-router-dom';
 
-import { ProtectedRoute } from './components/ProtectedRoute';
+import {ProtectedRoute} from './components/ProtectedRoute';
 
 export const IndexPage = lazy(() => import('src/pages/app'));
 export const BlogPage = lazy(() => import('src/pages/blog'));
-export const UserPage = lazy(() => import('src/pages/user'));
+export const UserPage = lazy(() => import('src/pages/user/user'));
 export const LoginPage = lazy(() => import('src/pages/login'));
-export const ProductsPage = lazy(() => import('src/pages/products'));
+export const ProductsPage = lazy(() => import('src/pages/products/products'));
 export const Page404 = lazy(() => import('src/pages/page-not-found'));
+export  const CategoryPage = lazy(() => import('src/pages/category/category'));
+export  const WarehousePage = lazy(() => import('src/pages/warehouse/warehouse'));
+export  const CouponsPage = lazy(() => import('src/pages/coupons/coupons'));
+export const OrdersPage = lazy(() => import('src/pages/orders/orders'));
 
 // ----------------------------------------------------------------------
 
 export default function Router() {
-  const routes = useRoutes([
+  return useRoutes([
     {
       element: (
-        <ProtectedRoute>
+          <ProtectedRoute>
             <Suspense>
-              <Outlet />
+              <Outlet/>
             </Suspense>
-        </ProtectedRoute>
+          </ProtectedRoute>
       ),
       children: [
-        { element: <IndexPage />, index: true },
-        { path: 'user', element: <UserPage /> },
-        { path: 'products', element: <ProductsPage /> },
-        { path: 'blog', element: <BlogPage /> },
+        {element: <IndexPage/>, index: true},
+        {path: 'user', element: <UserPage/>},
+        {path: 'products', element: <ProductsPage/>},
+        {path: 'blog', element: <BlogPage/>},
+        {path: 'category', element: <CategoryPage/>},
+        {path: 'warehouse', element: <WarehousePage/>},
+        {path: 'coupons', element: <CouponsPage/>},
+        {path: 'orders', element: <OrdersPage/>},
       ],
     },
     {
       path: 'login',
-      element: <LoginPage />,
+      element: <LoginPage/>,
     },
     {
       path: '404',
-      element: <Page404 />,
+      element: <Page404/>,
     },
     {
       path: '*',
-      element: <Navigate to="/404" replace />,
+      element: <Navigate to="/404" replace/>,
     },
   ]);
-
-  return routes;
 }
