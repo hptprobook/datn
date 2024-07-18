@@ -13,6 +13,9 @@ export default {
         inter: ['Inter', 'sans-serif'],
         roboto: ['Roboto', 'sans-serif'],
       },
+      input: {
+        borderRadius: '6px',
+      },
       screens: {
         xs: '512px',
         sm: '640px',
