@@ -5,11 +5,11 @@ import { IoIosSearch } from 'react-icons/io';
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import Logo from '~/assets/logo2.png';
-import CardFixed from '~/components/Home/Header/CardFixed';
 import UserBar from '~/components/Home/Header/UserBar';
 import SideNavMenu from './Responsive/SideNavMenu';
 import SearchBar from './Search/SearchBar';
 import SearchResponsiveModal from './Responsive/SearchResponsiveModal';
+import CartFixed from './CartFixed';
 
 export default function Header() {
   const [openCart, setOpenCart] = useState(false);
@@ -39,7 +39,7 @@ export default function Header() {
                 5
               </div>
             </div>
-            <CardFixed open={openCart} setOpen={setOpenCart} />
+            <CartFixed open={openCart} setOpen={setOpenCart} />
             <div className="text-2xl text-gray-50 cursor-pointer">
               <MdOutlineContentPasteSearch />
             </div>
@@ -75,7 +75,7 @@ export default function Header() {
               5
             </div>
           </div>
-          <CardFixed open={openCart} setOpen={setOpenCart} />
+          <CartFixed open={openCart} setOpen={setOpenCart} />
         </div>
       </header>
 
