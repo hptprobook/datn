@@ -24,21 +24,21 @@ const navConfig = [
   },
   {
     title: 'order',
-    path: '/products',
+    path: '/orders',
     icon: icon('ic_orders'),
   },  {
     title: 'category',
-    path: '/products',
+    path: '/category',
     icon: icon('ic_category'),
   },
   {
     title: 'warehouse',
-    path: '/products',
+    path: '/warehouse',
     icon: icon('ic_warehouse'),
   },
   {
     title: 'coupon',
-    path: '/products',
+    path: '/coupons',
     icon: icon('ic_coupon'),
   },
   {
