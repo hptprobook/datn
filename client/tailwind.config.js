@@ -1,4 +1,6 @@
 /** @type {import('tailwindcss').Config} */
+import rippleui from 'rippleui';
+
 export default {
   content: [
     './index.html',
@@ -10,6 +12,9 @@ export default {
       fontFamily: {
         inter: ['Inter', 'sans-serif'],
         roboto: ['Roboto', 'sans-serif'],
+      },
+      input: {
+        borderRadius: '6px',
       },
       screens: {
         xs: '512px',
@@ -65,6 +70,7 @@ export default {
     },
   },
   plugins: [
+    rippleui,
     function ({ addUtilities }) {
       const newUtilities = {
         '.text-clamp-2': {
