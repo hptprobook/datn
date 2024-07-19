@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, createAction } from '@reduxjs/toolkit';
 import CategoryService from '../services/category.service';
+/* eslint-disable */
 
 export const fetchCategoriesAsync = createAsyncThunk(
   'categories/fetchCategories',

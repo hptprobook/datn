@@ -23,19 +23,28 @@ const navConfig = [
     icon: icon('ic_cart'),
   },
   {
+    title: 'order',
+    path: '/orders',
+    icon: icon('ic_orders'),
+  },  {
+    title: 'category',
+    path: '/category',
+    icon: icon('ic_category'),
+  },
+  {
+    title: 'warehouse',
+    path: '/warehouse',
+    icon: icon('ic_warehouse'),
+  },
+  {
+    title: 'coupon',
+    path: '/coupons',
+    icon: icon('ic_coupon'),
+  },
+  {
     title: 'blog',
     path: '/blog',
     icon: icon('ic_blog'),
-  },
-  {
-    title: 'login',
-    path: '/login',
-    icon: icon('ic_lock'),
-  },
-  {
-    title: 'Not found',
-    path: '/404',
-    icon: icon('ic_disabled'),
   },
 ];
 
