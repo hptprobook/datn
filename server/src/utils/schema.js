@@ -185,10 +185,7 @@ export const SAVE_CARTS = Joi.object({
 });
 
 export const ADD_CARTS = Joi.object({
-  _id: Joi.string()
-    .required()
-    .pattern(OBJECT_ID_RULE)
-    .message(OBJECT_ID_RULE_MESSAGE),
+  _id: Joi.string().required(),
   quantity: Joi.number().integer().min(1),
   vars: Joi.object({
     color: Joi.string(),
@@ -196,10 +193,7 @@ export const ADD_CARTS = Joi.object({
   }),
 });
 export const ADD_QUANTITY_CARTS = Joi.object({
-  _id: Joi.string()
-    .required()
-    .pattern(OBJECT_ID_RULE)
-    .message(OBJECT_ID_RULE_MESSAGE),
+  _id: Joi.string().required(),
   quantity: Joi.number().integer().min(1),
   vars: Joi.object({
     color: Joi.string(),
@@ -207,16 +201,12 @@ export const ADD_QUANTITY_CARTS = Joi.object({
   }),
 });
 export const UPDATE_CARTS = Joi.object({
-  userId: Joi.string()
-    // .required()
-    .pattern(OBJECT_ID_RULE)
-    .message(OBJECT_ID_RULE_MESSAGE),
+  userId: Joi.string(),
+  // .required()
   products: Joi.array().items(
     Joi.object({
-      _id: Joi.string()
-        // .required()
-        .pattern(OBJECT_ID_RULE)
-        .message(OBJECT_ID_RULE_MESSAGE),
+      _id: Joi.string(),
+      // .required()
       quantity: Joi.number().integer().min(1),
       vars: Joi.object({
         color: Joi.string(),
@@ -246,17 +236,11 @@ const OrderPaymen = {
 };
 
 export const SAVE_ORDER = Joi.object({
-  userId: Joi.string()
-    .required()
-    .pattern(OBJECT_ID_RULE)
-    .message(OBJECT_ID_RULE_MESSAGE),
+  userId: Joi.string().required(),
   products: Joi.array()
     .items(
       Joi.object({
-        _id: Joi.string()
-          .required()
-          .pattern(OBJECT_ID_RULE)
-          .message(OBJECT_ID_RULE_MESSAGE),
+        _id: Joi.string().required(),
         quantity: Joi.number().integer().min(1).required(),
         price: Joi.number().min(1).required(),
         vars: Joi.object({
