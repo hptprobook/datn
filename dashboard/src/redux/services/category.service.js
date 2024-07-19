@@ -1,10 +1,10 @@
-import request from 'src/utils/request';
+import { get, put , post } from "src/utils/request";
 /* eslint-disable */
 
 const CategoryService = {
   getAllCategories: async () => {
     try {
-      const res = await request.get("categories");
+      const res = await get("categories");
       return res;
     } catch (err) {
       throw err;
@@ -12,7 +12,7 @@ const CategoryService = {
   },
   getCategoryById: async (categoryId) => {
     try {
-      const res = await request.get(`categories/${categoryId}`);
+      const res = await get(`categories/${categoryId}`);
       return res;
     } catch (err) {
       throw err;
@@ -21,7 +21,7 @@ const CategoryService = {
     // ... Các hàm khác
     createCategory: async (data) => {
       try {
-          const res = await request.post(`categories`, data);
+          const res = await post(`categories`, data);
           return res;
       } catch (err) {
           throw err;
@@ -38,7 +38,7 @@ const CategoryService = {
 },
     updateCategoryByID: async (categoryId, data) => {
       try {
-          const res = await request.put(`categories/${categoryId}`, data);
+          const res = await put(`categories/${categoryId}`, data);
           return res.data;
       } catch (err) {
           console.log("Error: ", err);

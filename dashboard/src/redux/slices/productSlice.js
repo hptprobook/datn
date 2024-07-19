@@ -80,7 +80,7 @@ const productsSlice = createSlice({
         state.status = 'loading';
       })
       .addCase(fetchAllProducts.fulfilled, (state, action) => {
-        state.status = 'products already';
+        state.status = 'succeeded';
         state.products = action.payload;
       })
       .addCase(fetchAllProducts.rejected, (state, action) => {
@@ -91,7 +91,7 @@ const productsSlice = createSlice({
         state.statusFetchById = 'loading';
       })
       .addCase(fetchProductById.fulfilled, (state, action) => {
-        state.statusFetchById = 'success';
+        state.statusFetchById = 'succeeded';
         state.product = action.payload;
       })
       .addCase(fetchProductById.rejected, (state, action) => {
@@ -102,7 +102,7 @@ const productsSlice = createSlice({
         state.statusCreate = 'loading';
       })
       .addCase(createProduct.fulfilled, (state, action) => {
-        state.statusCreate = 'success';
+        state.statusCreate = 'succeeded';
         state.dataCreate = action.payload;
       })
       .addCase(createProduct.rejected, (state, action) => {
@@ -113,7 +113,7 @@ const productsSlice = createSlice({
         state.statusDelete = 'loading';
       })
       .addCase(deleteProductById.fulfilled, (state, action) => {
-        state.statusDelete = 'success';
+        state.statusDelete = 'succeeded';
         state.deleteReturn = action.payload;
       })
       .addCase(deleteProductById.rejected, (state, action) => {
@@ -124,7 +124,7 @@ const productsSlice = createSlice({
         state.statusUpdate = 'loading';
       })
       .addCase(updateProduct.fulfilled, (state, action) => {
-        state.statusUpdate = 'success';
+        state.statusUpdate = 'succeeded';
         state.dataUpdateReturn = action.payload;
       })
       .addCase(updateProduct.rejected, (state, action) => {
