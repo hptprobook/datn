@@ -21,6 +21,7 @@ import ProductTableHead from '../product-table-head';
 import TableEmptyRows from '../table-empty-rows';
 import ProductTableToolbar from '../product-table-toolbar';
 import { emptyRows, applyFilter, getComparator } from '../utils';
+import { useNavigate } from 'react-router-dom';
 
 // ----------------------------------------------------------------------
 
@@ -93,13 +94,23 @@ export default function ProductsPage() {
   });
 
   const notFound = !dataFiltered.length && !!filterName;
+  //to new product
+  const navigate = useNavigate();
 
+  const handleNewProductClick = () => {
+    navigate('/products/create');
+  };
   return (
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Typography variant="h4">Products</Typography>
 
-        <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />}>
+        <Button
+          variant="contained"
+          color="inherit"
+          startIcon={<Iconify icon="eva:plus-fill" />}
+          onClick={handleNewProductClick}
+        >
           New Product
         </Button>
       </Stack>

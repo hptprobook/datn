@@ -33,7 +33,7 @@ export default function ProductTableToolbar({ numSelected, filterName, onFilterN
         <OutlinedInput
           value={filterName}
           onChange={onFilterName}
-          placeholder="Search user..."
+          placeholder="Search product..."
           startAdornment={
             <InputAdornment position="start">
               <Iconify

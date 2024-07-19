@@ -33,7 +33,7 @@ export default function CategoryTableToolbar({ numSelected, filterName, onFilter
         <OutlinedInput
           value={filterName}
           onChange={onFilterName}
-          placeholder="Search user..."
+          placeholder="Search Category..."
           startAdornment={
             <InputAdornment position="start">
               <Iconify
