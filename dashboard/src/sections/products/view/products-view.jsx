@@ -16,11 +16,12 @@ import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 
 import TableNoData from '../table-no-data';
-import UserTableRow from '../user-table-row';
-import UserTableHead from '../user-table-head';
+import ProductTableRow from '../product-table-row';
+import ProductTableHead from '../product-table-head';
 import TableEmptyRows from '../table-empty-rows';
-import UserTableToolbar from '../user-table-toolbar';
+import ProductTableToolbar from '../product-table-toolbar';
 import { emptyRows, applyFilter, getComparator } from '../utils';
+import { useNavigate } from 'react-router-dom';
 
 // ----------------------------------------------------------------------
 
@@ -93,19 +94,29 @@ export default function ProductsPage() {
   });
 
   const notFound = !dataFiltered.length && !!filterName;
+  //to new product
+  const navigate = useNavigate();
 
+  const handleNewProductClick = () => {
+    navigate('/products/create');
+  };
   return (
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Users</Typography>
+        <Typography variant="h4">Products</Typography>
 
-        <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />}>
-          New User
+        <Button
+          variant="contained"
+          color="inherit"
+          startIcon={<Iconify icon="eva:plus-fill" />}
+          onClick={handleNewProductClick}
+        >
+          New Product
         </Button>
       </Stack>
 
       <Card>
-        <UserTableToolbar
+        <ProductTableToolbar
           numSelected={selected.length}
           filterName={filterName}
           onFilterName={handleFilterByName}
@@ -114,7 +125,7 @@ export default function ProductsPage() {
         <Scrollbar>
           <TableContainer sx={{ overflow: 'unset' }}>
             <Table sx={{ minWidth: 800 }}>
-              <UserTableHead
+              <ProductTableHead
                 order={order}
                 orderBy={orderBy}
                 rowCount={users.length}
@@ -134,7 +145,7 @@ export default function ProductsPage() {
                 {dataFiltered
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
-                    <UserTableRow
+                    <ProductTableRow
                       key={row.id}
                       name={row.name}
                       role={row.role}

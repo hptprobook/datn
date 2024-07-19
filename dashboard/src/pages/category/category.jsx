@@ -5,7 +5,7 @@ import {CategoryView} from "../../sections/categorys/view";
 
 // ----------------------------------------------------------------------
 
-export default function OrdersPage() {
+export default function CategoriesPage() {
     return (
         <>
             <Helmet>
