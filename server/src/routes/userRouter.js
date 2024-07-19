@@ -18,8 +18,9 @@ Router.put('/otps/reset-password', usersController.changePassWordByOtp);
 Router.get('/me', verifyToken, (req, res) => {
   // #swagger.tags = ['Users']
   // #swagger.summary = 'Get my data...'
-  usersController.getCurrentUser(res, req);
+  usersController.getCurrentUser(req, res);
 });
+
 Router.get('/:id', usersController.getUserById);
 Router.get('/email/:email', usersController.getUserByEmail);
 
