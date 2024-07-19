@@ -2,27 +2,43 @@
 /* eslint-disable semi */
 import { categoryModel } from '~/models/categoryModel';
 import { StatusCodes } from 'http-status-codes';
-import { ERROR_MESSAGES } from '~/utils/errorMessage';
 import { ObjectId } from 'mongodb';
+import { ERROR_MESSAGES } from '~/utils/errorMessage';
+import { uploadModal } from '~/models/uploadModal';
 
 const createCategory = async (req, res) => {
-  const { name, imageURL, description, slug, parentId } = req.body;
-  if (!name && !imageURL && !description && !slug && !parentId) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      message: ERROR_MESSAGES.REQUIRED,
-    });
+  try {
+    const { name, description, slug, parentId } = req.body;
+
+    if (!name || !description || !slug || !parentId) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: ERROR_MESSAGES.REQUIRED,
+      });
+    }
+
+    const file = req.file;
+    const fileName = file ? file.filename : '1';
+
+    const validParentId =
+      parentId === 'null' || parentId === null ? null : new ObjectId(parentId);
+
+    const data = {
+      name,
+      imageURL: fileName,
+      description,
+      slug,
+      parentId: validParentId,
+    };
+
+    const dataCategory = await categoryModel.createCategory(data);
+
+    return res.status(StatusCodes.OK).json({ dataCategory });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
   }
-
-  const data = {
-    name,
-    imageURL,
-    description,
-    slug,
-    parentId: parentId,
-  };
-  const dataCategory = await categoryModel.createCategory(data);
-
-  return res.status(StatusCodes.OK).json({ dataCategory });
 };
 
 const getAllCategories = async (req, res) => {
@@ -42,7 +58,27 @@ const getAllCategories = async (req, res) => {
 };
 const updateCategory = async (req, res) => {
   const { id } = req.params;
-  const data = req.body;
+  const { name, description, slug, parentId } = req.body;
+
+  if (!name || !description || !slug || !parentId) {
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      message: ERROR_MESSAGES.REQUIRED,
+    });
+  }
+
+  const file = req.file;
+  const fileName = file.filename;
+
+  const validParentId =
+    parentId === 'null' || parentId === null ? null : new ObjectId(parentId);
+
+  const data = {
+    name,
+    imageURL: fileName,
+    description,
+    slug,
+    parentId: validParentId,
+  };
 
   const dataCategory = await categoryModel.update(id, data);
   if (dataCategory?.error) {
@@ -51,9 +87,12 @@ const updateCategory = async (req, res) => {
       .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
   }
   if (dataCategory) {
-    return res
-      .status(StatusCodes.OK)
-      .json({ message: 'Cập nhật thông tin thành công', dataCategory });
+    await uploadModal.deleteImg(dataCategory.imageURL);
+    const result = dataCategory.result;
+    return res.status(StatusCodes.OK).json({
+      message: 'Cập nhật thông tin thành công',
+      dataCategory: result,
+    });
   }
 };
 const deleteCategory = async (req, res) => {
@@ -65,6 +104,7 @@ const deleteCategory = async (req, res) => {
       .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
   }
   if (dataCategory) {
+    await uploadModal.deleteImg(dataCategory);
     return res
       .status(StatusCodes.OK)
       .json({ message: 'Xóa danh mục thành công' });

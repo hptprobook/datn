@@ -1,6 +1,6 @@
 /* eslint-disable comma-dangle */
 import Joi from 'joi';
-import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators';
+import { ObjectId } from 'mongodb';
 
 export const SAVE_USER_SCHEMA = Joi.object({
   firstName: Joi.string().min(3).max(30).required(),
@@ -96,16 +96,17 @@ export const SAVE_CATEGORY_SCHEMA = Joi.object({
   imageURL: Joi.string().required(),
   description: Joi.string().required(),
   slug: Joi.string().required(),
-  parentId: Joi.string().required(),
+  parentId: Joi.alternatives().try(Joi.string(), Joi.allow(null)),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(Date.now),
 });
+
 export const UPDATE_CATEGORY = Joi.object({
   name: Joi.string().required(),
   imageURL: Joi.string().required(),
   description: Joi.string().required(),
   slug: Joi.string().required(),
-  parentId: Joi.string().required(),
+  parentId: Joi.alternatives().try(Joi.string(), Joi.allow(null)),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(Date.now),
 });
@@ -120,6 +121,7 @@ export const SAVE_SUPPLIER_SCHEMA = Joi.object({
   email: Joi.string().email().required(),
   address: Joi.string().required(),
 });
+
 export const UPDATE_SUPPLIER = Joi.object({
   fullName: Joi.string().required(),
   phone: Joi.string()
@@ -129,4 +131,58 @@ export const UPDATE_SUPPLIER = Joi.object({
     .required(),
   email: Joi.string().email().required(),
   address: Joi.string().required(),
+});
+
+export const SAVE_PRODUCT_SCHEMA = Joi.object({
+  cat_id: Joi.string().required(),
+  name: Joi.string().required(),
+  description: Joi.object({
+    short: Joi.alternatives().try(Joi.string(), Joi.allow(null)),
+    long: Joi.string().required(),
+  }).required(),
+  imgURLs: Joi.array().items(Joi.string()).required(),
+  price: Joi.number().precision(2).required(),
+  brand: Joi.string(),
+  views: Joi.number().integer().default(0),
+  stock: Joi.number().precision(2).required(),
+  tags: Joi.array().items(Joi.string()),
+  slug: Joi.string(),
+  vars: Joi.array().items(
+    Joi.object({
+      color: Joi.string(),
+      size: Joi.string(),
+      stock: Joi.string(),
+      imageURL: Joi.alternatives().try(Joi.string(), Joi.allow(null)),
+      price: Joi.number().precision(2).required(),
+    })
+  ),
+  createdAt: Joi.date().timestamp('javascript').default(Date.now),
+  updatedAt: Joi.date().timestamp('javascript').default(Date.now),
+});
+
+export const UPDATE_PRODUCT = Joi.object({
+  cat_id: Joi.string().required(),
+  name: Joi.string().required(),
+  description: Joi.object({
+    short: Joi.alternatives().try(Joi.string(), Joi.allow(null)),
+    long: Joi.string().required(),
+  }).required(),
+  imgURLs: Joi.array().items(Joi.string()).required(),
+  price: Joi.number().precision(2).required(),
+  brand: Joi.string(),
+  views: Joi.number().integer().default(0),
+  stock: Joi.number().precision(2).required(),
+  tags: Joi.array().items(Joi.string()),
+  slug: Joi.string(),
+  vars: Joi.array().items(
+    Joi.object({
+      color: Joi.string(),
+      size: Joi.string(),
+      stock: Joi.string(),
+      imageURL: Joi.alternatives().try(Joi.string(), Joi.allow(null)),
+      price: Joi.number().precision(2).required(),
+    })
+  ),
+  createdAt: Joi.date().timestamp('javascript').default(Date.now),
+  updatedAt: Joi.date().timestamp('javascript').default(Date.now),
 });
