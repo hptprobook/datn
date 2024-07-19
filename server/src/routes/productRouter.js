@@ -1,8 +1,8 @@
 /* eslint-disable semi */
 import express from 'express';
+import { productController } from '~/controllers/productController';
 import verifyToken from '~/middlewares';
 import isAdmin from '~/middlewares/isAdmin';
-import { categoryController } from '~/controllers/categoryController';
 import multer from 'multer';
 
 const Router = express.Router();
@@ -20,11 +20,10 @@ const upload = multer({
   storage: storage,
   limits: { fileSize: 1024 * 1024 * 5 },
 });
-
 //admin
-Router.get('/', categoryController.getAllCategories);
-Router.post('/add', upload.single('image'), categoryController.createCategory);
-Router.delete('/:id', categoryController.deleteCategory);
-Router.put('/:id', upload.single('image'), categoryController.updateCategory);
+Router.get('/', productController.getAllProducts);
+Router.post('/add', upload.array('images'), productController.createProduct);
+Router.delete('/:id', productController.deleteProduct);
+Router.put('/:id', upload.array('images'), productController.updateProduct);
 
-export const categoriesApi = Router;
+export const productsApi = Router;

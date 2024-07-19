@@ -3,7 +3,7 @@ const isAdmin = async (req, res, next) => {
   try {
     const { user_id } = req.user;
     const user = await userModel.getUserID(user_id);
-    if (user.role == 'admin') {
+    if (user.role == 'root') {
       next();
     } else {
       return res.status(403).send({ message: 'Bạn không đủ thẩm quyền' });
