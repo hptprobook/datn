@@ -13,7 +13,7 @@ const getCurrentUser = async (req, res) => {
   try {
     const { user_id } = req.user;
     const user = await userModel.getUserID(user_id);
-
+    delete user.passWord;
     if (user) {
       return res.status(StatusCodes.OK).json({
         user,
@@ -23,9 +23,10 @@ const getCurrentUser = async (req, res) => {
       .status(StatusCodes.BAD_REQUEST)
       .json({ message: 'Không tồn tại người dùng' });
   } catch (error) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json('Có lỗi xảy ra xin thử lại sau');
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: ERROR_MESSAGES.ERR_AGAIN,
+      error: error,
+    });
   }
 };
 
@@ -42,9 +43,10 @@ const getUserById = async (req, res) => {
       .status(StatusCodes.BAD_REQUEST)
       .json({ message: 'Không tồn tại người dùng' });
   } catch (error) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json('Có lỗi xảy ra xin thử lại sau');
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: ERROR_MESSAGES.ERR_AGAIN,
+      error: error,
+    });
   }
 };
 
@@ -70,86 +72,100 @@ const getUserByEmail = async (req, res) => {
 
 const register = async (req, res) => {
   // use
-  const { email, passWord, firstName, lastName, ...other } = req.body;
-  if (!email || !passWord || !firstName || !lastName) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      message: ERROR_MESSAGES.REQUIRED,
-    });
-  }
-  const user = await userModel.getUserEmail(email);
-  if (user) {
+  try {
+    const { email, passWord, firstName, lastName, ...other } = req.body;
+    if (!email || !passWord || !firstName || !lastName) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: ERROR_MESSAGES.REQUIRED,
+      });
+    }
+    const user = await userModel.getUserEmail(email);
+    if (user) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Tài khoản đã tồn tại' });
+    }
+    const hash = await bcrypt.hashSync(passWord, 8);
+    if (!hash) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Có lỗi bảo mật xảy ra' });
+    }
+    const data = {
+      email,
+      name: {
+        firstName,
+        lastName,
+      },
+      passWord: hash,
+      ...other,
+    };
+    const dataUser = await userModel.register(data);
+    if (dataUser.acknowledged) {
+      return res.status(StatusCodes.OK).json({ message: 'Đăng kí thành công' });
+    }
     return res
       .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Tài khoản đã tồn tại' });
-  }
-  const hash = await bcrypt.hashSync(passWord, 8);
-  if (!hash) {
+      .json({ message: 'Đăng kí thất bại' });
+  } catch (error) {
     return res
       .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Có lỗi bảo mật xảy ra' });
+      .json({ message: 'Có lỗi xảy ra xin thử lại sau', error });
   }
-  const data = {
-    email,
-    firstName,
-    lastName,
-    passWord: hash,
-    ...other,
-  };
-  const dataUser = await userModel.register(data);
-  if (dataUser.acknowledged) {
-    return res.status(StatusCodes.OK).json({ message: 'Đăng kí thành công' });
-  }
-  return res
-    .status(StatusCodes.BAD_REQUEST)
-    .json({ message: 'Đăng kí thất bại' });
 };
 
 const login = async (req, res) => {
-  // use
-  const { email, passWord } = req.body;
-  if (!email || !passWord) {
+  try {
+    const { email, passWord } = req.body;
+    if (!email || !passWord) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: ERROR_MESSAGES.REQUIRED });
+    }
+    const user = await userModel.getUserEmail(email);
+    if (!user) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: ERROR_MESSAGES.WRONG_ACCOUNT });
+    }
+    if (user.role == 'ban') {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: ERROR_MESSAGES.BAN });
+    }
+    const checkPass = await bcrypt.compare(passWord, user.passWord);
+    if (!checkPass) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: ERROR_MESSAGES.WRONG_ACCOUNT });
+    }
+    // Token
+    const dataToken = {
+      user_id: user._id,
+      email: user.email,
+    };
+    // 30 ngày
+    const time = 60 * 60 * 24 * 30;
+    const token = jwt.sign(dataToken, env.SECRET, { expiresIn: time });
+    const tokenOption = {
+      httpOnly: true,
+      secure: true,
+    };
+    delete user.passWord;
     return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: ERROR_MESSAGES.REQUIRED });
-  }
-  const user = await userModel.getUserEmail(email);
-  if (!user) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Sai tài khoản hoặc mật khẩu' });
-  }
-  if (user.role == 'ban') {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Tài khoản của bạn đang tạm khóa' });
-  }
-  const checkPass = await bcrypt.compare(passWord, user.passWord);
-  if (!checkPass) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Sai tài khoản hoặc mật khẩu' });
-  }
-  // Token
-  const dataToken = {
-    user_id: user._id,
-    email: user.email,
-  };
-  // 30 ngày
-  const time = 60 * 60 * 24 * 30;
-  const token = jwt.sign(dataToken, env.SECRET, { expiresIn: time });
-  const tokenOption = {
-    httpOnly: true,
-    secure: true,
-  };
-  const userData = await userModel.getUserEmail(email);
-  return res
-    .cookie('token_wow', token, tokenOption)
-    .status(StatusCodes.OK)
-    .json({
-      message: 'Đăng nhập thành công',
-      token: token,
-      userData,
+      .cookie('token_wow', token, tokenOption)
+      .status(StatusCodes.OK)
+      .json({
+        message: 'Đăng nhập thành công',
+        token: token,
+        user,
+      });
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: ERROR_MESSAGES.ERR_AGAIN,
+      error: error,
     });
+  }
 };
 
 const logout = async (req, res) => {
@@ -159,52 +175,74 @@ const logout = async (req, res) => {
 };
 
 const changePassWord = async (req, res) => {
-  const { user_id } = req.user;
-  const { password } = req.body;
-  if (!password) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Không bỏ trống thông tin' });
-  }
-  const user = await userModel.getUserID(user_id);
-  if (!user) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Không tồn tại người dùng' });
-  }
-  const hash = await bcrypt.hashSync(password, 8);
-  if (!hash) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Có lỗi bảo mật xảy ra' });
-  }
-  const data = {
-    password: hash,
-  };
-  const dataUser = await userModel.update(user_id, data);
-  if (dataUser) {
-    return res
-      .status(StatusCodes.OK)
-      .json({ message: 'Cập nhật thông tin thành công', dataUser });
+  try {
+    const { user_id } = req.user;
+    const { oldPassWord, passWord } = req.body;
+    if (!passWord || !oldPassWord) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Không bỏ trống thông tin' });
+    }
+    const user = await userModel.getUserID(user_id);
+    if (!user) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Không tồn tại người dùng' });
+    }
+    const checkPass = await bcrypt.compare(oldPassWord, user.passWord);
+    if (!checkPass) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: ERROR_MESSAGES.WRONG_ACCOUNT });
+    }
+    const hash = await bcrypt.hashSync(passWord, 8);
+    if (!hash) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Có lỗi bảo mật xảy ra' });
+    }
+    const data = {
+      passWord: hash,
+    };
+    const dataUser = await userModel.update(user_id, data);
+    if (dataUser) {
+      return res
+        .status(StatusCodes.OK)
+        .json({ message: 'Cập nhật thông tin thành công', dataUser });
+    }
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: ERROR_MESSAGES.ERR_AGAIN,
+      error: error,
+    });
   }
 };
 
 const updateCurrentUser = async (req, res) => {
-  const { user_id } = req.user;
-  const data = req.body;
-  if (data.password) {
-    return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Lỗi bảo mật' });
-  }
-  const dataUser = await userModel.update(user_id, data);
-  if (dataUser?.error) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
-  }
-  if (dataUser) {
-    return res
-      .status(StatusCodes.OK)
-      .json({ message: 'Cập nhật thông tin thành công', dataUser });
+  try {
+    const { user_id } = req.user;
+    const data = req.body;
+    if (data.password) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Lỗi bảo mật' });
+    }
+    const dataUser = await userModel.update(user_id, data);
+    if (dataUser?.error) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
+    }
+    if (dataUser) {
+      return res
+        .status(StatusCodes.OK)
+        .json({ message: 'Cập nhật thông tin thành công', dataUser });
+    }
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: ERROR_MESSAGES.ERR_AGAIN,
+      error: error,
+    });
   }
 };
 // admin
@@ -212,48 +250,65 @@ const updateCurrentUser = async (req, res) => {
 const getAllUsers = async (req, res) => {
   try {
     let { pages, limit } = req.query;
-    const user = await userModel.getUserAll(pages, limit);
+    const users = await userModel.getUserAll(pages, limit);
     const countUsers = await userModel.countUserAll();
     return res.status(StatusCodes.OK).json({
-      user,
+      users,
       countUsers,
     });
   } catch (error) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json('Có lỗi xảy ra xin thử lại sau');
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: 'Có lỗi xảy ra xin thử lại sau',
+      error: error,
+    });
   }
 };
 const updateUser = async (req, res) => {
-  const { id } = req.params;
-  const data = req.body;
-  if (data.password) {
-    return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Lỗi bảo mật' });
-  }
-  const dataUser = await userModel.update(id, data);
-  if (dataUser?.error) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
-  }
-  if (dataUser) {
-    return res
-      .status(StatusCodes.OK)
-      .json({ message: 'Cập nhật thông tin thành công', dataUser });
+  try {
+    const { id } = req.params;
+    const data = req.body;
+    if (data.password) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Lỗi bảo mật' });
+    }
+    const dataUser = await userModel.update(id, data);
+    if (dataUser?.error) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
+    }
+    if (dataUser) {
+      return res
+        .status(StatusCodes.OK)
+        .json({ message: 'Cập nhật thông tin thành công', dataUser });
+    }
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: 'Có lỗi xảy ra xin thử lại sau',
+      error: error,
+    });
   }
 };
 const deleteUser = async (req, res) => {
-  const { id } = req.params;
-  const dataUser = await userModel.deleteUser(id);
-  if (dataUser?.error) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
-  }
-  if (dataUser) {
-    return res
-      .status(StatusCodes.OK)
-      .json({ message: 'Xóa người dùng thành công' });
+  try {
+    const { id } = req.params;
+    const dataUser = await userModel.deleteUser(id);
+    if (dataUser?.error) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
+    }
+    if (dataUser) {
+      return res
+        .status(StatusCodes.OK)
+        .json({ message: 'Xóa người dùng thành công' });
+    }
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: 'Có lỗi xảy ra xin thử lại sau',
+      error: error,
+    });
   }
 };
 
@@ -283,9 +338,9 @@ const getOtp = async (req, res) => {
       message: 'Kiểm tra mã OTP trong gmail của bạn',
     });
   } catch (error) {
-    console.error('Error in getOtp:', error);
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: 'Có lỗi xảy ra, xin thử lại sau',
+      message: 'Có lỗi xảy ra xin thử lại sau',
+      error: error,
     });
   }
 };
@@ -318,9 +373,9 @@ const checkOtp = async (req, res) => {
       .status(StatusCodes.BAD_REQUEST)
       .json({ message: 'Mã otp không hợp lệ' });
   } catch (error) {
-    console.error('Error in getOtp:', error);
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: 'Có lỗi xảy ra, xin thử lại sau',
+      message: 'Có lỗi xảy ra xin thử lại sau',
+      error: error,
     });
   }
 };
@@ -361,9 +416,9 @@ const changePassWordByOtp = async (req, res) => {
         .json({ message: 'Đổi mật khẩu thành công' });
     }
   } catch (error) {
-    console.error('Error in getOtp:', error);
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: 'Có lỗi xảy ra, xin thử lại sau',
+      message: 'Có lỗi xảy ra xin thử lại sau',
+      error: error,
     });
   }
 };

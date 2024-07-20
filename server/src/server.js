@@ -1,6 +1,7 @@
 /* eslint-disable */
 import express from 'express';
 import cors from 'cors';
+import bodyParser from 'body-parser';
 import exitHook from 'async-exit-hook';
 import { CONNECT_DB, CLOSE_DB } from '~/config/mongodb';
 import { env } from '~/config/environment';
@@ -18,7 +19,6 @@ const START_SERVER = () => {
   const server = http.createServer(app);
 
   app.use(cookieParser());
-
   app.use(cors());
   // app.use(
   //   cors({

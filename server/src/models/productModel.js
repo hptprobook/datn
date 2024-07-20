@@ -1,14 +1,14 @@
 import { GET_DB } from '~/config/mongodb';
 import { ObjectId } from 'mongodb';
-import { SAVE_CATEGORY_SCHEMA, UPDATE_CATEGORY } from '~/utils/schema';
+import { SAVE_PRODUCT_SCHEMA, UPDATE_PRODUCT } from '~/utils/schema';
 
 const validateBeforeCreate = async (data) => {
-  return await SAVE_CATEGORY_SCHEMA.validateAsync(data, { abortEarly: false });
+  return await SAVE_PRODUCT_SCHEMA.validateAsync(data, { abortEarly: false });
 };
 
-const countCategoryAll = async () => {
+const countProductAll = async () => {
   try {
-    const db = await GET_DB().collection('categories');
+    const db = await GET_DB().collection('products');
     const total = await db.countDocuments();
     return total;
   } catch (error) {
@@ -19,16 +19,15 @@ const countCategoryAll = async () => {
   }
 };
 
-const getCategoriesAll = async (page, limit) => {
+const getProductsAll = async (page, limit) => {
   try {
     page = parseInt(page) || 1;
     limit = parseInt(limit) || 20;
-    const db = await GET_DB().collection('categories');
+    const db = await GET_DB().collection('products');
     const result = await db
       .find()
       .skip((page - 1) * limit)
       .limit(limit)
-      // .project({ _id: 0, age:1 })
       .toArray();
     return result;
   } catch (error) {
@@ -39,11 +38,12 @@ const getCategoriesAll = async (page, limit) => {
   }
 };
 
-const createCategory = async (dataCategory) => {
+const createProduct = async (data) => {
   try {
-    const validData = await validateBeforeCreate(dataCategory);
+    const validData = await validateBeforeCreate(data);
     const db = await GET_DB();
-    const collection = db.collection('categories');
+    const collection = db.collection('products');
+
     /*  const result = await collection.insertOne(validData);
 
     return result; */
@@ -52,6 +52,7 @@ const createCategory = async (dataCategory) => {
     });
     return result;
   } catch (error) {
+    console.log(error);
     return {
       success: false,
       mgs: 'Có lỗi xảy ra xin thử lại sau',
@@ -60,14 +61,18 @@ const createCategory = async (dataCategory) => {
 };
 
 const validateBeforeUpdate = async (data) => {
-  return await UPDATE_CATEGORY.validateAsync(data, { abortEarly: false });
+  return await UPDATE_PRODUCT.validateAsync(data, { abortEarly: false });
 };
 
 const update = async (id, data) => {
   try {
     await validateBeforeUpdate(data);
-    const db = GET_DB().collection('categories');
-    const category = await db.findOne({ _id: new ObjectId(id) });
+    const db = GET_DB().collection('products');
+    const product = await db.findOne({ _id: new ObjectId(id) });
+
+    if (!data.imgURLs || data.imgURLs.length === 0) {
+      delete data.imgURLs;
+    }
 
     const result = await db.findOneAndUpdate(
       { _id: new ObjectId(id) },
@@ -75,7 +80,7 @@ const update = async (id, data) => {
       { returnDocument: 'after' }
     );
 
-    return { result: result, imageURL: category.imageURL };
+    return { result: result, imageURL: product.imgURLs };
   } catch (error) {
     console.log(error);
     return {
@@ -85,12 +90,12 @@ const update = async (id, data) => {
   }
 };
 
-const deleteCategory = async (id) => {
+const deleteProduct = async (id) => {
   try {
-    const db = GET_DB().collection('categories');
-    const category = await db.findOne({ _id: new ObjectId(id) });
+    const db = GET_DB().collection('products');
+    const product = await db.findOne({ _id: new ObjectId(id) });
     await db.deleteOne({ _id: new ObjectId(id) });
-    return category.imageURL;
+    return product.imgURLs;
   } catch (error) {
     return {
       error: true,
@@ -98,10 +103,10 @@ const deleteCategory = async (id) => {
   }
 };
 
-export const categoryModel = {
-  getCategoriesAll,
-  countCategoryAll,
-  createCategory,
+export const productModal = {
+  countProductAll,
+  getProductsAll,
+  createProduct,
+  deleteProduct,
   update,
-  deleteCategory,
 };
