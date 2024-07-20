@@ -5,6 +5,8 @@ import CheckoutPage from '~/pages/Checkout';
 import CheckoutConfirm from '~/pages/Checkout/CheckoutConfirm';
 import HomePage from '~/pages/Home/HomePage';
 import ProductPage from '~/pages/Products';
+import Inventories from '~/pages/Test/invetories';
+import Products from '~/pages/Test/products';
 
 const MainRoutes = {
   path: '/',

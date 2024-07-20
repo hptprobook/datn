@@ -40,13 +40,9 @@ const createProduct = async (req, res) => {
     }
 
     const parsedVars = vars.map((v) => JSON.parse(v));
-    const updatedVars = parsedVars.map((v) => ({
-      ...v,
-      stock: v.stock.toString(),
-    }));
 
     const data = {
-      cat_id: cat_id,
+      cat_id: new ObjectId(cat_id),
       name: name,
       description: JSON.parse(description),
       imgURLs: filenames,
@@ -55,7 +51,7 @@ const createProduct = async (req, res) => {
       stock: stock,
       tags: tags,
       slug: slug,
-      vars: updatedVars,
+      vars: parsedVars,
     };
     const dataProduct = await productModal.createProduct(data);
 
@@ -85,13 +81,9 @@ const updateProduct = async (req, res) => {
   }
 
   const parsedVars = vars.map((v) => JSON.parse(v));
-  const updatedVars = parsedVars.map((v) => ({
-    ...v,
-    stock: v.stock.toString(),
-  }));
 
   const data = {
-    cat_id: cat_id,
+    cat_id: new ObjectId(cat_id),
     name: name,
     description: JSON.parse(description),
     imgURLs: filenames,
@@ -100,7 +92,7 @@ const updateProduct = async (req, res) => {
     stock: stock,
     tags: tags,
     slug: slug,
-    vars: updatedVars,
+    vars: parsedVars,
   };
 
   const dataProduct = await productModal.update(id, data);
