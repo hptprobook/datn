@@ -1,14 +1,16 @@
 import { GET_DB } from '~/config/mongodb';
 import { ObjectId } from 'mongodb';
-import { SAVE_PRODUCT_SCHEMA, UPDATE_PRODUCT } from '~/utils/schema';
+import { SAVE_INVENTORIES_SCHEMA, UPDATE_CATEGORY } from '~/utils/schema';
 
 const validateBeforeCreate = async (data) => {
-  return await SAVE_PRODUCT_SCHEMA.validateAsync(data, { abortEarly: false });
+  return await SAVE_INVENTORIES_SCHEMA.validateAsync(data, {
+    abortEarly: false,
+  });
 };
 
-const countProductAll = async () => {
+const countInventoriesAll = async () => {
   try {
-    const db = await GET_DB().collection('products');
+    const db = await GET_DB().collection('inventories');
     const total = await db.countDocuments();
     return total;
   } catch (error) {
@@ -19,11 +21,11 @@ const countProductAll = async () => {
   }
 };
 
-const getProductsAll = async (page, limit) => {
+const getInventoriesAll = async (page, limit) => {
   try {
     page = parseInt(page) || 1;
     limit = parseInt(limit) || 20;
-    const db = await GET_DB().collection('products');
+    const db = await GET_DB().collection('inventories');
     const result = await db
       .find()
       .skip((page - 1) * limit)
@@ -38,21 +40,19 @@ const getProductsAll = async (page, limit) => {
   }
 };
 
-const createProduct = async (data) => {
+const createInventory = async (dataInventory) => {
   try {
-    // const validData = await validateBeforeCreate(data);
+    // const validData = await validateBeforeCreate(dataInventory);
     const db = await GET_DB();
-    const collection = db.collection('products');
-
+    const collection = db.collection('inventories');
     /*  const result = await collection.insertOne(validData);
 
     return result; */
     const result = await collection.insertOne({
-      ...data,
+      ...dataInventory,
     });
     return result;
   } catch (error) {
-    console.log(error);
     return {
       success: false,
       mgs: 'Có lỗi xảy ra xin thử lại sau',
@@ -61,18 +61,13 @@ const createProduct = async (data) => {
 };
 
 const validateBeforeUpdate = async (data) => {
-  return await UPDATE_PRODUCT.validateAsync(data, { abortEarly: false });
+  return await UPDATE_CATEGORY.validateAsync(data, { abortEarly: false });
 };
 
 const update = async (id, data) => {
   try {
     // await validateBeforeUpdate(data);
-    const db = GET_DB().collection('products');
-    const product = await db.findOne({ _id: new ObjectId(id) });
-
-    if (!data.imgURLs || data.imgURLs.length === 0) {
-      delete data.imgURLs;
-    }
+    const db = GET_DB().collection('inventories');
 
     const result = await db.findOneAndUpdate(
       { _id: new ObjectId(id) },
@@ -80,9 +75,8 @@ const update = async (id, data) => {
       { returnDocument: 'after' }
     );
 
-    return { result: result, imageURL: product.imgURLs };
+    return result;
   } catch (error) {
-    console.log(error);
     return {
       error: true,
       message: error.message,
@@ -90,12 +84,12 @@ const update = async (id, data) => {
   }
 };
 
-const deleteProduct = async (id) => {
+const deleteInventory = async (id) => {
   try {
-    const db = GET_DB().collection('products');
-    const product = await db.findOne({ _id: new ObjectId(id) });
+    const db = GET_DB().collection('inventories');
+    const inventory = await db.findOne({ _id: new ObjectId(id) });
     await db.deleteOne({ _id: new ObjectId(id) });
-    return product.imgURLs;
+    return inventory;
   } catch (error) {
     return {
       error: true,
@@ -103,10 +97,10 @@ const deleteProduct = async (id) => {
   }
 };
 
-export const productModal = {
-  countProductAll,
-  getProductsAll,
-  createProduct,
-  deleteProduct,
+export const inventoryModel = {
+  getInventoriesAll,
+  countInventoriesAll,
+  createInventory,
   update,
+  deleteInventory,
 };
