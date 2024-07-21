@@ -1,4 +1,5 @@
-import { useState } from 'react';
+
+import react, { useState } from 'react';
 
 import Stack from '@mui/material/Stack';
 import Container from '@mui/material/Container';
@@ -13,12 +14,21 @@ import {
     InputLabel,
     MenuItem,
     Select,
-    TextField
+    TextField,
 } from '@mui/material';
+import EditorContent from 'src/components/editor/editor';
+import { Icon } from '@iconify/react';
+import checkBoxOutlineBlank from '@iconify/icons-ic/baseline-check-box-outline-blank';
+import checkBox from '@iconify/icons-ic/baseline-check-box';
+import InfoBox from 'src/components/Box/InforBox';
+import ImageDropZone from 'src/components/DropZoneUpload/DropZoneImage';
 
 // ----------------------------------------------------------------------
 
+const icon = <Icon icon={checkBoxOutlineBlank} />;
+const checkedIcon = <Icon icon={checkBox} />;
 export default function CreateProductPage() {
+    const [imglist, setImglist] = useState([]);
 
     const top100Films = [
         { title: 'The Shawshank Redemption', year: 1994 },
@@ -68,130 +78,83 @@ export default function CreateProductPage() {
         { title: 'Once Upon a Time in the West', year: 1968 },
         { title: 'American History X', year: 1998 },
         { title: 'Interstellar', year: 2014 },
-        { title: 'Casablanca', year: 1942 },
-        { title: 'City Lights', year: 1931 },
-        { title: 'Psycho', year: 1960 },
-        { title: 'The Green Mile', year: 1999 },
-        { title: 'The Intouchables', year: 2011 },
-        { title: 'Modern Times', year: 1936 },
-        { title: 'Raiders of the Lost Ark', year: 1981 },
-        { title: 'Rear Window', year: 1954 },
-        { title: 'The Pianist', year: 2002 },
-        { title: 'The Departed', year: 2006 },
-        { title: 'Terminator 2: Judgment Day', year: 1991 },
-        { title: 'Back to the Future', year: 1985 },
-        { title: 'Whiplash', year: 2014 },
-        { title: 'Gladiator', year: 2000 },
-        { title: 'Memento', year: 2000 },
-        { title: 'The Prestige', year: 2006 },
-        { title: 'The Lion King', year: 1994 },
-        { title: 'Apocalypse Now', year: 1979 },
-        { title: 'Alien', year: 1979 },
-        { title: 'Sunset Boulevard', year: 1950 },
-        {
-            title: 'Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb',
-            year: 1964,
-        },
-        { title: 'The Great Dictator', year: 1940 },
-        { title: 'Cinema Paradiso', year: 1988 },
-        { title: 'The Lives of Others', year: 2006 },
-        { title: 'Grave of the Fireflies', year: 1988 },
-        { title: 'Paths of Glory', year: 1957 },
-        { title: 'Django Unchained', year: 2012 },
-        { title: 'The Shining', year: 1980 },
-        { title: 'WALL·E', year: 2008 },
-        { title: 'American Beauty', year: 1999 },
-        { title: 'The Dark Knight Rises', year: 2012 },
-        { title: 'Princess Mononoke', year: 1997 },
-        { title: 'Aliens', year: 1986 },
-        { title: 'Oldboy', year: 2003 },
-        { title: 'Once Upon a Time in America', year: 1984 },
-        { title: 'Witness for the Prosecution', year: 1957 },
-        { title: 'Das Boot', year: 1981 },
-        { title: 'Citizen Kane', year: 1941 },
-        { title: 'North by Northwest', year: 1959 },
-        { title: 'Vertigo', year: 1958 },
-        {
-            title: 'Star Wars: Episode VI - Return of the Jedi',
-            year: 1983,
-        },
-        { title: 'Reservoir Dogs', year: 1992 },
-        { title: 'Braveheart', year: 1995 },
-        { title: 'M', year: 1931 },
-        { title: 'Requiem for a Dream', year: 2000 },
-        { title: 'Amélie', year: 2001 },
-        { title: 'A Clockwork Orange', year: 1971 },
-        { title: 'Like Stars on Earth', year: 2007 },
-        { title: 'Taxi Driver', year: 1976 },
-        { title: 'Lawrence of Arabia', year: 1962 },
-        { title: 'Double Indemnity', year: 1944 },
-        {
-            title: 'Eternal Sunshine of the Spotless Mind',
-            year: 2004,
-        },
-        { title: 'Amadeus', year: 1984 },
-        { title: 'To Kill a Mockingbird', year: 1962 },
-        { title: 'Toy Story 3', year: 2010 },
-        { title: 'Logan', year: 2017 },
-        { title: 'Full Metal Jacket', year: 1987 },
-        { title: 'Dangal', year: 2016 },
-        { title: 'The Sting', year: 1973 },
-        { title: '2001: A Space Odyssey', year: 1968 },
-        { title: "Singin' in the Rain", year: 1952 },
-        { title: 'Toy Story', year: 1995 },
-        { title: 'Bicycle Thieves', year: 1948 },
-        { title: 'The Kid', year: 1921 },
-        { title: 'Inglourious Basterds', year: 2009 },
-        { title: 'Snatch', year: 2000 },
-        { title: '3 Idiots', year: 2009 },
-        { title: 'Monty Python and the Holy Grail', year: 1975 },
     ];
+
+    const colors = [
+        { title: 'Đỏ' },
+        { title: 'Xanh dương' },
+        { title: 'Vàng' },
+        { title: 'Xanh lá' },
+        { title: 'Đen' },
+        { title: 'Trắng' },
+        { title: 'Cam' },
+        { title: 'Tím' },
+        { title: 'Hồng' },
+        { title: 'Nâu' },
+        { title: 'Xám' },
+    ]
+    const Sizes = [
+        { title: '7' },
+        { title: '8' },
+        { title: '8.5' },
+        { title: '9' },
+        { title: '9.5' },
+        { title: '10' },
+        { title: '10.5' },
+        { title: '11' },
+        { title: '11.5' },
+        { title: '12' },
+        { title: '13' },
+      ]
+     
+      const handleChangeUploadImg = (value) => {
+        setImglist(value);
+    }
+    
     return (
         <Container>
             <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-                <Typography variant="h4">Create a new product</Typography>
+                <Typography variant="h4">Tạo một sản phẩm mới</Typography>
             </Stack>
             <Box justifyContent="center">
                 <Box sx={{ maxWidth: 'lg', p: 6, bgcolor: 'background.paper', color: 'text.primary', borderRadius: 2, boxShadow: 3, mt: 5 }}>
                     <Typography variant="h6" gutterBottom>Details</Typography>
-                    <Typography variant="body2" color="text.secondary" gutterBottom>Title, short description, image...</Typography>
+                    <Typography variant="body2" color="text.secondary" gutterBottom>Tiêu đề, mô tả ngắn, hình ảnh...</Typography>
                     <form>
                         <Box mb={4}>
                             <TextField
                                 fullWidth
                                 id="productName"
-                                label="Product name"
+                                label="Tên sản phẩm"
                                 variant="outlined"
-                                placeholder="Product name"
+                                placeholder="Tên sản phẩm"
                             />
                         </Box>
                         <Box mb={4}>
                             <TextField
                                 fullWidth
                                 id="shortDescription"
-                                label="Short description"
+                                label="Mô tả ngắn"
                                 variant="outlined"
-                                placeholder="Short description"
+                                placeholder="Mô tả ngắn"
                                 multiline
                                 rows={4}
                             />
                         </Box>
                         <Box mb={4}>
-                            <TextField
-                                fullWidth
-                                id="Description"
-                                label="description"
-                                variant="outlined"
-                                placeholder="description"
-                                multiline
-                                rows={4}
-                            />
+                            <InputLabel htmlFor="Description">Mô tả</InputLabel>
+                            <EditorContent />
+                        </Box>
+                        <Box mb={4}>
+                        <InfoBox title="Hình ảnh">
+                                <ImageDropZone handleUpload={handleChangeUploadImg} />
+                        </InfoBox>
                         </Box>
                     </form>
                 </Box>
                 <Box sx={{ maxWidth: 'lg', p: 6, bgcolor: 'background.paper', color: 'text.primary', borderRadius: 2, boxShadow: 3, mt: 5 }}>
-                    <Typography variant="h6" gutterBottom>Properties</Typography>
-                    <Typography variant="body2" color="text.secondary" gutterBottom>Additional functions and attributes...</Typography>
+                    <Typography variant="h6" gutterBottom>Thuộc tính</Typography>
+                    <Typography variant="body2" color="text.secondary" gutterBottom>Các chức năng và thuộc tính bổ sung...</Typography>
                     <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 4 }}>
                         {/* <Box>
                                 <FormControl fullWidth>
@@ -218,54 +181,85 @@ export default function CreateProductPage() {
                         </Box>
                         <Box>
                             <FormControl fullWidth>
-                                <TextField
-                                    fullWidth
-                                    id="Stock"
-                                    label="Stock"
-                                    variant="outlined"
-                                />
+                                <TextField fullWidth id="Stock" label="Stock" variant="outlined" />
                             </FormControl>
                         </Box>
                         <Box>
                             <FormControl fullWidth>
-                                <InputLabel htmlFor="Brand" shrink>Brand</InputLabel>
-                                <Select id="Brand" defaultValue=""
-                                    label="Brand"
-                                >
+                                <InputLabel htmlFor="Brand" shrink>
+                                    Brand
+                                </InputLabel>
+                                <Select id="Brand" defaultValue="" label="Brand">
                                     <MenuItem value="1">Yame</MenuItem>
                                 </Select>
                             </FormControl>
                         </Box>
                         <Box>
                             <FormControl fullWidth>
-                                <InputLabel htmlFor="category" shrink>Category</InputLabel>
-                                <Select id="category" defaultValue=""
-                                    label="Category"
-                                >
+                                <InputLabel htmlFor="category" shrink>
+                                    Category
+                                </InputLabel>
+                                <Select id="category" defaultValue="" label="Category">
                                     <MenuItem value="T-shirts">T-shirts</MenuItem>
                                 </Select>
                             </FormControl>
                         </Box>
                         <Box>
                             <FormControl fullWidth>
-                                <InputLabel htmlFor="colors" shrink>Colors</InputLabel>
-                                <Select id="colors" defaultValue=""
-                                    label="colors"
-                                >
-                                    {/* Add MenuItem components here */}
-                                </Select>
+                                <Autocomplete
+                                    multiple
+                                    id="checkboxes-tags-demo"
+                                    options={colors}
+                                    disableCloseOnSelect
+                                    getOptionLabel={(option) => option.title}
+                                    renderOption={(props, option, { selected }) => {
+                                        const { key, ...optionProps } = props;
+                                        return (
+                                            <li key={key} {...optionProps}>
+                                                <Checkbox
+                                                    icon={icon}
+                                                    checkedIcon={checkedIcon}
+                                                    style={{ marginRight: 8 }}
+                                                    checked={selected}
+                                                />
+                                                {option.title}
+                                            </li>
+                                        );
+                                    }}
+                                    style={{ width: 500 }}
+                                    renderInput={(params) => (
+                                        <TextField {...params} label="Colors" placeholder="Colors" />
+                                    )}
+                                />
                             </FormControl>
                         </Box>
                         <Box>
                             <FormControl fullWidth>
-                                <InputLabel htmlFor="sizes" shrink>Sizes</InputLabel>
-                                <Select id="sizes"
-                                    defaultValue=""
-                                    label="sizes"
-                                >
-                                    {/* Add MenuItem components here */}
-                                </Select>
-
+                                <Autocomplete
+                                    multiple
+                                    id="checkboxes-tags-demo"
+                                    options={Sizes}
+                                    disableCloseOnSelect
+                                    getOptionLabel={(option) => option.title}
+                                    renderOption={(props, option, { selected }) => {
+                                        const { key, ...optionProps } = props;
+                                        return (
+                                            <li key={key} {...optionProps}>
+                                                <Checkbox
+                                                    icon={icon}
+                                                    checkedIcon={checkedIcon}
+                                                    style={{ marginRight: 8 }}
+                                                    checked={selected}
+                                                />
+                                                {option.title}
+                                            </li>
+                                        );
+                                    }}
+                                    style={{ width: 500 }}
+                                    renderInput={(params) => (
+                                        <TextField {...params} label="Sizes" placeholder="Sizes" />
+                                    )}
+                                />
                             </FormControl>
                         </Box>
                         <Box sx={{ gridColumn: { md: 'span 2' } }}>
@@ -278,7 +272,13 @@ export default function CreateProductPage() {
                                     getOptionLabel={(option) => option.title}
                                     defaultValue={[top100Films[13], top100Films[12], top100Films[11]]}
                                     renderInput={(params) => (
-                                        <TextField {...params} label="Tags" placeholder="Tags" variant="outlined" fullWidth />
+                                        <TextField
+                                            {...params}
+                                            label="Tags"
+                                            placeholder="Tags"
+                                            variant="outlined"
+                                            fullWidth
+                                        />
                                     )}
                                     sx={{ width: '500px' }}
                                 />
@@ -286,9 +286,23 @@ export default function CreateProductPage() {
                         </Box>
                     </Box>
                 </Box>
-                <Box sx={{ maxWidth: 'lg', p: 6, bgcolor: 'background.paper', color: 'text.primary', borderRadius: 2, boxShadow: 3, mt: 5 }}>
-                    <Typography variant="h6" gutterBottom>Pricing</Typography>
-                    <Typography variant="body2" color="text.secondary" gutterBottom>Price related inputs</Typography>
+                <Box
+                    sx={{
+                        maxWidth: 'lg',
+                        p: 6,
+                        bgcolor: 'background.paper',
+                        color: 'text.primary',
+                        borderRadius: 2,
+                        boxShadow: 3,
+                        mt: 5,
+                    }}
+                >
+                    <Typography variant="h6" gutterBottom>
+                        Pricing
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                        Price related inputs
+                    </Typography>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                         <Box>
                             <Box sx={{ display: 'flex', alignItems: 'center', borderRadius: 1, p: 2 }}>
@@ -338,7 +352,6 @@ export default function CreateProductPage() {
                     Create product
                 </Button>
             </Box>
-
         </Container>
     );
 }
