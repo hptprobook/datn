@@ -5,9 +5,11 @@ import SelectSize from './SelectSize';
 import ChangeQuantity from '~/components/common/ButtonGroup/ChangeQuantity';
 import AddToCartBtn from '~/components/common/Button/AddToCart';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function ProductDetailInfor() {
   const [quantity, setQuantity] = useState(1);
+  const navigate = useNavigate();
 
   const handleQuantityChange = (newQuantity) => {
     setQuantity(newQuantity);
@@ -55,7 +57,12 @@ export default function ProductDetailInfor() {
           <ChangeQuantity onChange={handleQuantityChange} quantity={quantity} />
           <AddToCartBtn />
         </div>
-        <button className="text-center w-full px-5 py-4 rounded-md bg-red-600 flex items-center justify-center font-semibold text-lg text-white shadow-sm shadow-transparent transition-all duration-500 hover:bg-red-700 hover:shadow-red-300">
+        <button
+          className="text-center w-full px-5 py-4 rounded-md bg-red-600 flex items-center justify-center font-semibold text-lg text-white shadow-sm shadow-transparent transition-all duration-500 hover:bg-red-700 hover:shadow-red-300"
+          onClick={() => {
+            navigate('/gio-hang');
+          }}
+        >
           Mua ngay
         </button>
       </div>

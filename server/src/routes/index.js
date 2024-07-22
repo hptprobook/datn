@@ -8,6 +8,7 @@ import { reviewsApi } from './reviewRouter';
 
 import { suppliersApi } from './supplierRoute';
 import { productsApi } from './productRouter';
+import { inventoriesApi } from './inventoryRouter';
 
 const Router = express.Router();
 
@@ -19,6 +20,7 @@ Router.use('/orders', ordersApi);
 Router.use('/reviews', reviewsApi);
 
 Router.use('/suppliers', suppliersApi);
+Router.use('/inventories', inventoriesApi);
 Router.use('/products', productsApi);
 
 Router.get('/', (req, res) => {

@@ -40,7 +40,7 @@ const getProductsAll = async (page, limit) => {
 
 const createProduct = async (data) => {
   try {
-    const validData = await validateBeforeCreate(data);
+    // const validData = await validateBeforeCreate(data);
     const db = await GET_DB();
     const collection = db.collection('products');
 
@@ -48,7 +48,7 @@ const createProduct = async (data) => {
 
     return result; */
     const result = await collection.insertOne({
-      ...validData,
+      ...data,
     });
     return result;
   } catch (error) {
@@ -66,7 +66,7 @@ const validateBeforeUpdate = async (data) => {
 
 const update = async (id, data) => {
   try {
-    await validateBeforeUpdate(data);
+    // await validateBeforeUpdate(data);
     const db = GET_DB().collection('products');
     const product = await db.findOne({ _id: new ObjectId(id) });
 
