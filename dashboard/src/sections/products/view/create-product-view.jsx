@@ -349,7 +349,7 @@ export default function CreateProductPage() {
                         },
                     }}
                 >
-                    Create product
+                    Tạo sản phẩm
                 </Button>
             </Box>
         </Container>

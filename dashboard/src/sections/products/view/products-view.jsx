@@ -11,6 +11,10 @@ import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 
 import { users } from 'src/_mock/user';
+import { useNavigate } from 'react-router-dom';
+import {fetchAllProducts } from 'src/redux/slices/productSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { handleToast } from 'src/hooks/toast';
 
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
@@ -21,10 +25,7 @@ import ProductTableHead from '../product-table-head';
 import TableEmptyRows from '../table-empty-rows';
 import ProductTableToolbar from '../product-table-toolbar';
 import { emptyRows, applyFilter, getComparator } from '../utils';
-import { useNavigate } from 'react-router-dom';
-import {fetchAllProducts } from 'src/redux/slices/productSlice';
-import { useDispatch, useSelector } from 'react-redux';
-import { handleToast } from '../../../hooks/toast';
+
 // ----------------------------------------------------------------------
 
 export default function ProductsPage() {
@@ -127,7 +128,7 @@ export default function ProductsPage() {
   return (
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Products</Typography>
+        <Typography variant="h4">Sản phẩm</Typography>
 
         <Button
           variant="contained"
@@ -135,7 +136,7 @@ export default function ProductsPage() {
           startIcon={<Iconify icon="eva:plus-fill" />}
           onClick={handleNewProductClick}
         >
-          New Product
+          Tạo sản phẩm
         </Button>
       </Stack>
 
@@ -176,9 +177,9 @@ export default function ProductsPage() {
                     price={row.price}
                     brand={row.brand}
                     stock={row.stock}
-                    selected={selected.indexOf(row._id) !== -1}
-                    handleClick={(event) => handleClick(event, row._id)}
-                  />
+                    selected={selected.indexOf(row.name) !== -1}
+                    handleClick={(event) => handleClick(event, row.name)}
+                    />
                   ))}
 
                 <TableEmptyRows
