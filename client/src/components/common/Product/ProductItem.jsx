@@ -5,7 +5,7 @@ import { NavLink } from 'react-router-dom';
 export default function ProductItem({ product, height = false }) {
   return (
     <div className="h-productItem">
-      <NavLink to="">
+      <NavLink to={`/san-pham/${product.title}`}>
         <div className={`w-full relative ${!height ? 'h-80' : 'h-96'}`}>
           <div className="flex gap-2 absolute top-2 left-2">
             {product.label.map((label, index) => (
@@ -19,7 +19,7 @@ export default function ProductItem({ product, height = false }) {
           />
         </div>
       </NavLink>
-      <NavLink to="">
+      <NavLink to={`/san-pham/${product.title}`}>
         <div className="mt-3 text-clamp-2">{product.title}</div>
       </NavLink>
       <Rating className="mt-1">
