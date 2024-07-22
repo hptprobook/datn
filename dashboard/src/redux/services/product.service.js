@@ -4,7 +4,7 @@ const ProductsService = {
   getAllProducts: async () => {
     try {
       const res = await get('products');
-      return res.data;
+      return res;
     } catch (err) {
       throw err;
     }
