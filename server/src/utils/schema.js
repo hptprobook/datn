@@ -253,7 +253,6 @@ export const SAVE_ORDER = Joi.object({
 });
 // .valid(...Object.values(OrderStatus))
 
-
 export const UPDATE_ORDER = Joi.object({
   shippingInfo: Joi.object({
     homeNumber: Joi.string(),
@@ -296,6 +295,7 @@ export const SAVE_REVIEW = Joi.object({
 export const UPDATE_REVIEW = Joi.object({
   star: Joi.number().integer().min(1),
   comment: Joi.string(),
+});
 
 export const SAVE_INVENTORIES_SCHEMA = Joi.object({
   productId: Joi.string().required(),
