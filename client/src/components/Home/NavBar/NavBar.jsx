@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { NavLink } from 'react-router-dom';
 import { menu } from '~/apis/mock_data';
 
 export default function NavBar() {
@@ -24,12 +25,14 @@ export default function NavBar() {
                     <p className="font-bold mb-4 text-sm">{subItem.title}</p>
                     <div className="">
                       {subItem.list.map((childItem) => (
-                        <p
+                        <NavLink
                           key={childItem.id}
-                          className="mb-3 hover:text-red-500 cursor-pointer text-sm"
+                          to={`/danh-muc-san-pham/${childItem.title}`}
                         >
-                          {childItem.title}
-                        </p>
+                          <p className="mb-3 hover:text-red-500 cursor-pointer text-sm">
+                            {childItem.title}
+                          </p>
+                        </NavLink>
                       ))}
                     </div>
                   </div>
