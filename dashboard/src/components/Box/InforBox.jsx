@@ -7,8 +7,8 @@ import styled from "@emotion/styled";
 const GridCustomCreate = styled(Grid)(({ theme }) => ({
     backgroundColor: "white",
     borderRadius: "14px",
-    padding: "18px",
-    margin: "24px 0",
+    padding: "5px",
+    margin: "12px 0",
 }));
 
 const InfoBox = ({ title, children }) => {
