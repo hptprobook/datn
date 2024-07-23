@@ -4,6 +4,7 @@ import { categoriesApi } from './categoryRouter';
 
 import { cartsApi } from './cartRouter';
 import { ordersApi } from './orderRouter';
+import { reviewsApi } from './reviewRouter';
 
 import { suppliersApi } from './supplierRoute';
 import { productsApi } from './productRouter';
@@ -16,6 +17,7 @@ Router.use('/categories', categoriesApi);
 
 Router.use('/carts', cartsApi);
 Router.use('/orders', ordersApi);
+Router.use('/reviews', reviewsApi);
 
 Router.use('/suppliers', suppliersApi);
 Router.use('/inventories', inventoriesApi);

@@ -1,0 +1,18 @@
+/* eslint-disable semi */
+import express from 'express';
+import verifyToken from '~/middlewares';
+import isAdmin from '~/middlewares/isAdmin';
+import { reviewController } from '~/controllers/reviewController';
+const Router = express.Router();
+
+// Reviews
+Router.post('/', verifyToken, reviewController.addReview);
+Router.put('/:idReview', verifyToken, reviewController.updateReview);
+Router.delete('/:idReview', verifyToken, reviewController.removeReview);
+// Router.get('/me', verifyToken, (req, res) => {
+//   // #swagger.tags = ['Users']
+//   // #swagger.summary = 'Get my data...'
+//   cartsController.getCurrentUser(req, res);
+// });
+
+export const reviewsApi = Router;

@@ -1,0 +1,4 @@
+.editor .ql-container {
+    height: 100px; /* adjust this value as needed */
+    overflow-y: auto;
+  }
