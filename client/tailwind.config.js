@@ -73,6 +73,13 @@ export default {
     rippleui,
     function ({ addUtilities }) {
       const newUtilities = {
+        '.text-clamp-1': {
+          display: '-webkit-box',
+          '-webkit-line-clamp': '1',
+          '-webkit-box-orient': 'vertical',
+          'text-overflow': 'ellipsis',
+          overflow: 'hidden',
+        },
         '.text-clamp-2': {
           display: '-webkit-box',
           '-webkit-line-clamp': '2',

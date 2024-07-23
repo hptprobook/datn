@@ -6,6 +6,11 @@
   }
 }
 
+.menu-item.menu-active {
+  background-color: rgb(220 38 38 / var(--tw-bg-opacity)) !important;
+  color: #fff !important;
+}
+
 .swiper {
   width: 100%;
   height: 100%;

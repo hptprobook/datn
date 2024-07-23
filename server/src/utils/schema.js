@@ -125,7 +125,7 @@ export const SAVE_PRODUCT_SCHEMA = Joi.object({
     Joi.object({
       color: Joi.string(),
       size: Joi.string(),
-      stock: Joi.string(),
+      stock: Joi.number(),
       imageURL: Joi.alternatives().try(Joi.string(), Joi.allow(null)),
       price: Joi.number().precision(2).required(),
     })
@@ -152,34 +152,16 @@ export const UPDATE_PRODUCT = Joi.object({
     Joi.object({
       color: Joi.string(),
       size: Joi.string(),
-      stock: Joi.string(),
+      stock: Joi.number(),
       imageURL: Joi.alternatives().try(Joi.string(), Joi.allow(null)),
       price: Joi.number().precision(2).required(),
     })
   ),
-  createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(Date.now),
 });
 
 // Carts
 export const SAVE_CARTS = Joi.object({
-  // userId: Joi.string()
-  //   .required()
-  //   .pattern(OBJECT_ID_RULE)
-  //   .message(OBJECT_ID_RULE_MESSAGE),
-  // products: Joi.array().items(
-  //   Joi.object({
-  //     _id: Joi.string()
-  //       .required()
-  //       .pattern(OBJECT_ID_RULE)
-  //       .message(OBJECT_ID_RULE_MESSAGE),
-  //     quantity: Joi.number().integer().min(1),
-  //     vars: Joi.object({
-  //       color: Joi.string(),
-  //       size: Joi.string(),
-  //     }),
-  //   })
-  // ),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(Date.now),
 });
@@ -270,3 +252,73 @@ export const SAVE_ORDER = Joi.object({
   deliveryDate: Joi.date().timestamp('javascript').default(null),
 });
 // .valid(...Object.values(OrderStatus))
+
+export const UPDATE_ORDER = Joi.object({
+  shippingInfo: Joi.object({
+    homeNumber: Joi.string(),
+    street: Joi.string(),
+    ward: Joi.string(),
+    district: Joi.string(),
+    province: Joi.string(),
+    note: Joi.string(),
+  }),
+  status: Joi.string()
+    .valid(...Object.values(OrderStatus))
+    .default(OrderStatus.PENDING),
+  note: Joi.string(),
+  paymentMethod: Joi.string().valid(...Object.values(OrderPaymen)),
+  orderDate: Joi.date().timestamp('javascript').default(Date.now),
+  deliveryDate: Joi.date().timestamp('javascript').default(null),
+});
+// .valid(...Object.values(OrderStatus))
+
+export const CHECK_STOCK = Joi.array()
+  .items(
+    Joi.object({
+      _id: Joi.string().required(),
+      quantity: Joi.number().integer().min(1).required(),
+      color: Joi.string().required(),
+      size: Joi.string().required(),
+    })
+  )
+  .required();
+
+export const SAVE_REVIEW = Joi.object({
+  user_id: Joi.string().required(),
+  order_id: Joi.string().required(),
+  star: Joi.number().integer().min(1).required(),
+  comment: Joi.string().required(),
+  createdAt: Joi.date().timestamp('javascript').default(Date.now),
+  updatedAt: Joi.date().timestamp('javascript').default(null),
+});
+
+export const UPDATE_REVIEW = Joi.object({
+  star: Joi.number().integer().min(1),
+  comment: Joi.string(),
+});
+
+export const SAVE_INVENTORIES_SCHEMA = Joi.object({
+  productId: Joi.string().required(),
+  userId: Joi.string().required(),
+  supplierId: Joi.string().required(),
+  vars: Joi.object({
+    color: Joi.string(),
+    size: Joi.string(),
+  }),
+  type: Joi.string(),
+  quantity: Joi.number().integer().min(1).required(),
+  createdAt: Joi.date().timestamp('javascript').default(Date.now),
+  updatedAt: Joi.date().timestamp('javascript').default(Date.now),
+});
+export const UPDATE_INVENTORIES = Joi.object({
+  productId: Joi.string().required(),
+  userId: Joi.string().required(),
+  supplierId: Joi.string().required(),
+  vars: Joi.object({
+    color: Joi.string(),
+    size: Joi.string(),
+  }),
+  type: Joi.string(),
+  quantity: Joi.number().integer().min(1).required(),
+  updatedAt: Joi.date().timestamp('javascript').default(Date.now),
+});
