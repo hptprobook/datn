@@ -4,6 +4,8 @@ import CategoryPage from '~/pages/Categories';
 import CheckoutPage from '~/pages/Checkout';
 import CheckoutConfirm from '~/pages/Checkout/CheckoutConfirm';
 import HomePage from '~/pages/Home/HomePage';
+import PostPage from '~/pages/Post';
+import PostDetail from '~/pages/Post/PostDetail';
 import ProductPage from '~/pages/Products';
 
 const MainRoutes = {
@@ -51,6 +53,19 @@ const MainRoutes = {
         {
           path: 'xac-nhan',
           element: <CheckoutConfirm />,
+        },
+      ],
+    },
+    {
+      path: 'tin-tuc',
+      children: [
+        {
+          path: '',
+          element: <PostPage />,
+        },
+        {
+          path: ':slug',
+          element: <PostDetail />,
         },
       ],
     },

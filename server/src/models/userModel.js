@@ -7,52 +7,32 @@ const validateBeforeCreate = async (data) => {
 };
 
 const countUserAll = async () => {
-  try {
-    const db = await GET_DB().collection('users');
-    const totail = await db.countDocuments();
-    return totail;
-  } catch (error) {
-    return {
-      success: false,
-      mgs: 'Có lỗi xảy ra xin thử lại sau',
-    };
-  }
+  const db = await GET_DB().collection('users');
+  const totail = await db.countDocuments();
+  return totail;
 };
 
 const getUserAll = async (page, limit) => {
-  try {
-    page = parseInt(page) || 1;
-    limit = parseInt(limit) || 2;
-    const db = await GET_DB().collection('users');
-    const result = await db
-      .find()
-      .skip((page - 1) * limit)
-      .limit(limit)
-      // .project({ _id: 0, age:1 })
-      .toArray();
-    return result;
-  } catch (error) {
-    return {
-      success: false,
-      mgs: 'Có lỗi xảy ra xin thử lại sau',
-    };
-  }
+  page = parseInt(page) || 1;
+  limit = parseInt(limit) || 2;
+  const db = await GET_DB().collection('users');
+  const result = await db
+    .find()
+    .skip((page - 1) * limit)
+    .limit(limit)
+    // .project({ _id: 0, age:1 })
+    .toArray();
+  return result;
 };
 
 const register = async (dataUser) => {
-  try {
-    const validData = await validateBeforeCreate(dataUser);
-    const db = await GET_DB();
-    const collection = db.collection('users');
-    const result = await collection.insertOne(validData);
-    return result;
-  } catch (error) {
-    return {
-      success: false,
-      mgs: 'Có lỗi xảy ra xin thử lại sau',
-    };
-  }
+  const validData = await validateBeforeCreate(dataUser);
+  const db = await GET_DB();
+  const collection = db.collection('users');
+  const result = await collection.insertOne(validData);
+  return result;
 };
+
 const getUserEmail = async (email) => {
   const db = await GET_DB();
   const collection = db.collection('users');
@@ -61,65 +41,39 @@ const getUserEmail = async (email) => {
 };
 
 const getUserID = async (user_id) => {
-  try {
-    const db = await GET_DB().collection('users');
-    const user = await db.findOne({ _id: new ObjectId(user_id) });
-    return user;
-  } catch (error) {
-    return {
-      success: false,
-      mgs: 'Có lỗi xảy ra xin thử được sau',
-    };
-  }
+  const db = await GET_DB().collection('users');
+  const user = await db.findOne({ _id: new ObjectId(user_id) });
+  return user;
 };
 const validateBeforeUpdate = async (data) => {
   return await UPDATE_USER.validateAsync(data, { abortEarly: false });
 };
 
 const update = async (id, data) => {
-  try {
-    await validateBeforeUpdate(data);
-    const result = await GET_DB()
-      .collection('users')
-      .findOneAndUpdate(
-        { _id: new ObjectId(id) },
-        { $set: data },
-        { returnDocument: 'after' }
-      );
-    delete result.password;
-    return result;
-  } catch (error) {
-    console.log(error);
-    return {
-      error: true,
-    };
-  }
+  await validateBeforeUpdate(data);
+  const result = await GET_DB()
+    .collection('users')
+    .findOneAndUpdate(
+      { _id: new ObjectId(id) },
+      { $set: data },
+      { returnDocument: 'after' }
+    );
+  delete result.passWord;
+  return result;
 };
 
 const updateByEmail = async (email, otp) => {
-  try {
-    const result = await GET_DB()
-      .collection('users')
-      .updateOne({ email: email }, { $set: { otp: otp } });
-    return result;
-  } catch (error) {
-    return {
-      error: true,
-    };
-  }
+  const result = await GET_DB()
+    .collection('users')
+    .updateOne({ email: email }, { $set: { otp: otp } });
+  return result;
 };
 
 const deleteUser = async (id) => {
-  try {
-    const result = await GET_DB()
-      .collection('users')
-      .deleteOne({ _id: new ObjectId(id) });
-    return result;
-  } catch (error) {
-    return {
-      error: true,
-    };
-  }
+  const result = await GET_DB()
+    .collection('users')
+    .deleteOne({ _id: new ObjectId(id) });
+  return result;
 };
 
 export const userModel = {

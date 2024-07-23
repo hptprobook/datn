@@ -1,6 +1,6 @@
 import { GET_DB } from '~/config/mongodb';
 import { ObjectId } from 'mongodb';
-import { SAVE_CATEGORY_SCHEMA, UPDATE_USER } from '~/utils/schema';
+import { SAVE_CATEGORY_SCHEMA, UPDATE_CATEGORY } from '~/utils/schema';
 
 const validateBeforeCreate = async (data) => {
   return await SAVE_CATEGORY_SCHEMA.validateAsync(data, { abortEarly: false });
@@ -9,8 +9,8 @@ const validateBeforeCreate = async (data) => {
 const countCategoryAll = async () => {
   try {
     const db = await GET_DB().collection('categories');
-    const totail = await db.countDocuments();
-    return totail;
+    const total = await db.countDocuments();
+    return total;
   } catch (error) {
     return {
       success: false,
@@ -44,7 +44,12 @@ const createCategory = async (dataCategory) => {
     const validData = await validateBeforeCreate(dataCategory);
     const db = await GET_DB();
     const collection = db.collection('categories');
-    const result = await collection.insertOne(validData);
+    /*  const result = await collection.insertOne(validData);
+
+    return result; */
+    const result = await collection.insertOne({
+      ...validData,
+    });
     return result;
   } catch (error) {
     return {
@@ -53,54 +58,39 @@ const createCategory = async (dataCategory) => {
     };
   }
 };
-const getUserEmail = async (email) => {
-  const db = await GET_DB();
-  const collection = db.collection('users');
-  const user = await collection.findOne({ email: email });
-  return user;
-};
 
-const getUserID = async (user_id) => {
-  try {
-    const db = await GET_DB().collection('users');
-    const user = await db.findOne({ _id: new ObjectId(user_id) });
-    return user;
-  } catch (error) {
-    return {
-      success: false,
-      mgs: 'Có lỗi xảy ra xin thử được sau',
-    };
-  }
-};
 const validateBeforeUpdate = async (data) => {
-  return await UPDATE_USER.validateAsync(data, { abortEarly: false });
+  return await UPDATE_CATEGORY.validateAsync(data, { abortEarly: false });
 };
 
 const update = async (id, data) => {
   try {
     await validateBeforeUpdate(data);
-    const result = await GET_DB()
-      .collection('users')
-      .findOneAndUpdate(
-        { _id: new ObjectId(id) },
-        { $set: data },
-        { returnDocument: 'after' }
-      );
-    delete result.password;
-    return result;
+    const db = GET_DB().collection('categories');
+    const category = await db.findOne({ _id: new ObjectId(id) });
+
+    const result = await db.findOneAndUpdate(
+      { _id: new ObjectId(id) },
+      { $set: data },
+      { returnDocument: 'after' }
+    );
+
+    return { result: result, imageURL: category.imageURL };
   } catch (error) {
+    console.log(error);
     return {
       error: true,
+      message: error.message,
     };
   }
 };
 
-const deleteUser = async (id) => {
+const deleteCategory = async (id) => {
   try {
-    const result = await GET_DB()
-      .collection('users')
-      .deleteOne({ _id: new ObjectId(id) });
-    return result;
+    const db = GET_DB().collection('categories');
+    const category = await db.findOne({ _id: new ObjectId(id) });
+    await db.deleteOne({ _id: new ObjectId(id) });
+    return category.imageURL;
   } catch (error) {
     return {
       error: true,
@@ -112,9 +102,6 @@ export const categoryModel = {
   getCategoriesAll,
   countCategoryAll,
   createCategory,
-
-  getUserEmail,
-  getUserID,
   update,
-  deleteUser,
+  deleteCategory,
 };

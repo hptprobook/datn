@@ -3,26 +3,28 @@ import express from 'express';
 import verifyToken from '~/middlewares';
 import isAdmin from '~/middlewares/isAdmin';
 import { categoryController } from '~/controllers/categoryController';
+import multer from 'multer';
 
 const Router = express.Router();
-// Router.get('/me', verifyToken, (req, res) => {
-//   categoryController.getCurrentUser(res, req);
-// });
-Router.get('/test', categoryController.test);
 
-Router.post('/', verifyToken, isAdmin, (req, res) => {
-  categoryController.createCategory(req, res);
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'src/public/imgs');
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, uniqueSuffix + '.jpg');
+  },
+});
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 1024 * 1024 * 5 },
 });
 
-// Router.get('/:id', categoryController.getUserById);
-// Router.get('/email/:email', categoryController.getUserByEmail);
-// Router.post('/login', categoryController.login);
-// Router.put('/me', verifyToken, categoryController.updateCurrentUser);
-// Router.put('/me/password', verifyToken, categoryController.changePassWord);
-
-// // admin
-// Router.get('/', verifyToken, isAdmin, categoryController.getAllUsers);
-// Router.put('/:id', verifyToken, isAdmin, categoryController.updateUser);
-// Router.delete('/:id', verifyToken, isAdmin, categoryController.deleteUser);
+//admin
+Router.get('/', categoryController.getAllCategories);
+Router.post('/add', upload.single('image'), categoryController.createCategory);
+Router.delete('/:id', categoryController.deleteCategory);
+Router.put('/:id', upload.single('image'), categoryController.updateCategory);
 
 export const categoriesApi = Router;
