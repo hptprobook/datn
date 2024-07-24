@@ -53,7 +53,8 @@ export default function CategoryTableRow({
         </TableCell>
 
         <TableCell>{parentId}</TableCell>
-        <TableCell>{createdAt}</TableCell>
+        
+        <TableCell>{new Date(createdAt).toLocaleDateString()}</TableCell>
 
         <TableCell align="right">
           <IconButton onClick={handleOpenMenu}>

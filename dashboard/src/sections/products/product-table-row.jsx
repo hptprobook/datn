@@ -54,7 +54,7 @@ export default function ProductTableRow({
 
         <TableCell>{brand}</TableCell>
 
-        <TableCell align="center">{stock}</TableCell>
+        <TableCell>{stock}</TableCell>
 
         <TableCell align="right">
           <IconButton onClick={handleOpenMenu}>
