@@ -158,8 +158,8 @@ useEffect(() => {
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
                   { id: 'name', label: 'Name' },
-                  { id: 'parentId', label: 'ParentId' },
-                  // { id: 'createdAt', label: 'CreatedAt' },
+                  { id: 'parentId', label: 'Parent' },
+                  { id: 'createdAt', label: 'CreatedAt' },
                   { id: '' },
                 ]}
               />
@@ -173,7 +173,7 @@ useEffect(() => {
                       name={row.name}
                       imageURL={row.imageURL}
                       parentId={row.parentId}
-                      // createdAt={row.createdAt}
+                      createdAt={row.createdAt}
                       selected={selected.indexOf(row.name) !== -1}
                       handleClick={(event) => handleClick(event, row.name)}
                     />
