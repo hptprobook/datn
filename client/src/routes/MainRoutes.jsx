@@ -7,7 +7,6 @@ import HomePage from '~/pages/Home/HomePage';
 import PostPage from '~/pages/Post';
 import PostDetail from '~/pages/Post/PostDetail';
 import ProductPage from '~/pages/Products';
-import Products from '~/pages/Test/products';
 
 const MainRoutes = {
   path: '/',
@@ -16,10 +15,6 @@ const MainRoutes = {
     {
       path: '',
       element: <HomePage />,
-    },
-    {
-      path: 'product',
-      element: <Products />,
     },
     {
       path: 'danh-muc-san-pham',
