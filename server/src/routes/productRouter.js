@@ -22,8 +22,17 @@ const upload = multer({
 });
 //admin
 Router.get('/', productController.getAllProducts);
-Router.post('/add', upload.array('images'), productController.createProduct);
+Router.get('/:id', productController.getProductById);
+Router.post(
+  '/add',
+  upload.fields([{ name: 'images' }, { name: 'varsImg' }]),
+  productController.createProduct
+);
 Router.delete('/:id', productController.deleteProduct);
-Router.put('/:id', upload.array('images'), productController.updateProduct);
+Router.put(
+  '/:id',
+  upload.fields([{ name: 'imagesAdd' }, { name: 'varsImg' }]),
+  productController.updateProduct
+);
 
 export const productsApi = Router;

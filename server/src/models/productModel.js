@@ -1,11 +1,15 @@
 import { GET_DB } from '~/config/mongodb';
 import { ObjectId } from 'mongodb';
-import { SAVE_PRODUCT_SCHEMA, UPDATE_PRODUCT } from '~/utils/schema';
+// import { SAVE_PRODUCT_SCHEMA, UPDATE_PRODUCT } from '~/utils/schema';
 
-const validateBeforeCreate = async (data) => {
+/* const validateBeforeCreate = async (data) => {
   return await SAVE_PRODUCT_SCHEMA.validateAsync(data, { abortEarly: false });
-};
+}; */
 
+/* const validateBeforeUpdate = async (data) => {
+  return await UPDATE_PRODUCT.validateAsync(data, { abortEarly: false });
+};
+ */
 const countProductAll = async () => {
   try {
     const db = await GET_DB().collection('products');
@@ -38,6 +42,12 @@ const getProductsAll = async (page, limit) => {
   }
 };
 
+const getProductById = async (product_id) => {
+  const db = await GET_DB().collection('products');
+  const product = await db.findOne({ _id: new ObjectId(product_id) });
+  return product;
+};
+
 const createProduct = async (data) => {
   try {
     // const validData = await validateBeforeCreate(data);
@@ -60,27 +70,17 @@ const createProduct = async (data) => {
   }
 };
 
-const validateBeforeUpdate = async (data) => {
-  return await UPDATE_PRODUCT.validateAsync(data, { abortEarly: false });
-};
-
 const update = async (id, data) => {
   try {
     // await validateBeforeUpdate(data);
     const db = GET_DB().collection('products');
-    const product = await db.findOne({ _id: new ObjectId(id) });
-
-    if (!data.imgURLs || data.imgURLs.length === 0) {
-      delete data.imgURLs;
-    }
-
     const result = await db.findOneAndUpdate(
       { _id: new ObjectId(id) },
       { $set: data },
       { returnDocument: 'after' }
     );
 
-    return { result: result, imageURL: product.imgURLs };
+    return { result: result };
   } catch (error) {
     console.log(error);
     return {
@@ -95,7 +95,7 @@ const deleteProduct = async (id) => {
     const db = GET_DB().collection('products');
     const product = await db.findOne({ _id: new ObjectId(id) });
     await db.deleteOne({ _id: new ObjectId(id) });
-    return product.imgURLs;
+    return { imgURLs: product.imgURLs, vars: product.vars };
   } catch (error) {
     return {
       error: true,
@@ -109,4 +109,5 @@ export const productModal = {
   createProduct,
   deleteProduct,
   update,
+  getProductById,
 };
