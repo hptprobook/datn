@@ -22,6 +22,26 @@ const getAllProducts = async (req, res) => {
   }
 };
 
+const getProductById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const product = await productModal.getProductById(id);
+    if (product) {
+      return res.status(StatusCodes.OK).json({
+        product,
+      });
+    }
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ message: 'Không tồn tại sản phẩm' });
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: ERROR_MESSAGES.ERR_AGAIN,
+      error: error,
+    });
+  }
+};
+
 const createProduct = async (req, res) => {
   try {
     const { cat_id, name, description, price, brand, stock, tags, slug, vars } =
@@ -33,14 +53,18 @@ const createProduct = async (req, res) => {
       });
     }
 
-    const files = req.files;
+    const images = req.files['images'];
+    const varsImg = req.files['varsImg'];
+
     let filenames = [];
-    if (files) {
-      filenames = files.map((file) => file.filename);
+    if (images) {
+      filenames = images.map((file) => file.filename);
     }
 
     const parsedVars = vars.map((v) => JSON.parse(v));
-
+    varsImg.forEach((file, index) => {
+      parsedVars[index].imageURL = file.filename;
+    });
     const data = {
       cat_id: new ObjectId(cat_id),
       name: name,
@@ -65,8 +89,19 @@ const createProduct = async (req, res) => {
 
 const updateProduct = async (req, res) => {
   const { id } = req.params;
-  const { cat_id, name, description, price, brand, stock, tags, slug, vars } =
-    req.body;
+  const {
+    cat_id,
+    name,
+    description,
+    price,
+    brand,
+    stock,
+    tags,
+    slug,
+    vars,
+    imagesDelete,
+    indexVars,
+  } = req.body;
 
   if (!name || !description || !cat_id || !price || !stock) {
     return res.status(StatusCodes.BAD_REQUEST).json({
@@ -74,22 +109,54 @@ const updateProduct = async (req, res) => {
     });
   }
 
-  const files = req.files;
+  const product = await productModal.getProductById(id);
+  const parsedVars = vars.map((v) => JSON.parse(v));
+  let deleteImgs = [];
+
+  let validImgs = [];
+  if (imagesDelete && imagesDelete.length > 0) {
+    validImgs = product.imgURLs.filter((image) =>
+      new Set(imagesDelete).has(image)
+    );
+    deleteImgs = product.imgURLs.filter(
+      (image) => !new Set(imagesDelete).has(image)
+    );
+  } else {
+    validImgs = product.imgURLs;
+  }
+  let deleteImgsVars = [];
+  product.vars.map((v, index) => {
+    const parsedVar = parsedVars[index];
+    if (parsedVar.imageURL !== v.imageURL) {
+      deleteImgsVars.push(v.imageURL);
+    }
+  });
+
+  const images = req.files['imagesAdd'];
+  const varsImg = req.files['varsImg'];
+
   let filenames = [];
-  if (files) {
-    filenames = files.map((file) => file.filename);
+  if (images) {
+    filenames = images.map((file) => file.filename);
   }
 
-  const parsedVars = vars.map((v) => JSON.parse(v));
+  const newimgURLs = [...filenames, ...validImgs];
+
+  if (varsImg) {
+    varsImg.forEach((file, index) => {
+      const indexVar = indexVars[index];
+      parsedVars[indexVar].imageURL = file.filename;
+    });
+  }
 
   const data = {
     cat_id: new ObjectId(cat_id),
     name: name,
     description: JSON.parse(description),
-    imgURLs: filenames,
-    price: price,
+    imgURLs: newimgURLs,
+    price: parseFloat(price),
     brand: brand,
-    stock: stock,
+    stock: parseFloat(stock),
     tags: tags,
     slug: slug,
     vars: parsedVars,
@@ -102,12 +169,11 @@ const updateProduct = async (req, res) => {
       .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
   }
   if (dataProduct) {
-    if (
-      dataProduct &&
-      dataProduct.imageURL.length > 0 &&
-      filenames.length > 0
-    ) {
-      await uploadModal.deleteImgs(dataProduct.imageURL);
+    if (deleteImgsVars && deleteImgsVars.length > 0) {
+      await uploadModal.deleteImgs(deleteImgsVars);
+    }
+    if (deleteImgs && deleteImgs.length > 0) {
+      await uploadModal.deleteImgs(deleteImgs);
     }
     const result = dataProduct.result;
     return res.status(StatusCodes.OK).json({
@@ -126,8 +192,13 @@ const deleteProduct = async (req, res) => {
       .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
   }
   if (dataProduct) {
-    if (dataProduct && dataProduct.length > 0) {
-      await uploadModal.deleteImgs(dataProduct);
+    if (dataProduct && dataProduct.imgURLs && dataProduct.imgURLs.length > 0) {
+      await uploadModal.deleteImgs(dataProduct.imgURLs);
+    }
+    if (dataProduct && dataProduct.vars && dataProduct.vars.length > 0) {
+      for (const v of dataProduct.vars) {
+        await uploadModal.deleteImg(v.imageURL);
+      }
     }
     return res
       .status(StatusCodes.OK)
@@ -138,6 +209,7 @@ const deleteProduct = async (req, res) => {
 export const productController = {
   createProduct,
   getAllProducts,
+  getProductById,
   updateProduct,
   deleteProduct,
 };
