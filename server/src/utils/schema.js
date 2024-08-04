@@ -9,7 +9,7 @@ export const SAVE_USER_SCHEMA = Joi.object({
     lastName: Joi.string().min(1).max(30).required(),
   }),
   email: Joi.string().email().required(),
-  passWord: Joi.string().required(),
+  password: Joi.string().required(),
   otp: Joi.string(),
   addresses: Joi.array().items(
     Joi.object({
@@ -39,7 +39,7 @@ export const UPDATE_USER = Joi.object({
     firstName: Joi.string().min(1).max(30),
     lastName: Joi.string().min(1).max(30),
   }),
-  passWord: Joi.string(),
+  password: Joi.string(),
   otp: Joi.string(),
 
   addresses: Joi.array().items(
