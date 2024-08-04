@@ -8,36 +8,36 @@ import { useMemo, useState, useContext, useCallback, createContext } from 'react
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
 
   useMemo(() => {
-    const userLocal = localStorage.getItem('user');
-    if (userLocal) {
-      setUser(JSON.parse(userLocal));
+    const tokenLocal = localStorage.getItem('token');
+    if (tokenLocal) {
+      setToken(JSON.parse(tokenLocal));
     }
   }, []);
 
   const navigate = useNavigate();
 
   const login = useCallback(async (data) => {
-    localStorage.setItem('user', JSON.stringify(data));
+    localStorage.setItem('token', JSON.stringify(data));
     navigate('/', { replace: true });
-    setUser(data);
+    setToken(data);
   }, [navigate]);
 
   const logout = useCallback(() => {
-    localStorage.removeItem('user');
-    setUser(null);
+    localStorage.removeItem('token');
+    setToken(null);
     navigate('/', { replace: true });
   }, [navigate]);
 
   const value = useMemo(
     () => ({
-      user,
+      token,
       login,
       logout,
     }),
-    [user, login, logout]
+    [token, login, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

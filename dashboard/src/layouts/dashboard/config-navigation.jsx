@@ -13,36 +13,36 @@ const navConfig = [
     icon: icon('ic_analytics'),
   },
   {
-    title: 'user',
+    title: 'Người dùng',
     path: '/user',
     icon: icon('ic_user'),
   },
   {
-    title: 'product',
+    title: 'Sản phẩm',
     path: '/products',
     icon: icon('ic_cart'),
   },
   {
-    title: 'order',
+    title: 'Đơn hàng',
     path: '/orders',
     icon: icon('ic_orders'),
   },  {
-    title: 'category',
+    title: 'Phân loại',
     path: '/category',
     icon: icon('ic_category'),
   },
   {
-    title: 'warehouse',
+    title: 'Kho',
     path: '/warehouse',
     icon: icon('ic_warehouse'),
   },
   {
-    title: 'coupon',
+    title: 'Mã giảm giá',
     path: '/coupons',
     icon: icon('ic_coupon'),
   },
   {
-    title: 'blog',
+    title: 'Bài viết',
     path: '/blog',
     icon: icon('ic_blog'),
   },
