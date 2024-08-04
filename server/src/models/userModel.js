@@ -58,7 +58,7 @@ const update = async (id, data) => {
       { $set: data },
       { returnDocument: 'after' }
     );
-  delete result.passWord;
+  delete result.password;
   return result;
 };
 

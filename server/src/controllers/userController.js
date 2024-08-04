@@ -13,7 +13,7 @@ const getCurrentUser = async (req, res) => {
   try {
     const { user_id } = req.user;
     const user = await userModel.getUserID(user_id);
-    delete user.passWord;
+    delete user.password;
     if (user) {
       return res.status(StatusCodes.OK).json({
         user,
@@ -73,8 +73,8 @@ const getUserByEmail = async (req, res) => {
 const register = async (req, res) => {
   // use
   try {
-    const { email, passWord, firstName, lastName, ...other } = req.body;
-    if (!email || !passWord || !firstName || !lastName) {
+    const { email, password, firstName, lastName, ...other } = req.body;
+    if (!email || !password || !firstName || !lastName) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         message: ERROR_MESSAGES.REQUIRED,
       });
@@ -85,7 +85,7 @@ const register = async (req, res) => {
         .status(StatusCodes.BAD_REQUEST)
         .json({ message: 'Tài khoản đã tồn tại' });
     }
-    const hash = await bcrypt.hashSync(passWord, 8);
+    const hash = await bcrypt.hashSync(password, 8);
     if (!hash) {
       return res
         .status(StatusCodes.BAD_REQUEST)
@@ -97,7 +97,7 @@ const register = async (req, res) => {
         firstName,
         lastName,
       },
-      passWord: hash,
+      password: hash,
       ...other,
     };
     const dataUser = await userModel.register(data);
@@ -116,8 +116,8 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    const { email, passWord } = req.body;
-    if (!email || !passWord) {
+    const { email, password } = req.body;
+    if (!email || !password) {
       return res
         .status(StatusCodes.BAD_REQUEST)
         .json({ message: ERROR_MESSAGES.REQUIRED });
@@ -133,7 +133,7 @@ const login = async (req, res) => {
         .status(StatusCodes.BAD_REQUEST)
         .json({ message: ERROR_MESSAGES.BAN });
     }
-    const checkPass = await bcrypt.compare(passWord, user.passWord);
+    const checkPass = await bcrypt.compare(password, user.password);
     if (!checkPass) {
       return res
         .status(StatusCodes.BAD_REQUEST)
@@ -151,15 +151,12 @@ const login = async (req, res) => {
       httpOnly: true,
       secure: true,
     };
-    delete user.passWord;
+    user.token = token;
+    delete user.password;
     return res
       .cookie('token_wow', token, tokenOption)
       .status(StatusCodes.OK)
-      .json({
-        message: 'Đăng nhập thành công',
-        token: token,
-        user,
-      });
+      .json(user);
   } catch (error) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       message: ERROR_MESSAGES.ERR_AGAIN,
@@ -177,8 +174,8 @@ const logout = async (req, res) => {
 const changePassWord = async (req, res) => {
   try {
     const { user_id } = req.user;
-    const { oldPassWord, passWord } = req.body;
-    if (!passWord || !oldPassWord) {
+    const { oldPassWord, password } = req.body;
+    if (!password || !oldPassWord) {
       return res
         .status(StatusCodes.BAD_REQUEST)
         .json({ message: 'Không bỏ trống thông tin' });
@@ -189,20 +186,20 @@ const changePassWord = async (req, res) => {
         .status(StatusCodes.BAD_REQUEST)
         .json({ message: 'Không tồn tại người dùng' });
     }
-    const checkPass = await bcrypt.compare(oldPassWord, user.passWord);
+    const checkPass = await bcrypt.compare(oldPassWord, user.password);
     if (!checkPass) {
       return res
         .status(StatusCodes.BAD_REQUEST)
         .json({ message: ERROR_MESSAGES.WRONG_ACCOUNT });
     }
-    const hash = await bcrypt.hashSync(passWord, 8);
+    const hash = await bcrypt.hashSync(password, 8);
     if (!hash) {
       return res
         .status(StatusCodes.BAD_REQUEST)
         .json({ message: 'Có lỗi bảo mật xảy ra' });
     }
     const data = {
-      passWord: hash,
+      password: hash,
     };
     const dataUser = await userModel.update(user_id, data);
     if (dataUser) {
@@ -382,8 +379,8 @@ const checkOtp = async (req, res) => {
 
 const changePassWordByOtp = async (req, res) => {
   try {
-    const { email, passWord } = req.body;
-    if (!passWord || !email) {
+    const { email, password } = req.body;
+    if (!password || !email) {
       return res
         .status(StatusCodes.BAD_REQUEST)
         .json({ message: 'Không bỏ trống thông tin' });
@@ -400,14 +397,14 @@ const changePassWordByOtp = async (req, res) => {
         .json({ message: 'Tài khoản của bạn đang tạm khóa' });
     }
 
-    const hash = await bcrypt.hashSync(passWord, 8);
+    const hash = await bcrypt.hashSync(password, 8);
     if (!hash) {
       return res
         .status(StatusCodes.BAD_REQUEST)
         .json({ message: 'Có lỗi bảo mật xảy ra' });
     }
     const data = {
-      passWord: hash,
+      password: hash,
     };
     const dataUser = await userModel.update(user._id.toString(), data);
     if (dataUser) {
