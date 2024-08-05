@@ -44,12 +44,12 @@ const MyOrder = () => {
   };
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex border-b border-gray-300">
+    <div className="container mx-auto p-4 sm:p-6 lg:p-8">
+      <div className="flex overflow-auto border-b border-gray-300">
         {tabs.map((tab) => (
           <button
             key={tab.key}
-            className={`py-2 px-4 font-medium ${
+            className={`py-2 px-4 font-medium whitespace-nowrap ${
               selectedTab === tab.key
                 ? 'border-b-4 border-red-500 text-red-500'
                 : 'text-gray-500 hover:text-red-500'
@@ -64,7 +64,7 @@ const MyOrder = () => {
         {orders[selectedTab].length > 0 ? (
           orders[selectedTab].map((order) => (
             <div key={order.id} className="border p-4 mb-4 rounded-lg">
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
                 <div>
                   <p className="text-lg font-semibold">
                     Mã đơn hàng: {order.id}
@@ -73,7 +73,7 @@ const MyOrder = () => {
                   <p>Trạng thái: {order.status}</p>
                 </div>
                 <button
-                  className="text-blue-500 hover:underline"
+                  className="mt-2 sm:mt-0 text-blue-500 hover:underline"
                   onClick={() => toggleOrderDetails(order.id)}
                 >
                   {expandedOrder === order.id ? 'Ẩn chi tiết' : 'Hiện chi tiết'}
