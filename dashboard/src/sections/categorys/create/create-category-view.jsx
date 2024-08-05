@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import Stack from '@mui/material/Stack';
@@ -10,17 +10,55 @@ import {
   InputLabel,
   TextField,
   Grid,
+  MenuItem,
+  FormHelperText,
+  FormControl,
 } from '@mui/material';
 import EditorContent from 'src/components/editor/editor';
 import InfoBox from 'src/components/Box/InforBox';
 import ImageDropZone from 'src/components/DropZoneUpload/DropZoneImage';
 import "./styles.css";
+import { useDispatch, useSelector } from 'react-redux';
+import { createCategoryAsync, fetchCategoriesAsync } from 'src/redux/slices/categoriesSlice';
+import { handleToast } from 'src/hooks/toast';
+import Select from '@mui/material/Select';
+
 const validationSchema = Yup.object({
   productName: Yup.string().required('Tên Danh mục là bắt buộc'),
   description: Yup.string().required('Mô tả là bắt buộc'),
+  parentCategory: Yup.string().nullable(), // Optional field for parent category
 });
 
 const CreateCategoryView = () => {
+  const dispatch = useDispatch();
+  const categories = useSelector((state) => state.categories.data);
+  const status = useSelector((state) => state.categories.status);
+  const [dataCategories, setDataCategories] = useState([]);
+  const [ParentCategory, setParentCategory] = React.useState('');
+
+  const handleChangeParentCategory = (event) => {
+    setParentCategory(event.target.value);
+  };
+
+  useEffect(() => {
+    dispatch(fetchCategoriesAsync());
+  }, [dispatch]);
+
+
+  useEffect(() => {
+    if (status === 'succeeded') {
+      setDataCategories(categories);
+    }
+  }, [categories, status]);
+
+  useEffect(() => {
+    if (status === 'failed') {
+      handleToast('error', 'Failed to fetch categories');
+    } else if (status === 'succeeded') {
+      setDataCategories(categories);
+    }
+  }, [categories, status]);
+
   const handleChangeUploadImg = (files) => {
     // Handle image upload
   };
@@ -35,10 +73,24 @@ const CreateCategoryView = () => {
           <Typography variant="h6" gutterBottom>Chi tiết</Typography>
           <Typography variant="body2" color="text.secondary" gutterBottom>Tiêu đề, mô tả, hình ảnh...</Typography>
           <Formik
-            initialValues={{ productName: '', description: '' }}
+            initialValues={{ productName: '', description: '', parentCategory: '' }}
             validationSchema={validationSchema}
-            onSubmit={(values) => {
-              console.log(values);
+            onSubmit={async (values, { setSubmitting }) => {
+              const data = {
+                name: values.productName,
+                description: values.description,
+                slug: values.productName.toLowerCase().replace(/ /g, '-'),
+                parentId: values.parentCategory || null || "null",
+              };
+              try {
+                console.log(data);
+                await dispatch(createCategoryAsync({ data })).unwrap();
+                handleToast('success','Danh mục đã được tạo thành công!');
+              } catch (error) {
+                handleToast('error','Có lỗi xảy ra khi tạo danh mục.');
+              } finally {
+                setSubmitting(false);
+              }
             }}
           >
             {({ handleSubmit }) => (
@@ -59,9 +111,44 @@ const CreateCategoryView = () => {
                   <Grid item xs={12} sm={6}>
                     <InputLabel htmlFor="description">Mô tả</InputLabel>
                     <Field name="description">
-                      {({ field }) => <EditorContent {...field} />}
+                      {({ field, form }) => (
+                        <EditorContent
+                          {...field}
+                          value={field.value}
+                          onChange={(content) => {
+                            form.setFieldValue(field.name, content);
+                          }}
+                        />
+                      )}
                     </Field>
-                    <ErrorMessage name="description" component="div" className="error-message" />
+                    <FormHelperText>
+                      <ErrorMessage name="description" component="div" className="error-message" />
+                    </FormHelperText>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <InputLabel htmlFor="parentCategory">Danh mục cha</InputLabel>
+                    <FormControl fullWidth variant="outlined">
+                      <InputLabel htmlFor="parentCategory">Danh mục cha</InputLabel>
+                      <Select
+                        labelId="parentCategory-label"
+                        id="parentCategory"
+                        value={ParentCategory}
+                        onChange={handleChangeParentCategory}
+                        label="Danh mục cha"
+                      >
+                        <MenuItem value="">
+                          <em>Chọn danh mục cha</em>
+                        </MenuItem>
+                        {dataCategories.map((category) => (
+                          <MenuItem key={category._id} value={category._id}>
+                            {category.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                      <FormHelperText>
+                        <ErrorMessage name="parentCategory" component="div" className="error-message" />
+                      </FormHelperText>
+                    </FormControl>
                   </Grid>
                   <Grid item xs={12}>
                     <InfoBox title="Hình ảnh">
