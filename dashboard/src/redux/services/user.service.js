@@ -1,9 +1,17 @@
-import { get, put } from "src/utils/request";
+import { del, get, put } from "src/utils/request";
 
 const UserService = {
     getAllUsers: async () => {
         try {
-            return await get("users");
+            return await get("/users?page=1&limit=1000");
+        } catch (err) {
+            console.error("Error: ", err);
+            throw err;
+        }
+    },
+    delete: async (id) => {
+        try {
+            return await del(`users/${id}`);
         } catch (err) {
             console.error("Error: ", err);
             throw err;

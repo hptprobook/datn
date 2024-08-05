@@ -56,7 +56,7 @@ export default function CartListProduct() {
 
   return (
     <div className="col-span-12 xl:col-span-8 lg:pr-8 pb-8 w-full max-xl:max-w-3xl max-xl:mx-auto">
-      <div className="flex items-center justify-between pb-8 border-b border-gray-300">
+      <div className="block text-center lg:text-left  lg:flex items-center justify-between pb-8 border-b border-gray-300">
         <h2 className="font-manrope font-bold text-3xl leading-10 text-black">
           Giỏ hàng
         </h2>
@@ -99,7 +99,7 @@ export default function CartListProduct() {
           key={index}
           className="flex flex-col min-[500px]:flex-row min-[500px]:items-center gap-5 py-6  border-b border-gray-200 group"
         >
-          <div className="flex items-center">
+          <div className="flex items-center justify-center md:justify-start">
             <input
               type="checkbox"
               className="checkbox-error checkbox"
@@ -133,7 +133,7 @@ export default function CartListProduct() {
                 quantity={quantity}
               />
             </div>
-            <div className="flex items-center max-[100px]:justify-center md:justify-end max-md:mt-3 h-full md:col-span-3">
+            <div className="flex items-center justify-center md:justify-end max-md:mt-3 h-full md:col-span-3">
               <div className="flex items-center flex-col">
                 <p className="font-bold text-lg leading-8 text-gray-600 text-center transition-all duration-300 group-hover:text-amber-600">
                   {product.price}

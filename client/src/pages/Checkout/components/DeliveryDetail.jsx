@@ -198,9 +198,10 @@ export default function DeliveryDetail() {
               <div className="flex items-center h-full max-md:mt-3 md:col-span-3 justify-center">
                 1
               </div>
-              <div className="flex items-center max-[100px]:justify-center md:justify-end max-md:mt-3 h-full md:col-span-4">
+              <div className="flex items-center justify-center md:justify-end max-md:mt-3 h-full md:col-span-4">
                 <div className="flex items-center flex-col">
-                  <p className="font-bold text-md leading-8 text-gray-600 text-center transition-all duration-300 group-hover:text-amber-600">
+                  <p className="flex md:block font-bold text-md leading-8 text-gray-600 text-center transition-all duration-300 group-hover:text-amber-600">
+                    <p className="mr-2 md:hidden">Tổng: </p>
                     {product.price}
                   </p>
                 </div>

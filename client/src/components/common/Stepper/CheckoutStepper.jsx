@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 import { FaCheck } from 'react-icons/fa';
 import PropTypes from 'prop-types';
 
@@ -9,7 +10,7 @@ const CheckoutStepper = ({ currentStep }) => {
   ];
 
   return (
-    <ol className="steps items-center flex w-full max-w-2xl text-center text-sm font-medium text-gray-500 dark:text-gray-400 sm:text-base">
+    <ol className="hidden lg:flex steps items-center w-full max-w-2xl text-center text-sm font-medium text-gray-500 dark:text-gray-400 sm:text-base">
       {steps.map((step, index) => {
         let status = 'waiting';
         if (index < currentStep - 1) {
