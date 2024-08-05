@@ -21,7 +21,7 @@ const CategoryService = {
     // ... Các hàm khác
     createCategory: async (data) => {
       try {
-          const res = await post(`categories`, data);
+          const res = await post(`categories/add`, data);
           return res;
       } catch (err) {
           throw err;
