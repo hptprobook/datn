@@ -8,7 +8,7 @@ import { orderModel } from '~/models/orderModel';
 const getAllOrder = async (req, res) => {
   try {
     // const { user_id } = req.user;
-    const orders = await orderModel.getAllOrders;
+    const orders = await orderModel.getAllOrders();
     return res.status(StatusCodes.OK).json(orders);
     // return res
     //   .status(StatusCodes.BAD_REQUEST)
@@ -21,20 +21,11 @@ const getAllOrder = async (req, res) => {
   }
 };
 
-const getCurentCart = async (req, res) => {
+const getCurentOrder = async (req, res) => {
   try {
     const { user_id } = req.user;
-    const dataCart = await orderModel.getCurentCarts(user_id);
-    if (dataCart) {
-      delete dataCart._id;
-      delete dataCart.userId;
-      delete dataCart.createdAt;
-      delete dataCart.updatedAt;
-      return res.status(StatusCodes.OK).json(dataCart);
-    }
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Không có sản phẩm trong giỏ hàng' });
+    const curentOrder = await orderModel.getCurentOrder(user_id);
+    return res.status(StatusCodes.BAD_REQUEST).json(curentOrder);
   } catch (error) {
     console.log(error);
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
@@ -52,7 +43,7 @@ const addOrder = async (req, res) => {
       products.map((item) => {
         const { _id, quantity } = item;
         const { color, size } = item.vars;
-        console.log(_id, quantity, color, size);
+        // console.log(_id, quantity, color, size);
       });
     }
     const dataOrder = { userId: user_id, ...req.body };
@@ -67,27 +58,18 @@ const addOrder = async (req, res) => {
   }
 };
 
-const removeCart = async (req, res) => {
+const removeOrder = async (req, res) => {
   try {
-    const { user_id } = req.user;
-    const { _id, color, size } = req.query;
-    if (!_id || !color || !size) {
+    const { idOrder } = req.params;
+    if (!idOrder) {
       return res
         .status(StatusCodes.BAD_REQUEST)
-        .json({ message: 'Thiếu thông tin của sản phẩm' });
+        .json({ message: 'Thiếu thông tin đơn hàng' });
     }
-    const dataDel = {
-      _id: req.body._id,
-      vars: { color: req.body.color, size: req.body.size },
-    };
-    await orderModel.removeCart(user_id, dataDel);
-    const data = await orderModel.getCurentCarts(user_id);
-    if (data.products.length == 0) {
-      await orderModel.deleteCart(user_id);
-    }
+    await orderModel.deleteOrder(idOrder);
     return res
       .status(StatusCodes.OK)
-      .json({ message: 'Xóa sản phẩm khỏi giỏ hàng thành công' });
+      .json({ message: 'Xóa đơn hàng thành công' });
   } catch (error) {
     return res
       .status(StatusCodes.BAD_REQUEST)
@@ -95,44 +77,17 @@ const removeCart = async (req, res) => {
   }
 };
 
-const addNewCart = async (req, res) => {
+const updateOrder = async (req, res) => {
   try {
-    const { user_id } = req.user;
+    const { idOrder } = req.params;
     const data = req.body;
-    await orderModel.addNewCart(user_id, data);
+    console.log(data);
+    const dataOrder = await orderModel.updateOrder(idOrder, data);
     return res
       .status(StatusCodes.OK)
-      .json({ message: 'Thêm sản phẩm vào giỏ hàng thành công' });
+      .json({ message: 'Cập nhật thông tin thành công', dataOrder });
   } catch (error) {
     console.log(error);
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Có lỗi xảy ra xin thử lại sau', error });
-  }
-};
-const updateCart = async (req, res) => {
-  try {
-    const { user_id } = req.user;
-    const { _id, color, size, quantity } = req.body;
-    if (!_id || !color || !size || !quantity) {
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .json({ message: 'Thiếu thông tin của sản phẩm' });
-    }
-    const dataUpdate = {
-      _id,
-      quantity,
-      vars: { color: color, size: size },
-    };
-    const dataCart = await orderModel.updateCart(user_id, dataUpdate);
-    delete dataCart._id;
-    delete dataCart.userId;
-    delete dataCart.createdAt;
-    delete dataCart.updatedAt;
-    return res
-      .status(StatusCodes.OK)
-      .json({ message: 'Cập nhật thông tin thành công', dataCart });
-  } catch (error) {
     return res.status(StatusCodes.BAD_REQUEST).json({
       message: 'Có lỗi xảy ra xin thử lại sau',
       error: error,
@@ -160,15 +115,83 @@ const updateCart = async (req, res) => {
 //     });
 //   }
 // };
-export const orderController = {
-  addOrder,
-  getCurentCart,
-  updateCart,
-  // getAllCarts,
-  // deleteCart,
-  addNewCart,
-  // updateCurentCart,
-  removeCart,
+const checkStockProducts = async (req, res) => {
+  try {
+    if (!Array.isArray(req.body)) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Hãy gửi 1 mảng sản phẩm' });
+    }
 
+    if (req.body.length === 0) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Thiếu thông tin sản phẩm' });
+    }
+    // Kiểm tra thông tin sản phẩm
+
+    for (let { _id, quantity, vars } of req.body) {
+      if (!_id || !vars.color || !vars.size || !quantity) {
+        return res
+          .status(StatusCodes.BAD_REQUEST)
+          .json({ message: 'Thiếu thông tin của sản phẩm' });
+      }
+    }
+    let a = false;
+    const checkPromises = req.body.map(async (item) => {
+      const product = await orderModel.checkStockProducts(item);
+      if (product.length > 0) {
+        const quantityProduct = product[0].vars[0].stock;
+        if (quantityProduct < item.quantity) {
+          a = true;
+          return {
+            id: item._id,
+            message: `Không đủ số lượng còn: ${quantityProduct}`,
+          };
+        }
+      } else {
+        a = true;
+        return {
+          id: item._id,
+          message: 'Không có sản phẩm',
+        };
+      }
+    });
+
+    const results = await Promise.all(checkPromises);
+    const filteredResults = results.filter((n) => n);
+    if (a) {
+      return res.status(StatusCodes.BAD_REQUEST).json(filteredResults);
+    }
+    return res.status(StatusCodes.OK).json({ message: 'Có thể mua hàng' });
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: ERROR_MESSAGES.ERR_AGAIN,
+      error,
+    });
+  }
+};
+
+const updateStockProducts = async (req, res) => {
+  try {
+    await orderModel.updateStockProducts();
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ message: 'Cập nhật số lượng sản phẩm' });
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: ERROR_MESSAGES.ERR_AGAIN,
+      error,
+    });
+  }
+};
+
+export const orderController = {
+  checkStockProducts,
+  addOrder,
+  getCurentOrder,
+  updateOrder,
+  removeOrder,
   getAllOrder,
+  updateStockProducts,
 };

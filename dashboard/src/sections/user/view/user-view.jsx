@@ -14,6 +14,7 @@ import { users } from 'src/_mock/user';
 
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
+import { useRouter } from 'src/routes/hooks';
 
 import TableNoData from '../table-no-data';
 import UserTableRow from '../user-table-row';
@@ -21,6 +22,7 @@ import UserTableHead from '../user-table-head';
 import TableEmptyRows from '../table-empty-rows';
 import UserTableToolbar from '../user-table-toolbar';
 import { emptyRows, applyFilter, getComparator } from '../utils';
+
 
 // ----------------------------------------------------------------------
 
@@ -36,6 +38,8 @@ export default function UserPage() {
   const [filterName, setFilterName] = useState('');
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
+
+  const route = useRouter();
 
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === 'asc';
@@ -97,10 +101,15 @@ export default function UserPage() {
   return (
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Users</Typography>
+        <Typography variant="h4">Người dùng</Typography>
 
-        <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />}>
-          New User
+        <Button
+          variant="contained"
+          color="inherit"
+          startIcon={<Iconify icon="eva:plus-fill" />}
+          onClick={() => route.push('create')}
+        >
+          Thêm người dùng
         </Button>
       </Stack>
 
@@ -122,9 +131,9 @@ export default function UserPage() {
                 onRequestSort={handleSort}
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
-                  { id: 'name', label: 'Name' },
+                  { id: 'name', label: 'Tên' },
                   { id: 'company', label: 'Company' },
-                  { id: 'role', label: 'Role' },
+                  { id: 'role', label: 'Vai trò' },
                   { id: 'isVerified', label: 'Verified', align: 'center' },
                   { id: 'status', label: 'Status' },
                   { id: '' },

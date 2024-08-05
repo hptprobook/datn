@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -11,6 +11,10 @@ import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 
 import { users } from 'src/_mock/user';
+import { useNavigate } from 'react-router-dom';
+import {fetchAllProducts } from 'src/redux/slices/productSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { handleToast } from 'src/hooks/toast';
 
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
@@ -21,22 +25,43 @@ import ProductTableHead from '../product-table-head';
 import TableEmptyRows from '../table-empty-rows';
 import ProductTableToolbar from '../product-table-toolbar';
 import { emptyRows, applyFilter, getComparator } from '../utils';
-import { useNavigate } from 'react-router-dom';
 
 // ----------------------------------------------------------------------
 
 export default function ProductsPage() {
   const [page, setPage] = useState(0);
-
   const [order, setOrder] = useState('asc');
-
   const [selected, setSelected] = useState([]);
-
   const [orderBy, setOrderBy] = useState('name');
-
   const [filterName, setFilterName] = useState('');
-
   const [rowsPerPage, setRowsPerPage] = useState(5);
+
+  //product
+  const dispatch = useDispatch();
+  const products = useSelector((state) => state.products.products);
+  const statusPro = useSelector((state) => state.products.status);
+  const [productsList, setProductsList] = React.useState([]);
+  // const errorPro = useSelector((state) => state.products.error);
+
+  useEffect(() => {
+    dispatch(fetchAllProducts());
+  }, [dispatch]);
+  
+  useEffect(() => {
+    if (statusPro === 'succeeded') {
+      setProductsList(products);
+    }
+  }, [products, statusPro]);
+
+  useEffect(() => {
+    if (statusPro === 'failed') {
+      handleToast('error', 'Failed to fetch products');
+    } else if (statusPro === 'succeeded') {
+      setProductsList(products);
+    }
+  }, [products, statusPro]);
+
+  // console.log(productsList);
 
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === 'asc';
@@ -48,7 +73,7 @@ export default function ProductsPage() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = users.map((n) => n.name);
+      const newSelecteds = productsList.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
@@ -88,7 +113,7 @@ export default function ProductsPage() {
   };
 
   const dataFiltered = applyFilter({
-    inputData: users,
+    inputData: productsList,
     comparator: getComparator(order, orderBy),
     filterName,
   });
@@ -103,7 +128,7 @@ export default function ProductsPage() {
   return (
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Products</Typography>
+        <Typography variant="h4">Sản phẩm</Typography>
 
         <Button
           variant="contained"
@@ -111,7 +136,7 @@ export default function ProductsPage() {
           startIcon={<Iconify icon="eva:plus-fill" />}
           onClick={handleNewProductClick}
         >
-          New Product
+          Tạo sản phẩm
         </Button>
       </Stack>
 
@@ -128,16 +153,15 @@ export default function ProductsPage() {
               <ProductTableHead
                 order={order}
                 orderBy={orderBy}
-                rowCount={users.length}
+                rowCount={productsList.length}
                 numSelected={selected.length}
                 onRequestSort={handleSort}
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
                   { id: 'name', label: 'Name' },
-                  { id: 'company', label: 'Company' },
-                  { id: 'role', label: 'Role' },
-                  { id: 'isVerified', label: 'Verified', align: 'center' },
-                  { id: 'status', label: 'Status' },
+                  { id: 'price', label: 'Price' },
+                  { id: 'brand', label: 'Brand' },
+                  { id: 'stock', label: 'Stock' },
                   { id: '' },
                 ]}
               />
@@ -146,21 +170,21 @@ export default function ProductsPage() {
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
                     <ProductTableRow
-                      key={row.id}
-                      name={row.name}
-                      role={row.role}
-                      status={row.status}
-                      company={row.company}
-                      avatarUrl={row.avatarUrl}
-                      isVerified={row.isVerified}
-                      selected={selected.indexOf(row.name) !== -1}
-                      handleClick={(event) => handleClick(event, row.name)}
+                    key={row._id}
+                    _id={row._id}
+                    name={row.name}
+                    imgURLs={row.imgURLs}
+                    price={row.price}
+                    brand={row.brand}
+                    stock={row.stock}
+                    selected={selected.indexOf(row.name) !== -1}
+                    handleClick={(event) => handleClick(event, row.name)}
                     />
                   ))}
 
                 <TableEmptyRows
                   height={77}
-                  emptyRows={emptyRows(page, rowsPerPage, users.length)}
+                  emptyRows={emptyRows(page, rowsPerPage, productsList.length)}
                 />
 
                 {notFound && <TableNoData query={filterName} />}
@@ -172,7 +196,7 @@ export default function ProductsPage() {
         <TablePagination
           page={page}
           component="div"
-          count={users.length}
+          count={productsList.length}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}
           rowsPerPageOptions={[5, 10, 25]}

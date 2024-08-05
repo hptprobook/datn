@@ -27,11 +27,11 @@
     height: fit-content;
     padding: 8px 12px;
     cursor: pointer;
-    background-color: #19212f;
+    background-color: #FFFFFF;
     border-radius: 14px;
 }
 
 .UploadImagePreview .DeletePreviewButton:hover {
-    background-color: #0c172b;
     border-radius: 14px;
+    background-color: #cccccc;
 }

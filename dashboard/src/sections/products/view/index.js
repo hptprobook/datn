@@ -1,2 +1,2 @@
 export { default as ProductsView } from './products-view';
-export { default as CreateProductView } from './create-product-view';
+export { default as CreateProductView } from '../create/create-product-view';

@@ -14,16 +14,14 @@ import IconButton from '@mui/material/IconButton';
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 
-// ----------------------------------------------------------------------
-
 export default function ProductTableRow({
   selected,
+  _id,
   name,
-  avatarUrl,
-  company,
-  role,
-  isVerified,
-  status,
+  imgURLs,
+  price,
+  brand,
+  stock,
   handleClick,
 }) {
   const [open, setOpen] = useState(null);
@@ -45,22 +43,18 @@ export default function ProductTableRow({
 
         <TableCell component="th" scope="row" padding="none">
           <Stack direction="row" alignItems="center" spacing={2}>
-            <Avatar alt={name} src={avatarUrl} />
+            <Avatar alt={name} src={imgURLs[0]} />
             <Typography variant="subtitle2" noWrap>
               {name}
             </Typography>
           </Stack>
         </TableCell>
 
-        <TableCell>{company}</TableCell>
+        <TableCell>{price}</TableCell>
 
-        <TableCell>{role}</TableCell>
+        <TableCell>{brand}</TableCell>
 
-        <TableCell align="center">{isVerified ? 'Yes' : 'No'}</TableCell>
-
-        <TableCell>
-          <Label color={(status === 'banned' && 'error') || 'success'}>{status}</Label>
-        </TableCell>
+        <TableCell>{stock}</TableCell>
 
         <TableCell align="right">
           <IconButton onClick={handleOpenMenu}>
@@ -94,12 +88,12 @@ export default function ProductTableRow({
 }
 
 ProductTableRow.propTypes = {
-  avatarUrl: PropTypes.any,
-  company: PropTypes.any,
+  _id: PropTypes.string,
+  name: PropTypes.string,
+  imgURLs: PropTypes.array,
+  price: PropTypes.string,
+  brand: PropTypes.string,
+  stock: PropTypes.string,
   handleClick: PropTypes.func,
-  isVerified: PropTypes.any,
-  name: PropTypes.any,
-  role: PropTypes.any,
-  selected: PropTypes.any,
-  status: PropTypes.string,
+  selected: PropTypes.bool,
 };

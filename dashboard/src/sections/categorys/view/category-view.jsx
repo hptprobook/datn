@@ -1,5 +1,5 @@
-import { useState } from 'react';
-
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
@@ -11,9 +11,11 @@ import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 
 import { users } from 'src/_mock/user';
-
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCategoriesAsync } from 'src/redux/slices/categoriesSlice';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
+import { handleToast } from 'src/hooks/toast';
 
 import TableNoData from '../table-no-data';
 import CategoryTableRow from '../category-table-row';
@@ -22,20 +24,43 @@ import TableEmptyRows from '../table-empty-rows';
 import CategoryTableToolbar from '../category-table-toolbar';
 import { emptyRows, applyFilter, getComparator } from '../utils';
 
+
+
 // ----------------------------------------------------------------------
 
 export default function CategoryPage() {
   const [page, setPage] = useState(0);
-
   const [order, setOrder] = useState('asc');
-
   const [selected, setSelected] = useState([]);
-
   const [orderBy, setOrderBy] = useState('name');
-
   const [filterName, setFilterName] = useState('');
-
   const [rowsPerPage, setRowsPerPage] = useState(5);
+//category 
+const dispatch = useDispatch();
+const categories = useSelector((state) => state.categories.data);
+//status
+const status = useSelector((state) => state.categories.status);
+const [dataCategories, setDataCategories] = useState([]);
+
+
+useEffect(() => {
+  dispatch(fetchCategoriesAsync());
+}, [dispatch]);
+
+useEffect(() => {
+  if (status === 'succeeded') {
+    setDataCategories(categories);
+  }
+}, [categories, status]);
+
+useEffect(() => {
+  if (status === 'failed') {
+    handleToast('error', 'Failed to fetch categories');
+  } else if (status === 'succeeded') {
+    setDataCategories(categories);
+  }
+}, [categories, status]);
+
 
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === 'asc';
@@ -47,7 +72,7 @@ export default function CategoryPage() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = users.map((n) => n.name);
+      const newSelecteds = dataCategories.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
@@ -87,20 +112,30 @@ export default function CategoryPage() {
   };
 
   const dataFiltered = applyFilter({
-    inputData: users,
+    inputData: dataCategories,
     comparator: getComparator(order, orderBy),
     filterName,
   });
 
   const notFound = !dataFiltered.length && !!filterName;
+  //to new category
+  const navigate = useNavigate();
 
+  const handleNewCategoryClick = () => {
+    navigate('/category/create');
+  };
   return (
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Categories</Typography>
+        <Typography variant="h4">Danh mục</Typography>
 
-        <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />}>
-          New Category
+        <Button 
+        variant="contained" color="inherit" 
+        startIcon={<Iconify icon="eva:plus-fill" />}
+        onClick={handleNewCategoryClick}
+
+        >
+      Tạo mới danh mục
         </Button>
       </Stack>
 
@@ -117,16 +152,14 @@ export default function CategoryPage() {
               <CategoryTableHead
                 order={order}
                 orderBy={orderBy}
-                rowCount={users.length}
+                rowCount={dataCategories.length}
                 numSelected={selected.length}
                 onRequestSort={handleSort}
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
                   { id: 'name', label: 'Name' },
-                  { id: 'company', label: 'Company' },
-                  { id: 'role', label: 'Role' },
-                  { id: 'isVerified', label: 'Verified', align: 'center' },
-                  { id: 'status', label: 'Status' },
+                  { id: 'parentId', label: 'Parent' },
+                  { id: 'createdAt', label: 'CreatedAt' },
                   { id: '' },
                 ]}
               />
@@ -135,13 +168,12 @@ export default function CategoryPage() {
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
                     <CategoryTableRow
-                      key={row.id}
+                      key={row._id}
+                      _id={row._id}
                       name={row.name}
-                      role={row.role}
-                      status={row.status}
-                      company={row.company}
-                      avatarUrl={row.avatarUrl}
-                      isVerified={row.isVerified}
+                      imageURL={row.imageURL}
+                      parentId={row.parentId}
+                      createdAt={row.createdAt}
                       selected={selected.indexOf(row.name) !== -1}
                       handleClick={(event) => handleClick(event, row.name)}
                     />
@@ -149,7 +181,7 @@ export default function CategoryPage() {
 
                 <TableEmptyRows
                   height={77}
-                  emptyRows={emptyRows(page, rowsPerPage, users.length)}
+                  emptyRows={emptyRows(page, rowsPerPage, dataCategories.length)}
                 />
 
                 {notFound && <TableNoData query={filterName} />}
@@ -161,7 +193,7 @@ export default function CategoryPage() {
         <TablePagination
           page={page}
           component="div"
-          count={users.length}
+          count={dataCategories.length}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}
           rowsPerPageOptions={[5, 10, 25]}

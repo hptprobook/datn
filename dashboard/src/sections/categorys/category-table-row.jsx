@@ -18,12 +18,12 @@ import Iconify from 'src/components/iconify';
 
 export default function CategoryTableRow({
   selected,
+  _id,
   name,
-  avatarUrl,
-  company,
-  role,
-  isVerified,
-  status,
+  imageURL,
+  parentId,
+  createdAt,
+  updatedAt,
   handleClick,
 }) {
   const [open, setOpen] = useState(null);
@@ -45,22 +45,16 @@ export default function CategoryTableRow({
 
         <TableCell component="th" scope="row" padding="none">
           <Stack direction="row" alignItems="center" spacing={2}>
-            <Avatar alt={name} src={avatarUrl} />
+            <Avatar alt={name} src={imageURL} />
             <Typography variant="subtitle2" noWrap>
               {name}
             </Typography>
           </Stack>
         </TableCell>
 
-        <TableCell>{company}</TableCell>
-
-        <TableCell>{role}</TableCell>
-
-        <TableCell align="center">{isVerified ? 'Yes' : 'No'}</TableCell>
-
-        <TableCell>
-          <Label color={(status === 'banned' && 'error') || 'success'}>{status}</Label>
-        </TableCell>
+        <TableCell>{parentId}</TableCell>
+        
+        <TableCell>{new Date(createdAt).toLocaleDateString()}</TableCell>
 
         <TableCell align="right">
           <IconButton onClick={handleOpenMenu}>
@@ -94,12 +88,12 @@ export default function CategoryTableRow({
 }
 
 CategoryTableRow.propTypes = {
-  avatarUrl: PropTypes.any,
-  company: PropTypes.any,
-  handleClick: PropTypes.func,
-  isVerified: PropTypes.any,
-  name: PropTypes.any,
-  role: PropTypes.any,
+  _id: PropTypes.any,
+  name: PropTypes.string,
+  imageURL: PropTypes.string,
+  parentId: PropTypes.string,
+  createdAt: PropTypes.string,
+  updatedAt: PropTypes.string,
   selected: PropTypes.any,
-  status: PropTypes.string,
+  handleClick: PropTypes.func,
 };
