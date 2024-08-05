@@ -16,6 +16,7 @@ import { deleteUser, fetchAllUsers, resetDelete } from 'src/redux/slices/userSli
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 import { useRouter } from 'src/routes/hooks';
+import { handleToast } from 'src/hooks/toast';
 
 import TableNoData from '../table-no-data';
 import UserTableRow from '../user-table-row';
@@ -23,7 +24,6 @@ import UserTableHead from '../user-table-head';
 import TableEmptyRows from '../table-empty-rows';
 import UserTableToolbar from '../user-table-toolbar';
 import { emptyRows, applyFilter, getComparator } from '../utils';
-import { handleToast } from 'src/hooks/toast';
 
 // ----------------------------------------------------------------------
 
