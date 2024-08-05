@@ -35,31 +35,29 @@ export default function CategoryPage() {
   const [orderBy, setOrderBy] = useState('name');
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
-//category 
-const dispatch = useDispatch();
-const categories = useSelector((state) => state.categories.data);
-//status
-const status = useSelector((state) => state.categories.status);
-const [dataCategories, setDataCategories] = useState([]);
+  const dispatch = useDispatch();
+  const categories = useSelector((state) => state.categories.data);
+  const status = useSelector((state) => state.categories.status);
+  const [dataCategories, setDataCategories] = useState([]);
 
 
-useEffect(() => {
-  dispatch(fetchCategoriesAsync());
-}, [dispatch]);
+  useEffect(() => {
+    dispatch(fetchCategoriesAsync());
+  }, [dispatch]);
 
-useEffect(() => {
-  if (status === 'succeeded') {
-    setDataCategories(categories);
-  }
-}, [categories, status]);
+  useEffect(() => {
+    if (status === 'succeeded') {
+      setDataCategories(categories);
+    }
+  }, [categories, status]);
 
-useEffect(() => {
-  if (status === 'failed') {
-    handleToast('error', 'Failed to fetch categories');
-  } else if (status === 'succeeded') {
-    setDataCategories(categories);
-  }
-}, [categories, status]);
+  useEffect(() => {
+    if (status === 'failed') {
+      handleToast('error', 'Failed to fetch categories');
+    } else if (status === 'succeeded') {
+      setDataCategories(categories);
+    }
+  }, [categories, status]);
 
 
   const handleSort = (event, id) => {
@@ -129,13 +127,13 @@ useEffect(() => {
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Typography variant="h4">Danh mục</Typography>
 
-        <Button 
-        variant="contained" color="inherit" 
-        startIcon={<Iconify icon="eva:plus-fill" />}
-        onClick={handleNewCategoryClick}
+        <Button
+          variant="contained" color="inherit"
+          startIcon={<Iconify icon="eva:plus-fill" />}
+          onClick={handleNewCategoryClick}
 
         >
-      Tạo mới danh mục
+          Tạo mới danh mục
         </Button>
       </Stack>
 
