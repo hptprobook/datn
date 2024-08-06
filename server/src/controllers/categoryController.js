@@ -56,6 +56,25 @@ const getAllCategories = async (req, res) => {
       .json('Có lỗi xảy ra xin thử lại sau');
   }
 };
+const getCategoryById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const category = await categoryModel.getCategoryById(id);
+    if (category) {
+      return res.status(StatusCodes.OK).json({
+        category,
+      });
+    }
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ message: 'Không tồn tại người dùng' });
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: ERROR_MESSAGES.ERR_AGAIN,
+      error: error,
+    });
+  }
+};
 const updateCategory = async (req, res) => {
   const { id } = req.params;
   const { name, description, slug, parentId } = req.body;
@@ -116,4 +135,5 @@ export const categoryController = {
   createCategory,
   updateCategory,
   deleteCategory,
+  getCategoryById,
 };
