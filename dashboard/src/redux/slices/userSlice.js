@@ -24,7 +24,16 @@ export const fetchUserById = createAsyncThunk(
         }
     }
 );
-
+export const deleteUser = createAsyncThunk(
+    "users/deleteUser",
+    async (userId, { rejectWithValue }) => {
+        try {
+            return await UserService.delete(userId);
+        } catch (err) {
+            return rejectWithValue(err.response.data);
+        }
+    }
+);
 export const updateUserById = createAsyncThunk(
     "users/updateById",
     async ({ userId, data }, { rejectWithValue }) => {
@@ -36,11 +45,13 @@ export const updateUserById = createAsyncThunk(
         }
     }
 );
-
+export const resetDelete = createAction('users/resetDelete');
 const initialState = {
     users: [],
     selectedUser: null,
+    delete: null,
     status: "idle", // 'idle' | 'loading' | 'succeeded' | 'failed'
+    statusDelete: "idle",
     error: null,
 };
 
@@ -74,19 +85,24 @@ const userSlice = createSlice({
                 state.status = "failed";
                 state.error = action.payload;
             })
-            .addCase(updateUserById.pending, (state) => {
-                state.status = "loading";
+            .addCase(deleteUser.pending, (state) => {
+                state.statusDelete = "loading";
             })
-            .addCase(updateUserById.fulfilled, (state, action) => {
-                state.status = "succeeded";
-                state.selectedUser = action.payload;
+            .addCase(deleteUser.fulfilled, (state, action) => {
+                state.statusDelete = "succeeded";
+                state.delete = action.payload;
             })
-            .addCase(updateUserById.rejected, (state, action) => {
-                state.status = "failed";
+            .addCase(deleteUser.rejected, (state, action) => {
+                state.statusDelete = "failed";
                 state.error = action.payload;
             })
             .addCase(setStatus, (state, action) => {
                 state.status = action.payload;
+            })
+            .addCase(resetDelete, (state) => {
+                state.status = "idle";
+                state.statusDelete = "idle";
+                state.error = null;
             });
     },
 });

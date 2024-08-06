@@ -5,13 +5,20 @@ import {ProtectedRoute} from './components/ProtectedRoute';
 
 export const IndexPage = lazy(() => import('src/pages/app'));
 export const BlogPage = lazy(() => import('src/pages/blog'));
+
 export const UserPage = lazy(() => import('src/pages/user/user'));
+export const CreateUserPage = lazy(() => import('src/pages/user/createUser'));
+
 export const LoginPage = lazy(() => import('src/pages/login'));
+
 export const ProductsPage = lazy(() => import('src/pages/products/products'));
 export const CreateProductPage = lazy(() => import('src/pages/products/createProduct'));
+
 export const Page404 = lazy(() => import('src/pages/page-not-found'));
+
 export  const CategoryPage = lazy(() => import('src/pages/category/category'));
 export  const CreateCategoryPage = lazy(() => import('src/pages/category/createCategory'));
+
 export  const WarehousePage = lazy(() => import('src/pages/warehouse/warehouse'));
 export  const CouponsPage = lazy(() => import('src/pages/coupons/coupons'));
 export const OrdersPage = lazy(() => import('src/pages/orders/orders'));
@@ -31,6 +38,7 @@ export default function Router() {
       children: [
         {element: <IndexPage/>, index: true},
         {path: 'user', element: <UserPage/>},
+        {path: 'user/create', element: <CreateUserPage/>},
         {path: 'products', element: <ProductsPage/>},
         {path: 'products/create', element: <CreateProductPage/>}, 
         {path: 'blog', element: <BlogPage/>},
