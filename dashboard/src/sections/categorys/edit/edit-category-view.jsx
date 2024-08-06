@@ -19,9 +19,10 @@ import InfoBox from 'src/components/Box/InforBox';
 import ImageDropZone from 'src/components/DropZoneUpload/DropZoneImage';
 import "./styles.css";
 import { useDispatch, useSelector } from 'react-redux';
-import { createCategory, fetchAllCategories } from 'src/redux/slices/categoriesSlice';
+import { updateCategory, fetchCategoryById, fetchAllCategories } from 'src/redux/slices/categoriesSlice';
 import { handleToast } from 'src/hooks/toast';
 import Select from '@mui/material/Select';
+import { useParams } from 'react-router-dom';
 
 const validationSchema = Yup.object({
   productName: Yup.string().required('Tên Danh mục là bắt buộc'),
@@ -29,19 +30,27 @@ const validationSchema = Yup.object({
   parentCategory: Yup.string().nullable(), // Optional field for parent category
 });
 
-const CreateCategoryView = () => {
+const EditCategoryView = () => {
+  const { id } = useParams();
   const dispatch = useDispatch();
   const categories = useSelector((state) => state.categories.data);
+  const category = useSelector((state) => state.categories.category);
   const status = useSelector((state) => state.categories.status);
   const error = useSelector((state) => state.categories.error);
   const [dataCategories, setDataCategories] = useState([]);
-  const [ParentCategory, setParentCategory] = React.useState('');
+  const [ParentCategory, setParentCategory] = useState('');
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [parent_id, setParentId] = useState('');
 
   const handleChangeParentCategory = (event) => {
     setParentCategory(event.target.value);
   };
 
   useEffect(() => {
+    if (id) {
+      dispatch(fetchCategoryById(id));
+    }
     if (status === 'idle') {
       dispatch(fetchAllCategories());
     } else if (status === 'failed') {
@@ -49,7 +58,15 @@ const CreateCategoryView = () => {
     } else if (status === 'succeeded') {
       setDataCategories(categories);
     }
-  }, [status, dispatch, error, categories]);
+  }, [id, status, dispatch, error, categories]);
+
+  useEffect(() => {
+    if (category) {
+      setName(category.name);
+      setDescription(category.description);
+      setParentId(category.parent_id);
+    }
+  }, [category]);
 
   const handleChangeUploadImg = (files) => {
     // Handle image upload
@@ -58,15 +75,16 @@ const CreateCategoryView = () => {
   return (
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Tạo một Danh mục mới</Typography>
+        <Typography variant="h4">Chỉnh sửa Danh mục</Typography>
       </Stack>
       <Box justifyContent="center">
         <Box sx={{ maxWidth: 'lg', p: 6, bgcolor: 'background.paper', color: 'text.primary', borderRadius: 2, boxShadow: 3, mt: 5 }}>
           <Typography variant="h6" gutterBottom>Chi tiết</Typography>
           <Typography variant="body2" color="text.secondary" gutterBottom>Tiêu đề, mô tả, hình ảnh...</Typography>
           <Formik
-            initialValues={{ productName: '', description: '', parentCategory: '' }}
+            initialValues={{ productName: name || '', description: description || '', parentCategory: parent_id || '' }}
             validationSchema={validationSchema}
+            enableReinitialize
             onSubmit={async (values, { setSubmitting }) => {
               const data = {
                 name: values.productName,
@@ -76,10 +94,10 @@ const CreateCategoryView = () => {
               };
               try {
                 console.log(data);
-                await dispatch(createCategory({ data })).unwrap();
-                handleToast('success','Danh mục đã được tạo thành công!');
+                await dispatch(updateCategory({ id, data })).unwrap();
+                handleToast('success','Danh mục đã được cập nhật thành công!');
               } catch (error) {
-                handleToast('error','Có lỗi xảy ra khi tạo danh mục.');
+                handleToast('error','Có lỗi xảy ra khi cập nhật danh mục.');
               } finally {
                 setSubmitting(false);
               }
@@ -149,7 +167,7 @@ const CreateCategoryView = () => {
                   </Grid>
                   <Grid item xs={12}>
                     <Button type="submit" variant="contained" sx={{ backgroundColor: '#1C252E', color: 'foreground-foreground', py: 2, px: 4, borderRadius: '8px', '&:hover': { backgroundColor: '#1C252E', opacity: 0.8 } }}>
-                      Tạo Danh mục
+                      Cập nhật Danh mục
                     </Button>
                   </Grid>
                 </Grid>
@@ -162,4 +180,4 @@ const CreateCategoryView = () => {
   );
 };
 
-export default CreateCategoryView;
+export default EditCategoryView;
