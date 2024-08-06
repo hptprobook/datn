@@ -18,12 +18,12 @@ import Iconify from 'src/components/iconify';
 
 export default function CategoryTableRow({
   selected,
-  _id,
+  id,
   name,
   imageURL,
-  parentId,
+  // parentId,
+  onDelete,
   createdAt,
-  updatedAt,
   handleClick,
 }) {
   const [open, setOpen] = useState(null);
@@ -36,6 +36,10 @@ export default function CategoryTableRow({
     setOpen(null);
   };
 
+  const handleDelete = (idDelete) => {
+    onDelete(idDelete);
+    handleCloseMenu();
+  }
   return (
     <>
       <TableRow hover tabIndex={-1} role="checkbox" selected={selected}>
@@ -52,9 +56,9 @@ export default function CategoryTableRow({
           </Stack>
         </TableCell>
 
-        <TableCell>{parentId}</TableCell>
+        {/* <TableCell>{parentId}</TableCell> */}
         
-        <TableCell>{new Date(createdAt).toLocaleDateString()}</TableCell>
+        <TableCell  align="center">{new Date(createdAt).toLocaleDateString()}</TableCell>
 
         <TableCell align="right">
           <IconButton onClick={handleOpenMenu}>
@@ -75,12 +79,12 @@ export default function CategoryTableRow({
       >
         <MenuItem onClick={handleCloseMenu}>
           <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
-          Edit
+          Sửa
         </MenuItem>
 
-        <MenuItem onClick={handleCloseMenu} sx={{ color: 'error.main' }}>
+        <MenuItem onClick={() => handleDelete(id)} sx={{ color: 'error.main' }}>
           <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
-          Delete
+          Xóa
         </MenuItem>
       </Popover>
     </>
@@ -88,12 +92,11 @@ export default function CategoryTableRow({
 }
 
 CategoryTableRow.propTypes = {
-  _id: PropTypes.any,
+  id: PropTypes.any,
+  onDelete: PropTypes.func,
   name: PropTypes.string,
   imageURL: PropTypes.string,
-  parentId: PropTypes.string,
   createdAt: PropTypes.string,
-  updatedAt: PropTypes.string,
   selected: PropTypes.any,
   handleClick: PropTypes.func,
 };

@@ -12,7 +12,7 @@ import TablePagination from '@mui/material/TablePagination';
 
 import { users } from 'src/_mock/user';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchCategoriesAsync } from 'src/redux/slices/categoriesSlice';
+import { deleteCategory, fetchAllCategories, resetDelete } from 'src/redux/slices/categoriesSlice';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 import { handleToast } from 'src/hooks/toast';
@@ -38,27 +38,29 @@ export default function CategoryPage() {
   const dispatch = useDispatch();
   const categories = useSelector((state) => state.categories.data);
   const status = useSelector((state) => state.categories.status);
+  const error = useSelector((state) => state.categories.error);
   const [dataCategories, setDataCategories] = useState([]);
-
-
-  useEffect(() => {
-    dispatch(fetchCategoriesAsync());
-  }, [dispatch]);
+  const statusDelete = useSelector((state) => state.categories.statusDelete);
 
   useEffect(() => {
-    if (status === 'succeeded') {
-      setDataCategories(categories);
-    }
-  }, [categories, status]);
-
-  useEffect(() => {
-    if (status === 'failed') {
-      handleToast('error', 'Failed to fetch categories');
+    if (status === 'idle') {
+      dispatch(fetchAllCategories());
+    } else if (status === 'failed') {
+      console.error(error);
     } else if (status === 'succeeded') {
       setDataCategories(categories);
     }
-  }, [categories, status]);
-
+  }, [status, dispatch, error, categories]);
+  const handleDelete = (id) => {
+    dispatch(deleteCategory(id));
+  };
+  useEffect(() => {
+    console.log(statusDelete);
+    if (statusDelete === 'succeeded') {
+      handleToast('success', 'Xóa Danh mục thành công');
+      dispatch(resetDelete());
+    }
+  }, [statusDelete, dispatch]);
 
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === 'asc';
@@ -155,9 +157,8 @@ export default function CategoryPage() {
                 onRequestSort={handleSort}
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
-                  { id: 'name', label: 'Name' },
-                  { id: 'parentId', label: 'Parent' },
-                  { id: 'createdAt', label: 'CreatedAt' },
+                  { id: 'name', label: 'Tên' },
+                  { id: 'createdAt', label: 'Thời gian Tạo' },
                   { id: '' },
                 ]}
               />
@@ -166,14 +167,14 @@ export default function CategoryPage() {
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
                     <CategoryTableRow
+                    id={row._id}
                       key={row._id}
-                      _id={row._id}
                       name={row.name}
                       imageURL={row.imageURL}
-                      parentId={row.parentId}
                       createdAt={row.createdAt}
                       selected={selected.indexOf(row.name) !== -1}
                       handleClick={(event) => handleClick(event, row.name)}
+                      onDelete={handleDelete}
                     />
                   ))}
 
