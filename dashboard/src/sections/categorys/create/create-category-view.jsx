@@ -19,7 +19,7 @@ import InfoBox from 'src/components/Box/InforBox';
 import ImageDropZone from 'src/components/DropZoneUpload/DropZoneImage';
 import "./styles.css";
 import { useDispatch, useSelector } from 'react-redux';
-import { createCategoryAsync, fetchCategoriesAsync } from 'src/redux/slices/categoriesSlice';
+import { createCategory, fetchAllCategories } from 'src/redux/slices/categoriesSlice';
 import { handleToast } from 'src/hooks/toast';
 import Select from '@mui/material/Select';
 
@@ -41,7 +41,7 @@ const CreateCategoryView = () => {
   };
 
   useEffect(() => {
-    dispatch(fetchCategoriesAsync());
+    dispatch(fetchAllCategories());
   }, [dispatch]);
 
 
@@ -84,7 +84,7 @@ const CreateCategoryView = () => {
               };
               try {
                 console.log(data);
-                await dispatch(createCategoryAsync({ data })).unwrap();
+                await dispatch(createCategory({ data })).unwrap();
                 handleToast('success','Danh mục đã được tạo thành công!');
               } catch (error) {
                 handleToast('error','Có lỗi xảy ra khi tạo danh mục.');
