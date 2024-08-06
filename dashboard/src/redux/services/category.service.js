@@ -1,10 +1,10 @@
-import { get, put , post } from "src/utils/request";
+import { get, put, post, del } from 'src/utils/request';
 /* eslint-disable */
 
 const CategoryService = {
   getAllCategories: async () => {
     try {
-      const res = await get("categories");
+      const res = await get('categories');
       return res;
     } catch (err) {
       throw err;
@@ -18,32 +18,30 @@ const CategoryService = {
       throw err;
     }
   },
-    // ... Các hàm khác
-    createCategory: async (data) => {
-      try {
-          const res = await post(`categories/add`, data);
-          return res;
-      } catch (err) {
-          throw err;
-      }
-  },
-  deleteCategoryByID: async (id) => {
+  createCategory: async (data) => {
     try {
-        const res = await request.delete(`categories/${id}`);
-        return res.data;
+      const res = await post(`categories/add`, data);
+      return res;
     } catch (err) {
-        console.log("Error: ", err);
-        throw err;
+      throw err;
     }
-},
-    updateCategoryByID: async (categoryId, data) => {
-      try {
-          const res = await put(`categories/${categoryId}`, data);
-          return res.data;
-      } catch (err) {
-          console.log("Error: ", err);
-          throw err;
-      }
+  },
+  deleteCategory: async (id) => {
+    try {
+      return await del(`categories/${id}`);
+    } catch (err) {
+      console.error('Error: ', err);
+      throw err;
+    }
+  },
+  updateCategory: async (categoryId, data) => {
+    try {
+      const res = await put(`categories/${categoryId}`, data);
+      return res.data;
+    } catch (err) {
+      console.log('Error: ', err);
+      throw err;
+    }
   },
 };
 
