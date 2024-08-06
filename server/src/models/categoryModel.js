@@ -39,6 +39,12 @@ const getCategoriesAll = async (page, limit) => {
   }
 };
 
+const getCategoryById = async (category_id) => {
+  const db = await GET_DB().collection('categories');
+  const category = await db.findOne({ _id: new ObjectId(category_id) });
+  return category;
+};
+
 const createCategory = async (dataCategory) => {
   try {
     const validData = await validateBeforeCreate(dataCategory);
@@ -104,4 +110,5 @@ export const categoryModel = {
   createCategory,
   update,
   deleteCategory,
+  getCategoryById,
 };

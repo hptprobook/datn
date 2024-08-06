@@ -38,6 +38,12 @@ const getSuppliersAll = async (page, limit) => {
   }
 };
 
+const getSupplierById = async (supplier_id) => {
+  const db = await GET_DB().collection('categories');
+  const supplier = await db.findOne({ _id: new ObjectId(supplier_id) });
+  return supplier;
+};
+
 const createSupplier = async (dataSupplier) => {
   try {
     const validData = await validateBeforeCreate(dataSupplier);
@@ -97,6 +103,7 @@ const deleteSupplier = async (id) => {
 export const supplierModal = {
   countSupplierAll,
   getSuppliersAll,
+  getSupplierById,
   createSupplier,
   deleteSupplier,
   update,
