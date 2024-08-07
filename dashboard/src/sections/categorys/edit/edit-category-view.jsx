@@ -25,7 +25,7 @@ import Select from '@mui/material/Select';
 import { useParams } from 'react-router-dom';
 
 const validationSchema = Yup.object({
-  productName: Yup.string().required('Tên Danh mục là bắt buộc'),
+  categoryName: Yup.string().required('Tên Danh mục là bắt buộc'),
   description: Yup.string().required('Mô tả là bắt buộc'),
   parentCategory: Yup.string().nullable(), // Optional field for parent category
 });
@@ -34,7 +34,7 @@ const EditCategoryView = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const categories = useSelector((state) => state.categories.data);
-  const category = useSelector((state) => state.categories.category);
+  const categoryByID = useSelector((state) => state.categories.selectedCategory);
   const status = useSelector((state) => state.categories.status);
   const error = useSelector((state) => state.categories.error);
   const [dataCategories, setDataCategories] = useState([]);
@@ -50,7 +50,11 @@ const EditCategoryView = () => {
   useEffect(() => {
     if (id) {
       dispatch(fetchCategoryById(id));
+      
     }
+  }, [id, dispatch]);
+  
+  useEffect(() => {
     if (status === 'idle') {
       dispatch(fetchAllCategories());
     } else if (status === 'failed') {
@@ -58,16 +62,16 @@ const EditCategoryView = () => {
     } else if (status === 'succeeded') {
       setDataCategories(categories);
     }
-  }, [id, status, dispatch, error, categories]);
+  }, [status, dispatch, error, categories]);
 
   useEffect(() => {
-    if (category) {
-      setName(category.name);
-      setDescription(category.description);
-      setParentId(category.parent_id);
+    if (categoryByID) {
+      console.log(categoryByID);
+      setName(categoryByID.category.name);
+      setDescription(categoryByID.category.description);
+      setParentId(categoryByID.category.parentId);
     }
-  }, [category]);
-
+  }, [categoryByID]);
   const handleChangeUploadImg = (files) => {
     // Handle image upload
   };
@@ -82,14 +86,14 @@ const EditCategoryView = () => {
           <Typography variant="h6" gutterBottom>Chi tiết</Typography>
           <Typography variant="body2" color="text.secondary" gutterBottom>Tiêu đề, mô tả, hình ảnh...</Typography>
           <Formik
-            initialValues={{ productName: name || '', description: description || '', parentCategory: parent_id || '' }}
+            initialValues={{ categoryName: name || '', description: description || '', parentCategory: parent_id || '' }}
             validationSchema={validationSchema}
             enableReinitialize
             onSubmit={async (values, { setSubmitting }) => {
               const data = {
-                name: values.productName,
+                name: values.categoryName,
                 description: values.description,
-                slug: values.productName.toLowerCase().replace(/ /g, '-'),
+                slug: values.categoryName.toLowerCase().replace(/ /g, '-'),
                 parentId: values.parentCategory || null || "null",
               };
               try {
@@ -110,12 +114,14 @@ const EditCategoryView = () => {
                     <Field
                       as={TextField}
                       fullWidth
-                      id="productName"
-                      name="productName"
+                      id="categoryName"
+                      name="categoryName"
                       label="Tên Danh mục"
                       variant="outlined"
                       placeholder="Tên danh mục"
-                      helperText={<ErrorMessage name="productName" component="div" className="error-message" />}
+                      value={name}
+                      onBlur={(e) => setName(e.target.value)}
+                      helperText={<ErrorMessage name="categoryName" component="div" className="error-message" />}
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
@@ -149,11 +155,15 @@ const EditCategoryView = () => {
                         <MenuItem value="">
                           <em>Chọn danh mục cha</em>
                         </MenuItem>
-                        {dataCategories.map((category) => (
+                        {dataCategories && dataCategories.length > 0  ?( dataCategories.map((category) => (
                           <MenuItem key={category._id} value={category._id}>
                             {category.name}
                           </MenuItem>
-                        ))}
+                        )))
+                        : (
+                          <p>Loading categories...</p>
+                        )
+                      }
                       </Select>
                       <FormHelperText>
                         <ErrorMessage name="parentCategory" component="div" className="error-message" />

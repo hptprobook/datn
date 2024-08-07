@@ -24,7 +24,7 @@ import { handleToast } from 'src/hooks/toast';
 import Select from '@mui/material/Select';
 
 const validationSchema = Yup.object({
-  productName: Yup.string().required('Tên Danh mục là bắt buộc'),
+  categoryName: Yup.string().required('Tên Danh mục là bắt buộc'),
   description: Yup.string().required('Mô tả là bắt buộc'),
   parentCategory: Yup.string().nullable(), // Optional field for parent category
 });
@@ -65,13 +65,13 @@ const CreateCategoryView = () => {
           <Typography variant="h6" gutterBottom>Chi tiết</Typography>
           <Typography variant="body2" color="text.secondary" gutterBottom>Tiêu đề, mô tả, hình ảnh...</Typography>
           <Formik
-            initialValues={{ productName: '', description: '', parentCategory: '' }}
+            initialValues={{ categoryName: '', description: '', parentCategory: '' }}
             validationSchema={validationSchema}
             onSubmit={async (values, { setSubmitting }) => {
               const data = {
-                name: values.productName,
+                name: values.categoryName,
                 description: values.description,
-                slug: values.productName.toLowerCase().replace(/ /g, '-'),
+                slug: values.categoryName.toLowerCase().replace(/ /g, '-'),
                 parentId: values.parentCategory || null || "null",
               };
               try {
@@ -92,12 +92,12 @@ const CreateCategoryView = () => {
                     <Field
                       as={TextField}
                       fullWidth
-                      id="productName"
-                      name="productName"
+                      id="categoryName"
+                      name="categoryName"
                       label="Tên Danh mục"
                       variant="outlined"
                       placeholder="Tên danh mục"
-                      helperText={<ErrorMessage name="productName" component="div" className="error-message" />}
+                      helperText={<ErrorMessage name="categoryName" component="div" className="error-message" />}
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
