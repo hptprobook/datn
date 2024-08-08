@@ -40,6 +40,12 @@ const getInventoriesAll = async (page, limit) => {
   }
 };
 
+const getInventoryById = async (inventory_id) => {
+  const db = await GET_DB().collection('categories');
+  const inventory = await db.findOne({ _id: new ObjectId(inventory_id) });
+  return inventory;
+};
+
 const createInventory = async (dataInventory) => {
   try {
     // const validData = await validateBeforeCreate(dataInventory);
@@ -103,4 +109,5 @@ export const inventoryModel = {
   createInventory,
   update,
   deleteInventory,
+  getInventoryById,
 };

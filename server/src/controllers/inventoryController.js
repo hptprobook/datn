@@ -52,6 +52,25 @@ const getAllInventories = async (req, res) => {
       .json('Có lỗi xảy ra xin thử lại sau');
   }
 };
+const getInventoryById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const inventory = await inventoryModel.getInventoryById(id);
+    if (inventory) {
+      return res.status(StatusCodes.OK).json({
+        inventory,
+      });
+    }
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ message: 'Không tồn tại người dùng' });
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: ERROR_MESSAGES.ERR_AGAIN,
+      error: error,
+    });
+  }
+};
 const updateInventory = async (req, res) => {
   const { id } = req.params;
   const { productId, userId, supplierId, vars, type, quantity } = req.body;
@@ -106,4 +125,5 @@ export const inventoryController = {
   createInventory,
   updateInventory,
   deleteInventory,
+  getInventoryById,
 };

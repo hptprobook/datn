@@ -3,7 +3,7 @@ import axios from "axios";
 const baseURL = import.meta.env.VITE_REACT_API_URL;
 
 // Function to get the access token from local storage
-const getAccessToken = () => localStorage.getItem("access_token");
+const getAccessToken = () => localStorage.getItem("token");
 
 const request = axios.create({
     baseURL,
@@ -31,5 +31,9 @@ export const put = async (path, options = {}) => {
     const response = await request.put(path, options);
     return response.data;
 };
-
+export const del = async (path, options = {}) => { // added delete method
+    // const serializableOptions = ensureSerializableOptions(options);
+    const response = await request.delete(path, options);
+    return response.data;
+};
 export default request;
