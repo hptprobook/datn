@@ -11,6 +11,7 @@ import {
     Checkbox,
     FormControl,
     FormControlLabel,
+    FormHelperText,
     Grid,
     InputLabel,
     MenuItem,
@@ -35,9 +36,10 @@ const checkedIcon = <Icon icon={checkBox} />;
 // Define validation schema
 const validationSchema = Yup.object({
     productName: Yup.string().required('Tên sản phẩm là bắt buộc'),
+    description: Yup.string().required('Mô tả là bắt buộc'),
     shortDescription: Yup.string().required('Mô tả ngắn là bắt buộc'),
     quantity: Yup.number().required('Số lượng là bắt buộc').min(1, 'Số lượng phải ít nhất là 1'),
-    stock: Yup.number().required('Cần nhập kho dữ trữ').min(0, 'Kho dự trữ không được âm'),
+    stock: Yup.number().required('Stock is required').min(0, 'Stock must be greater than or equal to 0'),
     price: Yup.number().required('Cần nhập có giá thông thường').min(0, 'Giá không được âm'),
     salePrice: Yup.number().min(0, 'Giá khuyến mãi không được âm'),
   });
@@ -133,6 +135,7 @@ export default function CreateProductPage() {
         <Formik
           initialValues={{
             productName: '',
+            description: '',
             shortDescription: '',
             quantity: '',
             stock: '',
@@ -185,7 +188,20 @@ export default function CreateProductPage() {
                     </Box>
                     <Box mb={4}>
                       <InputLabel htmlFor="Description">Mô tả</InputLabel>
-                      <EditorContent />
+                      <Field name="description">
+                      {({ field, form }) => (
+                        <EditorContent
+                          {...field}
+                          value={field.value}
+                          onChange={(content) => {
+                            form.setFieldValue(field.name, content);
+                          }}
+                        />
+                      )}
+                    </Field>
+                    <FormHelperText>
+                      <ErrorMessage name="description" component="div" className="error-message" />
+                    </FormHelperText>
                     </Box>
                     <Box mb={4}>
                       <InfoBox title="Hình ảnh">
@@ -365,8 +381,7 @@ export default function CreateProductPage() {
                     Đầu vào liên quan đến giá
                     </Typography>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                      <Box>
-                        <Box sx={{ display: 'flex', alignItems: 'center', borderRadius: 1, p: 2 }}>
+                        <Box >
                           <Field
                             as={TextField}
                             fullWidth
@@ -381,9 +396,7 @@ export default function CreateProductPage() {
                             helperText={<ErrorMessage name="price" component="div" className="error-message" />}
                           />
                         </Box>
-                      </Box>
-                      <Box>
-                        <Box sx={{ display: 'flex', alignItems: 'center', borderRadius: 1, p: 2 }}>
+                        {/* <Box>
                           <Field
                             as={TextField}
                             fullWidth
@@ -397,8 +410,7 @@ export default function CreateProductPage() {
                             value={values.salePrice}
                             helperText={<ErrorMessage name="salePrice" component="div" className="error-message" />}
                           />
-                        </Box>
-                      </Box>
+                        </Box> */}
                     </Box>
                   </Box>
                 </Grid>
