@@ -11,6 +11,7 @@ import {
     Checkbox,
     FormControl,
     FormControlLabel,
+    FormHelperText,
     Grid,
     InputLabel,
     MenuItem,
@@ -35,11 +36,12 @@ const checkedIcon = <Icon icon={checkBox} />;
 // Define validation schema
 const validationSchema = Yup.object({
     productName: Yup.string().required('Tên sản phẩm là bắt buộc'),
+    description: Yup.string().required('Mô tả là bắt buộc'),
     shortDescription: Yup.string().required('Mô tả ngắn là bắt buộc'),
-    quantity: Yup.number().required('Quantity is required').min(1, 'Quantity must be at least 1'),
-    stock: Yup.number().required('Stock is required').min(0, 'Stock cannot be negative'),
-    price: Yup.number().required('Regular price is required').min(0, 'Price cannot be negative'),
-    salePrice: Yup.number().min(0, 'Sale price cannot be negative'),
+    quantity: Yup.number().required('Số lượng là bắt buộc').min(1, 'Số lượng phải ít nhất là 1'),
+    stock: Yup.number().required('Stock is required').min(0, 'Stock must be greater than or equal to 0'),
+    price: Yup.number().required('Cần nhập có giá thông thường').min(0, 'Giá không được âm'),
+    salePrice: Yup.number().min(0, 'Giá khuyến mãi không được âm'),
   });
 export default function CreateProductPage() {
     const [imglist, setImglist] = useState([]);
@@ -133,6 +135,7 @@ export default function CreateProductPage() {
         <Formik
           initialValues={{
             productName: '',
+            description: '',
             shortDescription: '',
             quantity: '',
             stock: '',
@@ -185,7 +188,20 @@ export default function CreateProductPage() {
                     </Box>
                     <Box mb={4}>
                       <InputLabel htmlFor="Description">Mô tả</InputLabel>
-                      <EditorContent />
+                      <Field name="description">
+                      {({ field, form }) => (
+                        <EditorContent
+                          {...field}
+                          value={field.value}
+                          onChange={(content) => {
+                            form.setFieldValue(field.name, content);
+                          }}
+                        />
+                      )}
+                    </Field>
+                    <FormHelperText>
+                      <ErrorMessage name="description" component="div" className="error-message" />
+                    </FormHelperText>
                     </Box>
                     <Box mb={4}>
                       <InfoBox title="Hình ảnh">
@@ -207,7 +223,7 @@ export default function CreateProductPage() {
                             id="quantity"
                             name="quantity"
                             type="number"
-                            label="Quantity"
+                            label="Số lượng"
                             variant="outlined"
                             onChange={handleChange}
                             onBlur={handleBlur}
@@ -234,11 +250,11 @@ export default function CreateProductPage() {
                       </Box>
                       <Box>
                         <FormControl fullWidth>
-                          <InputLabel id="demo-simple-select-helper-label">Brand</InputLabel>
+                          <InputLabel id="demo-simple-select-helper-label">Thương hiệu</InputLabel>
                           <Select
                             labelId="demo-simple-select-helper-label"
                             id="Brand"
-                            label="Brand"
+                            label="Thương hiệu"
                           >
                             <MenuItem value="">
                               <em>None</em>
@@ -251,11 +267,11 @@ export default function CreateProductPage() {
                       </Box>
                       <Box>
                         <FormControl fullWidth>
-                          <InputLabel id="demo-simple-select-helper-label">Category</InputLabel>
+                          <InputLabel id="demo-simple-select-helper-label">Danh mục</InputLabel>
                           <Select
                             labelId="demo-simple-select-helper-label"
                             id="Category"
-                            label="Category"
+                            label="Danh mục"
                           >
                             <MenuItem value="">
                               <em>None</em>
@@ -289,7 +305,7 @@ export default function CreateProductPage() {
                               );
                             }}
                             renderInput={(params) => (
-                              <TextField {...params} label="Colors" placeholder="Colors" />
+                              <TextField {...params} label="Màu sắc" placeholder="Màu sắc" />
                             )}
                           />
                         </FormControl>
@@ -317,7 +333,7 @@ export default function CreateProductPage() {
                               );
                             }}
                             renderInput={(params) => (
-                              <TextField {...params} label="Sizes" placeholder="Sizes" />
+                              <TextField {...params} label="Kích thước" placeholder="Kích thước" />
                             )}
                           />
                         </FormControl>
@@ -334,8 +350,8 @@ export default function CreateProductPage() {
                             renderInput={(params) => (
                               <TextField
                                 {...params}
-                                label="Tags"
-                                placeholder="Tags"
+                                label="Nhãn sản phẩm"
+                                placeholder="Nhãn sản phẩm"
                                 variant="outlined"
                                 fullWidth
                               />
@@ -359,20 +375,19 @@ export default function CreateProductPage() {
                     }}
                   >
                     <Typography variant="h6" gutterBottom>
-                      Pricing
+                    Định giá
                     </Typography>
                     <Typography variant="body2" color="text.secondary" gutterBottom>
-                      Price related inputs
+                    Đầu vào liên quan đến giá
                     </Typography>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                      <Box>
-                        <Box sx={{ display: 'flex', alignItems: 'center', borderRadius: 1, p: 2 }}>
+                        <Box >
                           <Field
                             as={TextField}
                             fullWidth
                             id="price"
                             name="price"
-                            label="Regular price"
+                            label="Giá thông thường"
                             variant="outlined"
                             placeholder="0.00 VND"
                             onChange={handleChange}
@@ -381,15 +396,13 @@ export default function CreateProductPage() {
                             helperText={<ErrorMessage name="price" component="div" className="error-message" />}
                           />
                         </Box>
-                      </Box>
-                      <Box>
-                        <Box sx={{ display: 'flex', alignItems: 'center', borderRadius: 1, p: 2 }}>
+                        {/* <Box>
                           <Field
                             as={TextField}
                             fullWidth
                             id="salePrice"
                             name="salePrice"
-                            label="Sale price"
+                            label="Giá khuyến mãi"
                             variant="outlined"
                             placeholder="0.00 VND"
                             onChange={handleChange}
@@ -397,8 +410,7 @@ export default function CreateProductPage() {
                             value={values.salePrice}
                             helperText={<ErrorMessage name="salePrice" component="div" className="error-message" />}
                           />
-                        </Box>
-                      </Box>
+                        </Box> */}
                     </Box>
                   </Box>
                 </Grid>
