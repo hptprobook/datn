@@ -45,7 +45,7 @@ export default function AccountPopover() {
     setOpen(null);
   };
   const handleLogout = () => {
-    handleToast('success', 'Logout successfully');
+    handleToast('success', 'Đăng xuất thành công!');
     logout();
   };
   return (

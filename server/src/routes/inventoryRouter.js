@@ -22,6 +22,7 @@ const upload = multer({
 });
 
 Router.get('/', inventoryController.getAllInventories);
+Router.get('/:id', inventoryController.getInventoryById);
 Router.post('/add', upload.none(), inventoryController.createInventory);
 Router.put('/:id', upload.none(), inventoryController.updateInventory);
 Router.delete('/:id', inventoryController.deleteInventory);

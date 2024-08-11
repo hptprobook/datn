@@ -1,5 +1,5 @@
 /* eslint-disable import/no-unresolved */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
@@ -24,30 +24,81 @@ import Logo from 'src/components/logo';
 import Iconify from 'src/components/iconify';
 
 import { handleToast } from 'src/hooks/toast';
-
+import * as Yup from 'yup';
+import { useFormik } from 'formik';
+import { useDispatch, useSelector } from 'react-redux';
+import { handleLogin } from 'src/redux/slices/authSlice';
 // ----------------------------------------------------------------------
+const loginSchema = Yup.object().shape({
+  email: Yup.string().email('Email phải là một địa chỉ email hợp lệ').required('Email là bắt buộc'),
+  password: Yup.string()
+    .required('Mật khẩu là bắt buộc')
+    .min(6, 'Mật khẩu phải có ít nhất 6 ký tự')
+    .max(50, 'Mật khẩu không được quá 50 ký tự'),
+});
 
 export default function LoginView() {
   const theme = useTheme();
+  const dispatch = useDispatch();
 
+  const [submit, setSubmit] = useState(false);
   // const router = useRouter();
 
-  const [showPassword, setShowPassword] = useState(false);
+  const auth = useSelector((state) => state.auth.auth);
+  const error = useSelector((state) => state.auth.error);
+  const status = useSelector((state) => state.auth.status);
   const { login } = useAuth();
-  const handleClick = () => {
-    handleToast('success', 'Login successfully');
-    login({ username: '1234' });
-  };
+
+  useEffect(() => {
+    if (status === 'loading') {
+      setSubmit(true);
+    } else {
+      setSubmit(false);
+      if (status === 'failed') {
+        handleToast('error', error.message);
+      }
+      if (status === 'succeeded') {
+        handleToast('success', 'Đăng nhập thành công');
+        login(auth.token);
+      }
+    }
+  }, [status, error, auth, login]);
+
+  const [showPassword, setShowPassword] = useState(false);
+
+  const formik = useFormik({
+    initialValues: {
+      email: '',
+      password: '',
+    },
+    validationSchema: loginSchema,
+    onSubmit: async (values) => {
+      setSubmit(true);
+      dispatch(handleLogin(values));
+    },
+  });
 
   const renderForm = (
-    <>
+    <form onSubmit={formik.handleSubmit}>
       <Stack spacing={3}>
-        <TextField name="email" label="Email address" />
-
+        <TextField
+          name="email"
+          label="Email"
+          value={formik.values.email}
+          onChange={formik.handleChange}
+          error={formik.touched.email && Boolean(formik.errors.email)}
+          helperText={formik.touched.email && formik.errors.email}
+          onBlur={formik.handleBlur}
+        />
         <TextField
           name="password"
-          label="Password"
+          label="Mật khẩu"
           type={showPassword ? 'text' : 'password'}
+          value={formik.values.password}
+          onChange={formik.handleChange}
+          error={formik.touched.password && Boolean(formik.errors.password)}
+          helperText={formik.touched.password && formik.errors.password}
+          onBlur={formik.handleBlur}
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
@@ -62,7 +113,7 @@ export default function LoginView() {
 
       <Stack direction="row" alignItems="center" justifyContent="flex-end" sx={{ my: 3 }}>
         <Link variant="subtitle2" underline="hover">
-          Forgot password?
+          Quên mật khẩu?
         </Link>
       </Stack>
 
@@ -70,13 +121,13 @@ export default function LoginView() {
         fullWidth
         size="large"
         type="submit"
+        disabled={submit}
         variant="contained"
         color="inherit"
-        onClick={handleClick}
       >
-        Login
+        Đăng nhập
       </LoadingButton>
-    </>
+    </form>
   );
 
   return (
@@ -105,50 +156,11 @@ export default function LoginView() {
             maxWidth: 420,
           }}
         >
-          <Typography variant="h4">Sign in to Minimal</Typography>
-
-          <Typography variant="body2" sx={{ mt: 2, mb: 5 }}>
-            Don’t have an account?
-            <Link variant="subtitle2" sx={{ ml: 0.5 }}>
-              Get started
-            </Link>
-          </Typography>
-
-          <Stack direction="row" spacing={2}>
-            <Button
-              fullWidth
-              size="large"
-              color="inherit"
-              variant="outlined"
-              sx={{ borderColor: alpha(theme.palette.grey[500], 0.16) }}
-            >
-              <Iconify icon="eva:google-fill" color="#DF3E30" />
-            </Button>
-
-            <Button
-              fullWidth
-              size="large"
-              color="inherit"
-              variant="outlined"
-              sx={{ borderColor: alpha(theme.palette.grey[500], 0.16) }}
-            >
-              <Iconify icon="eva:facebook-fill" color="#1877F2" />
-            </Button>
-
-            <Button
-              fullWidth
-              size="large"
-              color="inherit"
-              variant="outlined"
-              sx={{ borderColor: alpha(theme.palette.grey[500], 0.16) }}
-            >
-              <Iconify icon="eva:twitter-fill" color="#1C9CEA" />
-            </Button>
-          </Stack>
+          <Typography variant="h4">Đăng nhập quản trị</Typography>
 
           <Divider sx={{ my: 3 }}>
             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              OR
+              *
             </Typography>
           </Divider>
 
