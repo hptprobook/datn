@@ -158,9 +158,9 @@ export default function ProductsPage() {
                 onRequestSort={handleSort}
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
-                  { id: 'name', label: 'Name' },
-                  { id: 'price', label: 'Price' },
-                  { id: 'brand', label: 'Brand' },
+                  { id: 'name', label: 'Tên' },
+                  { id: 'price', label: 'Giá' },
+                  { id: 'brand', label: 'Thương hiệu' },
                   { id: 'stock', label: 'Stock' },
                   { id: '' },
                 ]}

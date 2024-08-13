@@ -18,6 +18,7 @@ export const Page404 = lazy(() => import('src/pages/page-not-found'));
 
 export  const CategoryPage = lazy(() => import('src/pages/category/category'));
 export  const CreateCategoryPage = lazy(() => import('src/pages/category/createCategory'));
+export  const EditCategoryPage = lazy(() => import('src/pages/category/editCategory'));
 
 export  const WarehousePage = lazy(() => import('src/pages/warehouse/warehouse'));
 export  const CouponsPage = lazy(() => import('src/pages/coupons/coupons'));
@@ -44,6 +45,7 @@ export default function Router() {
         {path: 'blog', element: <BlogPage/>},
         {path: 'category', element: <CategoryPage/>},
         {path: 'category/create', element: <CreateCategoryPage/>},
+        {path: 'category/edit/:id', element: <EditCategoryPage/>},
         {path: 'warehouse', element: <WarehousePage/>},
         {path: 'coupons', element: <CouponsPage/>},
         {path: 'orders', element: <OrdersPage/>},
