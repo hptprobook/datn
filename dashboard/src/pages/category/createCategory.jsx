@@ -1,5 +1,5 @@
 import { Helmet } from 'react-helmet-async';
-import {CreateCategoryView }  from 'src/sections/categorys/view';
+import {CreateCategoryView }  from 'src/sections/categorys/create';
 
 // ----------------------------------------------------------------------
 
@@ -7,7 +7,7 @@ export default function CreateCategoryPage() {
   return (
     <>
       <Helmet>
-        <title>Create Category</title>
+        <title>Tạo Danh Mục</title>
       </Helmet>
 
       <CreateCategoryView />

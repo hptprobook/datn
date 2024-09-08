@@ -8,6 +8,7 @@ const Router = express.Router();
 
 //admin
 Router.get('/', supplierController.getAllSuppliers);
+Router.get('/:id', supplierController.getSupplierById);
 Router.post('/add', supplierController.createSupplier);
 Router.delete('/:id', supplierController.deleteSupplier);
 Router.put('/:id', supplierController.updateSupplier);

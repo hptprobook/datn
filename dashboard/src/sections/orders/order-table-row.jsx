@@ -13,16 +13,15 @@ import IconButton from '@mui/material/IconButton';
 
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
-
+import { paymentConfig, statusConfig } from './utils';
 // ----------------------------------------------------------------------
 
-export default function UserTableRow({
+export default function OrderTableRow({
   selected,
   name,
-  avatarUrl,
-  company,
-  role,
-  isVerified,
+  totalAmount,
+  userId,
+  paymentMethod,
   status,
   handleClick,
 }) {
@@ -45,21 +44,24 @@ export default function UserTableRow({
 
         <TableCell component="th" scope="row" padding="none">
           <Stack direction="row" alignItems="center" spacing={2}>
-            <Avatar alt={name} src={avatarUrl} />
             <Typography variant="subtitle2" noWrap>
               {name}
             </Typography>
           </Stack>
         </TableCell>
 
-        <TableCell>{company}</TableCell>
+        <TableCell>{userId}</TableCell>
 
-        <TableCell>{role}</TableCell>
+        <TableCell>{paymentConfig[paymentMethod].label}</TableCell>
 
-        <TableCell align="center">{isVerified ? 'Yes' : 'No'}</TableCell>
+        <TableCell align="center">
+          {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(
+            totalAmount
+          )}
+        </TableCell>
 
         <TableCell>
-          <Label color={(status === 'banned' && 'error') || 'success'}>{status}</Label>
+          <Label color={statusConfig[status].color}>{statusConfig[status].label}</Label>
         </TableCell>
 
         <TableCell align="right">
@@ -81,25 +83,24 @@ export default function UserTableRow({
       >
         <MenuItem onClick={handleCloseMenu}>
           <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
-          Edit
+          Sửa thông tin
         </MenuItem>
 
         <MenuItem onClick={handleCloseMenu} sx={{ color: 'error.main' }}>
           <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
-          Delete
+          Xóa
         </MenuItem>
       </Popover>
     </>
   );
 }
 
-UserTableRow.propTypes = {
-  avatarUrl: PropTypes.any,
-  company: PropTypes.any,
+OrderTableRow.propTypes = {
+  totalAmount: PropTypes.any,
   handleClick: PropTypes.func,
-  isVerified: PropTypes.any,
+  paymentMethod: PropTypes.any,
   name: PropTypes.any,
-  role: PropTypes.any,
+  userId: PropTypes.any,
   selected: PropTypes.any,
   status: PropTypes.string,
 };

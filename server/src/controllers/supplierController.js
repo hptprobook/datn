@@ -21,6 +21,26 @@ const getAllSuppliers = async (req, res) => {
   }
 };
 
+const getSupplierById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const supplier = await supplierModal.getSupplierById(id);
+    if (supplier) {
+      return res.status(StatusCodes.OK).json({
+        supplier,
+      });
+    }
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ message: 'Không tồn tại người dùng' });
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: ERROR_MESSAGES.ERR_AGAIN,
+      error: error,
+    });
+  }
+};
+
 const createSupplier = async (req, res) => {
   const { fullName, phone, email, address } = req.body;
   if (!fullName && !phone && !email && !address) {
@@ -76,4 +96,5 @@ export const supplierController = {
   getAllSuppliers,
   updateSupplier,
   deleteSupplier,
+  getSupplierById,
 };

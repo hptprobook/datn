@@ -48,9 +48,30 @@ export function applyFilter({ inputData, comparator, filterName }) {
 
   if (filterName) {
     inputData = inputData.filter(
-      (user) => user.name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1
+      (data) => data.userId.toLowerCase().indexOf(filterName.toLowerCase()) !== -1
     );
   }
 
   return inputData;
 }
+
+export const statusConfig = {
+  Pending: { value: 'Pending', label: 'Pending', color: 'primary' },
+  Processing: { value: 'Processing', label: 'Processing', color: 'info' },
+  Delivered: { value: 'Delivered', label: 'Delivered', color: 'success' },
+  Canceled: { value: 'Canceled', label: 'Canceled', color: 'error' },
+  Confirmed: { value: 'Confirmed', label: 'Confirmed', color: 'primary' },
+  Shipped: { value: 'Shipped', label: 'Shipped', color: 'success' },
+  Returned: { value: 'Returned', label: 'Returned', color: 'warning' },
+  Refunded: { value: 'Refunded', label: 'Refunded', color: 'warning' },
+  OnHold: { value: 'On Hold', label: 'On Hold', color: 'error' }
+};
+
+export const paymentConfig = {
+  Cash: { value: 'Cash', label: 'Thanh toán tiền mặt', icon: 'ic:round-monetization-on' },
+  Card: { value: 'Card', label: 'Card', icon: 'ic:round-credit-card' },
+  Paypal: { value: 'Paypal', label: 'Paypal', icon: 'ic:round-paypal' },
+  Stripe: { value: 'Stripe', label: 'Stripe', icon: 'ic:round-stripe' },
+  ApplePay: { value: 'Apple Pay', label: 'Apple Pay', icon: 'ic:round-apple-pay' },
+  GooglePay: { value: 'Google Pay', label: 'Google Pay', icon: 'ic:round-google-pay' }
+};

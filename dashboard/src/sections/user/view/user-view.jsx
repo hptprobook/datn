@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -9,11 +9,14 @@ import TableBody from '@mui/material/TableBody';
 import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
+import { useDispatch, useSelector } from 'react-redux';
 
-import { users } from 'src/_mock/user';
+import { deleteUser, fetchAllUsers, resetDelete } from 'src/redux/slices/userSlice';
 
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
+import { useRouter } from 'src/routes/hooks';
+import { handleToast } from 'src/hooks/toast';
 
 import TableNoData from '../table-no-data';
 import UserTableRow from '../user-table-row';
@@ -25,6 +28,30 @@ import { emptyRows, applyFilter, getComparator } from '../utils';
 // ----------------------------------------------------------------------
 
 export default function UserPage() {
+  const dispatch = useDispatch();
+  const [users, setUsers] = useState([]);
+  const data = useSelector((state) => state.users.users);
+  const status = useSelector((state) => state.users.status);
+  const error = useSelector((state) => state.users.error);
+  const statusDelete = useSelector((state) => state.users.statusDelete);
+
+  useEffect(() => {
+    if (status === 'idle') {
+      dispatch(fetchAllUsers());
+    } else if (status === 'failed') {
+      console.error(error);
+    } else if (status === 'succeeded') {
+      setUsers(data.users);
+    }
+  }, [status, dispatch, error, data]);
+  useEffect(() => {
+    if (statusDelete === 'succeeded') {
+      handleToast('success', 'Xóa người dùng thành công');
+      dispatch(resetDelete());
+    }
+  }, [statusDelete, dispatch]);
+
+
   const [page, setPage] = useState(0);
 
   const [order, setOrder] = useState('asc');
@@ -36,6 +63,8 @@ export default function UserPage() {
   const [filterName, setFilterName] = useState('');
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
+
+  const route = useRouter();
 
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === 'asc';
@@ -52,6 +81,10 @@ export default function UserPage() {
       return;
     }
     setSelected([]);
+  };
+
+  const handleDelete = (id) => {
+    dispatch(deleteUser(id));
   };
 
   const handleClick = (event, name) => {
@@ -97,10 +130,15 @@ export default function UserPage() {
   return (
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Users</Typography>
+        <Typography variant="h4">Người dùng</Typography>
 
-        <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />}>
-          New User
+        <Button
+          variant="contained"
+          color="inherit"
+          startIcon={<Iconify icon="eva:plus-fill" />}
+          onClick={() => route.push('create')}
+        >
+          Thêm người dùng
         </Button>
       </Stack>
 
@@ -122,11 +160,11 @@ export default function UserPage() {
                 onRequestSort={handleSort}
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
-                  { id: 'name', label: 'Name' },
-                  { id: 'company', label: 'Company' },
-                  { id: 'role', label: 'Role' },
-                  { id: 'isVerified', label: 'Verified', align: 'center' },
-                  { id: 'status', label: 'Status' },
+                  { id: 'name', label: 'Tên' },
+                  { id: 'email', label: 'Email' },
+                  { id: 'role', label: 'Vai trò' },
+                  { id: 'isVerified', label: 'Thông báo', align: 'center' },
+                  { id: 'status', label: 'Trạng thái' },
                   { id: '' },
                 ]}
               />
@@ -135,15 +173,17 @@ export default function UserPage() {
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
                     <UserTableRow
-                      key={row.id}
-                      name={row.name}
+                      id={row._id}
+                      key={row._id}
+                      name={row.name.firstName}
                       role={row.role}
-                      status={row.status}
-                      company={row.company}
-                      avatarUrl={row.avatarUrl}
-                      isVerified={row.isVerified}
+                      status={row.role}
+                      email={row.email}
+                      // avatarUrl={row.avatarUrl}
+                      isVerified={row.allowNotifies}
                       selected={selected.indexOf(row.name) !== -1}
                       handleClick={(event) => handleClick(event, row.name)}
+                      onDelete={handleDelete}
                     />
                   ))}
 
