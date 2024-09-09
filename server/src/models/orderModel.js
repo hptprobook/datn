@@ -22,6 +22,10 @@ const getAllOrders = async (page, limit) => {
     .find()
     .skip((page - 1) * limit)
     .limit(limit)
+    .project({
+      products: 0, // Loại bỏ trường "unnecessaryField1"
+      note: 0, // Loại bỏ trường "unnecessaryField2"
+    })
     // .project({ _id: 0, age:1 })
     .toArray();
   return result;

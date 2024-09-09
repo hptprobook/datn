@@ -1,9 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
-import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
 import Typography from '@mui/material/Typography';
@@ -12,15 +11,18 @@ import TablePagination from '@mui/material/TablePagination';
 
 import { users } from 'src/_mock/user';
 
-import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchAll } from 'src/redux/slices/orderSlices';
 import TableNoData from '../table-no-data';
-import UserTableRow from '../user-table-row';
-import UserTableHead from '../user-table-head';
+import OrderTableRow from '../order-table-row';
+import OrderTableHead from '../order-table-head';
 import TableEmptyRows from '../table-empty-rows';
-import UserTableToolbar from '../user-table-toolbar';
+import OrderTableToolbar from '../order-table-toolbar';
 import { emptyRows, applyFilter, getComparator } from '../utils';
+
+
 
 // ----------------------------------------------------------------------
 
@@ -37,6 +39,24 @@ export default function OrdersPage() {
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
+  const dispatch = useDispatch();
+
+  const dataOrder = useSelector((state) => state.orders.orders);
+  const status = useSelector((state) => state.orders.status);
+
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    dispatch(fetchAll());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (status === 'succeeded') {
+      console.log(dataOrder);
+      setData(dataOrder);
+    }
+  }, [status, dataOrder]);
+
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === 'asc';
     if (id !== '') {
@@ -47,7 +67,7 @@ export default function OrdersPage() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = users.map((n) => n.name);
+      const newSelecteds = data.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
@@ -87,7 +107,7 @@ export default function OrdersPage() {
   };
 
   const dataFiltered = applyFilter({
-    inputData: users,
+    inputData: data,
     comparator: getComparator(order, orderBy),
     filterName,
   });
@@ -97,15 +117,11 @@ export default function OrdersPage() {
   return (
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Users</Typography>
-
-        <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />}>
-          New User
-        </Button>
+        <Typography variant="h4">Đơn hàng</Typography>
       </Stack>
 
       <Card>
-        <UserTableToolbar
+        <OrderTableToolbar
           numSelected={selected.length}
           filterName={filterName}
           onFilterName={handleFilterByName}
@@ -114,19 +130,19 @@ export default function OrdersPage() {
         <Scrollbar>
           <TableContainer sx={{ overflow: 'unset' }}>
             <Table sx={{ minWidth: 800 }}>
-              <UserTableHead
+              <OrderTableHead
                 order={order}
                 orderBy={orderBy}
-                rowCount={users.length}
+                rowCount={data.length}
                 numSelected={selected.length}
                 onRequestSort={handleSort}
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
-                  { id: 'name', label: 'Name' },
-                  { id: 'company', label: 'Company' },
-                  { id: 'role', label: 'Role' },
-                  { id: 'isVerified', label: 'Verified', align: 'center' },
-                  { id: 'status', label: 'Status' },
+                  { id: 'name', label: 'Tên khách hàng' },
+                  { id: 'userId', label: 'Mã khách hàng' },
+                  { id: 'paymentMethod', label: 'Phương thức thanh toán' },
+                  { id: 'totalAmount', label: 'Tổng tiền'},
+                  { id: 'status', label: 'Trạng thái' },
                   { id: '' },
                 ]}
               />
@@ -134,22 +150,22 @@ export default function OrdersPage() {
                 {dataFiltered
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
-                    <UserTableRow
+                    <OrderTableRow
                       key={row.id}
                       name={row.name}
-                      role={row.role}
+                      userId={row.userId}
                       status={row.status}
-                      company={row.company}
+                      paymentMethod={row.paymentMethod}
                       avatarUrl={row.avatarUrl}
-                      isVerified={row.isVerified}
-                      selected={selected.indexOf(row.name) !== -1}
-                      handleClick={(event) => handleClick(event, row.name)}
+                      totalAmount={row.totalAmount}
+                      selected={selected.indexOf(row.userId) !== -1}
+                      handleClick={(event) => handleClick(event, row.userId)}
                     />
                   ))}
 
                 <TableEmptyRows
                   height={77}
-                  emptyRows={emptyRows(page, rowsPerPage, users.length)}
+                  emptyRows={emptyRows(page, rowsPerPage, data.length)}
                 />
 
                 {notFound && <TableNoData query={filterName} />}
@@ -161,7 +177,7 @@ export default function OrdersPage() {
         <TablePagination
           page={page}
           component="div"
-          count={users.length}
+          count={data.length}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}
           rowsPerPageOptions={[5, 10, 25]}
