@@ -87,7 +87,7 @@ const CreateCategoryView = () => {
         >
           {({ handleSubmit }) => (
             <Form onSubmit={handleSubmit}>
-              <Grid container spacing={3}>
+              <Grid >
                 <Grid item xs={12} sm={6}>
                   <Field
                     as={TextField}
