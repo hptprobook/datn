@@ -79,6 +79,5 @@ export const reviewModel = {
   addReview,
   updateReview,
   deleteReview,
-
   getCurentReview,
 };

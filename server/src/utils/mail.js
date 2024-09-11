@@ -1,11 +1,12 @@
 import NodeMailer from 'nodemailer';
+import env from 'dotenv';
 const transporter = NodeMailer.createTransport({
   host: 'smtp.gmail.com',
   port: 587,
   secure: false, // Use `true` for port 465, `false` for all other ports
   auth: {
-    user: 'tuhvpk03455@fpt.edu.vn',
-    pass: 'mock dhjs ckzi enei',
+    user: env.EMAIL_NODEMAILER, // generated ethereal user
+    pass: env.PASSWORD_NODEMAILER, // generated ethereal password
   },
 });
 

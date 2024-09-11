@@ -1,8 +1,7 @@
 /* eslint-disable semi */
 import express from 'express';
-import verifyToken from '~/middlewares';
-// import isAdmin from '~/middlewares/isAdmin';
 import { cartsController } from '~/controllers/cartController';
+import verifyToken from '~/middlewares/verifyToken';
 const Router = express.Router();
 
 // Carts
@@ -11,10 +10,6 @@ Router.post('/', verifyToken, cartsController.addCart);
 Router.put('/', verifyToken, cartsController.updateCart);
 Router.delete('/', verifyToken, cartsController.removeCart);
 
-// Router.get('/me', verifyToken, (req, res) => {
-//   // #swagger.tags = ['Users']
-//   // #swagger.summary = 'Get my data...'
-//   cartsController.getCurrentUser(req, res);
-// });
+// Remove the commented out block of code
 
 export const cartsApi = Router;

@@ -208,7 +208,6 @@ const OrderStatus = {
   DELIVERED: 'Delivered',
   CANCELLED: 'Cancelled',
   RETURNED: 'Returned',
-  REFUNDED: 'Refunded',
   FAILED: 'Failed',
   ON_HOLD: 'On Hold',
 };

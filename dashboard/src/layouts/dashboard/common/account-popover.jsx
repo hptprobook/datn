@@ -13,6 +13,8 @@ import { account } from 'src/_mock/account';
 
 import { useAuth } from 'src/hooks/useAuth';
 import { handleToast } from 'src/hooks/toast';
+import { useDispatch } from 'react-redux';
+import { resetLogin } from 'src/redux/slices/authSlice';
 
 // ----------------------------------------------------------------------
 
@@ -34,6 +36,9 @@ const MENU_OPTIONS = [
 // ----------------------------------------------------------------------
 
 export default function AccountPopover() {
+
+  const dispatch = useDispatch();
+
   const { logout } = useAuth();
   const [open, setOpen] = useState(null);
 
@@ -46,6 +51,7 @@ export default function AccountPopover() {
   };
   const handleLogout = () => {
     handleToast('success', 'Đăng xuất thành công!');
+    dispatch(resetLogin());
     logout();
   };
   return (
