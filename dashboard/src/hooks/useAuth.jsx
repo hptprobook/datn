@@ -13,14 +13,14 @@ export const AuthProvider = ({ children }) => {
   useMemo(() => {
     const tokenLocal = localStorage.getItem('token');
     if (tokenLocal) {
-      setToken(JSON.parse(tokenLocal));
+      setToken(tokenLocal);
     }
   }, []);
 
   const navigate = useNavigate();
 
   const login = useCallback(async (data) => {
-    localStorage.setItem('token', JSON.stringify(data));
+    localStorage.setItem('token', data);
     navigate('/', { replace: true });
     setToken(data);
   }, [navigate]);
@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }) => {
   const logout = useCallback(() => {
     localStorage.removeItem('token');
     setToken(null);
-    navigate('/', { replace: true });
+    navigate('/login', { replace: true });
   }, [navigate]);
 
   const value = useMemo(
