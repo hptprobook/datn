@@ -1,4 +1,4 @@
-
+// dùng để verify những chức năng cơ bản mà admin nào cũng có thể dùng được, kiểm tra quyền để vào admin
 const verifyAdmin = async (req, res, next) => {
   try {
     const { role } = req.user;
