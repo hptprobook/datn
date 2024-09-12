@@ -151,7 +151,7 @@ const CreateCategoryView = () => {
                   </Grid>
                   <Grid item xs={12}>
                     <InfoBox title="Hình ảnh">
-                      <ImageDropZone handleUpload={handleChangeUploadImg} />
+                    <ImageDropZone handleUpload={handleChangeUploadImg} singleFile />
                     </InfoBox>
                   </Grid>
                   <Grid item xs={12}>
