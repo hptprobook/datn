@@ -8,6 +8,7 @@ import bcrypt from 'bcryptjs';
 import { env } from '~/config/environment';
 import { ERROR_MESSAGES } from '~/utils/errorMessage';
 import { sendMail } from '~/utils/mail';
+import { createToken } from '~/utils/helper';
 
 const register = async(req, res) => {
     try {
@@ -15,25 +16,25 @@ const register = async(req, res) => {
         const { email, password } = dataRegister;
         if (!email) {
             return res.status(StatusCodes.BAD_REQUEST).json({
-                mgs: 'Không bỏ trống Email',
+                message: 'Không bỏ trống Email',
             });
         }
         if (!password) {
             return res.status(StatusCodes.BAD_REQUEST).json({
-                mgs: 'Không bỏ trống Mật khẩu',
+                message: 'Không bỏ trống Mật khẩu',
             });
         }
         const user = await authModel.getUserEmail(email);
         if (user) {
             return res
                 .status(StatusCodes.BAD_REQUEST)
-                .json({ mgs: 'Tài khoản đã tồn tại' });
+                .json({ message: 'Tài khoản đã tồn tại' });
         }
         const hash = await bcrypt.hashSync(password, 8);
         if (!hash) {
             return res
                 .status(StatusCodes.BAD_REQUEST)
-                .json({ mgs: 'Có lỗi bảo mật xảy ra' });
+                .json({ message: 'Có lỗi bảo mật xảy ra' });
         }
 
         const data = {
@@ -41,16 +42,17 @@ const register = async(req, res) => {
             password: hash,
         };
         const dataUser = await authModel.register(data); // Assuming you have this function
-        if (dataUser.acknowledged) {
-            return res.status(StatusCodes.OK).json({ mgs: 'Đăng kí thành công' });
+        if (dataUser) {
+            delete dataUser.password
+            dataUser.token = createToken(dataUser);
+            return res.status(StatusCodes.OK).json(dataUser);
         }
         return res
             .status(StatusCodes.BAD_REQUEST)
-            .json({ mgs: 'Đăng kí thất bại' });
+            .json({ message: 'Đăng kí thất bại' });
     } catch (error) {
         if (error.details) {
-            const err = error.details.map((i) => i.mgs);
-            return res.status(StatusCodes.BAD_REQUEST).json(err);
+            return res.status(StatusCodes.BAD_REQUEST).json(error.details[0].message);
         }
         return res.status(StatusCodes.BAD_REQUEST).json(error);
     }
@@ -62,33 +64,28 @@ const login = async(req, res) => {
         if (!email || !password) {
             return res
                 .status(StatusCodes.BAD_REQUEST)
-                .json({ mgs: ERROR_MESSAGES.REQUIRED });
+                .json({ message: ERROR_MESSAGES.REQUIRED });
         }
         const user = await authModel.getUserEmail(email);
         if (!user) {
             return res
                 .status(StatusCodes.BAD_REQUEST)
-                .json({ mgs: ERROR_MESSAGES.WRONG_ACCOUNT });
+                .json({ message: ERROR_MESSAGES.WRONG_ACCOUNT });
         }
         if (user.role == 'ban') {
             return res
                 .status(StatusCodes.BAD_REQUEST)
-                .json({ mgs: ERROR_MESSAGES.BAN });
+                .json({ message: ERROR_MESSAGES.BAN });
         }
         const checkPass = await bcrypt.compare(password, user.password);
         if (!checkPass) {
             return res
                 .status(StatusCodes.BAD_REQUEST)
-                .json({ mgs: ERROR_MESSAGES.WRONG_ACCOUNT });
+                .json({ message: ERROR_MESSAGES.WRONG_ACCOUNT });
         }
         // Token
-        const dataToken = {
-            user_id: user._id,
-            email: user.email,
-        };
-        // 30 ngày
-        const time = 60 * 60 * 24 * 30;
-        const token = jwt.sign(dataToken, env.SECRET, { expiresIn: time });
+
+        const token = createToken(user);
         const tokenOption = {
             httpOnly: true,
             secure: true,
@@ -103,7 +100,7 @@ const login = async(req, res) => {
             .json(user);
     } catch (error) {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-            mgs: ERROR_MESSAGES.ERR_AGAIN,
+            message: ERROR_MESSAGES.ERR_AGAIN,
             error: error,
         });
     }
@@ -111,7 +108,7 @@ const login = async(req, res) => {
 
 const logout = async(req, res) => {
     return await res.clearCookie('token_wow').status(StatusCodes.OK).json({
-        mgs: 'Đăng xuất thành công',
+        message: 'Đăng xuất thành công',
     });
 };
 
@@ -120,29 +117,29 @@ const getOtp = async(req, res) => {
         const { email } = req.body;
         if (!email) {
             return res.status(StatusCodes.BAD_REQUEST).json({
-                mgs: 'Thiếu thông tin email',
+                message: 'Thiếu thông tin email',
             });
         }
         const user = await authModel.getUserEmail(email);
         if (!user) {
             return res
                 .status(StatusCodes.BAD_REQUEST)
-                .json({ mgs: 'Email không tồn tại' });
+                .json({ message: 'Email không tồn tại' });
         }
         if (user.role == 'ban') {
             return res
                 .status(StatusCodes.BAD_REQUEST)
-                .json({ mgs: 'Tài khoản của bạn đang tạm khóa' });
+                .json({ message: 'Tài khoản của bạn đang tạm khóa' });
         }
         const otp = Math.random().toString(36).slice(2, 8).toUpperCase();
         await authModel.updateByEmail(email, otp);
         await sendMail(email, otp);
         return res.status(StatusCodes.OK).json({
-            mgs: 'Kiểm tra mã OTP trong gmail của bạn',
+            message: 'Kiểm tra mã OTP trong gmail của bạn',
         });
     } catch (error) {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-            mgs: 'Có lỗi xảy ra xin thử lại sau',
+            message: 'Có lỗi xảy ra xin thử lại sau',
             error: error,
         });
     }
@@ -154,30 +151,30 @@ const checkOtp = async(req, res) => {
         if (!email || !otp) {
             return res
                 .status(StatusCodes.BAD_REQUEST)
-                .json({ mgs: 'Không bỏ trống thông tin email và mã otp' });
+                .json({ message: 'Không bỏ trống thông tin email và mã otp' });
         }
         const user = await authModel.getUserEmail(email);
         if (!user) {
             return res
                 .status(StatusCodes.BAD_REQUEST)
-                .json({ mgs: 'Email không tồn tại' });
+                .json({ message: 'Email không tồn tại' });
         }
         if (user.role == 'ban') {
             return res
                 .status(StatusCodes.BAD_REQUEST)
-                .json({ mgs: 'Tài khoản của bạn đang tạm khóa' });
+                .json({ message: 'Tài khoản của bạn đang tạm khóa' });
         }
         if (user.otp === otp) {
             return res
                 .status(StatusCodes.OK)
-                .json({ mgs: 'Nhập mật khẩu mới của bạn' });
+                .json({ message: 'Nhập mật khẩu mới của bạn' });
         }
         return res
             .status(StatusCodes.BAD_REQUEST)
-            .json({ mgs: 'Mã otp không hợp lệ' });
+            .json({ message: 'Mã otp không hợp lệ' });
     } catch (error) {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-            mgs: 'Có lỗi xảy ra xin thử lại sau',
+            message: 'Có lỗi xảy ra xin thử lại sau',
             error: error,
         });
     }
@@ -189,25 +186,25 @@ const changePassWordByOtp = async(req, res) => {
         if (!password || !email) {
             return res
                 .status(StatusCodes.BAD_REQUEST)
-                .json({ mgs: 'Không bỏ trống thông tin email hoặc password' });
+                .json({ message: 'Không bỏ trống thông tin email hoặc password' });
         }
         const user = await authModel.getUserEmail(email);
         if (!user) {
             return res
                 .status(StatusCodes.BAD_REQUEST)
-                .json({ mgs: 'Email không tồn tại' });
+                .json({ message: 'Email không tồn tại' });
         }
         if (user.role == 'ban') {
             return res
                 .status(StatusCodes.BAD_REQUEST)
-                .json({ mgs: 'Tài khoản của bạn đang tạm khóa' });
+                .json({ message: 'Tài khoản của bạn đang tạm khóa' });
         }
 
         const hash = await bcrypt.hashSync(password, 8);
         if (!hash) {
             return res
                 .status(StatusCodes.BAD_REQUEST)
-                .json({ mgs: 'Có lỗi bảo mật xảy ra' });
+                .json({ message: 'Có lỗi bảo mật xảy ra' });
         }
         const data = {
             password: hash,
@@ -216,11 +213,11 @@ const changePassWordByOtp = async(req, res) => {
         if (dataUser) {
             return res
                 .status(StatusCodes.OK)
-                .json({ mgs: 'Đổi mật khẩu thành công' });
+                .json({ message: 'Đổi mật khẩu thành công' });
         }
     } catch (error) {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-            mgs: 'Có lỗi xảy ra xin thử lại sau',
+            message: 'Có lỗi xảy ra xin thử lại sau',
             error: error,
         });
     }
