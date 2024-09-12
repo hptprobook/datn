@@ -8,7 +8,6 @@ import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
 import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
-import TablePagination from '@mui/material/TablePagination';
 
 import { users } from 'src/_mock/user';
 
@@ -18,14 +17,16 @@ import Scrollbar from 'src/components/scrollbar';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchNav } from 'src/redux/slices/settingSlices';
 import { handleToast } from 'src/hooks/toast';
+import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import TableNoData from '../table-no-data';
 import TableEmptyRows from '../table-empty-rows';
 import { emptyRows, applyFilter, getComparator } from '../utils';
 import NavTableRow from '../nav-table-row';
 import NavTableToolbar from '../nav-table-toolbar';
 import NavTableHead from '../nav-table-head';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import { List, ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
+import ContainerDragDrop from '../drag-edit';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
 // ----------------------------------------------------------------------
 
@@ -166,21 +167,13 @@ export default function NavDashboardPage() {
           </Card>
         </Grid2>
         <Grid2 xs={4}>
-          <Card sx={{ p: 2}}>
+          <Card sx={{ p: 2 }}>
             <Typography variant="h6" sx={{ p: 2 }}>
               Chỉnh sửa vị trí
             </Typography>
-                    <List>
-                      {nav.map((row) => (
-                          <ListItem disablePadding key={row.index}>
-                          <ListItemButton>
-                            <ListItemIcon>
-                              <Iconify icon={row.icon} />
-                            </ListItemIcon>
-                            <ListItemText primary={row.title} />
-                          </ListItemButton>
-                        </ListItem>))}
-                    </List>
+            <DndProvider backend={HTML5Backend}>
+              {nav.length > 0 ? <ContainerDragDrop nav={nav} /> : null}
+            </DndProvider>
           </Card>
         </Grid2>
       </Grid2>
