@@ -18,6 +18,21 @@ request.interceptors.request.use((config) => {
     config.headers.Authorization = `Bearer ${getAccessToken()}`;
     return config;
 });
+request.interceptors.response.use(
+    (response) =>
+        // Nếu phản hồi thành công, trả về response như bình thường
+        response
+    ,
+    (error) => {
+        // Kiểm tra nếu lỗi là 401
+        if (error.response && error.response.status === 401) {
+            alert('Unauthorized! Please log in again.');
+            // Có thể thực hiện các hành động khác như chuyển hướng tới trang đăng nhập, v.v.
+        }
+        // Trả về Promise reject để không tiếp tục xử lý response
+        return Promise.reject(error);
+    }
+);
 
 export const get = async (path, options = {}) => {
     const response = await request.get(path, options);

@@ -3,11 +3,10 @@
 /* eslint-disable semi */
 import { userModel } from '~/models/userModel';
 import { StatusCodes } from 'http-status-codes';
-import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import { env } from '~/config/environment';
 import { ERROR_MESSAGES } from '~/utils/errorMessage';
 import { sendMail } from '~/utils/mail';
+import { createToken } from '~/utils/helper';
 
 const getCurrentUser = async (req, res) => {
   try {
@@ -15,9 +14,26 @@ const getCurrentUser = async (req, res) => {
     const user = await userModel.getUserID(user_id);
     delete user.password;
     if (user) {
-      return res.status(StatusCodes.OK).json({
-        user,
-      });
+      return res.status(StatusCodes.OK).json(user);
+    }
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ message: 'Không tồn tại người dùng' });
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: ERROR_MESSAGES.ERR_AGAIN,
+      error: error,
+    });
+  }
+};
+const getCurrentAdmin = async (req, res) => {
+  try {
+    console.log(req.user);
+    const { user_id } = req.user;
+    const user = await userModel.getUserID(user_id);
+    delete user.password;
+    if (user) {
+      return res.status(StatusCodes.OK).json(user);
     }
     return res
       .status(StatusCodes.BAD_REQUEST)
@@ -140,16 +156,11 @@ const login = async (req, res) => {
         .json({ message: ERROR_MESSAGES.WRONG_ACCOUNT });
     }
     // Token
-    const dataToken = {
-      user_id: user._id,
-      email: user.email,
-    };
-    // 30 ngày
-    const time = 60 * 60 * 24 * 30;
-    const token = jwt.sign(dataToken, env.SECRET, { expiresIn: time });
+
+    const token = createToken(user);
     const tokenOption = {
-      httpOnly: true,
-      secure: true,
+      httpOnly: false,
+      secure: false,
     };
     user.token = token;
     delete user.password;
@@ -427,6 +438,7 @@ export const usersController = {
   logout,
   getUserById,
   getCurrentUser,
+  getCurrentAdmin,
   getUserByEmail,
   updateCurrentUser,
   updateUser,

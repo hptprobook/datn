@@ -1,7 +1,5 @@
 /* eslint-disable semi */
 import express from 'express';
-import verifyToken from '~/middlewares';
-import isAdmin from '~/middlewares/isAdmin';
 import { categoryController } from '~/controllers/categoryController';
 import multer from 'multer';
 
