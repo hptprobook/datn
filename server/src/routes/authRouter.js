@@ -1,7 +1,7 @@
 /* eslint-disable semi */
 import express from 'express';
-import verifyToken from '~/middlewares';
 import { authController } from '~/controllers/authController';
+import verifyToken from '~/middlewares/verifyToken';
 // import isAdmin from '~/middlewares/isAdmin';
 
 const Router = express.Router();
