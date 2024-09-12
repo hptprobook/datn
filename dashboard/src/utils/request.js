@@ -1,6 +1,7 @@
 import axios from "axios";
 import { handleToast } from "src/hooks/toast";
 
+const baseDomain = import.meta.env.VITE_DOMAIN;
 const baseURL = import.meta.env.VITE_REACT_API_URL;
 
 // Function to get the access token from local storage
@@ -28,7 +29,10 @@ request.interceptors.response.use(
         // Kiểm tra nếu lỗi là 401
         if (error.response && error.response.status === 401) {
             handleToast("error", "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
-            localStorage.removeItem("token");
+            setTimeout(() => {
+            window.location.href = `${baseDomain}/login`;
+
+            }, 2000);
         }
         // Trả về Promise reject để không tiếp tục xử lý response
         return Promise.reject(error);
