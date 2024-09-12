@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -10,9 +10,8 @@ import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 
-import { users } from 'src/_mock/user';
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteCategory, fetchAllCategories, resetDelete } from 'src/redux/slices/categoriesSlice';
+import { resetDelete, deleteCategory, fetchAllCategories } from 'src/redux/slices/categoriesSlice';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 import { handleToast } from 'src/hooks/toast';
@@ -118,7 +117,7 @@ export default function CategoryPage() {
   });
 
   const notFound = !dataFiltered.length && !!filterName;
-  //to new category
+  // to new category
   const navigate = useNavigate();
 
   const handleNewCategoryClick = () => {
