@@ -1,0 +1,1 @@
+export { default as EditCategoryView } from './edit-category-view';

@@ -1,8 +1,7 @@
 /* eslint-disable semi */
 import express from 'express';
-import verifyToken from '~/middlewares';
-import isAdmin from '~/middlewares/isAdmin';
 import { reviewController } from '~/controllers/reviewController';
+import verifyToken from '~/middlewares/verifyToken';
 const Router = express.Router();
 
 // Reviews

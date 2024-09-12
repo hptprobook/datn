@@ -9,7 +9,7 @@ export default function CategoriesPage() {
     return (
         <>
             <Helmet>
-                <title> Categorys</title>
+                <title> Danh Mục</title>
             </Helmet>
 
             <CategoryView/>

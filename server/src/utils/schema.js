@@ -14,11 +14,11 @@ export const SAVE_USER_SCHEMA = Joi.object({
   addresses: Joi.array().items(
     Joi.object({
       name: Joi.string().max(50),
-      homeNumber: Joi.string().max(50),
-      street: Joi.string(),
-      ward: Joi.string(),
-      district: Joi.string(),
-      province: Joi.string(),
+      phone: Joi.string().max(50),
+      province_id: Joi.number().integer(),
+      district_id: Joi.number().integer(),
+      ward_id: Joi.number().integer(),
+      address: Joi.string(),
       isDefault: Joi.boolean().default(false),
       note: Joi.string(),
     })
@@ -41,15 +41,14 @@ export const UPDATE_USER = Joi.object({
   }),
   password: Joi.string(),
   otp: Joi.string(),
-
   addresses: Joi.array().items(
     Joi.object({
       name: Joi.string().max(50),
-      homeNumber: Joi.string().max(50),
-      street: Joi.string(),
-      ward: Joi.string(),
-      district: Joi.string(),
-      province: Joi.string(),
+      phone: Joi.string().max(50),
+      province_id: Joi.number().integer(),
+      district_id: Joi.number().integer(),
+      ward_id: Joi.number().integer(),
+      address: Joi.string(),
       isDefault: Joi.boolean().default(false),
       note: Joi.string(),
     })
@@ -61,10 +60,9 @@ export const UPDATE_USER = Joi.object({
     .default(null),
   role: Joi.string().valid('root', 'employee', 'user', 'ban').default('user'),
   allowNotifies: Joi.boolean().default(false),
-  createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(Date.now),
 });
-
+// category
 export const SAVE_CATEGORY_SCHEMA = Joi.object({
   name: Joi.string().required(),
   imageURL: Joi.string().required(),
@@ -208,7 +206,6 @@ const OrderStatus = {
   DELIVERED: 'Delivered',
   CANCELLED: 'Cancelled',
   RETURNED: 'Returned',
-  REFUNDED: 'Refunded',
   FAILED: 'Failed',
   ON_HOLD: 'On Hold',
 };

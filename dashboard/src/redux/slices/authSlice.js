@@ -17,8 +17,7 @@ const initialState = {
     status: "idle", // 'idle' | 'loading' | 'succeeded' | 'failed'
     error: null,
 };
-
-export const setStatus = createAction('users/setStatus');
+export const resetLogin = createAction('auth/resetLogin');
 
 const authSlice = createSlice({
     name: "auth",
@@ -36,7 +35,12 @@ const authSlice = createSlice({
             .addCase(handleLogin.rejected, (state, action) => {
                 state.status = "failed";
                 state.error = action.payload;
-            });
+            })
+            .addCase(resetLogin, (state) => {
+                state.status = "idle";
+                state.auth = {};
+                state.error = null;
+            })
     },
 });
 
