@@ -1,50 +1,63 @@
-import SvgColor from 'src/components/svg-color';
-
-// ----------------------------------------------------------------------
-
-const icon = (name) => (
-  <SvgColor src={`/assets/icons/navbar/${name}.svg`} sx={{ width: 1, height: 1 }} />
-);
-
 const navConfig = [
   {
     title: 'dashboard',
     path: '/',
-    icon: icon('ic_analytics'),
+    icon: 'ion:home',
+    child: undefined,
   },
   {
     title: 'Người dùng',
     path: '/user',
-    icon: icon('ic_user'),
+    icon: 'ion:person',
+    child: undefined,
   },
   {
     title: 'Sản phẩm',
     path: '/products',
-    icon: icon('ic_cart'),
+    icon: 'ion:shirt',
+    child: [
+      {
+        title: 'Tạo sản phẩm',
+        path: '/products/create',
+        icon: 'ion:add',
+      },
+    ],
   },
   {
     title: 'Đơn hàng',
     path: '/orders',
-    icon: icon('ic_orders'),
-  },  {
+    icon: 'ion:cart',
+   
+  },
+  {
     title: 'Phân loại',
     path: '/category',
-    icon: icon('ic_category'),
+    icon: 'ion:grid',
+    child: [
+      {
+        title: 'Tạo danh mục',
+        path: '/category/create',
+        icon: 'ion:add',
+      },
+    ],
   },
   {
     title: 'Kho',
     path: '/warehouse',
-    icon: icon('ic_warehouse'),
+    icon: 'ion:cube',
+    child: undefined,
   },
   {
     title: 'Mã giảm giá',
     path: '/coupons',
-    icon: icon('ic_coupon'),
+    icon: 'ion:ticket',
+    child: undefined,
   },
   {
     title: 'Bài viết',
     path: '/blog',
-    icon: icon('ic_blog'),
+    icon: 'ion:document-text',
+    child: undefined,
   },
 ];
 
