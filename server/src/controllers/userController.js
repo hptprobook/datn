@@ -225,7 +225,7 @@ const updateCurrentUser = async(req, res) => {
                 .json({ message: 'Lỗi bảo mật' });
         }
         const dataUser = await userModel.update(user_id, data);
-        if (dataUser ? .error) {
+        if (dataUser.error) {
             return res
                 .status(StatusCodes.BAD_REQUEST)
                 .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
@@ -270,7 +270,7 @@ const updateUser = async(req, res) => {
                 .json({ message: 'Lỗi bảo mật' });
         }
         const dataUser = await userModel.update(id, data);
-        if (dataUser ? .error) {
+        if (dataUser.error) {
             return res
                 .status(StatusCodes.BAD_REQUEST)
                 .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
@@ -291,7 +291,7 @@ const deleteUser = async(req, res) => {
     try {
         const { id } = req.params;
         const dataUser = await userModel.deleteUser(id);
-        if (dataUser ? .error) {
+        if (dataUser.error) {
             return res
                 .status(StatusCodes.BAD_REQUEST)
                 .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
