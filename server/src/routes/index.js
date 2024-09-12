@@ -9,9 +9,13 @@ import { reviewsApi } from './reviewRouter';
 import { suppliersApi } from './supplierRoute';
 import { productsApi } from './productRouter';
 import { inventoriesApi } from './inventoryRouter';
-
+import { authApi } from './authRouter';
+import { paysApi } from './payRouter';
+// seo
+import { seoConfigApi } from './seoConfigRouter';
 const Router = express.Router();
 
+Router.use('/auth', authApi);
 Router.use('/users', usersApi);
 Router.use('/categories', categoriesApi);
 
@@ -22,6 +26,10 @@ Router.use('/reviews', reviewsApi);
 Router.use('/suppliers', suppliersApi);
 Router.use('/inventories', inventoriesApi);
 Router.use('/products', productsApi);
+
+Router.use('/pays', paysApi);
+
+Router.use('/seo', seoConfigApi);
 
 Router.get('/', (req, res) => {
   res.send('Hello from API!');
