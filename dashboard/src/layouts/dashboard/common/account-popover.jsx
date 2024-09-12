@@ -51,7 +51,6 @@ export default function AccountPopover() {
   };
   const handleLogout = () => {
     handleToast('success', 'Đăng xuất thành công!');
-    dispatch(resetLogin());
     logout();
   };
   return (

@@ -52,7 +52,7 @@ const createCategory = async (dataCategory) => {
     const collection = db.collection('categories');
     /*  const result = await collection.insertOne(validData);
 
-    return result; */
+                            return result; */
     const result = await collection.insertOne({
       ...validData,
     });

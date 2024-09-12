@@ -5,22 +5,12 @@ import isAdmin from '~/middlewares/verifyAdmin';
 import verifyToken from '~/middlewares/verifyToken';
 
 const Router = express.Router();
-
-// auth
-Router.post('/register', usersController.register);
-Router.post('/login', usersController.login);
-Router.post('/logout', verifyToken, usersController.logout);
-Router.post('/otps', usersController.getOtp);
-Router.post('/otps/verify', usersController.checkOtp);
-Router.put('/otps/reset-password', usersController.changePassWordByOtp);
-
 // user
 Router.get('/me', verifyToken, (req, res) => {
   // #swagger.tags = ['Users']
   // #swagger.summary = 'Get my data...'
   usersController.getCurrentUser(req, res);
 });
-
 Router.get('/admin', verifyToken, isAdmin, (req, res) => {
   usersController.getCurrentAdmin(req, res);
 });
