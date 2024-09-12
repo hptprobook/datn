@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import  {handleToast } from "../../hooks/toast";
+import { handleToast } from "../../hooks/toast";
 import './style.css';
-
-// eslint-disable-next-line import/no-extraneous-dependencies
 
 const ImageDropZone = ({ handleUpload }) => {
     const {
@@ -59,11 +57,13 @@ const ImageDropZone = ({ handleUpload }) => {
 
     return (
         <section className="container ImageDropZone">
-            <div {...getRootProps({ className: 'dropzone' })}>
-                <input {...getInputProps()} />
-                <p className='DropZoneTitle' style={{ textAlign: 'center' }}>Kéo thả hoặc chọn ảnh bất kì</p>
-                <p className='DropZoneTitle' style={{ textAlign: 'center' }}>(Chỉ nhận các ảnh có đuôi jpeg, png)</p>
-            </div>
+            {uploadFile.length === 0 && (
+                <div {...getRootProps({ className: 'dropzone' })}>
+                    <input {...getInputProps()} />
+                    <p className='DropZoneTitle' style={{ textAlign: 'center' }}>Kéo thả hoặc chọn ảnh bất kì</p>
+                    <p className='DropZoneTitle' style={{ textAlign: 'center' }}>(Chỉ nhận các ảnh có đuôi jpeg, png)</p>
+                </div>
+            )}
             <aside>
                 <ul className='UploadImagePreview'>{upload}</ul>
             </aside>
