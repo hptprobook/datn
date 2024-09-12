@@ -11,6 +11,7 @@ import { productsApi } from './productRouter';
 import { inventoriesApi } from './inventoryRouter';
 import { authApi } from './authRouter';
 import { paysApi } from './payRouter';
+import { navDashboardApi } from './routeConfigs/navDashboardRoute';
 // seo
 import { seoConfigApi } from './seoConfigRouter';
 const Router = express.Router();
@@ -30,6 +31,8 @@ Router.use('/products', productsApi);
 Router.use('/pays', paysApi);
 
 Router.use('/seo', seoConfigApi);
+
+Router.use('/navDashboard', navDashboardApi);
 
 Router.get('/', (req, res) => {
   res.send('Hello from API!');

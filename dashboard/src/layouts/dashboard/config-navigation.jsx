@@ -59,6 +59,18 @@ const navConfig = [
     icon: 'ion:document-text',
     child: undefined,
   },
+  {
+    title: 'Cài đặt',
+    path: '/settings',
+    icon: 'ion:settings',
+    child: [
+      {
+        title: 'Menu Quản trị',
+        path: '/settings/navDashboard',
+        icon: 'ion:list-circle',
+      },
+    ],
+  },
 ];
 
 export default navConfig;

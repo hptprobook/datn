@@ -190,7 +190,6 @@ NavItem.propTypes = {
 
 function NavItems({ item, pathname, navigate }) {
   const active = item.path === pathname;
-  console.log('item', pathname, item.path );
   const handleClick = (path) => {
     navigate(path);
   };
@@ -213,6 +212,7 @@ function NavItems({ item, pathname, navigate }) {
         <List component="div" disablePadding>
           {item.child.map((child) => (
             <ListItemButton
+            key={child.icon}
               sx={{
                 pl: 4,
                 mt: 0.5,
