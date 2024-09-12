@@ -1,4 +1,5 @@
 import axios from "axios";
+import { handleToast } from "src/hooks/toast";
 
 const baseURL = import.meta.env.VITE_REACT_API_URL;
 
@@ -26,8 +27,8 @@ request.interceptors.response.use(
     (error) => {
         // Kiểm tra nếu lỗi là 401
         if (error.response && error.response.status === 401) {
-            alert('Unauthorized! Please log in again.');
-            // Có thể thực hiện các hành động khác như chuyển hướng tới trang đăng nhập, v.v.
+            handleToast("error", "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
+            localStorage.removeItem("token");
         }
         // Trả về Promise reject để không tiếp tục xử lý response
         return Promise.reject(error);

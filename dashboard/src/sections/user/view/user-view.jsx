@@ -175,7 +175,7 @@ export default function UserPage() {
                     <UserTableRow
                       id={row._id}
                       key={row._id}
-                      name={row.name.firstName}
+                      name={row.name}
                       role={row.role}
                       status={row.role}
                       email={row.email}
