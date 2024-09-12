@@ -127,6 +127,7 @@ const CreateCategoryView = () => {
                   </Grid>
                   <Grid item xs={12} sm={4} md={6}>
                     <FormControl fullWidth variant="outlined">
+                    <InputLabel htmlFor="parentCategory">Danh mục cha</InputLabel>
                       <Select
                         labelId="parentCategory-label"
                         id="parentCategory"
@@ -150,7 +151,7 @@ const CreateCategoryView = () => {
                   </Grid>
                   <Grid item xs={12}>
                     <InfoBox title="Hình ảnh">
-                      <ImageDropZone handleUpload={handleChangeUploadImg} />
+                    <ImageDropZone handleUpload={handleChangeUploadImg} singleFile />
                     </InfoBox>
                   </Grid>
                   <Grid item xs={12}>
