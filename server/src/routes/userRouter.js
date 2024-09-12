@@ -1,7 +1,7 @@
 /* eslint-disable semi */
 import express from 'express';
 import { usersController } from '~/controllers/userController';
-import isAdmin from '~/middlewares/verifyAdmin';
+import verifyAdmin from '~/middlewares/verifyAdmin';
 import verifyToken from '~/middlewares/verifyToken';
 
 const Router = express.Router();
@@ -11,7 +11,7 @@ Router.get('/me', verifyToken, (req, res) => {
   // #swagger.summary = 'Get my data...'
   usersController.getCurrentUser(req, res);
 });
-Router.get('/admin', verifyToken, isAdmin, (req, res) => {
+Router.get('/admin', verifyToken, verifyAdmin, (req, res) => {
   usersController.getCurrentAdmin(req, res);
 });
 
@@ -22,8 +22,8 @@ Router.put('/me', verifyToken, usersController.updateCurrentUser);
 Router.put('/me/password', verifyToken, usersController.changePassWord);
 
 // admin
-Router.get('/', verifyToken, isAdmin, usersController.getAllUsers);
-Router.put('/:id', verifyToken, isAdmin, usersController.updateUser);
-Router.delete('/:id', verifyToken, isAdmin, usersController.deleteUser);
+Router.get('/', verifyToken, verifyAdmin, usersController.getAllUsers);
+Router.put('/:id', verifyToken, verifyAdmin, usersController.updateUser);
+Router.delete('/:id', verifyToken, verifyAdmin, usersController.deleteUser);
 
 export const usersApi = Router;

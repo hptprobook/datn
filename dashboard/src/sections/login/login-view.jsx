@@ -5,7 +5,6 @@ import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
@@ -13,8 +12,6 @@ import IconButton from '@mui/material/IconButton';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { alpha, useTheme } from '@mui/material/styles';
 import InputAdornment from '@mui/material/InputAdornment';
-
-import { useRouter } from 'src/routes/hooks';
 
 import { useAuth } from 'src/hooks/useAuth';
 
@@ -27,7 +24,7 @@ import { handleToast } from 'src/hooks/toast';
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
 import { useDispatch, useSelector } from 'react-redux';
-import { handleLogin, resetLogin } from 'src/redux/slices/authSlice';
+import { resetLogin, handleLogin } from 'src/redux/slices/authSlice';
 // ----------------------------------------------------------------------
 const loginSchema = Yup.object().shape({
   email: Yup.string().email('Email phải là một địa chỉ email hợp lệ').required('Email là bắt buộc'),
