@@ -1,6 +1,9 @@
 import { GET_DB } from '~/config/mongodb';
 import { ObjectId } from 'mongodb';
-import { SAVE_CATEGORY_SCHEMA, UPDATE_CATEGORY } from '~/utils/schema';
+import {
+  SAVE_CATEGORY_SCHEMA,
+  UPDATE_CATEGORY,
+} from '~/utils/schema/categorySchema';
 
 const validateBeforeCreate = async (data) => {
   return await SAVE_CATEGORY_SCHEMA.validateAsync(data, { abortEarly: false });
@@ -38,6 +41,19 @@ const getCategoriesAll = async (page, limit) => {
     };
   }
 };
+const getCategoriesByParentId = async (category_id) => {
+  try {
+    const db = await GET_DB().collection('categories');
+    const result = await db.find({ parentId: category_id }).toArray();
+    return result;
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      msg: 'Có lỗi xảy ra, xin thử lại sau',
+    };
+  }
+};
 
 const getCategoryById = async (category_id) => {
   const db = await GET_DB().collection('categories');
@@ -58,6 +74,8 @@ const createCategory = async (dataCategory) => {
     });
     return result;
   } catch (error) {
+    console.error(error);
+
     return {
       success: false,
       mgs: 'Có lỗi xảy ra xin thử lại sau',
@@ -111,4 +129,5 @@ export const categoryModel = {
   update,
   deleteCategory,
   getCategoryById,
+  getCategoriesByParentId,
 };
