@@ -1,5 +1,14 @@
 import { GET_DB } from '~/config/mongodb';
 import { ObjectId } from 'mongodb';
+import { SAVE_BRAND, UPDATE_BRAND } from '~/utils/schema/brandSchema';
+
+const validateBeforeCreate = async (data) => {
+  return await SAVE_BRAND.validateAsync(data, { abortEarly: false });
+};
+
+const validateBeforeUpdate = async (data) => {
+  return await UPDATE_BRAND.validateAsync(data, { abortEarly: false });
+};
 
 const countBrandsAll = async () => {
   try {
@@ -41,37 +50,37 @@ const getBrandById = async (id) => {
 
 const createBrand = async (data) => {
   try {
+    const validData = await validateBeforeCreate(data);
     const db = await GET_DB();
     const collection = db.collection('brands');
     const result = await collection.insertOne({
-      ...data,
+      ...validData,
     });
     return result;
   } catch (error) {
-    return {
-      success: false,
-      mgs: 'Có lỗi xảy ra xin thử lại sau',
-    };
+    if (error.details) {
+      return { error: true, detail: error.details };
+    }
+    return { error: true, detail: error };
   }
 };
-
 const update = async (id, data) => {
   try {
+    const validData = await validateBeforeUpdate(data);
     const db = GET_DB().collection('brands');
-    const category = await db.findOne({ _id: new ObjectId(id) });
 
     const result = await db.findOneAndUpdate(
       { _id: new ObjectId(id) },
-      { $set: data },
+      { $set: validData },
       { returnDocument: 'after' }
     );
 
-    return { result: result, image: category.image };
+    return { result: result };
   } catch (error) {
-    return {
-      error: true,
-      message: error.message,
-    };
+    if (error.details) {
+      return { error: true, detail: error.details };
+    }
+    return { error: true, detail: error };
   }
 };
 
