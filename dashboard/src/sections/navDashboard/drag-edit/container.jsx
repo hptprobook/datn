@@ -1,15 +1,19 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import update from 'immutability-helper';
-import { useEffect, useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { PropTypes } from 'prop-types';
-import { Card } from './card';
 import { Button } from '@mui/material';
 import Iconify from 'src/components/iconify';
+import { Card } from './card';
+
 const style = {
   width: '100%',
 };
 export const ContainerDragDrop = ({ nav }) => {
   const [cards, setCards] = useState(nav);
+  useEffect(() => {
+    setCards(nav);
+  }, [nav]);
   const moveCard = useCallback((dragIndex, hoverIndex) => {
     setCards((prevCards) =>
       update(prevCards, {
