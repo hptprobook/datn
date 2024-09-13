@@ -9,13 +9,16 @@ import { createSlug } from '~/utils/createSlug';
 
 const createCategory = async (req, res) => {
   try {
+
     const { name, description, parentId, content, status } = req.body;
 
     if (!name || !description || !parentId || !content || !status) {
+
       return res.status(StatusCodes.BAD_REQUEST).json({
         message: ERROR_MESSAGES.REQUIRED,
       });
     }
+
     const parentIdProcessed = parentId === 'null' ? null : parentId;
     if (!req.file) {
       return res
