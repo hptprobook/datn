@@ -21,6 +21,7 @@ const upload = multer({
 
 //admin
 Router.get('/', categoryController.getAllCategories);
+Router.get('/menu', categoryController.getMenuCategories);
 Router.get('/:id', categoryController.getCategoryById);
 Router.post('/add', upload.single('image'), categoryController.createCategory);
 Router.delete('/:id', categoryController.deleteCategory);
