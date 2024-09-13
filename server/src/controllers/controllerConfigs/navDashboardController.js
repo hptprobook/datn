@@ -11,7 +11,6 @@ const createdNavDashboard = async (req, res) => {
             return res.status(StatusCodes.BAD_REQUEST).json({ message: result.error });
         }
         return res.status(StatusCodes.OK).json(result);
-
     }
     catch (error) {
         const errorSend = cathError(error);
