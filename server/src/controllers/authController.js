@@ -1,11 +1,7 @@
-/* eslint-disable no-console */
-/* eslint-disable comma-dangle */
-/* eslint-disable semi */
+
 import { authModel } from '~/models/authModel';
 import { StatusCodes } from 'http-status-codes';
-import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import { env } from '~/config/environment';
 import { ERROR_MESSAGES } from '~/utils/errorMessage';
 import { sendMail } from '~/utils/mail';
 import { createToken } from '~/utils/helper';
