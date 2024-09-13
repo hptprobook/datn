@@ -9,29 +9,46 @@ import { createSlug } from '~/utils/createSlug';
 
 const createCategory = async (req, res) => {
   try {
-    const { name, description, parentId , imageURL } = req.body;
 
-    if (!name || !description || !parentId ) {
+    const { name, description, parentId, content, status } = req.body;
+
+    if (!name || !description || !parentId || !content || !status) {
+
       return res.status(StatusCodes.BAD_REQUEST).json({
         message: ERROR_MESSAGES.REQUIRED,
       });
     }
 
-
+    const parentIdProcessed = parentId === 'null' ? null : parentId;
+    if (!req.file) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ mgs: 'Ảnh không được để trống' });
+    }
+    const file = req.file;
+    const fileName = file.filename;
     const slug = createSlug(name);
+
     const data = {
       name,
-      imageURL: imageURL, // Set imageURL as a string
-      description,
       slug,
-      parentId: parentId,
+      description,
+      content,
+      imageURL: fileName,
+      parentId: parentIdProcessed,
+      status,
     };
 
     const dataCategory = await categoryModel.createCategory(data);
 
-    return res.status(StatusCodes.OK).json({ dataCategory });
+    if (dataCategory.error) {
+      await uploadModal.deleteImg(fileName);
+      return res.status(StatusCodes.BAD_REQUEST).json(dataCategory.detail);
+    }
+    return res
+      .status(StatusCodes.OK)
+      .json({ dataCategory, mgs: 'Thêm danh mục thành công' });
   } catch (error) {
-    console.error(error);
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ message: error.message });
@@ -128,47 +145,56 @@ const getCategoryBySlug = async (req, res) => {
     });
   }
 };
-const updateCategory = async (req, res) => {
+const update = async (req, res) => {
   const { id } = req.params;
-  const { name, description, slug, parentId } = req.body;
+  const { name, description, parentId, content, status } = req.body;
 
-  if (!name || !description || !slug || !parentId) {
+  if (!name || !description || !parentId || !content || !status) {
     return res.status(StatusCodes.BAD_REQUEST).json({
       message: ERROR_MESSAGES.REQUIRED,
     });
   }
-
+  if (!req.file) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ mgs: 'Ảnh không được để trống' });
+  }
   const file = req.file;
   const fileName = file.filename;
+  const category = await categoryModel.getCategoryById(id);
 
-  const validParentId = parentId === null ? null : new ObjectId(parentId);
-
-  const data = {
-    name,
-    imageURL: fileName,
-    description,
-    slug,
-    parentId: validParentId,
-  };
-
-  const dataCategory = await categoryModel.update(id, data);
-  if (dataCategory?.error) {
+  if (!category) {
     await uploadModal.deleteImg(fileName);
     return res
       .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
+      .json({ mgs: 'Danh mục chưa được tạo' });
   }
-  if (dataCategory) {
-    await uploadModal.deleteImg(dataCategory.imageURL);
-    const result = dataCategory.result;
-    return res.status(StatusCodes.OK).json({
-      message: 'Cập nhật thông tin thành công',
-      dataCategory: result,
-    });
+  const slug = createSlug(name);
+  const parentIdProcessed = parentId === 'null' ? null : parentId;
+
+  const data = {
+    name,
+    slug,
+    description,
+    content,
+    imageURL: fileName,
+    parentId: parentIdProcessed,
+    status,
+  };
+
+  const dataCategory = await categoryModel.update(id, data);
+  if (dataCategory.error) {
+    await uploadModal.deleteImg(fileName);
+    return res.status(StatusCodes.BAD_REQUEST).json(dataCategory.detail);
   }
+  await uploadModal.deleteImg(category.imageURL);
+  return res
+    .status(StatusCodes.OK)
+    .json({ dataCategory, mgs: 'Cập nhật danh mục thành công' });
 };
 const deleteCategory = async (req, res) => {
   const { id } = req.params;
+  await categoryModel.deleteAllChildCategories(id);
   const dataCategory = await categoryModel.deleteCategory(id);
   if (dataCategory?.error) {
     return res
@@ -188,7 +214,7 @@ const deleteCategory = async (req, res) => {
 export const categoryController = {
   getMenuCategories,
   createCategory,
-  updateCategory,
+  update,
   deleteCategory,
   getCategoryById,
   getAllCategories,

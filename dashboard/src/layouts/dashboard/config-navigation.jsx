@@ -66,7 +66,7 @@ const navConfig = [
     child: [
       {
         title: 'Menu Quản trị',
-        path: '/settings/navDashboard',
+        path: '/settings/nav',
         icon: 'ion:list-circle',
       },
     ],
