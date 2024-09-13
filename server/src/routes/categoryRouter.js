@@ -32,25 +32,13 @@ Router.get(
   verifyAdmin,
   categoryController.getCategoryById
 );
-Router.post(
-  '/add',
-  verifyToken,
-  verifyAdmin,
-  upload.single('image'),
-  categoryController.createCategory
-);
+Router.post('/', upload.single('image'), categoryController.createCategory);
+Router.put('/:id', upload.single('image'), categoryController.update);
 Router.delete(
   '/:id',
   verifyToken,
   verifyAdmin,
   categoryController.deleteCategory
-);
-Router.put(
-  '/:id',
-  verifyToken,
-  verifyAdmin,
-  upload.single('image'),
-  categoryController.updateCategory
 );
 
 export const categoriesApi = Router;
