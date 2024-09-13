@@ -1,6 +1,6 @@
 /* eslint-disable semi */
 import express from 'express';
-import { seoConfigController } from '~/controllers/seoConfigController';
+import { webController } from '~/controllers/webController';
 import multer from 'multer';
 const Router = express.Router();
 
@@ -19,17 +19,18 @@ const upload = multer({
 });
 
 //admin
-Router.get('/', seoConfigController.getSeoConfig);
+Router.get('/', webController.getWeb);
+
 Router.post(
     '/',
-    upload.single('metaOGImg'),
-    seoConfigController.createSeoConfig
+    upload.single('logo'),
+    webController.createWeb
 );
 Router.put(
-    '/:id',
-    upload.single('metaOGImg'),
-    seoConfigController.updateSeoConfig
+    '/',
+    upload.single('logo'),
+    webController.updateWeb
 );
-Router.delete('/:id', seoConfigController.deleteSeoConfig);
+// Router.delete('/:id', webController.deleteSeoConfig);
 
-export const seoConfigApi = Router;
+export const webApi = Router;
