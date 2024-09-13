@@ -5,9 +5,8 @@ import { userModel } from '~/models/userModel';
 import { StatusCodes } from 'http-status-codes';
 import bcrypt from 'bcryptjs';
 import { ERROR_MESSAGES } from '~/utils/errorMessage';
-import { sendMail } from '~/utils/mail';
 
-const getCurrentUser = async(req, res) => {
+const getCurrentUser = async (req, res) => {
     try {
         const { user_id } = req.user;
         const user = await userModel.getUserID(user_id);
@@ -25,7 +24,7 @@ const getCurrentUser = async(req, res) => {
         });
     }
 };
-const getCurrentAdmin = async(req, res) => {
+const getCurrentAdmin = async (req, res) => {
     try {
         console.log(req.user);
         const { user_id } = req.user;
@@ -45,14 +44,12 @@ const getCurrentAdmin = async(req, res) => {
     }
 };
 
-const getUserById = async(req, res) => {
+const getUserById = async (req, res) => {
     try {
         const { id } = req.params;
         const user = await userModel.getUserID(id);
         if (user) {
-            return res.status(StatusCodes.OK).json({
-                user,
-            });
+            return res.status(StatusCodes.OK).json(user);
         }
         return res
             .status(StatusCodes.BAD_REQUEST)
@@ -65,7 +62,7 @@ const getUserById = async(req, res) => {
     }
 };
 
-const getUserByEmail = async(req, res) => {
+const getUserByEmail = async (req, res) => {
     // use
     try {
         const { email } = req.params;
@@ -86,7 +83,7 @@ const getUserByEmail = async(req, res) => {
 };
 
 
-const changePassWord = async(req, res) => {
+const changePassWord = async (req, res) => {
     try {
         const { user_id } = req.user;
         const { oldPassWord, password } = req.body;
@@ -130,7 +127,7 @@ const changePassWord = async(req, res) => {
     }
 };
 
-const updateCurrentUser = async(req, res) => {
+const updateCurrentUser = async (req, res) => {
     try {
         const { user_id } = req.user;
         const data = req.body;
@@ -159,10 +156,12 @@ const updateCurrentUser = async(req, res) => {
 };
 // admin
 
-const getAllUsers = async(req, res) => {
+const getAllUsers = async (req, res) => {
     try {
         let { pages, limit } = req.query;
-        const users = await userModel.getUserAll(pages, limit);
+        const { user_id } = req.user;
+        console.log(user_id)
+        const users = await userModel.getUserAll(pages, limit, user_id);
         const countUsers = await userModel.countUserAll();
         return res.status(StatusCodes.OK).json({
             users,
@@ -175,7 +174,7 @@ const getAllUsers = async(req, res) => {
         });
     }
 };
-const updateUser = async(req, res) => {
+const updateUser = async (req, res) => {
     try {
         const { id } = req.params;
         const data = req.body;
@@ -202,19 +201,20 @@ const updateUser = async(req, res) => {
         });
     }
 };
-const deleteUser = async(req, res) => {
+const deleteUser = async (req, res) => {
     try {
         const { id } = req.params;
-        const dataUser = await userModel.deleteUser(id);
+        const { role } = req.user;
+        const dataUser = await userModel.deleteUser(id, role);
         if (dataUser.error) {
             return res
                 .status(StatusCodes.BAD_REQUEST)
-                .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
+                .json({ message: dataUser.error });
         }
         if (dataUser) {
             return res
                 .status(StatusCodes.OK)
-                .json({ message: 'Xóa người dùng thành công' });
+                .json({ dataUser, message: 'Xóa người dùng thành công' });
         }
     } catch (error) {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
