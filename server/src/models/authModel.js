@@ -10,7 +10,7 @@ const register = async(dataUser) => {
     const validData = await validateBeforeCreate(dataUser);
     const db = await GET_DB().collection('users');
     const result = await db.insertOne(validData);
-    return result;
+    return db.findOne({ _id: result.insertedId });
 };
 
 const getUserEmail = async(email) => {

@@ -3,7 +3,7 @@ import { get, post, put } from "src/utils/request";
 const AuthService = {
     login: async (data) => {
         try {
-            return await post("/users/login", data);
+            return await post("/auth/login", data);
         } catch (err) {
             console.error("Error: ", err);
             throw err;
@@ -11,7 +11,7 @@ const AuthService = {
     },
     register: async (data) => {
         try {
-            return await post("/users/register", data);
+            return await post("/auth/register", data);
         } catch (err) {
             console.error("Error: ", err);
             throw err;
@@ -19,7 +19,7 @@ const AuthService = {
     },
     logout: async () => {
         try {
-            return await get("/users/logout");
+            return await get("/auth/logout");
         } catch (err) {
             console.error("Error: ", err);
             throw err;
@@ -27,7 +27,7 @@ const AuthService = {
     },
     forgotPassword: async (data) => {
         try {
-            return await post("/users/forgot-password", data);
+            return await post("/auth/forgot-password", data);
         } catch (err) {
             console.error("Error: ", err);
             throw err;
@@ -35,7 +35,7 @@ const AuthService = {
     },
     resetPassword: async (data) => {
         try {
-            return await post("/users/reset-password", data);
+            return await post("/auth/reset-password", data);
         } catch (err) {
             console.error("Error: ", err);
             throw err;
