@@ -25,7 +25,8 @@ export default function NavTableRow({
   index,
   handleClick,
   handleDelete,
-  handleUpdate
+  handleUpdate,
+  handleNavigate
 }) {
   const [open, setOpen] = useState(null);
 
@@ -81,9 +82,12 @@ export default function NavTableRow({
       >
         <MenuItem onClick={openUpdate}>
           <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
-          Sửa
+          Sửa nhanh
         </MenuItem>
-
+        <MenuItem onClick={() => handleNavigate()}>
+          <Iconify icon="eva:eye-fill" sx={{ mr: 2 }} />
+          Cập nhật
+        </MenuItem>
         <MenuItem onClick={handleRemove} sx={{ color: 'error.main' }} >
           <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
           Xóa
@@ -102,5 +106,6 @@ NavTableRow.propTypes = {
   selected: PropTypes.any,
   index: PropTypes.number,
   handleDelete: PropTypes.func,
-  handleUpdate: PropTypes.func
+  handleUpdate: PropTypes.func,
+  handleNavigate: PropTypes.func
 };

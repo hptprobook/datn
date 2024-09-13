@@ -22,6 +22,7 @@ export  const EditCategoryPage = lazy(() => import('src/pages/category/editCateg
 
 export const NavDashboardPage = lazy(() => import('src/pages/settings/nav-dashboard'));
 export const NavDashboardCreatePage = lazy(() => import('src/pages/settings/create-nav'));
+export const NavUpdatePage = lazy(() => import('src/pages/settings/update-nav'));
 
 export  const WarehousePage = lazy(() => import('src/pages/warehouse/warehouse'));
 export  const CouponsPage = lazy(() => import('src/pages/coupons/coupons'));
@@ -51,6 +52,7 @@ export default function Router() {
         {path: 'category/edit/:id', element: <EditCategoryPage/>},
         {path: 'settings/nav', element: <NavDashboardPage/>},
         {path: 'settings/nav/create', element: <NavDashboardCreatePage/>},
+        {path: 'settings/nav/:id', element: <NavUpdatePage/>},
         {path: 'warehouse', element: <WarehousePage/>},
         {path: 'coupons', element: <CouponsPage/>},
         {path: 'orders', element: <OrdersPage/>},

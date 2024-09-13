@@ -51,6 +51,10 @@ export const put = async (path, options = {}) => {
     const response = await request.put(path, options);
     return response.data;
 };
+export const patch = async (path, options = {}) => {
+    const response = await request.patch(path, options);
+    return response.data;
+};
 export const del = async (path, options = {}) => { // added delete method
     // const serializableOptions = ensureSerializableOptions(options);
     const response = await request.delete(path, options);
