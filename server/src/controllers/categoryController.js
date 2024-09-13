@@ -9,25 +9,19 @@ import { createSlug } from '~/utils/createSlug';
 
 const createCategory = async (req, res) => {
   try {
-    const { name, description, parentId } = req.body;
+    const { name, description, parentId , imageURL } = req.body;
 
-    if (!name || !description || !parentId) {
+    if (!name || !description || !parentId ) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         message: ERROR_MESSAGES.REQUIRED,
       });
     }
 
-    const file = req.file;
-    const fileName = file ? file.filename : '';
 
-    /*     const validParentId =
-      parentId === null || parentId === undefined
-        ? null
-        : new ObjectId(parentId); */
     const slug = createSlug(name);
     const data = {
       name,
-      imageURL: fileName,
+      imageURL: imageURL, // Set imageURL as a string
       description,
       slug,
       parentId: parentId,

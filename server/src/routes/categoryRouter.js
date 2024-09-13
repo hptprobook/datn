@@ -5,6 +5,7 @@ import multer from 'multer';
 import verifyAdmin from '~/middlewares/verifyAdmin';
 import { isAdmin } from '~/middlewares/verifyRole';
 import verifyToken from '~/middlewares/verifyToken';
+import { StatusCodes } from 'http-status-codes';
 
 const Router = express.Router();
 
@@ -52,5 +53,18 @@ Router.put(
   upload.single('image'),
   categoryController.updateCategory
 );
+
+// New route for uploading category images
+Router.post('/upload', upload.single('image'), (req, res) => {
+  if (!req.file) {
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      message: 'No file uploaded',
+    });
+  }
+  return res.status(StatusCodes.OK).json({
+    message: 'File uploaded successfully',
+    fileName: req.file.filename,
+  });
+});
 
 export const categoriesApi = Router;
