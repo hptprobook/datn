@@ -1,8 +1,7 @@
 /* eslint-disable semi */
 import express from 'express';
-import { productController } from '~/controllers/productController';
+import { seoConfigController } from '~/controllers/seoConfigController';
 import multer from 'multer';
-
 const Router = express.Router();
 
 const storage = multer.diskStorage({
@@ -18,19 +17,19 @@ const upload = multer({
     storage: storage,
     limits: { fileSize: 1024 * 1024 * 5 },
 });
-//admin
-Router.get('/', productController.getAllProducts);
-Router.get('/:id', productController.getProductById);
-Router.post(
-    '/add',
-    upload.fields([{ name: 'images' }, { name: 'varsImg' }]),
-    productController.createProduct
-);
-Router.delete('/:id', productController.deleteProduct);
-Router.put(
-    '/:id',
-    upload.fields([{ name: 'imagesAdd' }, { name: 'varsImg' }]),
-    productController.updateProduct
-);
 
-export const productsApi = Router;
+//admin
+Router.get('/', seoConfigController.getSeoConfig);
+Router.post(
+    '/',
+    upload.single('metaOGImg'),
+    seoConfigController.createSeoConfig
+);
+Router.put(
+    '/',
+    upload.single('metaOGImg'),
+    seoConfigController.updateSeoConfig
+);
+// Router.delete('/:id', seoConfigController.deleteSeoConfig);
+
+export const seoConfigApi = Router;

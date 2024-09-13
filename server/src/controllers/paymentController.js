@@ -77,7 +77,7 @@ const updatePayment = async(req, res) => {
             .status(StatusCodes.OK)
             .json({ message: 'Cập nhật thông tin thành công', dataPayment });
     } catch (error) {
-        console.log(error);
+
 
         if (error.details) {
             return res.status(StatusCodes.BAD_REQUEST).json({
