@@ -138,7 +138,7 @@ export default function CreateProductPage() {
             description: '',
             shortDescription: '',
             quantity: '',
-            stock: '',
+            SKU: '',
             price: '',
             salePrice: '',
           }}
@@ -153,7 +153,7 @@ export default function CreateProductPage() {
                 <Grid item xs={12} md={6}>
                   <Box sx={{ maxWidth: 'lg', p: 6, bgcolor: 'background.paper', color: 'text.primary', borderRadius: 2, boxShadow: 3, mt: 5 }}>
                     <Typography variant="h6" gutterBottom>Details</Typography>
-                    <Typography variant="body2" color="text.secondary" gutterBottom>Tiêu đề, mô tả ngắn, hình ảnh...</Typography>
+                    <Typography variant="body2" color="text.secondary" gutterBottom>Tiêu đề, hình ảnh...</Typography>
                     <Box mb={4}>
                       <Field
                         as={TextField}
@@ -170,52 +170,6 @@ export default function CreateProductPage() {
                       />
                     </Box>
                     <Box mb={4}>
-                      <Field
-                        as={TextField}
-                        fullWidth
-                        id="shortDescription"
-                        name="shortDescription"
-                        label="Mô tả ngắn"
-                        variant="outlined"
-                        placeholder="Mô tả ngắn"
-                        multiline
-                        rows={4}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        value={values.shortDescription}
-                        helperText={<ErrorMessage name="shortDescription" component="div" className="error-message" />}
-                      />
-                    </Box>
-                    <Box mb={4}>
-                      <InputLabel htmlFor="Description">Mô tả</InputLabel>
-                      <Field name="description">
-                      {({ field, form }) => (
-                        <EditorContent
-                          {...field}
-                          value={field.value}
-                          onChange={(content) => {
-                            form.setFieldValue(field.name, content);
-                          }}
-                        />
-                      )}
-                    </Field>
-                    <FormHelperText>
-                      <ErrorMessage name="description" component="div" className="error-message" />
-                    </FormHelperText>
-                    </Box>
-                    <Box mb={4}>
-                      <InfoBox title="Hình ảnh">
-                        <ImageDropZone handleUpload={handleChangeUploadImg} />
-                      </InfoBox>
-                    </Box>
-                  </Box>
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <Box sx={{ maxWidth: 'lg', p: 6, bgcolor: 'background.paper', color: 'text.primary', borderRadius: 2, boxShadow: 3, mt: 5 }}>
-                    <Typography variant="h6" gutterBottom>Thuộc tính</Typography>
-                    <Typography variant="body2" color="text.secondary" gutterBottom>Các chức năng và thuộc tính bổ sung...</Typography>
-                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 4 }}>
-                      <Box>
                         <FormControl fullWidth>
                           <Field
                             as={TextField}
@@ -232,23 +186,7 @@ export default function CreateProductPage() {
                           />
                         </FormControl>
                       </Box>
-                      <Box>
-                        <FormControl fullWidth>
-                          <Field
-                            as={TextField}
-                            fullWidth
-                            id="stock"
-                            name="stock"
-                            label="Stock"
-                            variant="outlined"
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            value={values.stock}
-                            helperText={<ErrorMessage name="stock" component="div" className="error-message" />}
-                          />
-                        </FormControl>
-                      </Box>
-                      <Box>
+                      <Box mb={4}>
                         <FormControl fullWidth>
                           <InputLabel id="demo-simple-select-helper-label">Thương hiệu</InputLabel>
                           <Select
@@ -265,7 +203,7 @@ export default function CreateProductPage() {
                           </Select>
                         </FormControl>
                       </Box>
-                      <Box>
+                    <Box mb={4}>
                         <FormControl fullWidth>
                           <InputLabel id="demo-simple-select-helper-label">Danh mục</InputLabel>
                           <Select
@@ -282,6 +220,56 @@ export default function CreateProductPage() {
                           </Select>
                         </FormControl>
                       </Box>
+                      <Box mb={4}>
+                        <FormControl fullWidth>
+                          <Field
+                            as={TextField}
+                            fullWidth
+                            id="SKU"
+                            name="SKU"
+                            label="SKU"
+                            variant="outlined"
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            value={values.stock}
+                            helperText={<ErrorMessage name="SKU" component="div" className="error-message" />}
+                          />
+                        </FormControl>
+                      </Box>
+                      <Box sx={{ gridColumn: { md: 'span 2' } }}>
+                        <FormControl fullWidth>
+                          <Autocomplete
+                            fullWidth
+                            multiple
+                            id="tags"
+                            options={top100Films}
+                            getOptionLabel={(option) => option.title}
+                            defaultValue={[top100Films[13], top100Films[12], top100Films[11]]}
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Nhãn sản phẩm"
+                                placeholder="Nhãn sản phẩm"
+                                variant="outlined"
+                                fullWidth
+                              />
+                            )}
+                          />
+                        </FormControl>
+                      </Box>
+                    <Box mb={4}>
+                      <InfoBox title="Hình ảnh">
+                        <ImageDropZone handleUpload={handleChangeUploadImg} />
+                      </InfoBox>
+                    </Box>
+                  </Box>
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <Box sx={{ maxWidth: 'lg', p: 6, bgcolor: 'background.paper', color: 'text.primary', borderRadius: 2, boxShadow: 3, mt: 5 }}>
+                    <Typography variant="h6" gutterBottom>Thuộc tính</Typography>
+                    <Typography variant="body2" color="text.secondary" gutterBottom>Các chức năng và thuộc tính bổ sung...</Typography>
+                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 4 }}>
+                     
                       <Box>
                         <FormControl fullWidth>
                           <Autocomplete
@@ -338,27 +326,7 @@ export default function CreateProductPage() {
                           />
                         </FormControl>
                       </Box>
-                      <Box sx={{ gridColumn: { md: 'span 2' } }}>
-                        <FormControl fullWidth>
-                          <Autocomplete
-                            fullWidth
-                            multiple
-                            id="tags"
-                            options={top100Films}
-                            getOptionLabel={(option) => option.title}
-                            defaultValue={[top100Films[13], top100Films[12], top100Films[11]]}
-                            renderInput={(params) => (
-                              <TextField
-                                {...params}
-                                label="Nhãn sản phẩm"
-                                placeholder="Nhãn sản phẩm"
-                                variant="outlined"
-                                fullWidth
-                              />
-                            )}
-                          />
-                        </FormControl>
-                      </Box>
+                   
                     </Box>
                   </Box>
                 </Grid>
@@ -414,6 +382,46 @@ export default function CreateProductPage() {
                     </Box>
                   </Box>
                 </Grid>
+                <Grid item xs={12} md={6}>
+                  <Box sx={{ maxWidth: 'lg', p: 6, bgcolor: 'background.paper', color: 'text.primary', borderRadius: 2, boxShadow: 3, mt: 5 }}>
+                    <Typography variant="h6" gutterBottom>Details</Typography>
+                    <Typography variant="body2" color="text.secondary" gutterBottom>Mô tả...</Typography>
+                    <Box mb={4}>
+                      <Field
+                        as={TextField}
+                        fullWidth
+                        id="shortDescription"
+                        name="shortDescription"
+                        label="Mô tả ngắn"
+                        variant="outlined"
+                        placeholder="Mô tả ngắn"
+                        multiline
+                        rows={4}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        value={values.shortDescription}
+                        helperText={<ErrorMessage name="shortDescription" component="div" className="error-message" />}
+                      />
+                    </Box>
+                    <Box mb={4}>
+                      <InputLabel htmlFor="Description">Mô tả</InputLabel>
+                      <Field name="description">
+                      {({ field, form }) => (
+                        <EditorContent
+                          {...field}
+                          value={field.value}
+                          onChange={(content) => {
+                            form.setFieldValue(field.name, content);
+                          }}
+                        />
+                      )}
+                    </Field>
+                    <FormHelperText>
+                      <ErrorMessage name="description" component="div" className="error-message" />
+                    </FormHelperText>
+                    </Box>
+                  </Box>
+                </Grid>
                 <Grid item xs={12}>
                   <Box sx={{ maxWidth: 'lg', p: 6, color: 'text.primary', mt: 5 }}>
                     <Button
@@ -435,6 +443,7 @@ export default function CreateProductPage() {
                     </Button>
                   </Box>
                 </Grid>
+                
               </Grid>
             </Form>
           )}

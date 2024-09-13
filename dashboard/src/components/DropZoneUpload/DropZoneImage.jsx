@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import  {handleToast } from "../../hooks/toast";
+import { handleToast } from "../../hooks/toast";
 import './style.css';
 
-// eslint-disable-next-line import/no-extraneous-dependencies
-
-const ImageDropZone = ({ handleUpload }) => {
+const ImageDropZone = ({ handleUpload, singleFile = false }) => {
     const {
         fileRejections,
         acceptedFiles,
@@ -15,7 +13,8 @@ const ImageDropZone = ({ handleUpload }) => {
         accept: {
             'image/jpeg': [],
             'image/png': []
-        }
+        },
+        multiple: !singleFile
     });
 
     const [uploadFile, setUploadFile] = useState([]);
@@ -31,8 +30,12 @@ const ImageDropZone = ({ handleUpload }) => {
     }, [fileRejections]);
 
     useEffect(() => {
-        setUploadFile(acceptedFiles);
-    }, [acceptedFiles]);
+        if (singleFile && acceptedFiles.length > 1) {
+            setUploadFile([acceptedFiles[0]]);
+        } else {
+            setUploadFile(acceptedFiles);
+        }
+    }, [acceptedFiles, singleFile]);
 
     useEffect(() => {
         handleUpload(uploadFile);
@@ -59,11 +62,11 @@ const ImageDropZone = ({ handleUpload }) => {
 
     return (
         <section className="container ImageDropZone">
-            <div {...getRootProps({ className: 'dropzone' })}>
-                <input {...getInputProps()} />
-                <p className='DropZoneTitle' style={{ textAlign: 'center' }}>Kéo thả hoặc chọn ảnh bất kì</p>
-                <p className='DropZoneTitle' style={{ textAlign: 'center' }}>(Chỉ nhận các ảnh có đuôi jpeg, png)</p>
-            </div>
+                <div {...getRootProps({ className: 'dropzone' })}>
+                    <input {...getInputProps()} />
+                    <p className='DropZoneTitle' style={{ textAlign: 'center' }}>Kéo thả hoặc chọn ảnh bất kì</p>
+                    <p className='DropZoneTitle' style={{ textAlign: 'center' }}>(Chỉ nhận các ảnh có đuôi jpeg, png)</p>
+                </div>
             <aside>
                 <ul className='UploadImagePreview'>{upload}</ul>
             </aside>

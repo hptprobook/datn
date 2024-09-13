@@ -5,29 +5,32 @@ import { StatusCodes } from 'http-status-codes';
 import { ObjectId } from 'mongodb';
 import { ERROR_MESSAGES } from '~/utils/errorMessage';
 import { uploadModal } from '~/models/uploadModal';
+import { createSlug } from '~/utils/createSlug';
 
 const createCategory = async (req, res) => {
   try {
-    const { name, description, slug, parentId } = req.body;
+    const { name, description, parentId } = req.body;
 
-    if (!name || !description || !slug || !parentId) {
+    if (!name || !description || !parentId) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         message: ERROR_MESSAGES.REQUIRED,
       });
     }
 
     const file = req.file;
-    const fileName = file ? file.filename : '1';
+    const fileName = file ? file.filename : '';
 
-    const validParentId =
-      parentId === 'null' || parentId === null ? null : new ObjectId(parentId);
-
+    /*     const validParentId =
+      parentId === null || parentId === undefined
+        ? null
+        : new ObjectId(parentId); */
+    const slug = createSlug(name);
     const data = {
       name,
       imageURL: fileName,
       description,
       slug,
-      parentId: validParentId,
+      parentId: parentId,
     };
 
     const dataCategory = await categoryModel.createCategory(data);
@@ -40,17 +43,54 @@ const createCategory = async (req, res) => {
       .json({ message: error.message });
   }
 };
+const getCategoryHierarchy = async (parentId = 'ROOT') => {
+  const categories = await categoryModel.getCategoriesByParentId(parentId);
+
+  const menu = await Promise.all(
+    categories.map(async (cat) => {
+      const subCategories = await getCategoryHierarchy(cat._id.toString());
+      const category = {
+        id: cat._id,
+        title: cat.name,
+        slug: cat.slug,
+      };
+
+      if (subCategories.length > 0) {
+        category.list = subCategories;
+      }
+
+      return category;
+    })
+  );
+
+  return menu;
+};
 
 const getAllCategories = async (req, res) => {
   try {
-    let { pages, limit } = req.query;
-    const category = await categoryModel.getCategoriesAll(pages, limit);
     const countCategories = await categoryModel.countCategoryAll();
+    const categories = await categoryModel.getCategoriesAll();
+
     return res.status(StatusCodes.OK).json({
-      category,
+      categories,
       countCategories,
     });
   } catch (error) {
+    console.error(error);
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json('Có lỗi xảy ra xin thử lại sau');
+  }
+};
+const getMenuCategories = async (req, res) => {
+  try {
+    const menu = await getCategoryHierarchy();
+
+    return res.status(StatusCodes.OK).json({
+      menu,
+    });
+  } catch (error) {
+    console.error(error);
     return res
       .status(StatusCodes.BAD_REQUEST)
       .json('Có lỗi xảy ra xin thử lại sau');
@@ -131,9 +171,10 @@ const deleteCategory = async (req, res) => {
 };
 
 export const categoryController = {
-  getAllCategories,
+  getMenuCategories,
   createCategory,
   updateCategory,
   deleteCategory,
   getCategoryById,
+  getAllCategories,
 };

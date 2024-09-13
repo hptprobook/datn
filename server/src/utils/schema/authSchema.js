@@ -3,7 +3,7 @@ import Joi from 'joi';
 
 export const SAVE_USER_SCHEMA = Joi.object({
     //   password: Joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')).required(),
-    userName: Joi.string().trim().min(1).max(30).required(),
+    name: Joi.string().trim().min(1).max(30).required(),
     email: Joi.string().email().required(),
     password: Joi.string().trim().min(1).required(),
     // otp: Joi.string(),
@@ -14,7 +14,7 @@ export const SAVE_USER_SCHEMA = Joi.object({
 });
 
 export const UPDATE_USER = Joi.object({
-    userName: Joi.string().min(1).max(30),
+    name: Joi.string().min(1).max(30),
     password: Joi.string(),
     otp: Joi.string(),
     role: Joi.string().valid('root', 'employee', 'user', 'ban').default('user'),
