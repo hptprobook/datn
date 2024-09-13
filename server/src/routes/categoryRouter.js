@@ -2,6 +2,9 @@
 import express from 'express';
 import { categoryController } from '~/controllers/categoryController';
 import multer from 'multer';
+import verifyAdmin from '~/middlewares/verifyAdmin';
+import { isAdmin } from '~/middlewares/verifyRole';
+import verifyToken from '~/middlewares/verifyToken';
 
 const Router = express.Router();
 
@@ -20,11 +23,34 @@ const upload = multer({
 });
 
 //admin
-Router.get('/', categoryController.getAllCategories);
+Router.get('/', verifyToken, verifyAdmin, categoryController.getAllCategories);
 Router.get('/menu', categoryController.getMenuCategories);
-Router.get('/:id', categoryController.getCategoryById);
-Router.post('/add', upload.single('image'), categoryController.createCategory);
-Router.delete('/:id', categoryController.deleteCategory);
-Router.put('/:id', upload.single('image'), categoryController.updateCategory);
+Router.get('/:slug', categoryController.getCategoryBySlug);
+Router.get(
+  '/:id',
+  verifyToken,
+  verifyAdmin,
+  categoryController.getCategoryById
+);
+Router.post(
+  '/add',
+  verifyToken,
+  verifyAdmin,
+  upload.single('image'),
+  categoryController.createCategory
+);
+Router.delete(
+  '/:id',
+  verifyToken,
+  verifyAdmin,
+  categoryController.deleteCategory
+);
+Router.put(
+  '/:id',
+  verifyToken,
+  verifyAdmin,
+  upload.single('image'),
+  categoryController.updateCategory
+);
 
 export const categoriesApi = Router;
