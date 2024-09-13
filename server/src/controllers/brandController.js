@@ -2,9 +2,9 @@
 /* eslint-disable semi */
 import { brandModel } from '~/models/brandModel';
 import { StatusCodes } from 'http-status-codes';
-import { ObjectId } from 'mongodb';
 import { ERROR_MESSAGES } from '~/utils/errorMessage';
 import { createSlug } from '~/utils/createSlug';
+import { uploadModal } from '~/models/uploadModal';
 
 const createBrand = async (req, res) => {
   try {
@@ -27,7 +27,7 @@ const createBrand = async (req, res) => {
       status,
     };
 
-    const dataBrand = await brandModel.createInventory(data);
+    const dataBrand = await brandModel.createBrand(data);
 
     return res.status(StatusCodes.OK).json({ dataBrand });
   } catch (error) {
@@ -52,13 +52,14 @@ const getAllBrands = async (req, res) => {
       .json('Có lỗi xảy ra xin thử lại sau');
   }
 };
-const getInventoryById = async (req, res) => {
+const getBrandById = async (req, res) => {
   try {
     const { id } = req.params;
-    const inventory = await brandModel.getInventoryById(id);
-    if (inventory) {
+
+    const brand = await brandModel.getBrandById(id);
+    if (brand) {
       return res.status(StatusCodes.OK).json({
-        inventory,
+        brand,
       });
     }
     return res
@@ -71,59 +72,66 @@ const getInventoryById = async (req, res) => {
     });
   }
 };
-const updateInventory = async (req, res) => {
+const update = async (req, res) => {
   const { id } = req.params;
-  const { productId, userId, supplierId, vars, type, quantity } = req.body;
+  const { name, content, status } = req.body;
 
-  if (!productId || !userId || !supplierId || !vars || !type || !quantity) {
+  if (!name || !content || !status) {
     return res.status(StatusCodes.BAD_REQUEST).json({
       message: ERROR_MESSAGES.REQUIRED,
     });
   }
 
-  const parsedVars = JSON.parse(vars);
-
+  const file = req.file;
+  const fileName = file ? file.filename : '';
+  const slug = createSlug(name);
   const data = {
-    productId: new ObjectId(productId),
-    userId: new ObjectId(userId),
-    supplierId: new ObjectId(supplierId),
-    vars: parsedVars,
-    type,
-    quantity,
+    name: name,
+    slug,
+    content: content,
+    status: status,
+    image: fileName,
   };
 
-  const dataInventory = await brandModel.update(id, data);
-  if (dataInventory?.error) {
+  const dataBrand = await brandModel.update(id, data);
+  if (dataBrand?.error) {
+    await uploadModal.deleteImg(fileName);
     return res
       .status(StatusCodes.BAD_REQUEST)
       .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
   }
-  if (dataInventory) {
+  if (dataBrand) {
+    if (file && dataBrand) {
+      await uploadModal.deleteImg(dataBrand.image);
+    }
     return res.status(StatusCodes.OK).json({
       message: 'Cập nhật thông tin thành công',
-      dataInventory,
+      dataBrand,
     });
   }
 };
-const deleteInventory = async (req, res) => {
+const deleteBrand = async (req, res) => {
   const { id } = req.params;
-  const dataInventory = await brandModel.deleteInventory(id);
-  if (dataInventory?.error) {
+  const dataBrand = await brandModel.deleteBrand(id);
+  if (dataBrand?.error) {
     return res
       .status(StatusCodes.BAD_REQUEST)
       .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
   }
-  if (dataInventory) {
+  if (dataBrand) {
+    if (dataBrand.image) {
+      await uploadModal.deleteImg(dataBrand.image);
+    }
     return res
       .status(StatusCodes.OK)
-      .json({ message: 'Xóa hàng tồn thành công' });
+      .json({ message: 'Xóa thương hiệu thành công' });
   }
 };
 
 export const brandController = {
   getAllBrands,
   createBrand,
-  updateInventory,
-  deleteInventory,
-  getInventoryById,
+  update,
+  deleteBrand,
+  getBrandById,
 };

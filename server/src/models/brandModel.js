@@ -33,10 +33,10 @@ const getBrandsAll = async (page, limit) => {
   }
 };
 
-const getBrandById = async (inventory_id) => {
+const getBrandById = async (id) => {
   const db = await GET_DB().collection('brands');
-  const inventory = await db.findOne({ _id: new ObjectId(inventory_id) });
-  return inventory;
+  const brand = await db.findOne({ _id: new ObjectId(id) });
+  return brand;
 };
 
 const createBrand = async (data) => {
@@ -58,6 +58,7 @@ const createBrand = async (data) => {
 const update = async (id, data) => {
   try {
     const db = GET_DB().collection('brands');
+    const category = await db.findOne({ _id: new ObjectId(id) });
 
     const result = await db.findOneAndUpdate(
       { _id: new ObjectId(id) },
@@ -65,7 +66,7 @@ const update = async (id, data) => {
       { returnDocument: 'after' }
     );
 
-    return result;
+    return { result: result, image: category.image };
   } catch (error) {
     return {
       error: true,
@@ -77,9 +78,9 @@ const update = async (id, data) => {
 const deleteBrand = async (id) => {
   try {
     const db = GET_DB().collection('brands');
-    const inventory = await db.findOne({ _id: new ObjectId(id) });
+    const brand = await db.findOne({ _id: new ObjectId(id) });
     await db.deleteOne({ _id: new ObjectId(id) });
-    return inventory;
+    return brand;
   } catch (error) {
     return {
       error: true,
