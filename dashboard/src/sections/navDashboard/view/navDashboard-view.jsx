@@ -15,13 +15,13 @@ import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchNav, removeNav, resetStatus, updateNav } from 'src/redux/slices/settingSlices';
+import { fetchNav, removeNav, updateNav, resetStatus } from 'src/redux/slices/settingSlices';
 import { handleToast } from 'src/hooks/toast';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { Box, IconButton, InputAdornment, Modal, TextField } from '@mui/material';
-import { PropTypes } from 'prop-types';
+import { IconButton } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import TableNoData from '../table-no-data';
 import TableEmptyRows from '../table-empty-rows';
 import { emptyRows, applyFilter, getComparator } from '../utils';
@@ -43,9 +43,9 @@ export default function NavDashboardPage() {
   const [filterName, setFilterName] = useState('');
 
   const dispactch = useDispatch();
+  const navigate = useNavigate();
 
   const [nav, setNav] = useState([]);
-
   const [open, setOpen] = useState(false);
   const [dataModal, setDataModal] = useState({});
 
@@ -53,6 +53,7 @@ export default function NavDashboardPage() {
   const status = useSelector((state) => state.settings.status);
   const statusDelete = useSelector((state) => state.settings.statusDelete);
   const statusUpdate = useSelector((state) => state.settings.statusUpdate);
+
   const handleData = (data) => {
     const sortedData = [...data].sort((a, b) => a.index - b.index);
     setNav(sortedData);
@@ -171,7 +172,7 @@ export default function NavDashboardPage() {
           </IconButton>
         </Stack>
 
-        <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />}>
+        <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />} onClick={() => navigate('create')}>
           Tạo menu mới
         </Button>
       </Stack>
