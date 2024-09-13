@@ -23,20 +23,8 @@ const upload = multer({
 
 Router.get('/', verifyToken, verifyAdmin, brandController.getAllBrands);
 Router.get('/:id', verifyToken, verifyAdmin, brandController.getBrandById);
-Router.post(
-  '/',
-  verifyToken,
-  verifyAdmin,
-  upload.single('image'),
-  brandController.createBrand
-);
-Router.put(
-  '/:id',
-  verifyToken,
-  verifyAdmin,
-  upload.single('image'),
-  brandController.update
-);
+Router.post('/', upload.single('image'), brandController.createBrand);
+Router.put('/:id', upload.single('image'), brandController.update);
 Router.delete('/:id', verifyToken, verifyAdmin, brandController.deleteBrand);
 
 export const brandsApi = Router;
