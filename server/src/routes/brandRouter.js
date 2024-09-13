@@ -21,10 +21,22 @@ const upload = multer({
   limits: { fileSize: 1024 * 1024 * 5 },
 });
 
-Router.get('/', brandController.getAllBrands);
-Router.get('/:id', brandController.getBrandById);
-Router.post('/', upload.single('image'), brandController.createBrand);
-Router.put('/:id', upload.single('image'), brandController.update);
-Router.delete('/:id', brandController.deleteBrand);
+Router.get('/', verifyToken, verifyAdmin, brandController.getAllBrands);
+Router.get('/:id', verifyToken, verifyAdmin, brandController.getBrandById);
+Router.post(
+  '/',
+  verifyToken,
+  verifyAdmin,
+  upload.single('image'),
+  brandController.createBrand
+);
+Router.put(
+  '/:id',
+  verifyToken,
+  verifyAdmin,
+  upload.single('image'),
+  brandController.update
+);
+Router.delete('/:id', verifyToken, verifyAdmin, brandController.deleteBrand);
 
 export const brandsApi = Router;
