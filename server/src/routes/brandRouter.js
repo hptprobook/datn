@@ -1,10 +1,10 @@
 /* eslint-disable semi */
 import express from 'express';
-import { inventoryController } from '~/controllers/inventoryController';
-import multer from 'multer';
-import verifyToken from '~/middlewares/verifyToken';
+import { brandController } from '~/controllers/brandController';
 import verifyAdmin from '~/middlewares/verifyAdmin';
-
+import { isAdmin } from '~/middlewares/verifyRole';
+import verifyToken from '~/middlewares/verifyToken';
+import multer from 'multer';
 const Router = express.Router();
 
 const storage = multer.diskStorage({
@@ -21,37 +21,22 @@ const upload = multer({
   limits: { fileSize: 1024 * 1024 * 5 },
 });
 
-Router.get(
+Router.get('/', verifyToken, verifyAdmin, brandController.getAllBrands);
+Router.get('/:id', verifyToken, verifyAdmin, brandController.getBrandById);
+Router.post(
   '/',
   verifyToken,
   verifyAdmin,
-  inventoryController.getAllInventories
-);
-Router.get(
-  '/:id',
-  verifyToken,
-  verifyAdmin,
-  inventoryController.getInventoryById
-);
-Router.post(
-  '/add',
-  verifyToken,
-  verifyAdmin,
-  upload.none(),
-  inventoryController.createInventory
+  upload.single('image'),
+  brandController.createBrand
 );
 Router.put(
   '/:id',
   verifyToken,
   verifyAdmin,
-  upload.none(),
-  inventoryController.updateInventory
+  upload.single('image'),
+  brandController.update
 );
-Router.delete(
-  '/:id',
-  verifyToken,
-  verifyAdmin,
-  inventoryController.deleteInventory
-);
+Router.delete('/:id', verifyToken, verifyAdmin, brandController.deleteBrand);
 
-export const inventoriesApi = Router;
+export const brandsApi = Router;
