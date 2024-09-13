@@ -128,8 +128,7 @@ const updateCategory = async (req, res) => {
   const file = req.file;
   const fileName = file.filename;
 
-  const validParentId =
-    parentId === 'null' || parentId === null ? null : new ObjectId(parentId);
+  const validParentId = parentId === null ? null : new ObjectId(parentId);
 
   const data = {
     name,
@@ -141,6 +140,7 @@ const updateCategory = async (req, res) => {
 
   const dataCategory = await categoryModel.update(id, data);
   if (dataCategory?.error) {
+    await uploadModal.deleteImg(fileName);
     return res
       .status(StatusCodes.BAD_REQUEST)
       .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
@@ -163,7 +163,9 @@ const deleteCategory = async (req, res) => {
       .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
   }
   if (dataCategory) {
-    await uploadModal.deleteImg(dataCategory);
+    if (dataCategory.imageURL) {
+      await uploadModal.deleteImg(dataCategory.imageURL);
+    }
     return res
       .status(StatusCodes.OK)
       .json({ message: 'Xóa danh mục thành công' });

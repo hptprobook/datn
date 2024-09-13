@@ -114,7 +114,7 @@ const deleteCategory = async (id) => {
     const db = GET_DB().collection('categories');
     const category = await db.findOne({ _id: new ObjectId(id) });
     await db.deleteOne({ _id: new ObjectId(id) });
-    return category.imageURL;
+    return category;
   } catch (error) {
     return {
       error: true,
