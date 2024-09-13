@@ -107,7 +107,26 @@ const getCategoryById = async (req, res) => {
     }
     return res
       .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Không tồn tại người dùng' });
+      .json({ message: 'Không tồn tại danh mục' });
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: ERROR_MESSAGES.ERR_AGAIN,
+      error: error,
+    });
+  }
+};
+const getCategoryBySlug = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const category = await categoryModel.getCategoryBySlug(slug);
+    if (category) {
+      return res.status(StatusCodes.OK).json({
+        category,
+      });
+    }
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ message: 'Không tồn tại danh mục' });
   } catch (error) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       message: ERROR_MESSAGES.ERR_AGAIN,
@@ -179,4 +198,5 @@ export const categoryController = {
   deleteCategory,
   getCategoryById,
   getAllCategories,
+  getCategoryBySlug,
 };
