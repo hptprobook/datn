@@ -7,8 +7,21 @@ import Offer from '~/components/Home/Container/Offer/Offer';
 import Post from '~/components/Home/Container/Post/Post';
 import HeaderSlider from '~/components/Home/Slider/HeaderSlider';
 import Logo from '~/assets/logo2.png';
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+
+const fetchProducts = async () => {
+  const response = await axios.get('http://localhost:3000/api/products');
+  return response.data;
+};
 
 export default function HomePage() {
+  const { data, error, isLoading } = useQuery({
+    queryKey: ['products'],
+    queryFn: fetchProducts,
+  });
+
+  console.log('🚀 ~ HomePage ~ data:', data);
   return (
     <>
       <main className="z-0 max-w-container mx-auto px-2 lg:px-0">
