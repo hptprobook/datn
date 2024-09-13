@@ -42,17 +42,4 @@ Router.delete(
   categoryController.deleteCategory
 );
 
-// New route for uploading category images
-Router.post('/upload', upload.single('image'), (req, res) => {
-  if (!req.file) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      message: 'No file uploaded',
-    });
-  }
-  return res.status(StatusCodes.OK).json({
-    message: 'File uploaded successfully',
-    fileName: req.file.filename,
-  });
-});
-
 export const categoriesApi = Router;
