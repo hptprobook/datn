@@ -97,7 +97,7 @@ export default function CartFixed({ open, setOpen }) {
                     <p>$262.00</p>
                   </div>
                   <p className="mt-0.5 text-sm text-gray-500">
-                    GIá vận chuyển và thuế được tính khi thanh toán.
+                    Giá vận chuyển và thuế được tính khi thanh toán.
                   </p>
                   <div className="mt-6">
                     <a
