@@ -60,6 +60,11 @@ const getCategoryById = async (category_id) => {
   const category = await db.findOne({ _id: new ObjectId(category_id) });
   return category;
 };
+const getCategoryBySlug = async (slug) => {
+  const db = await GET_DB().collection('categories');
+  const category = await db.findOne({ slug: slug });
+  return category;
+};
 
 const createCategory = async (dataCategory) => {
   try {
@@ -114,7 +119,7 @@ const deleteCategory = async (id) => {
     const db = GET_DB().collection('categories');
     const category = await db.findOne({ _id: new ObjectId(id) });
     await db.deleteOne({ _id: new ObjectId(id) });
-    return category.imageURL;
+    return category;
   } catch (error) {
     return {
       error: true,
@@ -130,4 +135,5 @@ export const categoryModel = {
   deleteCategory,
   getCategoryById,
   getCategoriesByParentId,
+  getCategoryBySlug,
 };

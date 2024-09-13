@@ -24,12 +24,15 @@ import UserTableHead from '../user-table-head';
 import TableEmptyRows from '../table-empty-rows';
 import UserTableToolbar from '../user-table-toolbar';
 import { emptyRows, applyFilter, getComparator } from '../utils';
+import { Box, Modal } from '@mui/material';
+import { PropTypes } from 'prop-types';
 
 // ----------------------------------------------------------------------
 
 export default function UserPage() {
   const dispatch = useDispatch();
   const [users, setUsers] = useState([]);
+
   const data = useSelector((state) => state.users.users);
   const status = useSelector((state) => state.users.status);
   const error = useSelector((state) => state.users.error);
@@ -86,6 +89,8 @@ export default function UserPage() {
   const handleDelete = (id) => {
     dispatch(deleteUser(id));
   };
+
+
 
   const handleClick = (event, name) => {
     const selectedIndex = selected.indexOf(name);

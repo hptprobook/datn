@@ -107,7 +107,26 @@ const getCategoryById = async (req, res) => {
     }
     return res
       .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Không tồn tại người dùng' });
+      .json({ message: 'Không tồn tại danh mục' });
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: ERROR_MESSAGES.ERR_AGAIN,
+      error: error,
+    });
+  }
+};
+const getCategoryBySlug = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const category = await categoryModel.getCategoryBySlug(slug);
+    if (category) {
+      return res.status(StatusCodes.OK).json({
+        category,
+      });
+    }
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ message: 'Không tồn tại danh mục' });
   } catch (error) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       message: ERROR_MESSAGES.ERR_AGAIN,
@@ -128,8 +147,7 @@ const updateCategory = async (req, res) => {
   const file = req.file;
   const fileName = file.filename;
 
-  const validParentId =
-    parentId === 'null' || parentId === null ? null : new ObjectId(parentId);
+  const validParentId = parentId === null ? null : new ObjectId(parentId);
 
   const data = {
     name,
@@ -141,6 +159,7 @@ const updateCategory = async (req, res) => {
 
   const dataCategory = await categoryModel.update(id, data);
   if (dataCategory?.error) {
+    await uploadModal.deleteImg(fileName);
     return res
       .status(StatusCodes.BAD_REQUEST)
       .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
@@ -163,7 +182,9 @@ const deleteCategory = async (req, res) => {
       .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
   }
   if (dataCategory) {
-    await uploadModal.deleteImg(dataCategory);
+    if (dataCategory.imageURL) {
+      await uploadModal.deleteImg(dataCategory.imageURL);
+    }
     return res
       .status(StatusCodes.OK)
       .json({ message: 'Xóa danh mục thành công' });
@@ -177,4 +198,5 @@ export const categoryController = {
   deleteCategory,
   getCategoryById,
   getAllCategories,
+  getCategoryBySlug,
 };

@@ -81,7 +81,7 @@ const categoriesSlice = createSlice({
       })
       .addCase(fetchAllCategories.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.data = action.payload.category; // Storing only the categories array
+        state.data = action.payload.categories; // Storing only the categories array
       })
       .addCase(fetchAllCategories.rejected, (state, action) => {
         state.status = 'failed';

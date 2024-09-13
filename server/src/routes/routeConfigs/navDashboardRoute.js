@@ -5,5 +5,7 @@ const Router = express.Router();
 
 Router.post('/', navDashboardController.createdNavDashboard);
 Router.get('/', navDashboardController.getNavDashboard);
+Router.delete('/:id', navDashboardController.removeNavDashboard);
+Router.put('/:id', navDashboardController.updateNavDashboard);
 
 export const navDashboardApi = Router;

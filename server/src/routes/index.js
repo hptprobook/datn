@@ -17,7 +17,9 @@ import { paymentApi } from './paymentRouter';
 import { navDashboardApi } from './routeConfigs/navDashboardRoute';
 import { webApi } from './routeConfigs/webRouter';
 // seo
-import { seoConfigApi } from './routeConfigs/seoConfigRouter';
+
+import { seoConfigApi } from './seoConfigRouter';
+import { brandsApi } from './brandRouter';
 const Router = express.Router();
 
 Router.use('/auth', authApi);
@@ -31,6 +33,7 @@ Router.use('/reviews', reviewsApi);
 Router.use('/suppliers', suppliersApi);
 Router.use('/inventories', inventoriesApi);
 Router.use('/products', productsApi);
+Router.use('/brands', brandsApi);
 
 Router.use('/pays', paysApi);
 Router.use('/payments', paymentApi);
