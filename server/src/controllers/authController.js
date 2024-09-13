@@ -13,6 +13,7 @@ const register = async(req, res) => {
     try {
         const dataRegister = req.body;
         const { email, password } = dataRegister;
+
         if (!email) {
             return res.status(StatusCodes.BAD_REQUEST).json({
                 mgs: 'Không bỏ trống Email',
