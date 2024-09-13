@@ -18,8 +18,8 @@ import { navDashboardApi } from './routeConfigs/navDashboardRoute';
 import { webApi } from './routeConfigs/webRouter';
 // seo
 
-import { seoConfigApi } from './seoConfigRouter';
 import { brandsApi } from './brandRouter';
+import { seoConfigApi } from './routeConfigs/seoConfigRouter';
 const Router = express.Router();
 
 Router.use('/auth', authApi);

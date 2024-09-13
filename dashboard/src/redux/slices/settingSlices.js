@@ -35,6 +35,17 @@ export const removeNav = createAsyncThunk(
     }
   }
 );
+export const getNavById = createAsyncThunk(
+  'settings/getNavById',
+  async ({ id }, rejectWithValue) => {
+    try {
+      const res = await SettingServices.getNavById(id);
+      return res;
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
 export const updateNav = createAsyncThunk(
   'settings/updateNav',
   async ({ id, values }, rejectWithValue) => {
@@ -46,10 +57,22 @@ export const updateNav = createAsyncThunk(
     }
   }
 );
+export const updateMutipleNav = createAsyncThunk(
+  'settings/updateMutipleNav',
+  async ({ values }, rejectWithValue) => {
+    try {
+      const res = await SettingServices.updateMutipleNav(values);
+      return res;
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
 
 export const resetDelete = createAction('settings/resetDelete');
 const initialState = {
-  nav: [],
+  navs: [],
+  nav: {},
   delete: null,
   status: 'idle',
   statusDelete: 'idle',
@@ -72,7 +95,7 @@ const settingSlices = createSlice({
       })
       .addCase(fetchNav.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.nav = action.payload;
+        state.navs = action.payload;
       })
       .addCase(fetchNav.rejected, (state, action) => {
         state.status = 'failed';
@@ -83,7 +106,7 @@ const settingSlices = createSlice({
       })
       .addCase(removeNav.fulfilled, (state, action) => {
         state.statusDelete = 'succeeded';
-        state.nav = action.payload;
+        state.navs = action.payload;
       })
       .addCase(removeNav.rejected, (state, action) => {
         state.statusDelete = 'failed';
@@ -94,9 +117,20 @@ const settingSlices = createSlice({
       })
       .addCase(updateNav.fulfilled, (state, action) => {
         state.statusUpdate = 'succeeded';
-        state.nav = action.payload;
+        state.navs = action.payload;
       })
       .addCase(updateNav.rejected, (state, action) => {
+        state.statusUpdate = 'failed';
+        state.error = action.payload.message;
+      })
+      .addCase(updateMutipleNav.pending, (state) => {
+        state.statusUpdate = 'loading';
+      })
+      .addCase(updateMutipleNav.fulfilled, (state, action) => {
+        state.statusUpdate = 'succeeded';
+        state.navs = action.payload;
+      })
+      .addCase(updateMutipleNav.rejected, (state, action) => {
         state.statusUpdate = 'failed';
         state.error = action.payload.message;
       })
@@ -105,10 +139,21 @@ const settingSlices = createSlice({
       })
       .addCase(createNav.fulfilled, (state, action) => {
         state.statusCreate = 'succeeded';
-        state.nav = action.payload;
+        state.navs = action.payload;
       })
       .addCase(createNav.rejected, (state, action) => {
         state.statusCreate = 'failed';
+        state.error = action.payload.message;
+      })
+      .addCase(getNavById.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(getNavById.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.nav = action.payload;
+      })
+      .addCase(getNavById.rejected, (state, action) => {
+        state.status = 'failed';
         state.error = action.payload.message;
       })
       .addCase(setStatus, (state, action) => {
