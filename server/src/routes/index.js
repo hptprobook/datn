@@ -14,6 +14,7 @@ import { paysApi } from './payRouter';
 import { navDashboardApi } from './routeConfigs/navDashboardRoute';
 // seo
 import { seoConfigApi } from './seoConfigRouter';
+import { brandsApi } from './brandRouter';
 const Router = express.Router();
 
 Router.use('/auth', authApi);
@@ -27,6 +28,7 @@ Router.use('/reviews', reviewsApi);
 Router.use('/suppliers', suppliersApi);
 Router.use('/inventories', inventoriesApi);
 Router.use('/products', productsApi);
+Router.use('/brands', brandsApi);
 
 Router.use('/pays', paysApi);
 
