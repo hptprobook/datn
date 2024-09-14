@@ -85,28 +85,30 @@ const CreateCategoryView = () => {
           <Typography variant="h6" gutterBottom>Chi tiết</Typography>
           <Typography variant="body2" color="text.secondary" gutterBottom>Tiêu đề, mô tả, hình ảnh...</Typography>
           <Formik
-            initialValues={{ categoryName: '', description: '', parentCategory: '', content: '', status: '' }}
-            validationSchema={validationSchema}
-            onSubmit={async (values, { setSubmitting }) => {
-              const data = {
-                name: values.categoryName,
-                description: values.description,
-                parentId: values.parentCategory,
-                content: values.content,
-                status: values.status
-
-              };
-
-              try {
-                console.log(data);
-                await dispatch(createCategory({ data })).unwrap();
-                handleToast('success', 'Danh mục đã được tạo thành công!');
-              } catch (error) {
-                handleToast('error', 'Có lỗi xảy ra khi tạo danh mục.');
-              } finally {
-                setSubmitting(false);
-              }
-            }}
+         initialValues={{ categoryName: '', description: '', parentCategory: '', content: '', status: '' }}
+         validationSchema={validationSchema}
+         onSubmit={async (values, { setSubmitting }) => {
+           const formData = new FormData();
+           formData.append('name', values.categoryName);
+           formData.append('description', values.description);
+           formData.append('parentId', values.parentCategory);
+           formData.append('content', values.content);
+           formData.append('status', values.status);
+         
+           // Properly log the FormData contents
+           for (let [key, value] of formData.entries()) {
+             console.log(`${key}: ${value}`);
+           }
+         
+           try {
+             await dispatch(createCategory({ data: formData })).unwrap();
+             handleToast('success', 'Danh mục đã được tạo thành công!');
+           } catch (error) {
+             handleToast('error', 'Có lỗi xảy ra khi tạo danh mục.');
+           } finally {
+             setSubmitting(false);
+           }
+         }}
           >
             {({ handleSubmit, setFieldValue, values }) => (
               <Form onSubmit={handleSubmit}>
