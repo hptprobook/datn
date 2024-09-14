@@ -58,6 +58,9 @@ const ModalEdit = ({ open, handleClose, onUpdate, data }) => {
     },
     validationSchema: navSchema,
     onSubmit: (values) => {
+      if (data.child) {
+        values.child = data.child;
+      }
       onUpdate({ id: data._id, values });
     },
   });

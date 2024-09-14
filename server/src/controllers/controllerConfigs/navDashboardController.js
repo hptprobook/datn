@@ -34,6 +34,21 @@ const getNavDashboard = async (req, res) => {
         });
     }
 }
+const getNavDashboardById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await navDashboardModel.getNavDashboardById(id);
+        if (result) {
+            return res.status(StatusCodes.OK).json(result);
+        }
+        return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Không có dữ liệu' });
+    }
+    catch (error) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+            message: error,
+        });
+    }
+}
 const removeNavDashboard = async (req, res) => {
     try {
         const { id } = req.params;
@@ -67,9 +82,26 @@ const updateNavDashboard = async (req, res) => {
         });
     }
 }
+const updateMutipleNav = async (req, res) => {
+    try {
+        const data = req.body;
+        const result = await navDashboardModel.updateMutipleNav(data);
+        if (result.error) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ message: result.error });
+        }
+        return res.status(StatusCodes.OK).json(result);
+    }
+    catch (error) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+            message: error,
+        });
+    }
+}
 export const navDashboardController = {
     createdNavDashboard,
     getNavDashboard,
     removeNavDashboard,
     updateNavDashboard,
+    getNavDashboardById,
+    updateMutipleNav
 };

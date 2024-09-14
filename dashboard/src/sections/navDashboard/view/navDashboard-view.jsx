@@ -49,7 +49,7 @@ export default function NavDashboardPage() {
   const [open, setOpen] = useState(false);
   const [dataModal, setDataModal] = useState({});
 
-  const dataNav = useSelector((state) => state.settings.nav);
+  const dataNav = useSelector((state) => state.settings.navs);
   const status = useSelector((state) => state.settings.status);
   const statusDelete = useSelector((state) => state.settings.statusDelete);
   const statusUpdate = useSelector((state) => state.settings.statusUpdate);
@@ -216,6 +216,7 @@ export default function NavDashboardPage() {
                         handleClick={(event) => handleClick(event, row.title)}
                         handleDelete={() => handleDelete(row._id)}
                         handleUpdate={() => handleUpdate(row._id)}
+                        handleNavigate={() => navigate(`${row._id}`)}
                       />
                     ))}
 
