@@ -139,7 +139,7 @@ const settingSlices = createSlice({
       })
       .addCase(createNav.fulfilled, (state, action) => {
         state.statusCreate = 'succeeded';
-        state.navs = action.payload;
+        state.nav = action.payload;
       })
       .addCase(createNav.rejected, (state, action) => {
         state.statusCreate = 'failed';
@@ -165,7 +165,6 @@ const settingSlices = createSlice({
         state.error = null;
       })
       .addCase(resetStatus, (state) => {
-        state.status = 'idle';
         state.statusDelete = 'idle';
         state.statusUpdate = 'idle';
         state.statusCreate = 'idle';

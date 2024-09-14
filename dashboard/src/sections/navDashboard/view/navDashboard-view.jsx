@@ -67,6 +67,7 @@ export default function NavDashboardPage() {
     }
   }, [dataNav, status]);
 
+
   useEffect(() => {
     if (statusDelete === 'succeeded') {
       handleToast('success', 'Xóa thành công');
@@ -88,10 +89,6 @@ export default function NavDashboardPage() {
       handleToast('error', 'Cập nhật thất bại');
     }
   }, [statusUpdate, dispactch, dataNav]);
-
-  useEffect(() => {
-    dispactch(fetchNav());
-  }, [dispactch]);
 
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === 'asc';
