@@ -8,6 +8,8 @@ const SettingServices = {
   updateNav: async (id, data) => await put(`navDashboard/${id}`, data),
   getNavById: async (id) => await get(`navDashboard/${id}`),
   updateMutipleNav: async (data) => await patch('navDashboard', data),
+  getConfigWebsite: async () => await get('web'),
+  updateConfigWebsite: async (data) => await put('web', data),
 };
 
 export default SettingServices;
