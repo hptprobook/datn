@@ -22,12 +22,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { createCategory, fetchAllCategories } from 'src/redux/slices/categoriesSlice';
 import { handleToast } from 'src/hooks/toast';
 import Select from '@mui/material/Select';
-import axios from 'axios';
 
 const validationSchema = Yup.object({
   categoryName: Yup.string().required('Tên Danh mục là bắt buộc'),
   description: Yup.string().required('Mô tả là bắt buộc'),
   parentCategory: Yup.string().nullable(), // Optional field for parent category
+  content: Yup.string().required('Nội dung là bắt buộc'), // Add validation for content
+  status: Yup.string().required('Trạng thái là bắt buộc'), // Add validation for status
 });
 
 const flattenCategories = (categories, parentId = 'ROOT', level = 0) => {
@@ -49,7 +50,7 @@ const CreateCategoryView = () => {
   const status = useSelector((state) => state.categories.status);
   const error = useSelector((state) => state.categories.error);
   const [dataCategories, setDataCategories] = useState([]);
-  const [uploadedImageUrl, setUploadedImageUrl] = useState('');
+  const [uploadedImageUrl, setUploadedImageUrl] = useState(null);
 
   console.log(categories);
 
@@ -65,22 +66,8 @@ const CreateCategoryView = () => {
     }
   }, [status, dispatch, error, categories]);
 
-  const handleChangeUploadImg = async (files) => {
-    const formData = new FormData();
-    formData.append('image', files[0]);
-
-    try {
-      const response = await axios.post(`${import.meta.env.VITE_REACT_API_URL}/categories/upload`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      console.log(response.data);
-      setUploadedImageUrl(response.data.fileName);
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      handleToast('error', 'Có lỗi xảy ra khi tải lên hình ảnh.');
-    }
+  const handleChangeUploadImg = (files) => {
+    setUploadedImageUrl(files[0]);
   };
 
   // Filter categories to include only those with parentId as ROOT and their direct children
@@ -98,16 +85,18 @@ const CreateCategoryView = () => {
           <Typography variant="h6" gutterBottom>Chi tiết</Typography>
           <Typography variant="body2" color="text.secondary" gutterBottom>Tiêu đề, mô tả, hình ảnh...</Typography>
           <Formik
-            initialValues={{ categoryName: '', description: '', parentCategory: '', imageURL: '' }}
+            initialValues={{ categoryName: '', description: '', parentCategory: '', content: '', status: '' }}
             validationSchema={validationSchema}
             onSubmit={async (values, { setSubmitting }) => {
               const data = {
                 name: values.categoryName,
                 description: values.description,
-                slug: values.categoryName.toLowerCase().replace(/ /g, '-'),
                 parentId: values.parentCategory,
-                imageURL: uploadedImageUrl, // Include the uploaded image URL
+                content: values.content,
+                status: values.status
+
               };
+
               try {
                 console.log(data);
                 await dispatch(createCategory({ data })).unwrap();
@@ -196,10 +185,53 @@ const CreateCategoryView = () => {
                       </FormHelperText>
                     </FormControl>
                   </Grid>
+                  <Grid item xs={12} sm={8} md={6}>
+                    <InputLabel htmlFor="content">Nội dung</InputLabel>
+                  </Grid>
+                  <Grid item xs={12} sm={4} md={6}>
+                    <Field
+                      as={TextField}
+                      fullWidth
+                      id="content"
+                      name="content"
+                      label="Nội dung"
+                      variant="outlined"
+                      placeholder="Nội dung"
+                      helperText={<ErrorMessage name="content" component="div" className="error-message" />}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={8} md={6}>
+                    <InputLabel htmlFor="status">Trạng thái</InputLabel>
+                  </Grid>
+                  <Grid item xs={12} sm={4} md={6}>
+                    <FormControl fullWidth variant="outlined">
+                      <InputLabel htmlFor="status">Trạng thái</InputLabel>
+                      <Field name="status">
+                        {({ field }) => (
+                          <Select
+                            {...field}
+                            labelId="status-label"
+                            id="status"
+                            value={values.status}
+                            onChange={(event) => setFieldValue('status', event.target.value)}
+                            label="Trạng thái"
+                          >
+                            <MenuItem value="active">Hoạt dộng</MenuItem>
+                            <MenuItem value="inactive">Không hoạt động</MenuItem>
+                            <MenuItem value="draft">Nháp</MenuItem>
+                          </Select>
+                        )}
+                      </Field>
+                      <FormHelperText>
+                        <ErrorMessage name="status" component="div" className="error-message" />
+                      </FormHelperText>
+                    </FormControl>
+                  </Grid>
                   <Grid item xs={12}>
                     <InfoBox title="Hình ảnh">
                       <ImageDropZone handleUpload={handleChangeUploadImg} singleFile />
                     </InfoBox>
+                   
                   </Grid>
                   <Grid item xs={12}>
                     <Button type="submit" variant="contained" sx={{ backgroundColor: '#1C252E', color: 'foreground-foreground', py: 2, px: 4, borderRadius: '8px', '&:hover': { backgroundColor: '#1C252E', opacity: 0.8 } }}>
