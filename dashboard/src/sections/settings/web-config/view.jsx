@@ -14,6 +14,7 @@ import * as Yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
 import { getConfigWebsite } from 'src/redux/slices/settingSlices';
 import { useFormik } from 'formik';
+import EditableField from '../edit-field';
 // ----------------------------------------------------------------------
 const configSchema = Yup.object().shape({
   nameCompany: Yup.string()
@@ -130,6 +131,10 @@ export default function WebConfigPage() {
     formik.resetForm();
     setInputSelect('');
   };
+  const handleUpdate = (name) => {
+    console.log(formik.values[name]);
+  };
+
   const [inputSelect, setInputSelect] = useState('');
   return (
     <Container>
@@ -165,59 +170,261 @@ export default function WebConfigPage() {
               <Tab label="Thông tin thanh toán" {...a11yProps(1)} />
               <Tab label="Social" {...a11yProps(2)} />
             </Tabs>
+            {/* Thông tin cơ bản */}
             <TabPanel value={value} index={0}>
               <Grid2 spacing={2} container>
                 <Grid2 container spacing={2} xs={8}>
-                  <Grid2 xs={12} sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                    <TextField
-                      sx={{ flexGrow: 1 }}
+                  <Grid2 xs={12}>
+                    <EditableField
                       name="nameCompany"
                       label="Tên công ty"
-                      variant="outlined"
                       value={formik.values.nameCompany}
                       onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
                       error={formik.touched.nameCompany && Boolean(formik.errors.nameCompany)}
                       helperText={formik.touched.nameCompany && formik.errors.nameCompany}
-                      disabled={inputSelect !== 'name'}
+                      inputSelect={inputSelect}
+                      setInputSelect={setInputSelect}
+                      handleUpdate={handleUpdate}
+                      handleCancel={handleCancel}
                     />
-                    <Stack
-                      direction="row"
-                      alignItems="center"
-                      justifyContent="space-between"
-                      spacing={2}
-                      sx={{
-                        display: inputSelect === 'name' ? 'flex' : 'none',
-                      }}
-                    >
-                      <Button variant="text" color="inherit" onClick={handleCancel}>
-                        Hủy
-                      </Button>
-                      <Button variant="contained" color="inherit">
-                        Lưu
-                      </Button>
-                    </Stack>
-                    <IconButton
-                      color="inherit"
-                      aria-label="Chỉnh sửa"
-                      variant="contained"
-                      sx={{
-                        display: inputSelect === 'name' ? 'none' : 'block',
-                        width: 40,
-                        height: 40,
-                      }}
-                      onClick={() => setInputSelect('name')}
-                    >
-                      <Iconify icon="eva:edit-fill" />
-                    </IconButton>
+                  </Grid2>
+                  <Grid2 xs={12}>
+                    <EditableField
+                      name="website"
+                      label="Website"
+                      value={formik.values.website}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      error={formik.touched.website && Boolean(formik.errors.website)}
+                      helperText={formik.touched.website && formik.errors.website}
+                      inputSelect={inputSelect}
+                      setInputSelect={setInputSelect}
+                      handleUpdate={handleUpdate}
+                      handleCancel={handleCancel}
+                    />
+                  </Grid2>
+                  <Grid2 xs={12}>
+                    <EditableField
+                      name="address"
+                      label="Địa chỉ"
+                      value={formik.values.address}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      error={formik.touched.address && Boolean(formik.errors.address)}
+                      helperText={formik.touched.address && formik.errors.address}
+                      inputSelect={inputSelect}
+                      setInputSelect={setInputSelect}
+                      handleUpdate={handleUpdate}
+                      handleCancel={handleCancel}
+                    />
+                  </Grid2>
+                  <Grid2 xs={12}>
+                    <EditableField
+                      name="email"
+                      label="Email"
+                      value={formik.values.email}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      error={formik.touched.email && Boolean(formik.errors.email)}
+                      helperText={formik.touched.email && formik.errors.email}
+                      inputSelect={inputSelect}
+                      setInputSelect={setInputSelect}
+                      handleUpdate={handleUpdate}
+                      handleCancel={handleCancel}
+                    />
+                  </Grid2>
+                  <Grid2 xs={12}>
+                    <EditableField
+                      name="phone"
+                      label="Số điện thoại"
+                      value={formik.values.phone}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      error={formik.touched.phone && Boolean(formik.errors.phone)}
+                      helperText={formik.touched.phone && formik.errors.phone}
+                      inputSelect={inputSelect}
+                      setInputSelect={setInputSelect}
+                      handleUpdate={handleUpdate}
+                      handleCancel={handleCancel}
+                    />
+                  </Grid2>
+                  <Grid2 xs={12}>
+                    <EditableField
+                      name="hotline"
+                      label="Hotline"
+                      value={formik.values.hotline}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      error={formik.touched.hotline && Boolean(formik.errors.hotline)}
+                      helperText={formik.touched.hotline && formik.errors.hotline}
+                      inputSelect={inputSelect}
+                      setInputSelect={setInputSelect}
+                      handleUpdate={handleUpdate}
+                      handleCancel={handleCancel}
+                    />
                   </Grid2>
                 </Grid2>
               </Grid2>
             </TabPanel>
+            {/* Thông tin thanh toán */}
             <TabPanel value={value} index={1}>
-              <img src="http://localhost:3000/uploads/1726331121750-168549435.jpg" alt="logo" />
+              <Grid2 container spacing={2}>
+                <Grid2 xs={12}>
+                  <EditableField
+                    name="nameBank"
+                    label="Tên ngân hàng"
+                    value={formik.values.nameBank}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={formik.touched.nameBank && Boolean(formik.errors.nameBank)}
+                    helperText={formik.touched.nameBank && formik.errors.nameBank}
+                    inputSelect={inputSelect}
+                    setInputSelect={setInputSelect}
+                    handleUpdate={handleUpdate}
+                    handleCancel={handleCancel}
+                  />
+                </Grid2>
+                <Grid2 xs={12}>
+                  <EditableField
+                    name="numberBank"
+                    label="Số tài khoản"
+                    value={formik.values.numberBank}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={formik.touched.numberBank && Boolean(formik.errors.numberBank)}
+                    helperText={formik.touched.numberBank && formik.errors.numberBank}
+                    inputSelect={inputSelect}
+                    setInputSelect={setInputSelect}
+                    handleUpdate={handleUpdate}
+                    handleCancel={handleCancel}
+                  />
+                </Grid2>
+                <Grid2 xs={12}>
+                  <EditableField
+                    name="nameholderBank"
+                    label="Tên chủ tài khoản"
+                    value={formik.values.nameholderBank}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={formik.touched.nameholderBank && Boolean(formik.errors.nameholderBank)}
+                    helperText={formik.touched.nameholderBank && formik.errors.nameholderBank}
+                    inputSelect={inputSelect}
+                    setInputSelect={setInputSelect}
+                    handleUpdate={handleUpdate}
+                    handleCancel={handleCancel}
+                  />
+                </Grid2>
+              </Grid2>
             </TabPanel>
             <TabPanel value={value} index={2}>
-           {config.FanpageFb}
+              <Grid2 container spacing={2}>
+                <Grid2 xs={12}>
+                  <EditableField
+                    name="FanpageFb"
+                    label="Fanpage Facebook"
+                    value={formik.values.FanpageFb}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={formik.touched.FanpageFb && Boolean(formik.errors.FanpageFb)}
+                    helperText={formik.touched.FanpageFb && formik.errors.FanpageFb}
+                    inputSelect={inputSelect}
+                    setInputSelect={setInputSelect}
+                    handleUpdate={handleUpdate}
+                    handleCancel={handleCancel}
+                  />
+                </Grid2>
+                <Grid2 xs={12}>
+                  <EditableField
+                    name="Instagram"
+                    label="Instagram"
+                    value={formik.values.Instagram}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={formik.touched.Instagram && Boolean(formik.errors.Instagram)}
+                    helperText={formik.touched.Instagram && formik.errors.Instagram}
+                    inputSelect={inputSelect}
+                    setInputSelect={setInputSelect}
+                    handleUpdate={handleUpdate}
+                    handleCancel={handleCancel}
+                  />
+                </Grid2>
+                <Grid2 xs={12}>
+                  <EditableField
+                    name="Youtube"
+                    label="Youtube"
+                    value={formik.values.Youtube}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={formik.touched.Youtube && Boolean(formik.errors.Youtube)}
+                    helperText={formik.touched.Youtube && formik.errors.Youtube}
+                    inputSelect={inputSelect}
+                    setInputSelect={setInputSelect}
+                    handleUpdate={handleUpdate}
+                    handleCancel={handleCancel}
+                  />
+                </Grid2>
+                <Grid2 xs={12}>
+                  <EditableField
+                    name="ZaloWeb"
+                    label="ZaloWeb"
+                    value={formik.values.ZaloWeb}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={formik.touched.ZaloWeb && Boolean(formik.errors.ZaloWeb)}
+                    helperText={formik.touched.ZaloWeb && formik.errors.ZaloWeb}
+                    inputSelect={inputSelect}
+                    setInputSelect={setInputSelect}
+                    handleUpdate={handleUpdate}
+                    handleCancel={handleCancel}
+                  />
+                </Grid2>
+                <Grid2 xs={12}>
+                  <EditableField
+                    name="Tiktok"
+                    label="Tiktok"
+                    value={formik.values.Tiktok}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={formik.touched.Tiktok && Boolean(formik.errors.Tiktok)}
+                    helperText={formik.touched.Tiktok && formik.errors.Tiktok}
+                    inputSelect={inputSelect}
+                    setInputSelect={setInputSelect}
+                    handleUpdate={handleUpdate}
+                    handleCancel={handleCancel}
+                  />
+                </Grid2>
+                <Grid2 xs={12}>
+                  <EditableField
+                    name="zalo"
+                    label="Zalo"
+                    value={formik.values.zalo}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={formik.touched.zalo && Boolean(formik.errors.zalo)}
+                    helperText={formik.touched.zalo && formik.errors.zalo}
+                    inputSelect={inputSelect}
+                    setInputSelect={setInputSelect}
+                    handleUpdate={handleUpdate}
+                    handleCancel={handleCancel}
+                  />
+                </Grid2>
+                <Grid2 xs={12}>
+                  <EditableField
+                    name="linkWebConnect"
+                    label="Liên kết website"
+                    value={formik.values.linkWebConnect}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={formik.touched.linkWebConnect && Boolean(formik.errors.linkWebConnect)}
+                    helperText={formik.touched.linkWebConnect && formik.errors.linkWebConnect}
+                    inputSelect={inputSelect}
+                    setInputSelect={setInputSelect}
+                    handleUpdate={handleUpdate}
+                    handleCancel={handleCancel}
+                  />
+                </Grid2>
+              </Grid2>
             </TabPanel>
           </Card>
         </form>
