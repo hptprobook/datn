@@ -20,7 +20,7 @@ const CategoryService = {
   },
   createCategory: async (data) => {
     try {
-      const res = await post(`categories/add`, data);
+      const res = await post(`categories`, data);
       return res;
     } catch (err) {
       throw err;
