@@ -85,30 +85,33 @@ const CreateCategoryView = () => {
           <Typography variant="h6" gutterBottom>Chi tiết</Typography>
           <Typography variant="body2" color="text.secondary" gutterBottom>Tiêu đề, mô tả, hình ảnh...</Typography>
           <Formik
-         initialValues={{ categoryName: '', description: '', parentCategory: '', content: '', status: '' }}
-         validationSchema={validationSchema}
-         onSubmit={async (values, { setSubmitting }) => {
-           const formData = new FormData();
-           formData.append('name', values.categoryName);
-           formData.append('description', values.description);
-           formData.append('parentId', values.parentCategory);
-           formData.append('content', values.content);
-           formData.append('status', values.status);
-         
-           // Properly log the FormData contents
-           for (let [key, value] of formData.entries()) {
-             console.log(`${key}: ${value}`);
-           }
-         
-           try {
-             await dispatch(createCategory({ data: formData })).unwrap();
-             handleToast('success', 'Danh mục đã được tạo thành công!');
-           } catch (error) {
-             handleToast('error', 'Có lỗi xảy ra khi tạo danh mục.');
-           } finally {
-             setSubmitting(false);
-           }
-         }}
+            initialValues={{ categoryName: '', description: '', parentCategory: '', content: '', status: '' }}
+            validationSchema={validationSchema}
+            onSubmit={async (values, { setSubmitting }) => {
+              const formData = new FormData();
+             
+              formData.append('name', values.categoryName);
+              formData.append('description', values.description);
+              formData.append('parentId', values.parentCategory);
+              formData.append('content', values.content);
+              formData.append('status', values.status === 'active' ? true : false);
+              if (uploadedImageUrl) {
+                formData.append('image', uploadedImageUrl);
+              }
+              // Properly log the FormData contents
+              for (let [key, value] of formData.entries()) {
+                console.log(`${key}: ${value}`);
+              }
+
+              try {
+                await dispatch(createCategory(formData)).unwrap();
+                handleToast('success', 'Danh mục đã được tạo thành công!');
+              } catch (error) {
+                handleToast('error', 'Có lỗi xảy ra khi tạo danh mục.');
+              } finally {
+                setSubmitting(false);
+              }
+            }}
           >
             {({ handleSubmit, setFieldValue, values }) => (
               <Form onSubmit={handleSubmit}>
@@ -220,7 +223,6 @@ const CreateCategoryView = () => {
                           >
                             <MenuItem value="active">Hoạt dộng</MenuItem>
                             <MenuItem value="inactive">Không hoạt động</MenuItem>
-                            <MenuItem value="draft">Nháp</MenuItem>
                           </Select>
                         )}
                       </Field>
@@ -233,7 +235,6 @@ const CreateCategoryView = () => {
                     <InfoBox title="Hình ảnh">
                       <ImageDropZone handleUpload={handleChangeUploadImg} singleFile />
                     </InfoBox>
-                   
                   </Grid>
                   <Grid item xs={12}>
                     <Button type="submit" variant="contained" sx={{ backgroundColor: '#1C252E', color: 'foreground-foreground', py: 2, px: 4, borderRadius: '8px', '&:hover': { backgroundColor: '#1C252E', opacity: 0.8 } }}>

@@ -26,7 +26,7 @@ export const fetchCategoryById = createAsyncThunk(
 );
 export const createCategory = createAsyncThunk(
   'categories/createCategory',
-  async ({ data }, thunkAPI) => {
+  async ( data , thunkAPI) => {
     try {
       const res = await CategoryService.createCategory(data);
       return res.data; // Assuming res.data contains the categories array
