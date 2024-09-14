@@ -22,6 +22,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { createCategory, fetchAllCategories } from 'src/redux/slices/categoriesSlice';
 import { handleToast } from 'src/hooks/toast';
 import Select from '@mui/material/Select';
+import axios from 'axios';
 
 const validationSchema = Yup.object({
   categoryName: Yup.string().required('Tên Danh mục là bắt buộc'),
@@ -48,6 +49,8 @@ const CreateCategoryView = () => {
   const status = useSelector((state) => state.categories.status);
   const error = useSelector((state) => state.categories.error);
   const [dataCategories, setDataCategories] = useState([]);
+  const [uploadedImageUrl, setUploadedImageUrl] = useState('');
+
   console.log(categories);
 
   useEffect(() => {
@@ -62,8 +65,22 @@ const CreateCategoryView = () => {
     }
   }, [status, dispatch, error, categories]);
 
-  const handleChangeUploadImg = (files) => {
-    // Handle image upload
+  const handleChangeUploadImg = async (files) => {
+    const formData = new FormData();
+    formData.append('image', files[0]);
+
+    try {
+      const response = await axios.post(`${import.meta.env.VITE_REACT_API_URL}/categories/upload`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      console.log(response.data);
+      setUploadedImageUrl(response.data.fileName);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      handleToast('error', 'Có lỗi xảy ra khi tải lên hình ảnh.');
+    }
   };
 
   // Filter categories to include only those with parentId as ROOT and their direct children
@@ -81,7 +98,7 @@ const CreateCategoryView = () => {
           <Typography variant="h6" gutterBottom>Chi tiết</Typography>
           <Typography variant="body2" color="text.secondary" gutterBottom>Tiêu đề, mô tả, hình ảnh...</Typography>
           <Formik
-            initialValues={{ categoryName: '', description: '', parentCategory: '' }}
+            initialValues={{ categoryName: '', description: '', parentCategory: '', imageURL: '' }}
             validationSchema={validationSchema}
             onSubmit={async (values, { setSubmitting }) => {
               const data = {
@@ -89,6 +106,7 @@ const CreateCategoryView = () => {
                 description: values.description,
                 slug: values.categoryName.toLowerCase().replace(/ /g, '-'),
                 parentId: values.parentCategory,
+                imageURL: uploadedImageUrl, // Include the uploaded image URL
               };
               try {
                 console.log(data);
@@ -159,15 +177,15 @@ const CreateCategoryView = () => {
                             </MenuItem>
                             {filteredCategories.length > 0 && filteredCategories.map((category) => (
                               <MenuItem
-                              key={category._id}
-                              value={category._id}
-                              style={{
-                                paddingLeft: `${(category.level + 1) * 20}px`, // Ensure ROOT has the same padding as its children
-                                fontWeight: category.parentId === 'ROOT' ? 'bold' : 'normal',
-                                color: category.parentId === 'ROOT' ? 'black' : 'inherit'
-                              }}
-                            >
-                              {category.name}
+                                key={category._id}
+                                value={category._id}
+                                style={{
+                                  paddingLeft: `${(category.level + 1) * 20}px`, // Ensure ROOT has the same padding as its children
+                                  fontWeight: category.parentId === 'ROOT' ? 'bold' : 'normal',
+                                  color: category.parentId === 'ROOT' ? 'black' : 'inherit'
+                                }}
+                              >
+                                {category.name}
                               </MenuItem>
                             ))}
                           </Select>

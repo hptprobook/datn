@@ -7,5 +7,7 @@ Router.post('/', navDashboardController.createdNavDashboard);
 Router.get('/', navDashboardController.getNavDashboard);
 Router.delete('/:id', navDashboardController.removeNavDashboard);
 Router.put('/:id', navDashboardController.updateNavDashboard);
+Router.get('/:id', navDashboardController.getNavDashboardById);
+Router.patch('/', navDashboardController.updateMutipleNav);
 
 export const navDashboardApi = Router;

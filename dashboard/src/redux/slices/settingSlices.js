@@ -13,11 +13,33 @@ export const fetchNav = createAsyncThunk(
     }
   }
 );
+export const createNav = createAsyncThunk(
+  'settings/createNav',
+  async ({ values }, { rejectWithValue }) => {
+    try {
+      const res = await SettingServices.addNav(values);
+      return res;
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
 export const removeNav = createAsyncThunk(
   'settings/removeNav',
   async ({ id }, rejectWithValue) => {
     try {
       const res = await SettingServices.removeNav(id);
+      return res;
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
+export const getNavById = createAsyncThunk(
+  'settings/getNavById',
+  async ({ id }, rejectWithValue) => {
+    try {
+      const res = await SettingServices.getNavById(id);
       return res;
     } catch (err) {
       return rejectWithValue(err.response.data);
@@ -35,14 +57,27 @@ export const updateNav = createAsyncThunk(
     }
   }
 );
+export const updateMutipleNav = createAsyncThunk(
+  'settings/updateMutipleNav',
+  async ({ values }, rejectWithValue) => {
+    try {
+      const res = await SettingServices.updateMutipleNav(values);
+      return res;
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
 
 export const resetDelete = createAction('settings/resetDelete');
 const initialState = {
-  nav: [],
+  navs: [],
+  nav: {},
   delete: null,
   status: 'idle',
   statusDelete: 'idle',
   statusUpdate: 'idle',
+  statusCreate: 'idle',
   error: null,
 };
 
@@ -60,33 +95,66 @@ const settingSlices = createSlice({
       })
       .addCase(fetchNav.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.nav = action.payload;
+        state.navs = action.payload;
       })
       .addCase(fetchNav.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.error.message;
+        state.error = action.payload.message;
       })
       .addCase(removeNav.pending, (state) => {
         state.statusDelete = 'loading';
       })
       .addCase(removeNav.fulfilled, (state, action) => {
         state.statusDelete = 'succeeded';
-        state.nav = action.payload;
+        state.navs = action.payload;
       })
       .addCase(removeNav.rejected, (state, action) => {
         state.statusDelete = 'failed';
-        state.error = action.error.message;
+        state.error = action.payload.message;
       })
       .addCase(updateNav.pending, (state) => {
         state.statusUpdate = 'loading';
       })
       .addCase(updateNav.fulfilled, (state, action) => {
         state.statusUpdate = 'succeeded';
-        state.nav = action.payload;
+        state.navs = action.payload;
       })
       .addCase(updateNav.rejected, (state, action) => {
         state.statusUpdate = 'failed';
-        state.error = action.error.message;
+        state.error = action.payload.message;
+      })
+      .addCase(updateMutipleNav.pending, (state) => {
+        state.statusUpdate = 'loading';
+      })
+      .addCase(updateMutipleNav.fulfilled, (state, action) => {
+        state.statusUpdate = 'succeeded';
+        state.navs = action.payload;
+      })
+      .addCase(updateMutipleNav.rejected, (state, action) => {
+        state.statusUpdate = 'failed';
+        state.error = action.payload.message;
+      })
+      .addCase(createNav.pending, (state) => {
+        state.statusCreate = 'loading';
+      })
+      .addCase(createNav.fulfilled, (state, action) => {
+        state.statusCreate = 'succeeded';
+        state.navs = action.payload;
+      })
+      .addCase(createNav.rejected, (state, action) => {
+        state.statusCreate = 'failed';
+        state.error = action.payload.message;
+      })
+      .addCase(getNavById.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(getNavById.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.nav = action.payload;
+      })
+      .addCase(getNavById.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload.message;
       })
       .addCase(setStatus, (state, action) => {
         state.status = action.payload;
@@ -100,6 +168,7 @@ const settingSlices = createSlice({
         state.status = 'idle';
         state.statusDelete = 'idle';
         state.statusUpdate = 'idle';
+        state.statusCreate = 'idle';
         state.error = null;
       });
   },

@@ -81,7 +81,7 @@ export const Card = ({ id, text, index, moveCard, icon, onDelete }) => {
         aria-label="load"
         variant="contained"
         color="inherit"
-        onClick={onDelete}
+        onClick={() => onDelete(index)}
       >
         <Iconify icon="eva:trash-fill" />
       </IconButton>

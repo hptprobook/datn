@@ -1,48 +1,47 @@
 /* eslint-disable comma-dangle */
 /* eslint-disable semi */
-import { seoConfigModel } from '~/models/seoConfigModel';
 import { StatusCodes } from 'http-status-codes';
 // import { ERROR_MESSAGES } from '~/utils/errorMessage';
 import { uploadModal } from '~/models/uploadModal';
-const getSeoConfig = async(req, res) => {
+import { webModel } from '~/models/webModel';
+const getWeb = async(req, res) => {
     try {
-        const seo = await seoConfigModel.getSeoConfig();
-        return res.status(StatusCodes.OK).json(seo);
+        const web = await webModel.getWeb();
+        return res.status(StatusCodes.OK).json(web);
     } catch (error) {
         return res
             .status(StatusCodes.BAD_REQUEST)
-            .json('Có lỗi xảy ra xin thử lại sau');
+            .json({ message: 'Có lỗi xảy ra xin thử lại sau', error });
     }
 };
 
-const createSeoConfig = async(req, res) => {
+const createWeb = async(req, res) => {
     try {
-        const seo = await seoConfigModel.getSeoConfig();
-        if (seo) {
+        const Web = await webModel.getWeb();
+        if (Web) {
             await uploadModal.deleteImg(req.file.filename);
             return res
                 .status(StatusCodes.BAD_REQUEST)
-                .json({ mgs: 'Dữ liệu SEO web đã được tạo' });
+                .json({ mgs: 'Dữ liệu Web đã được tạo' });
         }
         if (!req.file) {
             return res
                 .status(StatusCodes.BAD_REQUEST)
-                .json({ mgs: 'Img is not empty' });
+                .json({ mgs: 'Logo là bắt buộc' });
         }
-        const dataSeo = {
+        const dataWeb = {
             ...req.body,
-            metaOGImg: req.file.filename,
+            logo: req.file.filename,
         };
-        const result = await seoConfigModel.createSeo(dataSeo);
+        const result = await webModel.createWeb(dataWeb);
         if (result.acknowledged) {
             return res
                 .status(StatusCodes.OK)
-                .json({ mgs: 'Tạo dữ liệu SEO web thành công' });
+                .json({ mgs: 'Tạo dữ liệu Web thành công' });
         }
         await uploadModal.deleteImg(req.file.filename);
         return res.status(StatusCodes.BAD_REQUEST).json(result);
     } catch (error) {
-        await uploadModal.deleteImg(req.file.filename);
         if (error.details) {
             return res.status(StatusCodes.BAD_REQUEST).json({
                 messages: error.details[0].message,
@@ -52,36 +51,37 @@ const createSeoConfig = async(req, res) => {
     }
 };
 
-const updateSeoConfig = async(req, res) => {
+const updateWeb = async(req, res) => {
     try {
-        const seo = await seoConfigModel.getSeoConfig();
-        if (!seo) {
+        const web = await webModel.getWeb();
+        if (!web) {
             return res
                 .status(StatusCodes.BAD_REQUEST)
-                .json({ mgs: 'Dữ liệu SEO web chưa được tạo' });
+                .json({ mgs: 'Dữ liệu Web chưa được tạo' });
         }
-        const { id } = seo._id;
+        const id = web._id.toString();
         if (!req.file) {
             const dataSeo = req.body;
-            const result = await seoConfigModel.updateSeo(id, dataSeo);
+            const result = await webModel.updateWeb(id, dataSeo);
             return res
                 .status(StatusCodes.OK)
-                .json({ result, mgs: 'Thay đổi dữ liệu SEO web thành công' });
+                .json({ result, mgs: 'Thay đổi dữ liệu Web thành công' });
         }
         const dataSeo = {
             ...req.body,
-            metaOGImg: req.file.filename,
+            logo: req.file.filename,
         };
-        const result = await seoConfigModel.updateSeo(id, dataSeo);
+        const result = await webModel.updateWeb(id, dataSeo);
         if (result.error) {
             await uploadModal.deleteImg(req.file.filename);
             return res.status(StatusCodes.BAD_REQUEST).json(result.detail);
         }
-        await uploadModal.deleteImg(seo.metaOGImg);
+        await uploadModal.deleteImg(web.logo);
         return res
             .status(StatusCodes.OK)
-            .json({ result, mgs: 'Thay đổi dữ liệu SEO web thành công' });
+            .json({ result, mgs: 'Thay đổi dữ liệu Web thành công' });
     } catch (error) {
+        await uploadModal.deleteImg(req.file.filename);
         if (error.details) {
             return res.status(StatusCodes.BAD_REQUEST).json({
                 messages: error.details[0].message,
@@ -93,13 +93,13 @@ const updateSeoConfig = async(req, res) => {
 
 // const deleteSeoConfig = async(req, res) => {
 //     const { id } = req.params;
-//     const seo = await seoConfigModel.getSeoConfig();
+//     const seo = await webModel.getSeoConfig();
 //     if (!seo) {
 //         return res
 //             .status(StatusCodes.BAD_REQUEST)
 //             .json({ mgs: 'Dữ liệu SEO web chưa được tạo' });
 //     }
-//     const dataDel = await seoConfigModel.deleteSeoConfig(id);
+//     const dataDel = await webModel.deleteSeoConfig(id);
 //     if (dataDel.acknowledged) {
 //         await uploadModal.deleteImg(seo.metaOGImg);
 //         return res
@@ -109,9 +109,9 @@ const updateSeoConfig = async(req, res) => {
 //     return res.status(StatusCodes.BAD_REQUEST).json({ dataDel });
 // };
 
-export const seoConfigController = {
-    createSeoConfig,
-    getSeoConfig,
-    updateSeoConfig,
+export const webController = {
+    createWeb,
+    getWeb,
+    updateWeb,
     // deleteSeoConfig,
 };
