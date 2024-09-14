@@ -68,13 +68,26 @@ export const updateMutipleNav = createAsyncThunk(
     }
   }
 );
+export const getConfigWebsite = createAsyncThunk(
+  'settings/web',
+  async (_, rejectWithValue) => {
+    try {
+      return await SettingServices.getConfigWebsite();
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
+
 
 export const resetDelete = createAction('settings/resetDelete');
 const initialState = {
   navs: [],
   nav: {},
+  web: {},
   delete: null,
   status: 'idle',
+  statusWeb: 'idle',
   statusDelete: 'idle',
   statusUpdate: 'idle',
   statusCreate: 'idle',
@@ -155,6 +168,17 @@ const settingSlices = createSlice({
       .addCase(getNavById.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload.message;
+      })
+      .addCase(getConfigWebsite.pending, (state) => {
+        state.statusWeb = 'loading';
+      })
+      .addCase(getConfigWebsite.fulfilled, (state, action) => {
+        state.statusWeb = 'succeeded';
+        state.web = action.payload;
+      })
+      .addCase(getConfigWebsite.rejected, (state, action) => {
+        state.statusWeb = 'failed';
+        state.error = action.payload;
       })
       .addCase(setStatus, (state, action) => {
         state.status = action.payload;
