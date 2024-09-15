@@ -17,7 +17,7 @@ import {
 import EditorContent from 'src/components/editor/editor';
 import InfoBox from 'src/components/Box/InforBox';
 import ImageDropZone from 'src/components/DropZoneUpload/DropZoneImage';
-import "./styles.css";
+import './styles.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { createCategory, fetchAllCategories } from 'src/redux/slices/categoriesSlice';
 import { handleToast } from 'src/hooks/toast';
@@ -67,12 +67,23 @@ const CreateCategoryView = () => {
   }, [status, dispatch, error, categories]);
 
   const handleChangeUploadImg = (files) => {
-    setUploadedImageUrl(files[0]);
+    const file = files[0];
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      setUploadedImageUrl(reader.result); // Lưu chuỗi Base64 của ảnh
+    };
+
+    if (file) {
+      reader.readAsDataURL(file);
+    }
   };
 
   // Filter categories to include only those with parentId as ROOT and their direct children
-  const filteredCategories = dataCategories.filter(category => 
-    category.parentId === 'ROOT' || categories.some(cat => cat._id === category.parentId && cat.parentId === 'ROOT')
+  const filteredCategories = dataCategories.filter(
+    (category) =>
+      category.parentId === 'ROOT' ||
+      categories.some((cat) => cat._id === category.parentId && cat.parentId === 'ROOT')
   );
 
   return (
@@ -81,15 +92,35 @@ const CreateCategoryView = () => {
         <Typography variant="h4">Tạo một Danh mục mới</Typography>
       </Stack>
       <Box justifyContent="center">
-        <Box sx={{ maxWidth: 'lg', p: 6, bgcolor: 'background.paper', color: 'text.primary', borderRadius: 2, boxShadow: 3, mt: 5 }}>
-          <Typography variant="h6" gutterBottom>Chi tiết</Typography>
-          <Typography variant="body2" color="text.secondary" gutterBottom>Tiêu đề, mô tả, hình ảnh...</Typography>
+        <Box
+          sx={{
+            maxWidth: 'lg',
+            p: 6,
+            bgcolor: 'background.paper',
+            color: 'text.primary',
+            borderRadius: 2,
+            boxShadow: 3,
+            mt: 5,
+          }}
+        >
+          <Typography variant="h6" gutterBottom>
+            Chi tiết
+          </Typography>
+          <Typography variant="body2" color="text.secondary" gutterBottom>
+            Tiêu đề, mô tả, hình ảnh...
+          </Typography>
           <Formik
-            initialValues={{ categoryName: '', description: '', parentCategory: '', content: '', status: '' }}
+            initialValues={{
+              categoryName: '',
+              description: '',
+              parentCategory: '',
+              content: '',
+              status: '',
+            }}
             validationSchema={validationSchema}
             onSubmit={async (values, { setSubmitting }) => {
               const formData = new FormData();
-             
+
               formData.append('name', values.categoryName);
               formData.append('description', values.description);
               formData.append('parentId', values.parentCategory);
@@ -128,7 +159,13 @@ const CreateCategoryView = () => {
                       label="Tên Danh mục"
                       variant="outlined"
                       placeholder="Tên danh mục"
-                      helperText={<ErrorMessage name="categoryName" component="div" className="error-message" />}
+                      helperText={
+                        <ErrorMessage
+                          name="categoryName"
+                          component="div"
+                          className="error-message"
+                        />
+                      }
                     />
                   </Grid>
                   <Grid item xs={12} sm={8} md={6}>
@@ -163,30 +200,37 @@ const CreateCategoryView = () => {
                             labelId="parentCategory-label"
                             id="parentCategory"
                             value={values.parentCategory}
-                            onChange={(event) => setFieldValue('parentCategory', event.target.value)}
+                            onChange={(event) =>
+                              setFieldValue('parentCategory', event.target.value)
+                            }
                             label="Danh mục cha"
                           >
                             <MenuItem value="">
                               <em>Chọn danh mục cha</em>
                             </MenuItem>
-                            {filteredCategories.length > 0 && filteredCategories.map((category) => (
-                              <MenuItem
-                                key={category._id}
-                                value={category._id}
-                                style={{
-                                  paddingLeft: `${(category.level + 1) * 20}px`, // Ensure ROOT has the same padding as its children
-                                  fontWeight: category.parentId === 'ROOT' ? 'bold' : 'normal',
-                                  color: category.parentId === 'ROOT' ? 'black' : 'inherit'
-                                }}
-                              >
-                                {category.name}
-                              </MenuItem>
-                            ))}
+                            {filteredCategories.length > 0 &&
+                              filteredCategories.map((category) => (
+                                <MenuItem
+                                  key={category._id}
+                                  value={category._id}
+                                  style={{
+                                    paddingLeft: `${(category.level + 1) * 20}px`, // Ensure ROOT has the same padding as its children
+                                    fontWeight: category.parentId === 'ROOT' ? 'bold' : 'normal',
+                                    color: category.parentId === 'ROOT' ? 'black' : 'inherit',
+                                  }}
+                                >
+                                  {category.name}
+                                </MenuItem>
+                              ))}
                           </Select>
                         )}
                       </Field>
                       <FormHelperText>
-                        <ErrorMessage name="parentCategory" component="div" className="error-message" />
+                        <ErrorMessage
+                          name="parentCategory"
+                          component="div"
+                          className="error-message"
+                        />
                       </FormHelperText>
                     </FormControl>
                   </Grid>
@@ -202,7 +246,9 @@ const CreateCategoryView = () => {
                       label="Nội dung"
                       variant="outlined"
                       placeholder="Nội dung"
-                      helperText={<ErrorMessage name="content" component="div" className="error-message" />}
+                      helperText={
+                        <ErrorMessage name="content" component="div" className="error-message" />
+                      }
                     />
                   </Grid>
                   <Grid item xs={12} sm={8} md={6}>
@@ -237,7 +283,18 @@ const CreateCategoryView = () => {
                     </InfoBox>
                   </Grid>
                   <Grid item xs={12}>
-                    <Button type="submit" variant="contained" sx={{ backgroundColor: '#1C252E', color: 'foreground-foreground', py: 2, px: 4, borderRadius: '8px', '&:hover': { backgroundColor: '#1C252E', opacity: 0.8 } }}>
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      sx={{
+                        backgroundColor: '#1C252E',
+                        color: 'foreground-foreground',
+                        py: 2,
+                        px: 4,
+                        borderRadius: '8px',
+                        '&:hover': { backgroundColor: '#1C252E', opacity: 0.8 },
+                      }}
+                    >
                       Tạo Danh mục
                     </Button>
                   </Grid>
