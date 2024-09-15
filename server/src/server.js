@@ -26,6 +26,7 @@ const START_SERVER = () => {
   //   })
   // );
   app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
   app.use(errorHandlingMiddleware);
 
   // Serve static files from the 'src/public/imgs' directory

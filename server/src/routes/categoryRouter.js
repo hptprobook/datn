@@ -18,10 +18,7 @@ const storage = multer.diskStorage({
     cb(null, uniqueSuffix + '.jpg');
   },
 });
-const upload = multer({
-  storage: storage,
-  limits: { fileSize: 1024 * 1024 * 5 },
-});
+const upload = multer({ storage });
 
 //admin
 Router.get('/', verifyToken, verifyAdmin, categoryController.getAllCategories);
@@ -34,6 +31,7 @@ Router.get(
   categoryController.getCategoryById
 );
 Router.post('/', upload.single('image'), categoryController.createCategory);
+
 Router.put('/:id', upload.single('image'), categoryController.update);
 Router.delete(
   '/:id',
