@@ -66,7 +66,7 @@ const updateSeoConfig = async(req, res) => {
             const result = await seoConfigModel.updateSeo(id, dataSeo);
             return res
                 .status(StatusCodes.OK)
-                .json({ result, mgs: 'Thay đổi dữ liệu SEO web thành công' });
+                .json(result);
         }
         const dataSeo = {
             ...req.body,
@@ -80,7 +80,7 @@ const updateSeoConfig = async(req, res) => {
         await uploadModal.deleteImg(seo.metaOGImg);
         return res
             .status(StatusCodes.OK)
-            .json({ result, mgs: 'Thay đổi dữ liệu SEO web thành công' });
+            .json(result);
     } catch (error) {
         if (error.details) {
             return res.status(StatusCodes.BAD_REQUEST).json({

@@ -75,7 +75,12 @@
       {
         "title": "Thông tin website",
         "path": "/settings/web-config",
-        "icon": "ion:list-circle"
+        "icon": "mdi:web"
+      },
+      {
+        "title": "Thông tin SEO",
+        "path": "/settings/seo-config",
+        "icon": "tabler:seo"
       }
     ]
   }
