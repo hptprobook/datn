@@ -30,7 +30,7 @@ Router.get(
   verifyAdmin,
   categoryController.getCategoryById
 );
-Router.post('/', upload.single('image'), categoryController.createCategory);
+Router.post('/', categoryController.createCategory);
 
 Router.put('/:id', upload.single('image'), categoryController.update);
 Router.delete(

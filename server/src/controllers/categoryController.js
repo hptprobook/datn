@@ -5,12 +5,14 @@ import { StatusCodes } from 'http-status-codes';
 import { ERROR_MESSAGES } from '~/utils/errorMessage';
 import { uploadModal } from '~/models/uploadModal';
 import { createSlug } from '~/utils/createSlug';
+const fs = require('fs');
+const path = require('path');
 
 const createCategory = async (req, res) => {
   try {
-    const { name, description, parentId, content, status } = req.body;
+    const { name, description, parentId, content, status, image } = req.body;
 
-    if (!name || !description || !parentId || !content || !status) {
+    if (!name || !description || !parentId || !content || !status || !image) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         message: ERROR_MESSAGES.REQUIRED,
       });
@@ -18,13 +20,39 @@ const createCategory = async (req, res) => {
 
     const parentIdProcessed = parentId === 'null' ? null : parentId;
 
-    if (!req.file) {
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .json({ mgs: 'Ảnh không được để trống' });
+    let imageURL = '';
+
+    if (image) {
+      const matches = image.match(/^data:(image\/[a-zA-Z]+);base64,(.+)$/);
+
+      if (!matches || matches.length !== 3) {
+        return res.status(400).send('Invalid image data.');
+      }
+
+      const fileType = matches[1]; // Loại file (ví dụ: image/png, image/jpeg)
+      const base64Data = matches[2]; // Dữ liệu ảnh đã mã hóa Base64
+
+      const fileExtension = fileType.split('/')[1];
+      const timestamp = Date.now();
+
+      // Đường dẫn file
+      const directoryPath = path.join(process.cwd(), 'src/public/imgs');
+
+      const fileName = `${timestamp}.${fileExtension}`;
+      const filePath = path.join(directoryPath, fileName);
+
+      const bufferData = Buffer.from(base64Data, 'base64');
+
+      // Lưu file ảnh
+      fs.writeFileSync(filePath, bufferData, (err) => {
+        if (err) {
+          return res.status(500).send('Error saving image.');
+        }
+      });
+      imageURL = fileName;
+    } else {
+      return res.status(400).send('No image provided.');
     }
-    const file = req.file;
-    const fileName = file.filename;
 
     const slug = createSlug(name);
 
@@ -33,7 +61,7 @@ const createCategory = async (req, res) => {
       slug,
       description,
       content,
-      imageURL: fileName,
+      imageURL,
       parentId: parentIdProcessed,
       status,
     };
@@ -41,7 +69,7 @@ const createCategory = async (req, res) => {
     const dataCategory = await categoryModel.createCategory(data);
 
     if (dataCategory.error) {
-      await uploadModal.deleteImg(fileName);
+      await uploadModal.deleteImg(imageURL);
       return res.status(StatusCodes.BAD_REQUEST).json(dataCategory.detail);
     }
     return res
@@ -146,24 +174,50 @@ const getCategoryBySlug = async (req, res) => {
 };
 const update = async (req, res) => {
   const { id } = req.params;
-  const { name, description, parentId, content, status } = req.body;
+  const { name, description, parentId, content, status, image } = req.body;
 
-  if (!name || !description || !parentId || !content || !status) {
+  if (!name || !description || !parentId || !content || !status || !image) {
     return res.status(StatusCodes.BAD_REQUEST).json({
       message: ERROR_MESSAGES.REQUIRED,
     });
   }
-  if (!req.file) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ mgs: 'Ảnh không được để trống' });
-  }
-  const file = req.file;
-  const fileName = file.filename;
-  const category = await categoryModel.getCategoryById(id);
 
+  const category = await categoryModel.getCategoryById(id);
+  let imageURL = '';
+
+  if (image) {
+    const matches = image.match(/^data:(image\/[a-zA-Z]+);base64,(.+)$/);
+
+    if (!matches || matches.length !== 3) {
+      return res.status(400).send('Invalid image data.');
+    }
+
+    const fileType = matches[1]; // Loại file (ví dụ: image/png, image/jpeg)
+    const base64Data = matches[2]; // Dữ liệu ảnh đã mã hóa Base64
+
+    const fileExtension = fileType.split('/')[1];
+    const timestamp = Date.now();
+
+    // Đường dẫn file
+    const directoryPath = path.join(process.cwd(), 'src/public/imgs');
+
+    const fileName = `${timestamp}.${fileExtension}`;
+    const filePath = path.join(directoryPath, fileName);
+
+    const bufferData = Buffer.from(base64Data, 'base64');
+
+    // Lưu file ảnh
+    fs.writeFileSync(filePath, bufferData, (err) => {
+      if (err) {
+        return res.status(500).send('Error saving image.');
+      }
+    });
+    imageURL = fileName;
+  } else {
+    return res.status(400).send('No image provided.');
+  }
   if (!category) {
-    await uploadModal.deleteImg(fileName);
+    await uploadModal.deleteImg(imageURL);
     return res
       .status(StatusCodes.BAD_REQUEST)
       .json({ mgs: 'Danh mục chưa được tạo' });
@@ -176,14 +230,14 @@ const update = async (req, res) => {
     slug,
     description,
     content,
-    imageURL: fileName,
+    imageURL: imageURL,
     parentId: parentIdProcessed,
     status,
   };
 
   const dataCategory = await categoryModel.update(id, data);
   if (dataCategory.error) {
-    await uploadModal.deleteImg(fileName);
+    await uploadModal.deleteImg(imageURL);
     return res.status(StatusCodes.BAD_REQUEST).json(dataCategory.detail);
   }
   await uploadModal.deleteImg(category.imageURL);
