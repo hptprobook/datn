@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setStatus, getConfigWebsite, updateConfigWebsite } from 'src/redux/slices/settingSlices';
 import { useFormik } from 'formik';
 import { handleToast } from 'src/hooks/toast';
+import ImageDropZone from 'src/components/drop-zone-upload/upload-img';
 import EditableField from '../edit-field';
 // ----------------------------------------------------------------------
 const configSchema = Yup.object().shape({
@@ -81,12 +82,15 @@ export default function WebConfigPage() {
   const [value, setValue] = useState(0);
   const [config, setConfig] = useState({});
   const dispatch = useDispatch();
+  const [uploadedImageUrl, setUploadedImageUrl] = useState(null);
 
   const data = useSelector((state) => state.settings.web);
   const status = useSelector((state) => state.settings.statusWeb);
   const statusUpdate = useSelector((state) => state.settings.statusUpdateWeb);
   const error = useSelector((state) => state.settings.error);
-
+  const handleChangeUploadImg = (files) => {
+    setUploadedImageUrl(files[0]);
+  };
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
@@ -295,6 +299,10 @@ export default function WebConfigPage() {
                         handleCancel={handleCancel}
                       />
                     </Grid2>
+                  </Grid2>
+
+                  <Grid2 xs={4}>
+                    <ImageDropZone handleUpload={handleChangeUploadImg} singleFile/>
                   </Grid2>
                 </Grid2>
               </TabPanel>
