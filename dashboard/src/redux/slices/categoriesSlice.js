@@ -7,7 +7,7 @@ export const fetchAllCategories = createAsyncThunk(
   async (_, rejectWithValue) => {
     try {
       const res = await CategoryService.getAllCategories();
-      return res; 
+      return res;
     } catch (err) {
       return rejectWithValue(err.response.data);
     }
@@ -18,7 +18,7 @@ export const fetchCategoryById = createAsyncThunk(
   async (categoryId, { rejectWithValue }) => {
     try {
       const res = await CategoryService.getCategoryById(categoryId);
-      return res; 
+      return res;
     } catch (err) {
       return rejectWithValue(err.response.data);
     }
@@ -26,9 +26,10 @@ export const fetchCategoryById = createAsyncThunk(
 );
 export const createCategory = createAsyncThunk(
   'categories/createCategory',
-  async ({ data }, thunkAPI) => {
+  async ( data , thunkAPI) => {
     try {
       const res = await CategoryService.createCategory(data);
+
       return res.data; // Assuming res.data contains the categories array
     } catch (error) {
       throw error;
@@ -37,7 +38,7 @@ export const createCategory = createAsyncThunk(
 );
 export const deleteCategory = createAsyncThunk(
   'categories/deleteCategory',
-  async ( id , { rejectWithValue }) => {
+  async (id, { rejectWithValue }) => {
     try {
       const response = await CategoryService.deleteCategory(id);
       return response;
@@ -125,7 +126,7 @@ const categoriesSlice = createSlice({
       })
       .addCase(updateCategory.fulfilled, (state, action) => {
         state.statusUpdate = 'succeeded';
-        state.dataUpdate = action.payload; 
+        state.dataUpdate = action.payload;
       })
       .addCase(updateCategory.rejected, (state, action) => {
         state.statusUpdate = 'failed';

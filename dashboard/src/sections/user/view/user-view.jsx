@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -11,7 +11,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { deleteUser, fetchAllUsers, resetDelete } from 'src/redux/slices/userSlice';
+import { deleteUser, resetDelete, fetchAllUsers } from 'src/redux/slices/userSlice';
 
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
@@ -24,8 +24,6 @@ import UserTableHead from '../user-table-head';
 import TableEmptyRows from '../table-empty-rows';
 import UserTableToolbar from '../user-table-toolbar';
 import { emptyRows, applyFilter, getComparator } from '../utils';
-import { Box, Modal } from '@mui/material';
-import { PropTypes } from 'prop-types';
 
 // ----------------------------------------------------------------------
 

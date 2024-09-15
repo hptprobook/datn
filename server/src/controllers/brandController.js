@@ -15,8 +15,14 @@ const createBrand = async (req, res) => {
         message: ERROR_MESSAGES.REQUIRED,
       });
     }
+    if (!req.file) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ mgs: 'Ảnh không được để trống' });
+    }
     const file = req.file;
-    const fileName = file ? file.filename : '';
+    // const fileName = file ? file.filename : null;
+    const fileName = file.filename;
     const slug = createSlug(name);
 
     const data = {
@@ -29,7 +35,13 @@ const createBrand = async (req, res) => {
 
     const dataBrand = await brandModel.createBrand(data);
 
-    return res.status(StatusCodes.OK).json({ dataBrand });
+    if (dataBrand.error) {
+      await uploadModal.deleteImg(fileName);
+      return res.status(StatusCodes.BAD_REQUEST).json(dataBrand.detail);
+    }
+    return res
+      .status(StatusCodes.OK)
+      .json({ dataBrand, mgs: 'Thêm thương hiệu thành công' });
   } catch (error) {
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
@@ -81,9 +93,22 @@ const update = async (req, res) => {
       message: ERROR_MESSAGES.REQUIRED,
     });
   }
-
+  if (!req.file) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ mgs: 'Ảnh không được để trống' });
+  }
   const file = req.file;
-  const fileName = file ? file.filename : '';
+  const fileName = file.filename;
+  const brand = await brandModel.getBrandById(id);
+
+  if (!brand) {
+    await uploadModal.deleteImg(fileName);
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ mgs: 'Thương hiệu chưa được tạo' });
+  }
+
   const slug = createSlug(name);
   const data = {
     name: name,
@@ -94,21 +119,14 @@ const update = async (req, res) => {
   };
 
   const dataBrand = await brandModel.update(id, data);
-  if (dataBrand?.error) {
+  if (dataBrand.error) {
     await uploadModal.deleteImg(fileName);
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
+    return res.status(StatusCodes.BAD_REQUEST).json(dataBrand.detail);
   }
-  if (dataBrand) {
-    if (file && dataBrand) {
-      await uploadModal.deleteImg(dataBrand.image);
-    }
-    return res.status(StatusCodes.OK).json({
-      message: 'Cập nhật thông tin thành công',
-      dataBrand,
-    });
-  }
+  await uploadModal.deleteImg(brand.image);
+  return res
+    .status(StatusCodes.OK)
+    .json({ dataBrand, mgs: 'Cập nhật thương hiệu thành công' });
 };
 const deleteBrand = async (req, res) => {
   const { id } = req.params;

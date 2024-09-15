@@ -2,42 +2,80 @@
 /* eslint-disable semi */
 import { categoryModel } from '~/models/categoryModel';
 import { StatusCodes } from 'http-status-codes';
-import { ObjectId } from 'mongodb';
 import { ERROR_MESSAGES } from '~/utils/errorMessage';
 import { uploadModal } from '~/models/uploadModal';
 import { createSlug } from '~/utils/createSlug';
+const fs = require('fs');
+const path = require('path');
 
 const createCategory = async (req, res) => {
   try {
-    const { name, description, parentId } = req.body;
+    const { name, description, parentId, content, status, image } = req.body;
 
-    if (!name || !description || !parentId) {
+    if (!name || !description || !parentId || !content || !status || !image) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         message: ERROR_MESSAGES.REQUIRED,
       });
     }
 
-    const file = req.file;
-    const fileName = file ? file.filename : '';
+    const parentIdProcessed = parentId === 'null' ? null : parentId;
 
-    /*     const validParentId =
-      parentId === null || parentId === undefined
-        ? null
-        : new ObjectId(parentId); */
+    let imageURL = '';
+
+    if (image) {
+      const matches = image.match(/^data:(image\/[a-zA-Z]+);base64,(.+)$/);
+
+      if (!matches || matches.length !== 3) {
+        return res.status(400).send('Invalid image data.');
+      }
+
+      const fileType = matches[1]; // Loại file (ví dụ: image/png, image/jpeg)
+      const base64Data = matches[2]; // Dữ liệu ảnh đã mã hóa Base64
+
+      const fileExtension = fileType.split('/')[1];
+      const timestamp = Date.now();
+
+      // Đường dẫn file
+      const directoryPath = path.join(process.cwd(), 'src/public/imgs');
+
+      const fileName = `${timestamp}.${fileExtension}`;
+      const filePath = path.join(directoryPath, fileName);
+
+      const bufferData = Buffer.from(base64Data, 'base64');
+
+      // Lưu file ảnh
+      fs.writeFileSync(filePath, bufferData, (err) => {
+        if (err) {
+          return res.status(500).send('Error saving image.');
+        }
+      });
+      imageURL = fileName;
+    } else {
+      return res.status(400).send('No image provided.');
+    }
+
     const slug = createSlug(name);
+
     const data = {
       name,
-      imageURL: fileName,
-      description,
       slug,
-      parentId: parentId,
+      description,
+      content,
+      imageURL,
+      parentId: parentIdProcessed,
+      status,
     };
 
     const dataCategory = await categoryModel.createCategory(data);
 
-    return res.status(StatusCodes.OK).json({ dataCategory });
+    if (dataCategory.error) {
+      await uploadModal.deleteImg(imageURL);
+      return res.status(StatusCodes.BAD_REQUEST).json(dataCategory.detail);
+    }
+    return res
+      .status(StatusCodes.OK)
+      .json({ dataCategory, mgs: 'Thêm danh mục thành công' });
   } catch (error) {
-    console.error(error);
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ message: error.message });
@@ -134,47 +172,82 @@ const getCategoryBySlug = async (req, res) => {
     });
   }
 };
-const updateCategory = async (req, res) => {
+const update = async (req, res) => {
   const { id } = req.params;
-  const { name, description, slug, parentId } = req.body;
+  const { name, description, parentId, content, status, image } = req.body;
 
-  if (!name || !description || !slug || !parentId) {
+  if (!name || !description || !parentId || !content || !status || !image) {
     return res.status(StatusCodes.BAD_REQUEST).json({
       message: ERROR_MESSAGES.REQUIRED,
     });
   }
 
-  const file = req.file;
-  const fileName = file.filename;
+  const category = await categoryModel.getCategoryById(id);
+  let imageURL = '';
 
-  const validParentId = parentId === null ? null : new ObjectId(parentId);
+  if (image) {
+    const matches = image.match(/^data:(image\/[a-zA-Z]+);base64,(.+)$/);
+
+    if (!matches || matches.length !== 3) {
+      return res.status(400).send('Invalid image data.');
+    }
+
+    const fileType = matches[1]; // Loại file (ví dụ: image/png, image/jpeg)
+    const base64Data = matches[2]; // Dữ liệu ảnh đã mã hóa Base64
+
+    const fileExtension = fileType.split('/')[1];
+    const timestamp = Date.now();
+
+    // Đường dẫn file
+    const directoryPath = path.join(process.cwd(), 'src/public/imgs');
+
+    const fileName = `${timestamp}.${fileExtension}`;
+    const filePath = path.join(directoryPath, fileName);
+
+    const bufferData = Buffer.from(base64Data, 'base64');
+
+    // Lưu file ảnh
+    fs.writeFileSync(filePath, bufferData, (err) => {
+      if (err) {
+        return res.status(500).send('Error saving image.');
+      }
+    });
+    imageURL = fileName;
+  } else {
+    return res.status(400).send('No image provided.');
+  }
+  if (!category) {
+    await uploadModal.deleteImg(imageURL);
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ mgs: 'Danh mục chưa được tạo' });
+  }
+  const slug = createSlug(name);
+  const parentIdProcessed = parentId === 'null' ? null : parentId;
 
   const data = {
     name,
-    imageURL: fileName,
-    description,
     slug,
-    parentId: validParentId,
+    description,
+    content,
+    imageURL: imageURL,
+    parentId: parentIdProcessed,
+    status,
   };
 
   const dataCategory = await categoryModel.update(id, data);
-  if (dataCategory?.error) {
-    await uploadModal.deleteImg(fileName);
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
+  if (dataCategory.error) {
+    await uploadModal.deleteImg(imageURL);
+    return res.status(StatusCodes.BAD_REQUEST).json(dataCategory.detail);
   }
-  if (dataCategory) {
-    await uploadModal.deleteImg(dataCategory.imageURL);
-    const result = dataCategory.result;
-    return res.status(StatusCodes.OK).json({
-      message: 'Cập nhật thông tin thành công',
-      dataCategory: result,
-    });
-  }
+  await uploadModal.deleteImg(category.imageURL);
+  return res
+    .status(StatusCodes.OK)
+    .json({ dataCategory, mgs: 'Cập nhật danh mục thành công' });
 };
 const deleteCategory = async (req, res) => {
   const { id } = req.params;
+  await categoryModel.deleteAllChildCategories(id);
   const dataCategory = await categoryModel.deleteCategory(id);
   if (dataCategory?.error) {
     return res
@@ -194,7 +267,7 @@ const deleteCategory = async (req, res) => {
 export const categoryController = {
   getMenuCategories,
   createCategory,
-  updateCategory,
+  update,
   deleteCategory,
   getCategoryById,
   getAllCategories,

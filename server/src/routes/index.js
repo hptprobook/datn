@@ -17,10 +17,12 @@ import { paymentApi } from './paymentRouter';
 import { navDashboardApi } from './routeConfigs/navDashboardRoute';
 import { webApi } from './routeConfigs/webRouter';
 // seo
+
 import { seoConfigApi } from './routeConfigs/seoConfigRouter';
 import { brandsApi } from './brandRouter';
 
 import { couponApi } from './couponRouter';
+
 const Router = express.Router();
 
 Router.use('/auth', authApi);

@@ -21,24 +21,46 @@ request.interceptors.request.use((config) => {
     return config;
 });
 request.interceptors.response.use(
-    (response) =>
-        // Nếu phản hồi thành công, trả về response như bình thường
-        response
-    ,
+    (response) => response,
     (error) => {
         // Kiểm tra nếu lỗi là 401
         if (error.response && error.response.status === 401) {
             handleToast("error", "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
             setTimeout(() => {
-            window.location.href = `${baseDomain}/login`;
-
+                window.location.href = `${baseDomain}/login`;
             }, 2000);
         }
-        // Trả về Promise reject để không tiếp tục xử lý response
         return Promise.reject(error);
     }
 );
 
+// Upload method to send files
+export const upload = async (path, file, additionalData = {}, type = 'post') => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    // Nếu bạn muốn gửi thêm dữ liệu cùng với file, thêm chúng vào formData
+    Object.keys(additionalData).forEach(key => {
+        formData.append(key, additionalData[key]);
+    });
+
+    // Kiểm tra xem phương thức HTTP có hợp lệ không
+    if (!['get', 'post', 'put', 'patch', 'delete'].includes(type)) {
+        throw new Error(`Invalid request method: ${type}`);
+    }
+
+    // Gửi yêu cầu với phương thức HTTP động
+    const response = await request[type](path, formData, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
+
+    return response.data;
+};
+
+
+// Các phương thức khác
 export const get = async (path, options = {}) => {
     const response = await request.get(path, options);
     return response.data;
@@ -51,9 +73,13 @@ export const put = async (path, options = {}) => {
     const response = await request.put(path, options);
     return response.data;
 };
-export const del = async (path, options = {}) => { // added delete method
-    // const serializableOptions = ensureSerializableOptions(options);
+export const patch = async (path, options = {}) => {
+    const response = await request.patch(path, options);
+    return response.data;
+};
+export const del = async (path, options = {}) => {
     const response = await request.delete(path, options);
     return response.data;
 };
+
 export default request;
