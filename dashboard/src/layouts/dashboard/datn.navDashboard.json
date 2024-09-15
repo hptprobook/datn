@@ -1,0 +1,82 @@
+[
+  {
+    "index": 0,
+    "title": "dashboard",
+    "path": "/",
+    "icon": "ion:home"
+  },
+  {
+    "index": 1,
+    "title": "Người dùng",
+    "path": "/user",
+    "icon": "ion:person"
+  },
+  {
+    "index": 2,
+    "title": "Sản phẩm",
+    "path": "/products",
+    "icon": "ion:shirt",
+    "child": [
+      {
+        "title": "Tạo sản phẩm",
+        "path": "/products/create",
+        "icon": "ion:add"
+      }
+    ]
+  },
+  {
+    "index": 3,
+    "title": "Đơn hàng",
+    "path": "/orders",
+    "icon": "ion:cart"
+  },
+  {
+    "index": 4,
+    "title": "Phân loại",
+    "path": "/category",
+    "icon": "ion:grid",
+    "child": [
+      {
+        "title": "Tạo danh mục",
+        "path": "/category/create",
+        "icon": "ion:add"
+      }
+    ]
+  },
+  {
+    "index": 5,
+    "title": "Kho",
+    "path": "/warehouse",
+    "icon": "ion:cube"
+  },
+  {
+    "index": 6,
+    "title": "Mã giảm giá",
+    "path": "/coupons",
+    "icon": "ion:ticket"
+  },
+  {
+    "index": 7,
+    "title": "Bài viết",
+    "path": "/blog",
+    "icon": "ion:document-text"
+  },
+  {
+    "index": 8,
+    "title": "Cài đặt",
+    "path": "/settings",
+    "icon": "ion:settings",
+    "child": [
+      {
+        "title": "Menu Quản trị",
+        "path": "/settings/nav",
+        "icon": "ion:list-circle"
+      },
+      {
+        "title": "Thông tin website",
+        "path": "/settings/web-config",
+        "icon": "ion:list-circle"
+      }
+    ]
+  }
+]

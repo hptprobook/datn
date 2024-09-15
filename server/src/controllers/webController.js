@@ -65,7 +65,7 @@ const updateWeb = async(req, res) => {
             const result = await webModel.updateWeb(id, dataSeo);
             return res
                 .status(StatusCodes.OK)
-                .json({ result, mgs: 'Thay đổi dữ liệu Web thành công' });
+                .json(result);
         }
         const dataSeo = {
             ...req.body,
@@ -79,7 +79,7 @@ const updateWeb = async(req, res) => {
         await uploadModal.deleteImg(web.logo);
         return res
             .status(StatusCodes.OK)
-            .json({ result, mgs: 'Thay đổi dữ liệu Web thành công' });
+            .json(result);
     } catch (error) {
         await uploadModal.deleteImg(req.file.filename);
         if (error.details) {

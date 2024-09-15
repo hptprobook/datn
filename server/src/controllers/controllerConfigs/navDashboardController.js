@@ -23,6 +23,7 @@ const getNavDashboard = async (req, res) => {
     try {
         const result = await navDashboardModel.getNavDashboard();
         if (result) {
+            result.sort((a, b) => a.index - b.index);
             return res.status(StatusCodes.OK).json(result);
         }
         return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Không có dữ liệu' });
