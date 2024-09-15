@@ -101,88 +101,88 @@ export const UPDATE_CARTS = Joi.object({
     updatedAt: Joi.date().timestamp('javascript').default(Date.now),
 });
 
-const OrderStatus = {
-    PENDING: 'Pending',
-    CONFIRMED: 'Confirmed',
-    PROCESSING: 'Processing',
-    SHIPPED: 'Shipped',
-    OUT_FOR_DELIVERY: 'Out for Delivery',
-    DELIVERED: 'Delivered',
-    CANCELLED: 'Cancelled',
-    RETURNED: 'Returned',
-    FAILED: 'Failed',
-    ON_HOLD: 'On Hold',
-};
-const OrderPaymen = {
-    CREDIT_CART: 'Credit Card',
-    CASH: 'Cash',
-};
+// const OrderStatus = {
+//     PENDING: 'Pending',
+//     CONFIRMED: 'Confirmed',
+//     PROCESSING: 'Processing',
+//     SHIPPED: 'Shipped',
+//     OUT_FOR_DELIVERY: 'Out for Delivery',
+//     DELIVERED: 'Delivered',
+//     CANCELLED: 'Cancelled',
+//     RETURNED: 'Returned',
+//     FAILED: 'Failed',
+//     ON_HOLD: 'On Hold',
+// };
+// const OrderPaymen = {
+//     CREDIT_CART: 'Credit Card',
+//     CASH: 'Cash',
+// };
 
-export const SAVE_ORDER = Joi.object({
-    userId: Joi.string().required(),
-    products: Joi.array()
-        .items(
-            Joi.object({
-                _id: Joi.string().required(),
-                quantity: Joi.number().integer().min(1).required(),
-                price: Joi.number().min(1).required(),
-                vars: Joi.object({
-                    color: Joi.string(),
-                    size: Joi.string(),
-                }),
-            })
-        )
-        .required(),
-    totalAmount: Joi.number().min(1).required(),
-    shippingInfo: Joi.object({
-        homeNumber: Joi.string(),
-        street: Joi.string(),
-        ward: Joi.string(),
-        district: Joi.string(),
-        province: Joi.string(),
-        note: Joi.string(),
-    }).required(),
-    status: Joi.string()
-        .valid(...Object.values(OrderStatus))
-        .default(OrderStatus.PENDING),
-    note: Joi.string(),
-    paymentMethod: Joi.string()
-        .valid(...Object.values(OrderPaymen))
-        .required(),
-    orderDate: Joi.date().timestamp('javascript').default(Date.now),
-    deliveryDate: Joi.date().timestamp('javascript').default(null),
-});
+// export const SAVE_ORDER = Joi.object({
+//     userId: Joi.string().required(),
+//     products: Joi.array()
+//         .items(
+//             Joi.object({
+//                 _id: Joi.string().required(),
+//                 quantity: Joi.number().integer().min(1).required(),
+//                 price: Joi.number().min(1).required(),
+//                 vars: Joi.object({
+//                     color: Joi.string(),
+//                     size: Joi.string(),
+//                 }),
+//             })
+//         )
+//         .required(),
+//     totalAmount: Joi.number().min(1).required(),
+//     shippingInfo: Joi.object({
+//         homeNumber: Joi.string(),
+//         street: Joi.string(),
+//         ward: Joi.string(),
+//         district: Joi.string(),
+//         province: Joi.string(),
+//         note: Joi.string(),
+//     }).required(),
+//     status: Joi.string()
+//         .valid(...Object.values(OrderStatus))
+//         .default(OrderStatus.PENDING),
+//     note: Joi.string(),
+//     paymentMethod: Joi.string()
+//         .valid(...Object.values(OrderPaymen))
+//         .required(),
+//     orderDate: Joi.date().timestamp('javascript').default(Date.now),
+//     deliveryDate: Joi.date().timestamp('javascript').default(null),
+// });
+// // .valid(...Object.values(OrderStatus))
+
+// export const UPDATE_ORDER = Joi.object({
+//     shippingInfo: Joi.object({
+//         homeNumber: Joi.string(),
+//         street: Joi.string(),
+//         ward: Joi.string(),
+//         district: Joi.string(),
+//         province: Joi.string(),
+//         note: Joi.string(),
+//     }),
+//     status: Joi.string()
+//         .valid(...Object.values(OrderStatus))
+//         .default(OrderStatus.PENDING),
+//     note: Joi.string(),
+//     paymentMethod: Joi.string().valid(...Object.values(OrderPaymen)),
+//     orderDate: Joi.date().timestamp('javascript').default(Date.now),
+//     deliveryDate: Joi.date().timestamp('javascript').default(null),
+// });
 // .valid(...Object.values(OrderStatus))
 
-export const UPDATE_ORDER = Joi.object({
-    shippingInfo: Joi.object({
-        homeNumber: Joi.string(),
-        street: Joi.string(),
-        ward: Joi.string(),
-        district: Joi.string(),
-        province: Joi.string(),
-        note: Joi.string(),
-    }),
-    status: Joi.string()
-        .valid(...Object.values(OrderStatus))
-        .default(OrderStatus.PENDING),
-    note: Joi.string(),
-    paymentMethod: Joi.string().valid(...Object.values(OrderPaymen)),
-    orderDate: Joi.date().timestamp('javascript').default(Date.now),
-    deliveryDate: Joi.date().timestamp('javascript').default(null),
-});
-// .valid(...Object.values(OrderStatus))
-
-export const CHECK_STOCK = Joi.array()
-    .items(
-        Joi.object({
-            _id: Joi.string().required(),
-            quantity: Joi.number().integer().min(1).required(),
-            color: Joi.string().required(),
-            size: Joi.string().required(),
-        })
-    )
-    .required();
+// export const CHECK_STOCK = Joi.array()
+//     .items(
+//         Joi.object({
+//             _id: Joi.string().required(),
+//             quantity: Joi.number().integer().min(1).required(),
+//             color: Joi.string().required(),
+//             size: Joi.string().required(),
+//         })
+//     )
+//     .required();
 
 export const SAVE_REVIEW = Joi.object({
     user_id: Joi.string().required(),
@@ -197,4 +197,3 @@ export const UPDATE_REVIEW = Joi.object({
     star: Joi.number().integer().min(1),
     comment: Joi.string(),
 });
-
