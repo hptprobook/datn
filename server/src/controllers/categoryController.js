@@ -2,24 +2,22 @@
 /* eslint-disable semi */
 import { categoryModel } from '~/models/categoryModel';
 import { StatusCodes } from 'http-status-codes';
-import { ObjectId } from 'mongodb';
 import { ERROR_MESSAGES } from '~/utils/errorMessage';
 import { uploadModal } from '~/models/uploadModal';
 import { createSlug } from '~/utils/createSlug';
 
 const createCategory = async (req, res) => {
   try {
-
     const { name, description, parentId, content, status } = req.body;
 
     if (!name || !description || !parentId || !content || !status) {
-
       return res.status(StatusCodes.BAD_REQUEST).json({
         message: ERROR_MESSAGES.REQUIRED,
       });
     }
 
     const parentIdProcessed = parentId === 'null' ? null : parentId;
+
     if (!req.file) {
       return res
         .status(StatusCodes.BAD_REQUEST)
@@ -27,6 +25,7 @@ const createCategory = async (req, res) => {
     }
     const file = req.file;
     const fileName = file.filename;
+
     const slug = createSlug(name);
 
     const data = {
