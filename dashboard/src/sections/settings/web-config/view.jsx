@@ -5,11 +5,11 @@ import Typography from '@mui/material/Typography';
 
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { Box, Tab, Tabs, Button } from '@mui/material';
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
 import { PropTypes } from 'prop-types';
 import * as Yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
-import { setStatus, getConfigWebsite, updateConfigWebsite } from 'src/redux/slices/settingSlices';
+import { setStatus, getConfigWebsite, updateConfigWebsite, uploadConfigWebsite } from 'src/redux/slices/settingSlices';
 import { useFormik } from 'formik';
 import { handleToast } from 'src/hooks/toast';
 import ImageDropZone from 'src/components/drop-zone-upload/upload-img';
@@ -88,9 +88,15 @@ export default function WebConfigPage() {
   const status = useSelector((state) => state.settings.statusWeb);
   const statusUpdate = useSelector((state) => state.settings.statusUpdateWeb);
   const error = useSelector((state) => state.settings.error);
-  const handleChangeUploadImg = (files) => {
-    setUploadedImageUrl(files[0]);
-  };
+  const handleChangeUploadImg = useCallback((files) => {
+    if (files) {
+      setUploadedImageUrl({
+        file: files,
+        name: 'logo',
+      });
+    }
+  }, []); // Ensure it only triggers when files change
+  
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
@@ -169,7 +175,14 @@ export default function WebConfigPage() {
     };
     dispatch(updateConfigWebsite({ values }));
   };
-
+const handleUpload = () => {
+    if (uploadedImageUrl) {
+      dispatch(uploadConfigWebsite(uploadedImageUrl));
+      setUploadedImageUrl(null);
+    } else {
+      handleToast('error', 'Chưa chọn ảnh');
+    }
+}
   const [inputSelect, setInputSelect] = useState('');
   return (
     <Container>
@@ -302,7 +315,32 @@ export default function WebConfigPage() {
                   </Grid2>
 
                   <Grid2 xs={4}>
-                    <ImageDropZone handleUpload={handleChangeUploadImg} singleFile/>
+                    <ImageDropZone
+                      handleUpload={handleChangeUploadImg}
+                      singleFile
+                      defaultImg={config.logo}
+                    />
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      justifyContent="flex-end"
+                      mt={2}
+                      spacing={2}
+                    >
+                      <Button
+                        color="inherit"
+                        onClick={() => handleToast('info', 'Chức năng đang phát triển')}
+                      >
+                        Chọn ảnh từ thư viện
+                      </Button>
+                      <Button
+                        variant="contained"
+                        color="inherit"
+                        onClick={handleUpload}
+                      >
+                        Lưu
+                      </Button>
+                    </Stack>
                   </Grid2>
                 </Grid2>
               </TabPanel>

@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useDropzone } from 'react-dropzone';
 import PropTypes from 'prop-types';
 import { Box, Button, IconButton } from '@mui/material';
+import { setStatus } from 'src/redux/slices/settingSlices';
 import { handleToast } from '../../hooks/toast';
 import './style.css';
 import Iconify from '../iconify/iconify';
 
-const ImageDropZone = ({ handleUpload, singleFile = false }) => {
+const ImageDropZone = ({ handleUpload, singleFile = false, defaultImg = '' }) => {
   const { fileRejections, acceptedFiles, getRootProps, getInputProps } = useDropzone({
     accept: {
       'image/jpeg': [],
@@ -14,8 +16,18 @@ const ImageDropZone = ({ handleUpload, singleFile = false }) => {
     },
     multiple: !singleFile,
   });
-
+  const [url, setUrl] = useState('');
   const [uploadFile, setUploadFile] = useState([]);
+  const status = useSelector((state) => state.settings.statusUploadWeb);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (status === 'succeeded') {
+      handleToast('success', 'Upload ảnh thành công');
+      dispatch(setStatus({ key: 'statusUploadWeb', value: 'idle' }));
+      setUploadFile([]);
+    }
+  }, [status, dispatch]);
 
   useEffect(() => {
     if (fileRejections.length > 0) {
@@ -24,24 +36,32 @@ const ImageDropZone = ({ handleUpload, singleFile = false }) => {
   }, [fileRejections]);
 
   useEffect(() => {
-    if (singleFile && acceptedFiles.length > 1) {
-      setUploadFile([acceptedFiles[0]]);
-    } else {
-      setUploadFile(acceptedFiles);
+    if (defaultImg !== '') {
+      setUrl(defaultImg);
     }
-  }, [acceptedFiles, singleFile]);
+  }, [defaultImg]);
 
   useEffect(() => {
-    handleUpload(uploadFile);
-  }, [handleUpload, uploadFile]);
+    if (acceptedFiles.length > 0) { // Ensure there's at least one file
+      if (singleFile) {
+        setUploadFile(acceptedFiles);
+        handleUpload(acceptedFiles[0]);
+      } else {
+        setUploadFile([acceptedFiles[0]]);
+        handleUpload([acceptedFiles[0]]);
+      }
+    }
+  }, [acceptedFiles, singleFile, handleUpload]);
 
   // Revoke object URLs to avoid memory leaks
-  useEffect(() => 
-    // Cleanup function to revoke object URLs
-     () => {
-      uploadFile.forEach((file) => URL.revokeObjectURL(file.preview));
-    }
-  , [uploadFile]);
+  useEffect(
+    () =>
+      // Cleanup function to revoke object URLs
+      () => {
+        uploadFile.forEach((file) => URL.revokeObjectURL(file.preview));
+      },
+    [uploadFile]
+  );
 
   const removeFile = (index) => {
     const updatedFiles = [...uploadFile];
@@ -93,7 +113,7 @@ const ImageDropZone = ({ handleUpload, singleFile = false }) => {
 
   return (
     <section className="container ImageDropZone">
-      <div {...getRootProps({ className: `dropzone ${upload && 'hidden'}` })}>
+      <div {...getRootProps({ className: `dropzone ${(upload || url !== '') && 'hidden'}` })}>
         <input {...getInputProps()} />
         <p className="DropZoneTitle" style={{ textAlign: 'center' }}>
           Kéo thả hoặc chọn ảnh bất kì
@@ -104,7 +124,30 @@ const ImageDropZone = ({ handleUpload, singleFile = false }) => {
       </div>
       <aside>
         {!singleFile && uploads.length > 0 && <ul>{uploads}</ul>}
-        {singleFile && upload}
+        {(singleFile || url !== '') && upload}
+        {url && !upload && (
+          <Box
+            sx={{
+              position: 'relative',
+              borderRadius: '12px',
+            }}
+          >
+            <img src={url} alt="Preview" />
+            <IconButton
+              sx={{
+                position: 'absolute',
+                top: 8,
+                right: 8,
+                backgroundColor: 'white',
+              }}
+              color="inherit"
+              variant="contained"
+              onClick={() => setUrl('')}
+            >
+              <Iconify icon="eva:close-fill" />
+            </IconButton>
+          </Box>
+        )}
       </aside>
     </section>
   );
@@ -113,6 +156,7 @@ const ImageDropZone = ({ handleUpload, singleFile = false }) => {
 ImageDropZone.propTypes = {
   handleUpload: PropTypes.func.isRequired,
   singleFile: PropTypes.bool,
+  defaultImg: PropTypes.string,
 };
 
 export default ImageDropZone;

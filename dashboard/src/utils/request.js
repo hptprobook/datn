@@ -35,14 +35,16 @@ request.interceptors.response.use(
 );
 
 // Upload method to send files
-export const upload = async (path, file, type = 'post', additionalData = {}) => {
+export const upload = async ({ path, file, type = 'post', additionalData = {} }) => {
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append(file.name, file.file);
 
     // Nếu bạn muốn gửi thêm dữ liệu cùng với file, thêm chúng vào formData
-    Object.keys(additionalData).forEach(key => {
-        formData.append(key, additionalData[key]);
-    });
+    if (Object.keys(additionalData).length) {
+        Object.keys(additionalData).forEach((key) => {
+            formData.append(key, additionalData[key]);
+        });
+    }
 
     // Kiểm tra xem phương thức HTTP có hợp lệ không
     if (!['get', 'post', 'put', 'patch', 'delete'].includes(type)) {
