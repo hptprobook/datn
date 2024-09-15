@@ -1,4 +1,4 @@
-import { get, put, post, del, patch } from 'src/utils/request';
+import { get, put, post, del, patch, upload } from 'src/utils/request';
 /* eslint-disable */
 
 const SettingServices = {
@@ -10,6 +10,7 @@ const SettingServices = {
   updateMutipleNav: async (data) => await patch('navDashboard', data),
   getConfigWebsite: async () => await get('web'),
   updateConfigWebsite: async (data) => await put('web', data),
+  uploadConfigWebsite: async (data) => await upload('web', data, 'put'),
 };
 
 export default SettingServices;

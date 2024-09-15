@@ -78,6 +78,27 @@ export const getConfigWebsite = createAsyncThunk(
     }
   }
 );
+export const updateConfigWebsite = createAsyncThunk(
+  'settings/updateWeb',
+  async ({ values }, rejectWithValue) => {
+    try {
+      return await SettingServices.updateConfigWebsite(values);
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
+export const uploadConfigWebsite = createAsyncThunk(
+  'settings/uploadWeb',
+  async ({ values }, rejectWithValue) => {
+    try {
+      return await SettingServices.uploadConfigWebsite(values);
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
+
 
 
 export const resetDelete = createAction('settings/resetDelete');
@@ -91,6 +112,8 @@ const initialState = {
   statusDelete: 'idle',
   statusUpdate: 'idle',
   statusCreate: 'idle',
+  statusUpload: 'idle',
+  statusUpdateWeb: 'idle',
   error: null,
 };
 
@@ -180,8 +203,22 @@ const settingSlices = createSlice({
         state.statusWeb = 'failed';
         state.error = action.payload;
       })
+      .addCase(updateConfigWebsite.pending, (state) => {
+        state.statusUpdateWeb = 'loading';
+      })
+      .addCase(updateConfigWebsite.fulfilled, (state, action) => {
+        state.statusUpdateWeb = 'succeeded';
+        state.web = action.payload;
+      })
+      .addCase(updateConfigWebsite.rejected, (state, action) => {
+        state.statusUpdateWeb = 'failed';
+        state.error = action.payload;
+      })
       .addCase(setStatus, (state, action) => {
-        state.status = action.payload;
+        const { key, value } = action.payload; // Destructure key and value from payload
+        if (state[key] !== undefined) {
+          state[key] = value; // Update the status field dynamically
+        }
       })
       .addCase(resetDelete, (state) => {
         state.status = 'idle';

@@ -27,7 +27,7 @@ const EditableField = ({
             onBlur={onBlur}
             error={error}
             helperText={helperText}
-            disabled={inputSelect !== name}
+            disabled={!(inputSelect === name || inputSelect === 'all')}
         />
         <Stack
             direction="row"
@@ -47,7 +47,7 @@ const EditableField = ({
             color="inherit"
             aria-label="Chỉnh sửa"
             sx={{
-                display: inputSelect === name ? 'none' : 'block',
+                display: (inputSelect === name || inputSelect === 'all') ? 'none' : 'block',
                 width: 40,
                 height: 40,
             }}
@@ -59,15 +59,15 @@ const EditableField = ({
 );
 
 EditableField.propTypes = {
-    name: PropTypes.string.isRequired,
-    label: PropTypes.string.isRequired,
-    value: PropTypes.any.isRequired,
-    onChange: PropTypes.func.isRequired,
-    onBlur: PropTypes.func.isRequired,
-    error: PropTypes.bool.isRequired,
-    helperText: PropTypes.string.isRequired,
-    inputSelect: PropTypes.string.isRequired,
-    setInputSelect: PropTypes.func.isRequired,
+    name: PropTypes.string,
+    label: PropTypes.string,
+    value: PropTypes.any,
+    onChange: PropTypes.func,
+    onBlur: PropTypes.func,
+    error: PropTypes.bool,
+    helperText: PropTypes.string,
+    inputSelect: PropTypes.string,
+    setInputSelect: PropTypes.func,
     handleUpdate: PropTypes.func.isRequired,
     handleCancel: PropTypes.func.isRequired,
 };

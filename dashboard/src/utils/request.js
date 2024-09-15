@@ -35,7 +35,7 @@ request.interceptors.response.use(
 );
 
 // Upload method to send files
-export const upload = async (path, file, additionalData = {}, type = 'post') => {
+export const upload = async (path, file, type = 'post', additionalData = {}) => {
     const formData = new FormData();
     formData.append('file', file);
 
