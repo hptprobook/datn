@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -10,7 +10,6 @@ import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 
-import { users } from 'src/_mock/user';
 import { useNavigate } from 'react-router-dom';
 import {fetchAllProducts } from 'src/redux/slices/productSlice';
 import { useDispatch, useSelector } from 'react-redux';
@@ -36,7 +35,6 @@ export default function ProductsPage() {
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  //product
   const dispatch = useDispatch();
   const products = useSelector((state) => state.products.products);
   const statusPro = useSelector((state) => state.products.status);
@@ -119,7 +117,6 @@ export default function ProductsPage() {
   });
 
   const notFound = !dataFiltered.length && !!filterName;
-  //to new product
   const navigate = useNavigate();
 
   const handleNewProductClick = () => {

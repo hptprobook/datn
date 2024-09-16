@@ -31,7 +31,6 @@ import { NAV } from './config-layout';
 
 export default function Nav({ openNav, onCloseNav }) {
   const pathname = usePathname();
-  const [open, setOpen] = useState(true);
   const [navs, setNavs] = useState([]);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -57,9 +56,7 @@ export default function Nav({ openNav, onCloseNav }) {
     }
   }, [status, data]);
 
-  const handleClick = () => {
-    setOpen(!open);
-  };
+  // Remove the unused handleClick function
   const upLg = useResponsive('up', 'lg');
 
   useEffect(() => {

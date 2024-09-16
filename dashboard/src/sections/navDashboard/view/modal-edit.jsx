@@ -8,7 +8,7 @@ import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
 import Iconify from 'src/components/iconify/iconify';
-import { FormControl, InputLabel, OutlinedInput } from '@mui/material';
+import { InputLabel, FormControl, OutlinedInput } from '@mui/material';
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
 

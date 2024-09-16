@@ -1,18 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import React, { useState, useEffect } from 'react';
+import { Form, Field, Formik, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import Stack from '@mui/material/Stack';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import {
   Box,
-  Button,
-  InputLabel,
-  TextField,
   Grid,
+  Button,
   MenuItem,
-  FormHelperText,
+  TextField,
+  InputLabel,
   FormControl,
+  FormHelperText,
 } from '@mui/material';
 import EditorContent from 'src/components/editor/editor';
 import InfoBox from 'src/components/Box/InforBox';
@@ -125,19 +125,15 @@ const CreateCategoryView = () => {
               formData.append('description', values.description);
               formData.append('parentId', values.parentCategory);
               formData.append('content', values.content);
-              formData.append('status', values.status === 'active' ? true : false);
+              formData.append('status', values.status === 'active');
               if (uploadedImageUrl) {
                 formData.append('image', uploadedImageUrl);
               }
               // Properly log the FormData contents
-              for (let [key, value] of formData.entries()) {
-                console.log(`${key}: ${value}`);
-              }
-
               try {
                 await dispatch(createCategory(formData)).unwrap();
                 handleToast('success', 'Danh mục đã được tạo thành công!');
-              } catch (error) {
+              } catch (err) {
                 handleToast('error', 'Có lỗi xảy ra khi tạo danh mục.');
               } finally {
                 setSubmitting(false);

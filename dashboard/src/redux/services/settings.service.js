@@ -1,4 +1,4 @@
-import { get, put, post, del, patch, upload } from 'src/utils/request';
+import { get, put, del, post, patch, upload } from 'src/utils/request';
 /* eslint-disable */
 
 const SettingServices = {

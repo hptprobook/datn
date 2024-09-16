@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
+import PropTypes from 'prop-types';
 import { handleToast } from "../../hooks/toast";
 import './style.css';
 
@@ -18,14 +19,10 @@ const ImageDropZone = ({ handleUpload, singleFile = false }) => {
     });
 
     const [uploadFile, setUploadFile] = useState([]);
-    const [uploadFileError, setUploadFileError] = useState(false);
 
     useEffect(() => {
         if (fileRejections.length > 0) {
-            setUploadFileError(true);
             handleToast('error', 'Chỉ nhận tệp có đuôi PNG, JPEG');
-        } else {
-            setUploadFileError(false);
         }
     }, [fileRejections]);
 
@@ -39,7 +36,7 @@ const ImageDropZone = ({ handleUpload, singleFile = false }) => {
 
     useEffect(() => {
         handleUpload(uploadFile);
-    }, [uploadFile]);
+    }, [uploadFile, handleUpload]);
 
     const removeFile = (index) => {
         const updatedFiles = [...uploadFile];
@@ -54,9 +51,9 @@ const ImageDropZone = ({ handleUpload, singleFile = false }) => {
                     src={URL.createObjectURL(file)}
                     alt={`Preview ${index}`}
                 />
-                {file.path.slice(0, 30) + '...'} - {file.size} B - {file.type}
+                {`${file.path.slice(0, 30)  }...`} - {file.size} B - {file.type}
             </div>
-            <div className='DeletePreviewButton' onClick={() => removeFile(index)}>Xóa</div>
+            <button type="button" className='DeletePreviewButton' onClick={() => removeFile(index)}>Xóa</button>
         </li>
     ));
 
@@ -73,5 +70,10 @@ const ImageDropZone = ({ handleUpload, singleFile = false }) => {
         </section>
     );
 }
+
+ImageDropZone.propTypes = {
+    handleUpload: PropTypes.func.isRequired,
+    singleFile: PropTypes.bool
+};
 
 export default ImageDropZone;
