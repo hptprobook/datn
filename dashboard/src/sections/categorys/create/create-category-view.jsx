@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-boolean-value */
 import React, { useState, useEffect } from 'react';
 import { Form, Field, Formik, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
@@ -113,27 +114,24 @@ const CreateCategoryView = () => {
             }}
             validationSchema={validationSchema}
             onSubmit={async (values, { setSubmitting }) => {
-              const formData = new FormData();
+              // const formData = new FormData();
 
-              formData.append('name', values.categoryName);
-              formData.append('description', values.description);
-              formData.append('parentId', values.parentCategory);
-              formData.append('content', values.content);
-              formData.append('status', values.status === 'active');
-              if (uploadedImageUrl) {
-                formData.append('image', uploadedImageUrl);
-              }
-              // Properly log the FormData contents
-              for (var pair of formData.entries()) {
-                console.log(pair[0] + ', ' + pair[1]);
-              }
+              // formData.append('name', values.categoryName);
+              // formData.append('description', values.description);
+              // formData.append('parentId', values.parentCategory);
+              // formData.append('content', values.content);
+              // formData.append('status', values.status === 'active');
+              // if (uploadedImageUrl) {
+              //   formData.append('image', uploadedImageUrl);
+              // }
+      
               const file = {
                 file: uploadedImageUrl,
                 name: 'image',
               };
 
               try {
-                await dispatch(createCategory({ data: formData , image: file })).unwrap();
+                await dispatch(createCategory({ data: values , image: file })).unwrap();
                 handleToast('success', 'Danh mục đã được tạo thành công!');
               } catch (err) {
                 handleToast('error', 'Có lỗi xảy ra khi tạo danh mục.');
@@ -265,8 +263,8 @@ const CreateCategoryView = () => {
                             onChange={(event) => setFieldValue('status', event.target.value)}
                             label="Trạng thái"
                           >
-                            <MenuItem value="active">Hoạt dộng</MenuItem>
-                            <MenuItem value="inactive">Không hoạt động</MenuItem>
+                      <MenuItem value={true}>Hoạt động</MenuItem>
+                      <MenuItem value={false}>Không hoạt động</MenuItem>
                           </Select>
                         )}
                       </Field>

@@ -1,4 +1,4 @@
-import { get, put, del,  upload } from 'src/utils/request';
+import { get, put, del, upload } from 'src/utils/request';
 /* eslint-disable */
 
 const CategoryService = {
@@ -18,20 +18,19 @@ const CategoryService = {
       throw err;
     }
   },
-  createCategory: async (data, additionalData = {}) => {
+  createCategory: async ({ data, additionalData = {} }) => {
     try {
-      console.log(data);
-   const res = await upload({
-            path: 'categories',
-            file: data.image,
-            type: 'post',
-            additionalData : data.data   
-        });
-        return res;
+      const res = await upload({
+        path: 'categories',
+        file: data,
+        type: 'post',
+        additionalData,
+      });
+      return res;
     } catch (err) {
-        throw err;
+      throw err;
     }
-},
+  },
   deleteCategory: async (id) => {
     try {
       return await del(`categories/${id}`);
