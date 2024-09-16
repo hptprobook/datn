@@ -24,7 +24,7 @@ request.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       handleToast('error', 'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       setTimeout(() => {
-        window.location.href = `${baseDomain}/login`;
+        window.location.href = `${baseDomain}/tai-khoan/dang-nhap`;
       }, 2000);
     }
     return Promise.reject(error);
