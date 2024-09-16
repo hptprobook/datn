@@ -67,15 +67,9 @@ const CreateCategoryView = () => {
   }, [status, dispatch, error, categories]);
 
   const handleChangeUploadImg = (files) => {
-    const file = files[0];
-    const reader = new FileReader();
-
-    reader.onloadend = () => {
-      setUploadedImageUrl(reader.result); // Lưu chuỗi Base64 của ảnh
-    };
-
-    if (file) {
-      reader.readAsDataURL(file);
+    if (files && files.length > 0) {
+      const file = files[0];
+      setUploadedImageUrl(file);
     }
   };
 
@@ -130,8 +124,16 @@ const CreateCategoryView = () => {
                 formData.append('image', uploadedImageUrl);
               }
               // Properly log the FormData contents
+              for (var pair of formData.entries()) {
+                console.log(pair[0] + ', ' + pair[1]);
+              }
+              const file = {
+                file: uploadedImageUrl,
+                name: 'image',
+              };
+
               try {
-                await dispatch(createCategory(formData)).unwrap();
+                await dispatch(createCategory({ data: formData , image: file })).unwrap();
                 handleToast('success', 'Danh mục đã được tạo thành công!');
               } catch (err) {
                 handleToast('error', 'Có lỗi xảy ra khi tạo danh mục.');
