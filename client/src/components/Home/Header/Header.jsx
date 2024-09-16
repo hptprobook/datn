@@ -10,12 +10,14 @@ import SideNavMenu from './Responsive/SideNavMenu';
 import SearchBar from './Search/SearchBar';
 import SearchResponsiveModal from './Responsive/SearchResponsiveModal';
 import CartFixed from './CartFixed';
+import useCheckAuth from '~/customHooks/useCheckAuth';
 
 export default function Header() {
+  const { isAuthenticated } = useCheckAuth();
+
   const [openCart, setOpenCart] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
   const [openSearch, setOpenSearch] = useState(false);
-
   const [currentTitle, setCurrentTitle] = useState('Danh mục');
 
   return (
@@ -43,7 +45,8 @@ export default function Header() {
             <div className="text-2xl text-gray-50 cursor-pointer">
               <MdOutlineContentPasteSearch />
             </div>
-            <UserBar />
+            {/* Kiểm tra trạng thái đăng nhập */}
+            {isAuthenticated ? <p>Đã đăng nhập</p> : <UserBar />}
           </div>
         </div>
       </header>

@@ -1,0 +1,13 @@
+.navbar__menu--item {
+  position: relative;
+}
+
+.navbar__menu--item::before {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  width: 100%;
+  height: 20px;
+  background-color: transparent;
+}
