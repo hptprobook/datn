@@ -10,12 +10,12 @@ export default function CheckoutInfo() {
   return (
     <div className="mt-6 w-full space-y-6 sm:mt-8 lg:mt-0 lg:max-w-xs xl:max-w-md">
       <div className="flow-root">
-        <h4 className="mb-8 font-bold text-xl">ĐƠN HÀNG</h4>
-        <div className="-my-3 divide-gray-200 dark:divide-gray-800">
+        <h4 className="mb-8 font-bold text-xl text-black">ĐƠN HÀNG</h4>
+        <div className="-my-3 divide-gray-200">
           <form className="flex mb-3">
             <input
               type="text"
-              className="w-search h-10 rounded-l-md outline-none pl-3 text-sm border"
+              className="w-search h-10 rounded-l-md outline-none pl-3 text-sm border bg-white"
               placeholder="Mã giảm giá"
             />
             <button
@@ -26,41 +26,27 @@ export default function CheckoutInfo() {
             </button>
           </form>
           <dl className="flex items-center justify-between gap-4 py-3">
-            <dt className="text-base font-normal text-gray-500 dark:text-gray-400">
-              Tạm tính
-            </dt>
-            <dd className="text-base font-medium text-gray-900 dark:text-white">
-              400.000 đ
-            </dd>
+            <dt className="text-base font-normal text-gray-500">Tạm tính</dt>
+            <dd className="text-base font-medium text-gray-900">400.000 đ</dd>
           </dl>
 
           <dl className="flex items-center justify-between gap-4 py-3">
-            <dt className="text-base font-normal text-gray-500 dark:text-gray-400">
+            <dt className="text-base font-normal text-gray-500">
               Phí vận chuyển
             </dt>
-            <dd className="text-base font-medium text-green-700 dark:text-white">
-              + 34.000 đ
-            </dd>
+            <dd className="text-base font-medium text-green-700">+ 34.000 đ</dd>
           </dl>
 
           <dl className="flex items-center justify-between gap-4 py-3">
-            <dt className="text-base font-normal text-gray-500 dark:text-gray-400">
-              Mã giảm giá
-            </dt>
-            <dd className="text-base font-medium text-red-700 dark:text-white">
-              - 32.000 đ
-            </dd>
+            <dt className="text-base font-normal text-gray-500">Mã giảm giá</dt>
+            <dd className="text-base font-medium text-red-700">- 32.000 đ</dd>
           </dl>
 
           <div className="divider" />
 
           <dl className="flex items-center justify-between gap-4 py-3">
-            <dt className="text-base font-bold text-gray-900 dark:text-white">
-              Tổng tiền
-            </dt>
-            <dd className="text-base font-bold text-gray-900 dark:text-white">
-              402.000 đ
-            </dd>
+            <dt className="text-base font-bold text-gray-900">Tổng tiền</dt>
+            <dd className="text-base font-bold text-gray-900">402.000 đ</dd>
           </dl>
         </div>
       </div>

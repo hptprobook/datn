@@ -140,11 +140,11 @@ export default function ProductDetailReview() {
         </div>
       </div>
       <div className="pagination flex justify-center">
-        <button className="btn">0</button>
-        <button className="btn btn-active">1</button>
-        <button className="btn">2</button>
-        <button className="btn">3</button>
-        <button className="btn">4</button>
+        <button className="btn bg-white text-black">0</button>
+        <button className="btn bg-white text-black btn-active">1</button>
+        <button className="btn bg-white text-black">2</button>
+        <button className="btn bg-white text-black">3</button>
+        <button className="btn bg-white text-black">4</button>
       </div>
     </section>
   );
