@@ -1,7 +1,7 @@
 import { FaFire } from 'react-icons/fa';
 import { FaArrowRightLong } from 'react-icons/fa6';
 import { NavLink } from 'react-router-dom';
-import { productSearchList } from '~/apis/mock_data';
+import { productSearchList } from '~/APIs/mock_data';
 import ProductItem from '~/components/common/Product/ProductItem';
 
 export default function SearchResult({ handleModelClick }) {

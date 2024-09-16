@@ -1,6 +1,6 @@
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination, Navigation } from 'swiper/modules';
-import { slider } from '~/apis/mock_data';
+import { slider } from '~/APIs/mock_data';
 import { NavLink } from 'react-router-dom';
 
 export default function HeaderSlider() {

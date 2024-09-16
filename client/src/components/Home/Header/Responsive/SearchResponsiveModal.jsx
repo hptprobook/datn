@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { FaArrowLeft, FaFire } from 'react-icons/fa';
 import { IoIosSearch } from 'react-icons/io';
 import { NavLink } from 'react-router-dom';
-import { hotSearch, productSearchList } from '~/apis/mock_data';
+import { hotSearch, productSearchList } from '~/APIs/mock_data';
 
 export default function SearchResponsiveModal({ openSearch, setOpenSearch }) {
   const [searchValue, setSearchValue] = useState('');

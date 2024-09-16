@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { posts } from '~/apis/mock_data';
+import { posts } from '~/APIs/mock_data';
 import PostLayout from '~/layouts/PostLayout';
 
 export default function PostDetail() {
@@ -16,7 +16,9 @@ export default function PostDetail() {
   return (
     <PostLayout>
       <div className="mt-12">
-        <h2 className="text-2xl text-center font-bold text-red-600">{post.title}</h2>
+        <h2 className="text-2xl text-center font-bold text-red-600">
+          {post.title}
+        </h2>
         <div className="mt-8">
           <img
             src={post.img}
