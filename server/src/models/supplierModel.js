@@ -100,7 +100,7 @@ const deleteSupplier = async (id) => {
   }
 };
 
-export const supplierModal = {
+export const supplierModel = {
   countSupplierAll,
   getSuppliersAll,
   getSupplierById,

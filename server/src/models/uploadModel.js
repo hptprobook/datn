@@ -19,6 +19,12 @@ const getFilenames = (filesArray, field) => {
   return filesArray.map((file) => file[field]);
 };
 
+const ensureDirExists = (dirPath) => {
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true });
+  }
+};
+
 const uploadImgs = (fieldName, count = 10) => {
   return (req, res) => {
     return new Promise((resolve, reject) => {
@@ -36,7 +42,7 @@ const uploadImgs = (fieldName, count = 10) => {
 };
 
 const deleteImg = (name) => {
-  const filePath = path.join('src/public/imgs', name);
+  const filePath = path.resolve(process.cwd(), name);
   fs.unlink(filePath, (err) => {
     if (err) {
       return err;
@@ -62,8 +68,40 @@ const deleteImgs = (filenames) => {
   });
 };
 
-export const uploadModal = {
+const uploadImg = (file) => {
+  const matches = file.match(/^data:(image\/[a-zA-Z]+);base64,(.+)$/);
+
+  if (!matches || matches.length !== 3) {
+    return 'Invalid image data.';
+  }
+
+  const fileType = matches[1]; // Loại file (ví dụ: image/png, image/jpeg)
+  const base64Data = matches[2]; // Dữ liệu ảnh đã mã hóa Base64
+
+  const fileExtension = fileType.split('/')[1];
+  const timestamp = Date.now();
+
+  // Đường dẫn file
+  const directoryPath = path.join(process.cwd(), 'src/public/imgs');
+
+  const fileName = `${timestamp}.${fileExtension}`;
+  const filePath = path.join(directoryPath, fileName);
+
+  const bufferData = Buffer.from(base64Data, 'base64');
+
+  // Lưu file ảnh
+  fs.writeFileSync(filePath, bufferData, (err) => {
+    if (err) {
+      return err;
+    }
+  });
+  return fileName;
+};
+
+export const uploadModel = {
   uploadImgs,
   deleteImg,
   deleteImgs,
+  uploadImg,
+  ensureDirExists,
 };
