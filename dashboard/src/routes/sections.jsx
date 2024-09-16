@@ -1,5 +1,5 @@
 import {lazy, Suspense} from 'react';
-import {Navigate, Outlet, useRoutes} from 'react-router-dom';
+import {Outlet, Navigate, useRoutes} from 'react-router-dom';
 
 import {ProtectedRoute} from './components/ProtectedRoute';
 // ----------------------------------------------------------------------
@@ -57,7 +57,6 @@ export default function Router() {
         {path: 'settings/nav/:id', element: <NavUpdatePage/>},
         {path: 'settings/web-config', element: <WebConfigPage/>},
         {path: 'settings/seo-config', element: <SeoConfigPage/>},
-
         {path: 'warehouse', element: <WarehousePage/>},
         {path: 'coupons', element: <CouponsPage/>},
         {path: 'orders', element: <OrdersPage/>},

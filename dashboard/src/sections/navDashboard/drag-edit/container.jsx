@@ -5,10 +5,10 @@ import { PropTypes } from 'prop-types';
 import {
   Button,
   Dialog,
+  DialogTitle,
   DialogActions,
   DialogContent,
   DialogContentText,
-  DialogTitle,
 } from '@mui/material';
 import Iconify from 'src/components/iconify';
 import { useDispatch } from 'react-redux';

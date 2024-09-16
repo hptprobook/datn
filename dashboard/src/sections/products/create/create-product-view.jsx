@@ -1,24 +1,23 @@
+/* eslint-disable react/prop-types */
 
-import react, { useState } from 'react';
 
 import Stack from '@mui/material/Stack';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import {
-    Autocomplete,
     Box,
-    Button,
-    Checkbox,
-    FormControl,
-    FormControlLabel,
-    FormHelperText,
     Grid,
-    InputLabel,
-    MenuItem,
+    Button,
     Select,
+    Checkbox,
+    MenuItem,
     TextField,
+    InputLabel,
+    FormControl,
+    Autocomplete,
+    FormHelperText,
 } from '@mui/material';
-import { Formik, Field, Form, ErrorMessage } from 'formik';
+import { Form, Field, Formik, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import EditorContent from 'src/components/editor/editor';
 import { Icon } from '@iconify/react';
@@ -44,7 +43,7 @@ const validationSchema = Yup.object({
     salePrice: Yup.number().min(0, 'Giá khuyến mãi không được âm'),
   });
 export default function CreateProductPage() {
-    const [imglist, setImglist] = useState([]);
+    // const [imglist, setImglist] = useState([]);
 
     const top100Films = [
         { title: 'The Shawshank Redemption', year: 1994 },
@@ -124,7 +123,7 @@ export default function CreateProductPage() {
     ]
 
     const handleChangeUploadImg = (value) => {
-        setImglist(value);
+        // setImglist(value);
     }
 
     return (

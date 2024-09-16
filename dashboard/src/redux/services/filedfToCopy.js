@@ -1,4 +1,4 @@
-import { get, put, post, del } from 'src/utils/request';
+import { get } from 'src/utils/request';
 /* eslint-disable */
 
 const OrderServices = {
