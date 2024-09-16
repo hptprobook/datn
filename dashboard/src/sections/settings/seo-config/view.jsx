@@ -5,21 +5,17 @@ import Typography from '@mui/material/Typography';
 
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { Box, Tab, Tabs, Button } from '@mui/material';
-import { useRef, useState, useEffect, useCallback } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { PropTypes } from 'prop-types';
 import * as Yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   setStatus,
-  getConfigWebsite,
-  updateConfigWebsite,
-  uploadConfigWebsite,
   getConfigSeo,
   updateConfigSeo,
 } from 'src/redux/slices/settingSlices';
 import { useFormik } from 'formik';
 import { handleToast } from 'src/hooks/toast';
-import ImageDropZone from 'src/components/drop-zone-upload/upload-img';
 import EditableField from '../edit-field';
 // ----------------------------------------------------------------------
 const configSchema = Yup.object().shape({
@@ -61,20 +57,20 @@ export default function SeoConfigPage() {
   const [value, setValue] = useState(0);
   const [config, setConfig] = useState({});
   const dispatch = useDispatch();
-  const [uploadedImageUrl, setUploadedImageUrl] = useState(null);
+  // const [uploadedImageUrl, setUploadedImageUrl] = useState(null);
 
   const data = useSelector((state) => state.settings.seo);
   const status = useSelector((state) => state.settings.statusSeo);
   const statusUpdate = useSelector((state) => state.settings.statusUpdateSeo);
   const error = useSelector((state) => state.settings.error);
-  const handleChangeUploadImg = useCallback((files) => {
-    if (files) {
-      setUploadedImageUrl({
-        file: files,
-        name: 'logo',
-      });
-    }
-  }, []); // Ensure it only triggers when files change
+  // const handleChangeUploadImg = useCallback((files) => {
+  //   if (files) {
+  //     setUploadedImageUrl({
+  //       file: files,
+  //       name: 'logo',
+  //     });
+  //   }
+  // }, []); // Ensure it only triggers when files change
 
   const formik = useFormik({
     enableReinitialize: true,
@@ -136,14 +132,14 @@ export default function SeoConfigPage() {
     };
     dispatch(updateConfigSeo({ values }));
   };
-  const handleUpload = () => {
-    if (uploadedImageUrl) {
-      dispatch(uploadConfigWebsite(uploadedImageUrl));
-      setUploadedImageUrl(null);
-    } else {
-      handleToast('error', 'Chưa chọn ảnh');
-    }
-  };
+  // const handleUpload = () => {
+  //   if (uploadedImageUrl) {
+  //     dispatch(uploadConfigWebsite(uploadedImageUrl));
+  //     setUploadedImageUrl(null);
+  //   } else {
+  //     handleToast('error', 'Chưa chọn ảnh');
+  //   }
+  // };
   const [inputSelect, setInputSelect] = useState('');
   return (
     <Container>
