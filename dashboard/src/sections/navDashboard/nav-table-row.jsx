@@ -24,6 +24,9 @@ export default function NavTableRow({
   havechild,
   index,
   handleClick,
+  handleDelete,
+  handleUpdate,
+  handleNavigate
 }) {
   const [open, setOpen] = useState(null);
 
@@ -34,7 +37,14 @@ export default function NavTableRow({
   const handleCloseMenu = () => {
     setOpen(null);
   };
-
+  const handleRemove = () => {
+    handleDelete();
+    handleCloseMenu();
+  }
+  const openUpdate = () => {
+    handleUpdate();
+    handleCloseMenu();
+  }
   return (
     <>
       <TableRow hover tabIndex={-1} havechild="checkbox" selected={selected}>
@@ -70,12 +80,15 @@ export default function NavTableRow({
           sx: { width: 140 },
         }}
       >
-        <MenuItem onClick={handleCloseMenu}>
+        <MenuItem onClick={openUpdate}>
           <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
-          Sửa
+          Sửa nhanh
         </MenuItem>
-
-        <MenuItem onClick={handleCloseMenu} sx={{ color: 'error.main' }}>
+        <MenuItem onClick={() => handleNavigate()}>
+          <Iconify icon="eva:eye-fill" sx={{ mr: 2 }} />
+          Cập nhật
+        </MenuItem>
+        <MenuItem onClick={handleRemove} sx={{ color: 'error.main' }} >
           <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
           Xóa
         </MenuItem>
@@ -92,4 +105,7 @@ NavTableRow.propTypes = {
   havechild: PropTypes.any,
   selected: PropTypes.any,
   index: PropTypes.number,
+  handleDelete: PropTypes.func,
+  handleUpdate: PropTypes.func,
+  handleNavigate: PropTypes.func
 };

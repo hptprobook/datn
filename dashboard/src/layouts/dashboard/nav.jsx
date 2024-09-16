@@ -24,13 +24,39 @@ import ListItemText from '@mui/material/ListItemText';
 import Collapse from '@mui/material/Collapse';
 import Iconify from 'src/components/iconify/iconify';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchNav } from 'src/redux/slices/settingSlices';
 import navConfig from './config-navigation';
 import { NAV } from './config-layout';
 
 export default function Nav({ openNav, onCloseNav }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(true);
+  const [navs, setNavs] = useState([]);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchNav());
+  }, [dispatch]);
+
+  const status = useSelector((state) => state.settings.status);
+  const data = useSelector((state) => state.settings.navs);
+
+  useEffect(() => {
+    setNavs(navConfig); // Set initial navConfig
+
+    if (status === 'succeeded' && data.length > 0) {
+      // Create a new array with the updated 'child' property
+      const updatedData = data.map((item) => ({
+        ...item,
+        child: item.child || undefined, // Ensure 'child' is either itself or undefined
+      }));
+
+      setNavs(updatedData); // Update 'navs' with the modified data
+    }
+  }, [status, data]);
+
   const handleClick = () => {
     setOpen(!open);
   };
@@ -78,7 +104,7 @@ export default function Nav({ openNav, onCloseNav }) {
   // );
   const renderMenu = (
     <Stack component="nav" spacing={0.5} sx={{ px: 2 }}>
-      {navConfig.map((item) =>
+      {navs.map((item) =>
         item.child ? (
           <NavItems key={item.title} item={item} pathname={pathname} navigate={navigate} />
         ) : (
@@ -189,7 +215,7 @@ NavItem.propTypes = {
 };
 
 function NavItems({ item, pathname, navigate }) {
-  const active = item.path === pathname;
+  const active = item.child.some((child) => child.path === pathname);
   const handleClick = (path) => {
     navigate(path);
   };
@@ -201,6 +227,18 @@ function NavItems({ item, pathname, navigate }) {
     <>
       <ListItemButton
         onClick={handleOpen}
+        sx={{
+             borderRadius: 0.75,
+        ...(active && {
+          color: 'primary.main',
+          fontWeight: 'fontWeightSemiBold',
+          bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08),
+          '&:hover': {
+            bgcolor: (theme) => alpha(theme.palette.primary.main, 0.16),
+          },
+        })
+      }}
+      
       >
         <ListItemIcon>
           <Iconify icon={item.icon} />
@@ -212,7 +250,7 @@ function NavItems({ item, pathname, navigate }) {
         <List component="div" disablePadding>
           {item.child.map((child) => (
             <ListItemButton
-            key={child.icon}
+              key={child.icon}
               sx={{
                 pl: 4,
                 mt: 0.5,
@@ -224,11 +262,11 @@ function NavItems({ item, pathname, navigate }) {
                 textTransform: 'capitalize',
                 fontWeight: 'fontWeightMedium',
                 ...(pathname === child.path && {
-                  color: 'primary.main',
+                  color: 'primary.dark',
                   fontWeight: 'fontWeightSemiBold',
-                  bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08),
+                  bgcolor: (theme) => alpha(theme.palette.primary.dark, 0.08),
                   '&:hover': {
-                    bgcolor: (theme) => alpha(theme.palette.primary.main, 0.16),
+                    bgcolor: (theme) => alpha(theme.palette.primary.dark, 0.16),
                   },
                 }),
               }}

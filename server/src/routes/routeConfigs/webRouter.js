@@ -1,12 +1,12 @@
 /* eslint-disable semi */
 import express from 'express';
-import { seoConfigController } from '~/controllers/seoConfigController';
+import { webController } from '~/controllers/webController';
 import multer from 'multer';
 const Router = express.Router();
 
 const storage = multer.diskStorage({
     destination: function(req, file, cb) {
-        cb(null, 'src/public/imgs');
+        cb(null, 'uploads');
     },
     filename: function(req, file, cb) {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
@@ -19,17 +19,18 @@ const upload = multer({
 });
 
 //admin
-Router.get('/', seoConfigController.getSeoConfig);
+Router.get('/', webController.getWeb);
+
 Router.post(
     '/',
-    upload.single('metaOGImg'),
-    seoConfigController.createSeoConfig
+    upload.single('logo'),
+    webController.createWeb
 );
 Router.put(
-    '/:id',
-    upload.single('metaOGImg'),
-    seoConfigController.updateSeoConfig
+    '/',
+    upload.single('logo'),
+    webController.updateWeb
 );
-Router.delete('/:id', seoConfigController.deleteSeoConfig);
+// Router.delete('/:id', webController.deleteSeoConfig);
 
-export const seoConfigApi = Router;
+export const webApi = Router;

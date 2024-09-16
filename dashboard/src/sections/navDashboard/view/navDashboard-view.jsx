@@ -15,9 +15,13 @@ import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchNav } from 'src/redux/slices/settingSlices';
+import { fetchNav, removeNav, updateNav, resetStatus } from 'src/redux/slices/settingSlices';
 import { handleToast } from 'src/hooks/toast';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import { IconButton } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import TableNoData from '../table-no-data';
 import TableEmptyRows from '../table-empty-rows';
 import { emptyRows, applyFilter, getComparator } from '../utils';
@@ -25,8 +29,7 @@ import NavTableRow from '../nav-table-row';
 import NavTableToolbar from '../nav-table-toolbar';
 import NavTableHead from '../nav-table-head';
 import ContainerDragDrop from '../drag-edit';
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
+import ModalEdit from './modal-edit';
 
 // ----------------------------------------------------------------------
 
@@ -40,25 +43,52 @@ export default function NavDashboardPage() {
   const [filterName, setFilterName] = useState('');
 
   const dispactch = useDispatch();
+  const navigate = useNavigate();
 
   const [nav, setNav] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [dataModal, setDataModal] = useState({});
 
-  const dataNav = useSelector((state) => state.settings.nav);
+  const dataNav = useSelector((state) => state.settings.navs);
   const status = useSelector((state) => state.settings.status);
+  const statusDelete = useSelector((state) => state.settings.statusDelete);
+  const statusUpdate = useSelector((state) => state.settings.statusUpdate);
 
+  const handleData = (data) => {
+    const sortedData = [...data].sort((a, b) => a.index - b.index);
+    setNav(sortedData);
+  };
   useEffect(() => {
     if (status === 'succeeded') {
-      const sortedData = [...dataNav].sort((a, b) => a.index - b.index);
-      setNav(sortedData);
+      handleData(dataNav);
     }
     if (status === 'failed') {
       handleToast('error', 'Không thể lấy dữ liệu');
     }
   }, [dataNav, status]);
 
+
   useEffect(() => {
-    dispactch(fetchNav());
-  }, [dispactch]);
+    if (statusDelete === 'succeeded') {
+      handleToast('success', 'Xóa thành công');
+      handleData(dataNav);
+      dispactch(resetStatus());
+    }
+    if (statusDelete === 'failed') {
+      handleToast('error', 'Xóa thất bại');
+    }
+  }, [statusDelete, dispactch, dataNav]);
+  useEffect(() => {
+    if (statusUpdate === 'succeeded') {
+      setOpen(false);
+      dispactch(resetStatus());
+      handleData(dataNav);
+      handleToast('success', 'Cập nhật thành công');
+    }
+    if (statusUpdate === 'failed') {
+      handleToast('error', 'Cập nhật thất bại');
+    }
+  }, [statusUpdate, dispactch, dataNav]);
 
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === 'asc';
@@ -66,6 +96,16 @@ export default function NavDashboardPage() {
       setOrder(isAsc ? 'desc' : 'asc');
       setOrderBy(id);
     }
+  };
+
+  const handleModal = (modal) => {
+    setOpen(!open);
+    if (modal) {
+      setDataModal(modal);
+    }
+  };
+  const onUpdate = (data) => {
+    dispactch(updateNav(data));
   };
 
   const handleSelectAllClick = (event) => {
@@ -106,13 +146,30 @@ export default function NavDashboardPage() {
   });
 
   const notFound = !dataFiltered.length && !!filterName;
-
+  const handleDelete = (id) => {
+    dispactch(removeNav({ id }));
+  };
+  const handleUpdate = (id) => {
+    nav.find((item) => item._id === id && handleModal(item));
+  };
   return (
     <Container>
+      <ModalEdit open={open} handleClose={handleModal} data={dataModal} onUpdate={onUpdate} />
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Menu quản trị</Typography>
+        <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
+          <Typography variant="h4">Menu quản trị</Typography>
 
-        <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />}>
+          <IconButton
+            aria-label="load"
+            variant="contained"
+            color="inherit"
+            onClick={() => dispactch(fetchNav())}
+          >
+            <Iconify icon="mdi:reload" />
+          </IconButton>
+        </Stack>
+
+        <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />} onClick={() => navigate('create')}>
           Tạo menu mới
         </Button>
       </Stack>
@@ -154,6 +211,9 @@ export default function NavDashboardPage() {
                         path={row.path}
                         selected={selected.indexOf(row.title) !== -1}
                         handleClick={(event) => handleClick(event, row.title)}
+                        handleDelete={() => handleDelete(row._id)}
+                        handleUpdate={() => handleUpdate(row._id)}
+                        handleNavigate={() => navigate(`${row._id}`)}
                       />
                     ))}
 
@@ -172,7 +232,7 @@ export default function NavDashboardPage() {
               Chỉnh sửa vị trí
             </Typography>
             <DndProvider backend={HTML5Backend}>
-              {nav.length > 0 ? <ContainerDragDrop nav={nav} /> : null}
+              {nav.length > 0 && nav ? <ContainerDragDrop nav={nav} /> : null}
             </DndProvider>
           </Card>
         </Grid2>

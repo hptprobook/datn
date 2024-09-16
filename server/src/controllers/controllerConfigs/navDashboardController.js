@@ -7,10 +7,10 @@ const createdNavDashboard = async (req, res) => {
     try {
         const data = req.body;
         const result = await navDashboardModel.createdNavDashboard(data);
-        if (result) {
-            return res.status(StatusCodes.OK).json(result);
+        if (result.error) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ message: result.error });
         }
-        return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Tạo thất bại' });
+        return res.status(StatusCodes.OK).json(result);
     }
     catch (error) {
         const errorSend = cathError(error);
@@ -23,6 +23,7 @@ const getNavDashboard = async (req, res) => {
     try {
         const result = await navDashboardModel.getNavDashboard();
         if (result) {
+            result.sort((a, b) => a.index - b.index);
             return res.status(StatusCodes.OK).json(result);
         }
         return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Không có dữ liệu' });
@@ -34,8 +35,74 @@ const getNavDashboard = async (req, res) => {
         });
     }
 }
-
+const getNavDashboardById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await navDashboardModel.getNavDashboardById(id);
+        if (result) {
+            return res.status(StatusCodes.OK).json(result);
+        }
+        return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Không có dữ liệu' });
+    }
+    catch (error) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+            message: error,
+        });
+    }
+}
+const removeNavDashboard = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await navDashboardModel.removeNavDashboard(id);
+        if (result.error) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ message: result.error });
+        } else {
+            return res.status(StatusCodes.OK).json(result);
+        }
+    }
+    catch (error) {
+        const errorSend = cathError(error);
+        return res.status(StatusCodes.BAD_REQUEST).json({
+            message: errorSend,
+        });
+    }
+}
+const updateNavDashboard = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const data = req.body;
+        const result = await navDashboardModel.updateNavDashboard(id, data);
+        if (result.error) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ message: result.error });
+        }
+        return res.status(StatusCodes.OK).json(result);
+    }
+    catch (error) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+            message: error,
+        });
+    }
+}
+const updateMutipleNav = async (req, res) => {
+    try {
+        const data = req.body;
+        const result = await navDashboardModel.updateMutipleNav(data);
+        if (result.error) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ message: result.error });
+        }
+        return res.status(StatusCodes.OK).json(result);
+    }
+    catch (error) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+            message: error,
+        });
+    }
+}
 export const navDashboardController = {
     createdNavDashboard,
-    getNavDashboard
+    getNavDashboard,
+    removeNavDashboard,
+    updateNavDashboard,
+    getNavDashboardById,
+    updateMutipleNav
 };

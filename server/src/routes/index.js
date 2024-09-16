@@ -11,9 +11,18 @@ import { productsApi } from './productRouter';
 import { inventoriesApi } from './inventoryRouter';
 import { authApi } from './authRouter';
 import { paysApi } from './payRouter';
+
+import { paymentApi } from './paymentRouter';
+
 import { navDashboardApi } from './routeConfigs/navDashboardRoute';
+import { webApi } from './routeConfigs/webRouter';
 // seo
-import { seoConfigApi } from './seoConfigRouter';
+
+import { seoConfigApi } from './routeConfigs/seoConfigRouter';
+import { brandsApi } from './brandRouter';
+
+import { couponApi } from './couponRouter';
+
 const Router = express.Router();
 
 Router.use('/auth', authApi);
@@ -27,15 +36,19 @@ Router.use('/reviews', reviewsApi);
 Router.use('/suppliers', suppliersApi);
 Router.use('/inventories', inventoriesApi);
 Router.use('/products', productsApi);
+Router.use('/brands', brandsApi);
 
 Router.use('/pays', paysApi);
+Router.use('/payments', paymentApi);
 
 Router.use('/seo', seoConfigApi);
+Router.use('/web', webApi);
+Router.use('/coupons', couponApi);
 
 Router.use('/navDashboard', navDashboardApi);
 
 Router.get('/', (req, res) => {
-  res.send('Hello from API!');
+    res.send('Hello from API!');
 });
 
 export const APIs = Router;
