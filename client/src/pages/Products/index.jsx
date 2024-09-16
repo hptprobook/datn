@@ -30,7 +30,7 @@ export default function ProductPage() {
 
       <div className="divider pt-20"></div>
       {/* Product Description */}
-      <div className="lg:px-60 px-2 mt-10">
+      <div className="lg:px-60 px-2 mt-10 text-gray-600">
         <div className="text-center lg:text-left font-extrabold">
           MÔ TẢ SẢN PHẨM
         </div>

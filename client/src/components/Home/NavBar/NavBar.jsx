@@ -28,7 +28,7 @@ export default function NavBar() {
   }
 
   return (
-    <div className="shadow-lg hidden lg:block bg-white">
+    <div className="shadow-lg hidden lg:block bg-white text-black">
       <div className="max-w-container mx-auto h-16 flex items-center">
         {menuData.map((item) => (
           <div
