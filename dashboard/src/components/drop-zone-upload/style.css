@@ -1,0 +1,40 @@
+.ImageDropZone .dropzone {
+    padding: 32px;
+    border-radius: 14px;
+    border: 2px dotted #cccccc;
+    /* Adjust border color and style as needed */
+}
+
+.UploadImagePreview {
+    margin-top: 16px;
+    padding: 0;
+}
+
+.UploadImagePreview li {
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    margin: 12px 0;
+}
+
+.UploadImagePreview li img {
+    width: 50px;
+    height: 50px;
+    margin-right: 16px;
+}
+
+.UploadImagePreview .DeletePreviewButton {
+    height: fit-content;
+    padding: 8px 12px;
+    cursor: pointer;
+    background-color: #FFFFFF;
+    border-radius: 14px;
+}
+
+.UploadImagePreview .DeletePreviewButton:hover {
+    border-radius: 14px;
+    background-color: #cccccc;
+}
+.hidden {
+    display: none;
+}

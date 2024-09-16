@@ -18,8 +18,11 @@ import { navDashboardApi } from './routeConfigs/navDashboardRoute';
 import { webApi } from './routeConfigs/webRouter';
 // seo
 
-import { brandsApi } from './brandRouter';
 import { seoConfigApi } from './routeConfigs/seoConfigRouter';
+import { brandsApi } from './brandRouter';
+
+import { couponApi } from './couponRouter';
+
 const Router = express.Router();
 
 Router.use('/auth', authApi);
@@ -40,6 +43,7 @@ Router.use('/payments', paymentApi);
 
 Router.use('/seo', seoConfigApi);
 Router.use('/web', webApi);
+Router.use('/coupons', couponApi);
 
 Router.use('/navDashboard', navDashboardApi);
 

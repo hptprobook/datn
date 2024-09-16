@@ -4,7 +4,7 @@ import { StatusCodes } from 'http-status-codes';
 // import { ERROR_MESSAGES } from '~/utils/errorMessage';
 import { uploadModal } from '~/models/uploadModal';
 import { webModel } from '~/models/webModel';
-const getWeb = async(req, res) => {
+const getWeb = async (req, res) => {
     try {
         const web = await webModel.getWeb();
         return res.status(StatusCodes.OK).json(web);
@@ -15,7 +15,7 @@ const getWeb = async(req, res) => {
     }
 };
 
-const createWeb = async(req, res) => {
+const createWeb = async (req, res) => {
     try {
         const Web = await webModel.getWeb();
         if (Web) {
@@ -51,7 +51,7 @@ const createWeb = async(req, res) => {
     }
 };
 
-const updateWeb = async(req, res) => {
+const updateWeb = async (req, res) => {
     try {
         const web = await webModel.getWeb();
         if (!web) {
@@ -73,15 +73,21 @@ const updateWeb = async(req, res) => {
         };
         const result = await webModel.updateWeb(id, dataSeo);
         if (result.error) {
-            await uploadModal.deleteImg(req.file.filename);
+            if (req.file) {
+                await uploadModal.deleteImg(req.file.filename);
+            }
             return res.status(StatusCodes.BAD_REQUEST).json(result.detail);
         }
-        await uploadModal.deleteImg(web.logo);
+        if (req.file) {
+            await uploadModal.deleteImg(web.logo);
+        }
         return res
             .status(StatusCodes.OK)
             .json(result);
     } catch (error) {
-        await uploadModal.deleteImg(req.file.filename);
+        if (req.file) {
+            await uploadModal.deleteImg(req.file.filename);
+        }
         if (error.details) {
             return res.status(StatusCodes.BAD_REQUEST).json({
                 messages: error.details[0].message,
