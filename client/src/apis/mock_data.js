@@ -1090,316 +1090,313 @@ export const cartProducts = [
 
 [
   {
-    _id: '64ffb9d5296d4d1a929b6411',
-    name: 'Classic Denim Jacket',
-    description:
-      'A stylish and comfortable denim jacket perfect for any casual outfit.',
-    imgURLs: [
-      'https://picsum.photos/280/375?random=1',
-      'https://picsum.photos/280/375?random=2',
-      'https://picsum.photos/280/375?random=3',
+    "_id": "64ffb9d5296d4d1a929b6411",
+    "name": "Classic Denim Jacket",
+    "description": "A stylish and comfortable denim jacket perfect for any casual outfit.",
+    "imgURLs": [
+      "https://picsum.photos/280/375?random=1",
+      "https://picsum.photos/280/375?random=2",
+      "https://picsum.photos/280/375?random=3"
     ],
-    price: 750000,
-    brand: 'Levis',
-    stock: 20,
-    tags: ['denim', 'jacket', 'casual'],
-    slug: 'classic-denim-jacket',
-    vars: [
+    "price": 750000,
+    "brand": "Levis",
+    "stock": 20,
+    "tags": ["denim", "jacket", "casual"],
+    "slug": "classic-denim-jacket",
+    "vars": [
       {
-        size: 'S',
-        color: 'blue',
-        imgURL: 'https://picsum.photos/280/375?random=4',
+        "size": "S",
+        "color": "blue",
+        "imgURL": "https://picsum.photos/280/375?random=4"
       },
       {
-        size: 'M',
-        color: 'blue',
-        imgURL: 'https://picsum.photos/280/375?random=5',
+        "size": "M",
+        "color": "blue",
+        "imgURL": "https://picsum.photos/280/375?random=5"
       },
       {
-        size: 'L',
-        color: 'blue',
-        imgURL: 'https://picsum.photos/280/375?random=6',
-      },
-    ],
+        "size": "L",
+        "color": "blue",
+        "imgURL": "https://picsum.photos/280/375?random=6"
+      }
+    ]
   },
   {
-    _id: '64ffb9d5296d4d1a929b6412',
-    name: 'Leather Handbag',
-    description:
-      'Elegant leather handbag with enough space to carry all essentials.',
-    imgURLs: [
-      'https://picsum.photos/280/375?random=7',
-      'https://picsum.photos/280/375?random=8',
-      'https://picsum.photos/280/375?random=9',
+    "_id": "64ffb9d5296d4d1a929b6412",
+    "name": "Leather Handbag",
+    "description": "Elegant leather handbag with enough space to carry all essentials.",
+    "imgURLs": [
+      "https://picsum.photos/280/375?random=7",
+      "https://picsum.photos/280/375?random=8",
+      "https://picsum.photos/280/375?random=9"
     ],
-    price: 1200000,
-    brand: 'Gucci',
-    stock: 10,
-    tags: ['handbag', 'leather', 'elegant'],
-    slug: 'leather-handbag',
-    vars: [
+    "price": 1200000,
+    "brand": "Gucci",
+    "stock": 10,
+    "tags": ["handbag", "leather", "elegant"],
+    "slug": "leather-handbag",
+    "vars": [
       {
-        size: 'Standard',
-        color: 'brown',
-        imgURL: 'https://picsum.photos/280/375?random=10',
+        "size": "Standard",
+        "color": "brown",
+        "imgURL": "https://picsum.photos/280/375?random=10"
       },
       {
-        size: 'Standard',
-        color: 'black',
-        imgURL: 'https://picsum.photos/280/375?random=11',
-      },
-    ],
+        "size": "Standard",
+        "color": "black",
+        "imgURL": "https://picsum.photos/280/375?random=11"
+      }
+    ]
   },
   {
-    _id: '64ffb9d5296d4d1a929b6413',
-    name: 'Sport Sneakers',
-    description:
-      'Comfortable and lightweight sneakers for everyday activities.',
-    imgURLs: [
-      'https://picsum.photos/280/375?random=12',
-      'https://picsum.photos/280/375?random=13',
-      'https://picsum.photos/280/375?random=14',
+    "_id": "64ffb9d5296d4d1a929b6413",
+    "name": "Sport Sneakers",
+    "description": "Comfortable and lightweight sneakers for everyday activities.",
+    "imgURLs": [
+      "https://picsum.photos/280/375?random=12",
+      "https://picsum.photos/280/375?random=13",
+      "https://picsum.photos/280/375?random=14"
     ],
-    price: 950000,
-    brand: 'Nike',
-    stock: 25,
-    tags: ['sneakers', 'sport', 'shoes'],
-    slug: 'sport-sneakers',
-    vars: [
+    "price": 950000,
+    "brand": "Nike",
+    "stock": 25,
+    "tags": ["sneakers", "sport", "shoes"],
+    "slug": "sport-sneakers",
+    "vars": [
       {
-        size: '40',
-        color: 'white',
-        imgURL: 'https://picsum.photos/280/375?random=15',
+        "size": "40",
+        "color": "white",
+        "imgURL": "https://picsum.photos/280/375?random=15"
       },
       {
-        size: '41',
-        color: 'white',
-        imgURL: 'https://picsum.photos/280/375?random=16',
+        "size": "41",
+        "color": "white",
+        "imgURL": "https://picsum.photos/280/375?random=16"
       },
       {
-        size: '42',
-        color: 'black',
-        imgURL: 'https://picsum.photos/280/375?random=17',
-      },
-    ],
+        "size": "42",
+        "color": "black",
+        "imgURL": "https://picsum.photos/280/375?random=17"
+      }
+    ]
   },
   {
-    _id: '64ffb9d5296d4d1a929b6414',
-    name: 'Casual Hoodie',
-    description: 'A cozy and soft hoodie perfect for casual wear.',
-    imgURLs: [
-      'https://picsum.photos/280/375?random=18',
-      'https://picsum.photos/280/375?random=19',
-      'https://picsum.photos/280/375?random=20',
+    "_id": "64ffb9d5296d4d1a929b6414",
+    "name": "Casual Hoodie",
+    "description": "A cozy and soft hoodie perfect for casual wear.",
+    "imgURLs": [
+      "https://picsum.photos/280/375?random=18",
+      "https://picsum.photos/280/375?random=19",
+      "https://picsum.photos/280/375?random=20"
     ],
-    price: 550000,
-    brand: 'H&M',
-    stock: 15,
-    tags: ['hoodie', 'casual', 'sweatshirt'],
-    slug: 'casual-hoodie',
-    vars: [
+    "price": 550000,
+    "brand": "H&M",
+    "stock": 15,
+    "tags": ["hoodie", "casual", "sweatshirt"],
+    "slug": "casual-hoodie",
+    "vars": [
       {
-        size: 'M',
-        color: 'gray',
-        imgURL: 'https://picsum.photos/280/375?random=21',
+        "size": "M",
+        "color": "gray",
+        "imgURL": "https://picsum.photos/280/375?random=21"
       },
       {
-        size: 'L',
-        color: 'gray',
-        imgURL: 'https://picsum.photos/280/375?random=22',
+        "size": "L",
+        "color": "gray",
+        "imgURL": "https://picsum.photos/280/375?random=22"
       },
       {
-        size: 'XL',
-        color: 'black',
-        imgURL: 'https://picsum.photos/280/375?random=23',
-      },
-    ],
+        "size": "XL",
+        "color": "black",
+        "imgURL": "https://picsum.photos/280/375?random=23"
+      }
+    ]
   },
   {
-    _id: '64ffb9d5296d4d1a929b6415',
-    name: 'Summer Dress',
-    description: 'A lightweight and flowy dress perfect for warm weather.',
-    imgURLs: [
-      'https://picsum.photos/280/375?random=24',
-      'https://picsum.photos/280/375?random=25',
-      'https://picsum.photos/280/375?random=26',
+    "_id": "64ffb9d5296d4d1a929b6415",
+    "name": "Summer Dress",
+    "description": "A lightweight and flowy dress perfect for warm weather.",
+    "imgURLs": [
+      "https://picsum.photos/280/375?random=24",
+      "https://picsum.photos/280/375?random=25",
+      "https://picsum.photos/280/375?random=26"
     ],
-    price: 650000,
-    brand: 'Zara',
-    stock: 12,
-    tags: ['dress', 'summer', 'fashion'],
-    slug: 'summer-dress',
-    vars: [
+    "price": 650000,
+    "brand": "Zara",
+    "stock": 12,
+    "tags": ["dress", "summer", "fashion"],
+    "slug": "summer-dress",
+    "vars": [
       {
-        size: 'S',
-        color: 'yellow',
-        imgURL: 'https://picsum.photos/280/375?random=27',
+        "size": "S",
+        "color": "yellow",
+        "imgURL": "https://picsum.photos/280/375?random=27"
       },
       {
-        size: 'M',
-        color: 'yellow',
-        imgURL: 'https://picsum.photos/280/375?random=28',
+        "size": "M",
+        "color": "yellow",
+        "imgURL": "https://picsum.photos/280/375?random=28"
       },
       {
-        size: 'L',
-        color: 'blue',
-        imgURL: 'https://picsum.photos/280/375?random=29',
-      },
-    ],
+        "size": "L",
+        "color": "blue",
+        "imgURL": "https://picsum.photos/280/375?random=29"
+      }
+    ]
   },
   {
-    _id: '64ffb9d5296d4d1a929b6416',
-    name: 'Formal Blazer',
-    description: 'A sharp and sophisticated blazer for formal events.',
-    imgURLs: [
-      'https://picsum.photos/280/375?random=30',
-      'https://picsum.photos/280/375?random=31',
-      'https://picsum.photos/280/375?random=32',
+    "_id": "64ffb9d5296d4d1a929b6416",
+    "name": "Formal Blazer",
+    "description": "A sharp and sophisticated blazer for formal events.",
+    "imgURLs": [
+      "https://picsum.photos/280/375?random=30",
+      "https://picsum.photos/280/375?random=31",
+      "https://picsum.photos/280/375?random=32"
     ],
-    price: 2000000,
-    brand: 'Calvin Klein',
-    stock: 8,
-    tags: ['blazer', 'formal', 'suit'],
-    slug: 'formal-blazer',
-    vars: [
+    "price": 2000000,
+    "brand": "Calvin Klein",
+    "stock": 8,
+    "tags": ["blazer", "formal", "suit"],
+    "slug": "formal-blazer",
+    "vars": [
       {
-        size: 'M',
-        color: 'black',
-        imgURL: 'https://picsum.photos/280/375?random=33',
+        "size": "M",
+        "color": "black",
+        "imgURL": "https://picsum.photos/280/375?random=33"
       },
       {
-        size: 'L',
-        color: 'navy',
-        imgURL: 'https://picsum.photos/280/375?random=34',
-      },
-    ],
+        "size": "L",
+        "color": "navy",
+        "imgURL": "https://picsum.photos/280/375?random=34"
+      }
+    ]
   },
   {
-    _id: '64ffb9d5296d4d1a929b6417',
-    name: 'Ripped Jeans',
-    description: 'Trendy ripped jeans for a cool, casual look.',
-    imgURLs: [
-      'https://picsum.photos/280/375?random=35',
-      'https://picsum.photos/280/375?random=36',
-      'https://picsum.photos/280/375?random=37',
+    "_id": "64ffb9d5296d4d1a929b6417",
+    "name": "Ripped Jeans",
+    "description": "Trendy ripped jeans for a cool, casual look.",
+    "imgURLs": [
+      "https://picsum.photos/280/375?random=35",
+      "https://picsum.photos/280/375?random=36",
+      "https://picsum.photos/280/375?random=37"
     ],
-    price: 500000,
-    brand: 'Topshop',
-    stock: 18,
-    tags: ['jeans', 'ripped', 'casual'],
-    slug: 'ripped-jeans',
-    vars: [
+    "price": 500000,
+    "brand": "Topshop",
+    "stock": 18,
+    "tags": ["jeans", "ripped", "casual"],
+    "slug": "ripped-jeans",
+    "vars": [
       {
-        size: '28',
-        color: 'blue',
-        imgURL: 'https://picsum.photos/280/375?random=38',
+        "size": "28",
+        "color": "blue",
+        "imgURL": "https://picsum.photos/280/375?random=38"
       },
       {
-        size: '30',
-        color: 'blue',
-        imgURL: 'https://picsum.photos/280/375?random=39',
+        "size": "30",
+        "color": "blue",
+        "imgURL": "https://picsum.photos/280/375?random=39"
       },
       {
-        size: '32',
-        color: 'black',
-        imgURL: 'https://picsum.photos/280/375?random=40',
-      },
-    ],
+        "size": "32",
+        "color": "black",
+        "imgURL": "https://picsum.photos/280/375?random=40"
+      }
+    ]
   },
   {
-    _id: '64ffb9d5296d4d1a929b6418',
-    name: 'Winter Coat',
-    description: 'A warm and stylish coat to keep you cozy during winter.',
-    imgURLs: [
-      'https://picsum.photos/280/375?random=41',
-      'https://picsum.photos/280/375?random=42',
-      'https://picsum.photos/280/375?random=43',
+    "_id": "64ffb9d5296d4d1a929b6418",
+    "name": "Winter Coat",
+    "description": "A warm and stylish coat to keep you cozy during winter.",
+    "imgURLs": [
+      "https://picsum.photos/280/375?random=41",
+      "https://picsum.photos/280/375?random=42",
+      "https://picsum.photos/280/375?random=43"
     ],
-    price: 1500000,
-    brand: 'Uniqlo',
-    stock: 10,
-    tags: ['coat', 'winter', 'warm'],
-    slug: 'winter-coat',
-    vars: [
+    "price": 1500000,
+    "brand": "Uniqlo",
+    "stock": 10,
+    "tags": ["coat", "winter", "warm"],
+    "slug": "winter-coat",
+    "vars": [
       {
-        size: 'M',
-        color: 'gray',
-        imgURL: 'https://picsum.photos/280/375?random=44',
+        "size": "M",
+        "color": "gray",
+        "imgURL": "https://picsum.photos/280/375?random=44"
       },
       {
-        size: 'L',
-        color: 'gray',
-        imgURL: 'https://picsum.photos/280/375?random=45',
+        "size": "L",
+        "color": "gray",
+        "imgURL": "https://picsum.photos/280/375?random=45"
       },
       {
-        size: 'XL',
-        color: 'black',
-        imgURL: 'https://picsum.photos/280/375?random=46',
-      },
-    ],
+        "size": "XL",
+        "color": "black",
+        "imgURL": "https://picsum.photos/280/375?random=46"
+      }
+    ]
   },
   {
-    _id: '64ffb9d5296d4d1a929b6419',
-    name: 'Graphic T-Shirt',
-    description: 'A trendy t-shirt with unique graphic designs.',
-    imgURLs: [
-      'https://picsum.photos/280/375?random=47',
-      'https://picsum.photos/280/375?random=48',
-      'https://picsum.photos/280/375?random=49',
+    "_id": "64ffb9d5296d4d1a929b6419",
+    "name": "Graphic T-Shirt",
+    "description": "A trendy t-shirt with unique graphic designs.",
+    "imgURLs": [
+      "https://picsum.photos/280/375?random=47",
+      "https://picsum.photos/280/375?random=48",
+      "https://picsum.photos/280/375?random=49"
     ],
-    price: 300000,
-    brand: 'H&M',
-    stock: 30,
-    tags: ['t-shirt', 'graphic', 'casual'],
-    slug: 'graphic-t-shirt',
-    vars: [
+    "price": 300000,
+    "brand": "H&M",
+    "stock": 30,
+    "tags": ["t-shirt", "graphic", "casual"],
+    "slug": "graphic-t-shirt",
+    "vars": [
       {
-        size: 'S',
-        color: 'white',
-        imgURL: 'https://picsum.photos/280/375?random=50',
+        "size": "S",
+        "color": "white",
+        "imgURL": "https://picsum.photos/280/375?random=50"
       },
       {
-        size: 'M',
-        color: 'white',
-        imgURL: 'https://picsum.photos/280/375?random=51',
+        "size": "M",
+        "color": "white",
+        "imgURL": "https://picsum.photos/280/375?random=51"
       },
       {
-        size: 'L',
-        color: 'black',
-        imgURL: 'https://picsum.photos/280/375?random=52',
-      },
-    ],
+        "size": "L",
+        "color": "black",
+        "imgURL": "https://picsum.photos/280/375?random=52"
+      }
+    ]
   },
   {
-    _id: '64ffb9d5296d4d1a929b6420',
-    name: 'Comfortable Sandals',
-    description: 'Lightweight and comfortable sandals for everyday wear.',
-    imgURLs: [
-      'https://picsum.photos/280/375?random=53',
-      'https://picsum.photos/280/375?random=54',
-      'https://picsum.photos/280/375?random=55',
+    "_id": "64ffb9d5296d4d1a929b6420",
+    "name": "Comfortable Sandals",
+    "description": "Lightweight and comfortable sandals for everyday wear.",
+    "imgURLs": [
+      "https://picsum.photos/280/375?random=53",
+      "https://picsum.photos/280/375?random=54",
+      "https://picsum.photos/280/375?random=55"
     ],
-    price: 400000,
-    brand: 'Adidas',
-    stock: 22,
-    tags: ['sandals', 'comfort', 'casual'],
-    slug: 'comfortable-sandals',
-    vars: [
+    "price": 400000,
+    "brand": "Adidas",
+    "stock": 22,
+    "tags": ["sandals", "comfort", "casual"],
+    "slug": "comfortable-sandals",
+    "vars": [
       {
-        size: '38',
-        color: 'brown',
-        imgURL: 'https://picsum.photos/280/375?random=56',
+        "size": "38",
+        "color": "brown",
+        "imgURL": "https://picsum.photos/280/375?random=56"
       },
       {
-        size: '39',
-        color: 'black',
-        imgURL: 'https://picsum.photos/280/375?random=57',
+        "size": "39",
+        "color": "black",
+        "imgURL": "https://picsum.photos/280/375?random=57"
       },
       {
-        size: '40',
-        color: 'black',
-        imgURL: 'https://picsum.photos/280/375?random=58',
-      },
-    ],
-  },
-];
+        "size": "40",
+        "color": "black",
+        "imgURL": "https://picsum.photos/280/375?random=58"
+      }
+    ]
+  }
+]

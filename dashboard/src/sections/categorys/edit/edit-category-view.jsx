@@ -1,18 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import React, { useState, useEffect } from 'react';
+import { Form, Field, Formik, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import Stack from '@mui/material/Stack';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import {
   Box,
-  Button,
-  InputLabel,
-  TextField,
   Grid,
+  Button,
   MenuItem,
-  FormHelperText,
+  TextField,
+  InputLabel,
   FormControl,
+  FormHelperText,
 } from '@mui/material';
 import EditorContent from 'src/components/editor/editor';
 import InfoBox from 'src/components/Box/InforBox';
@@ -100,8 +100,8 @@ const EditCategoryView = () => {
                 console.log(data);
                 await dispatch(updateCategory({ id, data })).unwrap();
                 handleToast('success','Danh mục đã được cập nhật thành công!');
-              } catch (error) {
-                handleToast('error','Có lỗi xảy ra khi cập nhật danh mục.');
+              } catch (err) {
+                handleToast('error',err.message);
               } finally {
                 setSubmitting(false);
               }

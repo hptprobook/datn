@@ -20,14 +20,13 @@ const START_SERVER = () => {
   app.use(express.urlencoded({ limit: '50mb', extended: true }));
   app.use(cookieParser());
   app.use(cors());
+  app.use(express.json());
   // app.use(
   //   cors({
   //     origin: 'http://localhost:5173',
   //     credentials: true,
   //   })
   // );
-  app.use(express.json());
-  
   app.use(errorHandlingMiddleware);
 
   // Serve static files from the 'src/public/imgs' directory

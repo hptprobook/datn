@@ -5,7 +5,7 @@ import {
   DialogTitle,
 } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import { cartProducts } from '~/apis/mock_data';
+import { cartProducts } from '~/APIs/mock_data';
 
 export default function CartFixed({ open, setOpen }) {
   return (

@@ -1,4 +1,4 @@
-import { get, post, put } from "src/utils/request";
+import { get, post } from "src/utils/request";
 
 const AuthService = {
     login: async (data) => {
