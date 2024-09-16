@@ -78,6 +78,57 @@ export const getConfigWebsite = createAsyncThunk(
     }
   }
 );
+export const updateConfigWebsite = createAsyncThunk(
+  'settings/updateWeb',
+  async ({ values }, rejectWithValue) => {
+    try {
+      return await SettingServices.updateConfigWebsite(values);
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
+export const uploadConfigWebsite = createAsyncThunk(
+  'settings/uploadWeb',
+  async (values, rejectWithValue) => {
+    try {
+      return await SettingServices.uploadConfigWebsite(values);
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
+export const getConfigSeo = createAsyncThunk(
+  'settings/seo',
+  async (_, rejectWithValue) => {
+    try {
+      return await SettingServices.getSeoConfig();
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
+export const updateConfigSeo = createAsyncThunk(
+  'settings/updateSeo',
+  async ({ values }, rejectWithValue) => {
+    try {
+      return await SettingServices.updateSeoConfig(values);
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
+export const uploadConfigSeo = createAsyncThunk(
+  'settings/uploadSeo',
+
+  async (values, rejectWithValue) => {
+    try {
+      return await SettingServices.uploadSeoConfig(values);
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
 
 
 export const resetDelete = createAction('settings/resetDelete');
@@ -85,12 +136,19 @@ const initialState = {
   navs: [],
   nav: {},
   web: {},
+  seo: {},
   delete: null,
   status: 'idle',
   statusWeb: 'idle',
   statusDelete: 'idle',
   statusUpdate: 'idle',
   statusCreate: 'idle',
+  statusUpload: 'idle',
+  statusUpdateWeb: 'idle',
+  statusUploadWeb: 'idle',
+  statusUpdateSeo: 'idle',
+  statusUploadSeo: 'idle',
+  statusSeo: 'idle',
   error: null,
 };
 
@@ -180,8 +238,75 @@ const settingSlices = createSlice({
         state.statusWeb = 'failed';
         state.error = action.payload;
       })
+      .addCase(updateConfigWebsite.pending, (state) => {
+        state.statusUpdateWeb = 'loading';
+      })
+      .addCase(updateConfigWebsite.fulfilled, (state, action) => {
+        state.statusUpdateWeb = 'succeeded';
+        state.web = action.payload;
+      })
+      .addCase(updateConfigWebsite.rejected, (state, action) => {
+        state.statusUpdateWeb = 'failed';
+        state.error = action.payload;
+      })
+      .addCase(uploadConfigWebsite.pending, (state) => {
+        state.statusUploadWeb = 'loading';
+      })
+      .addCase(uploadConfigWebsite.fulfilled, (state, action) => {
+        state.statusUploadWeb = 'succeeded';
+        state.web = action.payload;
+      })
+      .addCase(uploadConfigWebsite.rejected, (state, action) => {
+        state.statusUploadWeb = 'failed';
+        state.error = action.payload;
+      })
+      .addCase(getConfigSeo.pending, (state) => {
+        state.statusSeo = 'loading';
+      }
+      )
+      .addCase(getConfigSeo.fulfilled, (state, action) => {
+        state.statusSeo = 'succeeded';
+        state.seo = action.payload;
+      }
+      )
+      .addCase(getConfigSeo.rejected, (state, action) => {
+        state.statusSeo = 'failed';
+        state.error = action.payload;
+      }
+      )
+      .addCase(updateConfigSeo.pending, (state) => {
+        state.statusUpdateSeo = 'loading';
+      }
+      )
+      .addCase(updateConfigSeo.fulfilled, (state, action) => {
+        state.statusUpdateSeo = 'succeeded';
+        state.seo = action.payload;
+      }
+      )
+      .addCase(updateConfigSeo.rejected, (state, action) => {
+        state.statusUpdateSeo = 'failed';
+        state.error = action.payload;
+      }
+      )
+      .addCase(uploadConfigSeo.pending, (state) => {
+        state.statusUploadSeo = 'loading';
+      }
+      )
+      .addCase(uploadConfigSeo.fulfilled, (state, action) => {
+        state.statusUploadSeo = 'succeeded';
+        state.seo = action.payload;
+      }
+      )
+      .addCase(uploadConfigSeo.rejected, (state, action) => {
+        state.statusUploadSeo = 'failed';
+        state.error = action.payload;
+      }
+      )
       .addCase(setStatus, (state, action) => {
-        state.status = action.payload;
+        const { key, value } = action.payload; // Destructure key and value from payload
+        if (state[key] !== undefined) {
+          state[key] = value; // Update the status field dynamically
+        }
       })
       .addCase(resetDelete, (state) => {
         state.status = 'idle';

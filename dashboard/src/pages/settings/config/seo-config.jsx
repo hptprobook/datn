@@ -1,15 +1,15 @@
 import { Helmet } from 'react-helmet-async';
-import { WebConfigView } from 'src/sections/settings/web-config';
+import { SeoConfigView } from 'src/sections/settings/seo-config';
 
 // ----------------------------------------------------------------------
 
-export default function WebConfigPage() {
+export default function SeoConfigPage() {
   return (
     <>
       <Helmet>
-        <title> Cài đặt trang web </title>
+        <title> Cài đặt SEO </title>
       </Helmet>
-      <WebConfigView />
+      <SeoConfigView />
     </>
   );
 }
