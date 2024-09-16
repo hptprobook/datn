@@ -2,17 +2,21 @@
 import express from 'express';
 import { webController } from '~/controllers/webController';
 import multer from 'multer';
+import path from 'path';
+import { uploadModel } from '~/models/uploadModel';
 const Router = express.Router();
 
 const storage = multer.diskStorage({
-    destination: function(req, file, cb) {
-        cb(null, 'uploads');
+    destination: function (req, file, cb) {
+      const uploadPath = path.resolve(process.cwd(), 'uploads/web');
+      uploadModel.ensureDirExists(uploadPath);
+      cb(null, uploadPath);
     },
-    filename: function(req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        cb(null, uniqueSuffix + '.jpg');
+    filename: function (req, file, cb) {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+      cb(null, uniqueSuffix + '.jpg');
     },
-});
+  });
 const upload = multer({
     storage: storage,
     limits: { fileSize: 1024 * 1024 * 5 },

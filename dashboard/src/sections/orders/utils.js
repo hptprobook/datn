@@ -48,7 +48,7 @@ export function applyFilter({ inputData, comparator, filterName }) {
 
   if (filterName) {
     inputData = inputData.filter(
-      (data) => data.userId.toLowerCase().indexOf(filterName.toLowerCase()) !== -1
+      (data) => data.shipping.name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1
     );
   }
 
@@ -56,22 +56,31 @@ export function applyFilter({ inputData, comparator, filterName }) {
 }
 
 export const statusConfig = {
-  Pending: { value: 'Pending', label: 'Pending', color: 'primary' },
-  Processing: { value: 'Processing', label: 'Processing', color: 'info' },
-  Delivered: { value: 'Delivered', label: 'Delivered', color: 'success' },
-  Canceled: { value: 'Canceled', label: 'Canceled', color: 'error' },
-  Confirmed: { value: 'Confirmed', label: 'Confirmed', color: 'primary' },
-  Shipped: { value: 'Shipped', label: 'Shipped', color: 'success' },
-  Returned: { value: 'Returned', label: 'Returned', color: 'warning' },
-  Refunded: { value: 'Refunded', label: 'Refunded', color: 'warning' },
-  OnHold: { value: 'On Hold', label: 'On Hold', color: 'error' }
+  pending: { value: 'Pending', label: 'Đang chờ', color: 'primary' },
+  processing: { value: 'Processing', label: 'Đang xử lý', color: 'info' },
+  delivered: { value: 'Delivered', label: 'Đã giao hàng', color: 'success' },
+  canceled: { value: 'Canceled', label: 'Đã hủy', color: 'error' },
+  confirmed: { value: 'Confirmed', label: 'Đã xác nhận', color: 'primary' },
+  shipped: { value: 'Shipped', label: 'Đã vận chuyển', color: 'success' },
+  returned: { value: 'Returned', label: 'Đã trả lại', color: 'warning' },
+  refunded: { value: 'Refunded', label: 'Đã hoàn tiền', color: 'warning' },
+  onHold: { value: 'On Hold', label: 'Đang giữ', color: 'error' }
+};
+export const statusDeliverConfig = {
+  pending: { value: 'Pending', label: 'Đang chờ', color: 'primary' },
+  processing: { value: 'Processing', label: 'Đang xử lý', color: 'info' },
+  delivered: { value: 'Delivered', label: 'Đã giao hàng', color: 'success' },
+  canceled: { value: 'Canceled', label: 'Đã hủy', color: 'error' },
+  confirmed: { value: 'Confirmed', label: 'Đã xác nhận', color: 'primary' },
+  shipped: { value: 'Shipped', label: 'Đã vận chuyển', color: 'success' },
+  returned: { value: 'Returned', label: 'Đã trả lại', color: 'warning' },
+  refunded: { value: 'Refunded', label: 'Đã hoàn tiền', color: 'warning' },
+  onHold: { value: 'On Hold', label: 'Đang giữ', color: 'error' }
 };
 
 export const paymentConfig = {
-  Cash: { value: 'Cash', label: 'Thanh toán tiền mặt', icon: 'ic:round-monetization-on' },
-  Card: { value: 'Card', label: 'Card', icon: 'ic:round-credit-card' },
-  Paypal: { value: 'Paypal', label: 'Paypal', icon: 'ic:round-paypal' },
-  Stripe: { value: 'Stripe', label: 'Stripe', icon: 'ic:round-stripe' },
-  ApplePay: { value: 'Apple Pay', label: 'Apple Pay', icon: 'ic:round-apple-pay' },
-  GooglePay: { value: 'Google Pay', label: 'Google Pay', icon: 'ic:round-google-pay' }
+  "Tiền mặt": { value: 'Tiền mặt', label: 'Thanh toán tiền mặt', icon: 'ic:round-monetization-on' },
+  "Chuyển khoản": { value: 'Chuyển khoản', label: 'Card', icon: 'ic:round-credit-card' },
+  "Ví điện tử": { value: 'Ví điện tử', label: 'Ví điện tử', icon: 'ic:round-account-balance-wallet' },
+  "Thẻ tín dụng": { value: 'Thẻ tín dụng', label: 'Thẻ tín dụng', icon: 'ic:round-credit-card' }
 };

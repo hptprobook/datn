@@ -4,7 +4,7 @@ import { inventoryModel } from '~/models/inventoryModel';
 import { StatusCodes } from 'http-status-codes';
 import { ObjectId } from 'mongodb';
 import { ERROR_MESSAGES } from '~/utils/errorMessage';
-import { uploadModal } from '~/models/uploadModal';
+import { uploadModal } from '~/models/uploadModel';
 
 const createInventory = async (req, res) => {
   try {

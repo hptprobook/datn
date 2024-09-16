@@ -8,6 +8,7 @@ import { handleToast } from '../../hooks/toast';
 import './style.css';
 import Iconify from '../iconify/iconify';
 
+const backendUrl = import.meta.env.VITE_BACKEND_APP_URL
 const ImageDropZone = ({ handleUpload, singleFile = false, defaultImg = '' }) => {
   const { fileRejections, acceptedFiles, getRootProps, getInputProps } = useDropzone({
     accept: {
@@ -37,7 +38,7 @@ const ImageDropZone = ({ handleUpload, singleFile = false, defaultImg = '' }) =>
 
   useEffect(() => {
     if (defaultImg !== '') {
-      setUrl(defaultImg);
+      setUrl(`${backendUrl}/${defaultImg}`);
     }
   }, [defaultImg]);
 

@@ -1,0 +1,139 @@
+[{
+  "_id": {
+    "$oid": "66e2c1d8b885f7a82f6402aa"
+  },
+  "userId": {
+    "$oid": "66e2a92eeb58538a580d561d"
+  },
+  "paymentMethod": "Tiền mặt",
+  "productsList": [
+    [
+      {
+        "_id": {
+          "$oid": "669bb95902b3201abc75dad6"
+        },
+        "quantity": 2,
+        "price": 19.99,
+        "color": "red",
+        "size": "M",
+        "totalPrice": 39.98
+      },
+      {
+        "_id": {
+          "$oid": "669bb95902b3201abc75dad8"
+        },
+        "quantity": 1,
+        "price": 29.99,
+        "color": "blue",
+        "size": "L",
+        "totalPrice": 29.99
+      }
+    ]
+  ],
+  "status": [
+    {
+      "status": "pending",
+      "note": "Order placed",
+      "createdAt": 1726136792644,
+      "updatedAt": 1726136792644
+    }
+  ],
+  "shippingInfo": {
+    "provinceName": "Đắk Lắk",
+    "districtName": "Buôn Ma Thuột",
+    "districtCode": 661,
+    "wardName": "Tân Lợi",
+    "wardCode": 11707,
+    "detailAddress": "123 đường ABC",
+    "phone": "0123456789",
+    "name": "Nguyễn Văn A"
+  },
+  "email": "nguyenvana@example.com",
+  "totalPrice": 69.97,
+  "shipping": {
+    "shippingType": "COD",
+    "fee": 5,
+    "deliveryUnit": "Giao hàng nhanh",
+    "status": "Đang giao hàng",
+    "detailAddress": "123 đường ABC",
+    "phone": "0123456789",
+    "name": "Nguyễn Văn A",
+    "estimatedDeliveryDate": 1726136792645
+  },
+  "couponId": [
+    "coupon123"
+  ],
+  "discountPercentage": false,
+  "discountPrice": 0,
+  "totalCapitalPrice": 50,
+  "totalProfit": 14.97
+},
+{
+  "_id": {
+    "$oid": "66e2c234baceec35b8c61f67"
+  },
+  "userId": {
+    "$oid": "66e2a92eeb58538a580d561d"
+  },
+  "paymentMethod": "Tiền mặt",
+  "productsList": [
+    [
+      {
+        "_id": {
+          "$oid": "669bb95902b3201abc75dad6"
+        },
+        "quantity": 2,
+        "price": 19.99,
+        "color": "red",
+        "size": "M",
+        "totalPrice": 39.98
+      },
+      {
+        "_id": {
+          "$oid": "669bb95902b3201abc75dad8"
+        },
+        "quantity": 1,
+        "price": 29.99,
+        "color": "blue",
+        "size": "L",
+        "totalPrice": 29.99
+      }
+    ]
+  ],
+  "status": [
+    {
+      "status": "pending",
+      "note": "Order placed",
+      "createdAt": 1726136884249
+    }
+  ],
+  "shippingInfo": {
+    "provinceName": "Đắk Lắk",
+    "districtName": "Buôn Ma Thuột",
+    "districtCode": 661,
+    "wardName": "Tân Lợi",
+    "wardCode": 11707,
+    "detailAddress": "123 đường ABC",
+    "phone": "0123456789",
+    "name": "Nguyễn Văn A"
+  },
+  "email": "nguyenvana@example.com",
+  "totalPrice": 69.97,
+  "shipping": {
+    "shippingType": "COD",
+    "fee": 5,
+    "deliveryUnit": "Giao hàng nhanh",
+    "status": "Đang giao hàng",
+    "detailAddress": "123 đường ABC",
+    "phone": "0123456789",
+    "name": "Nguyễn Văn A",
+    "estimatedDeliveryDate": 1726136884251
+  },
+  "couponId": [
+    "coupon123"
+  ],
+  "discountPercentage": false,
+  "discountPrice": 0,
+  "totalCapitalPrice": 50,
+  "totalProfit": 14.97
+}]
