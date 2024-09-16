@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-shadow */
 /* eslint-disable react/jsx-boolean-value */
 import React, { useState, useEffect } from 'react';
 import { Form, Field, Formik, ErrorMessage } from 'formik';
@@ -69,6 +71,7 @@ const [ParentCategory, setParentCategory] = useState('');
       
     }
   }, [id, dispatch]);
+    console.log(categories);
 
   useEffect(() => {
     if (status === 'idle') {
