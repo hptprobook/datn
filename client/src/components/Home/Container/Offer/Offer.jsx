@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { offerProducts } from '~/apis/mock_data';
+import { offerProducts } from '~/APIs/mock_data';
 import ProductItem from '~/components/common/Product/ProductItem';
 
 export default function Offer() {

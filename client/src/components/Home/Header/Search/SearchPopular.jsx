@@ -1,6 +1,6 @@
 import { Badge } from 'flowbite-react';
 import { FaFire } from 'react-icons/fa6';
-import { hotSearch } from '~/apis/mock_data';
+import { hotSearch } from '~/APIs/mock_data';
 
 export default function SearchPopular({ handleModelClick }) {
   return (

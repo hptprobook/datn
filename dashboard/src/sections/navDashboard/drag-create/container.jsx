@@ -1,6 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import update from 'immutability-helper';
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { PropTypes } from 'prop-types';
 import { Card } from './card';
 
