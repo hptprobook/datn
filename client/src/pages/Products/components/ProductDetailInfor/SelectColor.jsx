@@ -37,7 +37,7 @@ export default function SelectColor() {
             />
             <p
               className={`font-normal text-sm leading-6 ${
-                activeColor === color.name ? 'text-amber-600' : 'text-gray-400'
+                activeColor === color.name ? 'text-amber-600' : 'text-gray-700'
               } text-center mt-2 transition-all duration-500`}
             >
               {color.name}

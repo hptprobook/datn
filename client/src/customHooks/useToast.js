@@ -2,7 +2,7 @@ import { Slide, toast } from 'react-toastify';
 
 export const handleToast = (type, mess) => {
   toast[type](mess, {
-    position: 'bottom-right',
+    position: 'top-center',
     autoClose: 5000,
     hideProgressBar: true,
     closeOnClick: true,

@@ -24,9 +24,9 @@ export default function DeliveryDetail() {
   ];
 
   return (
-    <div className="min-w-0 flex-1 space-y-8">
+    <div className="min-w-0 flex-1 space-y-8 text-gray-800">
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+        <h2 className="text-xl font-semibold text-gray-900">
           ĐỊA CHỈ GIAO HÀNG
         </h2>
 
@@ -43,7 +43,7 @@ export default function DeliveryDetail() {
             <div className="mb-2 flex items-center gap-2">
               <label
                 htmlFor="select-country-input-3"
-                className="block text-sm font-medium text-gray-900 dark:text-white"
+                className="block text-sm font-medium text-gray-900"
               >
                 {' '}
                 Tỉnh/ Thành phố*{' '}
@@ -51,7 +51,7 @@ export default function DeliveryDetail() {
             </div>
             <select
               id="select-country-input-3"
-              className="block w-full rounded-md border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
+              className="block w-full rounded-md border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500"
             >
               <option selected>An giang</option>
               <option value="AS">Đăk Lăk</option>
@@ -63,7 +63,7 @@ export default function DeliveryDetail() {
             <div className="mb-2 flex items-center gap-2">
               <label
                 htmlFor="select-city-input-3"
-                className="block text-sm font-medium text-gray-900 dark:text-white"
+                className="block text-sm font-medium text-gray-900"
               >
                 {' '}
                 Quận/ Huyện*{' '}
@@ -71,7 +71,7 @@ export default function DeliveryDetail() {
             </div>
             <select
               id="select-city-input-3"
-              className="block w-full rounded-md border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
+              className="block w-full rounded-md border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500"
             >
               <option selected>San Francisco</option>
               <option value="NY">New York</option>
@@ -85,7 +85,7 @@ export default function DeliveryDetail() {
             <div className="mb-2 flex items-center gap-2">
               <label
                 htmlFor="select-city-input-3"
-                className="block text-sm font-medium text-gray-900 dark:text-white"
+                className="block text-sm font-medium text-gray-900"
               >
                 {' '}
                 Phường/ Xã*{' '}
@@ -93,7 +93,7 @@ export default function DeliveryDetail() {
             </div>
             <select
               id="select-city-input-3"
-              className="block w-full rounded-md border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
+              className="block w-full rounded-md border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500"
             >
               <option selected>San Francisco</option>
               <option value="NY">New York</option>
@@ -109,7 +109,7 @@ export default function DeliveryDetail() {
             <div>
               <label
                 htmlFor={'note'}
-                className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                className="mb-2 block text-sm font-medium text-gray-900"
               >
                 {' '}
                 {'Ghi chú'}{' '}
@@ -117,7 +117,7 @@ export default function DeliveryDetail() {
               <textarea
                 rows={3}
                 id={'note'}
-                className="block w-full rounded-md border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
+                className="block w-full rounded-md border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500"
                 placeholder={'Ghi chú'}
                 required
               />
@@ -127,25 +127,28 @@ export default function DeliveryDetail() {
       </div>
 
       <div id="payment" className="space-y-4">
-        <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+        <h3 className="text-xl font-semibold text-gray-900">
           Phương thức thanh toán
         </h3>
 
         <label className="flex cursor-pointer gap-2 items-center">
-          <input type="radio" className="radio" name="payment" />
+          <input type="radio" className="radio bg-white" name="payment" />
           <span>Thanh toán qua VNPAY</span>
         </label>
 
         <label className="flex cursor-pointer gap-2 items-center">
-          <input type="radio" className="radio" name="payment" defaultChecked />
+          <input
+            type="radio"
+            className="radio bg-white"
+            name="payment"
+            defaultChecked
+          />
           <span>Thanh toán khi nhận hàng</span>
         </label>
       </div>
 
       <div>
-        <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-          Giỏ hàng
-        </h3>
+        <h3 className="text-xl font-semibold text-gray-900">Giỏ hàng</h3>
         <div className="grid grid-cols-12 mt-8 max-md:hidden pb-6 border-b border-gray-200">
           <div className="col-span-5 md:col-span-5">
             <p className="font-normal text-md leading-8 text-gray-400">
