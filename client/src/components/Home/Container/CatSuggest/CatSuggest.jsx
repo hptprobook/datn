@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { catSuggest } from '~/apis/mock_data';
+import { catSuggest } from '~/APIs/mock_data';
 
 export default function CatSuggest() {
   return (
