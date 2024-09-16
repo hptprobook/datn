@@ -27,7 +27,6 @@ const START_SERVER = () => {
   //     credentials: true,
   //   })
   // );
-
   app.use(errorHandlingMiddleware);
 
   // Serve static files from the 'src/public/imgs' directory

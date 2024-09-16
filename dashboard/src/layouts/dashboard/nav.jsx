@@ -45,18 +45,17 @@ export default function Nav({ openNav, onCloseNav }) {
 
   useEffect(() => {
     setNavs(navConfig); // Set initial navConfig
-  
+
     if (status === 'succeeded' && data.length > 0) {
       // Create a new array with the updated 'child' property
       const updatedData = data.map((item) => ({
         ...item,
         child: item.child || undefined, // Ensure 'child' is either itself or undefined
       }));
-  
+
       setNavs(updatedData); // Update 'navs' with the modified data
     }
   }, [status, data]);
-  
 
   const handleClick = () => {
     setOpen(!open);
@@ -216,7 +215,7 @@ NavItem.propTypes = {
 };
 
 function NavItems({ item, pathname, navigate }) {
-  const active = item.path === pathname;
+  const active = item.child.some((child) => child.path === pathname);
   const handleClick = (path) => {
     navigate(path);
   };
@@ -226,7 +225,21 @@ function NavItems({ item, pathname, navigate }) {
   };
   return (
     <>
-      <ListItemButton onClick={handleOpen}>
+      <ListItemButton
+        onClick={handleOpen}
+        sx={{
+             borderRadius: 0.75,
+        ...(active && {
+          color: 'primary.main',
+          fontWeight: 'fontWeightSemiBold',
+          bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08),
+          '&:hover': {
+            bgcolor: (theme) => alpha(theme.palette.primary.main, 0.16),
+          },
+        })
+      }}
+      
+      >
         <ListItemIcon>
           <Iconify icon={item.icon} />
         </ListItemIcon>
@@ -249,11 +262,11 @@ function NavItems({ item, pathname, navigate }) {
                 textTransform: 'capitalize',
                 fontWeight: 'fontWeightMedium',
                 ...(pathname === child.path && {
-                  color: 'primary.main',
+                  color: 'primary.dark',
                   fontWeight: 'fontWeightSemiBold',
-                  bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08),
+                  bgcolor: (theme) => alpha(theme.palette.primary.dark, 0.08),
                   '&:hover': {
-                    bgcolor: (theme) => alpha(theme.palette.primary.main, 0.16),
+                    bgcolor: (theme) => alpha(theme.palette.primary.dark, 0.16),
                   },
                 }),
               }}

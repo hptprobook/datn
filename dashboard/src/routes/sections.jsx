@@ -24,6 +24,7 @@ export const NavDashboardPage = lazy(() => import('src/pages/settings/nav-dashbo
 export const NavDashboardCreatePage = lazy(() => import('src/pages/settings/create-nav'));
 export const NavUpdatePage = lazy(() => import('src/pages/settings/update-nav'));
 export const WebConfigPage = lazy(() => import('src/pages/settings/config/web-config'));
+export const SeoConfigPage = lazy(() => import('src/pages/settings/config/seo-config'));
 // warehouse page
 export  const WarehousePage = lazy(() => import('src/pages/warehouse/warehouse'));
 export  const CouponsPage = lazy(() => import('src/pages/coupons/coupons'));
@@ -55,6 +56,8 @@ export default function Router() {
         {path: 'settings/nav/create', element: <NavDashboardCreatePage/>},
         {path: 'settings/nav/:id', element: <NavUpdatePage/>},
         {path: 'settings/web-config', element: <WebConfigPage/>},
+        {path: 'settings/seo-config', element: <SeoConfigPage/>},
+
         {path: 'warehouse', element: <WarehousePage/>},
         {path: 'coupons', element: <CouponsPage/>},
         {path: 'orders', element: <OrdersPage/>},

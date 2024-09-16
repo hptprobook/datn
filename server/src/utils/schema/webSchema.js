@@ -30,8 +30,14 @@ export const CREATE_WEB = Joi.object({
             'string.pattern.base': 'Số điện thoại chỉ được chứa các chữ số.',
             'any.required': 'Số điện thoại là bắt buộc.',
         }),
-    zalo: Joi.string().messages({
+    zalo:  Joi.string()
+    .pattern(/^[0-9]+$/) // Chỉ cho phép số
+    .required()
+    .messages({
         'string.base': 'Zalo phải là một chuỗi văn bản.',
+        'string.empty': 'Zalo không được để trống.',
+        'string.pattern.base': 'Zalo chỉ được chứa các chữ số.',
+        'any.required': 'Zalo là bắt buộc.',
     }),
     logo: Joi.string().required().messages({ // Giả sử 'media' là một đường dẫn hoặc tên tệp
         'string.base': 'Logo phải là một chuỗi văn bản.',
