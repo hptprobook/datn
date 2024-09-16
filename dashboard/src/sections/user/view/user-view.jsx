@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -11,7 +11,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { deleteUser, fetchAllUsers, resetDelete } from 'src/redux/slices/userSlice';
+import { deleteUser, resetDelete, fetchAllUsers } from 'src/redux/slices/userSlice';
 
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
@@ -30,6 +30,7 @@ import { emptyRows, applyFilter, getComparator } from '../utils';
 export default function UserPage() {
   const dispatch = useDispatch();
   const [users, setUsers] = useState([]);
+
   const data = useSelector((state) => state.users.users);
   const status = useSelector((state) => state.users.status);
   const error = useSelector((state) => state.users.error);
@@ -86,6 +87,8 @@ export default function UserPage() {
   const handleDelete = (id) => {
     dispatch(deleteUser(id));
   };
+
+
 
   const handleClick = (event, name) => {
     const selectedIndex = selected.indexOf(name);
@@ -175,7 +178,7 @@ export default function UserPage() {
                     <UserTableRow
                       id={row._id}
                       key={row._id}
-                      name={row.name.firstName}
+                      name={row.name}
                       role={row.role}
                       status={row.role}
                       email={row.email}

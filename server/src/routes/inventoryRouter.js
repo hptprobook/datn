@@ -1,9 +1,9 @@
 /* eslint-disable semi */
 import express from 'express';
-import verifyToken from '~/middlewares';
-import isAdmin from '~/middlewares/isAdmin';
 import { inventoryController } from '~/controllers/inventoryController';
 import multer from 'multer';
+import verifyToken from '~/middlewares/verifyToken';
+import verifyAdmin from '~/middlewares/verifyAdmin';
 
 const Router = express.Router();
 
@@ -21,10 +21,37 @@ const upload = multer({
   limits: { fileSize: 1024 * 1024 * 5 },
 });
 
-Router.get('/', inventoryController.getAllInventories);
-Router.get('/:id', inventoryController.getInventoryById);
-Router.post('/add', upload.none(), inventoryController.createInventory);
-Router.put('/:id', upload.none(), inventoryController.updateInventory);
-Router.delete('/:id', inventoryController.deleteInventory);
+Router.get(
+  '/',
+  verifyToken,
+  verifyAdmin,
+  inventoryController.getAllInventories
+);
+Router.get(
+  '/:id',
+  verifyToken,
+  verifyAdmin,
+  inventoryController.getInventoryById
+);
+Router.post(
+  '/add',
+  verifyToken,
+  verifyAdmin,
+  upload.none(),
+  inventoryController.createInventory
+);
+Router.put(
+  '/:id',
+  verifyToken,
+  verifyAdmin,
+  upload.none(),
+  inventoryController.updateInventory
+);
+Router.delete(
+  '/:id',
+  verifyToken,
+  verifyAdmin,
+  inventoryController.deleteInventory
+);
 
 export const inventoriesApi = Router;

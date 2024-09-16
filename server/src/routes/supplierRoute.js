@@ -1,16 +1,31 @@
 /* eslint-disable semi */
 import express from 'express';
 import { supplierController } from '~/controllers/supplierController';
-import verifyToken from '~/middlewares';
-import isAdmin from '~/middlewares/isAdmin';
+import verifyAdmin from '~/middlewares/verifyAdmin';
+import verifyToken from '~/middlewares/verifyToken';
 
 const Router = express.Router();
 
 //admin
-Router.get('/', supplierController.getAllSuppliers);
-Router.get('/:id', supplierController.getSupplierById);
-Router.post('/add', supplierController.createSupplier);
-Router.delete('/:id', supplierController.deleteSupplier);
-Router.put('/:id', supplierController.updateSupplier);
+Router.get('/', verifyToken, verifyAdmin, supplierController.getAllSuppliers);
+Router.get(
+  '/:id',
+  verifyToken,
+  verifyAdmin,
+  supplierController.getSupplierById
+);
+Router.post(
+  '/add',
+  verifyToken,
+  verifyAdmin,
+  supplierController.createSupplier
+);
+Router.delete(
+  '/:id',
+  verifyToken,
+  verifyAdmin,
+  supplierController.deleteSupplier
+);
+Router.put('/:id', verifyToken, verifyAdmin, supplierController.updateSupplier);
 
 export const suppliersApi = Router;

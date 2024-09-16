@@ -12,15 +12,14 @@ const countUserAll = async () => {
   return totail;
 };
 
-const getUserAll = async (page, limit) => {
+const getUserAll = async (page, limit, user_id) => {
   page = parseInt(page) || 1;
   limit = parseInt(limit) || 2;
   const db = await GET_DB().collection('users');
   const result = await db
-    .find()
+    .find({ _id: { $ne: new ObjectId(user_id) } })
     .skip((page - 1) * limit)
     .limit(limit)
-    // .project({ _id: 0, age:1 })
     .toArray();
   return result;
 };
@@ -69,11 +68,17 @@ const updateByEmail = async (email, otp) => {
   return result;
 };
 
-const deleteUser = async (id) => {
+const deleteUser = async (id, role) => {
   const result = await GET_DB()
     .collection('users')
-    .deleteOne({ _id: new ObjectId(id) });
-  return result;
+    .findOne({ _id: new ObjectId(id) }, { projection: { role: 1 } });
+    if (result.role === 'root') {
+      return { error: 'Bạn không đủ thẩm quyền' };
+    }
+    if (result.role === 'admin' && role === 'admin') {
+      return { error: 'Bạn không đủ thẩm quyền' };
+    }
+  return await GET_DB().collection('users').deleteOne({ _id: new ObjectId(id) });
 };
 
 export const userModel = {

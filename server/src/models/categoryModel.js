@@ -1,9 +1,17 @@
 import { GET_DB } from '~/config/mongodb';
 import { ObjectId } from 'mongodb';
-import { SAVE_CATEGORY_SCHEMA, UPDATE_CATEGORY } from '~/utils/schema';
+import {
+  SAVE_CATEGORY_SCHEMA,
+  UPDATE_CATEGORY,
+} from '~/utils/schema/categorySchema';
+import { uploadModal } from './uploadModal';
 
 const validateBeforeCreate = async (data) => {
   return await SAVE_CATEGORY_SCHEMA.validateAsync(data, { abortEarly: false });
+};
+
+const validateBeforeUpdate = async (data) => {
+  return await UPDATE_CATEGORY.validateAsync(data, { abortEarly: false });
 };
 
 const countCategoryAll = async () => {
@@ -38,10 +46,27 @@ const getCategoriesAll = async (page, limit) => {
     };
   }
 };
+const getCategoriesByParentId = async (category_id) => {
+  try {
+    const db = await GET_DB().collection('categories');
+    const result = await db.find({ parentId: category_id }).toArray();
+    return result;
+  } catch (error) {
+    return {
+      success: false,
+      msg: 'Có lỗi xảy ra, xin thử lại sau',
+    };
+  }
+};
 
 const getCategoryById = async (category_id) => {
   const db = await GET_DB().collection('categories');
   const category = await db.findOne({ _id: new ObjectId(category_id) });
+  return category;
+};
+const getCategoryBySlug = async (slug) => {
+  const db = await GET_DB().collection('categories');
+  const category = await db.findOne({ slug: slug });
   return category;
 };
 
@@ -50,44 +75,59 @@ const createCategory = async (dataCategory) => {
     const validData = await validateBeforeCreate(dataCategory);
     const db = await GET_DB();
     const collection = db.collection('categories');
-    /*  const result = await collection.insertOne(validData);
-
-    return result; */
     const result = await collection.insertOne({
       ...validData,
+      parentId: validData.parentId
+        ? new ObjectId(validData.parentId)
+        : validData.parentId,
     });
     return result;
   } catch (error) {
-    return {
-      success: false,
-      mgs: 'Có lỗi xảy ra xin thử lại sau',
-    };
+    if (error.details) {
+      return { error: true, detail: error.details };
+    }
+    return { error: true, detail: error };
   }
-};
-
-const validateBeforeUpdate = async (data) => {
-  return await UPDATE_CATEGORY.validateAsync(data, { abortEarly: false });
 };
 
 const update = async (id, data) => {
   try {
-    await validateBeforeUpdate(data);
+    const validData = await validateBeforeUpdate(data);
     const db = GET_DB().collection('categories');
-    const category = await db.findOne({ _id: new ObjectId(id) });
 
     const result = await db.findOneAndUpdate(
       { _id: new ObjectId(id) },
-      { $set: data },
+      {
+        $set: {
+          ...validData,
+          parentId: validData.parentId
+            ? new ObjectId(validData.parentId)
+            : validData.parentId,
+        },
+      },
       { returnDocument: 'after' }
     );
 
-    return { result: result, imageURL: category.imageURL };
+    return { result: result };
   } catch (error) {
-    console.log(error);
-    return {
-      error: true,
-      message: error.message,
-    };
+    if (error.details) {
+      return { error: true, detail: error.details };
+    }
+    return { error: true, detail: error };
+  }
+};
+const deleteAllChildCategories = async (parentId) => {
+  const db = GET_DB().collection('categories');
+  const childCategories = await db
+    .find({ parentId: new ObjectId(parentId) })
+    .toArray();
+
+  for (const child of childCategories) {
+    await deleteAllChildCategories(child._id);
+    if (child.imageURL) {
+      await uploadModal.deleteImg(child.imageURL);
+    }
+    await db.deleteOne({ _id: child._id });
   }
 };
 
@@ -96,7 +136,7 @@ const deleteCategory = async (id) => {
     const db = GET_DB().collection('categories');
     const category = await db.findOne({ _id: new ObjectId(id) });
     await db.deleteOne({ _id: new ObjectId(id) });
-    return category.imageURL;
+    return category;
   } catch (error) {
     return {
       error: true,
@@ -111,4 +151,7 @@ export const categoryModel = {
   update,
   deleteCategory,
   getCategoryById,
+  getCategoriesByParentId,
+  deleteAllChildCategories,
+  getCategoryBySlug,
 };

@@ -1400,4 +1400,3 @@ export const cartProducts = [
     ]
   }
 ]
-
