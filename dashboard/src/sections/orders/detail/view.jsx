@@ -8,30 +8,21 @@ import Iconify from 'src/components/iconify';
 import { useRouter } from 'src/routes/hooks';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { handleToast } from 'src/hooks/toast';
-import { Accordion, AccordionDetails, AccordionSummary, Divider } from '@mui/material';
+import { Divider, Accordion, AccordionDetails, AccordionSummary } from '@mui/material';
 import { formatDateTime } from 'src/utils/format-time';
 import { formatCurrency } from 'src/utils/format-number';
 import { renderAddress } from 'src/utils/format-address';
-import { statusConfig } from '../utils';
 import Label from 'src/components/label';
+import { statusConfig } from '../utils';
 
 // ----------------------------------------------------------------------
-const addressData = {
-  provinceName: 'Đắk Lắk',
-  districtName: 'Buôn Ma Thuột',
-  districtCode: 661,
-  wardName: 'Tân Lợi',
-  wardCode: 11707,
-  detailAddress: '123 đường ABC',
-  phone: '0123456789',
-  name: 'Nguyễn Văn A',
-};
 export default function DetailOrderPage() {
   const route = useRouter();
   const { id } = useParams();
   const [order, setOrder] = useState({});
+  const [orderStatus, setOrderStatus] = useState([]);
 
   const data = useSelector((state) => state.orders.orders);
   const status = useSelector((state) => state.orders.status);
@@ -54,9 +45,14 @@ export default function DetailOrderPage() {
 
   useEffect(() => {
     console.log(order);
+    setOrderStatus(order.status);
   }, [order]);
-  const renderStatusLabel = (sts) => {
-    const latestStatus = sts[sts.length - 1]?.status;
+  const renderStatusLabel = () => {
+    // Kiểm tra xem orderStatus có phải là mảng và không phải undefined không
+    if (!Array.isArray(orderStatus) || orderStatus.length === 0) {
+        return <Label color="error">Chưa xác nhận</Label>;
+    }
+    const latestStatus = orderStatus[orderStatus.length - 1]?.status;
     const config = statusConfig[latestStatus];
     return (
         <Label sx={{ ml: 2 }} color={config?.color}>
@@ -64,6 +60,7 @@ export default function DetailOrderPage() {
         </Label>
     );
 };
+
   return (
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
@@ -86,7 +83,7 @@ export default function DetailOrderPage() {
       >
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5} pl={2}>
           <Typography variant="h5">Thông tin cơ bản</Typography>
-          {renderStatusLabel(order.status)}
+          {renderStatusLabel()}
         </Stack>
         <Divider />
         <Typography sx={{ padding: '12px 0', fontWeight: 400 }} variant="h6">
