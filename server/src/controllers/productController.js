@@ -4,7 +4,7 @@ import { productModal } from '~/models/productModel';
 import { StatusCodes } from 'http-status-codes';
 import { ERROR_MESSAGES } from '~/utils/errorMessage';
 import { ObjectId } from 'mongodb';
-import { uploadModal } from '~/models/uploadModal';
+import { uploadModal } from '~/models/uploadModel';
 
 const getAllProducts = async (req, res) => {
   try {
