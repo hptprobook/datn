@@ -1,5 +1,5 @@
 import { useFormik } from 'formik';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import AuthBanner from '~/components/Auth/AuthBanner';
 import RegisterBottom from '~/components/Auth/RegisterBottom';
 import AuthButton from '~/components/common/Button/AuthButton';
@@ -11,14 +11,16 @@ import { register } from '~/APIs';
 import { useMutation } from '@tanstack/react-query';
 import { handleToast } from '~/customHooks/useToast';
 import { handleApiError } from '~/config/helpers';
-import ReCAPTCHA from 'react-google-recaptcha'; // Import Google reCAPTCHA
+import ReCAPTCHA from 'react-google-recaptcha';
 import { useState } from 'react';
+import useCheckAuth from '~/customHooks/useCheckAuth';
 
 export default function RegisterPage() {
+  const { login } = useCheckAuth();
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [recaptchaToken, setRecaptchaToken] = useState(null);
   const [showCaptcha, setShowCaptcha] = useState(false);
-  console.log(import.meta.env.VITE_RECAPTCHA_SITE_KEY);
+  const navigate = useNavigate();
 
   const initialValues = {
     first_name: '',
@@ -32,7 +34,21 @@ export default function RegisterPage() {
     mutationFn: register,
     onSuccess: (data) => {
       handleToast('success', 'Đăng ký thành công!');
+      login(data.token);
       setFailedAttempts(0);
+
+      setTimeout(() => {
+        const referrer = document.referrer;
+        if (
+          referrer &&
+          !referrer.includes('/tai-khoan/dang-nhap') &&
+          !referrer.includes('/tai-khoan/dang-ky')
+        ) {
+          navigate(-1);
+        } else {
+          navigate('/');
+        }
+      }, 1000);
     },
     onError: (error) => {
       handleApiError(error);
@@ -52,7 +68,6 @@ export default function RegisterPage() {
         name: `${values.first_name} ${values.last_name}`,
         email: values.email,
         password: values.password,
-        recaptchaToken,
       };
 
       if (showCaptcha && !recaptchaToken) {

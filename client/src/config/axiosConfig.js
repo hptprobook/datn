@@ -1,7 +1,8 @@
 import axios from 'axios';
-import { handleToast } from '~/customHooks/useToast';
+import { useNavigate } from 'react-router-dom';
+import { useNotify } from '~/context/ReLoginContext';
 
-const baseDomain = import.meta.env.VITE_DOMAIN;
+// const baseDomain = import.meta.env.VITE_DOMAIN;
 const baseURL = import.meta.env.VITE_API_ROOT;
 
 const getAccessToken = () => localStorage.getItem('token');
@@ -18,14 +19,19 @@ request.interceptors.request.use((config) => {
   config.headers.Authorization = `Bearer ${getAccessToken()}`;
   return config;
 });
+
 request.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      handleToast('error', 'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
-      setTimeout(() => {
-        window.location.href = `${baseDomain}/tai-khoan/dang-nhap`;
-      }, 2000);
+      localStorage.removeItem('token');
+
+      const { openNotify } = useNotify();
+      const navigate = useNavigate();
+
+      openNotify(() => {
+        navigate('/tai-khoan/dang-nhap');
+      });
     }
     return Promise.reject(error);
   }
@@ -47,4 +53,5 @@ export const del = async (path, options = {}) => {
   const response = await request.delete(path, options);
   return response.data;
 };
+
 export default request;

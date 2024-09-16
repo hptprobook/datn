@@ -22,7 +22,7 @@ const upload = multer({ storage });
 
 //admin
 Router.get('/', categoryController.getAllCategories);
-Router.get('/menu', categoryController.getMenuCategories);
+Router.get('/menu', verifyToken, categoryController.getMenuCategories);
 Router.get('/:slug', categoryController.getCategoryBySlug);
 Router.get(
   '/:id',

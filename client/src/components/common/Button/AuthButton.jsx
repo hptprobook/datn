@@ -12,7 +12,7 @@ export default function AuthButton({
       ${
         isLoading
           ? 'bg-gray-400 border-gray-400 text-white cursor-not-allowed'
-          : 'bg-blue-600 border-blue-600 text-white hover:bg-transparent hover:text-blue-600'
+          : 'bg-blue-600 border-blue-600 text-white hover:bg-red-500 hover:text-white'
       }
       `}
       type={type}
