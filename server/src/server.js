@@ -28,8 +28,7 @@ const START_SERVER = () => {
   app.use(errorHandlingMiddleware);
 
   // Serve static files from the 'src/public/imgs' directory
-  app.use('/imgs', express.static(path.join(__dirname, 'public/imgs')));
-
+  app.use('/uploads', express.static(path.join(__dirname, '../uploads')));  
   app.get('/', (req, res) => {
     res.send('Hello World!');
   });
