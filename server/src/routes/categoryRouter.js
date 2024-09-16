@@ -21,7 +21,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 //admin
-Router.get('/', verifyToken, verifyAdmin, categoryController.getAllCategories);
+Router.get('/', categoryController.getAllCategories);
 Router.get('/menu', categoryController.getMenuCategories);
 Router.get('/:slug', categoryController.getCategoryBySlug);
 Router.get(
