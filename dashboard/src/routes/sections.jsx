@@ -51,7 +51,7 @@ export default function Router() {
         {path: 'blog', element: <BlogPage/>},
         {path: 'category', element: <CategoryPage/>},
         {path: 'category/create', element: <CreateCategoryPage/>},
-        {path: 'category/edit/:id', element: <EditCategoryPage/>},
+        {path: 'category/:id', element: <EditCategoryPage/>},
         {path: 'settings/nav', element: <NavDashboardPage/>},
         {path: 'settings/nav/create', element: <NavDashboardCreatePage/>},
         {path: 'settings/nav/:id', element: <NavUpdatePage/>},
