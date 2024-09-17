@@ -1,6 +1,6 @@
 import request from '~/config/axiosConfig';
 
-export const login = async (data) => {
+export const loginAuth = async (data) => {
   return await request.post('/auth/login', data).then((res) => res.data);
 };
 

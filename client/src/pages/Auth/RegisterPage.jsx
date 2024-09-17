@@ -28,6 +28,7 @@ export default function RegisterPage() {
     email: '',
     password: '',
     password_confirmation: '',
+    allowNotifies: false,
   };
 
   const mutation = useMutation({
@@ -69,6 +70,10 @@ export default function RegisterPage() {
         email: values.email,
         password: values.password,
       };
+
+      if (values.allowNotifies) {
+        payload.allowNotifies = true;
+      }
 
       if (showCaptcha && !recaptchaToken) {
         return;
@@ -156,7 +161,10 @@ export default function RegisterPage() {
                 </div>
               )}
 
-              <RegisterBottom />
+              <RegisterBottom
+                checked={formik.values.marketing_accept}
+                onChange={formik.handleChange}
+              />
 
               <div className="col-span-6 sm:flex sm:items-center sm:gap-4">
                 <AuthButton
