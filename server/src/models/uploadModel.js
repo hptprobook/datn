@@ -51,19 +51,12 @@ const deleteImg = (name) => {
 };
 
 const deleteImgs = (filenames) => {
-  const deletedFilePaths = filenames.map((fileName) =>
-    path.join('src/public/imgs', fileName)
-  );
-  deletedFilePaths.forEach((filePath) => {
-    fs.access(filePath, fs.constants.F_OK, (err) => {
+  filenames.forEach((file) => {
+    const filePath = path.resolve(process.cwd(), file);
+    fs.unlink(filePath, (err) => {
       if (err) {
         return err;
       }
-      fs.unlink(filePath, (error) => {
-        if (error) {
-          return err;
-        }
-      });
     });
   });
 };
