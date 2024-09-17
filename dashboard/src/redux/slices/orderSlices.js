@@ -24,15 +24,30 @@ export const fetchById = createAsyncThunk(
     }
   }
 );
+export const updateOrder = createAsyncThunk(
+  'orders/updateOrder',
+  async ({ id, data }, rejectWithValue) => {
+    try {
+      console.log('data', data);
+      const res = await OrderServices.updateOrder(id, data);
+      return res;
+    } catch (err) {
+      console.log('err', err);
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
+
 
 export const resetDelete = createAction('orders/resetDelete');
 const initialState = {
   orders: [],
   order: null,
   delete: null,
-  status: 'idle', 
+  status: 'idle',
   statusGet: 'idle',
   statusDelete: 'idle',
+  statusUpdate: 'idle',
   error: null,
 };
 
@@ -49,7 +64,7 @@ const orderSlices = createSlice({
       })
       .addCase(fetchAll.fulfilled, (state, action) => {
         state.status = 'successful';
-        state.orders = action.payload; 
+        state.orders = action.payload;
       })
       .addCase(fetchAll.rejected, (state, action) => {
         state.status = 'failed';
@@ -60,10 +75,21 @@ const orderSlices = createSlice({
       })
       .addCase(fetchById.fulfilled, (state, action) => {
         state.statusGet = 'successful';
-        state.order = action.payload; 
+        state.order = action.payload;
       })
       .addCase(fetchById.rejected, (state, action) => {
         state.statusGet = 'failed';
+        state.error = action.error;
+      })
+      .addCase(updateOrder.pending, (state) => {
+        state.statusUpdate = 'loading';
+      })
+      .addCase(updateOrder.fulfilled, (state, action) => {
+        state.statusUpdate = 'successful';
+        state.order = action.payload;
+      })
+      .addCase(updateOrder.rejected, (state, action) => {
+        state.statusUpdate = 'failed';
         state.error = action.error;
       })
       .addCase(setStatus, (state, action) => {

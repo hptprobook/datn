@@ -11,29 +11,45 @@ import { useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { handleToast } from 'src/hooks/toast';
 import {
+  Box,
+  List,
+  Modal,
+  Avatar,
   Divider,
+  ListItem,
   Accordion,
+  ListItemText,
+  ListItemAvatar,
   AccordionDetails,
   AccordionSummary,
-  List,
-  ListItem,
-  ListItemAvatar,
-  Avatar,
-  ListItemText,
 } from '@mui/material';
 import { formatDateTime } from 'src/utils/format-time';
 import { formatCurrency } from 'src/utils/format-number';
-import {
-  calculateProductDetails,
-  renderAddress,
-  renderNameProduct,
-  renderTotalPrice,
-} from 'src/utils/format-text';
+import { renderAddress, renderTotalPrice, renderNameProduct } from 'src/utils/format-text';
 import Label from 'src/components/label';
-import { fetchById } from 'src/redux/slices/orderSlices';
-import { statusConfig } from '../utils';
+import { fetchById, setStatus, updateOrder } from 'src/redux/slices/orderSlices';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
+import * as Yup from 'yup';
+import { useFormik } from 'formik';
+import { statusConfig, handleStatusConfig } from '../utils';
 
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  borderRadius: 1,
+  boxShadow: 24,
+  p: 4,
+};
+const cancelSchema = Yup.object().shape({
+  note: Yup.string()
+    .required('Lý do hủy đơn hàng không được để trống')
+    .min(10, 'Lý do hủy đơn hàng phải lớn hơn 10 ký tự')
+    .max(100, 'Lý do hủy đơn hàng phải nhỏ hơn 100 ký tự'),
+});
 // ----------------------------------------------------------------------
 export default function DetailOrderPage() {
   const route = useRouter();
@@ -42,9 +58,12 @@ export default function DetailOrderPage() {
   const [order, setOrder] = useState({});
   const [productList, setProductList] = useState([]);
   const [orderStatus, setOrderStatus] = useState([]);
+  const [open, setOpen] = useState(false);
+  const handleClose = () => setOpen(false);
 
   const data = useSelector((state) => state.orders.order);
   const status = useSelector((state) => state.orders.statusGet);
+  const statusUpdate = useSelector((state) => state.orders.statusUpdate);
   useEffect(() => {
     dispatch(fetchById(id));
   }, [dispatch, id]);
@@ -59,12 +78,38 @@ export default function DetailOrderPage() {
       route.push('/orders');
     }
   }, [status, data, route]);
+  useEffect(() => {
+    if (statusUpdate === 'successful') {
+      dispatch(setStatus({ key: 'statusUpdate', value: 'idle' }));
+      handleToast('success', 'Cập nhật trạng thái đơn hàng thành công');
+    }
+    if (statusUpdate === 'failed') {
+      handleToast('error', 'Cập nhật trạng thái đơn hàng thất bại');
+      dispatch(setStatus({ key: 'statusUpdate', value: 'idle' }));
+    }
+  }, [statusUpdate, dispatch]);
+
+  const formik = useFormik({
+    initialValues: {
+      note: '',
+    },
+    validationSchema: cancelSchema,
+    onSubmit: (values) => {
+      const dataUpdate = {
+        status: {
+          status: 'cancelled',
+          note: values.note,
+        },
+      };
+      setOpen(false);
+      dispatch(updateOrder({ id, data: dataUpdate }));
+    },
+  });
 
   useEffect(() => {
     setOrderStatus(order.status);
   }, [order]);
   const renderStatusLabel = () => {
-    // Kiểm tra xem orderStatus có phải là mảng và không phải undefined không
     if (!Array.isArray(orderStatus) || orderStatus.length === 0) {
       return <Label color="error">Chưa xác nhận</Label>;
     }
@@ -76,20 +121,104 @@ export default function DetailOrderPage() {
       </Label>
     );
   };
-
-  return (
-    <Container>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Thông tin đơn hàng</Typography>
-
+  const handleUpdateOrder = (value) => {
+    // Gọi API hủy đơn hàng
+    const dataUpdate = {
+      status: {
+        status: value,
+      },
+    };
+    dispatch(updateOrder({ id, data: dataUpdate }));
+  };
+  const renderCancel = () => {
+    if (!Array.isArray(orderStatus) || orderStatus.length === 0) {
+      return '';
+    }
+    const latestStatus = orderStatus[orderStatus.length - 1]?.status;
+    if (latestStatus === 'pending' || latestStatus === 'processing') {
+      return (
+        <Button
+          variant="contained"
+          color="error"
+          startIcon={<Iconify icon="eva:close-fill" />}
+          onClick={() => setOpen(true)}
+        >
+          Hủy đơn hàng
+        </Button>
+      );
+    }
+    return '';
+  };
+  const renderUpdateStatus = () => {
+    if (!Array.isArray(orderStatus) || orderStatus.length === 0) {
+      return '';
+    }
+    const latestStatus = orderStatus[orderStatus.length - 1]?.status;
+    if (handleStatusConfig[latestStatus]) {
+      return (
         <Button
           variant="contained"
           color="inherit"
-          startIcon={<Iconify icon="eva:plus-fill" />}
-          onClick={() => route.push('create')}
+          startIcon={<Iconify icon={handleStatusConfig[latestStatus].icon} />}
+          onClick={() => handleUpdateOrder(handleStatusConfig[latestStatus].value)}
         >
-          Thêm người dùng
+          {handleStatusConfig[latestStatus].label}
         </Button>
+      );
+    }
+    return '';
+  };
+  return (
+    <Container>
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          <Typography id="modal-modal-title" variant="h6" component="h2" mb={2}>
+            Lý do hủy đơn
+          </Typography>
+          <form onSubmit={formik.handleSubmit}>
+            <Stack spacing={3}>
+              <textarea
+                name="note"
+                value={formik.values.note}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                style={{ width: '100%', height: '100px', borderRadius: '5px', padding: '5px' }}
+              />
+              {formik.touched.note && formik.errors.note ? (
+                <Typography variant="body2" color="error">
+                  {formik.errors.note}
+                </Typography>
+              ) : null}
+              <Stack direction="row" justifyContent="flex-end" spacing={2}>
+                <Button variant="contained" color="inherit" onClick={handleClose}>
+                  Đóng
+                </Button>
+                <Button type="submit" variant="contained" color="error">
+                  Hủy đơn hàng
+                </Button>
+              </Stack>
+            </Stack>
+          </form>
+        </Box>
+      </Modal>
+      <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
+        <Typography variant="h4">Thông tin đơn hàng</Typography>
+
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+          mb={5}
+          spacing={2}
+        >
+          {renderCancel()}
+          {renderUpdateStatus()}
+        </Stack>
       </Stack>
 
       <Grid2 container spacing={1}>
@@ -330,7 +459,7 @@ export default function DetailOrderPage() {
                 {order.status
                   ? order.status?.map((item) => (
                       <Stack
-                        key={item.status}
+                        key={item.createdAt}
                         direction="row"
                         alignItems="center"
                         justifyContent="space-between"

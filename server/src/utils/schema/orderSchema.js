@@ -8,8 +8,13 @@ const OrderStatus = {
     delivered: 'delivered',
     cancelled: 'cancelled',
     refund: 'refund',
+    returned: 'returned',
+    completed: 'completed',
+    confirmed: 'confirmed',
+    onHold: 'onHold',
+    shipping: 'shipping',
 };
-const OrderPaymen = {
+const OrderPayment = {
     COD: 'COD',
     payment: 'payment',
 };
@@ -57,7 +62,7 @@ export const SAVE_ORDER = Joi.object({
     totalPrice: Joi.number().min(1).required(),
     shipping: Joi.object({
         shippingType: Joi.string().trim().min(1)
-            .valid(...Object.values(OrderPaymen)),
+            .valid(...Object.values(OrderPayment)),
         fee: Joi.number().min(1),
         deliveryUnit: Joi.string().trim().min(1),
         status: Joi.string().trim().min(1),
@@ -116,7 +121,7 @@ export const UPDATE_ORDER = Joi.object({
     totalPrice: Joi.number().min(1),
     shipping: Joi.object({
         shippingType: Joi.string().trim().min(1)
-            .valid(...Object.values(OrderPaymen)),
+            .valid(...Object.values(OrderPayment)),
         fee: Joi.number().min(1),
         deliveryUnit: Joi.string().trim().min(1),
         status: Joi.string().trim().min(1),
