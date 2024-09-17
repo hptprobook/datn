@@ -1,10 +1,10 @@
 import { productSearchList } from '~/APIs/mock_data';
 import ProductItem from '~/components/common/Product/ProductItem';
 
-export default function CategoryContent({ slug }) {
+export default function CategoryContent({ data }) {
   return (
     <div className="text-black">
-      <h2 className="text-2xl font-bold mb-4">{slug} w0wStore</h2>
+      <h2 className="text-2xl font-bold mb-4">{data.name} w0wStore</h2>
       <div className="divider"></div>
       <div className="mb-8">
         {/* Sorting Form */}

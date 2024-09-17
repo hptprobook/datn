@@ -24,7 +24,7 @@ export default function NavBar() {
   const menuData = data?.menu || [];
 
   if (menuData.length === 0) {
-    return <p>Danh mục không tồn tại!</p>;
+    return <p>Không có sẵn danh mục!</p>;
   }
 
   return (

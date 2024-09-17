@@ -74,6 +74,12 @@ def create_slug(product_name):
     slug = re.sub(r'[^a-z0-9-]', '', slug)
     return slug
 
+def distribute_stock(total_stock, num_sizes):
+    stock_distribution = [random.randint(1, total_stock // num_sizes) for _ in range(num_sizes - 1)]
+    stock_distribution.append(total_stock - sum(stock_distribution))
+    random.shuffle(stock_distribution)
+    return stock_distribution
+
 def crawl_product_detail(product_url):
     product_response = requests.get(product_url, headers=headers)
     if product_response.status_code == 200:
@@ -86,23 +92,40 @@ def crawl_product_detail(product_url):
         price = product_price + random.randint(10000, 200000)
 
         imgUrls = [productUrl for _ in range(random.randint(3, 6))]
+        
+        selected_colors = random.sample(colors, random.randint(1, len(colors)))
 
         variants = []
-        for color in colors:
-            for size in sizes:
-                variant = {
-                    'stock': random.randint(100, 300),
-                    'price': price,
-                    'marketPrice': price,
-                    'capitalPrice': product_price,
-                    'onlinePrice': price,
-                    'saleOff': price,
-                    'sellCount': random.randint(0, 300),
-                    'sku': f'{color}-{size}-{random.randint(1000, 9999)}',
-                    'color': color,
-                    'size': size
+        for color in selected_colors:
+            imgUrl = 'https://picsum.photos/276/380'
+            varStock = random.randint(100, 300)
+            sizeStocks = distribute_stock(varStock, len(sizes))
+            
+            variant = {
+                'stock': varStock,
+                'price': price,
+                'marketPrice': price,
+                'capitalPrice': product_price,
+                'onlinePrice': price,
+                'saleOff': price,
+                'sellCount': random.randint(0, 300),
+                'sku': random.randint(100000, 999999),
+                'color': color,
+                'image': imgUrl,
+                'sizes': []
+            }
+
+            for i, size in enumerate(sizes):
+                sizeData = {
+                    'size': size,
+                    'price': price + random.randint(5000, 20000),
+                    'stock': sizeStocks[i]
                 }
-                variants.append(variant)
+                
+                variant['sizes'].append(sizeData)
+                
+            variants.append(variant)
+
 
         cat_id = random.choice(catIds)
         tags = random.sample(tags_list, random.randint(1, len(tags_list)))
