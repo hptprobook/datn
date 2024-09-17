@@ -13,5 +13,5 @@ export const getCategoryById = async (categoryId) => {
 };
 
 export const getCategoryBySlug = async (slug) => {
-  return await request.get(`/categories/slug/${slug}`).then((res) => res.data);
+  return await request.get(`/categories/${slug}`).then((res) => res.data);
 };

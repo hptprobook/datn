@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 
-export default function HeaderBC({ title, slug }) {
+export default function HeaderBC({ title, name }) {
   return (
     <nav aria-label="Breadcrumb">
       <ol className="flex items-center gap-1 text-sm text-gray-600">
@@ -68,7 +68,7 @@ export default function HeaderBC({ title, slug }) {
         <li>
           <p className="block transition hover:text-gray-700 font-semibold">
             {' '}
-            {slug}{' '}
+            {name}{' '}
           </p>
         </li>
       </ol>
