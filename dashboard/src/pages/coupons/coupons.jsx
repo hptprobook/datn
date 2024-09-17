@@ -9,7 +9,7 @@ export default function OrdersPage() {
     return (
         <>
             <Helmet>
-                <title> Orders</title>
+                <title> Mã giảm giá</title>
             </Helmet>
 
             <CouponsView/>

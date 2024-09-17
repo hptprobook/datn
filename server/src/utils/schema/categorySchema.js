@@ -2,8 +2,8 @@ import Joi from 'joi';
 
 export const SAVE_CATEGORY_SCHEMA = Joi.object({
   name: Joi.string().trim().min(1).required().messages({
-    'string.empty': 'Mã đơn hàng không được để trống',
-    'any.required': 'Mã đơn hàng là bắt buộc',
+    'string.empty': 'Tên không được để trống',
+    'any.required': 'Tên là bắt buộc',
   }),
   slug: Joi.string().trim().min(1).required().messages({
     'string.empty': 'Slug không được để trống',
@@ -34,7 +34,7 @@ export const SAVE_CATEGORY_SCHEMA = Joi.object({
 
 export const UPDATE_CATEGORY = Joi.object({
   name: Joi.string().trim().min(1).messages({
-    'string.empty': 'Mã đơn hàng không được để trống',
+    'string.empty': 'Tên không được để trống',
   }),
   slug: Joi.string().trim().min(1).messages({
     'string.empty': 'Slug không được để trống',
@@ -51,8 +51,6 @@ export const UPDATE_CATEGORY = Joi.object({
   parentId: Joi.string().trim().min(1).allow(null).messages({
     'string.empty': 'Danh mục không được để trống',
   }),
-  status: Joi.boolean().messages({
-    'any.required': 'Trạng thái danh mục là bắt buộc',
-  }),
+  status: Joi.boolean(),
   updatedAt: Joi.date().timestamp('javascript').default(Date.now),
 });
