@@ -11,6 +11,7 @@ const Router = express.Router();
 
 // Orders
 Router.get('/', verifyToken, isAdmin, orderController.getAllOrder);
+Router.get('/:id', verifyToken, orderController.getOrderById);
 Router.get('/me', verifyToken, orderController.getCurentOrder);
 
 
