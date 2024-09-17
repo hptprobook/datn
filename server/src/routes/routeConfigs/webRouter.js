@@ -25,16 +25,8 @@ const upload = multer({
 //admin
 Router.get('/', webController.getWeb);
 
-Router.post(
-    '/',
-    upload.single('logo'),
-    webController.createWeb
-);
-Router.put(
-    '/',
-    upload.single('logo'),
-    webController.updateWeb
-);
+Router.post('/', upload.single('logo'), webController.createWeb);
+Router.put('/', upload.single('logo'), webController.updateWeb);
 // Router.delete('/:id', webController.deleteSeoConfig);
 
 export const webApi = Router;
