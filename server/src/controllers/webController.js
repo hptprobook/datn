@@ -2,8 +2,9 @@
 /* eslint-disable semi */
 import { StatusCodes } from 'http-status-codes';
 // import { ERROR_MESSAGES } from '~/utils/errorMessage';
-import { uploadModal } from '~/models/uploadModel';
 import { webModel } from '~/models/webModel';
+import path from 'path';
+import { uploadModel } from '~/models/uploadModel';
 const getWeb = async (req, res) => {
   try {
     const web = await webModel.getWeb();
@@ -19,7 +20,7 @@ const createWeb = async (req, res) => {
   try {
     const Web = await webModel.getWeb();
     if (Web) {
-      await uploadModal.deleteImg(req.file.filename);
+      await uploadModel.deleteImg(req.file.filename);
       return res
         .status(StatusCodes.BAD_REQUEST)
         .json({ mgs: 'Dữ liệu Web đã được tạo' });
@@ -39,7 +40,7 @@ const createWeb = async (req, res) => {
         .status(StatusCodes.OK)
         .json({ mgs: 'Tạo dữ liệu Web thành công' });
     }
-    await uploadModal.deleteImg(req.file.filename);
+    await uploadModel.deleteImg(req.file.filename);
     return res.status(StatusCodes.BAD_REQUEST).json(result);
   } catch (error) {
     if (error.details) {
@@ -57,7 +58,7 @@ const updateWeb = async (req, res) => {
     if (!web) {
       return res
         .status(StatusCodes.BAD_REQUEST)
-        .json({ mgs: 'Dữ liệu Web chưa được tạo' });
+        .json({ message: 'Dữ liệu Web chưa được tạo' });
     }
     const id = web._id.toString();
     if (!req.file) {
@@ -65,24 +66,30 @@ const updateWeb = async (req, res) => {
       const result = await webModel.updateWeb(id, dataSeo);
       return res.status(StatusCodes.OK).json(result);
     }
+    const file = req.file;
+    const fileName = file.filename;
+    const filePath = path.join('uploads/web', fileName);
     const dataSeo = {
       ...req.body,
-      logo: req.file.filename,
+      logo: filePath,
     };
     const result = await webModel.updateWeb(id, dataSeo);
     if (result.error) {
       if (req.file) {
-        await uploadModal.deleteImg(req.file.filename);
+        await uploadModel.deleteImg(filePath);
       }
       return res.status(StatusCodes.BAD_REQUEST).json(result.detail);
     }
     if (req.file) {
-      await uploadModal.deleteImg(web.logo);
+      await uploadModel.deleteImg(web.logo);
     }
     return res.status(StatusCodes.OK).json(result);
   } catch (error) {
+    const file = req.file;
+    const fileName = file.filename;
+    const filePath = path.join('uploads/web', fileName);
     if (req.file) {
-      await uploadModal.deleteImg(req.file.filename);
+      await uploadModel.deleteImg(filePath);
     }
     if (error.details) {
       return res.status(StatusCodes.BAD_REQUEST).json({
@@ -103,7 +110,7 @@ const updateWeb = async (req, res) => {
 //     }
 //     const dataDel = await webModel.deleteSeoConfig(id);
 //     if (dataDel.acknowledged) {
-//         await uploadModal.deleteImg(seo.metaOGImg);
+//         await uploadModel.deleteImg(seo.metaOGImg);
 //         return res
 //             .status(StatusCodes.OK)
 //             .json({ mgs: 'Xoá dữ liệu SEO web thành công' });

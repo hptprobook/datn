@@ -11,7 +11,7 @@ import Logo from '~/assets/logo2.png';
 export default function HomePage() {
   return (
     <>
-      <main className="z-0 max-w-container mx-auto px-2 lg:px-0">
+      <main className="z-0 max-w-container mx-auto px-2 lg:px-0 text-black">
         <HeaderSlider />
         <CatSuggest />
         <Offer />

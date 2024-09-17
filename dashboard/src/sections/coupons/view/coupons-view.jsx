@@ -15,11 +15,11 @@ import { users } from 'src/_mock/user';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 
-import TableNoData from '../table-no-data';
-import UserTableRow from '../user-table-row';
-import UserTableHead from '../user-table-head';
-import TableEmptyRows from '../table-empty-rows';
-import UserTableToolbar from '../user-table-toolbar';
+import TableNoData from '../coupon-no-data';
+import CouponTableRow from '../coupon-table-row';
+import CouponTableHead from '../coupon-table-head';
+import TableEmptyRows from '../coupon-empty-rows';
+import CouponTableToolbar from '../coupon-table-toolbar';
 import { emptyRows, applyFilter, getComparator } from '../utils';
 
 // ----------------------------------------------------------------------
@@ -97,15 +97,15 @@ export default function CouponsPage() {
   return (
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Users</Typography>
+        <Typography variant="h4">Mã giảm giá</Typography>
 
         <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />}>
-          New User
+          Tạo mã giảm giá
         </Button>
       </Stack>
 
       <Card>
-        <UserTableToolbar
+        <CouponTableToolbar
           numSelected={selected.length}
           filterName={filterName}
           onFilterName={handleFilterByName}
@@ -114,7 +114,7 @@ export default function CouponsPage() {
         <Scrollbar>
           <TableContainer sx={{ overflow: 'unset' }}>
             <Table sx={{ minWidth: 800 }}>
-              <UserTableHead
+              <CouponTableHead
                 order={order}
                 orderBy={orderBy}
                 rowCount={users.length}
@@ -122,11 +122,18 @@ export default function CouponsPage() {
                 onRequestSort={handleSort}
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
-                  { id: 'name', label: 'Name' },
-                  { id: 'company', label: 'Company' },
-                  { id: 'role', label: 'Role' },
-                  { id: 'isVerified', label: 'Verified', align: 'center' },
-                  { id: 'status', label: 'Status' },
+                  { id: 'code', label: 'Mã' },
+                  { id: 'type', label: 'Loại' },
+                  { id: 'applicableProducts', label: 'Sản phẩm áp dụng' },
+                  { id: 'minPurchasePrice', label: 'Giá mua tối thiểu' },
+                  { id: 'discountValue', label: 'Giá trị giảm giá' },
+                  { id: 'description', label: 'Mô tả' },
+                  { id: 'usageLimit', label: 'Giới hạn sử dụng' },
+                  { id: 'usageCount', label: 'Số lần sử dụng' },
+                  { id: 'status', label: 'Trạng thái' },
+                  { id: 'quantity', label: 'Số lượng' },
+                  { id: 'dateStart', label: 'Ngày bắt đầu' },
+                  { id: 'dateEnd', label: 'Ngày kết thúc' },
                   { id: '' },
                 ]}
               />
@@ -134,16 +141,22 @@ export default function CouponsPage() {
                 {dataFiltered
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
-                    <UserTableRow
+                    <CouponTableRow
                       key={row.id}
-                      name={row.name}
-                      role={row.role}
+                      code={row.code}
+                      type={row.type}
+                      applicableProducts={row.applicableProducts}
+                      minPurchasePrice={row.minPurchasePrice}
+                      discountValue={row.discountValue}
+                      description={row.description}
+                      usageLimit={row.usageLimit}
+                      usageCount={row.usageCount}
                       status={row.status}
-                      company={row.company}
-                      avatarUrl={row.avatarUrl}
-                      isVerified={row.isVerified}
-                      selected={selected.indexOf(row.name) !== -1}
-                      handleClick={(event) => handleClick(event, row.name)}
+                      quantity={row.quantity}
+                      dateStart={row.dateStart}
+                      dateEnd={row.dateEnd}
+                      selected={selected.indexOf(row.code) !== -1}
+                      handleClick={(event) => handleClick(event, row.code)}
                     />
                   ))}
 

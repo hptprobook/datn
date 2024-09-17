@@ -37,7 +37,7 @@ const MultiRangeSlider = ({ min, max }) => {
   }, [maxVal, getPercent]);
 
   return (
-    <>
+    <div className="text-black">
       <p>Lọc theo khoảng giá</p>
       <div className="sliderRange">
         <input
@@ -73,7 +73,7 @@ const MultiRangeSlider = ({ min, max }) => {
           <div className="slider__right-value">{maxVal}</div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

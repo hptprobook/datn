@@ -51,7 +51,6 @@ export default function OrdersPage() {
 
   useEffect(() => {
     if (status === 'succeeded') {
-      console.log(dataOrder);
       setData(dataOrder);
     }
   }, [status, dataOrder]);
@@ -66,7 +65,7 @@ export default function OrdersPage() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = data.map((n) => n.name);
+      const newSelecteds = data.map((n) => n._id);
       setSelected(newSelecteds);
       return;
     }
@@ -150,15 +149,16 @@ export default function OrdersPage() {
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
                     <OrderTableRow
-                      key={row.id}
-                      name={row.name}
+                      key={row._id}
+                      name={row.shipping.name}
                       userId={row.userId}
                       status={row.status}
+                      id={row._id}
                       paymentMethod={row.paymentMethod}
                       avatarUrl={row.avatarUrl}
-                      totalAmount={row.totalAmount}
-                      selected={selected.indexOf(row.userId) !== -1}
-                      handleClick={(event) => handleClick(event, row.userId)}
+                      totalAmount={row.totalPrice}
+                      selected={selected.indexOf(row._id) !== -1}
+                      handleClick={(event) => handleClick(event, row._id)}
                     />
                   ))}
 

@@ -68,7 +68,7 @@ export default function CartListProduct() {
         <div className="col-span-1 flex items-center">
           <input
             type="checkbox"
-            className="checkbox-error checkbox"
+            className="checkbox-error checkbox bg-white"
             defaultChecked
             checked={checkAll}
             onChange={handleCheckAll}
@@ -102,7 +102,7 @@ export default function CartListProduct() {
           <div className="flex items-center justify-center md:justify-start">
             <input
               type="checkbox"
-              className="checkbox-error checkbox"
+              className="checkbox-error checkbox bg-white hover:bg-white"
               defaultChecked
               checked={checkedItems.includes(index)}
               onChange={() => handleCheckItem(index)}

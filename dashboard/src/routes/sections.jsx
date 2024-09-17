@@ -28,7 +28,10 @@ export const SeoConfigPage = lazy(() => import('src/pages/settings/config/seo-co
 // warehouse page
 export  const WarehousePage = lazy(() => import('src/pages/warehouse/warehouse'));
 export  const CouponsPage = lazy(() => import('src/pages/coupons/coupons'));
+
+// orders page
 export const OrdersPage = lazy(() => import('src/pages/orders/orders'));
+export const OrderDetailPage = lazy(() => import('src/pages/orders/detail'));
 
 // ----------------------------------------------------------------------
 
@@ -51,7 +54,7 @@ export default function Router() {
         {path: 'blog', element: <BlogPage/>},
         {path: 'category', element: <CategoryPage/>},
         {path: 'category/create', element: <CreateCategoryPage/>},
-        {path: 'category/edit/:id', element: <EditCategoryPage/>},
+        {path: 'category/:id', element: <EditCategoryPage/>},
         {path: 'settings/nav', element: <NavDashboardPage/>},
         {path: 'settings/nav/create', element: <NavDashboardCreatePage/>},
         {path: 'settings/nav/:id', element: <NavUpdatePage/>},
@@ -60,6 +63,7 @@ export default function Router() {
         {path: 'warehouse', element: <WarehousePage/>},
         {path: 'coupons', element: <CouponsPage/>},
         {path: 'orders', element: <OrdersPage/>},
+        {path: 'orders/:id', element: <OrderDetailPage/>},
       ],
     },
     {

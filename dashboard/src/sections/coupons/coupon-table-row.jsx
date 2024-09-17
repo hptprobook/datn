@@ -16,7 +16,7 @@ import Iconify from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export default function UserTableRow({
+export default function CouponTableRow({
   selected,
   name,
   avatarUrl,
@@ -45,7 +45,6 @@ export default function UserTableRow({
 
         <TableCell component="th" scope="row" padding="none">
           <Stack direction="row" alignItems="center" spacing={2}>
-            <Avatar alt={name} src={avatarUrl} />
             <Typography variant="subtitle2" noWrap>
               {name}
             </Typography>
@@ -93,7 +92,7 @@ export default function UserTableRow({
   );
 }
 
-UserTableRow.propTypes = {
+CouponTableRow.propTypes = {
   avatarUrl: PropTypes.any,
   company: PropTypes.any,
   handleClick: PropTypes.func,
