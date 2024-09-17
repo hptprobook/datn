@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { posts } from '~/apis/mock_data';
+import { posts } from '~/APIs/mock_data';
 
 export default function Post() {
   const firstPost = posts[0];

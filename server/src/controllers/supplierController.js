@@ -1,15 +1,14 @@
 /* eslint-disable comma-dangle */
 /* eslint-disable semi */
-import { supplierModal } from '~/models/supplierModal';
+import { supplierModel } from '~/models/supplierModel';
 import { StatusCodes } from 'http-status-codes';
 import { ERROR_MESSAGES } from '~/utils/errorMessage';
-import { ObjectId } from 'mongodb';
 
 const getAllSuppliers = async (req, res) => {
   try {
     let { pages, limit } = req.query;
-    const suppliers = await supplierModal.getSuppliersAll(pages, limit);
-    const countSuppliers = await supplierModal.countSupplierAll();
+    const suppliers = await supplierModel.getSuppliersAll(pages, limit);
+    const countSuppliers = await supplierModel.countSupplierAll();
     return res.status(StatusCodes.OK).json({
       suppliers,
       countSuppliers,
@@ -24,7 +23,7 @@ const getAllSuppliers = async (req, res) => {
 const getSupplierById = async (req, res) => {
   try {
     const { id } = req.params;
-    const supplier = await supplierModal.getSupplierById(id);
+    const supplier = await supplierModel.getSupplierById(id);
     if (supplier) {
       return res.status(StatusCodes.OK).json({
         supplier,
@@ -55,7 +54,7 @@ const createSupplier = async (req, res) => {
     email,
     address,
   };
-  const dataSupplier = await supplierModal.createSupplier(data);
+  const dataSupplier = await supplierModel.createSupplier(data);
   return res.status(StatusCodes.OK).json({ dataSupplier });
 };
 
@@ -63,7 +62,7 @@ const updateSupplier = async (req, res) => {
   const { id } = req.params;
   const data = req.body;
 
-  const dataSupplier = await supplierModal.update(id, data);
+  const dataSupplier = await supplierModel.update(id, data);
   if (dataSupplier?.error) {
     return res
       .status(StatusCodes.BAD_REQUEST)
@@ -78,7 +77,7 @@ const updateSupplier = async (req, res) => {
 
 const deleteSupplier = async (req, res) => {
   const { id } = req.params;
-  const dataSupplier = await supplierModal.deleteSupplier(id);
+  const dataSupplier = await supplierModel.deleteSupplier(id);
   if (dataSupplier?.error) {
     return res
       .status(StatusCodes.BAD_REQUEST)

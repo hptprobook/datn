@@ -1,9 +1,9 @@
-import { productSearchList } from '~/apis/mock_data';
+import { productSearchList } from '~/APIs/mock_data';
 import ProductItem from '~/components/common/Product/ProductItem';
 
 export default function CategoryContent({ slug }) {
   return (
-    <div>
+    <div className="text-black">
       <h2 className="text-2xl font-bold mb-4">{slug} w0wStore</h2>
       <div className="divider"></div>
       <div className="mb-8">
@@ -12,7 +12,7 @@ export default function CategoryContent({ slug }) {
           <label htmlFor="sort" className="text-sm font-medium text-gray-700">
             Sắp xếp theo:
           </label>
-          <select className="select select-bordered w-full max-w-xs select-sm">
+          <select className="select select-bordered w-full max-w-xs select-sm bg-white text-black">
             <option selected>Mặc định</option>
             <option>Mới nhất</option>
             <option>Phổ biến</option>

@@ -4,7 +4,8 @@ import { brandModel } from '~/models/brandModel';
 import { StatusCodes } from 'http-status-codes';
 import { ERROR_MESSAGES } from '~/utils/errorMessage';
 import { createSlug } from '~/utils/createSlug';
-import { uploadModal } from '~/models/uploadModal';
+import { uploadModel } from '~/models/uploadModel';
+import path from 'path';
 
 const createBrand = async (req, res) => {
   try {
@@ -15,20 +16,22 @@ const createBrand = async (req, res) => {
         message: ERROR_MESSAGES.REQUIRED,
       });
     }
+
     if (!req.file) {
       return res
         .status(StatusCodes.BAD_REQUEST)
         .json({ mgs: 'Ảnh không được để trống' });
     }
+
     const file = req.file;
-    // const fileName = file ? file.filename : null;
     const fileName = file.filename;
+    const filePath = path.join('uploads/brands', fileName);
     const slug = createSlug(name);
 
     const data = {
       name,
       slug,
-      image: fileName,
+      image: filePath,
       content,
       status,
     };
@@ -36,9 +39,10 @@ const createBrand = async (req, res) => {
     const dataBrand = await brandModel.createBrand(data);
 
     if (dataBrand.error) {
-      await uploadModal.deleteImg(fileName);
+      await uploadModel.deleteImg(filePath);
       return res.status(StatusCodes.BAD_REQUEST).json(dataBrand.detail);
     }
+
     return res
       .status(StatusCodes.OK)
       .json({ dataBrand, mgs: 'Thêm thương hiệu thành công' });
@@ -52,8 +56,10 @@ const createBrand = async (req, res) => {
 const getAllBrands = async (req, res) => {
   try {
     let { pages, limit } = req.query;
+
     const brands = await brandModel.getBrandsAll(pages, limit);
     const count = await brandModel.countBrandsAll();
+
     return res.status(StatusCodes.OK).json({
       brands,
       count,
@@ -74,6 +80,7 @@ const getBrandById = async (req, res) => {
         brand,
       });
     }
+
     return res
       .status(StatusCodes.BAD_REQUEST)
       .json({ message: 'Không tồn tại người dùng' });
@@ -93,37 +100,44 @@ const update = async (req, res) => {
       message: ERROR_MESSAGES.REQUIRED,
     });
   }
+
   if (!req.file) {
     return res
       .status(StatusCodes.BAD_REQUEST)
       .json({ mgs: 'Ảnh không được để trống' });
   }
+
   const file = req.file;
   const fileName = file.filename;
+  const filePath = path.join('uploads/brands', fileName);
+
   const brand = await brandModel.getBrandById(id);
 
   if (!brand) {
-    await uploadModal.deleteImg(fileName);
+    await uploadModel.deleteImg(filePath);
     return res
       .status(StatusCodes.BAD_REQUEST)
       .json({ mgs: 'Thương hiệu chưa được tạo' });
   }
 
   const slug = createSlug(name);
+
   const data = {
     name: name,
     slug,
     content: content,
     status: status,
-    image: fileName,
+    image: filePath,
   };
 
   const dataBrand = await brandModel.update(id, data);
+
   if (dataBrand.error) {
-    await uploadModal.deleteImg(fileName);
+    await uploadModel.deleteImg(filePath);
     return res.status(StatusCodes.BAD_REQUEST).json(dataBrand.detail);
   }
-  await uploadModal.deleteImg(brand.image);
+
+  await uploadModel.deleteImg(brand.image);
   return res
     .status(StatusCodes.OK)
     .json({ dataBrand, mgs: 'Cập nhật thương hiệu thành công' });
@@ -131,14 +145,16 @@ const update = async (req, res) => {
 const deleteBrand = async (req, res) => {
   const { id } = req.params;
   const dataBrand = await brandModel.deleteBrand(id);
+
   if (dataBrand?.error) {
     return res
       .status(StatusCodes.BAD_REQUEST)
       .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
   }
+
   if (dataBrand) {
     if (dataBrand.image) {
-      await uploadModal.deleteImg(dataBrand.image);
+      await uploadModel.deleteImg(dataBrand.image);
     }
     return res
       .status(StatusCodes.OK)

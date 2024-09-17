@@ -40,6 +40,7 @@ export const SAVE_ORDER = Joi.object({
             })
         )
         .required(),
+
     shippingInfo: Joi.object({
         provinceName: Joi.string().trim().min(1),
         districtName: Joi.string().trim().min(1),
@@ -69,6 +70,9 @@ export const SAVE_ORDER = Joi.object({
     discountPrice: Joi.number().min(0),
     totalCapitalPrice: Joi.number().min(0),
     totalProfit: Joi.number().min(0),
+    paymentMethod: Joi.valid(
+        'Tiền mặt', 'Chuyển khoản', 'Ví điện tử', 'Thẻ tín dụng'
+    ).default('Tiền mặt'),
 });
 
 export const UPDATE_ORDER = Joi.object({

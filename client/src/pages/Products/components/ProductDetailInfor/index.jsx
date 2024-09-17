@@ -16,7 +16,7 @@ export default function ProductDetailInfor() {
   };
 
   return (
-    <div className="flex justify-center items-center">
+    <div className="flex justify-center items-center text-black">
       <div className="pro-detail w-full max-lg:max-w-[608px] lg:pl-8 xl:pl-16 max-lg:mx-auto max-lg:mt-8">
         <div className="flex items-center justify-between gap-6 mb-6">
           <div className="text">

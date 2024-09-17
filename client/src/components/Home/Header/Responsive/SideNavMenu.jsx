@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FaAngleRight, FaArrowLeft, FaBars, FaTimes } from 'react-icons/fa';
 import { NavLink } from 'react-router-dom';
-import { menu } from '~/apis/mock_data';
+import { menu } from '~/APIs/mock_data';
 import Logo from '~/assets/logo2.png';
 
 export default function SideNavMenu({

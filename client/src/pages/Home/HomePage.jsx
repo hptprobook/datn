@@ -1,30 +1,17 @@
 /* eslint-disable react/no-unescaped-entities */
 import { NavLink } from 'react-router-dom';
-import { bestCategories } from '~/apis/mock_data';
+import { bestCategories } from '~/APIs/mock_data';
 import BestCategories from '~/components/Home/Container/BestCategories/BestCategories';
 import CatSuggest from '~/components/Home/Container/CatSuggest/CatSuggest';
 import Offer from '~/components/Home/Container/Offer/Offer';
 import Post from '~/components/Home/Container/Post/Post';
 import HeaderSlider from '~/components/Home/Slider/HeaderSlider';
 import Logo from '~/assets/logo2.png';
-import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
-
-const fetchProducts = async () => {
-  const response = await axios.get('http://localhost:3000/api/products');
-  return response.data;
-};
 
 export default function HomePage() {
-  const { data, error, isLoading } = useQuery({
-    queryKey: ['products'],
-    queryFn: fetchProducts,
-  });
-
-  console.log('🚀 ~ HomePage ~ data:', data);
   return (
     <>
-      <main className="z-0 max-w-container mx-auto px-2 lg:px-0">
+      <main className="z-0 max-w-container mx-auto px-2 lg:px-0 text-black">
         <HeaderSlider />
         <CatSuggest />
         <Offer />

@@ -1,18 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+/* eslint-disable react/jsx-boolean-value */
+import React, { useState, useEffect } from 'react';
+import { Form, Field, Formik, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import Stack from '@mui/material/Stack';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import {
   Box,
-  Button,
-  InputLabel,
-  TextField,
   Grid,
+  Button,
   MenuItem,
-  FormHelperText,
+  TextField,
+  InputLabel,
   FormControl,
+  FormHelperText,
 } from '@mui/material';
 import EditorContent from 'src/components/editor/editor';
 import InfoBox from 'src/components/Box/InforBox';
@@ -24,9 +25,9 @@ import { handleToast } from 'src/hooks/toast';
 import Select from '@mui/material/Select';
 
 const validationSchema = Yup.object({
-  categoryName: Yup.string().required('Tên Danh mục là bắt buộc'),
+  name: Yup.string().required('Tên Danh mục là bắt buộc'),
   description: Yup.string().required('Mô tả là bắt buộc'),
-  parentCategory: Yup.string().nullable(), // Optional field for parent category
+  parentId: Yup.string().nullable(), // Optional field for parent category
   content: Yup.string().required('Nội dung là bắt buộc'), // Add validation for content
   status: Yup.string().required('Trạng thái là bắt buộc'), // Add validation for status
 });
@@ -67,15 +68,9 @@ const CreateCategoryView = () => {
   }, [status, dispatch, error, categories]);
 
   const handleChangeUploadImg = (files) => {
-    const file = files[0];
-    const reader = new FileReader();
-
-    reader.onloadend = () => {
-      setUploadedImageUrl(reader.result); // Lưu chuỗi Base64 của ảnh
-    };
-
-    if (file) {
-      reader.readAsDataURL(file);
+    if (files && files.length > 0) {
+      const file = files[0];
+      setUploadedImageUrl(file);
     }
   };
 
@@ -111,33 +106,25 @@ const CreateCategoryView = () => {
           </Typography>
           <Formik
             initialValues={{
-              categoryName: '',
+              name: '',
               description: '',
-              parentCategory: '',
+              parentId: '',
               content: '',
               status: '',
             }}
             validationSchema={validationSchema}
             onSubmit={async (values, { setSubmitting }) => {
-              const formData = new FormData();
-
-              formData.append('name', values.categoryName);
-              formData.append('description', values.description);
-              formData.append('parentId', values.parentCategory);
-              formData.append('content', values.content);
-              formData.append('status', values.status === 'active' ? true : false);
-              if (uploadedImageUrl) {
-                formData.append('image', uploadedImageUrl);
-              }
-              // Properly log the FormData contents
-              for (let [key, value] of formData.entries()) {
-                console.log(`${key}: ${value}`);
-              }
+          
+              console.log(values);
+              const file = {
+                file: uploadedImageUrl,
+                name: 'image',
+              };
 
               try {
-                await dispatch(createCategory(formData)).unwrap();
+                await dispatch(createCategory({ data: values , image: file })).unwrap();
                 handleToast('success', 'Danh mục đã được tạo thành công!');
-              } catch (error) {
+              } catch (err) {
                 handleToast('error', 'Có lỗi xảy ra khi tạo danh mục.');
               } finally {
                 setSubmitting(false);
@@ -148,20 +135,20 @@ const CreateCategoryView = () => {
               <Form onSubmit={handleSubmit}>
                 <Grid container spacing={2} sx={{ pb: 4 }}>
                   <Grid item xs={12} sm={8} md={6}>
-                    <InputLabel htmlFor="categoryName">Tên Danh mục</InputLabel>
+                    <InputLabel htmlFor="name">Tên Danh mục</InputLabel>
                   </Grid>
                   <Grid item xs={12} sm={4} md={6}>
                     <Field
                       as={TextField}
                       fullWidth
-                      id="categoryName"
-                      name="categoryName"
+                      id="name"
+                      name="name"
                       label="Tên Danh mục"
                       variant="outlined"
                       placeholder="Tên danh mục"
                       helperText={
                         <ErrorMessage
-                          name="categoryName"
+                          name="name"
                           component="div"
                           className="error-message"
                         />
@@ -188,20 +175,20 @@ const CreateCategoryView = () => {
                     </FormHelperText>
                   </Grid>
                   <Grid item xs={12} sm={8} md={6}>
-                    <InputLabel htmlFor="parentCategory">Danh mục cha</InputLabel>
+                    <InputLabel htmlFor="parentId">Danh mục cha</InputLabel>
                   </Grid>
                   <Grid item xs={12} sm={4} md={6}>
                     <FormControl fullWidth variant="outlined">
-                      <InputLabel htmlFor="parentCategory">Danh mục cha</InputLabel>
-                      <Field name="parentCategory">
+                      <InputLabel htmlFor="parentId">Danh mục cha</InputLabel>
+                      <Field name="parentId">
                         {({ field }) => (
                           <Select
                             {...field}
-                            labelId="parentCategory-label"
-                            id="parentCategory"
-                            value={values.parentCategory}
+                            labelId="parentId-label"
+                            id="parentId"
+                            value={values.parentId}
                             onChange={(event) =>
-                              setFieldValue('parentCategory', event.target.value)
+                              setFieldValue('parentId', event.target.value)
                             }
                             label="Danh mục cha"
                           >
@@ -227,7 +214,7 @@ const CreateCategoryView = () => {
                       </Field>
                       <FormHelperText>
                         <ErrorMessage
-                          name="parentCategory"
+                          name="parentId"
                           component="div"
                           className="error-message"
                         />
@@ -267,8 +254,8 @@ const CreateCategoryView = () => {
                             onChange={(event) => setFieldValue('status', event.target.value)}
                             label="Trạng thái"
                           >
-                            <MenuItem value="active">Hoạt dộng</MenuItem>
-                            <MenuItem value="inactive">Không hoạt động</MenuItem>
+                      <MenuItem value={true}>Hoạt động</MenuItem>
+                      <MenuItem value={false}>Không hoạt động</MenuItem>
                           </Select>
                         )}
                       </Field>

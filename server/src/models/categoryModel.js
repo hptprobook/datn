@@ -4,7 +4,7 @@ import {
   SAVE_CATEGORY_SCHEMA,
   UPDATE_CATEGORY,
 } from '~/utils/schema/categorySchema';
-import { uploadModal } from './uploadModal';
+import { uploadModal } from './uploadModel';
 
 const validateBeforeCreate = async (data) => {
   return await SAVE_CATEGORY_SCHEMA.validateAsync(data, { abortEarly: false });

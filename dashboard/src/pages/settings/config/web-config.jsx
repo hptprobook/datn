@@ -3,7 +3,7 @@ import { WebConfigView } from 'src/sections/settings/web-config';
 
 // ----------------------------------------------------------------------
 
-export default function NavDashBoardPage() {
+export default function WebConfigPage() {
   return (
     <>
       <Helmet>

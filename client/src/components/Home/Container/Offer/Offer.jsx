@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { offerProducts } from '~/apis/mock_data';
+import { offerProducts } from '~/APIs/mock_data';
 import ProductItem from '~/components/common/Product/ProductItem';
 
 export default function Offer() {
@@ -13,7 +13,7 @@ export default function Offer() {
   ];
 
   return (
-    <div className="mt-32">
+    <div className="mt-32 text-black">
       <h2 className="text-2xl text-center font-bold text-red-600">
         ƯU ĐÃI ĐỘC QUYỀN ONLINE
       </h2>

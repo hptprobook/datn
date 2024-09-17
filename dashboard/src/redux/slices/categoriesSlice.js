@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk, createAction } from '@reduxjs/toolkit';
+import { createSlice, createAction, createAsyncThunk } from '@reduxjs/toolkit';
 import CategoryService from '../services/category.service';
 /* eslint-disable */
 
@@ -26,9 +26,9 @@ export const fetchCategoryById = createAsyncThunk(
 );
 export const createCategory = createAsyncThunk(
   'categories/createCategory',
-  async ( data , thunkAPI) => {
+  async ({ data, image }, thunkAPI) => {
     try {
-      const res = await CategoryService.createCategory(data);
+      const res = await CategoryService.createCategory({data: image, additionalData: data});
 
       return res.data; // Assuming res.data contains the categories array
     } catch (error) {
