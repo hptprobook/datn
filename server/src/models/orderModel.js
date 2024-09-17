@@ -42,15 +42,12 @@ const getOrderById = async (id) => {
 };
 
 
-const getCurentOrder = async (user_id, page, limit) => {
-    page = parseInt(page) || 1;
-    limit = parseInt(limit) || 2;
+const getCurrentOrder = async (user_id) => {
+
     const db = await GET_DB().collection('orders');
     const result = await db
         .find({ userId: new ObjectId(user_id) })
-        .skip((page - 1) * limit)
-        .limit(limit)
-        // .project({ products: 1, userId: 0, _id: 0 })
+        .project({ productsList: 0, note: 0 })
         .toArray();
     return result;
 };
@@ -80,17 +77,23 @@ const findCartById = async (user_id) => {
     });
     return result;
 };
-
 const updateOrder = async (id, data) => {
-    await validateBeforeUpdate(data);
+    const validatedData = await validateBeforeUpdate(data);
     const result = await GET_DB()
         .collection('orders')
         .findOneAndUpdate({
             _id: new ObjectId(id),
-        }, { $set: data }, { returnDocument: 'after' });
+        }, { $set: validatedData }, { returnDocument: 'after' });
     return result;
 };
-
+const getStatusOrder = async (id) => {
+    const db = await GET_DB().collection('orders');
+    const result = await db.findOne(
+        { _id: new ObjectId(id) },
+        { projection: { status: 1 } } // Use projection to return only the 'status' field
+    );
+    return result ? result.status : null; // Return only the 'status' value
+};
 const deleteOrder = async (id) => {
     const result = await GET_DB()
         .collection('orders')
@@ -144,9 +147,10 @@ export const orderModel = {
     addOrder,
     updateOrder,
     deleteOrder,
-    getCurentOrder,
+    getCurrentOrder,
     findCartById,
     checkStockProducts,
     updateStockProducts,
     getOrderById,
+    getStatusOrder,
 };

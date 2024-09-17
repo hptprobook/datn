@@ -59,7 +59,7 @@ export const statusConfig = {
   pending: { value: 'Pending', label: 'Đang chờ', color: 'primary' },
   processing: { value: 'Processing', label: 'Đang xử lý', color: 'info' },
   delivered: { value: 'Delivered', label: 'Đã giao hàng', color: 'success' },
-  canceled: { value: 'Canceled', label: 'Đã hủy', color: 'error' },
+  cancelled: { value: 'Canceled', label: 'Đã hủy', color: 'error' },
   confirmed: { value: 'Confirmed', label: 'Đã xác nhận', color: 'primary' },
   shipped: { value: 'Shipped', label: 'Đã vận chuyển', color: 'success' },
   returned: { value: 'Returned', label: 'Đã trả lại', color: 'warning' },
@@ -70,7 +70,7 @@ export const statusDeliverConfig = {
   pending: { value: 'Pending', label: 'Đang chờ', color: 'primary' },
   processing: { value: 'Processing', label: 'Đang xử lý', color: 'info' },
   delivered: { value: 'Delivered', label: 'Đã giao hàng', color: 'success' },
-  canceled: { value: 'Canceled', label: 'Đã hủy', color: 'error' },
+  cancelled: { value: 'Canceled', label: 'Đã hủy', color: 'error' },
   confirmed: { value: 'Confirmed', label: 'Đã xác nhận', color: 'primary' },
   shipped: { value: 'Shipped', label: 'Đã vận chuyển', color: 'success' },
   returned: { value: 'Returned', label: 'Đã trả lại', color: 'warning' },
@@ -83,4 +83,11 @@ export const paymentConfig = {
   "Chuyển khoản": { value: 'Chuyển khoản', label: 'Card', icon: 'ic:round-credit-card' },
   "Ví điện tử": { value: 'Ví điện tử', label: 'Ví điện tử', icon: 'ic:round-account-balance-wallet' },
   "Thẻ tín dụng": { value: 'Thẻ tín dụng', label: 'Thẻ tín dụng', icon: 'ic:round-credit-card' }
+};
+
+export const handleStatusConfig = {
+  pending: { value: 'processing', label: 'Xác nhận đơn hàng', icon: 'eva:checkmark-outline' },
+  processing: { value: 'shipping', label: 'Giao hàng', icon: 'eva:car-outline' },
+  shipped: { value: 'confirmed', label: 'Hoàn thành', icon: 'eva:checkmark-square-outline' },
+  shipping: { value: 'shipped', label: 'Đã giao', icon: 'eva:clipboard-outline' },
 };
