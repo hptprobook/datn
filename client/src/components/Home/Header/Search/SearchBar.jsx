@@ -23,7 +23,7 @@ export default function SearchBar() {
       <form className="flex">
         <input
           type="text"
-          className="w-search h-10 rounded-l-md outline-none pl-3 text-sm"
+          className="w-search h-10 rounded-l-md outline-none pl-3 text-sm bg-white"
           placeholder="Tìm kiếm ..."
           onFocus={() => setIsFocused(true)}
           onChange={(e) => setSearchValue(e.target.value)}
