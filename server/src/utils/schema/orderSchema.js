@@ -8,8 +8,13 @@ const OrderStatus = {
     delivered: 'delivered',
     cancelled: 'cancelled',
     refund: 'refund',
+    returned: 'returned',
+    completed: 'completed',
+    confirmed: 'confirmed',
+    onHold: 'onHold',
+    shipping: 'shipping',
 };
-const OrderPaymen = {
+const OrderPayment = {
     COD: 'COD',
     payment: 'payment',
 };
@@ -21,6 +26,8 @@ export const SAVE_ORDER = Joi.object({
             Joi.object({
                 _id: Joi.string().trim().min(1).required(),
                 quantity: Joi.number().integer().min(1).required(),
+                thumbnail: Joi.string().trim().min(1).required(),
+                name: Joi.string().trim().min(1).required(),
                 price: Joi.number().min(1).required(),
                 color: Joi.string().trim().min(1).required(),
                 size: Joi.string().trim().min(1).required(),
@@ -55,7 +62,7 @@ export const SAVE_ORDER = Joi.object({
     totalPrice: Joi.number().min(1).required(),
     shipping: Joi.object({
         shippingType: Joi.string().trim().min(1)
-            .valid(...Object.values(OrderPaymen)),
+            .valid(...Object.values(OrderPayment)),
         fee: Joi.number().min(1),
         deliveryUnit: Joi.string().trim().min(1),
         status: Joi.string().trim().min(1),
@@ -85,6 +92,8 @@ export const UPDATE_ORDER = Joi.object({
                 color: Joi.string().trim().min(1),
                 size: Joi.string().trim().min(1),
                 totalPrice: Joi.number().precision(2),
+                thumbnail: Joi.string().trim().min(1),
+                name: Joi.string().trim().min(1),
             })
         ),
     status: Joi.array()
@@ -112,7 +121,7 @@ export const UPDATE_ORDER = Joi.object({
     totalPrice: Joi.number().min(1),
     shipping: Joi.object({
         shippingType: Joi.string().trim().min(1)
-            .valid(...Object.values(OrderPaymen)),
+            .valid(...Object.values(OrderPayment)),
         fee: Joi.number().min(1),
         deliveryUnit: Joi.string().trim().min(1),
         status: Joi.string().trim().min(1),

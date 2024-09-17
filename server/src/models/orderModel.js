@@ -2,10 +2,10 @@ import { GET_DB } from '~/config/mongodb';
 import { ObjectId } from 'mongodb';
 import { SAVE_ORDER, UPDATE_ORDER } from '~/utils/schema/orderSchema';
 
-const validateBeforeCreate = async(data) => {
+const validateBeforeCreate = async (data) => {
     return await SAVE_ORDER.validateAsync(data, { abortEarly: false });
 };
-const validateBeforeUpdate = async(data) => {
+const validateBeforeUpdate = async (data) => {
     return await UPDATE_ORDER.validateAsync(data, { abortEarly: false });
 };
 // const countUserAll = async () => {
@@ -14,7 +14,7 @@ const validateBeforeUpdate = async(data) => {
 //   return totail;
 // };
 
-const getAllOrders = async(page, limit) => {
+const getAllOrders = async (page, limit) => {
     page = parseInt(page) || 1;
     limit = parseInt(limit) || 12;
     const db = await GET_DB().collection('orders');
@@ -30,59 +30,71 @@ const getAllOrders = async(page, limit) => {
         .toArray();
     return result;
 };
+const getOrderById = async (id) => {
+    const db = await GET_DB().collection('orders');
+    const result = await db.findOne({
+        _id: new ObjectId(id),
+    });
+    if (!result) {
+        throw new Error('Đơn hàng không tồn tại');
+    }
+    return result;
+};
 
-const getCurentOrder = async(user_id, page, limit) => {
-    page = parseInt(page) || 1;
-    limit = parseInt(limit) || 2;
+
+const getCurrentOrder = async (user_id) => {
+
     const db = await GET_DB().collection('orders');
     const result = await db
         .find({ userId: new ObjectId(user_id) })
-        .skip((page - 1) * limit)
-        .limit(limit)
-        // .project({ products: 1, userId: 0, _id: 0 })
+        .project({ productsList: 0, note: 0 })
         .toArray();
     return result;
 };
 
-const addOrder = async(dataOrder) => {
+const addOrder = async (dataOrder) => {
     const validData = await validateBeforeCreate(dataOrder);
     const db = await GET_DB();
     const collection = db.collection('orders');
     const data = {
         ...validData,
         userId: new ObjectId(validData.userId),
-        productsList: [
-            validData.productsList.map((item) => {
-                return {
-                    ...item,
-                    _id: new ObjectId(item._id),
-                };
-            }),
-        ],
+        productsList: validData.productsList.map((item) => {
+            return {
+                ...item,
+                _id: new ObjectId(item._id),
+            };
+        }),
     };
     const result = await collection.insertOne(data);
     return result;
 };
 
-const findCartById = async(user_id) => {
+const findCartById = async (user_id) => {
     const db = await GET_DB().collection('carts');
     const result = await db.findOne({
         userId: new ObjectId(user_id),
     });
     return result;
 };
-
-const updateOrder = async(id, data) => {
-    await validateBeforeUpdate(data);
+const updateOrder = async (id, data) => {
+    const validatedData = await validateBeforeUpdate(data);
     const result = await GET_DB()
         .collection('orders')
         .findOneAndUpdate({
             _id: new ObjectId(id),
-        }, { $set: data }, { returnDocument: 'after' });
+        }, { $set: validatedData }, { returnDocument: 'after' });
     return result;
 };
-
-const deleteOrder = async(id) => {
+const getStatusOrder = async (id) => {
+    const db = await GET_DB().collection('orders');
+    const result = await db.findOne(
+        { _id: new ObjectId(id) },
+        { projection: { status: 1 } } // Use projection to return only the 'status' field
+    );
+    return result ? result.status : null; // Return only the 'status' value
+};
+const deleteOrder = async (id) => {
     const result = await GET_DB()
         .collection('orders')
         .deleteOne({
@@ -91,7 +103,7 @@ const deleteOrder = async(id) => {
     return result;
 };
 
-const checkStockProducts = async(data) => {
+const checkStockProducts = async (data) => {
     const db = await GET_DB().collection('products');
     const result = await db
         .find({
@@ -108,7 +120,7 @@ const checkStockProducts = async(data) => {
     return result;
 };
 
-const updateStockProducts = async() => {
+const updateStockProducts = async () => {
     const productId = '669bb95902b3201abc75dad6';
     const updates = [
         { color: 'red', size: 'S', stockChange: -1 },
@@ -135,8 +147,10 @@ export const orderModel = {
     addOrder,
     updateOrder,
     deleteOrder,
-    getCurentOrder,
+    getCurrentOrder,
     findCartById,
     checkStockProducts,
     updateStockProducts,
+    getOrderById,
+    getStatusOrder,
 };
