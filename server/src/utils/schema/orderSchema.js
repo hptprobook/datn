@@ -21,6 +21,8 @@ export const SAVE_ORDER = Joi.object({
             Joi.object({
                 _id: Joi.string().trim().min(1).required(),
                 quantity: Joi.number().integer().min(1).required(),
+                thumbnail: Joi.string().trim().min(1).required(),
+                name: Joi.string().trim().min(1).required(),
                 price: Joi.number().min(1).required(),
                 color: Joi.string().trim().min(1).required(),
                 size: Joi.string().trim().min(1).required(),
@@ -85,6 +87,8 @@ export const UPDATE_ORDER = Joi.object({
                 color: Joi.string().trim().min(1),
                 size: Joi.string().trim().min(1),
                 totalPrice: Joi.number().precision(2),
+                thumbnail: Joi.string().trim().min(1),
+                name: Joi.string().trim().min(1),
             })
         ),
     status: Joi.array()

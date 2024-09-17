@@ -32,6 +32,18 @@ const getCurentOrder = async(req, res) => {
         });
     }
 };
+const getOrderById = async(req, res) => {
+    try {
+        const { id } = req.params;
+        const order = await orderModel.getOrderById(id);
+        return res.status(StatusCodes.OK).json(order);
+    } catch (error) {
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            message: ERROR_MESSAGES.ERR_AGAIN,
+            error,
+        });
+    }
+};
 const addOrder = async(req, res) => {
     try {
         const { user_id } = req.user;
@@ -163,4 +175,5 @@ export const orderController = {
     removeOrder,
     getAllOrder,
     updateStockProducts,
+    getOrderById
 };
