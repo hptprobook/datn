@@ -2,35 +2,49 @@
 import express from 'express';
 import { productController } from '~/controllers/productController';
 import multer from 'multer';
+import path from 'path';
+import { uploadModel } from '~/models/uploadModel';
+import verifyToken from '~/middlewares/verifyToken';
+import verifyAdmin from '~/middlewares/verifyAdmin';
 
 const Router = express.Router();
 
 const storage = multer.diskStorage({
-    destination: function(req, file, cb) {
-        cb(null, 'src/public/imgs');
-    },
-    filename: function(req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        cb(null, uniqueSuffix + '.jpg');
-    },
+  destination: function (req, file, cb) {
+    const uploadPath = path.resolve(process.cwd(), 'uploads/products');
+    uploadModel.ensureDirExists(uploadPath);
+    cb(null, uploadPath);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, uniqueSuffix + '.jpg');
+  },
 });
-const upload = multer({
-    storage: storage,
-    limits: { fileSize: 1024 * 1024 * 5 },
-});
+
+const upload = multer({ storage });
+
 //admin
 Router.get('/', productController.getAllProducts);
 Router.get('/:id', productController.getProductById);
 Router.post(
-    '/add',
-    upload.fields([{ name: 'images' }, { name: 'varsImg' }]),
-    productController.createProduct
+  '/',
+  verifyToken,
+  verifyAdmin,
+  upload.fields([{ name: 'images' }, { name: 'thumbnail' }]),
+  productController.createProduct
 );
-Router.delete('/:id', productController.deleteProduct);
 Router.put(
-    '/:id',
-    upload.fields([{ name: 'imagesAdd' }, { name: 'varsImg' }]),
-    productController.updateProduct
+  '/:id',
+  verifyToken,
+  verifyAdmin,
+  upload.fields([{ name: 'images' }, { name: 'thumbnail' }]),
+  productController.updateProduct
+);
+Router.delete(
+  '/:id',
+  verifyToken,
+  verifyAdmin,
+  productController.deleteProduct
 );
 
 export const productsApi = Router;
