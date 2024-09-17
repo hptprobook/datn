@@ -284,10 +284,98 @@ const deleteProduct = async (req, res) => {
   }
 };
 
+const ratingProduct = async (req, res) => {
+  try {
+    const { userId, content, orderId, productId, rating } = req.body;
+
+    if (!userId || !content || !orderId || !productId || !rating) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: ERROR_MESSAGES.REQUIRED,
+      });
+    }
+
+    const data = {
+      userId,
+      content,
+      orderId,
+      productId,
+      rating,
+    };
+
+    const dataProduct = await productModel.ratingProduct(data);
+    if (dataProduct.error) {
+      return res.status(StatusCodes.BAD_REQUEST).json(dataProduct.detail);
+    }
+    return res
+      .status(StatusCodes.OK)
+      .json({ dataProduct, mgs: 'Đánh giá thành công' });
+  } catch (error) {
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
+  }
+};
+
+const updateRatingProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userId, content, orderId, productId, rating } = req.body;
+
+    if (!userId || !content || !orderId || !productId || !rating) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: ERROR_MESSAGES.REQUIRED,
+      });
+    }
+
+    const data = {
+      userId,
+      content,
+      orderId,
+      productId,
+      rating,
+    };
+
+    const dataProduct = await productModel.updateRatingProduct(id, data);
+
+    if (dataProduct.error) {
+      return res.status(StatusCodes.BAD_REQUEST).json(dataProduct.detail);
+    }
+    return res
+      .status(StatusCodes.OK)
+      .json({ dataProduct, mgs: 'Cập nhật đánh giá thành công' });
+  } catch (error) {
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
+  }
+};
+
+const deleteRating = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Thiếu thông tin' });
+    }
+    await productModel.deleteRating(id);
+    return res
+      .status(StatusCodes.OK)
+      .json({ message: 'Xóa đánh giá thành công' });
+  } catch (error) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ message: 'Có lỗi xảy ra xin thử lại sau', error });
+  }
+};
+
 export const productController = {
   createProduct,
   getAllProducts,
   getProductById,
   updateProduct,
+  ratingProduct,
   deleteProduct,
+  updateRatingProduct,
+  deleteRating,
 };
