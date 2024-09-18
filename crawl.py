@@ -16,7 +16,7 @@ maxPage = 23
 base_url = 'https://routine.vn/thoi-trang-nam.html'
 tags_list = ["Bán chạy", "Freeship", "Hot sale"]
 statusStock = ['stock', 'outStock', 'preOrder']
-colors = ["Đỏ", "Cam", "Vàng", "Xanh lá", "Xanh lam", "Chàm", "Tím", "Trắng", "Đen"]
+colors = ["Đỏ", "Cam", "Vàng", "Lam", "Xanh", "Chàm", "Tím", "Trắng", "Đen"]
 sizes = ["S", "M", "L", "XL", "XXL"]
 productUrl = 'https://picsum.photos/276/380'
 
@@ -80,8 +80,12 @@ def distribute_stock(total_stock, num_sizes):
     random.shuffle(stock_distribution)
     return stock_distribution
 
+image_counter = 1 
+
 def crawl_product_detail(product_url):
+    global image_counter
     product_response = requests.get(product_url, headers=headers)
+    
     if product_response.status_code == 200:
         product_soup = BeautifulSoup(product_response.content, 'html.parser')
 
@@ -91,15 +95,17 @@ def crawl_product_detail(product_url):
         product_price = float(re.sub(r'[^\d]', '', price_text))
         price = product_price + random.randint(10000, 200000)
 
-        imgUrls = [productUrl for _ in range(random.randint(3, 6))]
+        imgUrls = [f"https://picsum.photos/276/380?random={image_counter + i}" for i in range(random.randint(3, 6))]
+        image_counter += len(imgUrls)
         
         selected_colors = random.sample(colors, random.randint(1, len(colors)))
 
         variants = []
         for color in selected_colors:
-            imgUrl = 'https://picsum.photos/276/380'
+            imgUrl = f"https://picsum.photos/276/380?random={image_counter}" 
+            image_counter += 1
             varStock = random.randint(100, 300)
-            sizeStocks = distribute_stock(varStock, len(sizes))
+            sizeStocks = distribute_stock(varStock, 5)
             
             variant = {
                 'stock': varStock,
@@ -132,7 +138,7 @@ def crawl_product_detail(product_url):
         stock = random.randint(100, 300)
         weight = random.randint(1, 100)
         height = random.randint(1, 100)
-        thumbnail = productUrl 
+        thumbnail = imgUrls[0] 
         slug = create_slug(product_name)
         minInventory = max(0, stock - random.randint(0, 20))
         maxInventory = stock + random.randint(10, 50)
