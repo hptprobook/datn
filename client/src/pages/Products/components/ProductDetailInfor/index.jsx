@@ -6,22 +6,32 @@ import ChangeQuantity from '~/components/common/ButtonGroup/ChangeQuantity';
 import AddToCartBtn from '~/components/common/Button/AddToCart';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getCategoryById } from '~/APIs';
+import { useQuery } from '@tanstack/react-query';
 
-export default function ProductDetailInfor() {
+export default function ProductDetailInfor({ product }) {
+  const { data, isLoading } = useQuery({
+    queryKey: ['getCategoryById'],
+    queryFn: () => getCategoryById(product?.cat_id),
+  });
+
   const [quantity, setQuantity] = useState(1);
   const navigate = useNavigate();
+
+  if (isLoading) return null;
 
   const handleQuantityChange = (newQuantity) => {
     setQuantity(newQuantity);
   };
 
+  console.log('🚀 ~ data:', data);
   return (
     <div className="flex justify-center items-center text-black">
       <div className="pro-detail w-full max-lg:max-w-[608px] lg:pl-8 xl:pl-16 max-lg:mx-auto max-lg:mt-8">
         <div className="flex items-center justify-between gap-6 mb-6">
           <div className="text">
             <h2 className="font-manrope font-bold text-3xl leading-10 text-gray-900 mb-2">
-              Tên sản phẩm
+              {product?.name}
             </h2>
             <p className="font-normal text-base text-gray-500">Danh mục</p>
           </div>

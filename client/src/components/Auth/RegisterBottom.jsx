@@ -1,12 +1,14 @@
-export default function RegisterBottom() {
+export default function RegisterBottom({ checked, onChange }) {
   return (
     <>
       <div className="col-span-6">
-        <label htmlFor="MarketingAccept" className="flex gap-4">
+        <label htmlFor="allowNotifies" className="flex gap-4">
           <input
             type="checkbox"
-            id="MarketingAccept"
-            name="marketing_accept"
+            id="allowNotifies"
+            name="allowNotifies"
+            checked={checked}
+            onChange={onChange}
             className="size-5 rounded-md border-gray-200 bg-white shadow-sm"
           />
 
