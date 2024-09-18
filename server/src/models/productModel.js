@@ -2,9 +2,19 @@
 import { GET_DB } from '~/config/mongodb';
 import { ObjectId } from 'mongodb';
 import {
+  REVIEW_PRODUCT,
   SAVE_PRODUCT_SCHEMA,
   UPDATE_PRODUCT,
+  UPDATE_REVIEW_PRODUCT,
 } from '~/utils/schema/productSchema';
+
+const validateRatingBeforeCreate = async (data) => {
+  return await REVIEW_PRODUCT.validateAsync(data, { abortEarly: false });
+};
+
+const validateRatingBeforeUpdate = async (data) => {
+  return await UPDATE_REVIEW_PRODUCT.validateAsync(data, { abortEarly: false });
+};
 
 const validateBeforeCreate = async (data) => {
   return await SAVE_PRODUCT_SCHEMA.validateAsync(data, { abortEarly: false });
@@ -59,10 +69,10 @@ const createProduct = async (data) => {
     const collection = db.collection('products');
     let validCat;
 
-    if (validData.catId.length > 0) {
+    if (Array.isArray(validData.catId)) {
       validCat = validData.catId.map((cat) => new ObjectId(cat));
     } else {
-      validCat = new ObjectId(validData.catId);
+      validCat = [new ObjectId(validData.catId)];
     }
 
     const result = await collection.insertOne({
@@ -126,6 +136,91 @@ const deleteProduct = async (id) => {
   }
 };
 
+const ratingProduct = async (data) => {
+  try {
+    const validData = await validateRatingBeforeCreate(data);
+    const db = GET_DB().collection('products');
+
+    const reviewId = new ObjectId();
+
+    const result = await db.findOneAndUpdate(
+      { _id: new ObjectId(validData.productId) },
+      {
+        $push: {
+          reviews: {
+            _id: reviewId,
+            userId: new ObjectId(validData.userId),
+            orderId: new ObjectId(validData.orderId),
+            productId: new ObjectId(validData.productId),
+            content: validData.content,
+            rating: validData.rating,
+            createdAt: new Date().getTime(),
+            updatedAt: new Date().getTime(),
+          },
+        },
+      },
+      { returnDocument: 'after' }
+    );
+
+    return result;
+  } catch (error) {
+    if (error.details) {
+      return { error: true, detail: error.details };
+    }
+    return { error: true, detail: error };
+  }
+};
+
+const updateRatingProduct = async (reviewId, data) => {
+  try {
+    const validData = await validateRatingBeforeUpdate(data);
+    const db = GET_DB().collection('products');
+
+    const result = await db.findOneAndUpdate(
+      {
+        'reviews._id': new ObjectId(reviewId),
+      },
+      {
+        $set: {
+          'reviews.$.userId': new ObjectId(validData.userId),
+          'reviews.$.content': validData.content,
+          'reviews.$.orderId': new ObjectId(validData.orderId),
+          'reviews.$.productId': new ObjectId(validData.productId),
+          'reviews.$.rating': validData.rating,
+          'reviews.$.updatedAt': new Date().getTime(),
+        },
+      },
+      { returnDocument: 'after' }
+    );
+
+    return result;
+  } catch (error) {
+    if (error.details) {
+      return { error: true, detail: error.details };
+    }
+    return { error: true, detail: error };
+  }
+};
+const deleteRating = async (id) => {
+  try {
+    const result = await GET_DB()
+      .collection('products')
+      .updateOne(
+        {
+          'reviews._id': new ObjectId(id),
+        },
+        {
+          $pull: {
+            reviews: { _id: new ObjectId(id) },
+          },
+        }
+      );
+    return result;
+  } catch (error) {
+    return { error: true, detail: error.message };
+  }
+};
+
 export const productModel = {
   countProductAll,
   getProductsAll,
@@ -133,4 +228,7 @@ export const productModel = {
   deleteProduct,
   update,
   getProductById,
+  ratingProduct,
+  updateRatingProduct,
+  deleteRating,
 };

@@ -46,12 +46,12 @@ const START_SERVER = () => {
 };
 
 (async () => {
-  try {
-    await CONNECT_DB();
-    console.log('Connect to MongoDB Atlas successfully');
-    START_SERVER();
-  } catch (error) {
-    console.log(error);
-    process.exit(0);
-  }
+    try {
+        await CONNECT_DB();
+        console.log('Connect to MongoDB Atlas successfully');
+        START_SERVER();
+    } catch (error) {
+        console.log(error);
+        process.exit(0);
+    }
 })();

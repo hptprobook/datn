@@ -36,8 +36,8 @@ export const SAVE_PRODUCT_SCHEMA = Joi.object({
     })
   ),
   thumbnail: Joi.string().trim().min(1).required().messages({
-    'string.empty': 'Ảnh không được để trống',
-    'any.required': 'Ảnh là bắt buộc',
+    'string.empty': 'Ảnh đại diện không được để trống',
+    'any.required': 'Ảnh đại diện là bắt buộc',
   }),
   images: Joi.array()
     .items(
@@ -129,8 +129,8 @@ export const SAVE_PRODUCT_SCHEMA = Joi.object({
         'any.required': 'Nội dung ngắn là bắt buộc',
       }),
       rating: Joi.number().integer().min(1).required().messages({
-        'string.empty': 'Tồn kho không được để trống',
-        'any.required': 'Tồn kho là bắt buộc',
+        'string.empty': 'Đánh giá không được để trống',
+        'any.required': 'Đánh giá là bắt buộc',
       }),
       createdAt: Joi.date().timestamp('javascript').default(Date.now),
       updatedAt: Joi.date().timestamp('javascript').default(Date.now),
@@ -157,9 +157,8 @@ export const SAVE_PRODUCT_SCHEMA = Joi.object({
         'Trạng thái sản phẩm phải là một trong các giá trị sau: stock, outStock, preOrder.',
       'any.required': 'Trạng thái sản phẩm là bắt buộc.',
     }),
-  productType: Joi.string().trim().min(1).required().messages({
+  productType: Joi.string().trim().min(1).messages({
     'string.empty': 'Sản phẩm không được để trống',
-    'any.required': 'Sản phẩm là bắt buộc',
   }),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(Date.now),
@@ -258,7 +257,7 @@ export const UPDATE_PRODUCT = Joi.object({
         'string.empty': 'Nội dung ngắn không được để trống',
       }),
       rating: Joi.number().integer().min(1).messages({
-        'string.empty': 'Tồn kho không được để trống',
+        'string.empty': 'Đánh giá không được để trống',
       }),
       createdAt: Joi.date().timestamp('javascript').default(Date.now),
       updatedAt: Joi.date().timestamp('javascript').default(Date.now),
@@ -283,6 +282,58 @@ export const UPDATE_PRODUCT = Joi.object({
     }),
   productType: Joi.string().trim().min(1).messages({
     'string.empty': 'Sản phẩm không được để trống',
+  }),
+  updatedAt: Joi.date().timestamp('javascript').default(Date.now),
+});
+
+export const REVIEW_PRODUCT = Joi.object({
+  userId: Joi.string().trim().min(1).required().messages({
+    'string.empty': 'Người dùng không được để trống',
+    'any.required': 'Người dùng là bắt buộc',
+  }),
+  orderId: Joi.string().trim().min(1).required().messages({
+    'string.empty': 'Đơn hàng không được để trống',
+    'any.required': 'Đơn hàng là bắt buộc',
+  }),
+  productId: Joi.string().trim().min(1).required().messages({
+    'string.empty': 'Sản phẩm không được để trống',
+    'any.required': 'Sản phẩm là bắt buộc',
+  }),
+  content: Joi.string().trim().min(1).required().messages({
+    'string.empty': 'Nội dung không được để trống',
+    'any.required': 'Nội dung là bắt buộc',
+  }),
+  rating: Joi.number().integer().min(1).max(5).required().messages({
+    'number.base': 'Đánh giá phải là số',
+    'number.min': 'Đánh giá phải từ 1 đến 5',
+    'number.max': 'Đánh giá phải từ 1 đến 5',
+    'any.required': 'Đánh giá là bắt buộc',
+  }),
+  createdAt: Joi.date().timestamp('javascript').default(Date.now),
+  updatedAt: Joi.date().timestamp('javascript').default(Date.now),
+})
+  .required()
+  .messages({
+    'any.required': 'Đánh giá là bắt buộc',
+  });
+
+export const UPDATE_REVIEW_PRODUCT = Joi.object({
+  userId: Joi.string().trim().min(1).messages({
+    'string.empty': 'Người dùng không được để trống',
+  }),
+  orderId: Joi.string().trim().min(1).messages({
+    'string.empty': 'Đơn hàng không được để trống',
+  }),
+  productId: Joi.string().trim().min(1).messages({
+    'string.empty': 'Sản phẩm không được để trống',
+  }),
+  content: Joi.string().trim().min(1).messages({
+    'string.empty': 'Nội dung không được để trống',
+  }),
+  rating: Joi.number().integer().min(1).max(5).messages({
+    'number.base': 'Đánh giá phải là số',
+    'number.min': 'Đánh giá phải từ 1 đến 5',
+    'number.max': 'Đánh giá phải từ 1 đến 5',
   }),
   updatedAt: Joi.date().timestamp('javascript').default(Date.now),
 });

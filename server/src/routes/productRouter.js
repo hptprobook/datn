@@ -33,6 +33,7 @@ Router.post(
   upload.fields([{ name: 'images' }, { name: 'thumbnail' }]),
   productController.createProduct
 );
+Router.post('/rating', upload.none(), productController.ratingProduct);
 Router.put(
   '/:id',
   verifyToken,
@@ -40,11 +41,13 @@ Router.put(
   upload.fields([{ name: 'images' }, { name: 'thumbnail' }]),
   productController.updateProduct
 );
+Router.put('/rating/:id', upload.none(), productController.updateRatingProduct);
 Router.delete(
   '/:id',
   verifyToken,
   verifyAdmin,
   productController.deleteProduct
 );
+Router.delete('/rating/:id', productController.deleteRating);
 
 export const productsApi = Router;
