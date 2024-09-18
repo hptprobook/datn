@@ -10,16 +10,10 @@ import { RegisterSchema } from '~/utils/schema';
 import { register } from '~/APIs';
 import { useMutation } from '@tanstack/react-query';
 import { handleToast } from '~/customHooks/useToast';
-import { handleApiError } from '~/config/helpers';
-import ReCAPTCHA from 'react-google-recaptcha';
-import { useState } from 'react';
 import useCheckAuth from '~/customHooks/useCheckAuth';
 
 export default function RegisterPage() {
   const { login } = useCheckAuth();
-  const [failedAttempts, setFailedAttempts] = useState(0);
-  const [recaptchaToken, setRecaptchaToken] = useState(null);
-  const [showCaptcha, setShowCaptcha] = useState(false);
   const navigate = useNavigate();
 
   const initialValues = {
@@ -36,7 +30,6 @@ export default function RegisterPage() {
     onSuccess: (data) => {
       handleToast('success', 'Đăng ký thành công!');
       login(data.token);
-      setFailedAttempts(0);
 
       setTimeout(() => {
         const referrer = document.referrer;
@@ -51,13 +44,9 @@ export default function RegisterPage() {
         }
       }, 1000);
     },
-    onError: (error) => {
-      handleApiError(error);
-      setFailedAttempts((prev) => prev + 1);
-      if (failedAttempts >= 4) {
-        setShowCaptcha(true);
-      }
-    },
+    // onError: (error) => {
+    //   handleApiError(error);
+    // },
   });
 
   const formik = useFormik({
@@ -75,17 +64,9 @@ export default function RegisterPage() {
         payload.allowNotifies = true;
       }
 
-      if (showCaptcha && !recaptchaToken) {
-        return;
-      }
-
       mutation.mutate(payload);
     },
   });
-
-  const onRecaptchaChange = (token) => {
-    setRecaptchaToken(token);
-  };
 
   return (
     <section className="bg-white">
@@ -151,15 +132,6 @@ export default function RegisterPage() {
                   formik.errors.password_confirmation
                 }
               />
-
-              {showCaptcha && (
-                <div className="col-span-6">
-                  <ReCAPTCHA
-                    sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
-                    onChange={onRecaptchaChange}
-                  />
-                </div>
-              )}
 
               <RegisterBottom
                 checked={formik.values.marketing_accept}

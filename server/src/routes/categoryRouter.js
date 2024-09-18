@@ -26,12 +26,7 @@ const upload = multer({ storage });
 Router.get('/', categoryController.getAllCategories);
 Router.get('/menu', categoryController.getMenuCategories);
 Router.get('/:slug', categoryController.getCategoryBySlug);
-Router.get(
-  '/:id',
-  verifyToken,
-  verifyAdmin,
-  categoryController.getCategoryById
-);
+Router.get('/:id', categoryController.getCategoryById);
 Router.post(
   '/',
   verifyToken,

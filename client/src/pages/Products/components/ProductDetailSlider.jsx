@@ -6,7 +6,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 export default function ProductDetailSlider({ images }) {
   const [thumbsSwiper, setThumbsSwiper] = useState(null);
   return (
-    <div className="slider-box w-full h-full max-lg:mx-auto mx-0">
+    <div className="slider-box w-full h-[720px] max-lg:mx-auto mx-0">
       <Swiper
         spaceBetween={10}
         loop={true}
@@ -35,12 +35,12 @@ export default function ProductDetailSlider({ images }) {
         className="main-slide-carousel h-auto"
       >
         {images.map((image, index) => (
-          <SwiperSlide key={index}>
+          <SwiperSlide key={index} className="mt-3">
             <div className="block">
               <img
                 src={image}
                 alt="Summer Travel Bag image"
-                className="max-lg:mx-auto"
+                className="max-lg:mx-auto cursor-pointer rounded-md transition-all duration-500 aspect-square"
               />
             </div>
           </SwiperSlide>

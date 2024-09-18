@@ -31,7 +31,7 @@ export default function CategoryPage() {
           <CategorySidebar />
         </div>
         <div className="col-span-4">
-          <CategoryContent data={data?.category} />
+          <CategoryContent catData={data?.category} />
         </div>
       </div>
     </section>
