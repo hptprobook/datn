@@ -7,20 +7,22 @@ import {
 	Text,
 	Button,
 	Alert,
-	ToastAndroid,
+	
 	Image,
 } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import React, { useEffect, useState } from 'react';
 import { colorTheme } from '@/utils/colors';
-// import { useSession } from '@/auth/ctx';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useSession } from '@/auth/ctx';
 import { router } from 'expo-router';
 import { showToast } from '@/utils/toast';
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 import Entypo from '@expo/vector-icons/Entypo';
 import { Link } from 'expo-router';
+import Toast from 'react-native-toast-message';
 export default function SignIn() {
-	// const { signIn } = useSession();
+	const { signIn } = useSession();
 	const [password, onChangePassword] = useState('');
 	const [email, onChangeText] = useState('');
 	const [secureTextEntry, setSecureTextEntry] = useState(true);
@@ -30,7 +32,8 @@ export default function SignIn() {
 		if (!check) {
 			return;
 		}
-		fetch(`${apiUrl}/users/login`, {
+		console.log(apiUrl);
+		fetch(`${apiUrl}api/auth/login`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -53,15 +56,25 @@ export default function SignIn() {
 						Alert.alert('Error', data.error);
 					} else {
 						console.log(data);
-
-						if (data.success == true) {
-							router.replace('/');
-							showToast(data.message);
-							SecureStore.setItemAsync("token", data.userData.token);
-							signIn(data.userData);
-						} else {
-							showToast(data.message);
+						if (data) {
+							if (data) {
+								Toast.show({
+									type: 'success',
+									text1: 'Đăng nhập thành công',
+								});
+								router.replace('/');
+								SecureStore.setItemAsync("token", data.token);
+								signIn(data);
+							}
+							else{
+								Toast.show({
+									type: 'error',
+									text1: 'Đăng nhập thất bại',
+								});
+							}
 						}
+						
+
 					}
 				} catch (error) {
 					Alert.alert('Error', 'Failed to parse server response');
@@ -106,7 +119,6 @@ export default function SignIn() {
 				const firstLogin = await AsyncStorage.getItem('firstLogin');
 				if (firstLogin === null) {
 					// Navigate to OnBoarding screen
-					router.push('on-board');
 				}
 			} catch (error) {
 				console.error('Failed to load first login status.', error);
@@ -127,7 +139,7 @@ export default function SignIn() {
 			<Image
 				style={styles.image}
 				source={{
-					uri: 'asset:/images/logo.png',
+                    uri: 'https://i.pinimg.com/736x/9f/93/ae/9f93ae8f39417cd575e735bf5f1b1505.jpg',
 				}}
 			/>
 			<Text style={{ fontFamily: 'LeagueLight', fontSize: 32, margin: 8 }}>
@@ -145,7 +157,7 @@ export default function SignIn() {
 
 			<SafeAreaView>
 				<Text style={{ fontFamily: 'LeagueLight', fontSize: 16 }}>
-					Tên đăng nhập
+					Email
 				</Text>
 				<TextInput
 					style={styles.inputDone}
