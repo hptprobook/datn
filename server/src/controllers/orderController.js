@@ -5,7 +5,7 @@ import { StatusCodes } from 'http-status-codes';
 import { ERROR_MESSAGES } from '~/utils/errorMessage';
 import { orderModel } from '~/models/orderModel';
 
-const getAllOrder = async(req, res) => {
+const getAllOrder = async (req, res) => {
     try {
         const { page, limit } = req.query;
         const orders = await orderModel.getAllOrders(page, limit);
@@ -18,21 +18,24 @@ const getAllOrder = async(req, res) => {
     }
 };
 
-const getCurentOrder = async(req, res) => {
+const getCurentOrder = async (req, res) => {
     try {
         const { user_id } = req.user;
         const { page, limit } = req.query;
-        const curentOrder = await orderModel.getCurentOrder(user_id, page, limit);
+        const curentOrder = await orderModel.getCurentOrder(
+            user_id,
+            page,
+            limit
+        );
         return res.status(StatusCodes.OK).json(curentOrder);
     } catch (error) {
-
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             message: ERROR_MESSAGES.ERR_AGAIN,
             error,
         });
     }
 };
-const addOrder = async(req, res) => {
+const addOrder = async (req, res) => {
     try {
         const { user_id } = req.user;
         const dataOrder = { userId: user_id, ...req.body };
@@ -47,7 +50,7 @@ const addOrder = async(req, res) => {
     }
 };
 
-const removeOrder = async(req, res) => {
+const removeOrder = async (req, res) => {
     try {
         const { idOrder } = req.params;
         if (!idOrder) {
@@ -66,7 +69,7 @@ const removeOrder = async(req, res) => {
     }
 };
 
-const updateOrder = async(req, res) => {
+const updateOrder = async (req, res) => {
     try {
         const { idOrder } = req.params;
         const data = req.body;
@@ -76,14 +79,13 @@ const updateOrder = async(req, res) => {
             .status(StatusCodes.OK)
             .json({ message: 'Cập nhật thông tin thành công', dataOrder });
     } catch (error) {
-
         return res.status(StatusCodes.BAD_REQUEST).json({
             message: 'Có lỗi xảy ra xin thử lại sau',
             error: error,
         });
     }
 };
-const checkStockProducts = async(req, res) => {
+const checkStockProducts = async (req, res) => {
     try {
         if (!Array.isArray(req.body)) {
             return res
@@ -98,8 +100,7 @@ const checkStockProducts = async(req, res) => {
         }
         // Kiểm tra thông tin sản phẩm
 
-        for (let { _id, quantity, vars }
-            of req.body) {
+        for (let { _id, quantity, vars } of req.body) {
             if (!_id || !vars.color || !vars.size || !quantity) {
                 return res
                     .status(StatusCodes.BAD_REQUEST)
@@ -107,7 +108,7 @@ const checkStockProducts = async(req, res) => {
             }
         }
         let a = false;
-        const checkPromises = req.body.map(async(item) => {
+        const checkPromises = req.body.map(async (item) => {
             const product = await orderModel.checkStockProducts(item);
             if (product.length > 0) {
                 const quantityProduct = product[0].vars[0].stock;
@@ -141,7 +142,7 @@ const checkStockProducts = async(req, res) => {
     }
 };
 
-const updateStockProducts = async(req, res) => {
+const updateStockProducts = async (req, res) => {
     try {
         await orderModel.updateStockProducts();
         return res

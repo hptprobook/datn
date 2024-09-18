@@ -2,10 +2,10 @@ import { GET_DB } from '~/config/mongodb';
 import { ObjectId } from 'mongodb';
 import { SAVE_ORDER, UPDATE_ORDER } from '~/utils/schema/orderSchema';
 
-const validateBeforeCreate = async(data) => {
+const validateBeforeCreate = async (data) => {
     return await SAVE_ORDER.validateAsync(data, { abortEarly: false });
 };
-const validateBeforeUpdate = async(data) => {
+const validateBeforeUpdate = async (data) => {
     return await UPDATE_ORDER.validateAsync(data, { abortEarly: false });
 };
 // const countUserAll = async () => {
@@ -14,7 +14,7 @@ const validateBeforeUpdate = async(data) => {
 //   return totail;
 // };
 
-const getAllOrders = async(page, limit) => {
+const getAllOrders = async (page, limit) => {
     page = parseInt(page) || 1;
     limit = parseInt(limit) || 12;
     const db = await GET_DB().collection('orders');
@@ -31,7 +31,7 @@ const getAllOrders = async(page, limit) => {
     return result;
 };
 
-const getCurentOrder = async(user_id, page, limit) => {
+const getCurentOrder = async (user_id, page, limit) => {
     page = parseInt(page) || 1;
     limit = parseInt(limit) || 2;
     const db = await GET_DB().collection('orders');
@@ -44,7 +44,7 @@ const getCurentOrder = async(user_id, page, limit) => {
     return result;
 };
 
-const addOrder = async(dataOrder) => {
+const addOrder = async (dataOrder) => {
     const validData = await validateBeforeCreate(dataOrder);
     const db = await GET_DB();
     const collection = db.collection('orders');
@@ -64,7 +64,7 @@ const addOrder = async(dataOrder) => {
     return result;
 };
 
-const findCartById = async(user_id) => {
+const findCartById = async (user_id) => {
     const db = await GET_DB().collection('carts');
     const result = await db.findOne({
         userId: new ObjectId(user_id),
@@ -72,17 +72,21 @@ const findCartById = async(user_id) => {
     return result;
 };
 
-const updateOrder = async(id, data) => {
+const updateOrder = async (id, data) => {
     await validateBeforeUpdate(data);
     const result = await GET_DB()
         .collection('orders')
-        .findOneAndUpdate({
-            _id: new ObjectId(id),
-        }, { $set: data }, { returnDocument: 'after' });
+        .findOneAndUpdate(
+            {
+                _id: new ObjectId(id),
+            },
+            { $set: data },
+            { returnDocument: 'after' }
+        );
     return result;
 };
 
-const deleteOrder = async(id) => {
+const deleteOrder = async (id) => {
     const result = await GET_DB()
         .collection('orders')
         .deleteOne({
@@ -91,7 +95,7 @@ const deleteOrder = async(id) => {
     return result;
 };
 
-const checkStockProducts = async(data) => {
+const checkStockProducts = async (data) => {
     const db = await GET_DB().collection('products');
     const result = await db
         .find({
@@ -108,7 +112,7 @@ const checkStockProducts = async(data) => {
     return result;
 };
 
-const updateStockProducts = async() => {
+const updateStockProducts = async () => {
     const productId = '669bb95902b3201abc75dad6';
     const updates = [
         { color: 'red', size: 'S', stockChange: -1 },
@@ -118,15 +122,18 @@ const updateStockProducts = async() => {
 
     const db = await GET_DB().collection('products');
     for (const update of updates) {
-        await db.updateOne({
-            _id: new ObjectId(productId),
-            vars: {
-                $elemMatch: {
-                    color: update.color,
-                    size: update.size,
+        await db.updateOne(
+            {
+                _id: new ObjectId(productId),
+                vars: {
+                    $elemMatch: {
+                        color: update.color,
+                        size: update.size,
+                    },
                 },
             },
-        }, { $inc: { 'vars.$.stock': update.stockChange } });
+            { $inc: { 'vars.$.stock': update.stockChange } }
+        );
     }
 };
 

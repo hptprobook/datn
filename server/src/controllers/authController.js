@@ -1,4 +1,3 @@
-
 import { authModel } from '~/models/authModel';
 import { StatusCodes } from 'http-status-codes';
 import bcrypt from 'bcryptjs';
@@ -6,7 +5,7 @@ import { ERROR_MESSAGES } from '~/utils/errorMessage';
 import { sendMail } from '~/utils/mail';
 import { createToken } from '~/utils/helper';
 
-const register = async(req, res) => {
+const register = async (req, res) => {
     try {
         const dataRegister = req.body;
         const { email, password } = dataRegister;
@@ -40,7 +39,7 @@ const register = async(req, res) => {
         };
         const dataUser = await authModel.register(data); // Assuming you have this function
         if (dataUser) {
-            delete dataUser.password
+            delete dataUser.password;
             dataUser.token = createToken(dataUser);
             return res.status(StatusCodes.OK).json(dataUser);
         }
@@ -49,13 +48,15 @@ const register = async(req, res) => {
             .json({ message: 'Đăng kí thất bại' });
     } catch (error) {
         if (error.details) {
-            return res.status(StatusCodes.BAD_REQUEST).json(error.details[0].message);
+            return res
+                .status(StatusCodes.BAD_REQUEST)
+                .json(error.details[0].message);
         }
         return res.status(StatusCodes.BAD_REQUEST).json(error);
     }
 };
 
-const login = async(req, res) => {
+const login = async (req, res) => {
     try {
         const { email, password } = req.body;
         if (!email || !password) {
@@ -103,13 +104,13 @@ const login = async(req, res) => {
     }
 };
 
-const logout = async(req, res) => {
+const logout = async (req, res) => {
     return await res.clearCookie('token_wow').status(StatusCodes.OK).json({
         message: 'Đăng xuất thành công',
     });
 };
 
-const getOtp = async(req, res) => {
+const getOtp = async (req, res) => {
     try {
         const { email } = req.body;
         if (!email) {
@@ -142,7 +143,7 @@ const getOtp = async(req, res) => {
     }
 };
 
-const checkOtp = async(req, res) => {
+const checkOtp = async (req, res) => {
     try {
         const { email, otp } = req.body;
         if (!email || !otp) {
@@ -177,13 +178,15 @@ const checkOtp = async(req, res) => {
     }
 };
 
-const changePassWordByOtp = async(req, res) => {
+const changePassWordByOtp = async (req, res) => {
     try {
         const { email, password } = req.body;
         if (!password || !email) {
             return res
                 .status(StatusCodes.BAD_REQUEST)
-                .json({ message: 'Không bỏ trống thông tin email hoặc password' });
+                .json({
+                    message: 'Không bỏ trống thông tin email hoặc password',
+                });
         }
         const user = await authModel.getUserEmail(email);
         if (!user) {
