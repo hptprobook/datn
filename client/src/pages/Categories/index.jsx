@@ -12,7 +12,7 @@ export default function CategoryPage() {
   const { slug } = useParams();
   const [filters, setFilters] = useState({ colors: [], sizes: [] });
 
-  // Gọi API getCategoryBySlug
+  // Fetch category data
   const {
     data: categoryData,
     error: categoryError,
@@ -20,9 +20,11 @@ export default function CategoryPage() {
   } = useQuery({
     queryKey: ['getCategoryBySlug', slug],
     queryFn: () => getCategoryBySlug(slug),
+    staleTime: 1000 * 60 * 5,
+    cacheTime: 1000 * 60 * 10,
   });
 
-  // Gọi API getAllProducts
+  // Fetch all products
   const {
     data: allProductsData,
     error: productsError,
@@ -30,21 +32,18 @@ export default function CategoryPage() {
   } = useQuery({
     queryKey: ['getAllProducts'],
     queryFn: getAllProducts,
+    staleTime: 1000 * 60 * 5,
+    cacheTime: 1000 * 60 * 10,
   });
 
   if (categoryLoading || productsLoading) return <MainLoading />;
 
-  if (categoryError) {
-    handleToast('error', categoryError);
+  if (categoryError || productsError) {
+    handleToast('error', categoryError || productsError);
     return null;
   }
 
-  if (productsError) {
-    handleToast('error', productsError);
-    return null;
-  }
-
-  // Hàm xử lý khi bộ lọc thay đổi
+  // Handle filter changes
   const handleFilterChange = (newFilters) => {
     setFilters(newFilters);
   };
@@ -60,12 +59,16 @@ export default function CategoryPage() {
         <div className="col-span-1">
           <CategorySidebar
             category={categoryData?.category}
-            products={allProductsData?.products} // Truyền sản phẩm vào Sidebar
+            products={allProductsData?.products}
             onFilterChange={handleFilterChange}
           />
         </div>
         <div className="col-span-4">
-          <CategoryContent catData={categoryData?.category} filters={filters} />
+          <CategoryContent
+            catData={categoryData?.category}
+            products={allProductsData?.products}
+            filters={filters}
+          />
         </div>
       </div>
     </section>

@@ -1,15 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import MultiRangeSlider from '~/components/common/Range/MultiSliderRange';
 
 export default function CategorySidebar({ products, onFilterChange }) {
   const [selectedColors, setSelectedColors] = useState([]);
   const [selectedSizes, setSelectedSizes] = useState([]);
-
   const [checkboxes, setCheckboxes] = useState({});
-
-  // useEffect(() => {
-  //   onFilterChange({ colors: selectedColors, sizes: selectedSizes });
-  // }, [selectedColors, selectedSizes, onFilterChange]);
 
   const handleCheckboxChange = (color) => {
     setCheckboxes((prevCheckboxes) => {
@@ -44,17 +39,14 @@ export default function CategorySidebar({ products, onFilterChange }) {
   const sizes = Array.from(
     new Set(
       products.flatMap((product) =>
-        product.variants.flatMap(
-          (variant) =>
-            variant.sizes
-              .map((sizeObj) => sizeObj.size)
-              .filter((size) => size !== undefined && size !== null) // Filter out undefined or null sizes
+        product.variants.flatMap((variant) =>
+          variant.sizes
+            .map((sizeObj) => sizeObj.size)
+            .filter((size) => size !== undefined && size !== null)
         )
       )
     )
   );
-
-  console.log('🚀 ~ CategorySidebar ~ sizes:', sizes);
 
   const handleSizeChange = (size) => {
     setSelectedSizes((prevSelectedSizes) =>
@@ -64,6 +56,11 @@ export default function CategorySidebar({ products, onFilterChange }) {
     );
   };
 
+  useEffect(() => {
+    onFilterChange({ colors: selectedColors, sizes: selectedSizes });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedColors, selectedSizes]);
+
   return (
     <div className="">
       {/* Slider Range */}
@@ -71,7 +68,7 @@ export default function CategorySidebar({ products, onFilterChange }) {
 
       {/* Color Filter */}
       <div className="space-y-2 mt-12">
-        <details className="overflow-hidden rounded-md border border-gray-300 [&_summary::-webkit-details-marker]:hidden">
+        <details className="overflow-hidden rounded-md border border-gray-300 transition-all duration-300">
           <summary className="flex cursor-pointer items-center justify-between gap-2 bg-white p-4 text-gray-900 transition">
             <span className="text-sm font-medium">Màu sắc</span>
             <span className="transition group-open:-rotate-180">
@@ -92,7 +89,7 @@ export default function CategorySidebar({ products, onFilterChange }) {
             </span>
           </summary>
 
-          <div className="border-t border-gray-200 bg-white">
+          <div className="border-t border-gray-200 bg-white transition-all duration-300">
             <header className="flex items-center justify-between p-4">
               <span className="text-sm text-gray-700">
                 {selectedColors.length} đã chọn
@@ -106,7 +103,7 @@ export default function CategorySidebar({ products, onFilterChange }) {
               </button>
             </header>
 
-            <ul className="space-y-1 border-t border-gray-200 p-4">
+            <ul className="space-y-1 border-t border-gray-200 p-4 transition-all duration-300">
               {colors.map((color) => (
                 <label
                   key={color}
@@ -128,7 +125,7 @@ export default function CategorySidebar({ products, onFilterChange }) {
 
       {/* Size Filter */}
       <div className="space-y-2 mt-6">
-        <details className="overflow-hidden rounded-md border border-gray-300 [&_summary::-webkit-details-marker]:hidden">
+        <details className="overflow-hidden rounded-md border border-gray-300 transition-all duration-300">
           <summary className="flex cursor-pointer items-center justify-between gap-2 bg-white p-4 text-gray-900 transition">
             <span className="text-sm font-medium">Kích thước</span>
             <span className="transition group-open:-rotate-180">
@@ -149,8 +146,21 @@ export default function CategorySidebar({ products, onFilterChange }) {
             </span>
           </summary>
 
-          <div className="border-t border-gray-200 bg-white">
-            <ul className="space-y-1 border-t border-gray-200 p-4">
+          <div className="border-t border-gray-200 bg-white transition-all duration-300">
+            <header className="flex items-center justify-between p-4">
+              <span className="text-sm text-gray-700">
+                {selectedSizes.length} đã chọn
+              </span>
+              <button
+                type="button"
+                onClick={() => setSelectedSizes([])}
+                className="text-sm text-gray-900 underline underline-offset-4 hover:text-red-500"
+              >
+                Làm mới
+              </button>
+            </header>
+
+            <ul className="space-y-1 border-t border-gray-200 p-4 transition-all duration-300">
               {sizes.map((size) => (
                 <label
                   key={size}
