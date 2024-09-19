@@ -15,6 +15,7 @@ import Scrollbar from 'src/components/scrollbar';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAll } from 'src/redux/slices/couponSlice';
+import { useRouter } from 'src/routes/hooks';
 import TableNoData from '../coupon-no-data';
 import CouponTableRow from '../coupon-table-row';
 import CouponTableHead from '../coupon-table-head';
@@ -40,6 +41,7 @@ export default function CouponsPage() {
   const [coupons, setCoupons] = useState([]);
 
   const dispatch = useDispatch();
+  const route = useRouter();
 
   const data = useSelector((state) => state.coupons.coupons);
   const status = useSelector((state) => state.coupons.status);
@@ -116,7 +118,12 @@ export default function CouponsPage() {
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Typography variant="h4">Mã giảm giá</Typography>
 
-        <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />}>
+        <Button
+          variant="contained"
+          onClick={() => route.push('create')}
+          color="inherit"
+          startIcon={<Iconify icon="eva:plus-fill" />}
+        >
           Tạo mã giảm giá
         </Button>
       </Stack>
@@ -157,21 +164,20 @@ export default function CouponsPage() {
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
                     <CouponTableRow
-                    key={row.id}
-                    code={row.code}
-                    type={row.type}
-                    applicableProducts={row.applicableProducts}
-                    discountValue={row.discountValue}
-                    usageLimit={row.usageLimit}
-                    usageCount={row.usageCount}
-                    status={row.status}
-                    limitOnUser={row.limitOnUser}  // Make sure to include limitOnUser if you want to display it
-                    dateStart={row.dateStart}
-                    dateEnd={row.dateEnd}
-                    selected={selected.indexOf(row.code) !== -1}
-                    handleClick={(event) => handleClick(event, row.code)}
-                  />
-                  
+                      key={row.id}
+                      code={row.code}
+                      type={row.type}
+                      applicableProducts={row.applicableProducts}
+                      discountValue={row.discountValue}
+                      usageLimit={row.usageLimit}
+                      usageCount={row.usageCount}
+                      status={row.status}
+                      limitOnUser={row.limitOnUser} // Make sure to include limitOnUser if you want to display it
+                      dateStart={row.dateStart}
+                      dateEnd={row.dateEnd}
+                      selected={selected.indexOf(row.code) !== -1}
+                      handleClick={(event) => handleClick(event, row.code)}
+                    />
                   ))}
 
                 <TableEmptyRows
