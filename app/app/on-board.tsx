@@ -55,7 +55,7 @@ const OnBoardingScreen = () => {
 				onDone={handleSkip}
 				DoneButtonComponent={DoneButtonComponent}
 				bottomBarHeight={60}
-				// bottomBarColor={colorTheme.background.secondary}
+				bottomBarColor={colorTheme.background.secondary}
 				pages={data.map((item) => ({
 					backgroundColor: colorTheme.background.secondary,
 					image: <Image source={{ uri: item.url }} style={styles.img} />,

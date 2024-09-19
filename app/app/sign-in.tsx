@@ -61,11 +61,11 @@ export default function SignIn() {
 								Toast.show({
 									type: 'success',
 									text1: 'Đăng nhập thành công',
-								});
-								router.replace('/');
-								SecureStore.setItemAsync("token", data.token);
-								signIn(data);
-							}
+								  });
+								  router.replace('/');
+								  SecureStore.setItemAsync("token", data.token)
+								  signIn(data.token);
+								}
 							else{
 								Toast.show({
 									type: 'error',
