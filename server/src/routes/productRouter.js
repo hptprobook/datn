@@ -30,6 +30,8 @@ Router.get('/slug/:slug', productController.getProductBySlug);
 Router.get('/category/:slug', productController.getProductByCategory);
 Router.post(
   '/',
+  verifyToken,
+  verifyAdmin,
   upload.fields([
     { name: 'images' },
     { name: 'thumbnail' },
@@ -40,6 +42,8 @@ Router.post(
 Router.post('/rating', upload.none(), productController.ratingProduct);
 Router.put(
   '/:id',
+  verifyToken,
+  verifyAdmin,
   upload.fields([
     { name: 'images' },
     { name: 'thumbnail' },

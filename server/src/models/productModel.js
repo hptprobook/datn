@@ -153,7 +153,11 @@ const deleteProduct = async (id) => {
     const db = GET_DB().collection('products');
     const product = await db.findOne({ _id: new ObjectId(id) });
     await db.deleteOne({ _id: new ObjectId(id) });
-    return { thumbnail: product.thumbnail, images: product.images };
+    return {
+      thumbnail: product.thumbnail,
+      images: product.images,
+      variants: product.variants,
+    };
   } catch (error) {
     return {
       error: true,
