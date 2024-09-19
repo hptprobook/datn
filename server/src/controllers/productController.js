@@ -66,7 +66,70 @@ const getProductBySlug = async (req, res) => {
 const getProductByCategory = async (req, res) => {
   try {
     const { slug } = req.params;
+
     const product = await productModel.getProductsByCategory(slug);
+    if (product) {
+      return res.status(StatusCodes.OK).json({
+        product,
+      });
+    }
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ message: 'Không tồn tại sản phẩm' });
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: ERROR_MESSAGES.ERR_AGAIN,
+      error: error,
+    });
+  }
+};
+
+const getProductByBrand = async (req, res) => {
+  try {
+    const { slug } = req.params;
+
+    const product = await productModel.getProductsByBrand(slug);
+    if (product) {
+      return res.status(StatusCodes.OK).json({
+        product,
+      });
+    }
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ message: 'Không tồn tại sản phẩm' });
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: ERROR_MESSAGES.ERR_AGAIN,
+      error: error,
+    });
+  }
+};
+
+const getProductByCategoryId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const product = await productModel.getProductsByCategoryId(id);
+    if (product) {
+      return res.status(StatusCodes.OK).json({
+        product,
+      });
+    }
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ message: 'Không tồn tại sản phẩm' });
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: ERROR_MESSAGES.ERR_AGAIN,
+      error: error,
+    });
+  }
+};
+
+const getProductByBrandId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const product = await productModel.getProductsByBrandId(id);
+
     if (product) {
       return res.status(StatusCodes.OK).json({
         product,
@@ -544,4 +607,7 @@ export const productController = {
   deleteRating,
   getProductBySlug,
   getProductByCategory,
+  getProductByCategoryId,
+  getProductByBrandId,
+  getProductByBrand,
 };
