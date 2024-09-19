@@ -25,3 +25,15 @@ export const truncateString = (str, num) => {
 export const formatCurrencyVND = (amount) => {
   return amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
 };
+
+export const generateMongoObjectId = () => {
+  const timestamp = ((new Date().getTime() / 1000) | 0).toString(16); // 4 bytes timestamp
+  const random = 'xxxxxxxxxx'.replace(/[x]/g, () =>
+    ((Math.random() * 16) | 0).toString(16)
+  ); // 5 bytes random
+  const counter = 'xxx'.replace(/[x]/g, () =>
+    ((Math.random() * 16) | 0).toString(16)
+  ); // 3 bytes counter
+
+  return timestamp + random + counter; // MongoDB ObjectId format
+};

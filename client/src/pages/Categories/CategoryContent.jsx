@@ -1,5 +1,5 @@
+import { Icon } from '@iconify/react';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect } from 'react';
 import { getAllProducts } from '~/APIs';
 import ProductItem from '~/components/common/Product/ProductItem';
 
@@ -10,10 +10,6 @@ export default function CategoryContent({ catData }) {
   });
 
   const products = data?.products || null;
-
-  useEffect(() => {
-    console.log('🚀 ~ ProductItem ~ product:', products);
-  }, [products]);
 
   return (
     <div className="text-black">
@@ -44,6 +40,12 @@ export default function CategoryContent({ catData }) {
             <ProductItem key={product._id} product={product} />
           ))}
         </div>
+      </div>
+      <div className="w-full flex justify-center mt-8">
+        <button className="btn btn-error bg-red-600">
+          Xem thêm
+          <Icon icon="mdi:arrow-right" className="ml-2" />
+        </button>
       </div>
     </div>
   );

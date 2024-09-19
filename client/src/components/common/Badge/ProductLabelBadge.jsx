@@ -3,8 +3,10 @@ export default function ProductLabelBadge({ text }) {
   const bgColor =
     text === 'Bán chạy'
       ? 'bg-red-600'
-      : text === 'Free Ship'
+      : text === 'Freeship'
       ? 'bg-green-600'
+      : text === 'Hot sale'
+      ? 'bg-orange-600'
       : 'bg-gray-600';
 
   return (
