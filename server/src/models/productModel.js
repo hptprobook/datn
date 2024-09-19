@@ -31,8 +31,7 @@ const countProductAll = async () => {
     return total;
   } catch (error) {
     return {
-      success: false,
-      mgs: 'Có lỗi xảy ra xin thử lại sau',
+      message: 'Có lỗi xảy ra xin thử lại sau',
     };
   }
 };
@@ -50,8 +49,7 @@ const getProductsAll = async (page, limit) => {
     return result;
   } catch (error) {
     return {
-      success: false,
-      mgs: 'Có lỗi xảy ra xin thử lại sau',
+      message: 'Có lỗi xảy ra xin thử lại sau',
     };
   }
 };
@@ -71,7 +69,7 @@ const getProductBySlug = async (slug) => {
 const getProductsByCategory = async (slug) => {
   const db = await GET_DB();
 
-  const category = await db.collection('categories').findOne({ slug: slug });
+  const category = await db.collection('categories').find({ slug: slug });
 
   if (!category) {
     throw new Error('Danh mục không tồn tại');
@@ -90,7 +88,7 @@ const getProductsByCategory = async (slug) => {
 const getProductsByBrand = async (slug) => {
   const db = await GET_DB();
 
-  const brand = await db.collection('brands').findOne({ slug: slug });
+  const brand = await db.collection('brands').find({ slug: slug });
 
   if (!brand) {
     throw new Error('Thương hiệu không tồn tại');
@@ -149,9 +147,9 @@ const createProduct = async (data) => {
     return result;
   } catch (error) {
     if (error.details) {
-      return { error: true, detail: error.details };
+      return { detail: error.details };
     }
-    return { error: true, detail: error };
+    return { detail: error };
   }
 };
 
@@ -182,9 +180,9 @@ const update = async (id, data) => {
     return { result: result };
   } catch (error) {
     if (error.details) {
-      return { error: true, detail: error.details };
+      return { detail: error.details };
     }
-    return { error: true, detail: error };
+    return { detail: error };
   }
 };
 
@@ -200,7 +198,7 @@ const deleteProduct = async (id) => {
     };
   } catch (error) {
     return {
-      error: true,
+      error,
     };
   }
 };
@@ -234,9 +232,9 @@ const ratingProduct = async (data) => {
     return result;
   } catch (error) {
     if (error.details) {
-      return { error: true, detail: error.details };
+      return { detail: error.details };
     }
-    return { error: true, detail: error };
+    return { detail: error };
   }
 };
 
@@ -265,9 +263,9 @@ const updateRatingProduct = async (reviewId, data) => {
     return result;
   } catch (error) {
     if (error.details) {
-      return { error: true, detail: error.details };
+      return { detail: error.details };
     }
-    return { error: true, detail: error };
+    return { detail: error };
   }
 };
 const deleteRating = async (id) => {
@@ -286,7 +284,201 @@ const deleteRating = async (id) => {
       );
     return result;
   } catch (error) {
-    return { error: true, detail: error.message };
+    return { detail: error.message };
+  }
+};
+
+const getProductByAlphabetAZ = async (page, limit) => {
+  try {
+    page = parseInt(page) || 1;
+    limit = parseInt(limit) || 20;
+
+    const db = await GET_DB().collection('products');
+    const result = await db
+      .find()
+      .collation({ locale: 'en', strength: 1 })
+      .project({
+        content: 0,
+        description: 0,
+        images: 0,
+        variants: 0,
+        inventory: 0,
+        minInventory: 0,
+        maxInventory: 0,
+        weight: 0,
+        height: 0,
+      })
+      .sort({ name: 1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .toArray();
+
+    return result;
+  } catch (error) {
+    return {
+      message: 'Có lỗi xảy ra xin thử lại sau',
+    };
+  }
+};
+
+const getProductByAlphabetZA = async (page, limit) => {
+  try {
+    page = parseInt(page) || 1;
+    limit = parseInt(limit) || 20;
+
+    const db = await GET_DB().collection('products');
+    const result = await db
+      .find()
+      .collation({ locale: 'en', strength: 1 })
+      .project({
+        content: 0,
+        description: 0,
+        images: 0,
+        variants: 0,
+        inventory: 0,
+        minInventory: 0,
+        maxInventory: 0,
+        weight: 0,
+        height: 0,
+      })
+      .sort({ name: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .toArray();
+
+    return result;
+  } catch (error) {
+    return {
+      message: 'Có lỗi xảy ra xin thử lại sau',
+    };
+  }
+};
+
+const getProductByPriceAsc = async (page, limit) => {
+  try {
+    page = parseInt(page) || 1;
+    limit = parseInt(limit) || 20;
+
+    const db = await GET_DB().collection('products');
+    const result = await db
+      .find()
+      .project({
+        content: 0,
+        description: 0,
+        images: 0,
+        variants: 0,
+        inventory: 0,
+        minInventory: 0,
+        maxInventory: 0,
+        weight: 0,
+        height: 0,
+      })
+      .sort({ price: 1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .toArray();
+
+    return result;
+  } catch (error) {
+    return {
+      message: 'Có lỗi xảy ra xin thử lại sau',
+    };
+  }
+};
+
+const getProductByPriceDesc = async (page, limit) => {
+  try {
+    page = parseInt(page) || 1;
+    limit = parseInt(limit) || 20;
+
+    const db = await GET_DB().collection('products');
+    const result = await db
+      .find()
+      .project({
+        content: 0,
+        description: 0,
+        images: 0,
+        variants: 0,
+        inventory: 0,
+        minInventory: 0,
+        maxInventory: 0,
+        weight: 0,
+        height: 0,
+      })
+      .sort({ price: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .toArray();
+
+    return result;
+  } catch (error) {
+    return {
+      message: 'Có lỗi xảy ra xin thử lại sau',
+    };
+  }
+};
+
+const getProductByNewest = async (page, limit) => {
+  try {
+    page = parseInt(page) || 1;
+    limit = parseInt(limit) || 20;
+
+    const db = await GET_DB().collection('products');
+    const result = await db
+      .find()
+      .project({
+        content: 0,
+        description: 0,
+        images: 0,
+        variants: 0,
+        inventory: 0,
+        minInventory: 0,
+        maxInventory: 0,
+        weight: 0,
+        height: 0,
+      })
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .toArray();
+
+    return result;
+  } catch (error) {
+    return {
+      message: 'Có lỗi xảy ra xin thử lại sau',
+    };
+  }
+};
+
+const getProductByOldest = async (page, limit) => {
+  try {
+    page = parseInt(page) || 1;
+    limit = parseInt(limit) || 20;
+
+    const db = await GET_DB().collection('products');
+    const result = await db
+      .find()
+      .project({
+        content: 0,
+        description: 0,
+        images: 0,
+        variants: 0,
+        inventory: 0,
+        minInventory: 0,
+        maxInventory: 0,
+        weight: 0,
+        height: 0,
+      })
+      .sort({ createdAt: 1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .toArray();
+
+    return result;
+  } catch (error) {
+    return {
+      message: 'Có lỗi xảy ra xin thử lại sau',
+    };
   }
 };
 
@@ -305,4 +497,10 @@ export const productModel = {
   getProductsByCategoryId,
   getProductsByBrand,
   getProductsByBrandId,
+  getProductByAlphabetAZ,
+  getProductByAlphabetZA,
+  getProductByPriceAsc,
+  getProductByPriceDesc,
+  getProductByNewest,
+  getProductByOldest,
 };
