@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 
-import Stack from '@mui/material/Stack';
-import Avatar from '@mui/material/Avatar';
 import Popover from '@mui/material/Popover';
 import TableRow from '@mui/material/TableRow';
 import Checkbox from '@mui/material/Checkbox';
@@ -18,12 +16,16 @@ import Iconify from 'src/components/iconify';
 
 export default function CouponTableRow({
   selected,
-  name,
-  avatarUrl,
-  company,
-  role,
-  isVerified,
+  code,
+  type,
+  minPurchasePrice,
+  discountValue,
+  usageLimit,
+  usageCount,
   status,
+  limitOnUser,
+  dateStart,
+  dateEnd,
   handleClick,
 }) {
   const [open, setOpen] = useState(null);
@@ -44,22 +46,32 @@ export default function CouponTableRow({
         </TableCell>
 
         <TableCell component="th" scope="row" padding="none">
-          <Stack direction="row" alignItems="center" spacing={2}>
-            <Typography variant="subtitle2" noWrap>
-              {name}
-            </Typography>
-          </Stack>
+          <Typography variant="subtitle2" noWrap>
+            {code}
+          </Typography>
         </TableCell>
 
-        <TableCell>{company}</TableCell>
+        <TableCell>{type}</TableCell>
 
-        <TableCell>{role}</TableCell>
+        <TableCell>{minPurchasePrice}</TableCell>
 
-        <TableCell align="center">{isVerified ? 'Yes' : 'No'}</TableCell>
+        <TableCell>{discountValue}</TableCell>
+
+        <TableCell>{usageLimit}</TableCell>
+
+        <TableCell>{usageCount}</TableCell>
 
         <TableCell>
-          <Label color={(status === 'banned' && 'error') || 'success'}>{status}</Label>
+          <Label color={(status === 'expired' && 'error') || (status === 'inactive' && 'warning') || 'success'}>
+            {status}
+          </Label>
         </TableCell>
+
+        <TableCell>{limitOnUser ? 'Yes' : 'No'}</TableCell>
+
+        <TableCell>{new Date(dateStart).toLocaleDateString()}</TableCell>
+
+        <TableCell>{new Date(dateEnd).toLocaleDateString()}</TableCell>
 
         <TableCell align="right">
           <IconButton onClick={handleOpenMenu}>
@@ -93,12 +105,16 @@ export default function CouponTableRow({
 }
 
 CouponTableRow.propTypes = {
-  avatarUrl: PropTypes.any,
-  company: PropTypes.any,
+  code: PropTypes.string.isRequired,
+  type: PropTypes.string.isRequired,
+  minPurchasePrice: PropTypes.number.isRequired,
+  discountValue: PropTypes.number.isRequired,
+  usageLimit: PropTypes.number.isRequired,
+  usageCount: PropTypes.number.isRequired,
+  status: PropTypes.string.isRequired,
+  limitOnUser: PropTypes.bool.isRequired,
+  dateStart: PropTypes.number.isRequired,
+  dateEnd: PropTypes.number.isRequired,
+  selected: PropTypes.bool,
   handleClick: PropTypes.func,
-  isVerified: PropTypes.any,
-  name: PropTypes.any,
-  role: PropTypes.any,
-  selected: PropTypes.any,
-  status: PropTypes.string,
 };

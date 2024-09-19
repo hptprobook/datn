@@ -26,11 +26,17 @@ const upload = multer({ storage });
 //admin
 Router.get('/', productController.getAllProducts);
 Router.get('/:id', productController.getProductById);
+Router.get('/slug/:slug', productController.getProductBySlug);
+Router.get('/category/:slug', productController.getProductByCategory);
 Router.post(
   '/',
   verifyToken,
   verifyAdmin,
-  upload.fields([{ name: 'images' }, { name: 'thumbnail' }]),
+  upload.fields([
+    { name: 'images' },
+    { name: 'thumbnail' },
+    { name: 'imageVariants' },
+  ]),
   productController.createProduct
 );
 Router.post('/rating', upload.none(), productController.ratingProduct);
@@ -38,7 +44,11 @@ Router.put(
   '/:id',
   verifyToken,
   verifyAdmin,
-  upload.fields([{ name: 'images' }, { name: 'thumbnail' }]),
+  upload.fields([
+    { name: 'images' },
+    { name: 'thumbnail' },
+    { name: 'imageVariants' },
+  ]),
   productController.updateProduct
 );
 Router.put('/rating/:id', upload.none(), productController.updateRatingProduct);

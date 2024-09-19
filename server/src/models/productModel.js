@@ -62,6 +62,31 @@ const getProductById = async (product_id) => {
   return product;
 };
 
+const getProductBySlug = async (slug) => {
+  const db = await GET_DB().collection('products');
+  const product = await db.findOne({ slug: slug });
+  return product;
+};
+
+const getProductsByCategory = async (slug) => {
+  const db = await GET_DB();
+
+  const category = await db.collection('categories').findOne({ slug: slug });
+
+  if (!category) {
+    throw new Error('Danh mục không tồn tại');
+  }
+
+  const cat_id = category._id;
+
+  const products = await db
+    .collection('products')
+    .find({ cat_id: new ObjectId(cat_id) })
+    .toArray();
+
+  return products;
+};
+
 const createProduct = async (data) => {
   try {
     const validData = await validateBeforeCreate(data);
@@ -69,15 +94,15 @@ const createProduct = async (data) => {
     const collection = db.collection('products');
     let validCat;
 
-    if (Array.isArray(validData.catId)) {
-      validCat = validData.catId.map((cat) => new ObjectId(cat));
+    if (Array.isArray(validData.cat_id)) {
+      validCat = validData.cat_id.map((cat) => new ObjectId(cat));
     } else {
-      validCat = [new ObjectId(validData.catId)];
+      validCat = new ObjectId(validData.cat_id);
     }
 
     const result = await collection.insertOne({
       ...validData,
-      catId: validCat,
+      cat_id: validCat,
       productType: new ObjectId(validData.productType),
     });
 
@@ -96,10 +121,10 @@ const update = async (id, data) => {
     const db = GET_DB().collection('products');
     let validCat;
 
-    if (validData.catId.length > 0) {
-      validCat = validData.catId.map((cat) => new ObjectId(cat));
+    if (Array.isArray(validData.cat_id)) {
+      validCat = validData.cat_id.map((variant) => new ObjectId(variant));
     } else {
-      validCat = new ObjectId(validData.catId);
+      validCat = new ObjectId(validData.cat_id);
     }
 
     const result = await db.findOneAndUpdate(
@@ -107,7 +132,7 @@ const update = async (id, data) => {
       {
         $set: {
           ...validData,
-          catId: validCat,
+          cat_id: validCat,
           productType: new ObjectId(validData.productType),
         },
       },
@@ -128,7 +153,11 @@ const deleteProduct = async (id) => {
     const db = GET_DB().collection('products');
     const product = await db.findOne({ _id: new ObjectId(id) });
     await db.deleteOne({ _id: new ObjectId(id) });
-    return { thumbnail: product.thumbnail, images: product.images };
+    return {
+      thumbnail: product.thumbnail,
+      images: product.images,
+      variants: product.variants,
+    };
   } catch (error) {
     return {
       error: true,
@@ -231,4 +260,6 @@ export const productModel = {
   ratingProduct,
   updateRatingProduct,
   deleteRating,
+  getProductBySlug,
+  getProductsByCategory,
 };
