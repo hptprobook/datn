@@ -4,6 +4,7 @@ import CategoryPage from '~/pages/Categories';
 import CheckoutPage from '~/pages/Checkout';
 import CheckoutConfirm from '~/pages/Checkout/CheckoutConfirm';
 import HomePage from '~/pages/Home/HomePage';
+import NotFoundPage from '~/pages/NotFound/404NotFound';
 import PostPage from '~/pages/Post';
 import PostDetail from '~/pages/Post/PostDetail';
 import ProductPage from '~/pages/Products';
@@ -12,6 +13,10 @@ const MainRoutes = {
   path: '/',
   element: <MainLayout />,
   children: [
+    {
+      path: '*',
+      element: <NotFoundPage />,
+    },
     {
       path: '',
       element: <HomePage />,

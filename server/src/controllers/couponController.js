@@ -39,14 +39,14 @@ const createCoupon = async(req, res) => {
             if (check) {
                 return res
                     .status(StatusCodes.BAD_REQUEST)
-                    .json({ mgs: 'Mã giảm giá đã tồn tại' });
+                    .json({ messages: 'Mã giảm giá đã tồn tại' });
             }
         }
         const result = await couponModel.createCoupon(dataCoupon);
         if (result.acknowledged) {
             return res
                 .status(StatusCodes.OK)
-                .json({ mgs: 'Tạo mã giảm giá thành công' });
+                .json({ messages: 'Tạo mã giảm giá thành công' });
         }
         return res.status(StatusCodes.BAD_REQUEST).json(result);
     } catch (error) {
@@ -85,7 +85,7 @@ const deleteCoupon = async(req, res) => {
         if (dataDel.acknowledged) {
             return res
                 .status(StatusCodes.OK)
-                .json({ mgs: 'Xoá mã giảm giá thành công' });
+                .json({ messages: 'Xoá mã giảm giá thành công' });
         }
         return res.status(StatusCodes.BAD_REQUEST).json(dataDel);
     } catch (error) {

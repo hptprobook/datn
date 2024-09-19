@@ -1,11 +1,11 @@
 import { jwtDecode } from 'jwt-decode';
 
 const verifyToken = async(req, res, next) => {
-    const token = req.headers.authorization.split(' ')[1];
-
-    if (!token) {
-        return res.status(401).send({ message: 'Thiếu token' });
+    const data = req.headers.authorization;
+    if (!data) {
+        return res.status(401).send({ message: 'Bạn không có quyền truy cập' });
     }
+    const token = req.headers.authorization.split(' ')[1];
 
     try {
         const decodedToken = jwtDecode(token);

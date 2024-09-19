@@ -1,18 +1,128 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AddToWhistListBtn from '~/components/common/Button/AddToWhistList';
 import RateInforBtn from '~/components/common/Button/RateInfor';
 import SelectColor from './SelectColor';
 import SelectSize from './SelectSize';
 import ChangeQuantity from '~/components/common/ButtonGroup/ChangeQuantity';
 import AddToCartBtn from '~/components/common/Button/AddToCart';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { formatCurrencyVND, generateMongoObjectId } from '~/utils/formatters';
+import { useCart } from 'react-use-cart';
+import { handleToast } from '~/customHooks/useToast';
+import CartFixed from '~/components/Home/Header/CartFixed';
 
-export default function ProductDetailInfor() {
-  const [quantity, setQuantity] = useState(1);
+export default function ProductDetailInfor({ product, onColorChange }) {
   const navigate = useNavigate();
+  const [quantity, setQuantity] = useState(1);
 
+  // Các state quản lý biến thể sản phẩm
+  const [selectedColor, setSelectedColor] = useState(null);
+  const [selectedSize, setSelectedSize] = useState(null);
+  const [selectedPrice, setSelectedPrice] = useState(product.price);
+  const [totalPrice, setTotalPrice] = useState(product.price);
+
+  // State quản lý lỗi không chọn variant trước khi mua
+  const [error, setError] = useState('');
+
+  // State mở cart khi thêm vào giỏ hàng
+  const [openCartFixed, setOpenCartFixed] = useState(false);
+
+  // React-use-cart để thêm vào giỏ hàng không cần đăng nhập
+  const { addItem, items } = useCart();
+
+  // Hàm thay đổi số lượng sản phẩm muốn mua
   const handleQuantityChange = (newQuantity) => {
     setQuantity(newQuantity);
+    setTotalPrice(newQuantity * selectedPrice); // Cập nhật giá tổng khi thay đổi số lượng
+  };
+
+  // Lấy sizes dựa trên kích thước đã chọn
+  const sizes =
+    selectedColor !== null
+      ? product?.variants?.find((variant) => variant.color === selectedColor)
+          ?.sizes
+      : [];
+
+  // Hàm thay đổi màu sắc khi chọn
+  const handleColorChange = (color) => {
+    setSelectedColor(color);
+    setSelectedSize(null); // Reset lại kích thước khi chọn màu mới
+
+    const selectedVariant = product.variants.find(
+      (variant) => variant.color === color
+    );
+
+    if (selectedVariant) {
+      setSelectedPrice(selectedVariant.price);
+      setTotalPrice(quantity * selectedVariant.price); // Cập nhật giá tổng dựa trên số lượng và giá mới
+    }
+
+    onColorChange(color);
+  };
+
+  const selectedVariant = product.variants.find(
+    (variant) => variant.color === selectedColor
+  );
+
+  // Hàm thay đổi kích thước khi chọn
+  const handleSizeChange = (size) => {
+    setSelectedSize(size);
+
+    const selectedSizeObj = selectedVariant?.sizes.find((s) => s.size === size);
+
+    if (selectedSizeObj && selectedSizeObj.price) {
+      setSelectedPrice(selectedSizeObj.price);
+      setTotalPrice(quantity * selectedSizeObj.price); // Cập nhật giá tổng dựa trên số lượng và giá kích thước mới
+    } else {
+      setSelectedPrice(selectedVariant.price);
+      setTotalPrice(quantity * selectedVariant.price); // Cập nhật giá tổng nếu kích thước không có giá riêng
+    }
+  };
+
+  // Hàm xử lý thêm vào giỏ hàng
+  const handleAddToCart = () => {
+    if (!selectedColor || !selectedSize) {
+      setError('Vui lòng chọn đầy đủ màu sắc và kích thước.');
+    } else {
+      setError('');
+
+      const selectedVariant = product.variants.find(
+        (variant) => variant.color === selectedColor
+      );
+
+      // Kiểm tra xem sản phẩm với biến thể đã có trong giỏ hàng chưa
+      const existingItem = items.find(
+        (item) =>
+          item.slug === product.slug &&
+          item.variantColor === selectedColor &&
+          item.variantSize === selectedSize
+      );
+
+      if (existingItem) {
+        // Nếu sản phẩm đã tồn tại trong giỏ hàng, chỉ cần cập nhật số lượng
+        addItem(existingItem, quantity);
+      } else {
+        // Nếu sản phẩm là mới, tạo mới cartId và thêm sản phẩm vào giỏ hàng
+        const cartId = generateMongoObjectId();
+
+        addItem(
+          {
+            id: cartId,
+            productId: product._id,
+            name: product.name,
+            price: selectedPrice,
+            slug: product.slug,
+            image: selectedVariant.image,
+            variantColor: selectedColor,
+            variantSize: selectedSize,
+          },
+          quantity
+        );
+      }
+
+      handleToast('success', 'Sản phẩm đã được thêm vào giỏ hàng');
+      setOpenCartFixed(true);
+    }
   };
 
   return (
@@ -20,17 +130,20 @@ export default function ProductDetailInfor() {
       <div className="pro-detail w-full max-lg:max-w-[608px] lg:pl-8 xl:pl-16 max-lg:mx-auto max-lg:mt-8">
         <div className="flex items-center justify-between gap-6 mb-6">
           <div className="text">
-            <h2 className="font-manrope font-bold text-3xl leading-10 text-gray-900 mb-2">
-              Tên sản phẩm
+            <h2 className="font-manrope font-bold text-3xl leading-10 text-gray-900 mb-2 text-clamp-3">
+              {product?.name}
             </h2>
-            <p className="font-normal text-base text-gray-500">Danh mục</p>
+            <p className="font-normal text-base text-gray-500 text-clamp-1">
+              SKU: {selectedVariant?.sku || product?.variants[0].sku}
+            </p>
           </div>
           <AddToWhistListBtn />
         </div>
         <div className="flex flex-col min-[400px]:flex-row min-[400px]:items-center mb-8 gap-y-3">
           <div className="flex items-center">
             <h5 className="font-manrope font-semibold text-2xl leading-9 text-gray-900 ">
-              399.999 đ{' '}
+              {formatCurrencyVND(totalPrice)}{' '}
+              {/* Hiển thị tổng giá dựa trên số lượng */}
             </h5>
             <span className="ml-3 font-semibold text-lg text-indigo-600">
               - 30%
@@ -46,26 +159,60 @@ export default function ProductDetailInfor() {
           >
             <path d="M1 0V36" stroke="#E5E7EB" />
           </svg>
-          {/* Star rate product button */}
           <RateInforBtn rate={4.5} />
         </div>
+
+        {/* Màu sắc */}
         <p className="font-medium text-lg text-gray-900 mb-2">Màu sắc</p>
-        <SelectColor />
-        <p className="font-medium text-lg text-gray-900 mb-2">Kích thước</p>
-        <SelectSize />
+        <SelectColor
+          variants={product.variants}
+          onChange={handleColorChange}
+          selectedColor={selectedColor}
+        />
+
+        {/* Kích thước */}
+        {sizes && sizes.length > 0 && (
+          <>
+            <p className="font-medium text-lg text-gray-900 mb-2">Kích thước</p>
+            <SelectSize
+              sizes={sizes}
+              onChange={handleSizeChange}
+              selectedSize={selectedSize}
+            />
+          </>
+        )}
+
+        {error && <p className="text-red-600 mb-5">{error}</p>}
+
         <div className="flex items-center flex-col min-[400px]:flex-row gap-3 mb-3 min-[400px]:mb-8">
-          <ChangeQuantity onChange={handleQuantityChange} quantity={quantity} />
-          <AddToCartBtn />
+          <ChangeQuantity
+            onChange={handleQuantityChange}
+            quantity={quantity}
+            setQuantity={setQuantity}
+          />
+          <AddToCartBtn
+            disabled={
+              !selectedSize ||
+              sizes.find((size) => size.name === selectedSize)?.stock === 0
+            }
+            onClick={handleAddToCart}
+          />
         </div>
         <button
           className="text-center w-full px-5 py-4 rounded-md bg-red-600 flex items-center justify-center font-semibold text-lg text-white shadow-sm shadow-transparent transition-all duration-500 hover:bg-red-700 hover:shadow-red-300"
           onClick={() => {
             navigate('/gio-hang');
           }}
+          disabled={
+            !selectedSize ||
+            sizes.find((size) => size.name === selectedSize)?.stock === 0
+          }
         >
           Mua ngay
         </button>
       </div>
+      {/* Modal CartFixed */}
+      <CartFixed open={openCartFixed} setOpen={setOpenCartFixed} />
     </div>
   );
 }

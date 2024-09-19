@@ -23,8 +23,9 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-Router.get('/', verifyToken, verifyAdmin, brandController.getAllBrands);
-Router.get('/:id', verifyToken, verifyAdmin, brandController.getBrandById);
+Router.get('/', brandController.getAllBrands);
+Router.get('/:id', brandController.getBrandById);
+Router.get('/slug/:slug', brandController.getBrandBySlug);
 Router.post(
   '/',
   verifyToken,

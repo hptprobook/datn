@@ -11,6 +11,7 @@ import SearchBar from './Search/SearchBar';
 import SearchResponsiveModal from './Responsive/SearchResponsiveModal';
 import CartFixed from './CartFixed';
 import useCheckAuth from '~/customHooks/useCheckAuth';
+import { useCart } from 'react-use-cart';
 
 export default function Header() {
   const { isAuthenticated } = useCheckAuth();
@@ -19,6 +20,8 @@ export default function Header() {
   const [openMenu, setOpenMenu] = useState(false);
   const [openSearch, setOpenSearch] = useState(false);
   const [currentTitle, setCurrentTitle] = useState('Danh mục');
+
+  const { items } = useCart();
 
   return (
     <div>
@@ -38,7 +41,7 @@ export default function Header() {
             >
               <PiShoppingCartBold />
               <div className="absolute -top-2 -right-3 bg-red-700 text-white rounded-md w-6 h-4 flex items-center justify-center text-xs">
-                5
+                {items.length}
               </div>
             </div>
             <CartFixed open={openCart} setOpen={setOpenCart} />
@@ -75,7 +78,7 @@ export default function Header() {
           >
             <PiShoppingCartBold />
             <div className="absolute -top-2 -right-3 bg-red-700 text-white rounded-md w-6 h-4 flex items-center justify-center text-xs">
-              5
+              {items.length}
             </div>
           </div>
           <CartFixed open={openCart} setOpen={setOpenCart} />

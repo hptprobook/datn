@@ -44,7 +44,7 @@ const MyOrder = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 sm:p-6 lg:p-8">
+    <div className="container mx-auto p-4 sm:p-6 lg:p-8 bg-white text-black">
       <div className="flex overflow-auto border-b border-gray-300">
         {tabs.map((tab) => (
           <button

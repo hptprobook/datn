@@ -7,10 +7,15 @@ import ChangePassword from '~/pages/User/Profile/ChangePassword';
 import MyProfile from '~/pages/User/Profile/MyProfile';
 import Notifies from '~/pages/User/Profile/Notifies';
 import VoucherList from '~/pages/User/VoucherList';
+import PrivateRoute from './PrivateRoutes';
 
 const UserRoutes = {
   path: '/nguoi-dung',
-  element: <ProfileLayout />,
+  element: (
+    <PrivateRoute>
+      <ProfileLayout />
+    </PrivateRoute>
+  ),
   children: [
     {
       path: '',
