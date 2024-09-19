@@ -3,6 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 from pymongo import MongoClient
 from unidecode import unidecode
+from bson import ObjectId
 import random
 import re
 
@@ -82,6 +83,39 @@ def distribute_stock(total_stock, num_sizes):
 
 image_counter = 1 
 
+def random_review_content():
+    contents = [
+        "Great product, very satisfied!",
+        "Quality could be better, but overall happy.",
+        "Fantastic, exactly what I needed.",
+        "Not worth the price, wouldn't recommend.",
+        "Excellent build quality and design, highly recommend!",
+        "The product arrived on time and works perfectly.",
+        "Had some issues with the size, but customer service was helpful.",
+        "Amazing! Exceeded my expectations.",
+        "Disappointed with the packaging, but the product itself is good.",
+        "Will definitely buy again from this store."
+    ]
+    return random.choice(contents)
+
+def generate_reviews(product_id):
+    reviews = []
+    num_reviews = random.randint(1, 10) 
+    
+    for _ in range(num_reviews):
+        review = {
+            'userId': ObjectId('66e5522603f241deb3d5fccd'),
+            'orderId': ObjectId('66e2c1d8b885f7a82f6402aa'),
+            'productId': ObjectId(product_id),
+            'content': random_review_content(),
+            'rating': random.randint(1, 5),
+            'createdAt': 1726476852277,
+            'updatedAt': 1726476852277
+        }
+        reviews.append(review)
+    
+    return reviews
+
 def crawl_product_detail(product_url):
     global image_counter
     product_response = requests.get(product_url, headers=headers)
@@ -133,7 +167,8 @@ def crawl_product_detail(product_url):
             variants.append(variant)
 
 
-        cat_id = random.choice(catIds)
+        cat_id = ObjectId(random.choice(catIds))
+        brand = ObjectId(random.choice(brandIds))
         tags = random.sample(tags_list, random.randint(1, len(tags_list)))
         stock = random.randint(100, 300)
         weight = random.randint(1, 100)
@@ -148,7 +183,7 @@ def crawl_product_detail(product_url):
             'description': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin efficitur justo vitae felis gravida, nec laoreet ligula consequat. Vivamus ac vehicula ligula. Etiam eu libero sed purus cursus tincidunt.',
             'content': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin efficitur justo vitae felis gravida, nec laoreet ligula consequat. Vivamus ac vehicula ligula. Etiam eu libero sed purus cursus tincidunt. Nulla facilisi. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Quisque fringilla consectetur dui, sed dictum ex blandit non. Aenean sed justo felis. Integer viverra venenatis arcu ac ullamcorper. Donec posuere ligula ac turpis suscipit, vitae tincidunt ipsum malesuada. Aliquam erat volutpat. Mauris vitae bibendum metus. Phasellus nec bibendum sapien. Aliquam erat volutpat. Suspendisse eget egestas neque, non viverra est. Aenean at est vulputate, pellentesque nunc at, efficitur ipsum.Mauris eget felis accumsan, placerat dolor nec, interdum mauris. Vestibulum tristique augue vel lorem varius, sed luctus nisl suscipit. Praesent aliquam metus sed leo viverra, et lobortis justo suscipit. Nunc ultricies ligula quis dui maximus vehicula. Integer dapibus risus nec scelerisque tincidunt. Curabitur bibendum risus at est dignissim egestas. Integer fermentum dictum felis, quis mollis lacus condimentum eget. Pellentesque convallis erat in felis consectetur, non faucibus lacus dign',
             'tags': tags,
-            'brand': random.choice(brandIds),
+            'brand': brand,
             'thumbnail': thumbnail,
             'images': imgUrls,
             'price': product_price,
@@ -168,7 +203,10 @@ def crawl_product_detail(product_url):
             'createdAt': 1726476852277,
             'updatedAt': 1726476852277
         }
-        collection.insert_one(product_data)
+        
+        product_id = collection.insert_one(product_data).inserted_id
+        reviews = generate_reviews(product_id)
+        collection.update_one({'_id': product_id}, {'$set': {'reviews': reviews}})
         print(f"Đã lưu sản phẩm: {product_name}")
     else:
         print(f"Không thể truy cập sản phẩm: {product_url}")
