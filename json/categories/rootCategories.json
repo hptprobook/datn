@@ -1,0 +1,65 @@
+[
+  {
+    "name": "Nam",
+    "imageURL": "",
+    "description": "",
+    "slug": "nam",
+    "parentId": "ROOT",
+    "createdAt": { "$date": 1726131832087 },
+    "updatedAt": { "$date": 1726131832087 }
+  },
+  {
+    "name": "Nữ",
+    "imageURL": "",
+    "description": "Nữ",
+    "slug": "nu",
+    "parentId": "ROOT",
+    "createdAt": { "$date": 1726131832087 },
+    "updatedAt": { "$date": 1726131832087 }
+  },
+  {
+    "name": "Trẻ em",
+    "imageURL": "",
+    "description": "Trẻ em",
+    "slug": "",
+    "parentId": "ROOT",
+    "createdAt": { "$date": 1726131832087 },
+    "updatedAt": { "$date": 1726131832087 }
+  },
+  {
+    "name": "Giày dép",
+    "imageURL": "",
+    "description": "Giày dép",
+    "slug": "giay-dep",
+    "parentId": "ROOT",
+    "createdAt": { "$date": 1726131832087 },
+    "updatedAt": { "$date": 1726131832087 }
+  },
+  {
+    "name": "Phụ kiện",
+    "imageURL": "",
+    "description": "",
+    "slug": "phu-kien",
+    "parentId": "ROOT",
+    "createdAt": { "$date": 1726131832087 },
+    "updatedAt": { "$date": 1726131832087 }
+  },
+  {
+    "name": "Sức khỏe - làm đẹp",
+    "imageURL": "",
+    "description": "",
+    "slug": "suc-khoe-lam-dep",
+    "parentId": "ROOT",
+    "createdAt": { "$date": 1726131832087 },
+    "updatedAt": { "$date": 1726131832087 }
+  },
+  {
+    "name": "Đồ dùng gia đình",
+    "imageURL": "",
+    "description": "",
+    "slug": "do-dung-gia-dinh",
+    "parentId": "ROOT",
+    "createdAt": { "$date": 1726131832087 },
+    "updatedAt": { "$date": 1726131832087 }
+  }
+]

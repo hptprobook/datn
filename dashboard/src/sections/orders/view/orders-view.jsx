@@ -50,7 +50,7 @@ export default function OrdersPage() {
   }, [dispatch]);
 
   useEffect(() => {
-    if (status === 'succeeded') {
+    if (status === 'successful') {
       setData(dataOrder);
     }
   }, [status, dataOrder]);

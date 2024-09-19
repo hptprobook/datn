@@ -1,26 +1,27 @@
 import { Rating } from 'flowbite-react';
 import ProductLabelBadge from '../Badge/ProductLabelBadge';
 import { NavLink } from 'react-router-dom';
+import React from 'react';
 
-export default function ProductItem({ product, height = false }) {
+const ProductItem = React.memo(({ product, height = false }) => {
   return (
     <div className="h-productItem">
-      <NavLink to={`/san-pham/${product.title}`}>
+      <NavLink to={`/san-pham/${product._id}`}>
         <div className={`w-full relative ${!height ? 'h-80' : 'h-96'}`}>
           <div className="flex gap-2 absolute top-2 left-2">
-            {product.label.map((label, index) => (
+            {product.tags.map((label, index) => (
               <ProductLabelBadge key={index} text={label} />
             ))}
           </div>
           <img
-            src={product.img}
+            src={product.thumbnail}
             alt=""
             className="w-full h-full object-cover"
           />
         </div>
       </NavLink>
-      <NavLink to={`/san-pham/${product.title}`}>
-        <div className="mt-3 text-clamp-2">{product.title}</div>
+      <NavLink to={`/san-pham/${product.slug}`}>
+        <div className="mt-3 text-clamp-2">{product.name}</div>
       </NavLink>
       <Rating className="mt-1">
         {Array.from({ length: 5 }).map((_, i) => (
@@ -40,4 +41,6 @@ export default function ProductItem({ product, height = false }) {
       </div>
     </div>
   );
-}
+});
+
+export default ProductItem;

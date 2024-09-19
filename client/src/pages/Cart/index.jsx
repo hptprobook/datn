@@ -11,7 +11,6 @@ export default function CartPage() {
         </div>
         <div className="grid grid-cols-12 mt-2 lg:mt-8">
           <CartListProduct />
-
           <CartSummary />
         </div>
       </div>

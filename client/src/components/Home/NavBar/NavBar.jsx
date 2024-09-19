@@ -24,7 +24,7 @@ export default function NavBar() {
   const menuData = data?.menu || [];
 
   if (menuData.length === 0) {
-    return <p>Danh mục không tồn tại!</p>;
+    return <p>Không có sẵn danh mục!</p>;
   }
 
   return (
@@ -37,14 +37,20 @@ export default function NavBar() {
             onMouseEnter={() => setHoveredMenu(item.id)}
             onMouseLeave={() => setHoveredMenu(null)}
           >
-            <p className="cursor-pointer hover:text-red-500 font-semibold text-sm">
-              {item.title}
-            </p>
+            <NavLink to={`/danh-muc-san-pham/${item.slug}`}>
+              <p className="cursor-pointer hover:text-red-500 font-semibold text-sm">
+                {item.title}
+              </p>
+            </NavLink>
             {hoveredMenu === item.id && (
               <div className="fixed top-32 w-container left-1/2 -translate-x-1/2 bg-slate-50 shadow-lg z-10 p-4 border-t-df grid grid-cols-4 gap-5 menu-hovered">
                 {item.list?.map((subItem) => (
                   <div key={subItem.id} className="mb-4">
-                    <p className="font-bold mb-4 text-sm">{subItem.title}</p>
+                    <NavLink to={`/danh-muc-san-pham/${subItem.slug}`}>
+                      <p className="font-bold mb-4 text-sm hover:text-red-600">
+                        {subItem.title}
+                      </p>
+                    </NavLink>
                     <div>
                       {subItem.list?.map((childItem) => (
                         <NavLink
