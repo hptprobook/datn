@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
-import { set, sub } from 'date-fns';
+import dayjs from 'dayjs';
 import { faker } from '@faker-js/faker';
 
 import Box from '@mui/material/Box';
@@ -18,8 +18,6 @@ import ListSubheader from '@mui/material/ListSubheader';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 import ListItemButton from '@mui/material/ListItemButton';
 
-import { fToNow } from 'src/utils/format-time';
-
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 
@@ -32,7 +30,7 @@ const NOTIFICATIONS = [
     description: 'waiting for shipping',
     avatar: null,
     type: 'order_placed',
-    createdAt: set(new Date(), { hours: 10, minutes: 30 }),
+    createdAt: dayjs().set('hour', 10).set('minute', 30).toDate(),
     isUnRead: true,
   },
   {
@@ -41,7 +39,7 @@ const NOTIFICATIONS = [
     description: 'answered to your comment on the Minimal',
     avatar: '/assets/images/avatars/avatar_2.jpg',
     type: 'friend_interactive',
-    createdAt: sub(new Date(), { hours: 3, minutes: 30 }),
+    createdAt: dayjs().subtract(3, 'hour').subtract(30, 'minute').toDate(),
     isUnRead: true,
   },
   {
@@ -50,7 +48,7 @@ const NOTIFICATIONS = [
     description: '5 unread messages',
     avatar: null,
     type: 'chat_message',
-    createdAt: sub(new Date(), { days: 1, hours: 3, minutes: 30 }),
+    createdAt: dayjs().subtract(1, 'day').subtract(3, 'hour').subtract(30, 'minute').toDate(),
     isUnRead: false,
   },
   {
@@ -59,7 +57,7 @@ const NOTIFICATIONS = [
     description: 'sent from Guido Padberg',
     avatar: null,
     type: 'mail',
-    createdAt: sub(new Date(), { days: 2, hours: 3, minutes: 30 }),
+    createdAt: dayjs().subtract(2, 'day').subtract(3, 'hour').subtract(30, 'minute').toDate(),
     isUnRead: false,
   },
   {
@@ -68,7 +66,7 @@ const NOTIFICATIONS = [
     description: 'Your order is being shipped',
     avatar: null,
     type: 'order_shipped',
-    createdAt: sub(new Date(), { days: 3, hours: 3, minutes: 30 }),
+    createdAt: dayjs().subtract(3, 'day').subtract(3, 'hour').subtract(30, 'minute').toDate(),
     isUnRead: false,
   },
 ];
@@ -128,7 +126,7 @@ export default function NotificationsPopover() {
           </Box>
 
           {totalUnRead > 0 && (
-            <Tooltip title=" Mark all as read">
+            <Tooltip title="Mark all as read">
               <IconButton color="primary" onClick={handleMarkAllAsRead}>
                 <Iconify icon="eva:done-all-fill" />
               </IconButton>
@@ -222,7 +220,7 @@ function NotificationItem({ notification }) {
             }}
           >
             <Iconify icon="eva:clock-outline" sx={{ mr: 0.5, width: 16, height: 16 }} />
-            {fToNow(notification.createdAt)}
+            {dayjs(notification.createdAt).fromNow()}
           </Typography>
         }
       />

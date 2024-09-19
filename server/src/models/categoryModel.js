@@ -21,8 +21,7 @@ const countCategoryAll = async () => {
     return total;
   } catch (error) {
     return {
-      success: false,
-      mgs: 'Có lỗi xảy ra xin thử lại sau',
+      message: 'Có lỗi xảy ra xin thử lại sau',
     };
   }
 };
@@ -37,8 +36,7 @@ const getCategoriesAll = async () => {
     return result;
   } catch (error) {
     return {
-      success: false,
-      mgs: 'Có lỗi xảy ra xin thử lại sau',
+      message: 'Có lỗi xảy ra xin thử lại sau',
     };
   }
 };
@@ -49,8 +47,7 @@ const getCategoriesByParentId = async (category_id) => {
     return result;
   } catch (error) {
     return {
-      success: false,
-      msg: 'Có lỗi xảy ra, xin thử lại sau',
+      message: 'Có lỗi xảy ra, xin thử lại sau',
     };
   }
 };
@@ -81,9 +78,9 @@ const createCategory = async (dataCategory) => {
     return result;
   } catch (error) {
     if (error.details) {
-      return { error: true, detail: error.details };
+      return { detail: error.details };
     }
-    return { error: true, detail: error };
+    return { detail: error };
   }
 };
 
@@ -108,9 +105,9 @@ const update = async (id, data) => {
     return { result: result };
   } catch (error) {
     if (error.details) {
-      return { error: true, detail: error.details };
+      return { detail: error.details };
     }
-    return { error: true, detail: error };
+    return { detail: error };
   }
 };
 const deleteAllChildCategories = async (parentId) => {
@@ -136,7 +133,7 @@ const deleteCategory = async (id) => {
     return category;
   } catch (error) {
     return {
-      error: true,
+      error,
     };
   }
 };
