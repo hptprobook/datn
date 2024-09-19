@@ -70,6 +70,7 @@ const getAllBrands = async (req, res) => {
       .json('Có lỗi xảy ra xin thử lại sau');
   }
 };
+
 const getBrandById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -83,7 +84,7 @@ const getBrandById = async (req, res) => {
 
     return res
       .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Không tồn tại người dùng' });
+      .json({ message: 'Không tồn tại thương hiệu' });
   } catch (error) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       message: ERROR_MESSAGES.ERR_AGAIN,
@@ -91,6 +92,29 @@ const getBrandById = async (req, res) => {
     });
   }
 };
+
+const getBrandBySlug = async (req, res) => {
+  try {
+    const { slug } = req.params;
+
+    const brand = await brandModel.getBrandBySlug(slug);
+    if (brand) {
+      return res.status(StatusCodes.OK).json({
+        brand,
+      });
+    }
+
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ message: 'Không tồn tại thương hiệu' });
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: ERROR_MESSAGES.ERR_AGAIN,
+      error: error,
+    });
+  }
+};
+
 const update = async (req, res) => {
   const { id } = req.params;
   const { name, content, status } = req.body;
@@ -168,4 +192,5 @@ export const brandController = {
   update,
   deleteBrand,
   getBrandById,
+  getBrandBySlug,
 };

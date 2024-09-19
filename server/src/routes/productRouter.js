@@ -27,11 +27,12 @@ const upload = multer({ storage });
 Router.get('/', productController.getAllProducts);
 Router.get('/:id', productController.getProductById);
 Router.get('/slug/:slug', productController.getProductBySlug);
-Router.get('/category/:slug', productController.getProductByCategory);
+Router.get('/category/:id', productController.getProductByCategoryId);
+Router.get('/category/slug/:slug', productController.getProductByCategory);
+Router.get('/brand/:id', productController.getProductByBrandId);
+Router.get('/brand/slug/:slug', productController.getProductByBrand);
 Router.post(
   '/',
-  verifyToken,
-  verifyAdmin,
   upload.fields([
     { name: 'images' },
     { name: 'thumbnail' },
