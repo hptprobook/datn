@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   Dialog,
   DialogBackdrop,
@@ -5,11 +6,38 @@ import {
   DialogTitle,
 } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import { cartProducts } from '~/APIs/mock_data';
+import { NavLink } from 'react-router-dom';
+import { useCart } from 'react-use-cart';
+import { formatCurrencyVND } from '~/utils/formatters';
+import { handleToast } from '~/customHooks/useToast';
+import EmptyCart from './EmptyCart';
 
 export default function CartFixed({ open, setOpen }) {
+  const { items, removeItem, cartTotal } = useCart();
+  const [showTooltip, setShowTooltip] = useState(null); // Quản lý tooltip cho từng sản phẩm
+
+  // Hàm xóa sản phẩm sau khi xác nhận
+  const handleDeleteProduct = (productId, productName) => {
+    removeItem(productId);
+    setShowTooltip(null); // Đóng tooltip sau khi xóa
+    handleToast('success', `Đã xóa sản phẩm ${productName}`);
+  };
+
+  // Hàm để hiển thị hoặc đóng tooltip
+  const toggleTooltip = (productId) => {
+    if (showTooltip === productId) {
+      setShowTooltip(null); // Nếu tooltip đang mở, đóng nó
+    } else {
+      setShowTooltip(productId); // Mở tooltip cho sản phẩm được chọn
+    }
+  };
+
   return (
-    <Dialog className="relative z-30" open={open} onClose={setOpen}>
+    <Dialog
+      className="relative z-30"
+      open={open}
+      onClose={() => setOpen(false)}
+    >
       <DialogBackdrop
         transition
         className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity duration-500 ease-in-out data-[closed]:opacity-0"
@@ -42,85 +70,142 @@ export default function CartFixed({ open, setOpen }) {
                   </div>
 
                   <div className="mt-8">
-                    <div className="flow-root">
-                      <ul
-                        role="list"
-                        className="-my-6 divide-y divide-gray-200"
-                      >
-                        {cartProducts.map((product) => (
-                          <li key={product.id} className="flex py-6">
-                            <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
-                              <img
-                                src={product.imageSrc}
-                                alt={product.imageAlt}
-                                className="h-full w-full object-cover object-center"
-                              />
-                            </div>
+                    {items.length === 0 ? (
+                      <EmptyCart />
+                    ) : (
+                      <div className="flow-root">
+                        <ul
+                          role="list"
+                          className="-my-6 divide-y divide-gray-200"
+                        >
+                          {items.map((product) => (
+                            <li key={product.id} className="flex py-6 relative">
+                              <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
+                                <NavLink to={`/san-pham/${product?.slug}`}>
+                                  <img
+                                    src={product.image}
+                                    alt={product.name}
+                                    className="h-full w-full object-cover object-center"
+                                  />
+                                </NavLink>
+                              </div>
 
-                            <div className="ml-4 flex flex-1 flex-col">
-                              <div>
-                                <div className="flex justify-between text-base font-medium text-gray-900">
+                              <div className="ml-4 flex flex-1 flex-col">
+                                <div className="flex justify-between text-gray-900">
                                   <h3>
-                                    <a href={product.href}>{product.name}</a>
+                                    <NavLink
+                                      to={`/san-pham/${product?.slug}`}
+                                      className="text-clamp-2 font-medium text-base"
+                                      title={product.name}
+                                    >
+                                      {product.name}
+                                    </NavLink>
                                   </h3>
-                                  <p className="ml-4">{product.price}</p>
+                                  <div>
+                                    <p className="ml-4 font-medium text-base text-clamp-1">
+                                      {formatCurrencyVND(product.price)}
+                                    </p>
+                                    <p className="text-right text-sm text-clamp-1">
+                                      x {product.quantity}
+                                    </p>
+                                  </div>
                                 </div>
-                                <p className="mt-1 text-sm text-gray-500">
-                                  {product.color}
-                                </p>
-                              </div>
-                              <div className="flex flex-1 items-end justify-between text-sm">
-                                <p className="text-gray-500">
-                                  Số lượng {product.quantity}
+                                <p className="mt-1 text-sm text-gray-500 text-clamp-1">
+                                  {product?.variantColor} -{' '}
+                                  {product?.variantSize}
                                 </p>
 
-                                <div className="flex">
-                                  <button
-                                    type="button"
-                                    className="font-medium text-indigo-600 hover:text-indigo-500"
-                                  >
-                                    Xóa
-                                  </button>
+                                <div className="flex flex-1 items-end justify-between text-sm">
+                                  <p className="text-gray-500 text-clamp-1">
+                                    Tổng:{' '}
+                                    <b>
+                                      {formatCurrencyVND(product.itemTotal)}
+                                    </b>
+                                  </p>
+
+                                  <div className="flex relative">
+                                    <button
+                                      type="button"
+                                      className="font-medium text-indigo-600 hover:text-indigo-500"
+                                      onClick={() => toggleTooltip(product.id)}
+                                    >
+                                      Xóa
+                                    </button>
+
+                                    {/* Tooltip xác nhận xóa */}
+                                    {showTooltip === product.id && (
+                                      <div className="absolute right-0 bottom-full mb-2 w-48 bg-white shadow-md border border-gray-200 px-4 py-3 rounded-md">
+                                        <p className="text-sm mb-2 text-gray-700">
+                                          Bạn có chắc muốn xóa?
+                                        </p>
+                                        <div className="flex justify-between mt-4">
+                                          <button
+                                            className="text-xs font-medium text-gray-500 hover:text-gray-700"
+                                            onClick={() =>
+                                              toggleTooltip(product.id)
+                                            }
+                                          >
+                                            Hủy
+                                          </button>
+                                          <button
+                                            className="text-xs font-medium text-red-600 hover:text-red-800"
+                                            onClick={() =>
+                                              handleDeleteProduct(
+                                                product.id,
+                                                product.name
+                                              )
+                                            }
+                                          >
+                                            Đồng ý
+                                          </button>
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          </li>
-                        ))}
-                      </ul>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {items.length > 0 && (
+                  <div className="border-t border-gray-200 px-4 py-6 sm:px-6">
+                    <div className="flex justify-between text-base font-medium text-gray-900">
+                      <p>Tạm tính</p>
+                      <p>{formatCurrencyVND(cartTotal)}</p> {/* Subtotal */}
+                    </div>
+                    <p className="mt-0.5 text-sm text-gray-500">
+                      Giá vận chuyển và thuế được tính khi thanh toán.
+                    </p>
+                    <div className="mt-6">
+                      <a
+                        href="#"
+                        className="flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700"
+                      >
+                        Thanh toán
+                      </a>
+                    </div>
+                    <div className="mt-6 flex justify-center text-center text-sm text-gray-500">
+                      <p>
+                        hoặc{' '}
+                        <NavLink to={'/gio-hang'}>
+                          <button
+                            type="button"
+                            className="font-medium text-indigo-600 hover:text-indigo-500"
+                            onClick={() => setOpen(false)}
+                          >
+                            Xem giỏ hàng của bạn
+                            <span aria-hidden="true"> &rarr;</span>
+                          </button>
+                        </NavLink>
+                      </p>
                     </div>
                   </div>
-                </div>
-
-                <div className="border-t border-gray-200 px-4 py-6 sm:px-6">
-                  <div className="flex justify-between text-base font-medium text-gray-900">
-                    <p>Tạm tính</p>
-                    <p>$262.00</p>
-                  </div>
-                  <p className="mt-0.5 text-sm text-gray-500">
-                    Giá vận chuyển và thuế được tính khi thanh toán.
-                  </p>
-                  <div className="mt-6">
-                    <a
-                      href="#"
-                      className="flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700"
-                    >
-                      Thanh toán
-                    </a>
-                  </div>
-                  <div className="mt-6 flex justify-center text-center text-sm text-gray-500">
-                    <p>
-                      hoặc{' '}
-                      <button
-                        type="button"
-                        className="font-medium text-indigo-600 hover:text-indigo-500"
-                        onClick={() => setOpen(false)}
-                      >
-                        Tiếp tục mua hàng
-                        <span aria-hidden="true"> &rarr;</span>
-                      </button>
-                    </p>
-                  </div>
-                </div>
+                )}
               </div>
             </DialogPanel>
           </div>

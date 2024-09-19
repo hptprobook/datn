@@ -1,6 +1,9 @@
-export default function AddToCartBtn() {
+export default function AddToCartBtn({ onClick }) {
   return (
-    <button className="group py-3 px-5 rounded-md bg-amber-50 text-amber-600 font-semibold text-lg w-full flex items-center justify-center gap-2 shadow-sm shadow-transparent transition-all duration-500 hover:shadow-amber-300 hover:bg-amber-100">
+    <button
+      onClick={onClick}
+      className="group py-3 px-5 rounded-md bg-amber-50 text-amber-600 font-semibold text-lg w-full flex items-center justify-center gap-2 shadow-sm shadow-transparent transition-all duration-500 hover:shadow-amber-300 hover:bg-amber-100"
+    >
       <svg
         className="stroke-amber-600 transition-all duration-500 group-hover:stroke-amber-600"
         width="22"
