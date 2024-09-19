@@ -1,8 +1,4 @@
-import { useState } from 'react';
-
-export default function ChangeQuantity({ onChange }) {
-  const [quantity, setQuantity] = useState(1);
-
+export default function ChangeQuantity({ onChange, quantity, setQuantity }) {
   const handleIncrease = () => {
     if (quantity < 99) {
       const newQuantity = quantity + 1;
