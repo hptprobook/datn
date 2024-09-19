@@ -43,15 +43,55 @@ const getProductById = async (req, res) => {
   }
 };
 
+const getProductBySlug = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const product = await productModel.getProductBySlug(slug);
+    if (product) {
+      return res.status(StatusCodes.OK).json({
+        product,
+      });
+    }
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ message: 'Không tồn tại sản phẩm' });
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: ERROR_MESSAGES.ERR_AGAIN,
+      error: error,
+    });
+  }
+};
+
+const getProductByCategory = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const product = await productModel.getProductsByCategory(slug);
+    if (product) {
+      return res.status(StatusCodes.OK).json({
+        product,
+      });
+    }
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ message: 'Không tồn tại sản phẩm' });
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: ERROR_MESSAGES.ERR_AGAIN,
+      error: error,
+    });
+  }
+};
+
 const createProduct = async (req, res) => {
   try {
     const {
-      catId,
+      cat_id,
       name,
       description,
       content,
       tags,
-      brandId,
+      brand,
       status,
       productType,
       weight,
@@ -59,22 +99,6 @@ const createProduct = async (req, res) => {
       statusStock,
       variants,
     } = req.body;
-
-    if (
-      !name ||
-      !description ||
-      !catId ||
-      !content ||
-      !brandId ||
-      !status ||
-      !weight ||
-      !height ||
-      !statusStock
-    ) {
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        message: ERROR_MESSAGES.REQUIRED,
-      });
-    }
 
     if (!req.files['thumbnail'] || !req.files['thumbnail'][0]) {
       return res
@@ -88,12 +112,18 @@ const createProduct = async (req, res) => {
         .json({ mgs: 'Ảnh không được để trống' });
     }
 
+    if (!req.files['imageVariants'] || !req.files['imageVariants'].length) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ mgs: 'Ảnh biến thể không được để trống' });
+    }
+
     const thumbnail = path.join(
       'uploads/products',
       req.files['thumbnail'][0].filename
     );
 
-    let filenames = req.files['images'].map((file) => {
+    let imagesProduct = req.files['images'].map((file) => {
       if (file && file.filename) {
         return path.join('uploads/products', file.filename);
       } else {
@@ -101,20 +131,49 @@ const createProduct = async (req, res) => {
       }
     });
 
-    const parsedVars = variants.map((v) => JSON.parse(v));
+    let imageVariantsC = req.files['imageVariants'].map((file) => {
+      if (file && file.filename) {
+        return path.join('uploads/products', file.filename);
+      } else {
+        throw new Error('File image không hợp lệ');
+      }
+    });
 
+    if (
+      !name ||
+      !description ||
+      !cat_id ||
+      !content ||
+      !brand ||
+      !status ||
+      !weight ||
+      !height ||
+      !statusStock
+    ) {
+      await uploadModel.deleteImg(thumbnail);
+      await uploadModel.deleteImgs(imagesProduct);
+      await uploadModel.deleteImgs(imageVariantsC);
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: ERROR_MESSAGES.REQUIRED,
+      });
+    }
+
+    const parsedVars = variants.map((v) => JSON.parse(v));
+    imageVariantsC.forEach((file, index) => {
+      parsedVars[index].image = file;
+    });
     const slug = createSlug(name);
 
     const data = {
-      catId,
+      cat_id,
       name: name,
       slug,
       description,
       content,
       tags,
       thumbnail,
-      images: filenames,
-      brandId,
+      images: imagesProduct,
+      brand,
       status,
       variants: parsedVars,
       weight,
@@ -124,9 +183,11 @@ const createProduct = async (req, res) => {
     };
 
     const dataProduct = await productModel.createProduct(data);
+
     if (dataProduct.error) {
       await uploadModel.deleteImg(thumbnail);
-      await uploadModel.deleteImgs(filenames);
+      await uploadModel.deleteImgs(imagesProduct);
+      await uploadModel.deleteImgs(imageVariantsC);
       return res.status(StatusCodes.BAD_REQUEST).json(dataProduct.detail);
     }
     return res
@@ -142,12 +203,12 @@ const createProduct = async (req, res) => {
 const updateProduct = async (req, res) => {
   const { id } = req.params;
   const {
-    catId,
+    cat_id,
     name,
     description,
     content,
     tags,
-    brandId,
+    brand,
     status,
     productType,
     weight,
@@ -155,43 +216,9 @@ const updateProduct = async (req, res) => {
     statusStock,
     variants,
     imagesDelete,
+    indexVariants,
+    variantsDelete,
   } = req.body;
-
-  if (
-    !name ||
-    !description ||
-    !catId ||
-    !content ||
-    !brandId ||
-    !status ||
-    !weight ||
-    !height ||
-    !statusStock ||
-    !variants
-  ) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      message: ERROR_MESSAGES.REQUIRED,
-    });
-  }
-
-  const product = await productModel.getProductById(id);
-  const parsedVars = variants.map((v) => JSON.parse(v));
-
-  const slug = createSlug(name);
-
-  let deleteImgs = [];
-
-  let validImgs = [];
-  if (imagesDelete && imagesDelete.length > 0) {
-    validImgs = product.images.filter((image) =>
-      new Set(imagesDelete).has(image)
-    );
-    deleteImgs = product.images.filter(
-      (image) => !new Set(imagesDelete).has(image)
-    );
-  } else {
-    validImgs = product.images;
-  }
 
   if (!req.files['thumbnail'] || !req.files['thumbnail'][0]) {
     return res
@@ -205,12 +232,26 @@ const updateProduct = async (req, res) => {
       .json({ mgs: 'Ảnh không được để trống' });
   }
 
+  if (!req.files['imageVariants'] || !req.files['imageVariants'].length) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ mgs: 'Ảnh biến thể không được để trống' });
+  }
+
   const thumbnail = path.join(
     'uploads/products',
     req.files['thumbnail'][0].filename
   );
 
-  let filenames = req.files['images'].map((file) => {
+  let imagesProduct = req.files['images'].map((file) => {
+    if (file && file.filename) {
+      return path.join('uploads/products', file.filename);
+    } else {
+      throw new Error('Images không hợp lệ');
+    }
+  });
+
+  let imageVariantsC = req.files['imageVariants'].map((file) => {
     if (file && file.filename) {
       return path.join('uploads/products', file.filename);
     } else {
@@ -218,10 +259,79 @@ const updateProduct = async (req, res) => {
     }
   });
 
-  const newimgURLs = [...filenames, ...validImgs];
+  if (
+    !name ||
+    !description ||
+    !cat_id ||
+    !content ||
+    !brand ||
+    !status ||
+    !weight ||
+    !height ||
+    !statusStock ||
+    !variants
+  ) {
+    await uploadModel.deleteImg(thumbnail);
+    await uploadModel.deleteImgs(imagesProduct);
+    await uploadModel.deleteImgs(imageVariantsC);
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      message: ERROR_MESSAGES.REQUIRED,
+    });
+  }
+
+  const product = await productModel.getProductById(id);
+  let parsedVariants = [];
+
+  if (Array.isArray(variants)) {
+    parsedVariants.push(variants.map((variant) => JSON.parse(variant)));
+  } else {
+    parsedVariants.push(JSON.parse(variants));
+  }
+
+  let parsedImageDelete = [];
+
+  if (Array.isArray(variantsDelete)) {
+    parsedImageDelete.push(
+      variantsDelete.map((variant) => JSON.parse(variant))
+    );
+  } else {
+    parsedImageDelete.push(JSON.parse(variantsDelete));
+  }
+
+  let deleteImgsVars = [];
+  product.variants.map((v, index) => {
+    const parsedVar = parsedImageDelete[index];
+    if (parsedVar !== v) {
+      deleteImgsVars.push(v.image);
+    }
+  });
+
+  let validImgs = [];
+
+  if (imagesDelete && imagesDelete.length > 0) {
+    validImgs = product.images.filter((image) =>
+      new Set(imagesDelete).has(image)
+    );
+  } else {
+    validImgs = product.images;
+  }
+
+  if (imageVariantsC) {
+    imageVariantsC.forEach((file, index) => {
+      const indexVar = indexVariants[index];
+      parsedVariants[indexVar].image = file.filename;
+      delete parsedVariants[indexVar].imageAdd;
+    });
+  }
+
+  console.log(deleteImgsVars);
+
+  const newimgURLs = [...imagesProduct, ...validImgs];
+
+  const slug = createSlug(name);
 
   const data = {
-    catId,
+    cat_id,
     name: name,
     slug,
     description,
@@ -229,19 +339,21 @@ const updateProduct = async (req, res) => {
     tags,
     thumbnail,
     images: newimgURLs,
-    brandId,
+    brand,
     status,
-    variants: parsedVars,
+    variants: parsedVariants,
     weight,
     height,
     statusStock,
     productType,
   };
+  /* const dataProduct = await productModel.update(id, data);
+  console.log(dataProduct);
 
-  const dataProduct = await productModel.update(id, data);
   if (dataProduct.error) {
     await uploadModel.deleteImg(thumbnail);
-    await uploadModel.deleteImgs(filenames);
+    await uploadModel.deleteImgs(imagesProduct);
+    await uploadModel.deleteImgs(imageVariantsC);
     return res
       .status(StatusCodes.BAD_REQUEST)
       .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
@@ -252,15 +364,21 @@ const updateProduct = async (req, res) => {
     } else {
       await uploadModel.deleteImg(deleteImgs);
     }
+    if (deleteImgsVars && deleteImgsVars.length > 0) {
+      await uploadModel.deleteImgs(deleteImgsVars);
+    } else {
+      await uploadModel.deleteImg(deleteImgsVars);
+    }
     if (thumbnail) {
       await uploadModel.deleteImg(product.thumbnail);
     }
+
     const result = dataProduct.result;
     return res.status(StatusCodes.OK).json({
       message: 'Cập nhật sản phẩm thành công',
       dataProduct: result,
     });
-  }
+  } */
 };
 
 const deleteProduct = async (req, res) => {
@@ -378,4 +496,6 @@ export const productController = {
   deleteProduct,
   updateRatingProduct,
   deleteRating,
+  getProductBySlug,
+  getProductByCategory,
 };

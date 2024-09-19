@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -10,11 +10,11 @@ import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 
-import { users } from 'src/_mock/user';
-
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchAll } from 'src/redux/slices/couponSlice';
 import TableNoData from '../coupon-no-data';
 import CouponTableRow from '../coupon-table-row';
 import CouponTableHead from '../coupon-table-head';
@@ -37,6 +37,23 @@ export default function CouponsPage() {
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
+  const [coupons, setCoupons] = useState([]);
+
+  const dispatch = useDispatch();
+
+  const data = useSelector((state) => state.coupons.coupons);
+  const status = useSelector((state) => state.coupons.status);
+
+  useEffect(() => {
+    dispatch(fetchAll());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (status === 'successful') {
+      setCoupons(data);
+    }
+  }, [status, dispatch, data]);
+
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === 'asc';
     if (id !== '') {
@@ -47,8 +64,8 @@ export default function CouponsPage() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = users.map((n) => n.name);
-      setSelected(newSelecteds);
+      const newSelected = coupons.map((n) => n.name);
+      setSelected(newSelected);
       return;
     }
     setSelected([]);
@@ -87,7 +104,7 @@ export default function CouponsPage() {
   };
 
   const dataFiltered = applyFilter({
-    inputData: users,
+    inputData: coupons,
     comparator: getComparator(order, orderBy),
     filterName,
   });
@@ -117,21 +134,19 @@ export default function CouponsPage() {
               <CouponTableHead
                 order={order}
                 orderBy={orderBy}
-                rowCount={users.length}
+                rowCount={coupons.length}
                 numSelected={selected.length}
                 onRequestSort={handleSort}
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
                   { id: 'code', label: 'Mã' },
                   { id: 'type', label: 'Loại' },
-                  { id: 'applicableProducts', label: 'Sản phẩm áp dụng' },
                   { id: 'minPurchasePrice', label: 'Giá mua tối thiểu' },
                   { id: 'discountValue', label: 'Giá trị giảm giá' },
-                  { id: 'description', label: 'Mô tả' },
                   { id: 'usageLimit', label: 'Giới hạn sử dụng' },
                   { id: 'usageCount', label: 'Số lần sử dụng' },
                   { id: 'status', label: 'Trạng thái' },
-                  { id: 'quantity', label: 'Số lượng' },
+                  { id: 'limitOnUser', label: 'Giới hạn người dùng' },
                   { id: 'dateStart', label: 'Ngày bắt đầu' },
                   { id: 'dateEnd', label: 'Ngày kết thúc' },
                   { id: '' },
@@ -142,27 +157,26 @@ export default function CouponsPage() {
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
                     <CouponTableRow
-                      key={row.id}
-                      code={row.code}
-                      type={row.type}
-                      applicableProducts={row.applicableProducts}
-                      minPurchasePrice={row.minPurchasePrice}
-                      discountValue={row.discountValue}
-                      description={row.description}
-                      usageLimit={row.usageLimit}
-                      usageCount={row.usageCount}
-                      status={row.status}
-                      quantity={row.quantity}
-                      dateStart={row.dateStart}
-                      dateEnd={row.dateEnd}
-                      selected={selected.indexOf(row.code) !== -1}
-                      handleClick={(event) => handleClick(event, row.code)}
-                    />
+                    key={row.id}
+                    code={row.code}
+                    type={row.type}
+                    applicableProducts={row.applicableProducts}
+                    discountValue={row.discountValue}
+                    usageLimit={row.usageLimit}
+                    usageCount={row.usageCount}
+                    status={row.status}
+                    limitOnUser={row.limitOnUser}  // Make sure to include limitOnUser if you want to display it
+                    dateStart={row.dateStart}
+                    dateEnd={row.dateEnd}
+                    selected={selected.indexOf(row.code) !== -1}
+                    handleClick={(event) => handleClick(event, row.code)}
+                  />
+                  
                   ))}
 
                 <TableEmptyRows
                   height={77}
-                  emptyRows={emptyRows(page, rowsPerPage, users.length)}
+                  emptyRows={emptyRows(page, rowsPerPage, coupons.length)}
                 />
 
                 {notFound && <TableNoData query={filterName} />}
@@ -174,7 +188,7 @@ export default function CouponsPage() {
         <TablePagination
           page={page}
           component="div"
-          count={users.length}
+          count={coupons.length}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}
           rowsPerPageOptions={[5, 10, 25]}
