@@ -5,7 +5,7 @@ import {CouponsView} from "src/sections/coupons/view";
 
 // ----------------------------------------------------------------------
 
-export default function OrdersPage() {
+export default function CouponsPage() {
     return (
         <>
             <Helmet>

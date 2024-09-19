@@ -1,6 +1,12 @@
 const Joi = require('joi');
 
 export const CREATE_COUPONS = Joi.object({
+    name: Joi.string().trim().required().max(255).messages({
+        'string.base': 'Tên khuyến mãi phải là một chuỗi văn bản.',
+        'string.empty': 'Tên khuyến mãi không được để trống.',
+        'any.required': 'Tên khuyến mãi là bắt buộc.',
+        'string.max': 'Tên khuyến mãi không được vượt quá 255 ký tự.',
+    }),
     code: Joi.string().trim().required().messages({
         'string.base': 'Mã khuyến mãi phải là một chuỗi văn bản.',
         'string.empty': 'Mã khuyến mãi không được để trống.',
@@ -11,50 +17,59 @@ export const CREATE_COUPONS = Joi.object({
         'string.empty': 'Loại khuyến mãi không được để trống.',
         'any.only': 'Loại khuyến mãi phải là một trong các giá trị sau: percent, price, shipping',
         'any.required': 'Loại khuyến mãi là bắt buộc.',
-    }),
-    applicableProducts: Joi.array().items(Joi.string().trim()).min(1).required().messages({
+    }).default('percent'),
+    applicableProducts: Joi.array().items(Joi.string().trim()).messages({
         'array.base': 'Sản phẩm áp dụng phải là một mảng.',
-        'array.min': 'Số lượng sản phẩm áp dụng phải lơn hơn hoặc bằng {#limit}',
-        'any.required': 'Sản phẩm áp dụng là bắt buộc.',
-    }),
+    }).default([]),
     minPurchasePrice: Joi.number().min(1).messages({
         'number.base': 'Giá trị mua tối thiểu phải là một số.',
         'number.min': 'Giá trị mua tối thiểu phải lớn hơn hoặc bằng {#limit}.',
     }),
+    maxPurchasePrice: Joi.number()
+        .min(Joi.ref('minPurchasePrice'))
+        .messages({
+            'number.base': 'Giá trị mua tối thiểu phải là một số.',
+            'number.min': 'Giá trị mua tối đa phải lớn hơn hoặc bằng giá trị mua tối thiểu.',
+        }),
     discountValue: Joi.number().min(1).messages({
         'number.base': 'Giá trị khuyến mãi phải là một số.',
         'number.min': 'Giá trị khuyến mãi phải lớn hơn hoặc bằng {#limit}.',
     }),
-    description: Joi.string().trim().required().messages({
+    description: Joi.string().trim().min(10).max(255).messages({
         'string.base': 'Mô tả khuyến mãi phải là một chuỗi văn bản.',
-        'string.empty': 'Mô tả khuyến mãi không được để trống.',
-        'any.required': 'Mô tả khuyến mãi là bắt buộc.',
+        'string.min': 'Mô tả khuyến mãi phải có ít nhất {#limit} ký tự.',
+        'string.max': 'Mô tả khuyến mãi không được vượt quá {#limit} ký tự.',
     }),
-    usageLimit: Joi.number().integer().min(1).messages({
+    usageLimit: Joi.number().integer().min(1).max(99999).messages({
         'number.base': 'Giới hạn sử dụng phải là một số nguyên.',
         'number.integer': 'Giới hạn sử dụng phải là một số nguyên.',
         'number.min': 'Giới hạn sử dụng phải lớn hơn hoặc bằng {#limit}.',
+        'number.max': 'Giới hạn sử dụng không được vượt quá {#limit}.',
     }),
-    usageCount: Joi.number().integer().min(1).messages({
+    usageCount: Joi.number().integer().max(99999).messages({
         'number.base': 'Số lần sử dụng phải là một số nguyên.',
         'number.integer': 'Số lần sử dụng phải là một số nguyên.',
-        'number.min': 'Số lần sử dụng phải lớn hơn hoặc bằng {#limit}.',
-    }),
-    status: Joi.string().trim().min(1).valid('active', 'unactive', 'expired').default('active').messages({
+        'number.max': 'Số lần sử dụng không được vượt quá {#limit}.',
+    }).default(0),
+    status: Joi.string().trim().min(1).valid('active', 'inactive', 'expired').default('active').messages({
         'string.base': 'Trạng thái phải là một chuỗi văn bản.',
         'string.empty': 'Trạng thái không được để trống.',
-        'any.only': 'Trạng thái phải là một trong các giá trị sau: active, unactive, expired.',
+        'any.only': 'Trạng thái phải là một trong các giá trị sau: active, inactive, expired.',
     }),
-    quantity: Joi.number().integer().min(1).messages({
-        'number.base': 'Số lượng phải là một số nguyên.',
-        'number.integer': 'Số lượng phải là một số nguyên.',
-        'number.min': 'Số lượng phải lớn hơn hoặc bằng {#limit}.',
-    }),
+    limitOnUser: Joi.boolean().default(false)
+        .messages({
+            'boolean.base': 'Giới hạn sử dụng cho mỗi người dùng phải là một giá trị boolean.',
+        }),
     dateStart: Joi.date().timestamp('javascript').default(Date.now),
     dateEnd: Joi.date().timestamp('javascript').default(Date.now),
 });
 
 export const UPDATE_COUPONS = Joi.object({
+    name: Joi.string().trim().max(255).messages({
+        'string.base': 'Tên khuyến mãi phải là một chuỗi văn bản.',
+        'string.empty': 'Tên khuyến mãi không được để trống.',
+        'string.max': 'Tên khuyến mãi không được vượt quá 255 ký tự.',
+    }),
     code: Joi.string().trim().messages({
         'string.base': 'Mã khuyến mãi phải là một chuỗi văn bản.',
         'string.empty': 'Mã khuyến mãi không được để trống.',
@@ -64,21 +79,27 @@ export const UPDATE_COUPONS = Joi.object({
         'string.empty': 'Loại khuyến mãi không được để trống.',
         'any.only': 'Loại khuyến mãi phải là một trong các giá trị sau: percent, price, shipping',
     }),
-    applicableProducts: Joi.array().items(Joi.string().trim()).min(1).messages({
+    applicableProducts: Joi.array().items(Joi.string().trim()).messages({
         'array.base': 'Sản phẩm áp dụng phải là một mảng.',
-        'array.min': 'Số lượng sản phẩm áp dụng phải lơn hơn hoặc bằng {#limit}',
     }),
     minPurchasePrice: Joi.number().min(1).messages({
         'number.base': 'Giá trị mua tối thiểu phải là một số.',
         'number.min': 'Giá trị mua tối thiểu phải lớn hơn hoặc bằng {#limit}.',
     }),
+    maxPurchasePrice: Joi.number()
+        .min(Joi.ref('minPurchasePrice'))
+        .messages({
+            'number.base': 'Giá trị mua tối đa phải là một số.',
+            'number.min': 'Giá trị mua tối đa phải lớn hơn hoặc bằng giá trị mua tối thiểu.',
+        }),
     discountValue: Joi.number().min(1).messages({
         'number.base': 'Giá trị khuyến mãi phải là một số.',
         'number.min': 'Giá trị khuyến mãi phải lớn hơn hoặc bằng {#limit}.',
     }),
-    description: Joi.string().trim().messages({
+    description: Joi.string().trim().min(10).max(255).messages({
         'string.base': 'Mô tả khuyến mãi phải là một chuỗi văn bản.',
-        'string.empty': 'Mô tả khuyến mãi không được để trống.',
+        'string.min': 'Mô tả khuyến mãi phải có ít nhất {#limit} ký tự.',
+        'string.max': 'Mô tả khuyến mãi không được vượt quá {#limit} ký tự.',
     }),
     usageLimit: Joi.number().integer().min(1).messages({
         'number.base': 'Giới hạn sử dụng phải là một số nguyên.',
@@ -90,16 +111,18 @@ export const UPDATE_COUPONS = Joi.object({
         'number.integer': 'Số lần sử dụng phải là một số nguyên.',
         'number.min': 'Số lần sử dụng phải lớn hơn hoặc bằng {#limit}.',
     }),
-    status: Joi.string().trim().min(1).valid('active', 'unactive', 'expired').default('active').messages({
+    status: Joi.string().trim().valid('active', 'inactive', 'expired').messages({
         'string.base': 'Trạng thái phải là một chuỗi văn bản.',
         'string.empty': 'Trạng thái không được để trống.',
-        'any.only': 'Trạng thái phải là một trong các giá trị sau: active, unactive, expired.',
+        'any.only': 'Trạng thái phải là một trong các giá trị sau: active, inactive, expired.',
     }),
-    quantity: Joi.number().integer().min(1).messages({
-        'number.base': 'Số lượng phải là một số nguyên.',
-        'number.integer': 'Số lượng phải là một số nguyên.',
-        'number.min': 'Số lượng phải lớn hơn hoặc bằng {#limit}.',
+    limitOnUser: Joi.boolean().messages({
+        'boolean.base': 'Giới hạn sử dụng cho mỗi người dùng phải là một giá trị boolean.',
     }),
-    dateStart: Joi.date().timestamp('javascript').default(Date.now),
-    dateEnd: Joi.date().timestamp('javascript').default(Date.now),
+    dateStart: Joi.date().timestamp('javascript').messages({
+        'date.base': 'Ngày bắt đầu phải là một ngày hợp lệ.',
+    }),
+    dateEnd: Joi.date().timestamp('javascript').messages({
+        'date.base': 'Ngày kết thúc phải là một ngày hợp lệ.',
+    }),
 });

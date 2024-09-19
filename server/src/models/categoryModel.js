@@ -27,15 +27,11 @@ const countCategoryAll = async () => {
   }
 };
 
-const getCategoriesAll = async (page, limit) => {
+const getCategoriesAll = async () => {
   try {
-    page = parseInt(page) || 1;
-    limit = parseInt(limit) || 20;
     const db = await GET_DB().collection('categories');
     const result = await db
       .find()
-      .skip((page - 1) * limit)
-      .limit(limit)
       // .project({ _id: 0, age:1 })
       .toArray();
     return result;
@@ -64,6 +60,7 @@ const getCategoryById = async (category_id) => {
   const category = await db.findOne({ _id: new ObjectId(category_id) });
   return category;
 };
+
 const getCategoryBySlug = async (slug) => {
   const db = await GET_DB().collection('categories');
   const category = await db.findOne({ slug: slug });
