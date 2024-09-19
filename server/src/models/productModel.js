@@ -87,6 +87,45 @@ const getProductsByCategory = async (slug) => {
   return products;
 };
 
+const getProductsByBrand = async (slug) => {
+  const db = await GET_DB();
+
+  const brand = await db.collection('brands').findOne({ slug: slug });
+
+  if (!brand) {
+    throw new Error('Thương hiệu không tồn tại');
+  }
+
+  const brandId = brand._id;
+
+  const products = await db
+    .collection('products')
+    .find({ brand: new ObjectId(brandId) })
+    .toArray();
+
+  return products;
+};
+
+const getProductsByCategoryId = async (id) => {
+  const db = await GET_DB();
+  const products = await db
+    .collection('products')
+    .find({ cat_id: new ObjectId(id) })
+    .toArray();
+
+  return products;
+};
+
+const getProductsByBrandId = async (id) => {
+  const db = await GET_DB();
+  const products = await db
+    .collection('products')
+    .find({ brand: new ObjectId(id) })
+    .toArray();
+
+  return products;
+};
+
 const createProduct = async (data) => {
   try {
     const validData = await validateBeforeCreate(data);
@@ -103,6 +142,7 @@ const createProduct = async (data) => {
     const result = await collection.insertOne({
       ...validData,
       cat_id: validCat,
+      brand: new ObjectId(validData.brand),
       productType: new ObjectId(validData.productType),
     });
 
@@ -153,7 +193,11 @@ const deleteProduct = async (id) => {
     const db = GET_DB().collection('products');
     const product = await db.findOne({ _id: new ObjectId(id) });
     await db.deleteOne({ _id: new ObjectId(id) });
-    return { thumbnail: product.thumbnail, images: product.images };
+    return {
+      thumbnail: product.thumbnail,
+      images: product.images,
+      variants: product.variants,
+    };
   } catch (error) {
     return {
       error: true,
@@ -258,4 +302,7 @@ export const productModel = {
   deleteRating,
   getProductBySlug,
   getProductsByCategory,
+  getProductsByCategoryId,
+  getProductsByBrand,
+  getProductsByBrandId,
 };

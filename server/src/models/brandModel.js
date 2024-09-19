@@ -48,6 +48,12 @@ const getBrandById = async (id) => {
   return brand;
 };
 
+const getBrandBySlug = async (slug) => {
+  const db = await GET_DB().collection('brands');
+  const brand = await db.findOne({ slug: slug });
+  return brand;
+};
+
 const createBrand = async (data) => {
   try {
     const validData = await validateBeforeCreate(data);
@@ -104,4 +110,5 @@ export const brandModel = {
   update,
   deleteBrand,
   getBrandById,
+  getBrandBySlug,
 };
