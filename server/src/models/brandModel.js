@@ -17,8 +17,7 @@ const countBrandsAll = async () => {
     return total;
   } catch (error) {
     return {
-      success: false,
-      mgs: 'Có lỗi xảy ra xin thử lại sau',
+      message: 'Có lỗi xảy ra xin thử lại sau',
     };
   }
 };
@@ -36,8 +35,7 @@ const getBrandsAll = async (page, limit) => {
     return result;
   } catch (error) {
     return {
-      success: false,
-      mgs: 'Có lỗi xảy ra xin thử lại sau',
+      message: 'Có lỗi xảy ra xin thử lại sau',
     };
   }
 };
@@ -65,9 +63,9 @@ const createBrand = async (data) => {
     return result;
   } catch (error) {
     if (error.details) {
-      return { error: true, detail: error.details };
+      return { detail: error.details };
     }
-    return { error: true, detail: error };
+    return { detail: error };
   }
 };
 const update = async (id, data) => {
@@ -84,9 +82,9 @@ const update = async (id, data) => {
     return { result: result };
   } catch (error) {
     if (error.details) {
-      return { error: true, detail: error.details };
+      return { detail: error.details };
     }
-    return { error: true, detail: error };
+    return { detail: error };
   }
 };
 
@@ -97,9 +95,7 @@ const deleteBrand = async (id) => {
     await db.deleteOne({ _id: new ObjectId(id) });
     return brand;
   } catch (error) {
-    return {
-      error: true,
-    };
+    return { error };
   }
 };
 
