@@ -46,6 +46,8 @@ Router.get('/search/:search', productController.getProductBySearch);
 
 Router.post(
   '/',
+  verifyToken,
+  verifyAdmin,
   upload.fields([
     { name: 'images' },
     { name: 'thumbnail' },
