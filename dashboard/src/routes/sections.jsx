@@ -29,6 +29,7 @@ export const SeoConfigPage = lazy(() => import('src/pages/settings/config/seo-co
 export const WarehousePage = lazy(() => import('src/pages/warehouse/warehouse'));
 export const CouponsPage = lazy(() => import('src/pages/coupons/coupons'));
 export const CreateCouponPage = lazy(() => import('src/pages/coupons/create'));
+export const CouponDetailPage = lazy(() => import('src/pages/coupons/detail'));
 
 // orders page
 export const OrdersPage = lazy(() => import('src/pages/orders/orders'));
@@ -64,6 +65,7 @@ export default function Router() {
         { path: 'warehouse', element: <WarehousePage /> },
         { path: 'coupons', element: <CouponsPage /> },
         { path: 'coupons/create', element: <CreateCouponPage /> },
+        { path: 'coupons/:id', element: <CouponDetailPage /> },
         { path: 'orders', element: <OrdersPage /> },
         { path: 'orders/:id', element: <OrderDetailPage /> },
       ],
