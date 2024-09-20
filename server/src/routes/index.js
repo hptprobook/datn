@@ -8,7 +8,7 @@ import { reviewsApi } from './reviewRouter';
 
 import { suppliersApi } from './supplierRoute';
 import { productsApi } from './productRouter';
-import { inventoriesApi } from './inventoryRouter';
+import { warehousesApi } from './warehouseRouter';
 import { authApi } from './authRouter';
 import { paysApi } from './payRouter';
 
@@ -35,7 +35,7 @@ Router.use('/orders', ordersApi);
 Router.use('/reviews', reviewsApi);
 
 Router.use('/suppliers', suppliersApi);
-Router.use('/inventories', inventoriesApi);
+Router.use('/warehouses', warehousesApi);
 Router.use('/products', productsApi);
 Router.use('/brands', brandsApi);
 
@@ -50,7 +50,7 @@ Router.use('/navDashboard', navDashboardApi);
 Router.use('/address', addressApi);
 
 Router.get('/', (req, res) => {
-    res.send('Hello from API!');
+  res.send('Hello from API!');
 });
 
 export const APIs = Router;

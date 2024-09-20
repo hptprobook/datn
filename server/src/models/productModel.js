@@ -7,6 +7,7 @@ import {
   UPDATE_PRODUCT,
   UPDATE_REVIEW_PRODUCT,
 } from '~/utils/schema/productSchema';
+import { removeTones } from './removeTones';
 
 const validateRatingBeforeCreate = async (data) => {
   return await REVIEW_PRODUCT.validateAsync(data, { abortEarly: false });
@@ -470,14 +471,6 @@ const getProductByOldest = async (page, limit) => {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
   return result;
-};
-
-const removeTones = (str) => {
-  return str
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/đ/g, 'd')
-    .replace(/Đ/g, 'D');
 };
 
 const getProductBySearch = async (search, page, limit) => {

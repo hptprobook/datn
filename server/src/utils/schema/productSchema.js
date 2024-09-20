@@ -61,10 +61,10 @@ export const SAVE_PRODUCT_SCHEMA = Joi.object({
   status: Joi.boolean().required().messages({
     'any.required': 'Trạng thái là bắt buộc',
   }),
-  views: Joi.number().integer().min(1).default(0),
-  inventory: Joi.number().integer().min(1).default(0),
-  minInventory: Joi.number().integer().min(1).default(0),
-  maxInventory: Joi.number().integer().min(1).default(0),
+  views: Joi.number().integer().default(0),
+  inventory: Joi.number().integer().default(0),
+  minInventory: Joi.number().integer().default(0),
+  maxInventory: Joi.number().integer().default(0),
   variants: Joi.alternatives()
     .try(
       Joi.object(),
@@ -116,7 +116,7 @@ export const SAVE_PRODUCT_SCHEMA = Joi.object({
                 'string.empty': 'Giá không được để trống',
                 'any.required': 'Giá là bắt buộc',
               }),
-              stock: Joi.number().integer().min(1).required().messages({
+              stock: Joi.number().integer().required().messages({
                 'string.empty': 'Tồn kho không được để trống',
                 'any.required': 'Tồn kho là bắt buộc',
               }),
@@ -230,10 +230,10 @@ export const UPDATE_PRODUCT = Joi.object({
     'string.empty': 'Thương hiệu không được để trống',
   }),
   status: Joi.boolean(),
-  views: Joi.number().integer().min(1).default(0),
-  inventory: Joi.number().integer().min(1).default(0),
-  minInventory: Joi.number().integer().min(1).default(0),
-  maxInventory: Joi.number().integer().min(1).default(0),
+  views: Joi.number().integer().default(0),
+  inventory: Joi.number().integer().default(0),
+  minInventory: Joi.number().integer().default(0),
+  maxInventory: Joi.number().integer().default(0),
   variants: Joi.alternatives().try(
     Joi.object(),
     Joi.array().items(
@@ -273,7 +273,7 @@ export const UPDATE_PRODUCT = Joi.object({
             price: Joi.number().precision(2).min(1).messages({
               'string.empty': 'Giá không được để trống',
             }),
-            stock: Joi.number().integer().min(1).messages({
+            stock: Joi.number().integer().messages({
               'string.empty': 'Tồn kho không được để trống',
             }),
           })
