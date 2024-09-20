@@ -79,8 +79,12 @@ const getProductBySlug = async (req, res) => {
 const getProductByCategory = async (req, res) => {
   try {
     const { slug } = req.params;
-
-    const product = await productModel.getProductsByCategory(slug);
+    let { pages, limit } = req.query;
+    const product = await productModel.getProductsByCategory(
+      slug,
+      pages,
+      limit
+    );
     if (product) {
       return res.status(StatusCodes.OK).json({
         product,
@@ -100,8 +104,9 @@ const getProductByCategory = async (req, res) => {
 const getProductByBrand = async (req, res) => {
   try {
     const { slug } = req.params;
+    let { pages, limit } = req.query;
 
-    const product = await productModel.getProductsByBrand(slug);
+    const product = await productModel.getProductsByBrand(slug, pages, limit);
     if (product) {
       return res.status(StatusCodes.OK).json({
         product,
@@ -120,8 +125,13 @@ const getProductByBrand = async (req, res) => {
 
 const getProductByCategoryId = async (req, res) => {
   try {
+    let { pages, limit } = req.query;
     const { id } = req.params;
-    const product = await productModel.getProductsByCategoryId(id);
+    const product = await productModel.getProductsByCategoryId(
+      id,
+      pages,
+      limit
+    );
     if (product) {
       return res.status(StatusCodes.OK).json({
         product,
@@ -141,7 +151,8 @@ const getProductByCategoryId = async (req, res) => {
 const getProductByBrandId = async (req, res) => {
   try {
     const { id } = req.params;
-    const product = await productModel.getProductsByBrandId(id);
+    let { pages, limit } = req.query;
+    const product = await productModel.getProductsByBrandId(id, pages, limit);
 
     if (product) {
       return res.status(StatusCodes.OK).json({
