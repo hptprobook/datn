@@ -1,5 +1,5 @@
 import { Icon } from '@iconify/react';
-import { forwardRef, useState, useImperativeHandle } from 'react';
+import { forwardRef, useImperativeHandle, useState } from 'react';
 
 const NotifyConfirm = forwardRef(({ msg, onConfirm, icon }, ref) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,10 +13,14 @@ const NotifyConfirm = forwardRef(({ msg, onConfirm, icon }, ref) => {
     },
   }));
 
-  const toggleModal = () => setIsOpen(!isOpen);
+  const toggleModal = () => {
+    setIsOpen(false);
+  };
 
   const handleConfirm = () => {
-    onConfirm();
+    if (onConfirm) {
+      onConfirm();
+    }
     toggleModal();
   };
 
@@ -34,7 +38,7 @@ const NotifyConfirm = forwardRef(({ msg, onConfirm, icon }, ref) => {
               <button
                 type="button"
                 className="text-gray-400 absolute top-2.5 right-2.5 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                onClick={toggleModal}
+                onClick={toggleModal} // Đóng modal xác nhận khi hủy
               >
                 <svg
                   aria-hidden="true"
@@ -59,14 +63,14 @@ const NotifyConfirm = forwardRef(({ msg, onConfirm, icon }, ref) => {
               <p className="mb-4 text-gray-500 dark:text-gray-300">{msg}</p>
               <div className="flex justify-center items-center space-x-4">
                 <button
-                  onClick={toggleModal}
+                  onClick={toggleModal} // Đóng modal xác nhận khi người dùng nhấn "Hủy"
                   type="button"
                   className="py-2 px-3 text-sm font-medium text-gray-500 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-primary-300 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
                 >
                   Hủy
                 </button>
                 <button
-                  onClick={handleConfirm}
+                  onClick={handleConfirm} // Thực hiện xác nhận và xóa sản phẩm
                   type="button"
                   className="py-2 px-3 text-sm font-medium text-center text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-500 dark:hover:bg-red-600 dark:focus:ring-red-900"
                 >

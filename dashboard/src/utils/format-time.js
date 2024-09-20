@@ -1,44 +1,33 @@
-import { format, getTime, formatDistanceToNow } from 'date-fns';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+// Extend dayjs with plugins
+dayjs.extend(relativeTime);
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 // ----------------------------------------------------------------------
 
 export function fDate(date, newFormat) {
-  const fm = newFormat || 'dd MMM yyyy';
-
-  return date ? format(new Date(date), fm) : '';
+  const fm = newFormat || 'DD MMM YYYY';
+  return date ? dayjs(date).format(fm) : '';
 }
 
 export function fDateTime(date, newFormat) {
-  const fm = newFormat || 'dd MMM yyyy p';
-
-  return date ? format(new Date(date), fm) : '';
+  const fm = newFormat || 'DD MMM YYYY h:mm A';
+  return date ? dayjs(date).format(fm) : '';
 }
 
 export function fTimestamp(date) {
-  return date ? getTime(new Date(date)) : '';
+  return date ? dayjs(date).valueOf() : '';
 }
 
 export function fToNow(date) {
-  return date
-    ? formatDistanceToNow(new Date(date), {
-        addSuffix: true,
-      })
-    : '';
+  return date ? dayjs(date).fromNow() : '';
 }
 
 export function formatDateTime(timestamp) {
-  // Chuyển đổi timestamp thành đối tượng Date
-  const date = new Date(timestamp);
-  
-  // Định dạng ngày tháng theo định dạng dd/mm/yyyy
-  const day = date.getDate().toString().padStart(2, '0');
-  const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Tháng bắt đầu từ 0 nên cần +1
-  const year = date.getFullYear();
-
-  // Định dạng giờ, phút, giây
-  const hours = date.getHours().toString().padStart(2, '0');
-  const minutes = date.getMinutes().toString().padStart(2, '0');
-  const seconds = date.getSeconds().toString().padStart(2, '0');
-
-  return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+  return dayjs(timestamp).format('DD/MM/YYYY HH:mm:ss');
 }

@@ -14,11 +14,25 @@ export const fetchAll = createAsyncThunk(
   }
 );
 
+
+export const create = createAsyncThunk(
+  'coupons/create',
+  async (data, { rejectWithValue }) => {
+    try {
+      const res = await CouponServices.create(data);
+      return res;
+    } catch (err) {
+      return rejectWithValue(err.response?.data);
+    }
+  }
+);
+
 const initialState = {
   coupons: [],
   delete: null,
-  status: 'idle', 
+  status: 'idle',
   statusDelete: 'idle',
+  statusCreate: 'idle',
   error: null,
 };
 
@@ -35,11 +49,21 @@ const couponSlice = createSlice({
       })
       .addCase(fetchAll.fulfilled, (state, action) => {
         state.status = 'successful';
-        state.coupons = action.payload; 
+        state.coupons = action.payload;
       })
       .addCase(fetchAll.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.error.message;
+        state.error = action.error;
+      })
+      .addCase(create.pending, (state) => {
+        state.statusCreate = 'loading';
+      })
+      .addCase(create.fulfilled, (state, action) => {
+        state.statusCreate = 'successful';
+      })
+      .addCase(create.rejected, (state, action) => {
+        state.statusCreate = 'failed';
+        state.error = action.payload;
       })
       .addCase(setStatus, (state, action) => {
         state.status = action.payload;

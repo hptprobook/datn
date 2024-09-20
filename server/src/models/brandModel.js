@@ -17,8 +17,7 @@ const countBrandsAll = async () => {
     return total;
   } catch (error) {
     return {
-      success: false,
-      mgs: 'Có lỗi xảy ra xin thử lại sau',
+      message: 'Có lỗi xảy ra xin thử lại sau',
     };
   }
 };
@@ -36,8 +35,7 @@ const getBrandsAll = async (page, limit) => {
     return result;
   } catch (error) {
     return {
-      success: false,
-      mgs: 'Có lỗi xảy ra xin thử lại sau',
+      message: 'Có lỗi xảy ra xin thử lại sau',
     };
   }
 };
@@ -45,6 +43,12 @@ const getBrandsAll = async (page, limit) => {
 const getBrandById = async (id) => {
   const db = await GET_DB().collection('brands');
   const brand = await db.findOne({ _id: new ObjectId(id) });
+  return brand;
+};
+
+const getBrandBySlug = async (slug) => {
+  const db = await GET_DB().collection('brands');
+  const brand = await db.findOne({ slug: slug });
   return brand;
 };
 
@@ -59,9 +63,9 @@ const createBrand = async (data) => {
     return result;
   } catch (error) {
     if (error.details) {
-      return { error: true, detail: error.details };
+      return { detail: error.details };
     }
-    return { error: true, detail: error };
+    return { detail: error };
   }
 };
 const update = async (id, data) => {
@@ -78,9 +82,9 @@ const update = async (id, data) => {
     return { result: result };
   } catch (error) {
     if (error.details) {
-      return { error: true, detail: error.details };
+      return { detail: error.details };
     }
-    return { error: true, detail: error };
+    return { detail: error };
   }
 };
 
@@ -91,9 +95,7 @@ const deleteBrand = async (id) => {
     await db.deleteOne({ _id: new ObjectId(id) });
     return brand;
   } catch (error) {
-    return {
-      error: true,
-    };
+    return { error };
   }
 };
 
@@ -104,4 +106,5 @@ export const brandModel = {
   update,
   deleteBrand,
   getBrandById,
+  getBrandBySlug,
 };

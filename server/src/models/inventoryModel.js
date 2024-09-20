@@ -15,8 +15,7 @@ const countInventoriesAll = async () => {
     return total;
   } catch (error) {
     return {
-      success: false,
-      mgs: 'Có lỗi xảy ra xin thử lại sau',
+      message: 'Có lỗi xảy ra xin thử lại sau',
     };
   }
 };
@@ -34,8 +33,7 @@ const getInventoriesAll = async (page, limit) => {
     return result;
   } catch (error) {
     return {
-      success: false,
-      mgs: 'Có lỗi xảy ra xin thử lại sau',
+      message: 'Có lỗi xảy ra xin thử lại sau',
     };
   }
 };
@@ -60,8 +58,7 @@ const createInventory = async (dataInventory) => {
     return result;
   } catch (error) {
     return {
-      success: false,
-      mgs: 'Có lỗi xảy ra xin thử lại sau',
+      message: 'Có lỗi xảy ra xin thử lại sau',
     };
   }
 };
@@ -84,7 +81,6 @@ const update = async (id, data) => {
     return result;
   } catch (error) {
     return {
-      error: true,
       message: error.message,
     };
   }
@@ -98,7 +94,7 @@ const deleteInventory = async (id) => {
     return inventory;
   } catch (error) {
     return {
-      error: true,
+      error,
     };
   }
 };
