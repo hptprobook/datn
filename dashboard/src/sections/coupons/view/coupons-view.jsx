@@ -110,6 +110,9 @@ export default function CouponsPage() {
     comparator: getComparator(order, orderBy),
     filterName,
   });
+  const handleNavigate = (id) => {
+    route.push(id);
+  };
 
   const notFound = !dataFiltered.length && !!filterName;
 
@@ -149,7 +152,7 @@ export default function CouponsPage() {
                   { id: 'code', label: 'Mã' },
                   { id: 'type', label: 'Loại' },
                   { id: 'minPurchasePrice', label: 'Giá mua tối thiểu' },
-                  { id: 'discountValue', label: 'Giá trị giảm giá' },
+                  { id: 'maxPurchasePrice', label: 'Giá mua tối đa' },
                   { id: 'usageLimit', label: 'Giới hạn sử dụng' },
                   { id: 'usageCount', label: 'Số lần sử dụng' },
                   { id: 'status', label: 'Trạng thái' },
@@ -164,12 +167,13 @@ export default function CouponsPage() {
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
                     <CouponTableRow
-                      key={row.id}
+                      key={row._id}
                       code={row.code}
                       type={row.type}
                       applicableProducts={row.applicableProducts}
-                      discountValue={row.discountValue}
                       usageLimit={row.usageLimit}
+                      minPurchasePrice={row.minPurchasePrice}
+                      maxPurchasePrice={row.maxPurchasePrice}
                       usageCount={row.usageCount}
                       status={row.status}
                       limitOnUser={row.limitOnUser} // Make sure to include limitOnUser if you want to display it
@@ -177,6 +181,7 @@ export default function CouponsPage() {
                       dateEnd={row.dateEnd}
                       selected={selected.indexOf(row.code) !== -1}
                       handleClick={(event) => handleClick(event, row.code)}
+                      handleNavigate={() => handleNavigate(row._id)}
                     />
                   ))}
 

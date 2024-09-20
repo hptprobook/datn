@@ -15,7 +15,7 @@ Router.get(
   supplierController.getSupplierById
 );
 Router.post(
-  '/add',
+  '/',
   verifyToken,
   verifyAdmin,
   supplierController.createSupplier

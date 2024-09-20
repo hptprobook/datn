@@ -31,8 +31,13 @@ export const CREATE_COUPONS = Joi.object({
     maxPurchasePrice: Joi.number()
         .min(Joi.ref('minPurchasePrice'))
         .max(99999999)
+        .when('minPurchasePrice', {
+            is: Joi.exist(),  // Nếu có giá trị minPurchasePrice
+            then: Joi.number().min(Joi.ref('minPurchasePrice')),  // maxPurchasePrice phải lớn hơn hoặc bằng minPurchasePrice
+            otherwise: Joi.number().allow(null),  // Nếu không có giá trị minPurchasePrice, bỏ qua kiểm tra
+        })
         .messages({
-            'number.base': 'Giá trị mua tối thiểu phải là một số.',
+            'number.base': 'Giá trị mua tối đa phải là một số.',
             'number.min': 'Giá trị mua tối đa phải lớn hơn hoặc bằng giá trị mua tối thiểu.',
             'number.max': 'Giá trị mua tối đa không được vượt quá {#limit}.',
         }),

@@ -41,21 +41,19 @@ const getSupplierById = async (req, res) => {
 };
 
 const createSupplier = async (req, res) => {
-  const { fullName, phone, email, address } = req.body;
-  if (!fullName && !phone && !email && !address) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      message: ERROR_MESSAGES.REQUIRED,
-    });
+  try {
+    const data = req.body;
+    const dataSupplier = await supplierModel.createSupplier(data);
+    return res.status(StatusCodes.CREATED).json(dataSupplier);
   }
-
-  const data = {
-    fullName,
-    phone,
-    email,
-    address,
-  };
-  const dataSupplier = await supplierModel.createSupplier(data);
-  return res.status(StatusCodes.OK).json({ dataSupplier });
+  catch (error) {
+    if (error.details) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: error.details[0].message,
+      });
+    }
+    return res.status(StatusCodes.BAD_REQUEST).json(error);
+  }
 };
 
 const updateSupplier = async (req, res) => {
