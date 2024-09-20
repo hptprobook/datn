@@ -86,10 +86,11 @@ const getProductBySlug = async (slug) => {
   return product;
 };
 
-const getProductsByCategory = async (slug) => {
+const getProductsByCategory = async (slug, page, limit) => {
   const db = await GET_DB();
-
-  const category = await db.collection('categories').find({ slug: slug });
+  page = parseInt(page) || 1;
+  limit = parseInt(limit) || 20;
+  const category = await db.collection('categories').findOne({ slug: slug });
 
   if (!category) {
     throw new Error('Danh mục không tồn tại');
@@ -100,15 +101,18 @@ const getProductsByCategory = async (slug) => {
   const products = await db
     .collection('products')
     .find({ cat_id: new ObjectId(cat_id) })
+    .skip((page - 1) * limit)
+    .limit(limit)
     .toArray();
 
   return products;
 };
 
-const getProductsByBrand = async (slug) => {
+const getProductsByBrand = async (slug, page, limit) => {
   const db = await GET_DB();
-
-  const brand = await db.collection('brands').find({ slug: slug });
+  page = parseInt(page) || 1;
+  limit = parseInt(limit) || 20;
+  const brand = await db.collection('brands').findOne({ slug: slug });
 
   if (!brand) {
     throw new Error('Thương hiệu không tồn tại');
@@ -119,26 +123,35 @@ const getProductsByBrand = async (slug) => {
   const products = await db
     .collection('products')
     .find({ brand: new ObjectId(brandId) })
+    .skip((page - 1) * limit)
+    .limit(limit)
     .toArray();
-
   return products;
 };
 
-const getProductsByCategoryId = async (id) => {
+const getProductsByCategoryId = async (id, page, limit) => {
   const db = await GET_DB();
+  page = parseInt(page) || 1;
+  limit = parseInt(limit) || 20;
   const products = await db
     .collection('products')
     .find({ cat_id: new ObjectId(id) })
+    .skip((page - 1) * limit)
+    .limit(limit)
     .toArray();
 
   return products;
 };
 
-const getProductsByBrandId = async (id) => {
+const getProductsByBrandId = async (id, page, limit) => {
   const db = await GET_DB();
+  page = parseInt(page) || 1;
+  limit = parseInt(limit) || 20;
   const products = await db
     .collection('products')
     .find({ brand: new ObjectId(id) })
+    .skip((page - 1) * limit)
+    .limit(limit)
     .toArray();
 
   return products;
