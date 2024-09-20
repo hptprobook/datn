@@ -482,6 +482,105 @@ const getProductByOldest = async (page, limit) => {
   }
 };
 
+const removeTones = (str) => {
+  return str
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'D');
+};
+
+const getProductBySearch = async (search, page, limit) => {
+  try {
+    page = parseInt(page) || 1;
+    limit = parseInt(limit) || 20;
+
+    const searchQuery = removeTones(search).toLowerCase();
+    const searchTerms = searchQuery.split(' ');
+
+    const db = await GET_DB();
+
+    const categories = await db.collection('categories').find().toArray();
+    const brands = await db.collection('brands').find().toArray();
+
+    const categoryIds = categories
+      .filter((category) =>
+        searchTerms.every((term) =>
+          removeTones(category.name).toLowerCase().includes(term)
+        )
+      )
+      .map((category) => category._id);
+
+    const brandIds = brands
+      .filter((brand) =>
+        searchTerms.every((term) =>
+          removeTones(brand.name).toLowerCase().includes(term)
+        )
+      )
+      .map((brand) => brand._id);
+
+    const allProducts = await db.collection('products').find().toArray();
+
+    const filteredProducts = allProducts.filter((product) => {
+      const nameNoTones = removeTones(product.name).toLowerCase();
+      const descriptionNoTones = removeTones(product.description).toLowerCase();
+      const contentNoTones = removeTones(product.content).toLowerCase();
+      const tagsNoTones = product.tags.map((tag) =>
+        removeTones(tag).toLowerCase()
+      );
+
+      const nameMatch = searchTerms.every((term) => nameNoTones.includes(term));
+      const descriptionMatch = searchTerms.every((term) =>
+        descriptionNoTones.includes(term)
+      );
+      const contentMatch = searchTerms.every((term) =>
+        contentNoTones.includes(term)
+      );
+      const tagsMatch = tagsNoTones.some((tag) =>
+        searchTerms.every((term) => tag.includes(term))
+      );
+
+      const categoryMatch =
+        categoryIds.length > 0 ? categoryIds.includes(product.cat_id) : true;
+      const brandMatch =
+        brandIds.length > 0
+          ? brandIds.some((id) => id.equals(product.brand))
+          : true;
+
+      return (
+        nameMatch ||
+        descriptionMatch ||
+        contentMatch ||
+        tagsMatch ||
+        categoryMatch ||
+        brandMatch
+      );
+    });
+
+    const result = filteredProducts
+      .slice((page - 1) * limit, page * limit)
+      .map(
+        ({
+          content,
+          description,
+          images,
+          variants,
+          inventory,
+          minInventory,
+          maxInventory,
+          weight,
+          height,
+          reviews,
+          ...rest
+        }) => rest
+      );
+
+    return result;
+  } catch (error) {
+    return { message: 'Có lỗi xảy ra xin thử lại sau' };
+  }
+};
+
 export const productModel = {
   countProductAll,
   getProductsAll,
@@ -503,4 +602,5 @@ export const productModel = {
   getProductByPriceDesc,
   getProductByNewest,
   getProductByOldest,
+  getProductBySearch,
 };
