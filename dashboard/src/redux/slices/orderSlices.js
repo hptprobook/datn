@@ -28,11 +28,9 @@ export const updateOrder = createAsyncThunk(
   'orders/updateOrder',
   async ({ id, data }, rejectWithValue) => {
     try {
-      console.log('data', data);
       const res = await OrderServices.updateOrder(id, data);
       return res;
     } catch (err) {
-      console.log('err', err);
       return rejectWithValue(err.response.data);
     }
   }
