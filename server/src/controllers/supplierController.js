@@ -6,13 +6,8 @@ import { ERROR_MESSAGES } from '~/utils/errorMessage';
 
 const getAllSuppliers = async (req, res) => {
   try {
-    let { pages, limit } = req.query;
-    const suppliers = await supplierModel.getSuppliersAll(pages, limit);
-    const countSuppliers = await supplierModel.countSupplierAll();
-    return res.status(StatusCodes.OK).json({
-      suppliers,
-      countSuppliers,
-    });
+    const suppliers = await supplierModel.getSuppliersAll();
+    return res.status(StatusCodes.OK).json(suppliers);
   } catch (error) {
     return res
       .status(StatusCodes.BAD_REQUEST)
