@@ -59,16 +59,12 @@ export default function CategoryPage() {
         <div className="col-span-1">
           <CategorySidebar
             category={categoryData?.category}
-            products={allProductsData?.products}
+            products={allProductsData?.product}
             onFilterChange={handleFilterChange}
           />
         </div>
         <div className="col-span-4">
-          <CategoryContent
-            catData={categoryData?.category}
-            products={allProductsData?.products}
-            filters={filters}
-          />
+          <CategoryContent catData={categoryData?.category} filters={filters} />
         </div>
       </div>
     </section>

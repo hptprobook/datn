@@ -21,34 +21,135 @@ colors = ["Đỏ", "Cam", "Vàng", "Lam", "Xanh", "Chàm", "Tím", "Trắng", "�
 sizes = ["S", "M", "L", "XL", "XXL"]
 productUrl = 'https://picsum.photos/276/380'
 
+# catIds = [
+#  '66e9076f71049ba8da1a8040', '66e9076f71049ba8da1a8041', '66e9076f71049ba8da1a8042',
+#  '66e9076f71049ba8da1a8043', '66e9076f71049ba8da1a8044', '66e9076f71049ba8da1a8045',
+#  '66e9076f71049ba8da1a8046', '66e9076f71049ba8da1a8047', '66e9076f71049ba8da1a8048',
+#  '66e9076f71049ba8da1a8049', '66e9076f71049ba8da1a804a', '66e9076f71049ba8da1a804b',
+#  '66e9076f71049ba8da1a804c', '66e9076f71049ba8da1a804d', '66e9076f71049ba8da1a804e',
+#  '66e9076f71049ba8da1a804f', '66e9076f71049ba8da1a8050', '66e9076f71049ba8da1a8051',
+#  '66e9076f71049ba8da1a8052', '66e9076f71049ba8da1a8053', '66e9076f71049ba8da1a8054',
+#  '66e9076f71049ba8da1a8055', '66e9076f71049ba8da1a8056', '66e9076f71049ba8da1a8057',
+#  '66e9076f71049ba8da1a8058', '66e9076f71049ba8da1a8059', '66e9076f71049ba8da1a805a',
+#  '66e9076f71049ba8da1a805b', '66e9076f71049ba8da1a805c', '66e9076f71049ba8da1a805d',
+#  '66e9076f71049ba8da1a805e', '66e9076f71049ba8da1a805f', '66e9076f71049ba8da1a8060',
+#  '66e9076f71049ba8da1a8061', '66e9076f71049ba8da1a8062', '66e9076f71049ba8da1a8063',
+#  '66e9076f71049ba8da1a8064', '66e9076f71049ba8da1a8065', '66e90a8c71049ba8da1a8066',
+#  '66e90a8c71049ba8da1a8067', '66e90a8c71049ba8da1a8068', '66e90a8c71049ba8da1a8069',
+#  '66e90a8c71049ba8da1a806a', '66e90a8c71049ba8da1a806b', '66e90a8c71049ba8da1a806d',
+#  '66e90a8c71049ba8da1a806e', '66e90a8c71049ba8da1a806f', '66e90a8c71049ba8da1a8070',
+#  '66e90a8c71049ba8da1a8071', '66e90a8c71049ba8da1a8072', '66e90a8c71049ba8da1a8073',
+#  '66e90a8c71049ba8da1a8075', '66e90a8c71049ba8da1a8076', '66e90a8c71049ba8da1a8078',
+#  '66e90a8c71049ba8da1a807b', '66e90a8c71049ba8da1a807c', '66e90a8c71049ba8da1a807e',
+#  '66e90a8c71049ba8da1a807f', '66e90a8c71049ba8da1a8082', '66e90a8c71049ba8da1a8083',
+#  '66e90a8c71049ba8da1a8084', '66e90a8c71049ba8da1a8085', '66e90a8c71049ba8da1a8086',
+#  '66e90a8c71049ba8da1a8087', '66e90a8c71049ba8da1a8088', '66e90a8c71049ba8da1a8089',
+#  '66e90a8c71049ba8da1a808a', '66e90a8c71049ba8da1a808b', '66e90a8c71049ba8da1a808c',
+#  '66e9242c71049ba8da1a8093', '66e9242c71049ba8da1a809b', '66e9242c71049ba8da1a809e',
+#  '66e9242c71049ba8da1a80a0', '66e9242c71049ba8da1a80a1', '66e9242c71049ba8da1a80a2',
+#  '66e9242c71049ba8da1a80a3', '66e9242c71049ba8da1a80a4', '66e9242c71049ba8da1a80a5',
+#  '66e9242c71049ba8da1a80a7'
+# ]
+
+
 catIds = [
- '66e9076f71049ba8da1a8040', '66e9076f71049ba8da1a8041', '66e9076f71049ba8da1a8042',
- '66e9076f71049ba8da1a8043', '66e9076f71049ba8da1a8044', '66e9076f71049ba8da1a8045',
- '66e9076f71049ba8da1a8046', '66e9076f71049ba8da1a8047', '66e9076f71049ba8da1a8048',
- '66e9076f71049ba8da1a8049', '66e9076f71049ba8da1a804a', '66e9076f71049ba8da1a804b',
- '66e9076f71049ba8da1a804c', '66e9076f71049ba8da1a804d', '66e9076f71049ba8da1a804e',
- '66e9076f71049ba8da1a804f', '66e9076f71049ba8da1a8050', '66e9076f71049ba8da1a8051',
- '66e9076f71049ba8da1a8052', '66e9076f71049ba8da1a8053', '66e9076f71049ba8da1a8054',
- '66e9076f71049ba8da1a8055', '66e9076f71049ba8da1a8056', '66e9076f71049ba8da1a8057',
- '66e9076f71049ba8da1a8058', '66e9076f71049ba8da1a8059', '66e9076f71049ba8da1a805a',
- '66e9076f71049ba8da1a805b', '66e9076f71049ba8da1a805c', '66e9076f71049ba8da1a805d',
- '66e9076f71049ba8da1a805e', '66e9076f71049ba8da1a805f', '66e9076f71049ba8da1a8060',
- '66e9076f71049ba8da1a8061', '66e9076f71049ba8da1a8062', '66e9076f71049ba8da1a8063',
- '66e9076f71049ba8da1a8064', '66e9076f71049ba8da1a8065', '66e90a8c71049ba8da1a8066',
- '66e90a8c71049ba8da1a8067', '66e90a8c71049ba8da1a8068', '66e90a8c71049ba8da1a8069',
- '66e90a8c71049ba8da1a806a', '66e90a8c71049ba8da1a806b', '66e90a8c71049ba8da1a806d',
- '66e90a8c71049ba8da1a806e', '66e90a8c71049ba8da1a806f', '66e90a8c71049ba8da1a8070',
- '66e90a8c71049ba8da1a8071', '66e90a8c71049ba8da1a8072', '66e90a8c71049ba8da1a8073',
- '66e90a8c71049ba8da1a8075', '66e90a8c71049ba8da1a8076', '66e90a8c71049ba8da1a8078',
- '66e90a8c71049ba8da1a807b', '66e90a8c71049ba8da1a807c', '66e90a8c71049ba8da1a807e',
- '66e90a8c71049ba8da1a807f', '66e90a8c71049ba8da1a8082', '66e90a8c71049ba8da1a8083',
- '66e90a8c71049ba8da1a8084', '66e90a8c71049ba8da1a8085', '66e90a8c71049ba8da1a8086',
- '66e90a8c71049ba8da1a8087', '66e90a8c71049ba8da1a8088', '66e90a8c71049ba8da1a8089',
- '66e90a8c71049ba8da1a808a', '66e90a8c71049ba8da1a808b', '66e90a8c71049ba8da1a808c',
- '66e9242c71049ba8da1a8093', '66e9242c71049ba8da1a809b', '66e9242c71049ba8da1a809e',
- '66e9242c71049ba8da1a80a0', '66e9242c71049ba8da1a80a1', '66e9242c71049ba8da1a80a2',
- '66e9242c71049ba8da1a80a3', '66e9242c71049ba8da1a80a4', '66e9242c71049ba8da1a80a5',
- '66e9242c71049ba8da1a80a7'
+  "66e90a8c71049ba8da1a8066",
+  "66e90a8c71049ba8da1a8067",
+  "66e90a8c71049ba8da1a8068",
+  "66e90a8c71049ba8da1a8069",
+  "66e90a8c71049ba8da1a806a",
+  "66e90a8c71049ba8da1a806b",
+  "66e90a8c71049ba8da1a806d",
+  "66e90a8c71049ba8da1a806e",
+  "66e90a8c71049ba8da1a8070",
+  "66e90a8c71049ba8da1a8071",
+  "66e90a8c71049ba8da1a8075",
+  "66e90a8c71049ba8da1a8076",
+  "66e90a8c71049ba8da1a8078",
+  "66e90a8c71049ba8da1a807b",
+  "66e90a8c71049ba8da1a807c",
+  "66e90a8c71049ba8da1a807e",
+  "66e90a8c71049ba8da1a807f",
+  "66e90a8c71049ba8da1a8082",
+  "66e90a8c71049ba8da1a8083",
+  "66e90a8c71049ba8da1a8084",
+  "66e90a8c71049ba8da1a8085",
+  "66e90a8c71049ba8da1a8086",
+  "66e90a8c71049ba8da1a8087",
+  "66e90a8c71049ba8da1a8088",
+  "66e90a8c71049ba8da1a8089",
+  "66e90a8c71049ba8da1a808a",
+  "66e90a8c71049ba8da1a808b",
+  "66e90a8c71049ba8da1a808c",
+  "66e9242c71049ba8da1a8093",
+  "66e9242c71049ba8da1a809b",
+  "66e9242c71049ba8da1a809e",
+  "66e9242c71049ba8da1a80a0",
+  "66e9242c71049ba8da1a80a1",
+  "66e9242c71049ba8da1a80a2",
+  "66e9242c71049ba8da1a80a3",
+  "66e9242c71049ba8da1a80a4",
+  "66e9242c71049ba8da1a80a5",
+  "66e9242c71049ba8da1a80a7",
+  "66e9242c71049ba8da1a80a8",
+  "66e9242c71049ba8da1a80b5",
+  "66e9242c71049ba8da1a80b9",
+  "66e9242c71049ba8da1a80bb",
+  "66e9242c71049ba8da1a80bd",
+  "66e9242c71049ba8da1a80bf",
+  "66e9242c71049ba8da1a80c0",
+  "66e9242c71049ba8da1a80c3",
+  "66e9242c71049ba8da1a80d5",
+  "66e9242c71049ba8da1a80d6",
+  "66e9242c71049ba8da1a80dd",
+  "66e9242c71049ba8da1a80df",
+  "66e9242c71049ba8da1a80e0",
+  "66e9242c71049ba8da1a80e1",
+  "66e9242c71049ba8da1a80e2",
+  "66e9242c71049ba8da1a80e3",
+  "66e9242c71049ba8da1a80e4",
+  "66e9242c71049ba8da1a80e5",
+  "66e9242c71049ba8da1a80e6",
+  "66e9242c71049ba8da1a80e7",
+  "66e9242c71049ba8da1a80e8",
+  "66e9242c71049ba8da1a80e9",
+  "66e9242c71049ba8da1a80ea",
+  "66e9242c71049ba8da1a80eb",
+  "66e9242c71049ba8da1a80ec",
+  "66e9242c71049ba8da1a80ee",
+  "66e9242c71049ba8da1a80ef",
+  "66e9242c71049ba8da1a80f0",
+  "66e9242c71049ba8da1a80f1",
+  "66e9242c71049ba8da1a80f2",
+  "66e9242c71049ba8da1a80f3",
+  "66e9242c71049ba8da1a80f4",
+  "66e9242c71049ba8da1a80f5",
+  "66e9242c71049ba8da1a80f6",
+  "66e9242c71049ba8da1a80f7",
+  "66e9242c71049ba8da1a80f8",
+  "66e9242c71049ba8da1a80f9",
+  "66e9242c71049ba8da1a80fa",
+  "66e9242c71049ba8da1a80fb",
+  "66e9242c71049ba8da1a80fc",
+  "66e9242c71049ba8da1a80fd",
+  "66e9242c71049ba8da1a80fe",
+  "66e9242c71049ba8da1a8101",
+  "66e9242c71049ba8da1a8102",
+  "66e9242c71049ba8da1a8105",
+  "66e9242c71049ba8da1a8107",
+  "66e9242c71049ba8da1a8108",
+  "66e9242c71049ba8da1a8109",
+  "66e9242c71049ba8da1a810a",
+  "66e9242c71049ba8da1a810b",
+  "66e9242c71049ba8da1a810c",
+  "66e9242c71049ba8da1a810f",
+  "66e9242c71049ba8da1a8111",
+  "66e9242c71049ba8da1a8112",
+  "66e9242c71049ba8da1a8113",
+  "66e9242c71049ba8da1a8114",
+  "66e9242c71049ba8da1a8116",
+  "66e9242c71049ba8da1a8117",
+  "66e946e488c674d20941671f"
 ]
 
 brandIds = [
@@ -123,7 +224,12 @@ def crawl_product_detail(product_url):
     if product_response.status_code == 200:
         product_soup = BeautifulSoup(product_response.content, 'html.parser')
 
-        product_name = product_soup.find('h1', class_='page-title').find('span', class_='base').get_text(strip=True)
+        product_name_before = product_soup.find('h1', class_='page-title').find('span', class_='base').get_text(strip=True)
+
+        random_number = random.randint(1000, 9999)
+
+        # Thêm số ngẫu nhiên vào sau tên sản phẩm
+        product_name = f"{product_name_before} {random_number}"
 
         price_text = product_soup.find('span', class_='price').get_text(strip=True)
         product_price = float(re.sub(r'[^\d]', '', price_text))
@@ -191,7 +297,6 @@ def crawl_product_detail(product_url):
             'slug': slug,
             'variants': variants,
             'cat_id': cat_id,
-            'url': product_url,
             'statusStock': random.choice(statusStock),
             'view': random.randint(0, 200),
             'productType': random.choice(productTypes),
@@ -219,7 +324,7 @@ for page in range(1, maxPage + 1):
         soup = BeautifulSoup(response.content, 'html.parser')
         
         products = soup.findAll('a', class_='product-item-link')
-
+        
         for product in products:
             product_url = product['href']
             print(f"Đang crawl sản phẩm: {product_url}")
