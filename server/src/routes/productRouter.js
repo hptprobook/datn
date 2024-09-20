@@ -40,6 +40,8 @@ Router.get('/filter/price/asc', productController.getProductByPriceAsc);
 Router.get('/filter/price/desc', productController.getProductByPriceDesc);
 Router.get('/filter/created/newest', productController.getProductByNewest);
 Router.get('/filter/created/oldest', productController.getProductByOldest);
+//search
+Router.get('/search/:search', productController.getProductBySearch);
 
 Router.post(
   '/',
