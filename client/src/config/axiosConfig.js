@@ -1,6 +1,4 @@
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { useNotify } from '~/context/ReLoginContext';
 
 // const baseDomain = import.meta.env.VITE_DOMAIN;
 const baseURL = import.meta.env.VITE_API_ROOT;
@@ -20,18 +18,22 @@ request.interceptors.request.use((config) => {
   return config;
 });
 
+export const handleUnauthorizedError = (navigate, openNotify) => {
+  localStorage.removeItem('token');
+  openNotify(() => {
+    navigate('/tai-khoan/dang-nhap');
+  });
+};
+
 request.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      localStorage.removeItem('token');
+      return Promise.reject({ type: 'unauthorized' });
+    }
 
-      const { openNotify } = useNotify();
-      const navigate = useNavigate();
-
-      openNotify(() => {
-        navigate('/tai-khoan/dang-nhap');
-      });
+    if (error.response && error.response.status === 500) {
+      window.location.href = '/';
     }
     return Promise.reject(error);
   }
