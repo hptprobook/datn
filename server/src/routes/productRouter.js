@@ -25,14 +25,29 @@ const upload = multer({ storage });
 
 //admin
 Router.get('/', productController.getAllProducts);
+Router.get('/special', productController.getAllProductsSpecial);
 Router.get('/:id', productController.getProductById);
 Router.get('/slug/:slug', productController.getProductBySlug);
+//Category
 Router.get('/category/:id', productController.getProductByCategoryId);
 Router.get('/category/slug/:slug', productController.getProductByCategory);
+//Brand
 Router.get('/brand/:id', productController.getProductByBrandId);
 Router.get('/brand/slug/:slug', productController.getProductByBrand);
+//Filter
+Router.get('/filter/alphabet/az', productController.getProductByAlphabetAZ);
+Router.get('/filter/alphabet/za', productController.getProductByAlphabetZA);
+Router.get('/filter/price/asc', productController.getProductByPriceAsc);
+Router.get('/filter/price/desc', productController.getProductByPriceDesc);
+Router.get('/filter/created/newest', productController.getProductByNewest);
+Router.get('/filter/created/oldest', productController.getProductByOldest);
+//search
+Router.get('/search/:search', productController.getProductBySearch);
+
 Router.post(
   '/',
+  verifyToken,
+  verifyAdmin,
   upload.fields([
     { name: 'images' },
     { name: 'thumbnail' },

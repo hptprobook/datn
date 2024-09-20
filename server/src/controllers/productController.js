@@ -23,6 +23,19 @@ const getAllProducts = async (req, res) => {
   }
 };
 
+const getAllProductsSpecial = async (req, res) => {
+  try {
+    const products = await productModel.getProductsAllSpecial();
+    return res.status(StatusCodes.OK).json({
+      products,
+    });
+  } catch (error) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json('Có lỗi xảy ra xin thử lại sau');
+  }
+};
+
 const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -66,8 +79,12 @@ const getProductBySlug = async (req, res) => {
 const getProductByCategory = async (req, res) => {
   try {
     const { slug } = req.params;
-
-    const product = await productModel.getProductsByCategory(slug);
+    let { pages, limit } = req.query;
+    const product = await productModel.getProductsByCategory(
+      slug,
+      pages,
+      limit
+    );
     if (product) {
       return res.status(StatusCodes.OK).json({
         product,
@@ -87,8 +104,9 @@ const getProductByCategory = async (req, res) => {
 const getProductByBrand = async (req, res) => {
   try {
     const { slug } = req.params;
+    let { pages, limit } = req.query;
 
-    const product = await productModel.getProductsByBrand(slug);
+    const product = await productModel.getProductsByBrand(slug, pages, limit);
     if (product) {
       return res.status(StatusCodes.OK).json({
         product,
@@ -107,8 +125,13 @@ const getProductByBrand = async (req, res) => {
 
 const getProductByCategoryId = async (req, res) => {
   try {
+    let { pages, limit } = req.query;
     const { id } = req.params;
-    const product = await productModel.getProductsByCategoryId(id);
+    const product = await productModel.getProductsByCategoryId(
+      id,
+      pages,
+      limit
+    );
     if (product) {
       return res.status(StatusCodes.OK).json({
         product,
@@ -128,7 +151,8 @@ const getProductByCategoryId = async (req, res) => {
 const getProductByBrandId = async (req, res) => {
   try {
     const { id } = req.params;
-    const product = await productModel.getProductsByBrandId(id);
+    let { pages, limit } = req.query;
+    const product = await productModel.getProductsByBrandId(id, pages, limit);
 
     if (product) {
       return res.status(StatusCodes.OK).json({
@@ -596,6 +620,110 @@ const deleteRating = async (req, res) => {
   }
 };
 
+const getProductByAlphabetAZ = async (req, res) => {
+  try {
+    let { pages, limit } = req.query;
+    const products = await productModel.getProductByAlphabetAZ(pages, limit);
+    return res.status(StatusCodes.OK).json({
+      products,
+    });
+  } catch (error) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json('Có lỗi xảy ra xin thử lại sau');
+  }
+};
+
+const getProductByAlphabetZA = async (req, res) => {
+  try {
+    let { pages, limit } = req.query;
+    const products = await productModel.getProductByAlphabetZA(pages, limit);
+    return res.status(StatusCodes.OK).json({
+      products,
+    });
+  } catch (error) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json('Có lỗi xảy ra xin thử lại sau');
+  }
+};
+
+const getProductByPriceAsc = async (req, res) => {
+  try {
+    let { pages, limit } = req.query;
+    const products = await productModel.getProductByPriceAsc(pages, limit);
+    return res.status(StatusCodes.OK).json({
+      products,
+    });
+  } catch (error) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json('Có lỗi xảy ra xin thử lại sau');
+  }
+};
+
+const getProductByPriceDesc = async (req, res) => {
+  try {
+    let { pages, limit } = req.query;
+    const products = await productModel.getProductByPriceDesc(pages, limit);
+    return res.status(StatusCodes.OK).json({
+      products,
+    });
+  } catch (error) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json('Có lỗi xảy ra xin thử lại sau');
+  }
+};
+
+const getProductByNewest = async (req, res) => {
+  try {
+    let { pages, limit } = req.query;
+    const products = await productModel.getProductByNewest(pages, limit);
+
+    return res.status(StatusCodes.OK).json({
+      products,
+    });
+  } catch (error) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json('Có lỗi xảy ra xin thử lại sau');
+  }
+};
+
+const getProductByOldest = async (req, res) => {
+  try {
+    let { pages, limit } = req.query;
+    const products = await productModel.getProductByOldest(pages, limit);
+    return res.status(StatusCodes.OK).json({
+      products,
+    });
+  } catch (error) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json('Có lỗi xảy ra xin thử lại sau');
+  }
+};
+
+const getProductBySearch = async (req, res) => {
+  try {
+    let { search } = req.params;
+    let { pages, limit } = req.query;
+    const products = await productModel.getProductBySearch(
+      search,
+      pages,
+      limit
+    );
+    return res.status(StatusCodes.OK).json({
+      products,
+    });
+  } catch (error) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json('Có lỗi xảy ra xin thử lại sau');
+  }
+};
+
 export const productController = {
   createProduct,
   getAllProducts,
@@ -610,4 +738,12 @@ export const productController = {
   getProductByCategoryId,
   getProductByBrandId,
   getProductByBrand,
+  getProductByAlphabetAZ,
+  getProductByAlphabetZA,
+  getProductByPriceAsc,
+  getProductByPriceDesc,
+  getProductByNewest,
+  getProductByOldest,
+  getProductBySearch,
+  getAllProductsSpecial,
 };

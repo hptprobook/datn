@@ -19,7 +19,7 @@ export default function CouponTableRow({
   code,
   type,
   minPurchasePrice,
-  discountValue,
+  maxPurchasePrice,
   usageLimit,
   usageCount,
   status,
@@ -27,6 +27,7 @@ export default function CouponTableRow({
   dateStart,
   dateEnd,
   handleClick,
+  handleNavigate,
 }) {
   const [open, setOpen] = useState(null);
 
@@ -55,14 +56,18 @@ export default function CouponTableRow({
 
         <TableCell>{minPurchasePrice}</TableCell>
 
-        <TableCell>{discountValue}</TableCell>
+        <TableCell>{maxPurchasePrice}</TableCell>
 
         <TableCell>{usageLimit}</TableCell>
 
         <TableCell>{usageCount}</TableCell>
 
         <TableCell>
-          <Label color={(status === 'expired' && 'error') || (status === 'inactive' && 'warning') || 'success'}>
+          <Label
+            color={
+              (status === 'expired' && 'error') || (status === 'inactive' && 'warning') || 'success'
+            }
+          >
             {status}
           </Label>
         </TableCell>
@@ -90,14 +95,14 @@ export default function CouponTableRow({
           sx: { width: 140 },
         }}
       >
-        <MenuItem onClick={handleCloseMenu}>
+        <MenuItem onClick={handleNavigate}>
           <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
-          Edit
+          Xem
         </MenuItem>
 
         <MenuItem onClick={handleCloseMenu} sx={{ color: 'error.main' }}>
           <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
-          Delete
+          Xóa
         </MenuItem>
       </Popover>
     </>
@@ -108,13 +113,14 @@ CouponTableRow.propTypes = {
   code: PropTypes.string.isRequired,
   type: PropTypes.string.isRequired,
   minPurchasePrice: PropTypes.number.isRequired,
-  discountValue: PropTypes.number.isRequired,
+  maxPurchasePrice: PropTypes.number.isRequired,
   usageLimit: PropTypes.number.isRequired,
   usageCount: PropTypes.number.isRequired,
   status: PropTypes.string.isRequired,
   limitOnUser: PropTypes.bool.isRequired,
-  dateStart: PropTypes.number.isRequired,
-  dateEnd: PropTypes.number.isRequired,
+  dateStart: PropTypes.any.isRequired,
+  dateEnd: PropTypes.any.isRequired,
   selected: PropTypes.bool,
   handleClick: PropTypes.func,
+  handleNavigate: PropTypes.func,
 };

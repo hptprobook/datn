@@ -7,10 +7,12 @@ export const CREATE_COUPONS = Joi.object({
         'any.required': 'Tên khuyến mãi là bắt buộc.',
         'string.max': 'Tên khuyến mãi không được vượt quá 255 ký tự.',
     }),
-    code: Joi.string().trim().required().messages({
+    code: Joi.string().trim().required().max(20).min(4).messages({
         'string.base': 'Mã khuyến mãi phải là một chuỗi văn bản.',
         'string.empty': 'Mã khuyến mãi không được để trống.',
         'any.required': 'Mã khuyến mãi là bắt buộc.',
+        'string.max': 'Mã khuyến mãi không được vượt quá {#limit} ký tự.',
+        'string.min': 'Mã khuyến mãi phải có ít nhất {#limit} ký tự.',
     }),
     type: Joi.string().trim().valid('percent', 'price', 'shipping').required().messages({
         'string.base': 'Loại khuyến mãi phải là một chuỗi văn bản.',
@@ -21,19 +23,34 @@ export const CREATE_COUPONS = Joi.object({
     applicableProducts: Joi.array().items(Joi.string().trim()).messages({
         'array.base': 'Sản phẩm áp dụng phải là một mảng.',
     }).default([]),
-    minPurchasePrice: Joi.number().min(1).messages({
+    minPurchasePrice: Joi.number().min(0).max(99999999).messages({
         'number.base': 'Giá trị mua tối thiểu phải là một số.',
         'number.min': 'Giá trị mua tối thiểu phải lớn hơn hoặc bằng {#limit}.',
+        'number.max': 'Giá trị mua tối thiểu không được vượt quá {#limit}.',
     }),
     maxPurchasePrice: Joi.number()
         .min(Joi.ref('minPurchasePrice'))
+        .max(99999999)
+        .when('minPurchasePrice', {
+            is: Joi.exist(),  // Nếu có giá trị minPurchasePrice
+            then: Joi.number().min(Joi.ref('minPurchasePrice')),  // maxPurchasePrice phải lớn hơn hoặc bằng minPurchasePrice
+            otherwise: Joi.number().allow(null),  // Nếu không có giá trị minPurchasePrice, bỏ qua kiểm tra
+        })
         .messages({
-            'number.base': 'Giá trị mua tối thiểu phải là một số.',
+            'number.base': 'Giá trị mua tối đa phải là một số.',
             'number.min': 'Giá trị mua tối đa phải lớn hơn hoặc bằng giá trị mua tối thiểu.',
+            'number.max': 'Giá trị mua tối đa không được vượt quá {#limit}.',
         }),
-    discountValue: Joi.number().min(1).messages({
+    discountValue: Joi.number().min(0).max(99999999).messages({
         'number.base': 'Giá trị khuyến mãi phải là một số.',
         'number.min': 'Giá trị khuyến mãi phải lớn hơn hoặc bằng {#limit}.',
+        'number.max': 'Giá trị khuyến mãi không được vượt quá {#limit}.',
+        'number.empty': 'Giá trị khuyến mãi không được để trống.',
+    }),
+    discountPercent: Joi.number().min(0).max(100).messages({
+        'number.base': 'Phần trăm khuyến mãi phải là một số.',
+        'number.min': 'Phần trăm khuyến mãi phải lớn hơn hoặc bằng {#limit}.',
+        'number.max': 'Phần trăm khuyến mãi không được vượt quá {#limit}.',
     }),
     description: Joi.string().trim().min(10).max(255).messages({
         'string.base': 'Mô tả khuyến mãi phải là một chuỗi văn bản.',
