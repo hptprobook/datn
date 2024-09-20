@@ -23,6 +23,19 @@ const getAllProducts = async (req, res) => {
   }
 };
 
+const getAllProductsSpecial = async (req, res) => {
+  try {
+    const products = await productModel.getProductsAllSpecial();
+    return res.status(StatusCodes.OK).json({
+      products,
+    });
+  } catch (error) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json('Có lỗi xảy ra xin thử lại sau');
+  }
+};
+
 const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -721,4 +734,5 @@ export const productController = {
   getProductByNewest,
   getProductByOldest,
   getProductBySearch,
+  getAllProductsSpecial,
 };

@@ -54,6 +54,26 @@ const getProductsAll = async (page, limit) => {
   }
 };
 
+const getProductsAllSpecial = async () => {
+  try {
+    const db = await GET_DB().collection('products');
+    const result = await db
+      .find()
+      .project({
+        _id: 1,
+        name: 1,
+        thumbnail: 1,
+      })
+      .toArray();
+
+    return result;
+  } catch (error) {
+    return {
+      message: 'Có lỗi xảy ra xin thử lại sau',
+    };
+  }
+};
+
 const getProductById = async (product_id) => {
   const db = await GET_DB().collection('products');
   const product = await db.findOne({ _id: new ObjectId(product_id) });
@@ -522,7 +542,7 @@ const getProductBySearch = async (search, page, limit) => {
     const allProducts = await db.collection('products').find().toArray();
 
     const filteredProducts = allProducts.filter((product) => {
-      const nameNoTones = removeTones(product.name).toLowerCase();
+      /*   const nameNoTones = removeTones(product.name).toLowerCase();
       const descriptionNoTones = removeTones(product.description).toLowerCase();
       const contentNoTones = removeTones(product.content).toLowerCase();
       const tagsNoTones = product.tags.map((tag) =>
@@ -538,7 +558,7 @@ const getProductBySearch = async (search, page, limit) => {
       );
       const tagsMatch = tagsNoTones.some((tag) =>
         searchTerms.every((term) => tag.includes(term))
-      );
+      ); */
 
       const categoryMatch =
         categoryIds.length > 0 ? categoryIds.includes(product.cat_id) : true;
@@ -548,12 +568,11 @@ const getProductBySearch = async (search, page, limit) => {
           : true;
 
       return (
-        nameMatch ||
+        /*         nameMatch ||
         descriptionMatch ||
         contentMatch ||
-        tagsMatch ||
-        categoryMatch ||
-        brandMatch
+        tagsMatch || */
+        categoryMatch || brandMatch
       );
     });
 
@@ -603,4 +622,5 @@ export const productModel = {
   getProductByNewest,
   getProductByOldest,
   getProductBySearch,
+  getProductsAllSpecial,
 };

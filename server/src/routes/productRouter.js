@@ -25,6 +25,7 @@ const upload = multer({ storage });
 
 //admin
 Router.get('/', productController.getAllProducts);
+Router.get('/special', productController.getAllProductsSpecial);
 Router.get('/:id', productController.getProductById);
 Router.get('/slug/:slug', productController.getProductBySlug);
 //Category
