@@ -25,64 +25,60 @@ const validateBeforeUpdate = async (data) => {
 };
 
 const countProductAll = async () => {
-  try {
-    const db = await GET_DB().collection('products');
-    const total = await db.countDocuments();
-    return total;
-  } catch (error) {
-    return {
-      message: 'Có lỗi xảy ra xin thử lại sau',
-    };
+  const db = await GET_DB().collection('products');
+  const total = await db.countDocuments();
+  if (!total) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
+  return total;
 };
 
 const getProductsAll = async (page, limit) => {
-  try {
-    page = parseInt(page) || 1;
-    limit = parseInt(limit) || 20;
-    const db = await GET_DB().collection('products');
-    const result = await db
-      .find()
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .toArray();
-    return result;
-  } catch (error) {
-    return {
-      message: 'Có lỗi xảy ra xin thử lại sau',
-    };
+  page = parseInt(page) || 1;
+  limit = parseInt(limit) || 20;
+  const db = await GET_DB().collection('products');
+  const result = await db
+    .find()
+    .skip((page - 1) * limit)
+    .limit(limit)
+    .toArray();
+  if (!result) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
+  return result;
 };
 
 const getProductsAllSpecial = async () => {
-  try {
-    const db = await GET_DB().collection('products');
-    const result = await db
-      .find()
-      .project({
-        _id: 1,
-        name: 1,
-        thumbnail: 1,
-      })
-      .toArray();
-
-    return result;
-  } catch (error) {
-    return {
-      message: 'Có lỗi xảy ra xin thử lại sau',
-    };
+  const db = await GET_DB().collection('products');
+  const result = await db
+    .find()
+    .project({
+      _id: 1,
+      name: 1,
+      thumbnail: 1,
+    })
+    .toArray();
+  if (!result) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
+  return result;
 };
 
 const getProductById = async (product_id) => {
   const db = await GET_DB().collection('products');
   const product = await db.findOne({ _id: new ObjectId(product_id) });
+  if (!product) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
+  }
   return product;
 };
 
 const getProductBySlug = async (slug) => {
   const db = await GET_DB().collection('products');
   const product = await db.findOne({ slug: slug });
+  if (!product) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
+  }
   return product;
 };
 
@@ -104,7 +100,9 @@ const getProductsByCategory = async (slug, page, limit) => {
     .skip((page - 1) * limit)
     .limit(limit)
     .toArray();
-
+  if (!products) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
+  }
   return products;
 };
 
@@ -126,6 +124,9 @@ const getProductsByBrand = async (slug, page, limit) => {
     .skip((page - 1) * limit)
     .limit(limit)
     .toArray();
+  if (!products) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
+  }
   return products;
 };
 
@@ -139,7 +140,9 @@ const getProductsByCategoryId = async (id, page, limit) => {
     .skip((page - 1) * limit)
     .limit(limit)
     .toArray();
-
+  if (!products) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
+  }
   return products;
 };
 
@@ -153,366 +156,320 @@ const getProductsByBrandId = async (id, page, limit) => {
     .skip((page - 1) * limit)
     .limit(limit)
     .toArray();
-
+  if (!products) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
+  }
   return products;
 };
 
 const createProduct = async (data) => {
-  try {
-    const validData = await validateBeforeCreate(data);
-    const db = await GET_DB();
-    const collection = db.collection('products');
-    let validCat;
+  const validData = await validateBeforeCreate(data);
+  const db = await GET_DB();
+  const collection = db.collection('products');
+  let validCat;
 
-    if (Array.isArray(validData.cat_id)) {
-      validCat = validData.cat_id.map((cat) => new ObjectId(cat));
-    } else {
-      validCat = new ObjectId(validData.cat_id);
-    }
-
-    const result = await collection.insertOne({
-      ...validData,
-      cat_id: validCat,
-      brand: new ObjectId(validData.brand),
-      productType: new ObjectId(validData.productType),
-    });
-
-    return result;
-  } catch (error) {
-    if (error.details) {
-      return { detail: error.details };
-    }
-    return { detail: error };
+  if (Array.isArray(validData.cat_id)) {
+    validCat = validData.cat_id.map((cat) => new ObjectId(cat));
+  } else {
+    validCat = new ObjectId(validData.cat_id);
   }
+
+  const result = await collection.insertOne({
+    ...validData,
+    cat_id: validCat,
+    brand: new ObjectId(validData.brand),
+    productType: new ObjectId(validData.productType),
+  });
+  if (!result) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
+  }
+  return result;
 };
 
 const update = async (id, data) => {
-  try {
-    const validData = await validateBeforeUpdate(data);
-    const db = GET_DB().collection('products');
-    let validCat;
+  const validData = await validateBeforeUpdate(data);
+  const db = GET_DB().collection('products');
+  let validCat;
 
-    if (Array.isArray(validData.cat_id)) {
-      validCat = validData.cat_id.map((variant) => new ObjectId(variant));
-    } else {
-      validCat = new ObjectId(validData.cat_id);
-    }
-
-    const result = await db.findOneAndUpdate(
-      { _id: new ObjectId(id) },
-      {
-        $set: {
-          ...validData,
-          cat_id: validCat,
-          productType: new ObjectId(validData.productType),
-        },
-      },
-      { returnDocument: 'after' }
-    );
-
-    return { result: result };
-  } catch (error) {
-    if (error.details) {
-      return { detail: error.details };
-    }
-    return { detail: error };
+  if (Array.isArray(validData.cat_id)) {
+    validCat = validData.cat_id.map((variant) => new ObjectId(variant));
+  } else {
+    validCat = new ObjectId(validData.cat_id);
   }
+
+  const result = await db.findOneAndUpdate(
+    { _id: new ObjectId(id) },
+    {
+      $set: {
+        ...validData,
+        cat_id: validCat,
+        productType: new ObjectId(validData.productType),
+      },
+    },
+    { returnDocument: 'after' }
+  );
+  if (!result) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
+  }
+  return { result: result };
 };
 
 const deleteProduct = async (id) => {
-  try {
-    const db = GET_DB().collection('products');
-    const product = await db.findOne({ _id: new ObjectId(id) });
-    await db.deleteOne({ _id: new ObjectId(id) });
-    return {
-      thumbnail: product.thumbnail,
-      images: product.images,
-      variants: product.variants,
-    };
-  } catch (error) {
-    return {
-      error,
-    };
+  const db = GET_DB().collection('products');
+  const product = await db.findOne({ _id: new ObjectId(id) });
+  await db.deleteOne({ _id: new ObjectId(id) });
+  if (!product) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
+  return {
+    thumbnail: product.thumbnail,
+    images: product.images,
+    variants: product.variants,
+  };
 };
 
 const ratingProduct = async (data) => {
-  try {
-    const validData = await validateRatingBeforeCreate(data);
-    const db = GET_DB().collection('products');
+  const validData = await validateRatingBeforeCreate(data);
+  const db = GET_DB().collection('products');
 
-    const reviewId = new ObjectId();
+  const reviewId = new ObjectId();
 
-    const result = await db.findOneAndUpdate(
-      { _id: new ObjectId(validData.productId) },
-      {
-        $push: {
-          reviews: {
-            _id: reviewId,
-            userId: new ObjectId(validData.userId),
-            orderId: new ObjectId(validData.orderId),
-            productId: new ObjectId(validData.productId),
-            content: validData.content,
-            rating: validData.rating,
-            createdAt: new Date().getTime(),
-            updatedAt: new Date().getTime(),
-          },
+  const result = await db.findOneAndUpdate(
+    { _id: new ObjectId(validData.productId) },
+    {
+      $push: {
+        reviews: {
+          _id: reviewId,
+          userId: new ObjectId(validData.userId),
+          orderId: new ObjectId(validData.orderId),
+          productId: new ObjectId(validData.productId),
+          content: validData.content,
+          rating: validData.rating,
+          createdAt: new Date().getTime(),
+          updatedAt: new Date().getTime(),
         },
       },
-      { returnDocument: 'after' }
-    );
-
-    return result;
-  } catch (error) {
-    if (error.details) {
-      return { detail: error.details };
-    }
-    return { detail: error };
+    },
+    { returnDocument: 'after' }
+  );
+  if (!result) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
+  return result;
 };
 
 const updateRatingProduct = async (reviewId, data) => {
-  try {
-    const validData = await validateRatingBeforeUpdate(data);
-    const db = GET_DB().collection('products');
+  const validData = await validateRatingBeforeUpdate(data);
+  const db = GET_DB().collection('products');
 
-    const result = await db.findOneAndUpdate(
-      {
-        'reviews._id': new ObjectId(reviewId),
+  const result = await db.findOneAndUpdate(
+    {
+      'reviews._id': new ObjectId(reviewId),
+    },
+    {
+      $set: {
+        'reviews.$.userId': new ObjectId(validData.userId),
+        'reviews.$.content': validData.content,
+        'reviews.$.orderId': new ObjectId(validData.orderId),
+        'reviews.$.productId': new ObjectId(validData.productId),
+        'reviews.$.rating': validData.rating,
+        'reviews.$.updatedAt': new Date().getTime(),
       },
-      {
-        $set: {
-          'reviews.$.userId': new ObjectId(validData.userId),
-          'reviews.$.content': validData.content,
-          'reviews.$.orderId': new ObjectId(validData.orderId),
-          'reviews.$.productId': new ObjectId(validData.productId),
-          'reviews.$.rating': validData.rating,
-          'reviews.$.updatedAt': new Date().getTime(),
-        },
-      },
-      { returnDocument: 'after' }
-    );
-
-    return result;
-  } catch (error) {
-    if (error.details) {
-      return { detail: error.details };
-    }
-    return { detail: error };
+    },
+    { returnDocument: 'after' }
+  );
+  if (!result) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
+  return result;
 };
 const deleteRating = async (id) => {
-  try {
-    const result = await GET_DB()
-      .collection('products')
-      .updateOne(
-        {
-          'reviews._id': new ObjectId(id),
+  const result = await GET_DB()
+    .collection('products')
+    .updateOne(
+      {
+        'reviews._id': new ObjectId(id),
+      },
+      {
+        $pull: {
+          reviews: { _id: new ObjectId(id) },
         },
-        {
-          $pull: {
-            reviews: { _id: new ObjectId(id) },
-          },
-        }
-      );
-    return result;
-  } catch (error) {
-    return { detail: error.message };
+      }
+    );
+  if (!result) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
+  return result;
 };
 
 const getProductByAlphabetAZ = async (page, limit) => {
-  try {
-    page = parseInt(page) || 1;
-    limit = parseInt(limit) || 20;
+  page = parseInt(page) || 1;
+  limit = parseInt(limit) || 20;
 
-    const db = await GET_DB().collection('products');
-    const result = await db
-      .find()
-      .collation({ locale: 'en', strength: 1 })
-      .project({
-        content: 0,
-        description: 0,
-        images: 0,
-        variants: 0,
-        inventory: 0,
-        minInventory: 0,
-        maxInventory: 0,
-        weight: 0,
-        height: 0,
-      })
-      .sort({ name: 1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .toArray();
-
-    return result;
-  } catch (error) {
-    return {
-      message: 'Có lỗi xảy ra xin thử lại sau',
-    };
+  const db = await GET_DB().collection('products');
+  const result = await db
+    .find()
+    .collation({ locale: 'en', strength: 1 })
+    .project({
+      content: 0,
+      description: 0,
+      images: 0,
+      variants: 0,
+      inventory: 0,
+      minInventory: 0,
+      maxInventory: 0,
+      weight: 0,
+      height: 0,
+    })
+    .sort({ name: 1 })
+    .skip((page - 1) * limit)
+    .limit(limit)
+    .toArray();
+  if (!result) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
+  return result;
 };
 
 const getProductByAlphabetZA = async (page, limit) => {
-  try {
-    page = parseInt(page) || 1;
-    limit = parseInt(limit) || 20;
+  page = parseInt(page) || 1;
+  limit = parseInt(limit) || 20;
 
-    const db = await GET_DB().collection('products');
-    const result = await db
-      .find()
-      .collation({ locale: 'en', strength: 1 })
-      .project({
-        content: 0,
-        description: 0,
-        images: 0,
-        variants: 0,
-        inventory: 0,
-        minInventory: 0,
-        maxInventory: 0,
-        weight: 0,
-        height: 0,
-      })
-      .sort({ name: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .toArray();
-
-    return result;
-  } catch (error) {
-    return {
-      message: 'Có lỗi xảy ra xin thử lại sau',
-    };
+  const db = await GET_DB().collection('products');
+  const result = await db
+    .find()
+    .collation({ locale: 'en', strength: 1 })
+    .project({
+      content: 0,
+      description: 0,
+      images: 0,
+      variants: 0,
+      inventory: 0,
+      minInventory: 0,
+      maxInventory: 0,
+      weight: 0,
+      height: 0,
+    })
+    .sort({ name: -1 })
+    .skip((page - 1) * limit)
+    .limit(limit)
+    .toArray();
+  if (!result) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
+  return result;
 };
 
 const getProductByPriceAsc = async (page, limit) => {
-  try {
-    page = parseInt(page) || 1;
-    limit = parseInt(limit) || 20;
+  page = parseInt(page) || 1;
+  limit = parseInt(limit) || 20;
 
-    const db = await GET_DB().collection('products');
-    const result = await db
-      .find()
-      .project({
-        content: 0,
-        description: 0,
-        images: 0,
-        variants: 0,
-        inventory: 0,
-        minInventory: 0,
-        maxInventory: 0,
-        weight: 0,
-        height: 0,
-      })
-      .sort({ price: 1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .toArray();
-
-    return result;
-  } catch (error) {
-    return {
-      message: 'Có lỗi xảy ra xin thử lại sau',
-    };
+  const db = await GET_DB().collection('products');
+  const result = await db
+    .find()
+    .project({
+      content: 0,
+      description: 0,
+      images: 0,
+      variants: 0,
+      inventory: 0,
+      minInventory: 0,
+      maxInventory: 0,
+      weight: 0,
+      height: 0,
+    })
+    .sort({ price: 1 })
+    .skip((page - 1) * limit)
+    .limit(limit)
+    .toArray();
+  if (!result) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
+  return result;
 };
 
 const getProductByPriceDesc = async (page, limit) => {
-  try {
-    page = parseInt(page) || 1;
-    limit = parseInt(limit) || 20;
+  page = parseInt(page) || 1;
+  limit = parseInt(limit) || 20;
 
-    const db = await GET_DB().collection('products');
-    const result = await db
-      .find()
-      .project({
-        content: 0,
-        description: 0,
-        images: 0,
-        variants: 0,
-        inventory: 0,
-        minInventory: 0,
-        maxInventory: 0,
-        weight: 0,
-        height: 0,
-      })
-      .sort({ price: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .toArray();
-
-    return result;
-  } catch (error) {
-    return {
-      message: 'Có lỗi xảy ra xin thử lại sau',
-    };
+  const db = await GET_DB().collection('products');
+  const result = await db
+    .find()
+    .project({
+      content: 0,
+      description: 0,
+      images: 0,
+      variants: 0,
+      inventory: 0,
+      minInventory: 0,
+      maxInventory: 0,
+      weight: 0,
+      height: 0,
+    })
+    .sort({ price: -1 })
+    .skip((page - 1) * limit)
+    .limit(limit)
+    .toArray();
+  if (!result) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
+  return result;
 };
 
 const getProductByNewest = async (page, limit) => {
-  try {
-    page = parseInt(page) || 1;
-    limit = parseInt(limit) || 20;
+  page = parseInt(page) || 1;
+  limit = parseInt(limit) || 20;
 
-    const db = await GET_DB().collection('products');
-    const result = await db
-      .find()
-      .project({
-        content: 0,
-        description: 0,
-        images: 0,
-        variants: 0,
-        inventory: 0,
-        minInventory: 0,
-        maxInventory: 0,
-        weight: 0,
-        height: 0,
-      })
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .toArray();
-
-    return result;
-  } catch (error) {
-    return {
-      message: 'Có lỗi xảy ra xin thử lại sau',
-    };
+  const db = await GET_DB().collection('products');
+  const result = await db
+    .find()
+    .project({
+      content: 0,
+      description: 0,
+      images: 0,
+      variants: 0,
+      inventory: 0,
+      minInventory: 0,
+      maxInventory: 0,
+      weight: 0,
+      height: 0,
+    })
+    .sort({ createdAt: -1 })
+    .skip((page - 1) * limit)
+    .limit(limit)
+    .toArray();
+  if (!result) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
+  return result;
 };
 
 const getProductByOldest = async (page, limit) => {
-  try {
-    page = parseInt(page) || 1;
-    limit = parseInt(limit) || 20;
+  page = parseInt(page) || 1;
+  limit = parseInt(limit) || 20;
 
-    const db = await GET_DB().collection('products');
-    const result = await db
-      .find()
-      .project({
-        content: 0,
-        description: 0,
-        images: 0,
-        variants: 0,
-        inventory: 0,
-        minInventory: 0,
-        maxInventory: 0,
-        weight: 0,
-        height: 0,
-      })
-      .sort({ createdAt: 1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .toArray();
-
-    return result;
-  } catch (error) {
-    return {
-      message: 'Có lỗi xảy ra xin thử lại sau',
-    };
+  const db = await GET_DB().collection('products');
+  const result = await db
+    .find()
+    .project({
+      content: 0,
+      description: 0,
+      images: 0,
+      variants: 0,
+      inventory: 0,
+      minInventory: 0,
+      maxInventory: 0,
+      weight: 0,
+      height: 0,
+    })
+    .sort({ createdAt: 1 })
+    .skip((page - 1) * limit)
+    .limit(limit)
+    .toArray();
+  if (!result) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
+  return result;
 };
 
 const removeTones = (str) => {
@@ -524,93 +481,92 @@ const removeTones = (str) => {
 };
 
 const getProductBySearch = async (search, page, limit) => {
-  try {
-    page = parseInt(page) || 1;
-    limit = parseInt(limit) || 20;
+  page = parseInt(page) || 1;
+  limit = parseInt(limit) || 20;
 
-    const searchQuery = removeTones(search).toLowerCase();
-    const searchTerms = searchQuery.split(' ');
+  const searchQuery = removeTones(search).toLowerCase();
+  const searchTerms = searchQuery.split(' ');
 
-    const db = await GET_DB();
+  const db = await GET_DB();
 
-    const categories = await db.collection('categories').find().toArray();
-    const brands = await db.collection('brands').find().toArray();
+  const categories = await db.collection('categories').find().toArray();
+  const brands = await db.collection('brands').find().toArray();
 
-    const categoryIds = categories
-      .filter((category) =>
-        searchTerms.every((term) =>
-          removeTones(category.name).toLowerCase().includes(term)
-        )
+  const categoryIds = categories
+    .filter((category) =>
+      searchTerms.every((term) =>
+        removeTones(category.name).toLowerCase().includes(term)
       )
-      .map((category) => category._id);
+    )
+    .map((category) => category._id);
 
-    const brandIds = brands
-      .filter((brand) =>
-        searchTerms.every((term) =>
-          removeTones(brand.name).toLowerCase().includes(term)
-        )
+  const brandIds = brands
+    .filter((brand) =>
+      searchTerms.every((term) =>
+        removeTones(brand.name).toLowerCase().includes(term)
       )
-      .map((brand) => brand._id);
+    )
+    .map((brand) => brand._id);
 
-    const allProducts = await db.collection('products').find().toArray();
+  const allProducts = await db.collection('products').find().toArray();
 
-    const filteredProducts = allProducts.filter((product) => {
-      /*   const nameNoTones = removeTones(product.name).toLowerCase();
-      const descriptionNoTones = removeTones(product.description).toLowerCase();
-      const contentNoTones = removeTones(product.content).toLowerCase();
-      const tagsNoTones = product.tags.map((tag) =>
-        removeTones(tag).toLowerCase()
-      );
+  const filteredProducts = allProducts.filter((product) => {
+    const nameNoTones = removeTones(product.name).toLowerCase();
+    const descriptionNoTones = removeTones(product.description).toLowerCase();
+    const contentNoTones = removeTones(product.content).toLowerCase();
+    const tagsNoTones = product.tags.map((tag) =>
+      removeTones(tag).toLowerCase()
+    );
 
-      const nameMatch = searchTerms.every((term) => nameNoTones.includes(term));
-      const descriptionMatch = searchTerms.every((term) =>
-        descriptionNoTones.includes(term)
-      );
-      const contentMatch = searchTerms.every((term) =>
-        contentNoTones.includes(term)
-      );
-      const tagsMatch = tagsNoTones.some((tag) =>
-        searchTerms.every((term) => tag.includes(term))
-      ); */
+    const nameMatch = searchTerms.every((term) => nameNoTones.includes(term));
+    const descriptionMatch = searchTerms.every((term) =>
+      descriptionNoTones.includes(term)
+    );
+    const contentMatch = searchTerms.every((term) =>
+      contentNoTones.includes(term)
+    );
+    const tagsMatch = tagsNoTones.some((tag) =>
+      searchTerms.every((term) => tag.includes(term))
+    );
 
-      const categoryMatch =
-        categoryIds.length > 0 ? categoryIds.includes(product.cat_id) : true;
-      const brandMatch =
-        brandIds.length > 0
-          ? brandIds.some((id) => id.equals(product.brand))
-          : true;
+    const categoryMatch =
+      categoryIds.length > 0 ? categoryIds.includes(product.cat_id) : true;
+    const brandMatch =
+      brandIds.length > 0
+        ? brandIds.some((id) => id.equals(product.brand))
+        : true;
 
-      return (
-        /*         nameMatch ||
-        descriptionMatch ||
-        contentMatch ||
-        tagsMatch || */
-        categoryMatch || brandMatch
-      );
-    });
+    return (
+      nameMatch ||
+      descriptionMatch ||
+      contentMatch ||
+      tagsMatch ||
+      categoryMatch ||
+      brandMatch
+    );
+  });
 
-    const result = filteredProducts
-      .slice((page - 1) * limit, page * limit)
-      .map(
-        ({
-          content,
-          description,
-          images,
-          variants,
-          inventory,
-          minInventory,
-          maxInventory,
-          weight,
-          height,
-          reviews,
-          ...rest
-        }) => rest
-      );
-
-    return result;
-  } catch (error) {
-    return { message: 'Có lỗi xảy ra xin thử lại sau' };
+  const result = filteredProducts
+    .slice((page - 1) * limit, page * limit)
+    .map(
+      ({
+        content,
+        description,
+        images,
+        variants,
+        inventory,
+        minInventory,
+        maxInventory,
+        weight,
+        height,
+        reviews,
+        ...rest
+      }) => rest
+    );
+  if (!result) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
+  return result;
 };
 
 export const productModel = {
