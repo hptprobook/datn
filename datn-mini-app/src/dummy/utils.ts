@@ -13,12 +13,17 @@ import {
   numProduct,
   numStoreBanner,
 } from "./constants";
+import axio from "axios";
 
 const getImgUrl = (filename: string) =>
   `https://stc-zmp.zadn.vn/zmp-ecommerce/img/${filename}.png`;
 
 export const createProductDummy = ({ id }: { id: number }): Product => {
   const randomPrice = listPrices[getRandomInt(listPrices.length) - 1];
+  // axio.get("https://3000/api/products").then((res) => {
+  //   console.log(res.data);
+  // }
+  // );
   const product: Product = {
     id,
     imgProduct: getImgUrl(`product-large-${getRandomInt(numProduct)}`),
@@ -44,6 +49,7 @@ export const createDummyStore = (): Store => {
   const storeId = +new Date();
   const listDummyProducts = createDummyProductCategories();
   const listType = Object.keys(StoreTypeRef) as (keyof typeof StoreTypeRef)[];
+  console.log(listType);
   const dummyStore = {
     id: storeId,
     logoStore: getImgUrl(`logo-${getRandomInt(numLogo)}-new`),
