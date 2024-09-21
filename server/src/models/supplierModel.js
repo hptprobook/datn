@@ -31,7 +31,7 @@ const getSuppliersAll = async () => {
 };
 
 const getSupplierById = async (supplier_id) => {
-  const db = await GET_DB().collection('categories');
+  const db = await GET_DB().collection('suppliers');
   const supplier = await db.findOne({ _id: new ObjectId(supplier_id) });
   return supplier;
 };
@@ -53,34 +53,25 @@ const validateBeforeUpdate = async (data) => {
 };
 
 const update = async (id, data) => {
-  try {
-    await validateBeforeUpdate(data);
-    const result = await GET_DB()
-      .collection('suppliers')
-      .findOneAndUpdate(
-        { _id: new ObjectId(id) },
-        { $set: data },
-        { returnDocument: 'after' }
-      );
-    return result;
-  } catch (error) {
-    return {
-      error: true,
-    };
-  }
+  const dataUpdate = await validateBeforeUpdate(data);
+  const result = await GET_DB()
+    .collection('suppliers')
+    .findOneAndUpdate(
+      { _id: new ObjectId(id) },
+      { $set: dataUpdate },
+      { returnDocument: 'after' }
+    );
+  return result;
 };
 
 const deleteSupplier = async (id) => {
-  try {
-    const result = await GET_DB()
-      .collection('suppliers')
-      .deleteOne({ _id: new ObjectId(id) });
-    return result;
-  } catch (error) {
-    return {
-      error: true,
-    };
+  const result = await GET_DB()
+    .collection('suppliers')
+    .deleteOne({ _id: new ObjectId(id) });
+  if (result.deletedCount === 0) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
+  return result;
 };
 
 export const supplierModel = {

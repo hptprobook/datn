@@ -9,92 +9,51 @@ import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { Button, TextField } from '@mui/material';
 import { useFormik } from 'formik';
 import { useDispatch, useSelector } from 'react-redux';
-import { update, getDetail, setStatus } from 'src/redux/slices/supplierSlices';
-import { useState, useEffect } from 'react';
+import { create , setStatus } from 'src/redux/slices/supplierSlices';
+import { useEffect } from 'react';
 import { handleToast } from 'src/hooks/toast';
-import { useParams } from 'react-router-dom';
-import { useRouter } from 'src/routes/hooks';
-import { isValidObjectId } from 'src/utils/check';
+import { supplierSchema } from '../utils';
 import ProductSupplierSelect from '../product-select';
 // ----------------------------------------------------------------------
-export default function SupplierDetailPage() {
-  const { id } = useParams();
-  const statusGet = useSelector((state) => state.suppliers.statusGet);
-  const statusUpdate = useSelector((state) => state.suppliers.statusUpdate);
-  const data = useSelector((state) => state.suppliers.supplier);
+export default function SupplierCreatePage() {
+  const status = useSelector((state) => state.suppliers.statusCreate);
   const err = useSelector((state) => state.suppliers.error);
-  const [initialValues, setInitialValues] = useState({
-    companyName: '',
-    fullName: '',
-    phone: '',
-    email: '',
-    address: '',
-    rating: 0,
-    registrationNumber: '',
-    website: '',
-    notes: '',
-    productsSupplied: [],
-  });
   const dispatch = useDispatch();
-  const route = useRouter();
-  useEffect(() => {
-    if (id) {
-      if (isValidObjectId(id)) {
-        dispatch(getDetail(id));
-      } else {
-        handleToast('error', 'Id không hợp lệ');
-        route.push('/suppliers');
-      }
-    }
-  }, [id]);
 
   useEffect(() => {
-    if (statusGet === 'successful') {
-      setInitialValues({
-        companyName: data.companyName,
-        fullName: data.fullName,
-        phone: data.phone,
-        email: data.email,
-        address: data.address,
-        rating: data.rating,
-        registrationNumber: data.registrationNumber,
-        website: data.website,
-        notes: data.notes,
-        productsSupplied: data.productsSupplied || [],
-      });
+    if (status === 'successful') {
+      dispatch(setStatus({ key: 'statusCreate', value: 'idle' }));
+      formik.resetForm();
+      handleToast('success', 'Tạo nhà cung cấp thành công!');
     }
-    if (statusGet === 'failed') {
-      console.log(err);
-      handleToast('error', err.message);
-      dispatch(setStatus({ key: 'statusGet', value: 'idle' }));
-      dispatch(setStatus({ key: 'error', value: null }));
-      route.push('/suppliers');
+    if (status === 'failed') {
+      dispatch(setStatus({ key: 'statusCreate', value: 'idle' }));
+      handleToast('error', err.messages);
     }
-  }, [statusGet, err, dispatch]);
-  useEffect(() => {
-    if (statusUpdate === 'successful') {
-      handleToast('success', 'Cập nhật thành công');
-      dispatch(setStatus({ key: 'statusUpdate', value: 'idle' }));
-      route.push('/suppliers');
-    }
-    if (statusUpdate === 'failed') {
-      handleToast('error', err.message);
-      dispatch(setStatus({ key: 'statusUpdate', value: 'idle' }));
-      dispatch(setStatus({ key: 'error', value: null }));
-    }
-  }, [statusUpdate, err, dispatch]);
+  }, [status, err, dispatch]);
   const formik = useFormik({
-    enableReinitialize: true,
-    initialValues,
+    initialValues: {
+      fullName: '',
+      phone: '',
+      email: '',
+      address: '',
+      registrationNumber: '',
+      website: '',
+      productsSupplied: [],
+      rating: 0,
+      notes: '',
+      companyName: '',
+    },
+    validationSchema: supplierSchema,
     onSubmit: async (values) => {
-      dispatch(update({ id, data: values }));
+      dispatch(create(values));
     },
   });
 
   return (
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Nhà cung cấp: {formik.values.fullName}</Typography>
+        <Typography variant="h4">Nhà cung cấp mới</Typography>
       </Stack>
       <form onSubmit={formik.handleSubmit}>
         <Card sx={{ p: 3, width: '100%' }}>
