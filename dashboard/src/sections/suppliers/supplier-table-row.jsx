@@ -11,32 +11,35 @@ import IconButton from '@mui/material/IconButton';
 
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
+import ConfirmDelete from 'src/components/modal/confirm-delete';
+import { set } from 'lodash';
 
 // ----------------------------------------------------------------------
 
-export default function CouponTableRow({
+export default function SupplierTableRow({
   selected,
-  code,
-  type,
-  minPurchasePrice,
-  maxPurchasePrice,
-  usageLimit,
-  usageCount,
-  status,
-  limitOnUser,
-  dateStart,
-  dateEnd,
+  companyName,
+  fullName,
+  phone,
+  email,
+  registrationNumber,
+  website,
+  rating,
   handleClick,
   handleNavigate,
+  onDelete,
 }) {
   const [open, setOpen] = useState(null);
-
   const handleOpenMenu = (event) => {
     setOpen(event.currentTarget);
   };
 
   const handleCloseMenu = () => {
     setOpen(null);
+  };
+  const handleDelete = () => {
+    onDelete();
+    handleCloseMenu();
   };
 
   return (
@@ -48,35 +51,21 @@ export default function CouponTableRow({
 
         <TableCell component="th" scope="row" padding="none">
           <Typography variant="subtitle2" noWrap>
-            {code}
+            {companyName}
           </Typography>
         </TableCell>
 
-        <TableCell>{type}</TableCell>
+        <TableCell>{fullName}</TableCell>
 
-        <TableCell>{minPurchasePrice}</TableCell>
+        <TableCell>{phone}</TableCell>
 
-        <TableCell>{maxPurchasePrice}</TableCell>
+        <TableCell>{email}</TableCell>
 
-        <TableCell>{usageLimit}</TableCell>
+        <TableCell>{registrationNumber}</TableCell>
 
-        <TableCell>{usageCount}</TableCell>
+        <TableCell>{website}</TableCell>
 
-        <TableCell>
-          <Label
-            color={
-              (status === 'expired' && 'error') || (status === 'inactive' && 'warning') || 'success'
-            }
-          >
-            {status}
-          </Label>
-        </TableCell>
-
-        <TableCell>{limitOnUser ? 'Yes' : 'No'}</TableCell>
-
-        <TableCell>{new Date(dateStart).toLocaleDateString()}</TableCell>
-
-        <TableCell>{new Date(dateEnd).toLocaleDateString()}</TableCell>
+        <TableCell>{rating}</TableCell>
 
         <TableCell align="right">
           <IconButton onClick={handleOpenMenu}>
@@ -100,7 +89,7 @@ export default function CouponTableRow({
           Xem
         </MenuItem>
 
-        <MenuItem onClick={handleCloseMenu} sx={{ color: 'error.main' }}>
+        <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>
           <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
           Xóa
         </MenuItem>
@@ -109,18 +98,16 @@ export default function CouponTableRow({
   );
 }
 
-CouponTableRow.propTypes = {
-  code: PropTypes.string.isRequired,
-  type: PropTypes.string.isRequired,
-  minPurchasePrice: PropTypes.number.isRequired,
-  maxPurchasePrice: PropTypes.number.isRequired,
-  usageLimit: PropTypes.number.isRequired,
-  usageCount: PropTypes.number.isRequired,
-  status: PropTypes.string.isRequired,
-  limitOnUser: PropTypes.bool.isRequired,
-  dateStart: PropTypes.any.isRequired,
-  dateEnd: PropTypes.any.isRequired,
+SupplierTableRow.propTypes = {
+  companyName: PropTypes.string.isRequired,
+  fullName: PropTypes.string.isRequired,
+  phone: PropTypes.string.isRequired,
+  email: PropTypes.string.isRequired,
+  registrationNumber: PropTypes.string.isRequired,
+  website: PropTypes.string.isRequired,
+  rating: PropTypes.number.isRequired,
   selected: PropTypes.bool,
   handleClick: PropTypes.func,
   handleNavigate: PropTypes.func,
+  onDelete: PropTypes.func,
 };

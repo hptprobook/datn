@@ -1,13 +1,12 @@
 import { createSlice, createAction, createAsyncThunk } from '@reduxjs/toolkit';
-import CouponServices from '../services/coupon.service';
+import SupplierServices from '../services/suppliers.service';
 /* eslint-disable */
 
 export const fetchAll = createAsyncThunk(
-  'coupons/fetchAll',
+  'suppliers/fetchAll',
   async (_, rejectWithValue) => {
     try {
-      const res = await CouponServices.getAll();
-      return res;
+      return await SupplierServices.getAll();
     } catch (err) {
       return rejectWithValue(err.response.data);
     }
@@ -16,11 +15,20 @@ export const fetchAll = createAsyncThunk(
 
 
 export const create = createAsyncThunk(
-  'coupons/create',
+  'suppliers/create',
   async (data, { rejectWithValue }) => {
     try {
-      const res = await CouponServices.create(data);
-      return res;
+      return await SupplierServices.create(data);
+    } catch (err) {
+      return rejectWithValue(err.response?.data);
+    }
+  }
+);
+export const deleteSupplier = createAsyncThunk(
+  'suppliers/deleteSupplier',
+  async (data, { rejectWithValue }) => {
+    try {
+      return await SupplierServices.delete(data);
     } catch (err) {
       return rejectWithValue(err.response?.data);
     }
@@ -28,7 +36,7 @@ export const create = createAsyncThunk(
 );
 
 const initialState = {
-  coupons: [],
+  suppliers: [],
   delete: null,
   status: 'idle',
   statusDelete: 'idle',
@@ -36,10 +44,10 @@ const initialState = {
   error: null,
 };
 
-export const setStatus = createAction('coupons/setStatus');
-export const resetDelete = createAction('coupons/resetDelete');
-const couponSlice = createSlice({
-  name: 'coupons',
+export const setStatus = createAction('suppliers/setStatus');
+export const resetDelete = createAction('suppliers/resetDelete');
+const supplierSlices = createSlice({
+  name: 'suppliers',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
@@ -49,7 +57,7 @@ const couponSlice = createSlice({
       })
       .addCase(fetchAll.fulfilled, (state, action) => {
         state.status = 'successful';
-        state.coupons = action.payload;
+        state.suppliers = action.payload;
       })
       .addCase(fetchAll.rejected, (state, action) => {
         state.status = 'failed';
@@ -63,6 +71,16 @@ const couponSlice = createSlice({
       })
       .addCase(create.rejected, (state, action) => {
         state.statusCreate = 'failed';
+        state.error = action.payload;
+      })
+      .addCase(deleteSupplier.pending, (state) => {
+        state.statusDelete = 'loading';
+      })
+      .addCase(deleteSupplier.fulfilled, (state, action) => {
+        state.statusDelete = 'successful';
+      })
+      .addCase(deleteSupplier.rejected, (state, action) => {
+        state.statusDelete = 'failed';
         state.error = action.payload;
       })
       .addCase(setStatus, (state, action) => {
@@ -79,4 +97,4 @@ const couponSlice = createSlice({
   },
 });
 
-export default couponSlice.reducer;
+export default supplierSlices.reducer;

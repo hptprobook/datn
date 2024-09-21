@@ -30,7 +30,7 @@ import { createCode, couponSchema } from '../utils';
 import ProductAcceptSelect from '../product-select';
 // ----------------------------------------------------------------------
 const now = dayjs();
-export default function CreateCouponPage() {
+export default function DetailCouponPage() {
   const [error, setError] = useState(null);
   const [errorEnd, setErrorEnd] = useState(null);
 
