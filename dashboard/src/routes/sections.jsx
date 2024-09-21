@@ -33,10 +33,10 @@ export const CouponDetailPage = lazy(() => import('src/pages/coupons/detail'));
 // supplier page
 export const SuppliersPage = lazy(() => import('src/pages/suppliers/suppliers'));
 export const SupplierCreatePage = lazy(() => import('src/pages/suppliers/create'));
+export const SupplierDetailPage = lazy(() => import('src/pages/suppliers/detail'));
 // orders page
 export const OrdersPage = lazy(() => import('src/pages/orders/orders'));
 export const OrderDetailPage = lazy(() => import('src/pages/orders/detail'));
-
 // ----------------------------------------------------------------------
 
 export default function Router() {
@@ -72,6 +72,7 @@ export default function Router() {
         { path: 'orders/:id', element: <OrderDetailPage /> },
         { path: 'suppliers', element: <SuppliersPage /> },
         { path: 'suppliers/create', element: <SupplierCreatePage /> },
+        { path: 'suppliers/:id', element: <SupplierDetailPage /> },
       ],
     },
     {
