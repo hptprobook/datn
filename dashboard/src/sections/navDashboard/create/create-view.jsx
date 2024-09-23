@@ -19,10 +19,9 @@ import { createNav, resetStatus } from 'src/redux/slices/settingSlices';
 import ModalCreated from './modal-create';
 import { navSchema } from '../nav-schema';
 import ContainerDragDropCreate from '../drag-create';
-
 // ----------------------------------------------------------------------
 export default function NavCreatedPage() {
-  const dispactch = useDispatch();
+  const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
   const [menuChild, setMenuChild] = useState([]);
   const [newChild, setNewChild] = useState([]);
@@ -34,12 +33,12 @@ export default function NavCreatedPage() {
       handleToast('success', 'Tạo mới thành công');
       setNewChild([]);
       setMenuChild([]);
-      dispactch(resetStatus());
+      dispatch(resetStatus());
     }
     if (status === 'failed') {
       handleToast('error', error);
     }
-  }, [status, error, dispactch]);
+  }, [status, error, dispatch]);
 
   const onCreate = (data) => {
     const existingItem = menuChild.find((item) => item.path === data.path);
@@ -80,7 +79,7 @@ export default function NavCreatedPage() {
         }));
         values.child = child;
       }
-      dispactch(createNav({ values }));
+      dispatch(createNav({ values }));
       formik.resetForm();
     },
   });
@@ -88,7 +87,6 @@ export default function NavCreatedPage() {
   const handleGetNewNav = (data) => {
     setNewChild(data);
   };
-
   return (
     <Container>
       <ModalCreated open={open} handleClose={handleClose} onCreate={onCreate} />

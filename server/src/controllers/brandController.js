@@ -9,44 +9,34 @@ import path from 'path';
 
 const createBrand = async (req, res) => {
   try {
-    const { name, content, status } = req.body;
-
-    if (!name || !content || !status) {
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        message: ERROR_MESSAGES.REQUIRED,
-      });
-    }
-
+    const data = req.body;
     if (!req.file) {
       return res
         .status(StatusCodes.BAD_REQUEST)
-        .json({ mgs: 'Ảnh không được để trống' });
+        .json({ message: 'Ảnh không được để trống' });
     }
-
     const file = req.file;
     const fileName = file.filename;
     const filePath = path.join('uploads/brands', fileName);
-    const slug = createSlug(name);
 
-    const data = {
-      name,
-      slug,
-      image: filePath,
-      content,
-      status,
-    };
+    data.image = filePath;
 
-    const dataBrand = await brandModel.createBrand(data);
+    const result = await brandModel.create(data);
 
-    if (dataBrand.error) {
+    if (!result) {
       await uploadModel.deleteImg(filePath);
-      return res.status(StatusCodes.BAD_REQUEST).json(dataBrand.detail);
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: 'Có lỗi xảy ra, xin thử lại sau',
+      });
     }
-
-    return res
-      .status(StatusCodes.OK)
-      .json({ dataBrand, mgs: 'Thêm thương hiệu thành công' });
+    return res.status(StatusCodes.OK).json(result);
   } catch (error) {
+    const file = req.file;
+    if (file) {
+      const fileName = file.filename;
+      const filePath = path.join('uploads/brands', fileName);
+      await uploadModel.deleteImg(filePath);
+    }
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ message: error.message });
@@ -56,25 +46,37 @@ const createBrand = async (req, res) => {
 const getAllBrands = async (req, res) => {
   try {
     let { pages, limit } = req.query;
-
     const brands = await brandModel.getBrandsAll(pages, limit);
-    const count = await brandModel.countBrandsAll();
-
-    return res.status(StatusCodes.OK).json({
-      brands,
-      count,
-    });
+    return res.status(StatusCodes.OK).json(brands);
   } catch (error) {
     return res
       .status(StatusCodes.BAD_REQUEST)
       .json('Có lỗi xảy ra xin thử lại sau');
   }
 };
+
 const getBrandById = async (req, res) => {
   try {
     const { id } = req.params;
 
     const brand = await brandModel.getBrandById(id);
+    if (brand) {
+      return res.status(StatusCodes.OK).json(brand);
+    }
+
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ message: 'Không tồn tại thương hiệu' });
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
+  }
+};
+
+const getBrandBySlug = async (req, res) => {
+  try {
+    const { slug } = req.params;
+
+    const brand = await brandModel.getBrandBySlug(slug);
     if (brand) {
       return res.status(StatusCodes.OK).json({
         brand,
@@ -83,7 +85,7 @@ const getBrandById = async (req, res) => {
 
     return res
       .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Không tồn tại người dùng' });
+      .json({ message: 'Không tồn tại thương hiệu' });
   } catch (error) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       message: ERROR_MESSAGES.ERR_AGAIN,
@@ -91,6 +93,7 @@ const getBrandById = async (req, res) => {
     });
   }
 };
+
 const update = async (req, res) => {
   const { id } = req.params;
   const { name, content, status } = req.body;
@@ -168,4 +171,5 @@ export const brandController = {
   update,
   deleteBrand,
   getBrandById,
+  getBrandBySlug,
 };

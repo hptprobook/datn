@@ -22,7 +22,7 @@ const createCategory = async (req, res) => {
     if (!req.file) {
       return res
         .status(StatusCodes.BAD_REQUEST)
-        .json({ mgs: 'Ảnh không được để trống' });
+        .json({ message: 'Ảnh không được để trống' });
     }
     const file = req.file;
     const fileName = file.filename;
@@ -42,12 +42,12 @@ const createCategory = async (req, res) => {
     const dataCategory = await categoryModel.createCategory(data);
 
     if (dataCategory.error) {
-      await uploadModel.deleteImg(filePath);
-      return res.status(StatusCodes.BAD_REQUEST).json(dataCategory.detail);
+      uploadModel.deleteImg(filePath);
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: 'Có lỗi xảy ra, xin thử lại sau',
+      });
     }
-    return res
-      .status(StatusCodes.OK)
-      .json({ dataCategory, mgs: 'Thêm danh mục thành công' });
+    return res.status(StatusCodes.OK).json(dataCategory);
   } catch (error) {
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
@@ -80,12 +80,12 @@ const getCategoryHierarchy = async (parentId = 'ROOT') => {
 
 const getAllCategories = async (req, res) => {
   try {
-    const countCategories = await categoryModel.countCategoryAll();
-    const categories = await categoryModel.getCategoriesAll();
+    let { pages, limit } = req.query;
+
+    const categories = await categoryModel.getCategoriesAll(pages, limit);
 
     return res.status(StatusCodes.OK).json({
       categories,
-      countCategories,
     });
   } catch (error) {
     return res
@@ -113,15 +113,12 @@ const getCategoryById = async (req, res) => {
     const { id } = req.params;
     const category = await categoryModel.getCategoryById(id);
 
-    if (category) {
-      return res.status(StatusCodes.OK).json({
-        category,
-      });
+    if (!category) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: 'Không tìm thấy danh mục!' });
     }
-
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Không tồn tại danh mục' });
+    return res.status(StatusCodes.OK).json(category);
   } catch (error) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       message: ERROR_MESSAGES.ERR_AGAIN,
@@ -135,14 +132,12 @@ const getCategoryBySlug = async (req, res) => {
     const { slug } = req.params;
     const category = await categoryModel.getCategoryBySlug(slug);
 
-    if (category) {
-      return res.status(StatusCodes.OK).json({
-        category,
-      });
+    if (!category) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: 'Không tìm thấy danh mục!' });
     }
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Không tồn tại danh mục' });
+    return res.status(StatusCodes.OK).json(category);
   } catch (error) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       message: ERROR_MESSAGES.ERR_AGAIN,
@@ -165,17 +160,17 @@ const update = async (req, res) => {
   if (!req.file) {
     return res
       .status(StatusCodes.BAD_REQUEST)
-      .json({ mgs: 'Ảnh không được để trống' });
+      .json({ message: 'Ảnh không được để trống' });
   }
   const file = req.file;
   const fileName = file.filename;
   const filePath = path.join('uploads/categories', fileName);
 
   if (!category) {
-    await uploadModel.deleteImg(filePath);
+    uploadModel.deleteImg(filePath);
     return res
       .status(StatusCodes.BAD_REQUEST)
-      .json({ mgs: 'Danh mục chưa được tạo' });
+      .json({ message: 'Danh mục chưa được tạo' });
   }
   const slug = createSlug(name);
   const parentIdProcessed = parentId === 'null' ? null : parentId;
@@ -192,13 +187,13 @@ const update = async (req, res) => {
 
   const dataCategory = await categoryModel.update(id, data);
   if (dataCategory.error) {
-    await uploadModel.deleteImg(filePath);
+    uploadModel.deleteImg(filePath);
     return res.status(StatusCodes.BAD_REQUEST).json(dataCategory.detail);
   }
-  await uploadModel.deleteImg(category.imageURL);
+  uploadModel.deleteImg(category.imageURL);
   return res
     .status(StatusCodes.OK)
-    .json({ dataCategory, mgs: 'Cập nhật danh mục thành công' });
+    .json({ dataCategory, message: 'Cập nhật danh mục thành công' });
 };
 
 const deleteCategory = async (req, res) => {
@@ -212,7 +207,7 @@ const deleteCategory = async (req, res) => {
   }
   if (dataCategory) {
     if (dataCategory.imageURL) {
-      await uploadModel.deleteImg(dataCategory.imageURL);
+      uploadModel.deleteImg(dataCategory.imageURL);
     }
     return res
       .status(StatusCodes.OK)
