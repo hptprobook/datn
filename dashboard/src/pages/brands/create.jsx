@@ -1,17 +1,16 @@
 import { Helmet } from 'react-helmet-async';
-import { CreateCouponView } from 'src/sections/coupons/create';
-
+import { BrandCreateView } from 'src/sections/brands/create';
 // eslint-disable-next-line import/named
 
 // ----------------------------------------------------------------------
 
-export default function CreateCouponPage() {
+export default function CreateBrandPage() {
   return (
     <>
       <Helmet>
-        <title> Tạo giảm giá</title>
+        <title> Tạo nhãn hàng</title>
       </Helmet>
-      <CreateCouponView />
+      <BrandCreateView />
     </>
   );
 }

@@ -86,11 +86,21 @@ const update = async (id, data) => {
 const deleteBrand = async (id) => {
   const db = GET_DB().collection('brands');
   const brand = await db.findOne({ _id: new ObjectId(id) });
-  await db.deleteOne({ _id: new ObjectId(id) });
+
   if (!brand) {
-    throw new Error('Có lỗi xảy ra, xin thử lại sau');
+    throw new Error('Không tìm thấy thương hiệu');
   }
-  return brand;
+
+  const result = await db.deleteOne({ _id: new ObjectId(id) });
+
+  if (result.deletedCount === 0) {
+    throw new Error('Xóa thương hiệu không thành công');
+  }
+  const brands = await db.find().toArray();
+  return {
+    brands,
+    image: brand.image,
+  };
 };
 
 export const brandModel = {

@@ -220,7 +220,7 @@ function NotificationItem({ notification }) {
             }}
           >
             <Iconify icon="eva:clock-outline" sx={{ mr: 0.5, width: 16, height: 16 }} />
-            {dayjs(notification.createdAt).fromNow()}
+            {/* {dayjs(notification.createdAt)} */}
           </Typography>
         }
       />
