@@ -1,19 +1,28 @@
 import { Icon } from '@iconify/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getAllProducts } from '~/APIs';
+import { getProductsByCatSlug } from '~/APIs';
 import ProductItem from '~/components/common/Product/ProductItem';
 
 export default function CategoryContent({ catData }) {
   const [limit, setLimit] = useState(20);
+  const [hasMore, setHasMore] = useState(true);
 
   const { data, isFetching } = useQuery({
-    queryKey: ['getAllProducts', limit],
-    queryFn: () => getAllProducts({ limit }),
+    queryKey: ['getProductsByCategorySlug', catData.slug, limit],
+    queryFn: () => getProductsByCatSlug(catData.slug, limit),
     keepPreviousData: true,
   });
 
-  const products = data?.products || [];
+  const products = data?.product || [];
+
+  useEffect(() => {
+    if (products.length < limit) {
+      setHasMore(false);
+    } else {
+      setHasMore(true);
+    }
+  }, [products.length, limit]);
 
   const handleLoadMore = () => {
     setLimit((prevLimit) => prevLimit + 20);
@@ -23,8 +32,9 @@ export default function CategoryContent({ catData }) {
     <div className="text-black">
       <h2 className="text-2xl font-bold mb-4">{catData.name} w0wStore</h2>
       <div className="divider"></div>
+
+      {/* Sorting Form */}
       <div className="mb-8">
-        {/* Sorting Form */}
         <form className="flex space-x-4 items-center">
           <label htmlFor="sort" className="text-sm font-medium text-gray-700">
             Sắp xếp theo:
@@ -41,7 +51,7 @@ export default function CategoryContent({ catData }) {
         </form>
       </div>
 
-      {/* Content */}
+      {/* Products Grid */}
       <div>
         <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-2 lg:gap-3 lg:px-0">
           {products.map((product) => (
@@ -50,15 +60,18 @@ export default function CategoryContent({ catData }) {
         </div>
       </div>
 
+      {/* Load More Button */}
       <div className="w-full flex justify-center mt-8">
-        <button
-          className="btn btn-error bg-red-600"
-          onClick={handleLoadMore}
-          disabled={isFetching} // Disable the button while fetching
-        >
-          {isFetching ? 'Đang tải...' : 'Xem thêm'}
-          {!isFetching && <Icon icon="mdi:arrow-right" className="ml-2" />}
-        </button>
+        {hasMore && (
+          <button
+            className="btn btn-error bg-red-600"
+            onClick={handleLoadMore}
+            disabled={isFetching}
+          >
+            {isFetching ? 'Đang tải...' : 'Xem thêm'}
+            {!isFetching && <Icon icon="mdi:arrow-right" className="ml-2" />}
+          </button>
+        )}
       </div>
     </div>
   );

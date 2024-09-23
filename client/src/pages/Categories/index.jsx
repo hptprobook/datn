@@ -3,7 +3,7 @@ import HeaderBC from '~/components/common/Breadcrumb/HeaderBC';
 import CategorySidebar from './CategorySidebar';
 import CategoryContent from './CategoryContent';
 import { useQuery } from '@tanstack/react-query';
-import { getCategoryBySlug, getAllProducts } from '~/APIs'; // Thêm API getAllProducts
+import { getCategoryBySlug, getProductsByCatSlug } from '~/APIs'; // Thêm API getAllProducts
 import MainLoading from '~/components/common/Loading/MainLoading';
 import { handleToast } from '~/customHooks/useToast';
 import { useState } from 'react';
@@ -30,8 +30,8 @@ export default function CategoryPage() {
     error: productsError,
     isLoading: productsLoading,
   } = useQuery({
-    queryKey: ['getAllProducts'],
-    queryFn: getAllProducts,
+    queryKey: ['getProductsByCategorySlug'],
+    queryFn: () => getProductsByCatSlug(slug),
     staleTime: 1000 * 60 * 5,
     cacheTime: 1000 * 60 * 10,
   });
@@ -59,16 +59,12 @@ export default function CategoryPage() {
         <div className="col-span-1">
           <CategorySidebar
             category={categoryData?.category}
-            products={allProductsData?.products}
+            products={allProductsData?.product}
             onFilterChange={handleFilterChange}
           />
         </div>
         <div className="col-span-4">
-          <CategoryContent
-            catData={categoryData?.category}
-            products={allProductsData?.products}
-            filters={filters}
-          />
+          <CategoryContent catData={categoryData?.category} filters={filters} />
         </div>
       </div>
     </section>
