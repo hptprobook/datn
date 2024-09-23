@@ -14,7 +14,7 @@ export default function ProductDetailSlider({ images, activeIndex }) {
   }, [activeIndex, mainSwiper]);
 
   return (
-    <div className="slider-box w-full h-[720px] max-lg:mx-auto mx-0 z-10">
+    <div className="slider-box w-full h-[602px] max-lg:mx-auto mx-0 z-10">
       {/* Swiper chính */}
       <Swiper
         onSwiper={setMainSwiper}

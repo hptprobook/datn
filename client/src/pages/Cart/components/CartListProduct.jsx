@@ -97,7 +97,10 @@ export default function CartListProduct() {
             <div className="md:col-span-4">
               <div className="flex flex-col max-[500px]:items-center gap-3">
                 <NavLink to={`/san-pham/${product.slug}`}>
-                  <h6 className="font-semibold text-base leading-7 text-black hover:text-red-600 cursor-pointer">
+                  <h6
+                    className="font-semibold text-base leading-7 text-black hover:text-red-600 cursor-pointer text-clamp-3"
+                    title={product.name}
+                  >
                     {product.name}
                   </h6>
                 </NavLink>

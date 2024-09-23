@@ -39,7 +39,7 @@ export default function SideNavMenu({
     menuPath.length === 0 ? menu : menuPath[menuPath.length - 1].list || [];
 
   return (
-    <div className="z-10">
+    <div className="z-20">
       {animateMenu && (
         <div>
           <div
@@ -47,7 +47,7 @@ export default function SideNavMenu({
             onClick={() => setOpenMenu(false)}
           />
           <div
-            className={`fixed top-0 left-0 w-3/4 md:w-2/5 h-full overflow-y-auto bg-white shadow-lg z-30 transition-transform duration-300 ${
+            className={`fixed top-0 left-0 w-3/4 md:w-2/5 h-screen overflow-y-auto bg-white shadow-lg z-30 transition-transform duration-300 ${
               openMenu ? 'animate-slideIn' : 'animate-slideOut'
             }`}
           >
