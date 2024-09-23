@@ -43,7 +43,6 @@ const getOrderById = async (id) => {
 
 
 const getCurrentOrder = async (user_id) => {
-
     const db = await GET_DB().collection('orders');
     const result = await db
         .find({ userId: new ObjectId(user_id) })
@@ -77,6 +76,7 @@ const findCartById = async (user_id) => {
     });
     return result;
 };
+
 const updateOrder = async (id, data) => {
     const validatedData = await validateBeforeUpdate(data);
     const result = await GET_DB()
@@ -94,6 +94,7 @@ const getStatusOrder = async (id) => {
     );
     return result ? result.status : null; // Return only the 'status' value
 };
+
 const deleteOrder = async (id) => {
     const result = await GET_DB()
         .collection('orders')
@@ -130,15 +131,18 @@ const updateStockProducts = async () => {
 
     const db = await GET_DB().collection('products');
     for (const update of updates) {
-        await db.updateOne({
-            _id: new ObjectId(productId),
-            vars: {
-                $elemMatch: {
-                    color: update.color,
-                    size: update.size,
+        await db.updateOne(
+            {
+                _id: new ObjectId(productId),
+                vars: {
+                    $elemMatch: {
+                        color: update.color,
+                        size: update.size,
+                    },
                 },
             },
-        }, { $inc: { 'vars.$.stock': update.stockChange } });
+            { $inc: { 'vars.$.stock': update.stockChange } }
+        );
     }
 };
 
@@ -151,6 +155,7 @@ export const orderModel = {
     findCartById,
     checkStockProducts,
     updateStockProducts,
+
     getOrderById,
     getStatusOrder,
 };

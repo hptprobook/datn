@@ -3,7 +3,7 @@
 import { StatusCodes } from 'http-status-codes';
 import { addressModel } from '~/models/addressModel';
 
-const getWards = async (req, res) => {
+const getWards = async(req, res) => {
     try {
         const { districtId } = req.params;
         const xas = await addressModel.getWards(districtId);
@@ -13,7 +13,7 @@ const getWards = async (req, res) => {
     }
 };
 
-const getDistricts = async (req, res) => {
+const getDistricts = async(req, res) => {
     try {
         const { provinceId } = req.params;
         const districts = await addressModel.getDistricts(provinceId);
@@ -23,7 +23,7 @@ const getDistricts = async (req, res) => {
     }
 };
 
-const getProvinces = async (req, res) => {
+const getProvinces = async(req, res) => {
     try {
         const tinhs = await addressModel.getProvinces();
         return res.status(StatusCodes.OK).json(tinhs);
