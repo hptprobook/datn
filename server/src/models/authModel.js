@@ -20,11 +20,11 @@ const getUserEmail = async (email) => {
     return user;
 };
 
-// const getUserID = async (user_id) => {
-//   const db = await GET_DB().collection('users');
-//   const user = await db.findOne({ _id: new ObjectId(user_id) });
-//   return user;
-// };
+const findUserID = async (user_id) => {
+    const db = await GET_DB().collection('users');
+    const user = await db.findOne({ _id: new ObjectId(user_id) });
+    return user;
+};
 const validateBeforeUpdate = async (data) => {
     return await UPDATE_USER.validateAsync(data, { abortEarly: false });
 };
@@ -63,4 +63,6 @@ export const authModel = {
     update,
     deleteUser,
     updateByEmail,
+    findUserID,
+    // getUserRT,
 };
