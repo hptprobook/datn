@@ -19,10 +19,14 @@ const countBrandsAll = async () => {
   return total;
 };
 
-const getBrandsAll = async () => {
+const getBrandsAll = async (page, limit) => {
+  page = parseInt(page) || 1;
+  limit = parseInt(limit) || 20;
   const db = await GET_DB().collection('brands');
   const result = await db
     .find()
+    .skip((page - 1) * limit)
+    .limit(limit)
     .toArray();
   if (!result) {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');

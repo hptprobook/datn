@@ -1,6 +1,9 @@
 import { GET_DB } from '~/config/mongodb';
 import { ObjectId } from 'mongodb';
-import { SAVE_SUPPLIER_SCHEMA, UPDATE_SUPPLIER } from '~/utils/schema/supplierSchema';
+import {
+  SAVE_SUPPLIER_SCHEMA,
+  UPDATE_SUPPLIER,
+} from '~/utils/schema/supplierSchema';
 
 const validateBeforeCreate = async (data) => {
   return await SAVE_SUPPLIER_SCHEMA.validateAsync(data, { abortEarly: false });
@@ -19,10 +22,14 @@ const countSupplierAll = async () => {
   }
 };
 
-const getSuppliersAll = async () => {
+const getSuppliersAll = async (page, limit) => {
+  page = parseInt(page) || 1;
+  limit = parseInt(limit) || 20;
   const db = await GET_DB().collection('suppliers');
   const result = await db
     .find()
+    .skip((page - 1) * limit)
+    .limit(limit)
     .toArray();
   if (!result) {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');

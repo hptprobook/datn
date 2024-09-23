@@ -5,7 +5,8 @@ import { StatusCodes } from 'http-status-codes';
 
 const getAllSuppliers = async (req, res) => {
   try {
-    const suppliers = await supplierModel.getSuppliersAll();
+    let { pages, limit } = req.query;
+    const suppliers = await supplierModel.getSuppliersAll(pages, limit);
     return res.status(StatusCodes.OK).json(suppliers);
   } catch (error) {
     return res
@@ -34,8 +35,7 @@ const createSupplier = async (req, res) => {
     const data = req.body;
     const dataSupplier = await supplierModel.createSupplier(data);
     return res.status(StatusCodes.CREATED).json(dataSupplier);
-  }
-  catch (error) {
+  } catch (error) {
     if (error.details) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         message: error.details[0].message,
@@ -56,8 +56,7 @@ const updateSupplier = async (req, res) => {
         .json({ message: 'Không tìm thấy nhà cung cấp!' });
     }
     return res.status(StatusCodes.OK).json(supplier);
-  }
-  catch (error) {
+  } catch (error) {
     if (error.details) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         message: error.details[0].message,
@@ -72,11 +71,9 @@ const deleteSupplier = async (req, res) => {
     const { id } = req.params;
     await supplierModel.deleteSupplier(id);
     return res.status(StatusCodes.OK).json({ message: 'Xóa thành công' });
-  }
-  catch (error) {
+  } catch (error) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
   }
-
 };
 
 export const supplierController = {
