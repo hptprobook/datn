@@ -7,12 +7,10 @@ import verifyAdmin from '~/middlewares/verifyAdmin';
 import verifyToken from '~/middlewares/verifyToken';
 const Router = express.Router();
 
-
 // Orders
 Router.get('/', verifyToken, verifyAdmin, orderController.getAllOrder);
 Router.get('/:id', verifyToken, orderController.getOrderById);
 Router.get('/me/current', verifyToken, orderController.getCurrentOrder);
-
 
 // Carts
 Router.get('/', verifyToken, verifyAdmin, orderController.getAllOrder);
