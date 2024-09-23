@@ -6,7 +6,7 @@ import React from 'react';
 const ProductItem = React.memo(({ product, height = false }) => {
   return (
     <div className="h-productItem rounded-md">
-      <NavLink to={`/san-pham/${product._id}`}>
+      <NavLink to={`/san-pham/${product.slug}`}>
         <div className={`w-full relative ${!height ? 'h-80' : 'h-96'}`}>
           <div className="flex gap-2 absolute top-2 left-2">
             {product.tags.slice(0, 2).map((label, index) => (

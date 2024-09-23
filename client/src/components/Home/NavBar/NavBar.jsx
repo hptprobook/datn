@@ -37,20 +37,16 @@ export default function NavBar() {
             onMouseEnter={() => setHoveredMenu(item.id)}
             onMouseLeave={() => setHoveredMenu(null)}
           >
-            <NavLink to={`/danh-muc-san-pham/${item.slug}`}>
-              <p className="cursor-pointer hover:text-red-500 font-semibold text-sm">
-                {item.title}
-              </p>
-            </NavLink>
+            <p className="cursor-pointer hover:text-red-500 font-semibold text-sm">
+              {item.title}
+            </p>
             {hoveredMenu === item.id && (
               <div className="fixed top-32 w-container left-1/2 -translate-x-1/2 bg-slate-50 shadow-lg z-10 p-4 border-t-df grid grid-cols-4 gap-5 menu-hovered">
                 {item.list?.map((subItem) => (
                   <div key={subItem.id} className="mb-4">
-                    <NavLink to={`/danh-muc-san-pham/${subItem.slug}`}>
-                      <p className="font-bold mb-4 text-sm hover:text-red-600">
-                        {subItem.title}
-                      </p>
-                    </NavLink>
+                    <p className="font-bold mb-4 text-sm hover:text-red-600">
+                      {subItem.title}
+                    </p>
                     <div>
                       {subItem.list?.map((childItem) => (
                         <NavLink

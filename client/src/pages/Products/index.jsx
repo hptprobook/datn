@@ -4,7 +4,7 @@ import ProductDetailSlider from './components/ProductDetailSlider';
 import ProductDetailInfor from './components/ProductDetailInfor';
 import ProductDetailReview from './components/ProductDetailReview';
 import { useQuery } from '@tanstack/react-query';
-import { getProductById } from '~/APIs';
+import { getProductBySlug } from '~/APIs';
 import { useState } from 'react';
 import MainLoading from '~/components/common/Loading/MainLoading';
 
@@ -13,8 +13,8 @@ export default function ProductPage() {
   const { slug } = useParams();
 
   const { data, isLoading } = useQuery({
-    queryKey: ['getProductById', slug],
-    queryFn: () => getProductById(slug),
+    queryKey: ['getProductBySlug', slug],
+    queryFn: () => getProductBySlug(slug),
   });
 
   if (isLoading || !data) return <MainLoading />;

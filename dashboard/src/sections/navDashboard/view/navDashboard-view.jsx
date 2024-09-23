@@ -42,7 +42,7 @@ export default function NavDashboardPage() {
 
   const [filterName, setFilterName] = useState('');
 
-  const dispactch = useDispatch();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const [nav, setNav] = useState([]);
@@ -72,23 +72,23 @@ export default function NavDashboardPage() {
     if (statusDelete === 'succeeded') {
       handleToast('success', 'Xóa thành công');
       handleData(dataNav);
-      dispactch(resetStatus());
+      dispatch(resetStatus());
     }
     if (statusDelete === 'failed') {
       handleToast('error', 'Xóa thất bại');
     }
-  }, [statusDelete, dispactch, dataNav]);
+  }, [statusDelete, dispatch, dataNav]);
   useEffect(() => {
     if (statusUpdate === 'succeeded') {
       setOpen(false);
-      dispactch(resetStatus());
+      dispatch(resetStatus());
       handleData(dataNav);
       handleToast('success', 'Cập nhật thành công');
     }
     if (statusUpdate === 'failed') {
       handleToast('error', 'Cập nhật thất bại');
     }
-  }, [statusUpdate, dispactch, dataNav]);
+  }, [statusUpdate, dispatch, dataNav]);
 
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === 'asc';
@@ -105,7 +105,7 @@ export default function NavDashboardPage() {
     }
   };
   const onUpdate = (data) => {
-    dispactch(updateNav(data));
+    dispatch(updateNav(data));
   };
 
   const handleSelectAllClick = (event) => {
@@ -147,7 +147,7 @@ export default function NavDashboardPage() {
 
   const notFound = !dataFiltered.length && !!filterName;
   const handleDelete = (id) => {
-    dispactch(removeNav({ id }));
+    dispatch(removeNav({ id }));
   };
   const handleUpdate = (id) => {
     nav.find((item) => item._id === id && handleModal(item));
@@ -163,7 +163,7 @@ export default function NavDashboardPage() {
             aria-label="load"
             variant="contained"
             color="inherit"
-            onClick={() => dispactch(fetchNav())}
+            onClick={() => dispatch(fetchNav())}
           >
             <Iconify icon="mdi:reload" />
           </IconButton>

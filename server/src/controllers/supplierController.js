@@ -2,17 +2,11 @@
 /* eslint-disable semi */
 import { supplierModel } from '~/models/supplierModel';
 import { StatusCodes } from 'http-status-codes';
-import { ERROR_MESSAGES } from '~/utils/errorMessage';
 
 const getAllSuppliers = async (req, res) => {
   try {
-    let { pages, limit } = req.query;
-    const suppliers = await supplierModel.getSuppliersAll(pages, limit);
-    const countSuppliers = await supplierModel.countSupplierAll();
-    return res.status(StatusCodes.OK).json({
-      suppliers,
-      countSuppliers,
-    });
+    const suppliers = await supplierModel.getSuppliersAll();
+    return res.status(StatusCodes.OK).json(suppliers);
   } catch (error) {
     return res
       .status(StatusCodes.BAD_REQUEST)
@@ -24,70 +18,65 @@ const getSupplierById = async (req, res) => {
   try {
     const { id } = req.params;
     const supplier = await supplierModel.getSupplierById(id);
-    if (supplier) {
-      return res.status(StatusCodes.OK).json({
-        supplier,
-      });
+    if (!supplier) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: 'Không tìm thấy nhà cung cấp!' });
     }
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Không tồn tại người dùng' });
+    return res.status(StatusCodes.OK).json(supplier);
   } catch (error) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: ERROR_MESSAGES.ERR_AGAIN,
-      error: error,
-    });
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
   }
 };
 
 const createSupplier = async (req, res) => {
-  const { fullName, phone, email, address } = req.body;
-  if (!fullName && !phone && !email && !address) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      message: ERROR_MESSAGES.REQUIRED,
-    });
+  try {
+    const data = req.body;
+    const dataSupplier = await supplierModel.createSupplier(data);
+    return res.status(StatusCodes.CREATED).json(dataSupplier);
   }
-
-  const data = {
-    fullName,
-    phone,
-    email,
-    address,
-  };
-  const dataSupplier = await supplierModel.createSupplier(data);
-  return res.status(StatusCodes.OK).json({ dataSupplier });
+  catch (error) {
+    if (error.details) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: error.details[0].message,
+      });
+    }
+    return res.status(StatusCodes.BAD_REQUEST).json(error);
+  }
 };
 
 const updateSupplier = async (req, res) => {
-  const { id } = req.params;
-  const data = req.body;
-
-  const dataSupplier = await supplierModel.update(id, data);
-  if (dataSupplier?.error) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
+  try {
+    const { id } = req.params;
+    const data = req.body;
+    const supplier = await supplierModel.update(id, data);
+    if (!supplier) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: 'Không tìm thấy nhà cung cấp!' });
+    }
+    return res.status(StatusCodes.OK).json(supplier);
   }
-  if (dataSupplier) {
-    return res
-      .status(StatusCodes.OK)
-      .json({ message: 'Cập nhật thông tin thành công', dataSupplier });
+  catch (error) {
+    if (error.details) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: error.details[0].message,
+      });
+    }
+    return res.status(StatusCodes.BAD_REQUEST).json(error);
   }
 };
 
 const deleteSupplier = async (req, res) => {
-  const { id } = req.params;
-  const dataSupplier = await supplierModel.deleteSupplier(id);
-  if (dataSupplier?.error) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
+  try {
+    const { id } = req.params;
+    await supplierModel.deleteSupplier(id);
+    return res.status(StatusCodes.OK).json({ message: 'Xóa thành công' });
   }
-  if (dataSupplier) {
-    return res
-      .status(StatusCodes.OK)
-      .json({ message: 'Xóa nhà cung cấp thành công' });
+  catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
   }
+
 };
 
 export const supplierController = {
