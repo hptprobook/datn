@@ -41,7 +41,6 @@ const getOrderById = async (id) => {
     return result;
 };
 
-
 const getCurrentOrder = async (user_id) => {
     const db = await GET_DB().collection('orders');
     const result = await db
@@ -81,9 +80,13 @@ const updateOrder = async (id, data) => {
     const validatedData = await validateBeforeUpdate(data);
     const result = await GET_DB()
         .collection('orders')
-        .findOneAndUpdate({
-            _id: new ObjectId(id),
-        }, { $set: validatedData }, { returnDocument: 'after' });
+        .findOneAndUpdate(
+            {
+                _id: new ObjectId(id),
+            },
+            { $set: validatedData },
+            { returnDocument: 'after' }
+        );
     return result;
 };
 const getStatusOrder = async (id) => {
