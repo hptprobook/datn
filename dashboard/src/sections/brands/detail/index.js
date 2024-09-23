@@ -1,1 +1,1 @@
-export { default as SupplierDetailView } from './view';
+export { default as BrandCreateView } from './view';
