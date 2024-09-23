@@ -30,12 +30,48 @@ export const WarehousePage = lazy(() => import('src/pages/warehouse/warehouse'))
 export const CouponsPage = lazy(() => import('src/pages/coupons/coupons'));
 export const CreateCouponPage = lazy(() => import('src/pages/coupons/create'));
 export const CouponDetailPage = lazy(() => import('src/pages/coupons/detail'));
-
+// supplier page
+export const SuppliersPage = lazy(() => import('src/pages/suppliers/suppliers'));
+export const SupplierCreatePage = lazy(() => import('src/pages/suppliers/create'));
+export const SupplierDetailPage = lazy(() => import('src/pages/suppliers/detail'));
 // orders page
 export const OrdersPage = lazy(() => import('src/pages/orders/orders'));
 export const OrderDetailPage = lazy(() => import('src/pages/orders/detail'));
-
+// brand page
+export const BrandsPage = lazy(() => import('src/pages/brands/brands'));
 // ----------------------------------------------------------------------
+
+const childRoutes = [
+  { element: <IndexPage />, index: true },
+  { path: 'user', element: <UserPage /> },
+  { path: 'user/create', element: <CreateUserPage /> },
+  { path: 'products', element: <ProductsPage /> },
+  { path: 'products/create', element: <CreateProductPage /> },
+  { path: 'blog', element: <BlogPage /> },
+  { path: 'category', element: <CategoryPage /> },
+  { path: 'category/create', element: <CreateCategoryPage /> },
+  { path: 'category/:id', element: <EditCategoryPage /> },
+  { path: 'settings/nav', element: <NavDashboardPage /> },
+  { path: 'settings/nav/create', element: <NavDashboardCreatePage /> },
+  { path: 'settings/nav/:id', element: <NavUpdatePage /> },
+  { path: 'settings/web-config', element: <WebConfigPage /> },
+  { path: 'settings/seo-config', element: <SeoConfigPage /> },
+  { path: 'warehouse', element: <WarehousePage /> },
+  { path: 'coupons', element: <CouponsPage /> },
+  { path: 'coupons/create', element: <CreateCouponPage /> },
+  { path: 'coupons/:id', element: <CouponDetailPage /> },
+  { path: 'orders', element: <OrdersPage /> },
+  { path: 'orders/:id', element: <OrderDetailPage /> },
+  { path: 'suppliers', element: <SuppliersPage /> },
+  { path: 'suppliers/create', element: <SupplierCreatePage /> },
+  { path: 'suppliers/:id', element: <SupplierDetailPage /> },
+  { path: 'brands', element: <BrandsPage /> },
+];
+export const routePath = childRoutes
+  .filter((item) => !item.path?.includes(':id'))
+  .map((item) => item.path) 
+  .filter(Boolean);
+// Export mảng route
 
 export default function Router() {
   return useRoutes([
@@ -47,28 +83,7 @@ export default function Router() {
           </Suspense>
         </ProtectedRoute>
       ),
-      children: [
-        { element: <IndexPage />, index: true },
-        { path: 'user', element: <UserPage /> },
-        { path: 'user/create', element: <CreateUserPage /> },
-        { path: 'products', element: <ProductsPage /> },
-        { path: 'products/create', element: <CreateProductPage /> },
-        { path: 'blog', element: <BlogPage /> },
-        { path: 'category', element: <CategoryPage /> },
-        { path: 'category/create', element: <CreateCategoryPage /> },
-        { path: 'category/:id', element: <EditCategoryPage /> },
-        { path: 'settings/nav', element: <NavDashboardPage /> },
-        { path: 'settings/nav/create', element: <NavDashboardCreatePage /> },
-        { path: 'settings/nav/:id', element: <NavUpdatePage /> },
-        { path: 'settings/web-config', element: <WebConfigPage /> },
-        { path: 'settings/seo-config', element: <SeoConfigPage /> },
-        { path: 'warehouse', element: <WarehousePage /> },
-        { path: 'coupons', element: <CouponsPage /> },
-        { path: 'coupons/create', element: <CreateCouponPage /> },
-        { path: 'coupons/:id', element: <CouponDetailPage /> },
-        { path: 'orders', element: <OrdersPage /> },
-        { path: 'orders/:id', element: <OrderDetailPage /> },
-      ],
+      children: childRoutes,
     },
     {
       path: 'login',

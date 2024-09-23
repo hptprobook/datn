@@ -11,7 +11,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 
 import { useNavigate } from 'react-router-dom';
-import {fetchAllProducts } from 'src/redux/slices/productSlice';
+import { fetchAllProducts } from 'src/redux/slices/productSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { handleToast } from 'src/hooks/toast';
 
@@ -44,7 +44,7 @@ export default function ProductsPage() {
   useEffect(() => {
     dispatch(fetchAllProducts());
   }, [dispatch]);
-  
+
   useEffect(() => {
     if (statusPro === 'succeeded') {
       setProductsList(products);
@@ -167,15 +167,15 @@ export default function ProductsPage() {
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
                     <ProductTableRow
-                    key={row._id}
-                    _id={row._id}
-                    name={row.name}
-                    imgURLs={row.imgURLs}
-                    price={row.price}
-                    brand={row.brand}
-                    stock={row.stock}
-                    selected={selected.indexOf(row.name) !== -1}
-                    handleClick={(event) => handleClick(event, row.name)}
+                      key={row._id}
+                      _id={row._id}
+                      name={row.name}
+                      imgURLs={row.imgURLs}
+                      price={row.price}
+                      brand={row.brand}
+                      stock={row.stock}
+                      selected={selected.indexOf(row.name) !== -1}
+                      handleClick={(event) => handleClick(event, row.name)}
                     />
                   ))}
 
@@ -193,6 +193,7 @@ export default function ProductsPage() {
         <TablePagination
           page={page}
           component="div"
+          labelRowsPerPage="Số hàng trên trang"
           count={productsList.length}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}

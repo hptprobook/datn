@@ -19,14 +19,10 @@ const countBrandsAll = async () => {
   return total;
 };
 
-const getBrandsAll = async (page, limit) => {
-  page = parseInt(page) || 1;
-  limit = parseInt(limit) || 20;
+const getBrandsAll = async () => {
   const db = await GET_DB().collection('brands');
   const result = await db
     .find()
-    .skip((page - 1) * limit)
-    .limit(limit)
     .toArray();
   if (!result) {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
@@ -52,18 +48,22 @@ const getBrandBySlug = async (slug) => {
   return brand;
 };
 
-const createBrand = async (data) => {
+const create = async (data) => {
   const validData = await validateBeforeCreate(data);
   const db = await GET_DB();
   const collection = db.collection('brands');
   const result = await collection.insertOne({
     ...validData,
   });
-  if (!result) {
-    throw new Error('Có lỗi xảy ra, xin thử lại sau');
+  if (!result || !result.insertedId) {
+    throw new Error('Không thể thêm thương hiệu, xin thử lại sau');
   }
-  return result;
+  return {
+    _id: result.insertedId,
+    ...validData,
+  };
 };
+
 const update = async (id, data) => {
   const validData = await validateBeforeUpdate(data);
   const db = GET_DB().collection('brands');
@@ -92,7 +92,7 @@ const deleteBrand = async (id) => {
 export const brandModel = {
   getBrandsAll,
   countBrandsAll,
-  createBrand,
+  create,
   update,
   deleteBrand,
   getBrandById,
