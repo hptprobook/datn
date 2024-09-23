@@ -39,7 +39,6 @@ export const upload = async ({ path, file, type = 'post', additionalData = {} })
     const formData = new FormData();
     formData.append(file.name, file.file);
 
-    // Nếu bạn muốn gửi thêm dữ liệu cùng với file, thêm chúng vào formData
     if (Object.keys(additionalData).length) {
         Object.keys(additionalData).forEach((key) => {
             formData.append(key, additionalData[key]);

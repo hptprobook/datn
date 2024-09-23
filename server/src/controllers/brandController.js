@@ -146,22 +146,23 @@ const update = async (req, res) => {
     .json({ dataBrand, mgs: 'Cập nhật thương hiệu thành công' });
 };
 const deleteBrand = async (req, res) => {
-  const { id } = req.params;
-  const dataBrand = await brandModel.deleteBrand(id);
+  try {
+    const { id } = req.params;
+    const data = await brandModel.deleteBrand(id);
 
-  if (dataBrand?.error) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
-  }
-
-  if (dataBrand) {
-    if (dataBrand.image) {
-      await uploadModel.deleteImg(dataBrand.image);
+    if (data) {
+      if (data.image) {
+        await uploadModel.deleteImg(data.image);
+      }
+      return res
+        .status(StatusCodes.OK)
+        .json(data.brands);
     }
+
+  } catch (error) {
     return res
-      .status(StatusCodes.OK)
-      .json({ message: 'Xóa thương hiệu thành công' });
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
   }
 };
 

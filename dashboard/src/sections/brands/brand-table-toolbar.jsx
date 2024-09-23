@@ -11,7 +11,7 @@ import Iconify from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export default function SupplierTableToolbar({ numSelected, filterName, onFilterName }) {
+export default function BrandTableToolbar({ numSelected, filterName, onFilterName }) {
   return (
     <Toolbar
       sx={{
@@ -62,7 +62,7 @@ export default function SupplierTableToolbar({ numSelected, filterName, onFilter
   );
 }
 
-SupplierTableToolbar.propTypes = {
+BrandTableToolbar.propTypes = {
   numSelected: PropTypes.number,
   filterName: PropTypes.string,
   onFilterName: PropTypes.func,
