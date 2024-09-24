@@ -1,6 +1,6 @@
 /* eslint-disable semi */
 import express from 'express';
-import { webController } from '~/controllers/webController';
+import { webBannerController } from '~/controllers/webBannerController';
 import multer from 'multer';
 import path from 'path';
 import { uploadModel } from '~/models/uploadModel';
@@ -8,7 +8,7 @@ const Router = express.Router();
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        const uploadPath = path.resolve(process.cwd(), 'uploads/web');
+        const uploadPath = path.resolve(process.cwd(), 'uploads/webBanner');
         uploadModel.ensureDirExists(uploadPath);
         cb(null, uploadPath);
     },
@@ -23,10 +23,15 @@ const upload = multer({
 });
 
 //admin
-Router.get('/', webController.getWeb);
+Router.get('/', webBannerController.getwebBanner);
+Router.post('/', upload.single('image'), webBannerController.createWebBanner);
 
-Router.post('/', upload.single('logo'), webController.createWeb);
-Router.put('/', upload.single('logo'), webController.updateWeb);
-// Router.delete('/:id', webController.deleteSeoConfig);
+Router.put(
+    '/:webBannerID',
+    upload.single('image'),
+    webBannerController.updateWebBanner
+);
 
-export const webApi = Router;
+Router.delete('/:webBannerID', webBannerController.deleteWebBanner);
+
+export const webBannerApi = Router;

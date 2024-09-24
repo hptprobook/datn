@@ -22,7 +22,7 @@ export type CartProduct = {
 };
 
 export type Product = {
-  id: number;
+  id: string;
   imgProduct: string;
   nameProduct: string;
   salePrice: number | string;

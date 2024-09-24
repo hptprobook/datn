@@ -137,7 +137,7 @@ const FinishOrder = () => {
           <Box mx={3} mb={2}>
             {cart.listOrder.map((product) => {
               const productInfo = listProducts.find(
-                (prod) => prod.id === product.id
+                (prod) => prod.id.toString() === product.id
               );
               return (
                 <CardProductOrder

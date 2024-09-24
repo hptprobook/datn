@@ -106,9 +106,8 @@ export function bgGradient(props) {
 
   if (imgUrl) {
     return {
-      background: `linear-gradient(${direction}, ${startColor || color}, ${
-        endColor || color
-      }), url(${imgUrl})`,
+      background: `linear-gradient(${direction}, ${startColor || color}, ${endColor || color
+        }), url(${imgUrl})`,
       backgroundSize: 'cover',
       backgroundRepeat: 'no-repeat',
       backgroundPosition: 'center center',
@@ -150,3 +149,26 @@ export const hideScroll = {
     },
   },
 };
+export function varAlpha(color, opacity = 1) {
+  const unsupported =
+    color.startsWith('#') ||
+    color.startsWith('rgb') ||
+    color.startsWith('rgba') ||
+    (!color.includes('var') && color.includes('Channel'));
+
+  if (unsupported) {
+    throw new Error(
+      `[Alpha]: Unsupported color format "${color}".
+       Supported formats are:
+       - RGB channels: "0 184 217".
+       - CSS variables with "Channel" prefix: "var(--palette-common-blackChannel, #000000)".
+       Unsupported formats are:
+       - Hex: "#00B8D9".
+       - RGB: "rgb(0, 184, 217)".
+       - RGBA: "rgba(0, 184, 217, 1)".
+       `
+    );
+  }
+
+  return `rgba(${color} / ${opacity})`;
+}

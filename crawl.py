@@ -226,7 +226,7 @@ def crawl_product_detail(product_url):
 
         product_name_before = product_soup.find('h1', class_='page-title').find('span', class_='base').get_text(strip=True)
 
-        random_number = random.randint(1000, 9999)
+        random_number = random.randint(10000000, 9999999999)
 
         # Thêm số ngẫu nhiên vào sau tên sản phẩm
         product_name = f"{product_name_before} {random_number}"

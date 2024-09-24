@@ -39,6 +39,7 @@ export const OrdersPage = lazy(() => import('src/pages/orders/orders'));
 export const OrderDetailPage = lazy(() => import('src/pages/orders/detail'));
 // brand page
 export const BrandsPage = lazy(() => import('src/pages/brands/brands'));
+export const BrandCreatePage = lazy(() => import('src/pages/brands/create'));
 // ----------------------------------------------------------------------
 
 const childRoutes = [
@@ -66,6 +67,7 @@ const childRoutes = [
   { path: 'suppliers/create', element: <SupplierCreatePage /> },
   { path: 'suppliers/:id', element: <SupplierDetailPage /> },
   { path: 'brands', element: <BrandsPage /> },
+  { path: 'brands/create', element: <BrandCreatePage /> },
 ];
 export const routePath = childRoutes
   .filter((item) => !item.path?.includes(':id'))
