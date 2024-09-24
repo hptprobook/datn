@@ -23,47 +23,75 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useState, useEffect, useCallback } from 'react';
 import { handleToast } from 'src/hooks/toast';
 import ImageDropZone from 'src/components/drop-zone-upload/upload-img';
-import { setStatus, createWithImage } from 'src/redux/slices/brandSlices';
+import { update, setStatus, fetchById, updateWithImage } from 'src/redux/slices/brandSlices';
+import { useParams } from 'react-router-dom';
+import { isValidObjectId } from 'src/utils/check';
+import { useRouter } from 'src/routes/hooks';
+import LoadingFull from 'src/components/loading/loading-full';
 import { schema, productCategories } from '../utils';
 // ----------------------------------------------------------------------
-export default function BrandCreatePage() {
-  const status = useSelector((state) => state.brands.statusCreate);
+export default function BrandDetailPage() {
+  const [brand, setBrand] = useState(null);
+  const [uploadedImageUrl, setUploadedImageUrl] = useState(null);
+
+  const { id } = useParams();
+  const route = useRouter();
+  const data = useSelector((state) => state.brands.brand);
+  const status = useSelector((state) => state.brands.statusUpdate);
+  const statusGet = useSelector((state) => state.brands.statusGet);
   const err = useSelector((state) => state.brands.error);
   const dispatch = useDispatch();
-  const [uploadedImageUrl, setUploadedImageUrl] = useState(null);
+
+  useEffect(() => {
+    if (id) {
+      if (isValidObjectId(id)) {
+        dispatch(fetchById(id));
+      } else {
+        handleToast('error', 'Id không hợp lệ');
+        route.push('/brands');
+      }
+    }
+  }, [id]);
+
+  useEffect(() => {
+    if (statusGet === 'successful') {
+      setBrand(data);
+    }
+    if (statusGet === 'failed') {
+      handleToast('error', err?.messages ? err.messages : 'Có lỗi xảy ra');
+    }
+  }, [statusGet, data]);
+
   useEffect(() => {
     if (status === 'successful') {
-      dispatch(setStatus({ key: 'statusCreate', value: 'idle' }));
+      dispatch(setStatus({ key: 'statusUpdate', value: 'idle' }));
       formik.resetForm();
-      handleToast('success', 'Tạo nhãn hàng thành công!');
+      handleToast('success', 'Cập nhật nhãn hàng thành công!');
     }
     if (status === 'failed') {
-      dispatch(setStatus({ key: 'statusCreate', value: 'idle' }));
-      handleToast('error', err.messages ? err.messages : 'Có lỗi xảy ra');
+      dispatch(setStatus({ key: 'statusUpdate', value: 'idle' }));
+      handleToast('error', err?.messages ? err.messages : 'Có lỗi xảy ra');
+      dispatch(setStatus({ key: 'error', value: null }));
     }
   }, [status, err, dispatch]);
   const formik = useFormik({
     initialValues: {
-      name: '',
-      slug: '',
-      category: '',
-      website: '',
-      description: '',
-      status: true,
+      name: brand?.name || '',
+      slug: brand?.slug || '',
+      category: brand?.category || '',
+      website: brand?.website || '',
+      description: brand?.description || '',
+      status: brand?.status || false,
     },
+    enableReinitialize: true,
     validationSchema: schema,
     onSubmit: async (values) => {
-      if (!uploadedImageUrl) {
-        handleToast('error', 'Vui lòng tải ảnh lên');
-        return;
+      if (uploadedImageUrl) {
+        dispatch(updateWithImage({ file: uploadedImageUrl, data: values, id }));
+        setUploadedImageUrl(null);
+      } else {
+        dispatch(update({ data: values, id }));
       }
-      dispatch(
-        createWithImage({
-          file: uploadedImageUrl,
-          data: values,
-        })
-      );
-      setUploadedImageUrl(null);
     },
   });
   const handleChangeUploadImg = useCallback((files) => {
@@ -77,8 +105,9 @@ export default function BrandCreatePage() {
 
   return (
     <Container>
+      {statusGet === 'loading' && <LoadingFull />}
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Nhãn hàng mới</Typography>
+        <Typography variant="h4">Nhãn hàng: {brand?.name}</Typography>
       </Stack>
       <form onSubmit={formik.handleSubmit}>
         <Card sx={{ p: 3, width: '100%' }}>
@@ -190,7 +219,11 @@ export default function BrandCreatePage() {
                 <Typography variant="h5">Ảnh đại diện</Typography>
               </Grid2>
               <Grid2 xs={12}>
-                <ImageDropZone singleFile handleUpload={handleChangeUploadImg} />
+                <ImageDropZone
+                  singleFile
+                  handleUpload={handleChangeUploadImg}
+                  defaultImg={brand?.image}
+                />
               </Grid2>
             </Grid2>
             <Grid2 xs={12}>

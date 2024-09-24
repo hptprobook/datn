@@ -4,6 +4,7 @@ import { useDropzone } from 'react-dropzone';
 import PropTypes from 'prop-types';
 import { Box, Button, IconButton } from '@mui/material';
 import { setStatus } from 'src/redux/slices/settingSlices';
+import { renderUrl } from 'src/utils/check';
 import { handleToast } from '../../hooks/toast';
 import './style.css';
 import Iconify from '../iconify/iconify';
@@ -38,7 +39,8 @@ const ImageDropZone = ({ handleUpload, singleFile = false, defaultImg = '' }) =>
 
   useEffect(() => {
     if (defaultImg !== '') {
-      setUrl(`${backendUrl}/${defaultImg}`);
+      const uri = renderUrl(defaultImg, backendUrl);
+      setUrl(uri);
     }
   }, [defaultImg]);
 
