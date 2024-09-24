@@ -23,14 +23,21 @@ const countCategoryAll = async () => {
   return total;
 };
 
-const getCategoriesAll = async () => {
+const getCategoriesAll = async (page, limit) => {
+  page = parseInt(page) || 1;
+  limit = parseInt(limit) || 20;
   const db = await GET_DB().collection('categories');
-  const result = await db.find().toArray();
+  const result = await db
+    .find()
+    .skip((page - 1) * limit)
+    .limit(limit)
+    .toArray();
   if (!result) {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
   return result;
 };
+
 const getCategoriesByParentId = async (category_id) => {
   const db = await GET_DB().collection('categories');
   const result = await db.find({ parentId: category_id }).toArray();
@@ -95,6 +102,7 @@ const update = async (id, data) => {
   }
   return { result: result };
 };
+
 const deleteAllChildCategories = async (parentId) => {
   const db = GET_DB().collection('categories');
   const childCategories = await db

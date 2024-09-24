@@ -10,18 +10,22 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 
 import Iconify from 'src/components/iconify';
+import { formatDateTime } from 'src/utils/format-time';
+import { Avatar, Stack } from '@mui/material';
+import { renderUrl } from 'src/utils/check';
 
 // ----------------------------------------------------------------------
+const backendUrl = import.meta.env.VITE_BACKEND_APP_URL;
 
-export default function SupplierTableRow({
+export default function BrandTableRow({
   selected,
-  companyName,
-  fullName,
-  phone,
-  email,
-  registrationNumber,
+  name,
+  avatar,
+  slug,
+  createdAt,
+  updatedAt,
   website,
-  rating,
+  status,
   handleClick,
   handleNavigate,
   onDelete,
@@ -47,22 +51,23 @@ export default function SupplierTableRow({
         </TableCell>
 
         <TableCell component="th" scope="row" padding="none">
-          <Typography variant="subtitle2" noWrap>
-            {companyName}
-          </Typography>
+          <Stack direction="row" alignItems="center" spacing={2}>
+            <Avatar alt={name} src={renderUrl(avatar, backendUrl)} />
+            <Typography variant="subtitle2" noWrap>
+              {name}
+            </Typography>
+          </Stack>
         </TableCell>
 
-        <TableCell>{fullName}</TableCell>
+        <TableCell>{slug}</TableCell>
 
-        <TableCell>{phone}</TableCell>
+        <TableCell>{formatDateTime(createdAt)}</TableCell>
 
-        <TableCell>{email}</TableCell>
-
-        <TableCell>{registrationNumber}</TableCell>
+        <TableCell>{formatDateTime(updatedAt)}</TableCell>
 
         <TableCell>{website}</TableCell>
 
-        <TableCell>{rating}</TableCell>
+        <TableCell>{status ? 'Kích hoạt' : 'Không'}</TableCell>
 
         <TableCell align="right">
           <IconButton onClick={handleOpenMenu}>
@@ -95,14 +100,14 @@ export default function SupplierTableRow({
   );
 }
 
-SupplierTableRow.propTypes = {
-  companyName: PropTypes.string.isRequired,
-  fullName: PropTypes.string.isRequired,
-  phone: PropTypes.string.isRequired,
-  email: PropTypes.string.isRequired,
-  registrationNumber: PropTypes.string.isRequired,
-  website: PropTypes.string.isRequired,
-  rating: PropTypes.number.isRequired,
+BrandTableRow.propTypes = {
+  name: PropTypes.string,
+  avatar: PropTypes.string,
+  slug: PropTypes.string,
+  createdAt: PropTypes.any,
+  updatedAt: PropTypes.any,
+  website: PropTypes.string,
+  status: PropTypes.bool,
   selected: PropTypes.bool,
   handleClick: PropTypes.func,
   handleNavigate: PropTypes.func,
