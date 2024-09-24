@@ -24,6 +24,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { handleToast } from 'src/hooks/toast';
 import ImageDropZone from 'src/components/drop-zone-upload/upload-img';
 import { setStatus, createWithImage } from 'src/redux/slices/brandSlices';
+import LoadingFull from 'src/components/loading/loading-full';
 import { schema, productCategories } from '../utils';
 // ----------------------------------------------------------------------
 export default function BrandCreatePage() {
@@ -77,6 +78,7 @@ export default function BrandCreatePage() {
 
   return (
     <Container>
+      {status === 'loading' && <LoadingFull />}
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Typography variant="h4">Nhãn hàng mới</Typography>
       </Stack>

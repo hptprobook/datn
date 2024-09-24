@@ -10,7 +10,13 @@ const BrandServices = {
     additionalData: data,
     type: 'post',
   }),
-  update: async (data) => await put('brands', data),
+  update: async ({data, id}) => await put(`brands/${id}`, data),
+  updateWithImage: async ({ file, data, id }) => await upload({
+    path: `brands/${id}`,
+    file: file,
+    additionalData: data,
+    type: 'put',
+  }),
   delete: async (id) => await del(`brands/${id}`),
   getById: async (id) => await get(`brands/${id}`),
 };

@@ -13,7 +13,8 @@ import { create , setStatus } from 'src/redux/slices/supplierSlices';
 import { useEffect } from 'react';
 import { handleToast } from 'src/hooks/toast';
 import { supplierSchema } from '../utils';
-import ProductSupplierSelect from '../product-select';
+import { ProductSupplierSelect } from '../product-select';
+
 // ----------------------------------------------------------------------
 export default function SupplierCreatePage() {
   const status = useSelector((state) => state.suppliers.statusCreate);
