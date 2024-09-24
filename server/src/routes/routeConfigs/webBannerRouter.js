@@ -8,7 +8,7 @@ const Router = express.Router();
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        const uploadPath = path.resolve(process.cwd(), 'uploads/web');
+        const uploadPath = path.resolve(process.cwd(), 'uploads/webBanner');
         uploadModel.ensureDirExists(uploadPath);
         cb(null, uploadPath);
     },
