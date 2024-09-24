@@ -42,7 +42,7 @@ const uploadImgs = (fieldName, count = 10) => {
 };
 
 const deleteImg = (name) => {
-    const filePath = path.resolve(process.cwd(), 'src', 'public', 'imgs', name);
+    const filePath = path.resolve(process.cwd(), name);
     fs.unlink(filePath, (err) => {
         if (err) {
             return err;
