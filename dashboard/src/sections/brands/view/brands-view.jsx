@@ -15,15 +15,16 @@ import Scrollbar from 'src/components/scrollbar';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'src/routes/hooks';
-import { fetchAll, setStatus, deleteSupplier } from 'src/redux/slices/supplierSlices';
+import { fetchAll, setStatus, deleteBrand } from 'src/redux/slices/brandSlices';
 import ConfirmDelete from 'src/components/modal/confirm-delete';
 import { handleToast } from 'src/hooks/toast';
-import TableEmptyRows from '../supplier-empty-rows';
-import { emptyRows, applyFilter, getComparator } from '../utils';
-import SupplierTableRow from '../supplier-table-row';
-import SupplierTableToolbar from '../supplier-table-toolbar';
-import SupplierTableHead from '../supplier-table-head';
-import TableNoData from '../supplier-no-data';
+import LoadingFull from 'src/components/loading/loading-full';
+import TableEmptyRows from 'src/components/table/table-empty-rows';
+import TableNoData from 'src/components/table/table-no-data';
+import { emptyRows, applyFilter, getComparator } from 'src/components/table/utils';
+import BrandTableHead from '../brand-table-head';
+import BrandTableRow from '../brand-table-row';
+import BrandTableToolbar from '../brand-table-toolbar';
 
 // ----------------------------------------------------------------------
 
@@ -41,15 +42,15 @@ export default function BrandsPage() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [confirm, setConfirm] = useState(false);
 
-  const [suppliers, setSuppliers] = useState([]);
+  const [brands, setBrands] = useState([]);
 
   const dispatch = useDispatch();
   const route = useRouter();
 
-  const data = useSelector((state) => state.suppliers.suppliers);
-  const status = useSelector((state) => state.suppliers.status);
-  const error = useSelector((state) => state.suppliers.error);
-  const statusDelete = useSelector((state) => state.suppliers.statusDelete);
+  const data = useSelector((state) => state.brands.brands);
+  const status = useSelector((state) => state.brands.status);
+  const error = useSelector((state) => state.brands.error);
+  const statusDelete = useSelector((state) => state.brands.statusDelete);
 
   useEffect(() => {
     dispatch(fetchAll());
@@ -57,12 +58,12 @@ export default function BrandsPage() {
 
   useEffect(() => {
     if (status === 'successful') {
-      setSuppliers(data);
+      setBrands(data);
     }
   }, [status, dispatch, data]);
   useEffect(() => {
     if (statusDelete === 'successful') {
-      handleToast('success', 'Xóa nhà cung cấp thành công!');
+      handleToast('success', 'Xóa nhãn hàng thành công!');
       dispatch(setStatus({ key: 'statusDelete', value: 'idle' }));
       dispatch(fetchAll());
     }
@@ -82,7 +83,7 @@ export default function BrandsPage() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelected = suppliers.map((n) => n.name);
+      const newSelected = brands.map((n) => n.name);
       setSelected(newSelected);
       return;
     }
@@ -122,9 +123,10 @@ export default function BrandsPage() {
   };
 
   const dataFiltered = applyFilter({
-    inputData: suppliers,
+    inputData: brands,
     comparator: getComparator(order, orderBy),
     filterName,
+    fillerQuery: 'name',
   });
   const handleNavigate = (id) => {
     route.push(id);
@@ -133,13 +135,14 @@ export default function BrandsPage() {
     setConfirm(id);
   };
   const dispatchDelete = () => {
-    dispatch(deleteSupplier(confirm));
+    dispatch(deleteBrand(confirm));
   };
 
   const notFound = !dataFiltered.length && !!filterName;
 
   return (
     <Container>
+      {status === 'loading' && <LoadingFull />}
       <ConfirmDelete
         openConfirm={!!confirm}
         onAgree={dispatchDelete}
@@ -147,19 +150,19 @@ export default function BrandsPage() {
       />
 
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Nhà cung cấp</Typography>
+        <Typography variant="h4">Nhãn hàng</Typography>
         <Button
           variant="contained"
           onClick={() => route.push('create')}
           color="inherit"
           startIcon={<Iconify icon="eva:plus-fill" />}
         >
-          Nhà cung cấp mới
+          Nhãn hàng mới
         </Button>
       </Stack>
 
       <Card>
-        <SupplierTableToolbar
+        <BrandTableToolbar
           numSelected={selected.length}
           filterName={filterName}
           onFilterName={handleFilterByName}
@@ -168,21 +171,20 @@ export default function BrandsPage() {
         <Scrollbar>
           <TableContainer sx={{ overflow: 'unset' }}>
             <Table sx={{ minWidth: 800 }}>
-              <SupplierTableHead
+              <BrandTableHead
                 order={order}
                 orderBy={orderBy}
-                rowCount={suppliers.length}
+                rowCount={brands.length}
                 numSelected={selected.length}
                 onRequestSort={handleSort}
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
-                  { id: 'companyName', label: 'Tên công ty' },
-                  { id: 'fullName', label: 'Họ và tên' },
-                  { id: 'phone', label: 'Số điện thoại' },
-                  { id: 'email', label: 'Email' },
-                  { id: 'registrationNumber', label: 'Mã số thuế' },
-                  { id: 'website', label: 'Trang website' },
-                  { id: 'rating', label: 'Đánh giá' },
+                  { id: 'name', label: 'Tên nhãn hàng' },
+                  { id: 'slug', label: 'Slug' },
+                  { id: 'createdAt', label: 'Ngày tạo' },
+                  { id: 'updatedAt', label: 'Ngày nhập' },
+                  { id: 'website', label: 'Trang chủ' },
+                  { id: 'status', label: 'Trạng thái' },
                   { id: '' },
                 ]}
               />
@@ -190,16 +192,16 @@ export default function BrandsPage() {
                 {dataFiltered
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
-                    <SupplierTableRow
+                    <BrandTableRow
                       key={row._id}
-                      companyName={row.companyName}
-                      fullName={row.fullName}
-                      phone={row.phone}
-                      email={row.email}
-                      registrationNumber={row.registrationNumber}
+                      name={row.name}
+                      status={row.status}
+                      createdAt={row.createdAt}
+                      updatedAt={row.updatedAt}
+                      avatar={row.image}
+                      slug={row.slug}
                       website={row.website}
-                      rating={row.rating}
-                      selected={selected.indexOf(row.companyName) !== -1} // Assuming the company name is used for selection
+                      selected={selected.indexOf(row.name) !== -1} // Assuming the company name is used for selection
                       handleClick={(event) => handleClick(event, row._id)}
                       handleNavigate={() => handleNavigate(row._id)}
                       onDelete={() => handleDelete(row._id)}
@@ -208,7 +210,8 @@ export default function BrandsPage() {
 
                 <TableEmptyRows
                   height={77}
-                  emptyRows={emptyRows(page, rowsPerPage, suppliers.length)}
+                  emptyRows={emptyRows(page, rowsPerPage, brands.length)}
+                  col={6}
                 />
 
                 {notFound && <TableNoData query={filterName} />}
@@ -221,7 +224,7 @@ export default function BrandsPage() {
           page={page}
           component="div"
           labelRowsPerPage="Số hàng trên trang"
-          count={suppliers.length}
+          count={brands.length}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}
           rowsPerPageOptions={[5, 10, 25]}
