@@ -7,7 +7,7 @@ import ImageRatio from "../img-ratio";
 import { useNavigate } from "react-router-dom";
 
 type CardProductHorizontalProps = {
-  productId: number;
+  productId: string;
   pathImg: string;
   nameProduct: string;
   salePrice: number | string;

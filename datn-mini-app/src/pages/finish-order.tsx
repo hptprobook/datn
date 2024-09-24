@@ -61,7 +61,7 @@ const FinishOrder = () => {
     await pay(totalPrice);
   };
 
-  const handleChooseProduct = (productId: number) => {
+  const handleChooseProduct = (productId: string) => {
     setOpenSheet(true);
     setProductInfoPicked({ productId, isUpdate: true });
   };

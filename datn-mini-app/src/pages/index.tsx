@@ -50,7 +50,7 @@ const HomePage: React.FunctionComponent = () => {
     ),
     []
   );
-
+  console.log("storeProductResult", storeProductResult);  
   useEffect(() => {
     setHeader({
       customTitle: getConfig((c) => c.template.searchBar) ? searchBar : "",
@@ -82,13 +82,13 @@ const HomePage: React.FunctionComponent = () => {
             style={{ marginBottom: totalPrice > 0 ? "120px" : "0px" }}
           >
             {storeProductResult.map((product) => (
-              <div className=" mb-2 w-full" key={product.id}>
+              <div className=" mb-2 w-full" key={product._id}>
                 <CardProductHorizontal
                   pathImg={product.imgProduct}
                   nameProduct={product.nameProduct}
                   salePrice={product.salePrice}
                   retailPrice={product.retailPrice}
-                  productId={product.id}
+                  productId={product._id}
                 />
               </div>
             ))}
