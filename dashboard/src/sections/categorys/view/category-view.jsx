@@ -16,12 +16,12 @@ import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 import { handleToast } from 'src/hooks/toast';
 
-import TableNoData from '../table-no-data';
+import TableNoData from 'src/components/table/table-no-data';
+import TableEmptyRows from 'src/components/table/table-empty-rows';
+import { emptyRows, applyFilter, getComparator } from 'src/components/table/utils';
 import CategoryTableRow from '../category-table-row';
 import CategoryTableHead from '../category-table-head';
-import TableEmptyRows from '../table-empty-rows';
 import CategoryTableToolbar from '../category-table-toolbar';
-import { emptyRows, applyFilter, getComparator } from '../utils';
 
 
 
@@ -114,6 +114,7 @@ export default function CategoryPage() {
     inputData: dataCategories,
     comparator: getComparator(order, orderBy),
     filterName,
+    fillerQuery: 'name',
   });
 
   const notFound = !dataFiltered.length && !!filterName;
@@ -178,6 +179,7 @@ export default function CategoryPage() {
                   ))}
 
                 <TableEmptyRows
+                col={3}
                   height={77}
                   emptyRows={emptyRows(page, rowsPerPage, dataCategories.length)}
                 />
@@ -191,6 +193,7 @@ export default function CategoryPage() {
         <TablePagination
           page={page}
           component="div"
+          labelRowsPerPage="Số hàng mỗi trang"
           count={dataCategories.length}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}

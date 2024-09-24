@@ -159,17 +159,17 @@ const CreateCategoryView = () => {
                     <InputLabel htmlFor="description">Mô tả</InputLabel>
                   </Grid>
                   <Grid item xs={12} sm={4} md={6}>
-                    <Field name="description">
+                    {/* <Field name="description">
                       {({ field, form }) => (
-                        <EditorContent
-                          {...field}
-                          value={field.value}
-                          onChange={(content) => {
-                            form.setFieldValue(field.name, content);
-                          }}
-                        />
+                        // <EditorContent
+                        //   {...field}
+                        //   value={field.value}
+                        //   onChange={(content) => {
+                        //     form.setFieldValue(field.name, content);
+                        //   }}
+                        // />
                       )}
-                    </Field>
+                    </Field> */}
                     <FormHelperText>
                       <ErrorMessage name="description" component="div" className="error-message" />
                     </FormHelperText>
