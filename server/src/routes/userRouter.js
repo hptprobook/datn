@@ -27,4 +27,7 @@ Router.get('/', verifyToken, verifyAdmin, usersController.getAllUsers);
 Router.put('/:id', verifyToken, isAdmin, usersController.updateUser);
 Router.delete('/:id', verifyToken, isAdmin, usersController.deleteUser);
 
+//favorite
+Router.post('/favorite/:id', usersController.favoriteProduct);
+
 export const usersApi = Router;

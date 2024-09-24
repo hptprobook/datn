@@ -10,28 +10,27 @@ const useAddProductToCart = () => {
       setCart((oldCart) => {
         const cart = { ...oldCart };
         const orderIndex = cart.listOrder.findIndex(
-          (prod) => prod.id === productOrder.id
+          (prod) => prod._id === productOrder._id
         );
         if (orderIndex >= 0) {
           // available in cart
-          cart.listOrder = [...cart.listOrder];
           if (productOrder.order.quantity === 0) {
             // delete product in cart
-            cart.listOrder.splice(orderIndex, 1);
+            cart.listOrder = cart.listOrder.filter((_, index) => index !== orderIndex);
           } else {
-            cart.listOrder.splice(orderIndex, 1, {
-              ...cart.listOrder[orderIndex],
-              order: productOrder.order,
-            });
+            cart.listOrder = cart.listOrder.map((item, index) =>
+              index === orderIndex ? { ...item, order: productOrder.order } : item
+            );
           }
         } else if (productOrder.order.quantity > 0) {
-          cart.listOrder = cart.listOrder.concat({ ...productOrder });
+          cart.listOrder = [...cart.listOrder, { ...productOrder }];
         }
         cart.date = new Date();
         return cart;
       });
     },
-    [cart]
+    [setCart]
   );
 };
+
 export default useAddProductToCart;

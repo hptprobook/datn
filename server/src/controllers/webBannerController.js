@@ -3,6 +3,7 @@
 import { webBannerModel } from '~/models/webBannerModel';
 import { StatusCodes } from 'http-status-codes';
 import { uploadModel } from '~/models/uploadModel';
+import path from 'path';
 const getwebBanner = async (req, res) => {
     try {
         const banner = await webBannerModel.getWebBanner();
@@ -23,7 +24,7 @@ const createWebBanner = async (req, res) => {
         }
         const dataWebBanner = {
             ...req.body,
-            image: req.file.filename,
+            image: path.join('uploads/webBanner', req.file.filename),
         };
         const result = await webBannerModel.createWebBanner(dataWebBanner);
         if (result.acknowledged) {
@@ -31,6 +32,7 @@ const createWebBanner = async (req, res) => {
                 .status(StatusCodes.OK)
                 .json({ mgs: 'Thêm dữ liệu web banner thành công' });
         }
+
         await uploadModel.deleteImg(req.file.filename);
         return res.status(StatusCodes.BAD_REQUEST).json(result);
     } catch (error) {
@@ -65,7 +67,7 @@ const updateWebBanner = async (req, res) => {
         // Nếu update image
         const dataWebBanner = {
             ...req.body,
-            image: req.file.filename,
+            image: path.join('uploads/webBanner', req.file.filename),
         };
         const result = await webBannerModel.updateWebBanner(
             webBannerID,

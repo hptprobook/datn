@@ -1,15 +1,18 @@
 import { useCallback } from "react";
+import { useSetRecoilState } from "recoil";
 import {
   initialProductInfoPickedState,
   productInfoPickedState,
-} from "./../state";
-import { useSetRecoilState } from "recoil";
+} from "../state"; // Adjust the import path if necessary
 
 const useResetProductPicked = () => {
   const setProductPicked = useSetRecoilState(productInfoPickedState);
-  return useCallback(
-    () => setProductPicked(initialProductInfoPickedState),
-    [setProductPicked]
-  );
+
+  const resetProductPicked = useCallback(() => {
+    setProductPicked(initialProductInfoPickedState);
+  }, [setProductPicked]);
+
+  return resetProductPicked;
 };
+
 export default useResetProductPicked;
