@@ -16,6 +16,7 @@ import {
 } from "../state";
 import { useAddProductToCart, useResetProductPicked } from "../hooks";
 import { useNavigate } from "react-router-dom";
+import { string } from "prop-types";
 
 const ProductPicker = () => {
   const { productId, isUpdate } = useRecoilValue(productInfoPickedState);
@@ -46,7 +47,7 @@ const ProductPicker = () => {
   const product: Product | undefined = useMemo(() => {
     if (store) {
       const currentProduct = store.listProducts.find(
-        (item) => item.id === Number(productId)
+        (item) => item._id === String(productId)
       );
       return currentProduct;
     }
@@ -56,7 +57,7 @@ const ProductPicker = () => {
   const cartProduct: CartProduct | undefined = useMemo(() => {
     if (product && cart) {
       const currentProductOrder = cart.listOrder.find(
-        (ord) => ord.id === product.id
+        (ord) => String(ord._id) === product._id
       );
 
       if (currentProductOrder) {
@@ -96,7 +97,7 @@ const ProductPicker = () => {
 
     addProductToCart({
       productOrder: {
-        id: product!.id,
+        id: product!._id,
         order: productOrder,
       } as CartProduct,
     });
