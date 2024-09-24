@@ -13,6 +13,26 @@ export const fetchAll = createAsyncThunk(
   }
 );
 
+export const getDetail = createAsyncThunk(
+  'suppliers/getDetail',
+  async (id, { rejectWithValue }) => {
+    try {
+      return await SupplierServices.getDetail(id);
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
+export const update = createAsyncThunk(
+  'suppliers/update',
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      return await SupplierServices.update(id, data);
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
 
 export const create = createAsyncThunk(
   'suppliers/create',
@@ -37,10 +57,13 @@ export const deleteSupplier = createAsyncThunk(
 
 const initialState = {
   suppliers: [],
+  supplier: {},
   delete: null,
+  statusGet: 'idle',
   status: 'idle',
   statusDelete: 'idle',
   statusCreate: 'idle',
+  statusUpdate: 'idle',
   error: null,
 };
 
@@ -62,6 +85,28 @@ const supplierSlices = createSlice({
       .addCase(fetchAll.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error;
+      })
+      .addCase(getDetail.pending, (state) => {
+        state.statusGet = 'loading';
+      })
+      .addCase(getDetail.fulfilled, (state, action) => {
+        state.statusGet = 'successful';
+        state.supplier = action.payload;
+      })
+      .addCase(getDetail.rejected, (state, action) => {
+        state.statusGet = 'failed';
+        state.error = action.payload;
+      })
+      .addCase(update.pending, (state) => {
+        state.statusUpdate = 'loading';
+      })
+      .addCase(update.fulfilled, (state, action) => {
+        state.statusUpdate = 'successful';
+        state.supplier = action.payload;
+      })
+      .addCase(update.rejected, (state, action) => {
+        state.statusUpdate = 'failed';
+        state.error = action.payload;
       })
       .addCase(create.pending, (state) => {
         state.statusCreate = 'loading';

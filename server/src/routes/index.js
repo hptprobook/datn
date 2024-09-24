@@ -24,6 +24,7 @@ import { brandsApi } from './brandRouter';
 import { couponApi } from './couponRouter';
 // ad
 import { addressApi } from './addressRouter';
+import { webBannerApi } from './routeConfigs/webBannerRouter';
 const Router = express.Router();
 
 Router.use('/auth', authApi);
@@ -45,12 +46,13 @@ Router.use('/payments', paymentApi);
 Router.use('/seo', seoConfigApi);
 Router.use('/web', webApi);
 Router.use('/coupons', couponApi);
+Router.use('/web-banner', webBannerApi);
 
 Router.use('/navDashboard', navDashboardApi);
 Router.use('/address', addressApi);
 
 Router.get('/', (req, res) => {
-  res.send('Hello from API!');
+    res.send('Hello from API!');
 });
 
 export const APIs = Router;

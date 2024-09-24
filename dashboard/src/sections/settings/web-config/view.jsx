@@ -95,8 +95,7 @@ export default function WebConfigPage() {
         name: 'logo',
       });
     }
-  }, []); // Ensure it only triggers when files change
-  
+  }, []); 
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {

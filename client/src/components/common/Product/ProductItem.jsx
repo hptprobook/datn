@@ -4,9 +4,17 @@ import { NavLink } from 'react-router-dom';
 import React from 'react';
 
 const ProductItem = React.memo(({ product, height = false }) => {
+  const reviews = Array.isArray(product.reviews) ? product.reviews : [];
+
+  // Calculate the average rating from product.reviews[].rating
+  const averageRating =
+    reviews.length > 0
+      ? reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
+      : 0;
+
   return (
     <div className="h-productItem rounded-md">
-      <NavLink to={`/san-pham/${product._id}`}>
+      <NavLink to={`/san-pham/${product.slug}`}>
         <div className={`w-full relative ${!height ? 'h-80' : 'h-96'}`}>
           <div className="flex gap-2 absolute top-2 left-2">
             {product.tags.slice(0, 2).map((label, index) => (
@@ -28,16 +36,20 @@ const ProductItem = React.memo(({ product, height = false }) => {
           {product.name}
         </div>
       </NavLink>
-      <Rating className="mt-1">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <Rating.Star
-            key={i}
-            className={i < product.rate ? 'text-yellow-600' : 'text-gray-300'}
-            filled={i < product.rate}
-          />
-        ))}
-        <p className="text-sm">(19)</p>
-      </Rating>
+      {reviews.length > 0 && (
+        <Rating className="mt-1">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Rating.Star
+              key={i}
+              className={
+                i < averageRating ? 'text-yellow-600' : 'text-gray-300'
+              }
+              filled={i < averageRating}
+            />
+          ))}
+          <p className="text-sm">({reviews.length})</p>
+        </Rating>
+      )}
       <div className="mt-3 font-bold text-sm">
         {new Intl.NumberFormat('de-DE', {
           style: 'currency',

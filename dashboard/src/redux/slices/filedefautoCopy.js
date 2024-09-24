@@ -4,7 +4,7 @@ import CategoryService from '../services/category.service';
 
 export const fetch = createAsyncThunk(
   'orders/fetchAll',
-  async (_, rejectWithValue) => {
+  async (_, { rejectWithValue }) => {
     try {
       const res = await CategoryService.getAllCategories();
       return res;
@@ -18,12 +18,12 @@ export const resetDelete = createAction('orders/resetDelete');
 const initialState = {
   orders: [],
   delete: null,
-  status: 'idle', 
+  status: 'idle',
   statusDelete: 'idle',
+  statusUpdate: 'idle',
+  statusGet: 'idle',
   error: null,
 };
-
-export const setStatus = createAction('orders/setStatus');
 
 const orderSlices = createSlice({
   name: 'orders',
@@ -35,8 +35,8 @@ const orderSlices = createSlice({
         state.status = 'loading';
       })
       .addCase(fetch.fulfilled, (state, action) => {
-        state.status = 'succeeded';
-        state.data = action.payload.category; 
+        state.status = 'successful';
+        state.data = action.payload.category;
       })
       .addCase(fetch.rejected, (state, action) => {
         state.status = 'failed';
@@ -45,11 +45,12 @@ const orderSlices = createSlice({
       .addCase(setStatus, (state, action) => {
         state.status = action.payload;
       })
-      .addCase(resetDelete, (state) => {
-        state.status = 'idle';
-        state.statusDelete = 'idle';
-        state.error = null;
-      });
+      .addCase(setStatus, (state, action) => {
+        const { key, value } = action.payload; // Destructure key and value from payload
+        if (state[key] !== undefined) {
+          state[key] = value; // Update the status field dynamically
+        }
+      })
   },
 });
 
