@@ -11,10 +11,8 @@ const getAllProducts = async (req, res) => {
   try {
     let { pages, limit } = req.query;
     const products = await productModel.getProductsAll(pages, limit);
-    const countProducts = await productModel.countProductAll();
     return res.status(StatusCodes.OK).json({
       products,
-      countProducts,
     });
   } catch (error) {
     return res
@@ -40,19 +38,14 @@ const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
     const product = await productModel.getProductById(id);
-    if (product) {
-      return res.status(StatusCodes.OK).json({
-        product,
-      });
+    if (!product) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: 'Không tìm thấy sản phẩm!' });
     }
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Không tồn tại sản phẩm' });
+    return res.status(StatusCodes.OK).json(product);
   } catch (error) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: ERROR_MESSAGES.ERR_AGAIN,
-      error: error,
-    });
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
   }
 };
 
@@ -60,19 +53,14 @@ const getProductBySlug = async (req, res) => {
   try {
     const { slug } = req.params;
     const product = await productModel.getProductBySlug(slug);
-    if (product) {
-      return res.status(StatusCodes.OK).json({
-        product,
-      });
+    if (!product) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: 'Không tìm thấy sản phẩm!' });
     }
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Không tồn tại sản phẩm' });
+    return res.status(StatusCodes.OK).json(product);
   } catch (error) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: ERROR_MESSAGES.ERR_AGAIN,
-      error: error,
-    });
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
   }
 };
 
@@ -85,19 +73,14 @@ const getProductByCategory = async (req, res) => {
       pages,
       limit
     );
-    if (product) {
-      return res.status(StatusCodes.OK).json({
-        product,
-      });
+    if (!product) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: 'Không tìm thấy sản phẩm!' });
     }
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Không tồn tại sản phẩm' });
+    return res.status(StatusCodes.OK).json(product);
   } catch (error) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: ERROR_MESSAGES.ERR_AGAIN,
-      error: error,
-    });
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
   }
 };
 
@@ -107,19 +90,14 @@ const getProductByBrand = async (req, res) => {
     let { pages, limit } = req.query;
 
     const product = await productModel.getProductsByBrand(slug, pages, limit);
-    if (product) {
-      return res.status(StatusCodes.OK).json({
-        product,
-      });
+    if (!product) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: 'Không tìm thấy sản phẩm!' });
     }
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Không tồn tại sản phẩm' });
+    return res.status(StatusCodes.OK).json(product);
   } catch (error) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: ERROR_MESSAGES.ERR_AGAIN,
-      error: error,
-    });
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
   }
 };
 
@@ -132,19 +110,14 @@ const getProductByCategoryId = async (req, res) => {
       pages,
       limit
     );
-    if (product) {
-      return res.status(StatusCodes.OK).json({
-        product,
-      });
+    if (!product) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: 'Không tìm thấy sản phẩm!' });
     }
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Không tồn tại sản phẩm' });
+    return res.status(StatusCodes.OK).json(product);
   } catch (error) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: ERROR_MESSAGES.ERR_AGAIN,
-      error: error,
-    });
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
   }
 };
 
@@ -154,19 +127,14 @@ const getProductByBrandId = async (req, res) => {
     let { pages, limit } = req.query;
     const product = await productModel.getProductsByBrandId(id, pages, limit);
 
-    if (product) {
-      return res.status(StatusCodes.OK).json({
-        product,
-      });
+    if (!product) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: 'Không tìm thấy sản phẩm!' });
     }
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Không tồn tại sản phẩm' });
+    return res.status(StatusCodes.OK).json(product);
   } catch (error) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: ERROR_MESSAGES.ERR_AGAIN,
-      error: error,
-    });
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
   }
 };
 
@@ -190,19 +158,19 @@ const createProduct = async (req, res) => {
     if (!req.files['thumbnail'] || !req.files['thumbnail'][0]) {
       return res
         .status(StatusCodes.BAD_REQUEST)
-        .json({ mgs: 'Ảnh đại diện không được để trống' });
+        .json({ message: 'Ảnh đại diện không được để trống' });
     }
 
     if (!req.files['images'] || !req.files['images'].length) {
       return res
         .status(StatusCodes.BAD_REQUEST)
-        .json({ mgs: 'Ảnh không được để trống' });
+        .json({ message: 'Ảnh không được để trống' });
     }
 
     if (!req.files['imageVariants'] || !req.files['imageVariants'].length) {
       return res
         .status(StatusCodes.BAD_REQUEST)
-        .json({ mgs: 'Ảnh biến thể không được để trống' });
+        .json({ message: 'Ảnh biến thể không được để trống' });
     }
 
     const thumbnail = path.join(
@@ -277,9 +245,7 @@ const createProduct = async (req, res) => {
       await uploadModel.deleteImgs(imageVariantsC);
       return res.status(StatusCodes.BAD_REQUEST).json(dataProduct.detail);
     }
-    return res
-      .status(StatusCodes.OK)
-      .json({ dataProduct, mgs: 'Thêm sản phẩm thành công' });
+    return res.status(StatusCodes.OK).json({ dataProduct });
   } catch (error) {
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
@@ -493,9 +459,13 @@ const updateProduct = async (req, res) => {
     }
 
     const result = dataProduct.result;
+    if (!result) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: 'Không tìm thấy sản phẩm!' });
+    }
     return res.status(StatusCodes.OK).json({
-      message: 'Cập nhật sản phẩm thành công',
-      dataProduct: result,
+      result,
     });
   }
 };
@@ -559,7 +529,7 @@ const ratingProduct = async (req, res) => {
     }
     return res
       .status(StatusCodes.OK)
-      .json({ dataProduct, mgs: 'Đánh giá thành công' });
+      .json({ dataProduct, message: 'Đánh giá thành công' });
   } catch (error) {
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
@@ -593,7 +563,7 @@ const updateRatingProduct = async (req, res) => {
     }
     return res
       .status(StatusCodes.OK)
-      .json({ dataProduct, mgs: 'Cập nhật đánh giá thành công' });
+      .json({ dataProduct, message: 'Cập nhật đánh giá thành công' });
   } catch (error) {
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)

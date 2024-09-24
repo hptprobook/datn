@@ -52,18 +52,22 @@ const getBrandBySlug = async (slug) => {
   return brand;
 };
 
-const createBrand = async (data) => {
+const create = async (data) => {
   const validData = await validateBeforeCreate(data);
   const db = await GET_DB();
   const collection = db.collection('brands');
   const result = await collection.insertOne({
     ...validData,
   });
-  if (!result) {
-    throw new Error('Có lỗi xảy ra, xin thử lại sau');
+  if (!result || !result.insertedId) {
+    throw new Error('Không thể thêm thương hiệu, xin thử lại sau');
   }
-  return result;
+  return {
+    _id: result.insertedId,
+    ...validData,
+  };
 };
+
 const update = async (id, data) => {
   const validData = await validateBeforeUpdate(data);
   const db = GET_DB().collection('brands');
@@ -82,17 +86,27 @@ const update = async (id, data) => {
 const deleteBrand = async (id) => {
   const db = GET_DB().collection('brands');
   const brand = await db.findOne({ _id: new ObjectId(id) });
-  await db.deleteOne({ _id: new ObjectId(id) });
+
   if (!brand) {
-    throw new Error('Có lỗi xảy ra, xin thử lại sau');
+    throw new Error('Không tìm thấy thương hiệu');
   }
-  return brand;
+
+  const result = await db.deleteOne({ _id: new ObjectId(id) });
+
+  if (result.deletedCount === 0) {
+    throw new Error('Xóa thương hiệu không thành công');
+  }
+  const brands = await db.find().toArray();
+  return {
+    brands,
+    image: brand.image,
+  };
 };
 
 export const brandModel = {
   getBrandsAll,
   countBrandsAll,
-  createBrand,
+  create,
   update,
   deleteBrand,
   getBrandById,

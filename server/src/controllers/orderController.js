@@ -17,6 +17,7 @@ const getAllOrder = async (req, res) => {
         });
     }
 };
+
 const getCurrentOrder = async (req, res) => {
     try {
         const { user_id } = req.user;
@@ -82,11 +83,8 @@ const updateOrder = async (req, res) => {
             data.status = newStatus;
         }
         const dataOrder = await orderModel.updateOrder(id, data);
-        return res
-            .status(StatusCodes.OK)
-            .json(dataOrder);
+        return res.status(StatusCodes.OK).json(dataOrder);
     } catch (error) {
-
         return res.status(StatusCodes.BAD_REQUEST).json({
             message: 'Có lỗi xảy ra xin thử lại sau',
             error: error,
@@ -107,9 +105,7 @@ const checkStockProducts = async (req, res) => {
                 .json({ message: 'Thiếu thông tin sản phẩm' });
         }
         // Kiểm tra thông tin sản phẩm
-
-        for (let { _id, quantity, vars }
-            of req.body) {
+        for (let { _id, quantity, vars } of req.body) {
             if (!_id || !vars.color || !vars.size || !quantity) {
                 return res
                     .status(StatusCodes.BAD_REQUEST)
@@ -173,5 +169,5 @@ export const orderController = {
     removeOrder,
     getAllOrder,
     updateStockProducts,
-    getOrderById
+    getOrderById,
 };

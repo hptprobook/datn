@@ -37,5 +37,6 @@ const products = [
   'Đồng hồ',
   'Mắt kính',
   'Nước hoa',
+  'Sandal',
   'Sản phẩm khác',
 ];

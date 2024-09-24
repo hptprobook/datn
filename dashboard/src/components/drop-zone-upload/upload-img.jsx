@@ -8,7 +8,7 @@ import { handleToast } from '../../hooks/toast';
 import './style.css';
 import Iconify from '../iconify/iconify';
 
-const backendUrl = import.meta.env.VITE_BACKEND_APP_URL
+const backendUrl = import.meta.env.VITE_BACKEND_APP_URL;
 const ImageDropZone = ({ handleUpload, singleFile = false, defaultImg = '' }) => {
   const { fileRejections, acceptedFiles, getRootProps, getInputProps } = useDropzone({
     accept: {
@@ -43,7 +43,8 @@ const ImageDropZone = ({ handleUpload, singleFile = false, defaultImg = '' }) =>
   }, [defaultImg]);
 
   useEffect(() => {
-    if (acceptedFiles.length > 0) { // Ensure there's at least one file
+    if (acceptedFiles.length > 0) {
+      // Ensure there's at least one file
       if (singleFile) {
         setUploadFile(acceptedFiles);
         handleUpload(acceptedFiles[0]);
