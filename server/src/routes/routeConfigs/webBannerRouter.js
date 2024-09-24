@@ -2,11 +2,15 @@
 import express from 'express';
 import { webBannerController } from '~/controllers/webBannerController';
 import multer from 'multer';
+import path from 'path';
+import { uploadModel } from '~/models/uploadModel';
 const Router = express.Router();
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'src/public/imgs');
+        const uploadPath = path.resolve(process.cwd(), 'uploads/webBanner');
+        uploadModel.ensureDirExists(uploadPath);
+        cb(null, uploadPath);
     },
     filename: function (req, file, cb) {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);

@@ -48,23 +48,22 @@ export default function CategoryPage() {
     setFilters(newFilters);
   };
 
+  console.log(allProductsData);
+
   return (
     <section className="max-w-container mx-auto mt-16">
-      <HeaderBC
-        title={'Danh mục sản phẩm'}
-        name={categoryData?.category?.name}
-      />
+      <HeaderBC title={'Danh mục sản phẩm'} name={categoryData?.name} />
       <div className="divider"></div>
       <div className="grid grid-cols-5 gap-6 mt-8">
         <div className="col-span-1">
           <CategorySidebar
-            category={categoryData?.category}
-            products={allProductsData?.product}
+            category={categoryData}
+            products={allProductsData}
             onFilterChange={handleFilterChange}
           />
         </div>
         <div className="col-span-4">
-          <CategoryContent catData={categoryData?.category} filters={filters} />
+          <CategoryContent catData={categoryData} filters={filters} />
         </div>
       </div>
     </section>

@@ -1,9 +1,17 @@
 import { GET_DB } from '~/config/mongodb';
 import { ObjectId } from 'mongodb';
-import { SAVE_USER_SCHEMA, UPDATE_USER } from '~/utils/schema';
+import {
+  SAVE_USER_SCHEMA,
+  UPDATE_USER,
+  FAVORITE_PRODUCT,
+} from '~/utils/schema/userSchema';
 
 const validateBeforeCreate = async (data) => {
   return await SAVE_USER_SCHEMA.validateAsync(data, { abortEarly: false });
+};
+
+const validateBeforeFavorite = async (data) => {
+  return await FAVORITE_PRODUCT.validateAsync(data, { abortEarly: false });
 };
 
 const countUserAll = async () => {
@@ -72,13 +80,67 @@ const deleteUser = async (id, role) => {
   const result = await GET_DB()
     .collection('users')
     .findOne({ _id: new ObjectId(id) }, { projection: { role: 1 } });
-    if (result.role === 'root') {
-      return { error: 'Bạn không đủ thẩm quyền' };
-    }
-    if (result.role === 'admin' && role === 'admin') {
-      return { error: 'Bạn không đủ thẩm quyền' };
-    }
-  return await GET_DB().collection('users').deleteOne({ _id: new ObjectId(id) });
+  if (result.role === 'root') {
+    return { error: 'Bạn không đủ thẩm quyền' };
+  }
+  if (result.role === 'admin' && role === 'admin') {
+    return { error: 'Bạn không đủ thẩm quyền' };
+  }
+  return await GET_DB()
+    .collection('users')
+    .deleteOne({ _id: new ObjectId(id) });
+};
+
+const favoriteProduct = async (id, userId) => {
+  const validData = await validateBeforeFavorite([id]);
+  const db = GET_DB().collection('users');
+
+  const result = await db.findOneAndUpdate(
+    { _id: new ObjectId(userId) },
+    {
+      $push: {
+        favorites: new ObjectId(validData[0]),
+      },
+    },
+    { returnDocument: 'after' }
+  );
+
+  if (!result) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
+  }
+
+  return result;
+};
+
+const removeFavoriteProduct = async (id, userId) => {
+  const db = GET_DB().collection('users');
+
+  const result = await db.findOneAndUpdate(
+    { _id: new ObjectId(userId) },
+    {
+      $pull: {
+        favorites: new ObjectId(id),
+      },
+    },
+    { returnDocument: 'after' }
+  );
+
+  if (!result) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
+  }
+
+  return result;
+};
+
+const getFavorite = async (id, userId) => {
+  const db = GET_DB().collection('users');
+
+  const result = await db.findOne({
+    _id: new ObjectId(userId),
+    favorites: new ObjectId(id),
+  });
+
+  return result;
 };
 
 export const userModel = {
@@ -90,4 +152,7 @@ export const userModel = {
   countUserAll,
   deleteUser,
   updateByEmail,
+  favoriteProduct,
+  getFavorite,
+  removeFavoriteProduct,
 };
