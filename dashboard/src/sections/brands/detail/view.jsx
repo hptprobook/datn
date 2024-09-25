@@ -6,220 +6,225 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import { Button, TextField } from '@mui/material';
+import {
+  Button,
+  Select,
+  Switch,
+  MenuItem,
+  FormGroup,
+  TextField,
+  InputLabel,
+  FormControl,
+  FormHelperText,
+  FormControlLabel,
+} from '@mui/material';
 import { useFormik } from 'formik';
 import { useDispatch, useSelector } from 'react-redux';
-import { update, getDetail, setStatus } from 'src/redux/slices/supplierSlices';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { handleToast } from 'src/hooks/toast';
+import ImageDropZone from 'src/components/drop-zone-upload/upload-img';
+import { update, setStatus, fetchById, updateWithImage } from 'src/redux/slices/brandSlices';
 import { useParams } from 'react-router-dom';
-import { useRouter } from 'src/routes/hooks';
 import { isValidObjectId } from 'src/utils/check';
-import ProductSupplierSelect from '../product-select';
+import { useRouter } from 'src/routes/hooks';
+import LoadingFull from 'src/components/loading/loading-full';
+import { schema, productCategories } from '../utils';
 // ----------------------------------------------------------------------
-export default function SupplierDetailPage() {
+export default function BrandDetailPage() {
+  const [brand, setBrand] = useState(null);
+  const [uploadedImageUrl, setUploadedImageUrl] = useState(null);
+
   const { id } = useParams();
-  const statusGet = useSelector((state) => state.suppliers.statusGet);
-  const statusUpdate = useSelector((state) => state.suppliers.statusUpdate);
-  const data = useSelector((state) => state.suppliers.supplier);
-  const err = useSelector((state) => state.suppliers.error);
-  const [initialValues, setInitialValues] = useState({
-    companyName: '',
-    fullName: '',
-    phone: '',
-    email: '',
-    address: '',
-    rating: 0,
-    registrationNumber: '',
-    website: '',
-    notes: '',
-    productsSupplied: [],
-  });
-  const dispatch = useDispatch();
   const route = useRouter();
+  const data = useSelector((state) => state.brands.brand);
+  const status = useSelector((state) => state.brands.statusUpdate);
+  const statusGet = useSelector((state) => state.brands.statusGet);
+  const err = useSelector((state) => state.brands.error);
+  const dispatch = useDispatch();
+
   useEffect(() => {
     if (id) {
       if (isValidObjectId(id)) {
-        dispatch(getDetail(id));
+        dispatch(fetchById(id));
       } else {
         handleToast('error', 'Id không hợp lệ');
-        route.push('/suppliers');
+        route.push('/brands');
       }
     }
   }, [id]);
 
   useEffect(() => {
     if (statusGet === 'successful') {
-      setInitialValues({
-        companyName: data.companyName,
-        fullName: data.fullName,
-        phone: data.phone,
-        email: data.email,
-        address: data.address,
-        rating: data.rating,
-        registrationNumber: data.registrationNumber,
-        website: data.website,
-        notes: data.notes,
-        productsSupplied: data.productsSupplied || [],
-      });
+      setBrand(data);
     }
     if (statusGet === 'failed') {
-      console.log(err);
-      handleToast('error', err.message);
-      dispatch(setStatus({ key: 'statusGet', value: 'idle' }));
-      dispatch(setStatus({ key: 'error', value: null }));
-      route.push('/suppliers');
+      handleToast('error', err?.messages ? err.messages : 'Có lỗi xảy ra');
     }
-  }, [statusGet, err, dispatch]);
+  }, [statusGet, data]);
+
   useEffect(() => {
-    if (statusUpdate === 'successful') {
-      handleToast('success', 'Cập nhật thành công');
+    if (status === 'successful') {
       dispatch(setStatus({ key: 'statusUpdate', value: 'idle' }));
-      route.push('/suppliers');
+      formik.resetForm();
+      handleToast('success', 'Cập nhật nhãn hàng thành công!');
     }
-    if (statusUpdate === 'failed') {
-      handleToast('error', err.message);
+    if (status === 'failed') {
       dispatch(setStatus({ key: 'statusUpdate', value: 'idle' }));
+      handleToast('error', err?.messages ? err.messages : 'Có lỗi xảy ra');
       dispatch(setStatus({ key: 'error', value: null }));
     }
-  }, [statusUpdate, err, dispatch]);
+  }, [status, err, dispatch]);
   const formik = useFormik({
+    initialValues: {
+      name: brand?.name || '',
+      slug: brand?.slug || '',
+      category: brand?.category || '',
+      website: brand?.website || '',
+      description: brand?.description || '',
+      status: brand?.status || false,
+    },
     enableReinitialize: true,
-    initialValues,
+    validationSchema: schema,
     onSubmit: async (values) => {
-      dispatch(update({ id, data: values }));
+      if (uploadedImageUrl) {
+        dispatch(updateWithImage({ file: uploadedImageUrl, data: values, id }));
+        setUploadedImageUrl(null);
+      } else {
+        dispatch(update({ data: values, id }));
+      }
     },
   });
+  const handleChangeUploadImg = useCallback((files) => {
+    if (files) {
+      setUploadedImageUrl({
+        file: files,
+        name: 'image',
+      });
+    }
+  }, []);
 
   return (
     <Container>
+      {statusGet === 'loading' && <LoadingFull />}
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Nhà cung cấp: {formik.values.fullName}</Typography>
+        <Typography variant="h4">Nhãn hàng: {brand?.name}</Typography>
       </Stack>
       <form onSubmit={formik.handleSubmit}>
         <Card sx={{ p: 3, width: '100%' }}>
           <Grid2 container spacing={2}>
-            <Grid2 xs={12}>
-              <Typography variant="h5">Thông tin nhà cung cấp</Typography>
+            <Grid2 xs={8} container spacing={2}>
+              <Grid2 xs={12}>
+                <Typography variant="h5">Thông tin nhãn hàng</Typography>
+              </Grid2>
+              <Grid2 xs={6}>
+                <TextField
+                  fullWidth
+                  label="Tên nhãn hàng"
+                  name="name"
+                  value={formik.values.name}
+                  onBlur={formik.handleBlur}
+                  onChange={formik.handleChange}
+                  error={formik.touched.name && Boolean(formik.errors.name)}
+                  helperText={formik.touched.name && formik.errors.name}
+                />
+              </Grid2>
+              <Grid2 xs={6}>
+                <TextField
+                  fullWidth
+                  label="Slug"
+                  name="slug"
+                  onBlur={formik.handleBlur}
+                  value={formik.values.slug}
+                  onChange={formik.handleChange}
+                  error={formik.touched.slug && Boolean(formik.errors.slug)}
+                  helperText={formik.touched.slug && formik.errors.slug}
+                />
+              </Grid2>
+              <Grid2 xs={8}>
+                <TextField
+                  fullWidth
+                  label="Website"
+                  name="website"
+                  onBlur={formik.handleBlur}
+                  value={formik.values.website}
+                  onChange={formik.handleChange}
+                  error={formik.touched.website && Boolean(formik.errors.website)}
+                  helperText={formik.touched.website && formik.errors.website}
+                />
+              </Grid2>
+              <Grid2 xs={4}>
+                <FormGroup>
+                  <FormControlLabel
+                    sx={{ m: 0 }}
+                    control={
+                      <Switch
+                        name="status"
+                        checked={formik.values.status}
+                        onChange={formik.handleChange}
+                        inputProps={{ 'aria-label': 'controlled' }}
+                      />
+                    }
+                    label="Trạng thái"
+                  />
+                </FormGroup>
+              </Grid2>
+              <Grid2 xs={12}>
+                <FormControl fullWidth>
+                  <InputLabel id="category-select-label">Danh mục</InputLabel>
+                  <Select
+                    labelId="category-select-label"
+                    id="category-select"
+                    value={formik.values.category}
+                    label="Danh mục"
+                    name="category"
+                    onChange={formik.handleChange}
+                  >
+                    {productCategories.map((category) => (
+                      <MenuItem key={category} value={category}>
+                        {category}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  <FormHelperText>
+                    {formik.touched.category && formik.errors.category
+                      ? formik.errors.category
+                      : ''}
+                  </FormHelperText>
+                </FormControl>
+              </Grid2>
+              <Grid2 xs={12}>
+                <TextField
+                  fullWidth
+                  label="Mô tả"
+                  name="description"
+                  onBlur={formik.handleBlur}
+                  multiline
+                  rows={4}
+                  value={formik.values.description}
+                  onChange={formik.handleChange}
+                  error={formik.touched.description && Boolean(formik.errors.description)}
+                  helperText={formik.touched.description && formik.errors.description}
+                />
+              </Grid2>
             </Grid2>
-            <Grid2 xs={6}>
-              <TextField
-                fullWidth
-                label="Tên công ty"
-                name="companyName"
-                value={formik.values.companyName}
-                onBlur={formik.handleBlur}
-                onChange={formik.handleChange}
-                error={formik.touched.companyName && Boolean(formik.errors.companyName)}
-                helperText={formik.touched.companyName && formik.errors.companyName}
-              />
-            </Grid2>
-            <Grid2 xs={6}>
-              <TextField
-                fullWidth
-                label="Họ và tên"
-                name="fullName"
-                onBlur={formik.handleBlur}
-                value={formik.values.fullName}
-                onChange={formik.handleChange}
-                error={formik.touched.fullName && Boolean(formik.errors.fullName)}
-                helperText={formik.touched.fullName && formik.errors.fullName}
-              />
-            </Grid2>
-            <Grid2 xs={6}>
-              <TextField
-                fullWidth
-                label="Số điện thoại"
-                name="phone"
-                onBlur={formik.handleBlur}
-                value={formik.values.phone}
-                onChange={formik.handleChange}
-                error={formik.touched.phone && Boolean(formik.errors.phone)}
-                helperText={formik.touched.phone && formik.errors.phone}
-              />
-            </Grid2>
-            <Grid2 xs={6}>
-              <TextField
-                fullWidth
-                label="Email"
-                name="email"
-                onBlur={formik.handleBlur}
-                value={formik.values.email}
-                onChange={formik.handleChange}
-                error={formik.touched.email && Boolean(formik.errors.email)}
-                helperText={formik.touched.email && formik.errors.email}
-              />
-            </Grid2>
-            <Grid2 xs={6}>
-              <TextField
-                fullWidth
-                label="Địa chỉ"
-                name="address"
-                value={formik.values.address}
-                onBlur={formik.handleBlur}
-                onChange={formik.handleChange}
-                error={formik.touched.address && Boolean(formik.errors.address)}
-                helperText={formik.touched.address && formik.errors.address}
-              />
-            </Grid2>
-            <Grid2 xs={6}>
-              <TextField
-                fullWidth
-                label="Đánh giá"
-                name="rating"
-                value={formik.values.rating}
-                onBlur={formik.handleBlur}
-                onChange={formik.handleChange}
-                error={formik.touched.rating && Boolean(formik.errors.rating)}
-                helperText={formik.touched.rating && formik.errors.rating}
-              />
-            </Grid2>
-
-            <Grid2 xs={6}>
-              <TextField
-                fullWidth
-                label="Mã số thuế"
-                name="registrationNumber"
-                value={formik.values.registrationNumber}
-                onBlur={formik.handleBlur}
-                onChange={formik.handleChange}
-                error={
-                  formik.touched.registrationNumber && Boolean(formik.errors.registrationNumber)
-                }
-                helperText={formik.touched.registrationNumber && formik.errors.registrationNumber}
-              />
-            </Grid2>
-            <Grid2 xs={6}>
-              <TextField
-                fullWidth
-                label="Website"
-                name="website"
-                onBlur={formik.handleBlur}
-                value={formik.values.website}
-                onChange={formik.handleChange}
-                error={formik.touched.website && Boolean(formik.errors.website)}
-                helperText={formik.touched.website && formik.errors.website}
-              />
-            </Grid2>
-            <Grid2 xs={12}>
-              <ProductSupplierSelect
-                value={formik.values.productsSupplied}
-                setValue={(value) => formik.setFieldValue('productsSupplied', value)}
-              />
-            </Grid2>
-            <Grid2 xs={12}>
-              <TextField
-                fullWidth
-                multiline
-                rows={4}
-                label="Ghi chú"
-                name="notes"
-                onBlur={formik.handleBlur}
-                value={formik.values.notes}
-                onChange={formik.handleChange}
-                error={formik.touched.notes && Boolean(formik.errors.notes)}
-                helperText={formik.touched.notes && formik.errors.notes}
-              />
+            <Grid2
+              container
+              spacing={2}
+              xs={4}
+              sx={{
+                height: 'fit-content',
+              }}
+            >
+              <Grid2 xs={12}>
+                <Typography variant="h5">Ảnh đại diện</Typography>
+              </Grid2>
+              <Grid2 xs={12}>
+                <ImageDropZone
+                  singleFile
+                  handleUpload={handleChangeUploadImg}
+                  defaultImg={brand?.image}
+                />
+              </Grid2>
             </Grid2>
             <Grid2 xs={12}>
               <Button type="submit" variant="contained">

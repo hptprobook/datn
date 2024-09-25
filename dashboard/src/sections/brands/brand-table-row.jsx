@@ -11,7 +11,7 @@ import IconButton from '@mui/material/IconButton';
 
 import Iconify from 'src/components/iconify';
 import { formatDateTime } from 'src/utils/format-time';
-import { Avatar, Stack } from '@mui/material';
+import { Stack, Avatar } from '@mui/material';
 import { renderUrl } from 'src/utils/check';
 
 // ----------------------------------------------------------------------
