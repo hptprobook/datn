@@ -13,10 +13,6 @@ export const SAVE_CATEGORY_SCHEMA = Joi.object({
     'string.empty': 'Mô tả ngắn không được để trống',
     'any.required': 'Mô tả ngắn là bắt buộc',
   }),
-  content: Joi.string().trim().min(1).required().messages({
-    'string.empty': 'Mô tả không được để trống',
-    'any.required': 'Mô tả là bắt buộc',
-  }),
   imageURL: Joi.string().trim().min(1).required().messages({
     'string.empty': 'Ảnh không được để trống',
     'any.required': 'Ảnh là bắt buộc',
