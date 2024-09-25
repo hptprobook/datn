@@ -710,8 +710,6 @@ const getProductByCategoryFilter = async (req, res) => {
       products,
     });
   } catch (error) {
-    console.log(error);
-
     return res
       .status(StatusCodes.BAD_REQUEST)
       .json('Có lỗi xảy ra xin thử lại sau');
