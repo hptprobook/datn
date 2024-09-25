@@ -59,15 +59,21 @@ const getProductsAll = async (page, limit) => {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
   result.forEach((product) => {
-    const total = product.reviews.reduce(
-      (acc, review) => acc + review.rating,
-      0
-    );
-    product.averageRating = parseFloat(
-      (total / product.reviews.length).toFixed(1)
-    );
-    product.totalComment = product.reviews.length;
+    if (product.reviews && product.reviews.length > 0) {
+      const total = product.reviews.reduce(
+        (acc, review) => acc + review.rating,
+        0
+      );
+      product.averageRating = parseFloat(
+        (total / product.reviews.length).toFixed(1)
+      );
+      product.totalComment = product.reviews.length;
+    } else {
+      product.averageRating = 0;
+      product.totalComment = 0;
+    }
   });
+
   return result;
 };
 
@@ -159,16 +165,23 @@ const getProductsByCategory = async (slug, page, limit) => {
   if (!products) {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
+
   products.forEach((product) => {
-    const total = product.reviews.reduce(
-      (acc, review) => acc + review.rating,
-      0
-    );
-    product.averageRating = parseFloat(
-      (total / product.reviews.length).toFixed(1)
-    );
-    product.totalComment = product.reviews.length;
+    if (product.reviews && product.reviews.length > 0) {
+      const total = product.reviews.reduce(
+        (acc, review) => acc + review.rating,
+        0
+      );
+      product.averageRating = parseFloat(
+        (total / product.reviews.length).toFixed(1)
+      );
+      product.totalComment = product.reviews.length;
+    } else {
+      product.averageRating = 0;
+      product.totalComment = 0;
+    }
   });
+
   return products;
 };
 
@@ -203,14 +216,19 @@ const getProductsByCategoryId = async (id, page, limit) => {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
   products.forEach((product) => {
-    const total = product.reviews.reduce(
-      (acc, review) => acc + review.rating,
-      0
-    );
-    product.averageRating = parseFloat(
-      (total / product.reviews.length).toFixed(1)
-    );
-    product.totalComment = product.reviews.length;
+    if (product.reviews && product.reviews.length > 0) {
+      const total = product.reviews.reduce(
+        (acc, review) => acc + review.rating,
+        0
+      );
+      product.averageRating = parseFloat(
+        (total / product.reviews.length).toFixed(1)
+      );
+      product.totalComment = product.reviews.length;
+    } else {
+      product.averageRating = 0;
+      product.totalComment = 0;
+    }
   });
   return products;
 };
@@ -248,14 +266,19 @@ const getProductsByBrand = async (slug, page, limit) => {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
   products.forEach((product) => {
-    const total = product.reviews.reduce(
-      (acc, review) => acc + review.rating,
-      0
-    );
-    product.averageRating = parseFloat(
-      (total / product.reviews.length).toFixed(1)
-    );
-    product.totalComment = product.reviews.length;
+    if (product.reviews && product.reviews.length > 0) {
+      const total = product.reviews.reduce(
+        (acc, review) => acc + review.rating,
+        0
+      );
+      product.averageRating = parseFloat(
+        (total / product.reviews.length).toFixed(1)
+      );
+      product.totalComment = product.reviews.length;
+    } else {
+      product.averageRating = 0;
+      product.totalComment = 0;
+    }
   });
   return products;
 };
@@ -285,14 +308,19 @@ const getProductsByBrandId = async (id, page, limit) => {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
   products.forEach((product) => {
-    const total = product.reviews.reduce(
-      (acc, review) => acc + review.rating,
-      0
-    );
-    product.averageRating = parseFloat(
-      (total / product.reviews.length).toFixed(1)
-    );
-    product.totalComment = product.reviews.length;
+    if (product.reviews && product.reviews.length > 0) {
+      const total = product.reviews.reduce(
+        (acc, review) => acc + review.rating,
+        0
+      );
+      product.averageRating = parseFloat(
+        (total / product.reviews.length).toFixed(1)
+      );
+      product.totalComment = product.reviews.length;
+    } else {
+      product.averageRating = 0;
+      product.totalComment = 0;
+    }
   });
   return products;
 };
@@ -464,14 +492,19 @@ const getProductByAlphabetAZ = async (page, limit) => {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
   result.forEach((product) => {
-    const total = product.reviews.reduce(
-      (acc, review) => acc + review.rating,
-      0
-    );
-    product.averageRating = parseFloat(
-      (total / product.reviews.length).toFixed(1)
-    );
-    product.totalComment = product.reviews.length;
+    if (product.reviews && product.reviews.length > 0) {
+      const total = product.reviews.reduce(
+        (acc, review) => acc + review.rating,
+        0
+      );
+      product.averageRating = parseFloat(
+        (total / product.reviews.length).toFixed(1)
+      );
+      product.totalComment = product.reviews.length;
+    } else {
+      product.averageRating = 0;
+      product.totalComment = 0;
+    }
   });
   return result;
 };
@@ -503,14 +536,19 @@ const getProductByAlphabetZA = async (page, limit) => {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
   result.forEach((product) => {
-    const total = product.reviews.reduce(
-      (acc, review) => acc + review.rating,
-      0
-    );
-    product.averageRating = parseFloat(
-      (total / product.reviews.length).toFixed(1)
-    );
-    product.totalComment = product.reviews.length;
+    if (product.reviews && product.reviews.length > 0) {
+      const total = product.reviews.reduce(
+        (acc, review) => acc + review.rating,
+        0
+      );
+      product.averageRating = parseFloat(
+        (total / product.reviews.length).toFixed(1)
+      );
+      product.totalComment = product.reviews.length;
+    } else {
+      product.averageRating = 0;
+      product.totalComment = 0;
+    }
   });
   return result;
 };
@@ -541,14 +579,19 @@ const getProductByPriceAsc = async (page, limit) => {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
   result.forEach((product) => {
-    const total = product.reviews.reduce(
-      (acc, review) => acc + review.rating,
-      0
-    );
-    product.averageRating = parseFloat(
-      (total / product.reviews.length).toFixed(1)
-    );
-    product.totalComment = product.reviews.length;
+    if (product.reviews && product.reviews.length > 0) {
+      const total = product.reviews.reduce(
+        (acc, review) => acc + review.rating,
+        0
+      );
+      product.averageRating = parseFloat(
+        (total / product.reviews.length).toFixed(1)
+      );
+      product.totalComment = product.reviews.length;
+    } else {
+      product.averageRating = 0;
+      product.totalComment = 0;
+    }
   });
   return result;
 };
@@ -579,14 +622,19 @@ const getProductByPriceDesc = async (page, limit) => {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
   result.forEach((product) => {
-    const total = product.reviews.reduce(
-      (acc, review) => acc + review.rating,
-      0
-    );
-    product.averageRating = parseFloat(
-      (total / product.reviews.length).toFixed(1)
-    );
-    product.totalComment = product.reviews.length;
+    if (product.reviews && product.reviews.length > 0) {
+      const total = product.reviews.reduce(
+        (acc, review) => acc + review.rating,
+        0
+      );
+      product.averageRating = parseFloat(
+        (total / product.reviews.length).toFixed(1)
+      );
+      product.totalComment = product.reviews.length;
+    } else {
+      product.averageRating = 0;
+      product.totalComment = 0;
+    }
   });
   return result;
 };
@@ -617,14 +665,19 @@ const getProductByNewest = async (page, limit) => {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
   result.forEach((product) => {
-    const total = product.reviews.reduce(
-      (acc, review) => acc + review.rating,
-      0
-    );
-    product.averageRating = parseFloat(
-      (total / product.reviews.length).toFixed(1)
-    );
-    product.totalComment = product.reviews.length;
+    if (product.reviews && product.reviews.length > 0) {
+      const total = product.reviews.reduce(
+        (acc, review) => acc + review.rating,
+        0
+      );
+      product.averageRating = parseFloat(
+        (total / product.reviews.length).toFixed(1)
+      );
+      product.totalComment = product.reviews.length;
+    } else {
+      product.averageRating = 0;
+      product.totalComment = 0;
+    }
   });
   return result;
 };
@@ -655,14 +708,19 @@ const getProductByOldest = async (page, limit) => {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
   result.forEach((product) => {
-    const total = product.reviews.reduce(
-      (acc, review) => acc + review.rating,
-      0
-    );
-    product.averageRating = parseFloat(
-      (total / product.reviews.length).toFixed(1)
-    );
-    product.totalComment = product.reviews.length;
+    if (product.reviews && product.reviews.length > 0) {
+      const total = product.reviews.reduce(
+        (acc, review) => acc + review.rating,
+        0
+      );
+      product.averageRating = parseFloat(
+        (total / product.reviews.length).toFixed(1)
+      );
+      product.totalComment = product.reviews.length;
+    } else {
+      product.averageRating = 0;
+      product.totalComment = 0;
+    }
   });
   return result;
 };
@@ -760,14 +818,19 @@ const getProductBySearch = async (search, page, limit) => {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
   result.forEach((product) => {
-    const total = product.reviews.reduce(
-      (acc, review) => acc + review.rating,
-      0
-    );
-    product.averageRating = parseFloat(
-      (total / product.reviews.length).toFixed(1)
-    );
-    product.totalComment = product.reviews.length;
+    if (product.reviews && product.reviews.length > 0) {
+      const total = product.reviews.reduce(
+        (acc, review) => acc + review.rating,
+        0
+      );
+      product.averageRating = parseFloat(
+        (total / product.reviews.length).toFixed(1)
+      );
+      product.totalComment = product.reviews.length;
+    } else {
+      product.averageRating = 0;
+      product.totalComment = 0;
+    }
   });
   return result;
 };
@@ -845,14 +908,19 @@ const getProductByCategoryFilter = async (slug, pages, limit, filter) => {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
   result.forEach((product) => {
-    const total = product.reviews.reduce(
-      (acc, review) => acc + review.rating,
-      0
-    );
-    product.averageRating = parseFloat(
-      (total / product.reviews.length).toFixed(1)
-    );
-    product.totalComment = product.reviews.length;
+    if (product.reviews && product.reviews.length > 0) {
+      const total = product.reviews.reduce(
+        (acc, review) => acc + review.rating,
+        0
+      );
+      product.averageRating = parseFloat(
+        (total / product.reviews.length).toFixed(1)
+      );
+      product.totalComment = product.reviews.length;
+    } else {
+      product.averageRating = 0;
+      product.totalComment = 0;
+    }
   });
   delete result.reviews;
   return result;
