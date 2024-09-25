@@ -23,14 +23,12 @@ const countCategoryAll = async () => {
   return total;
 };
 
-const getCategoriesAll = async (page, limit) => {
-  page = parseInt(page) || 1;
-  limit = parseInt(limit) || 20;
+const getCategoriesAll = async () => {
   const db = await GET_DB().collection('categories');
   const result = await db
     .find()
-    .skip((page - 1) * limit)
-    .limit(limit)
+    .sort({ createdAt: 1 })
+    .project({ description: 0 })
     .toArray();
   if (!result) {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
@@ -78,7 +76,10 @@ const createCategory = async (dataCategory) => {
   if (!result) {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
-  return result;
+  return {
+    _id: result.insertedId,
+    ...validData,
+  };
 };
 
 const update = async (id, data) => {

@@ -22,7 +22,7 @@ import InfoBox from 'src/components/Box/InforBox';
 import ImageDropZone from 'src/components/DropZoneUpload/DropZoneImage';
 import './styles.css';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateCategory, fetchCategoryById, fetchAllCategories } from 'src/redux/slices/categoriesSlice';
+import { updateCategory, fetchCategoryById, fetchAllCategories } from 'src/redux/slices/categorySlices';
 import { handleToast } from 'src/hooks/toast';
 import Select from '@mui/material/Select';
 import { useParams } from 'react-router-dom';
