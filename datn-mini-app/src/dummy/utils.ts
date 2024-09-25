@@ -23,7 +23,7 @@ const getImgUrl = (filename: string) =>
   `https://stc-zmp.zadn.vn/zmp-ecommerce/img/${filename}.png`;
 
 
-export const createProductDummy = async ({ id }: { id: number }): Promise<Product[]> => {
+export const createProductDummy = async ({ _id }: { _id: number }): Promise<Product[]> => {
   const randomPrice = listPrices[getRandomInt(listPrices.length) - 1];
   let apiData: Partial<Product>[] = [];
 
@@ -39,7 +39,7 @@ export const createProductDummy = async ({ id }: { id: number }): Promise<Produc
   }
 
   const product: Product[] = apiData.map((apiProduct, index) => ({
-    id: (apiProduct as any)._id || id + index,
+    _id: (apiProduct as any)._id || _id + index,
     imgProduct: (apiProduct as any).thumbnail || getImgUrl(`product-large-${getRandomInt(numProduct)}`),
     nameProduct: (apiProduct as any).name || listNameProducts[getRandomInt(listNameProducts.length) - 1],
     salePrice: (apiProduct as any).price || randomPrice.salePrice,
@@ -54,22 +54,22 @@ export const createDummyProductCategories = async () => {
   const dummyProducts: Product[] = [];
   const num = 150;
   for (let x = 0; x < num; x += 1) {
-    const products = await createProductDummy({ id: dummyProducts.length });
+    const products = await createProductDummy({ _id: dummyProducts.length });
     dummyProducts.push(...products);
   }
   return dummyProducts.map((product, index) => ({
     ...product,
-    id: `${product.id}`, // Ensure unique id by appending index
+    _id: `${product._id}`, // Ensure unique id by appending index
   }));
 };
 
 export const createDummyStore = async (): Promise<Store> => {
-  const storeId = +new Date();
+  const storeId = `${+new Date()}-${getRandomInt(1000)}`; // Ensure unique store id by appending random number
   const listDummyProducts = await createDummyProductCategories();
   const listType = Object.keys(StoreTypeRef) as (keyof typeof StoreTypeRef)[];
   console.log(listType);
   const dummyStore = {
-    id: storeId,
+    _id: storeId,
     logoStore: getImgUrl(`logo-${getRandomInt(numLogo)}-new`),
     bannerStore: getImgUrl(`store-banner-${getRandomInt(numStoreBanner)}`),
     nameStore: listNameStore[getRandomInt(listNameStore.length) - 1],

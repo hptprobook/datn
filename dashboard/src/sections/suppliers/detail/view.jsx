@@ -15,9 +15,11 @@ import { handleToast } from 'src/hooks/toast';
 import { useParams } from 'react-router-dom';
 import { useRouter } from 'src/routes/hooks';
 import { isValidObjectId } from 'src/utils/check';
-import ProductSupplierSelect from '../product-select';
+import { ProductSupplierSelect } from '../product-select';
+
 // ----------------------------------------------------------------------
 export default function SupplierDetailPage() {
+
   const { id } = useParams();
   const statusGet = useSelector((state) => state.suppliers.statusGet);
   const statusUpdate = useSelector((state) => state.suppliers.statusUpdate);

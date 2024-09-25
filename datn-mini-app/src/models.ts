@@ -13,7 +13,7 @@ export type Options = {
 };
 
 export type CartProduct = {
-  id: number;
+  _id: string;
   order: {
     quantity: number;
     note: string;
@@ -22,7 +22,7 @@ export type CartProduct = {
 };
 
 export type Product = {
-  id: string;
+  _id: string;
   imgProduct: string;
   nameProduct: string;
   salePrice: number | string;
@@ -32,7 +32,7 @@ export type Product = {
 };
 
 export type Store = {
-  id: number;
+  _id: string;
   logoStore: string;
   bannerStore: string;
   nameStore: string;
@@ -51,7 +51,7 @@ export type StoreOrder = {
 };
 
 export type SectionProductsProps = {
-  id?: number;
+  _id?: string;
   title: string;
   watchMore?: boolean;
   pathBanner?: string;
@@ -93,6 +93,6 @@ export type AddressFormType = {
 };
 
 export type ProductInfoPicked = {
-  productId: number;
+  productId: string;
   isUpdate?: boolean;
 };

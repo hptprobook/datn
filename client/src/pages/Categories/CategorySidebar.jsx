@@ -6,6 +6,15 @@ export default function CategorySidebar({ products, onFilterChange }) {
   const [selectedSizes, setSelectedSizes] = useState([]);
   const [checkboxes, setCheckboxes] = useState({});
 
+  useEffect(() => {
+    onFilterChange({ colors: selectedColors, sizes: selectedSizes });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedColors, selectedSizes]);
+
+  if (!products || products.length === 0) {
+    return null;
+  }
+
   const handleCheckboxChange = (color) => {
     setCheckboxes((prevCheckboxes) => {
       const updatedCheckboxes = {
@@ -55,11 +64,6 @@ export default function CategorySidebar({ products, onFilterChange }) {
         : [...prevSelectedSizes, size]
     );
   };
-
-  useEffect(() => {
-    onFilterChange({ colors: selectedColors, sizes: selectedSizes });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedColors, selectedSizes]);
 
   return (
     <div className="">

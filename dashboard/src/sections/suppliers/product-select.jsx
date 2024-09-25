@@ -3,8 +3,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import PropTypes from 'prop-types';
 
-export default function ProductSupplierSelect({ value, setValue }) {
-  return (
+export const  ProductSupplierSelect = ({ value, setValue })=>(
     <Autocomplete
       multiple
       limitTags={2}
@@ -20,8 +19,7 @@ export default function ProductSupplierSelect({ value, setValue }) {
       )}
       sx={{ width: '100%' }}
     />
-  );
-}
+  )
 ProductSupplierSelect.propTypes = {
   value: PropTypes.array.isRequired,
   setValue: PropTypes.func.isRequired,

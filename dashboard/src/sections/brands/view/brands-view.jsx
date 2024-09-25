@@ -22,6 +22,7 @@ import LoadingFull from 'src/components/loading/loading-full';
 import TableEmptyRows from 'src/components/table/table-empty-rows';
 import TableNoData from 'src/components/table/table-no-data';
 import { emptyRows, applyFilter, getComparator } from 'src/components/table/utils';
+import { IconButton } from '@mui/material';
 import BrandTableHead from '../brand-table-head';
 import BrandTableRow from '../brand-table-row';
 import BrandTableToolbar from '../brand-table-toolbar';
@@ -150,7 +151,18 @@ export default function BrandsPage() {
       />
 
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Nhãn hàng</Typography>
+        <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
+          <Typography variant="h4">Nhãn hàng</Typography>
+
+          <IconButton
+            aria-label="load"
+            variant="contained"
+            color="inherit"
+            onClick={() => dispatch(fetchAll())}
+          >
+            <Iconify icon="mdi:reload" />
+          </IconButton>
+        </Stack>
         <Button
           variant="contained"
           onClick={() => route.push('create')}

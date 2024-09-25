@@ -14,7 +14,7 @@ export default function CategoryContent({ catData }) {
     keepPreviousData: true,
   });
 
-  const products = data?.product || [];
+  const products = data || [];
 
   useEffect(() => {
     if (products.length < limit) {
