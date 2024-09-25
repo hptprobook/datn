@@ -43,6 +43,8 @@ Router.get('/filter/created/newest', productController.getProductByNewest);
 Router.get('/filter/created/oldest', productController.getProductByOldest);
 //search
 Router.get('/search/:search', productController.getProductBySearch);
+//Filter category
+Router.get('/:slug/filter', productController.getProductByCategoryFilter);
 
 Router.post(
   '/',
