@@ -1,5 +1,7 @@
-function AddressList() {
-  return <div>Address list</div>;
-}
+const AddressList = () => {
+  return <div></div>;
+};
+
+AddressList.propTypes = {};
 
 export default AddressList;

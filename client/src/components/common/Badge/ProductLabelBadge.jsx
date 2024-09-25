@@ -1,5 +1,7 @@
 /* eslint-disable indent */
-export default function ProductLabelBadge({ text }) {
+import PropTypes from 'prop-types';
+
+const ProductLabelBadge = ({ text }) => {
   const bgColor =
     text === 'Bán chạy'
       ? 'bg-red-600'
@@ -14,4 +16,10 @@ export default function ProductLabelBadge({ text }) {
       {text}
     </div>
   );
-}
+};
+
+ProductLabelBadge.propTypes = {
+  text: PropTypes.string,
+};
+
+export default ProductLabelBadge;

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export default function WishListPage() {
+const WishListPage = () => {
   const [isMenu1Open, setIsMenu1Open] = useState(false);
 
   return (
@@ -160,4 +160,8 @@ export default function WishListPage() {
       </div>
     </div>
   );
-}
+};
+
+WishListPage.propTypes = {};
+
+export default WishListPage;

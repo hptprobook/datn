@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import ProductItem from '~/components/common/Product/ProductItem';
+import PropTypes from 'prop-types';
 
-export default function BestCategories({ item }) {
+const BestCategories = ({ item }) => {
   const [activeTab, setActiveTab] = useState(0);
 
   const tabs = ['Nam', 'Nữ', 'Trẻ em'];
@@ -45,4 +46,10 @@ export default function BestCategories({ item }) {
       </div>
     </div>
   );
-}
+};
+
+BestCategories.propTypes = {
+  item: PropTypes.object,
+};
+
+export default BestCategories;

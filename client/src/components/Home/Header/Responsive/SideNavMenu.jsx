@@ -3,13 +3,14 @@ import { FaAngleRight, FaArrowLeft, FaBars, FaTimes } from 'react-icons/fa';
 import { NavLink } from 'react-router-dom';
 import { menu } from '~/APIs/mock_data';
 import Logo from '~/assets/logo2.png';
+import PropTypes from 'prop-types';
 
-export default function SideNavMenu({
+const SideNavMenu = ({
   openMenu,
   setOpenMenu,
   currentTitle,
   setCurrentTitle,
-}) {
+}) => {
   const [menuPath, setMenuPath] = useState([]);
   const [animateMenu, setAnimateMenu] = useState(false);
 
@@ -134,4 +135,11 @@ export default function SideNavMenu({
       )}
     </div>
   );
-}
+};
+
+SideNavMenu.propTypes = {
+  openMenu: PropTypes.bool.isRequired,
+  setOpenMenu: PropTypes.func.isRequired,
+};
+
+export default SideNavMenu;

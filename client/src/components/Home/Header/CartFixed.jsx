@@ -11,8 +11,9 @@ import { useCart } from 'react-use-cart';
 import { formatCurrencyVND } from '~/utils/formatters';
 import { handleToast } from '~/customHooks/useToast';
 import EmptyCart from './EmptyCart';
+import PropTypes from 'prop-types';
 
-export default function CartFixed({ open, setOpen }) {
+const CartFixed = ({ open, setOpen }) => {
   const { items, removeItem, cartTotal } = useCart();
   const [showTooltip, setShowTooltip] = useState(null); // Quản lý tooltip cho từng sản phẩm
 
@@ -213,4 +214,11 @@ export default function CartFixed({ open, setOpen }) {
       </div>
     </Dialog>
   );
-}
+};
+
+CartFixed.propTypes = {
+  open: PropTypes.bool,
+  setOpen: PropTypes.func,
+};
+
+export default CartFixed;

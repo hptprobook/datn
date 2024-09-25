@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import Logo from '~/assets/logo2.png';
 
-export default function AuthBanner() {
+const AuthBanner = () => {
   return (
     <section className="relative flex h-32 md:h-80 items-end bg-gray-900 lg:col-span-5 lg:h-full xl:col-span-6">
       <img
@@ -26,4 +26,8 @@ export default function AuthBanner() {
       </div>
     </section>
   );
-}
+};
+
+AuthBanner.propTypes = {};
+
+export default AuthBanner;

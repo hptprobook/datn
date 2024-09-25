@@ -1,4 +1,6 @@
-export default function RateInforBtn({ rate }) {
+import PropTypes from 'prop-types';
+
+const RateInforBtn = ({ rate }) => {
   return (
     <button className="flex items-center gap-1 rounded-lg bg-amber-400 py-1.5 px-2.5 w-max">
       <svg
@@ -32,4 +34,10 @@ export default function RateInforBtn({ rate }) {
       <span className="text-base font-medium text-white">{rate}</span>
     </button>
   );
-}
+};
+
+RateInforBtn.propTypes = {
+  rate: PropTypes.number,
+};
+
+export default RateInforBtn;
