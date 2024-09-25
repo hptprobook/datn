@@ -55,26 +55,28 @@ const createCategory = async (req, res) => {
   }
 };
 
-const getCategoryHierarchy = async (parentId = 'ROOT') => {
+const getCategoryHierarchy = async (parentId = 'ROOT', orderNumber = 0) => {
   const categories = await categoryModel.getCategoriesByParentId(parentId);
-
+  let currentOrder = orderNumber;
   const menu = await Promise.all(
     categories.map(async (cat) => {
-      const subCategories = await getCategoryHierarchy(cat._id.toString());
+      const subCategories = await getCategoryHierarchy(
+        cat._id.toString(),
+        currentOrder + 1
+      );
       const category = {
         id: cat._id,
         title: cat.name,
         slug: cat.slug,
+        orderNumber: currentOrder,
       };
 
       if (subCategories.length > 0) {
         category.list = subCategories;
       }
-
       return category;
     })
   );
-
   return menu;
 };
 
