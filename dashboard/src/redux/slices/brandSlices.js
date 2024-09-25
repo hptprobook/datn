@@ -46,13 +46,46 @@ export const create = createAsyncThunk(
     }
   }
 );
+export const fetchById = createAsyncThunk(
+  'brands/fetchById',
+  async (id, { rejectWithValue }) => {
+    try {
+      return await BrandServices.getById(id);
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
+export const updateWithImage = createAsyncThunk(
+  'brands/updateWithImage',
+  async ({ file, data, id }, { rejectWithValue }) => {
+    try {
+      return await BrandServices.updateWithImage({ file, data, id });
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
+export const update = createAsyncThunk(
+  'brands/update',
+  async ({ data, id }, { rejectWithValue }) => {
+    try {
+      return await BrandServices.update({ data, id });
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
 export const setStatus = createAction('brands/setStatus');
 const initialState = {
   brands: [],
+  brand: {},
   delete: null,
   status: 'idle',
+  statusUpdate: 'idle',
   statusDelete: 'idle',
   statusCreate: 'idle',
+  statusGet: 'idle',
   error: null,
 };
 
@@ -73,15 +106,47 @@ const brandSlices = createSlice({
         state.status = 'failed';
         state.error = action.payload;
       })
+      .addCase(fetchById.pending, (state) => {
+        state.statusGet = 'loading';
+      })
+      .addCase(fetchById.fulfilled, (state, action) => {
+        state.statusGet = 'successful';
+        state.brand = action.payload;
+      })
+      .addCase(fetchById.rejected, (state, action) => {
+        state.statusGet = 'failed';
+        state.error = action.payload;
+      })
       .addCase(createWithImage.pending, (state) => {
         state.statusCreate = 'loading';
       })
       .addCase(createWithImage.fulfilled, (state, action) => {
         state.statusCreate = 'successful';
-        state.brands = action.payload;
+        state.brand = action.payload;
       })
       .addCase(createWithImage.rejected, (state, action) => {
         state.statusCreate = 'failed';
+        state.error = action.payload;
+      })
+      .addCase(updateWithImage.pending, (state) => {
+        state.statusUpdate = 'loading';
+      })
+      .addCase(updateWithImage.fulfilled, (state, action) => {
+        state.statusUpdate = 'successful';
+        state.brand = action.payload;
+      })
+      .addCase(updateWithImage.rejected, (state, action) => {
+        state.statusUpdate = 'failed';
+        state.error = action.payload;
+      }).addCase(update.pending, (state) => {
+        state.statusUpdate = 'loading';
+      })
+      .addCase(update.fulfilled, (state, action) => {
+        state.statusUpdate = 'successful';
+        state.brand = action.payload;
+      })
+      .addCase(update.rejected, (state, action) => {
+        state.statusUpdate = 'failed';
         state.error = action.payload;
       })
       .addCase(create.pending, (state) => {
@@ -89,7 +154,7 @@ const brandSlices = createSlice({
       })
       .addCase(create.fulfilled, (state, action) => {
         state.statusCreate = 'successful';
-        state.brands = action.payload;
+        state.brand = action.payload;
       })
       .addCase(create.rejected, (state, action) => {
         state.statusCreate = 'failed';
