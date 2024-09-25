@@ -694,6 +694,28 @@ const getProductBySearch = async (req, res) => {
   }
 };
 
+const getProductByCategoryFilter = async (req, res) => {
+  try {
+    let { slug } = req.params;
+    const { pages, limit, ...rest } = req.query;
+
+    const products = await productModel.getProductByCategoryFilter(
+      slug,
+      pages,
+      limit,
+      rest
+    );
+
+    return res.status(StatusCodes.OK).json({
+      products,
+    });
+  } catch (error) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json('Có lỗi xảy ra xin thử lại sau');
+  }
+};
+
 export const productController = {
   createProduct,
   getAllProducts,
@@ -716,4 +738,5 @@ export const productController = {
   getProductByOldest,
   getProductBySearch,
   getAllProductsSpecial,
+  getProductByCategoryFilter,
 };
