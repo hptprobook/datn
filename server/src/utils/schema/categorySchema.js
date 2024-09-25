@@ -13,6 +13,12 @@ export const SAVE_CATEGORY_SCHEMA = Joi.object({
     'string.empty': 'Mô tả ngắn không được để trống',
     'any.required': 'Mô tả ngắn là bắt buộc',
   }),
+  order: Joi.number().integer().required().valid(0, 1, 2).messages({
+    'any.required': 'Thứ tự là bắt buộc',
+    'number.base': 'Thứ tự phải là số',
+    'number.integer': 'Thứ tự phải là số nguyên',
+    'any.only': 'Thứ tự không hợp lệ',
+  }),
   imageURL: Joi.string().trim().min(1).required().messages({
     'string.empty': 'Ảnh không được để trống',
     'any.required': 'Ảnh là bắt buộc',
@@ -38,14 +44,16 @@ export const UPDATE_CATEGORY = Joi.object({
   description: Joi.string().trim().min(1).messages({
     'string.empty': 'Mô tả ngắn không được để trống',
   }),
-  content: Joi.string().trim().min(1).messages({
-    'string.empty': 'Mô tả không được để trống',
-  }),
   imageURL: Joi.string().trim().min(1).messages({
     'string.empty': 'Ảnh không được để trống',
   }),
   parentId: Joi.string().trim().min(1).allow(null).messages({
     'string.empty': 'Danh mục không được để trống',
+  }),
+  order: Joi.number().integer().valid(0, 1, 2).messages({
+    'number.base': 'Thứ tự phải là số',
+    'number.integer': 'Thứ tự phải là số nguyên',
+    'any.only': 'Thứ tự không hợp lệ',
   }),
   status: Joi.boolean(),
   updatedAt: Joi.date().timestamp('javascript').default(Date.now),

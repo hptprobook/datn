@@ -11,17 +11,20 @@ import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { resetDelete, deleteCategory, fetchAllCategories } from 'src/redux/slices/categoriesSlice';
+import { resetDelete, deleteCategory, fetchAllCategories } from 'src/redux/slices/categorySlices';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 import { handleToast } from 'src/hooks/toast';
 
-import TableNoData from 'src/components/table/table-no-data';
 import TableEmptyRows from 'src/components/table/table-empty-rows';
 import { emptyRows, applyFilter, getComparator } from 'src/components/table/utils';
+import { IconButton } from '@mui/material';
+import TableNoData from 'src/components/table/table-no-data';
+import LoadingFull from 'src/components/loading/loading-full';
 import CategoryTableRow from '../category-table-row';
 import CategoryTableHead from '../category-table-head';
 import CategoryTableToolbar from '../category-table-toolbar';
+import { renderCategoryParent } from '../utils';
 
 
 
@@ -35,7 +38,7 @@ export default function CategoryPage() {
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const dispatch = useDispatch();
-  const categories = useSelector((state) => state.categories.data);
+  const categories = useSelector((state) => state.categories.categories);
   const status = useSelector((state) => state.categories.status);
   const error = useSelector((state) => state.categories.error);
   const [dataCategories, setDataCategories] = useState([]);
@@ -45,8 +48,8 @@ export default function CategoryPage() {
     if (status === 'idle') {
       dispatch(fetchAllCategories());
     } else if (status === 'failed') {
-      console.error(error);
-    } else if (status === 'succeeded') {
+      handleToast('error', 'Có lỗi xảy ra. Vui lòng liên hệ IT');
+    } else if (status === 'successful') {
       setDataCategories(categories);
     }
   }, [status, dispatch, error, categories]);
@@ -54,8 +57,7 @@ export default function CategoryPage() {
     dispatch(deleteCategory(id));
   };
   useEffect(() => {
-    console.log(statusDelete);
-    if (statusDelete === 'succeeded') {
+    if (statusDelete === 'successful') {
       handleToast('success', 'Xóa Danh mục thành công');
       dispatch(resetDelete());
     }
@@ -126,8 +128,20 @@ export default function CategoryPage() {
   };
   return (
     <Container>
+      {status === 'loading' && <LoadingFull/>}
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Danh mục</Typography>
+      <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
+          <Typography variant="h4">Danh mục</Typography>
+
+          <IconButton
+            aria-label="load"
+            variant="contained"
+            color="inherit"
+            onClick={() => dispatch(fetchAllCategories())}
+          >
+            <Iconify icon="mdi:reload" />
+          </IconButton>
+        </Stack>
 
         <Button
           variant="contained" color="inherit"
@@ -158,6 +172,9 @@ export default function CategoryPage() {
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
                   { id: 'name', label: 'Tên' },
+                  { id: 'slug', label: 'Slug' },
+                  { id: 'parent', label: 'Danh mục cha' },
+                  { id: 'order', label: 'Vị trí' },
                   { id: 'createdAt', label: 'Thời gian Tạo' },
                   { id: '' },
                 ]}
@@ -172,6 +189,9 @@ export default function CategoryPage() {
                       name={row.name}
                       imageURL={row.imageURL}
                       createdAt={row.createdAt}
+                      order={row.order}
+                      slug={row.slug}
+                      parent={renderCategoryParent(dataCategories, row.parentId)}
                       selected={selected.indexOf(row.name) !== -1}
                       handleClick={(event) => handleClick(event, row.name)}
                       onDelete={handleDelete}
@@ -197,7 +217,7 @@ export default function CategoryPage() {
           count={dataCategories.length}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}
-          rowsPerPageOptions={[5, 10, 25]}
+          rowsPerPageOptions={[5, 10, 25, 100]}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Card>
