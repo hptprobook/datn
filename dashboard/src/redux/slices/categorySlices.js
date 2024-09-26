@@ -64,14 +64,14 @@ const initialState = {
   categories: [],
   selectedCategory: null,
   delete: null,
-  status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
+  status: 'idle', // 'idle' | 'loading' | 'successful' | 'failed'
   statusDelete: 'idle',
   error: null,
 };
 
 export const setStatus = createAction('categories/setStatus');
 
-const categoriesSlice = createSlice({
+const categorySlices = createSlice({
   name: 'categories',
   initialState,
   reducers: {},
@@ -81,8 +81,8 @@ const categoriesSlice = createSlice({
         state.status = 'loading';
       })
       .addCase(fetchAllCategories.fulfilled, (state, action) => {
-        state.status = 'succeeded';
-        state.data = action.payload.categories; // Storing only the categories array
+        state.status = 'successful';
+        state.categories = action.payload; // Storing only the categories array
       })
       .addCase(fetchAllCategories.rejected, (state, action) => {
         state.status = 'failed';
@@ -92,7 +92,7 @@ const categoriesSlice = createSlice({
         state.status = 'loading';
       })
       .addCase(fetchCategoryById.fulfilled, (state, action) => {
-        state.status = 'succeeded';
+        state.status = 'successful';
         state.selectedCategory = action.payload; // Storing the details of a specific category
       })
       .addCase(fetchCategoryById.rejected, (state, action) => {
@@ -103,7 +103,7 @@ const categoriesSlice = createSlice({
         state.statusCreate = 'loading';
       })
       .addCase(createCategory.fulfilled, (state, action) => {
-        state.statusCreate = 'succeeded';
+        state.statusCreate = 'successful';
         state.newCategory = action.payload; // Update based on the actual structure
       })
       .addCase(createCategory.rejected, (state, action) => {
@@ -114,7 +114,7 @@ const categoriesSlice = createSlice({
         state.statusDelete = 'loading delete';
       })
       .addCase(deleteCategory.fulfilled, (state, action) => {
-        state.statusDelete = 'succeeded';
+        state.statusDelete = 'successful';
         state.delete = action.payload; // Storing only the categories array
       })
       .addCase(deleteCategory.rejected, (state, action) => {
@@ -125,7 +125,7 @@ const categoriesSlice = createSlice({
         state.statusUpdate = 'loading';
       })
       .addCase(updateCategory.fulfilled, (state, action) => {
-        state.statusUpdate = 'succeeded';
+        state.statusUpdate = 'successful';
         state.dataUpdate = action.payload;
       })
       .addCase(updateCategory.rejected, (state, action) => {
@@ -133,7 +133,10 @@ const categoriesSlice = createSlice({
         state.error = action.error.message;
       })
       .addCase(setStatus, (state, action) => {
-        state.status = action.payload;
+        const { key, value } = action.payload; // Destructure key and value from payload
+        if (state[key] !== undefined) {
+          state[key] = value; // Update the status field dynamically
+        }
       })
       .addCase(resetDelete, (state) => {
         state.status = 'idle';
@@ -143,4 +146,4 @@ const categoriesSlice = createSlice({
   },
 });
 
-export default categoriesSlice.reducer;
+export default categorySlices.reducer;
