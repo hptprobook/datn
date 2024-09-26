@@ -1,13 +1,32 @@
+/* eslint-disable no-console */
 import request from '~/config/axiosConfig';
 
 export const loginAuth = async (data) => {
-  return await request.post('/auth/login', data).then((res) => res.data);
+  try {
+    const response = await request.post('/auth/login', data);
+    return response.data;
+  } catch (error) {
+    console.error('Xảy ra lỗi khi đăng nhập:', error);
+    throw error;
+  }
 };
 
 export const register = async (data) => {
-  return await request.post('/auth/register', data).then((res) => res.data);
+  try {
+    const response = await request.post('/auth/register', data);
+    return response.data;
+  } catch (error) {
+    console.error('Xảy ra lỗi khi đăng ký:', error);
+    throw error;
+  }
 };
 
 export const logout = async () => {
-  return await request.post('/auth/logout').then((res) => res.data);
+  try {
+    const response = await request.post('/auth/logout');
+    return response.data;
+  } catch (error) {
+    console.error('Xảy ra lỗi khi đăng xuất:', error);
+    throw error;
+  }
 };
