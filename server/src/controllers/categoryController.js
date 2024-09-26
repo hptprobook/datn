@@ -63,12 +63,17 @@ const getCategoryHierarchy = async (parentId = 'ROOT', orderNumber = 0) => {
 
 const getAllCategories = async (req, res) => {
   try {
+    const query = req.query;
+    if (query.parent) {
+      const categories = await categoryModel.getCategoriesAll(query.parent);
+      return res.status(StatusCodes.OK).json(categories);
+    }
     const categories = await categoryModel.getCategoriesAll();
     return res.status(StatusCodes.OK).json(categories);
   } catch (error) {
     return res
       .status(StatusCodes.BAD_REQUEST)
-    .json({message: 'Có lỗi xảy ra xin thử lại sau'});
+      .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
   }
 };
 
@@ -82,7 +87,7 @@ const getMenuCategories = async (req, res) => {
   } catch (error) {
     return res
       .status(StatusCodes.BAD_REQUEST)
-    .json({message: 'Có lỗi xảy ra xin thử lại sau'});
+      .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
   }
 };
 

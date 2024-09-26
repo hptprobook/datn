@@ -26,6 +26,7 @@ export default function CategoryTableRow({
   onDelete,
   createdAt,
   handleClick,
+  handleNavigate,
 }) {
   const [open, setOpen] = useState(null);
 
@@ -77,7 +78,7 @@ export default function CategoryTableRow({
           sx: { width: 140 },
         }}
       >
-        <MenuItem onClick={handleCloseMenu}>
+        <MenuItem onClick={handleNavigate}>
           <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
           Sửa
         </MenuItem>
@@ -102,4 +103,5 @@ CategoryTableRow.propTypes = {
   selected: PropTypes.any,
   parent: PropTypes.any,
   handleClick: PropTypes.func,
+  handleNavigate: PropTypes.func,
 };
