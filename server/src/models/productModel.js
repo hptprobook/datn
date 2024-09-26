@@ -351,7 +351,7 @@ const createProduct = async (data) => {
     ...validData,
     cat_id: validCat,
     brand: new ObjectId(validData.brand),
-    productType: new ObjectId(validData.productType),
+    productType: validData.productType,
   });
   if (!result) {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
@@ -953,6 +953,78 @@ const getProductByCategoryFilter = async (slug, pages, limit, filter) => {
   return result;
 };
 
+const getProductsByEvent = async (slug) => {
+  const db = await GET_DB();
+
+  const category = await db.collection('categories').findOne({ slug: slug });
+  if (!category) {
+    throw new Error('Danh mục không tồn tại');
+  }
+
+  const cat_id = category._id;
+  const subCategoryIds = await getAllSubCategories(cat_id);
+  const categoryIds = [cat_id, ...subCategoryIds];
+
+  const products = await db
+    .collection('products')
+    .find({ cat_id: { $in: categoryIds } })
+    .project({
+      _id: 1,
+      name: 1,
+      productType: 1,
+      tags: 1,
+      variants: 1,
+      reviews: 1,
+      price: 1,
+      thumbnail: 1,
+      status: 1,
+      statusStock: 1,
+      slug: 1,
+    })
+    .toArray();
+
+  if (!products) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
+  }
+
+  const categorizedProducts = {
+    Nam: [],
+    Nữ: [],
+    Trẻ_em: [],
+  };
+
+  products.forEach((product) => {
+    if (product.reviews && product.reviews.length > 0) {
+      const total = product.reviews.reduce(
+        (acc, review) => acc + review.rating,
+        0
+      );
+      product.averageRating = parseFloat(
+        (total / product.reviews.length).toFixed(1)
+      );
+      product.totalComment = product.reviews.length;
+    } else {
+      product.averageRating = 0;
+      product.totalComment = 0;
+    }
+
+    if (product.productType.includes('Nam')) {
+      categorizedProducts.Nam.push(product);
+    }
+    if (product.productType.includes('Nữ')) {
+      categorizedProducts.Nữ.push(product);
+    }
+    if (product.productType.includes('Trẻ em')) {
+      categorizedProducts.TreEm.push(product);
+    }
+
+    delete product.reviews;
+    delete product.productType;
+  });
+
+  return categorizedProducts;
+};
+
 export const productModel = {
   countProductAll,
   getProductsAll,
@@ -977,4 +1049,5 @@ export const productModel = {
   getProductBySearch,
   getProductsAllSpecial,
   getProductByCategoryFilter,
+  getProductsByEvent,
 };
