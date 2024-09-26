@@ -4,8 +4,9 @@ import { FaArrowLeft, FaFire } from 'react-icons/fa';
 import { IoIosSearch } from 'react-icons/io';
 import { NavLink } from 'react-router-dom';
 import { hotSearch, productSearchList } from '~/APIs/mock_data';
+import PropTypes from 'prop-types';
 
-export default function SearchResponsiveModal({ openSearch, setOpenSearch }) {
+const SearchResponsiveModal = ({ openSearch, setOpenSearch }) => {
   const [searchValue, setSearchValue] = useState('');
   const [animateSearch, setAnimateSearch] = useState(false);
 
@@ -111,4 +112,11 @@ export default function SearchResponsiveModal({ openSearch, setOpenSearch }) {
       )}
     </div>
   );
-}
+};
+
+SearchResponsiveModal.propTypes = {
+  openSearch: PropTypes.bool,
+  setOpenSearch: PropTypes.func,
+};
+
+export default SearchResponsiveModal;

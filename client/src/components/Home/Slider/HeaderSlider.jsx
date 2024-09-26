@@ -3,7 +3,7 @@ import { Autoplay, Pagination, Navigation } from 'swiper/modules';
 import { slider } from '~/APIs/mock_data';
 import { NavLink } from 'react-router-dom';
 
-export default function HeaderSlider() {
+const HeaderSlider = () => {
   return (
     <div className="w-full h-slider z-0">
       <Swiper
@@ -29,4 +29,8 @@ export default function HeaderSlider() {
       </Swiper>
     </div>
   );
-}
+};
+
+HeaderSlider.propTypes = {};
+
+export default HeaderSlider;

@@ -1,5 +1,7 @@
-function Notifies() {
-  return <div>Notifies</div>;
-}
+const Notifies = () => {
+  return <div></div>;
+};
+
+Notifies.propTypes = {};
 
 export default Notifies;

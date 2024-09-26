@@ -5,7 +5,7 @@ import { NotifyProvider } from './context/ReLoginContext';
 import { useIsFetching } from '@tanstack/react-query';
 import MainLoading from './components/common/Loading/MainLoading';
 
-function App() {
+const App = () => {
   const isFetching = useIsFetching();
 
   return (
@@ -15,6 +15,6 @@ function App() {
       <Routes />
     </NotifyProvider>
   );
-}
+};
 
 export default App;

@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 
-export default function CartSummary() {
+const CartSummary = () => {
   const navigate = useNavigate();
 
   const handleCheckout = () => {
@@ -27,4 +27,8 @@ export default function CartSummary() {
       </div>
     </div>
   );
-}
+};
+
+CartSummary.propTypes = {};
+
+export default CartSummary;
