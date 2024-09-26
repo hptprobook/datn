@@ -4,16 +4,16 @@ import { convertPrice } from "../../utils";
 import ImageRatio from "../img-ratio";
 
 type CardProductProps = {
-  id: number;
+  _id: string;
   pathImg: string;
   nameProduct: string;
   salePrice: string | number;
   quantity: number;
-  handleOnClick: (productId: number) => void;
+  handleOnClick: (productId: string) => void;
 };
 
 const CardProductOrder = ({
-  id,
+  _id,
   pathImg,
   nameProduct,
   salePrice,
@@ -22,7 +22,7 @@ const CardProductOrder = ({
 }: CardProductProps) => (
   <div
     className="w-full flex flex-row items-center justify-between gap-1 border border-[#E4E8EC] rounded-lg overflow-hidden h-24 p-2 mt-2 bg-white"
-    onClick={() => handleOnClick(id)}
+    onClick={() => handleOnClick(_id)}
     role="button"
   >
     <div className="flex flex-row items-center gap-1">
