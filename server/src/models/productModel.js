@@ -44,6 +44,7 @@ const getProductsAll = async (page, limit) => {
     .project({
       _id: 1,
       name: 1,
+      tags: 1,
       variants: 1,
       reviews: 1,
       price: 1,
@@ -152,6 +153,7 @@ const getProductsByCategory = async (slug, page, limit) => {
     .project({
       _id: 1,
       name: 1,
+      tags: 1,
       variants: 1,
       reviews: 1,
       price: 1,
@@ -202,6 +204,7 @@ const getProductsByCategoryId = async (id, page, limit) => {
     .project({
       _id: 1,
       name: 1,
+      tags: 1,
       variants: 1,
       reviews: 1,
       price: 1,
@@ -254,6 +257,7 @@ const getProductsByBrand = async (slug, page, limit) => {
     .project({
       _id: 1,
       name: 1,
+      tags: 1,
       variants: 1,
       reviews: 1,
       price: 1,
@@ -297,6 +301,7 @@ const getProductsByBrandId = async (id, page, limit) => {
     .project({
       _id: 1,
       name: 1,
+      tags: 1,
       variants: 1,
       reviews: 1,
       price: 1,
@@ -481,6 +486,7 @@ const getProductByAlphabetAZ = async (page, limit) => {
     .project({
       _id: 1,
       name: 1,
+      tags: 1,
       variants: 1,
       reviews: 1,
       price: 1,
@@ -526,6 +532,7 @@ const getProductByAlphabetZA = async (page, limit) => {
     .project({
       _id: 1,
       name: 1,
+      tags: 1,
       variants: 1,
       reviews: 1,
       price: 1,
@@ -570,6 +577,7 @@ const getProductByPriceAsc = async (page, limit) => {
     .project({
       _id: 1,
       name: 1,
+      tags: 1,
       variants: 1,
       reviews: 1,
       price: 1,
@@ -615,6 +623,7 @@ const getProductByPriceDesc = async (page, limit) => {
     .project({
       _id: 1,
       name: 1,
+      tags: 1,
       variants: 1,
       reviews: 1,
       price: 1,
@@ -659,6 +668,7 @@ const getProductByNewest = async (page, limit) => {
     .project({
       _id: 1,
       name: 1,
+      tags: 1,
       variants: 1,
       reviews: 1,
       price: 1,
@@ -704,6 +714,7 @@ const getProductByOldest = async (page, limit) => {
     .project({
       _id: 1,
       name: 1,
+      tags: 1,
       variants: 1,
       reviews: 1,
       price: 1,
@@ -817,7 +828,6 @@ const getProductBySearch = async (search, page, limit) => {
         maxInventory,
         weight,
         height,
-        tags,
         brand,
         cat_id,
         url,
@@ -907,6 +917,7 @@ const getProductByCategoryFilter = async (slug, pages, limit, filter) => {
     .project({
       _id: 1,
       name: 1,
+      tags: 1,
       variants: 1,
       reviews: 1,
       price: 1,
