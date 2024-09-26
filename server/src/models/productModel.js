@@ -40,6 +40,7 @@ const getProductsAll = async (page, limit) => {
   const db = await GET_DB().collection('products');
   const result = await db
     .find()
+    .sort({ createdAt: 1 })
     .project({
       _id: 1,
       name: 1,
@@ -72,8 +73,8 @@ const getProductsAll = async (page, limit) => {
       product.averageRating = 0;
       product.totalComment = 0;
     }
+    delete product.reviews;
   });
-
   return result;
 };
 
@@ -90,6 +91,7 @@ const getProductsAllSpecial = async () => {
   if (!result) {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
+
   return result;
 };
 
@@ -180,8 +182,8 @@ const getProductsByCategory = async (slug, page, limit) => {
       product.averageRating = 0;
       product.totalComment = 0;
     }
+    delete product.reviews;
   });
-
   return products;
 };
 
@@ -229,6 +231,7 @@ const getProductsByCategoryId = async (id, page, limit) => {
       product.averageRating = 0;
       product.totalComment = 0;
     }
+    delete product.reviews;
   });
   return products;
 };
@@ -279,6 +282,7 @@ const getProductsByBrand = async (slug, page, limit) => {
       product.averageRating = 0;
       product.totalComment = 0;
     }
+    delete product.reviews;
   });
   return products;
 };
@@ -321,6 +325,7 @@ const getProductsByBrandId = async (id, page, limit) => {
       product.averageRating = 0;
       product.totalComment = 0;
     }
+    delete product.reviews;
   });
   return products;
 };
@@ -505,6 +510,7 @@ const getProductByAlphabetAZ = async (page, limit) => {
       product.averageRating = 0;
       product.totalComment = 0;
     }
+    delete product.reviews;
   });
   return result;
 };
@@ -549,6 +555,7 @@ const getProductByAlphabetZA = async (page, limit) => {
       product.averageRating = 0;
       product.totalComment = 0;
     }
+    delete product.reviews;
   });
   return result;
 };
@@ -592,7 +599,9 @@ const getProductByPriceAsc = async (page, limit) => {
       product.averageRating = 0;
       product.totalComment = 0;
     }
+    delete product.reviews;
   });
+
   return result;
 };
 
@@ -635,6 +644,7 @@ const getProductByPriceDesc = async (page, limit) => {
       product.averageRating = 0;
       product.totalComment = 0;
     }
+    delete product.reviews;
   });
   return result;
 };
@@ -678,7 +688,9 @@ const getProductByNewest = async (page, limit) => {
       product.averageRating = 0;
       product.totalComment = 0;
     }
+    delete product.reviews;
   });
+
   return result;
 };
 
@@ -721,7 +733,9 @@ const getProductByOldest = async (page, limit) => {
       product.averageRating = 0;
       product.totalComment = 0;
     }
+    delete product.reviews;
   });
+
   return result;
 };
 
@@ -831,6 +845,7 @@ const getProductBySearch = async (search, page, limit) => {
       product.averageRating = 0;
       product.totalComment = 0;
     }
+    delete product.reviews;
   });
   return result;
 };
@@ -921,8 +936,9 @@ const getProductByCategoryFilter = async (slug, pages, limit, filter) => {
       product.averageRating = 0;
       product.totalComment = 0;
     }
+    delete product.reviews;
   });
-  delete result.reviews;
+
   return result;
 };
 

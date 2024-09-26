@@ -25,6 +25,7 @@ const getBrandsAll = async (page, limit) => {
   const db = await GET_DB().collection('brands');
   const result = await db
     .find()
+    .sort({ createdAt: 1 })
     .skip((page - 1) * limit)
     .limit(limit)
     .toArray();
