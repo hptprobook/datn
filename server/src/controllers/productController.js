@@ -153,6 +153,7 @@ const createProduct = async (req, res) => {
       height,
       statusStock,
       variants,
+      price,
     } = req.body;
 
     if (!req.files['thumbnail'] || !req.files['thumbnail'][0]) {
@@ -203,6 +204,8 @@ const createProduct = async (req, res) => {
       !status ||
       !weight ||
       !height ||
+      !price ||
+      !productType ||
       !statusStock
     ) {
       await uploadModel.deleteImg(thumbnail);
@@ -223,6 +226,7 @@ const createProduct = async (req, res) => {
       cat_id,
       name: name,
       slug,
+      price,
       description,
       content,
       tags,
@@ -247,6 +251,31 @@ const createProduct = async (req, res) => {
     }
     return res.status(StatusCodes.OK).json({ dataProduct });
   } catch (error) {
+    if (req.files) {
+      const thumbnail = path.join(
+        'uploads/products',
+        req.files['thumbnail'][0].filename
+      );
+
+      let imagesProduct = req.files['images'].map((file) => {
+        if (file && file.filename) {
+          return path.join('uploads/products', file.filename);
+        } else {
+          throw new Error('File image không hợp lệ');
+        }
+      });
+
+      let imageVariantsC = req.files['imageVariants'].map((file) => {
+        if (file && file.filename) {
+          return path.join('uploads/products', file.filename);
+        } else {
+          throw new Error('File image không hợp lệ');
+        }
+      });
+      await uploadModel.deleteImg(thumbnail);
+      await uploadModel.deleteImgs(imagesProduct);
+      await uploadModel.deleteImgs(imageVariantsC);
+    }
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ message: error.message });
@@ -716,6 +745,22 @@ const getProductByCategoryFilter = async (req, res) => {
   }
 };
 
+const getProductByEvent = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    let { pages, limit } = req.query;
+    const product = await productModel.getProductsByEvent(slug, pages, limit);
+    if (!product) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: 'Không tìm thấy sản phẩm!' });
+    }
+    return res.status(StatusCodes.OK).json(product);
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
+  }
+};
+
 export const productController = {
   createProduct,
   getAllProducts,
@@ -739,4 +784,5 @@ export const productController = {
   getProductBySearch,
   getAllProductsSpecial,
   getProductByCategoryFilter,
+  getProductByEvent,
 };
