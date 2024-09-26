@@ -9,16 +9,7 @@ import path from 'path';
 
 const createCategory = async (req, res) => {
   try {
-    const { name, description, parentId, content, status } = req.body;
-
-    if (!name || !description || !parentId || !content || !status) {
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        message: ERROR_MESSAGES.REQUIRED,
-      });
-    }
-
-    const parentIdProcessed = parentId === 'null' ? null : parentId;
-
+    const data = req.body;
     if (!req.file) {
       return res
         .status(StatusCodes.BAD_REQUEST)
@@ -27,31 +18,21 @@ const createCategory = async (req, res) => {
     const file = req.file;
     const fileName = file.filename;
     const filePath = path.join('uploads/categories', fileName);
-    const slug = createSlug(name);
-
-    const data = {
-      name,
-      slug,
-      description,
-      content,
-      imageURL: filePath,
-      parentId: parentIdProcessed,
-      status,
-    };
-
+    data.imageURL = filePath;
     const dataCategory = await categoryModel.createCategory(data);
-
-    if (dataCategory.error) {
-      uploadModel.deleteImg(filePath);
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        message: 'Có lỗi xảy ra, xin thử lại sau',
-      });
-    }
     return res.status(StatusCodes.OK).json(dataCategory);
   } catch (error) {
-    return res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ message: error.message });
+    if (req.file) {
+      uploadModel.deleteImg(req.file.path);
+    }
+    if (error.details) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: error.details[0].message,
+      });
+    }
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: 'Có lỗi xảy ra xin thử lại sau',
+    });
   }
 };
 
@@ -82,17 +63,12 @@ const getCategoryHierarchy = async (parentId = 'ROOT', orderNumber = 0) => {
 
 const getAllCategories = async (req, res) => {
   try {
-    let { pages, limit } = req.query;
-
-    const categories = await categoryModel.getCategoriesAll(pages, limit);
-
-    return res.status(StatusCodes.OK).json({
-      categories,
-    });
+    const categories = await categoryModel.getCategoriesAll();
+    return res.status(StatusCodes.OK).json(categories);
   } catch (error) {
     return res
       .status(StatusCodes.BAD_REQUEST)
-      .json('Có lỗi xảy ra xin thử lại sau');
+    .json({message: 'Có lỗi xảy ra xin thử lại sau'});
   }
 };
 
@@ -106,7 +82,7 @@ const getMenuCategories = async (req, res) => {
   } catch (error) {
     return res
       .status(StatusCodes.BAD_REQUEST)
-      .json('Có lỗi xảy ra xin thử lại sau');
+    .json({message: 'Có lỗi xảy ra xin thử lại sau'});
   }
 };
 

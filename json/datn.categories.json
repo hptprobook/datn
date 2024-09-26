@@ -1,0 +1,2212 @@
+[{
+  "_id": {
+    "$oid": "66e906d271049ba8da1a8039"
+  },
+  "name": "Nam",
+  "imageURL": "https://picsum.photos/300/300?random=1",
+  "description": "",
+  "slug": "nam",
+  "parentId": "ROOT",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e906d271049ba8da1a803a"
+  },
+  "name": "Nữ",
+  "imageURL": "https://picsum.photos/300/300?random=2",
+  "description": "Nữ",
+  "slug": "nu",
+  "parentId": "ROOT",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e906d271049ba8da1a803b"
+  },
+  "name": "Trẻ em",
+  "imageURL": "https://picsum.photos/300/300?random=3",
+  "description": "Trẻ em",
+  "slug": "",
+  "parentId": "ROOT",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e906d271049ba8da1a803c"
+  },
+  "name": "Giày dép",
+  "imageURL": "https://picsum.photos/300/300?random=4",
+  "description": "Giày dép",
+  "slug": "giay-dep",
+  "parentId": "ROOT",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e906d271049ba8da1a803d"
+  },
+  "name": "Phụ kiện",
+  "imageURL": "https://picsum.photos/300/300?random=5",
+  "description": "",
+  "slug": "phu-kien",
+  "parentId": "ROOT",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e906d271049ba8da1a803e"
+  },
+  "name": "Sức khỏe - làm đẹp",
+  "imageURL": "https://picsum.photos/300/300?random=6",
+  "description": "",
+  "slug": "suc-khoe-lam-dep",
+  "parentId": "ROOT",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e906d271049ba8da1a803f"
+  },
+  "name": "Đồ dùng gia đình",
+  "imageURL": "https://picsum.photos/300/300?random=7",
+  "description": "",
+  "slug": "do-dung-gia-dinh",
+  "parentId": "ROOT",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9076f71049ba8da1a8040"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=8",
+  "description": "",
+  "name": "Áo Nam",
+  "slug": "ao-nam",
+  "parentId": "66e906d271049ba8da1a8039",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9076f71049ba8da1a8041"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=9",
+  "description": "",
+  "name": "Quần Nam",
+  "slug": "quan-nam",
+  "parentId": "66e906d271049ba8da1a8039",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9076f71049ba8da1a8042"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=10",
+  "description": "",
+  "name": "Đồ Lót Nam",
+  "slug": "do-lot-nam",
+  "parentId": "66e906d271049ba8da1a8039",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9076f71049ba8da1a8044"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=12",
+  "description": "",
+  "name": "Phụ Kiện Nam",
+  "slug": "phu-kien-nam",
+  "parentId": "66e906d271049ba8da1a8039",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9076f71049ba8da1a8045"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=13",
+  "description": "",
+  "name": "Áo Nữ",
+  "slug": "ao-nu",
+  "parentId": "66e906d271049ba8da1a803a",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9076f71049ba8da1a8046"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=14",
+  "description": "",
+  "name": "Quần Nữ",
+  "slug": "quan-nu",
+  "parentId": "66e906d271049ba8da1a803a",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9076f71049ba8da1a8047"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=15",
+  "description": "",
+  "name": "Đầm/Váy Nữ",
+  "slug": "dam-vay-nu",
+  "parentId": "66e906d271049ba8da1a803a",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9076f71049ba8da1a8048"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=16",
+  "description": "",
+  "name": "Đồ Lót Nữ",
+  "slug": "do-lot-nu",
+  "parentId": "66e906d271049ba8da1a803a",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9076f71049ba8da1a8049"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=17",
+  "description": "",
+  "name": "Áo Khoác Nữ",
+  "slug": "ao-khoac-nu",
+  "parentId": "66e906d271049ba8da1a803a",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9076f71049ba8da1a804a"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=18",
+  "description": "",
+  "name": "Phụ Kiện Nữ",
+  "slug": "phu-kien-nu",
+  "parentId": "66e906d271049ba8da1a803a",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9076f71049ba8da1a804b"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=19",
+  "description": "",
+  "name": "Áo Trẻ Em",
+  "slug": "ao-tre-em",
+  "parentId": "66e906d271049ba8da1a803b",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9076f71049ba8da1a804c"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=20",
+  "description": "",
+  "name": "Quần Trẻ Em",
+  "slug": "quan-tre-em",
+  "parentId": "66e906d271049ba8da1a803b",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9076f71049ba8da1a804e"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=22",
+  "description": "",
+  "name": "Áo Khoác Trẻ Em",
+  "slug": "ao-khoac-tre-em",
+  "parentId": "66e906d271049ba8da1a803b",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9076f71049ba8da1a804f"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=23",
+  "description": "",
+  "name": "Phụ Kiện Trẻ Em",
+  "slug": "phu-kien-tre-em",
+  "parentId": "66e906d271049ba8da1a803b",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9076f71049ba8da1a8050"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=24",
+  "description": "",
+  "name": "Giày Nam",
+  "slug": "giay-nam",
+  "parentId": "66e906d271049ba8da1a803c",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9076f71049ba8da1a8051"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=25",
+  "description": "",
+  "name": "Giày Nữ",
+  "slug": "giay-nu",
+  "parentId": "66e906d271049ba8da1a803c",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9076f71049ba8da1a8052"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=26",
+  "description": "",
+  "name": "Giày Trẻ Em",
+  "slug": "giay-tre-em",
+  "parentId": "66e906d271049ba8da1a803c",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9076f71049ba8da1a8054"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=28",
+  "description": "",
+  "name": "Dép Nữ",
+  "slug": "dep-nu",
+  "parentId": "66e906d271049ba8da1a803c",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9076f71049ba8da1a8056"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=30",
+  "description": "",
+  "name": "Mũ Nón",
+  "slug": "mu-non",
+  "parentId": "66e906d271049ba8da1a803d",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9076f71049ba8da1a8057"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=31",
+  "description": "",
+  "name": "Túi Xách",
+  "slug": "tui-xach",
+  "parentId": "66e906d271049ba8da1a803d",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9076f71049ba8da1a8058"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=32",
+  "description": "",
+  "name": "Thắt Lưng",
+  "slug": "that-lung",
+  "parentId": "66e906d271049ba8da1a803d",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9076f71049ba8da1a8059"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=33",
+  "description": "",
+  "name": "Kính Mắt",
+  "slug": "kinh-mat",
+  "parentId": "66e906d271049ba8da1a803d",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9076f71049ba8da1a805a"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=34",
+  "description": "",
+  "name": "Khăn Quàng",
+  "slug": "khan-quang",
+  "parentId": "66e906d271049ba8da1a803d",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9076f71049ba8da1a805b"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=35",
+  "description": "",
+  "name": "Găng Tay",
+  "slug": "gang-tay",
+  "parentId": "66e906d271049ba8da1a803d",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9076f71049ba8da1a805c"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=36",
+  "description": "",
+  "name": "Chăm Sóc Da",
+  "slug": "cham-soc-da",
+  "parentId": "66e906d271049ba8da1a803e",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9076f71049ba8da1a805d"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=37",
+  "description": "",
+  "name": "Trang Điểm",
+  "slug": "trang-diem",
+  "parentId": "66e906d271049ba8da1a803e",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9076f71049ba8da1a805e"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=38",
+  "description": "",
+  "name": "Chăm Sóc Tóc",
+  "slug": "cham-soc-toc",
+  "parentId": "66e906d271049ba8da1a803e",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9076f71049ba8da1a805f"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=39",
+  "description": "",
+  "name": "Dụng Cụ Làm Đẹp",
+  "slug": "dung-cu-lam-dep",
+  "parentId": "66e906d271049ba8da1a803e",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9076f71049ba8da1a8060"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=40",
+  "description": "",
+  "name": "Sản Phẩm Dinh Dưỡng",
+  "slug": "san-pham-dinh-duong",
+  "parentId": "66e906d271049ba8da1a803e",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9076f71049ba8da1a8061"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=41",
+  "description": "",
+  "name": "Đồ Gia Dụng",
+  "slug": "do-gia-dung",
+  "parentId": "66e906d271049ba8da1a803f",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9076f71049ba8da1a8062"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=42",
+  "description": "",
+  "name": "Nội Thất",
+  "slug": "noi-that",
+  "parentId": "66e906d271049ba8da1a803f",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9076f71049ba8da1a8063"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=43",
+  "description": "",
+  "name": "Thiết Bị Điện Gia Dụng",
+  "slug": "thiet-bi-dien-gia-dung",
+  "parentId": "66e906d271049ba8da1a803f",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9076f71049ba8da1a8064"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=44",
+  "description": "",
+  "name": "Dụng Cụ Nhà Bếp",
+  "slug": "dung-cu-nha-bep",
+  "parentId": "66e906d271049ba8da1a803f",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9076f71049ba8da1a8065"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=45",
+  "description": "",
+  "name": "Đồ Trang Trí",
+  "slug": "do-trang-tri",
+  "parentId": "66e906d271049ba8da1a803f",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e90a8c71049ba8da1a8066"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=46",
+  "description": "",
+  "name": "Áo Polo Nam",
+  "slug": "ao-polo-nam",
+  "parentId": "66e9076f71049ba8da1a8040",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e90a8c71049ba8da1a8067"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=47",
+  "description": "",
+  "name": "Áo Sơ Mi Nam",
+  "slug": "ao-so-mi-nam",
+  "parentId": "66e9076f71049ba8da1a8040",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e90a8c71049ba8da1a8068"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=48",
+  "description": "",
+  "name": "Áo Thun Nam",
+  "slug": "ao-thun-nam",
+  "parentId": "66e9076f71049ba8da1a8040",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e90a8c71049ba8da1a8069"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=49",
+  "description": "",
+  "name": "Áo Ba Lỗ Nam",
+  "slug": "ao-ba-lo-nam",
+  "parentId": "66e9076f71049ba8da1a8040",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e90a8c71049ba8da1a806a"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=50",
+  "description": "",
+  "name": "Quần Jeans Nam",
+  "slug": "quan-jeans-nam",
+  "parentId": "66e9076f71049ba8da1a8041",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e90a8c71049ba8da1a806b"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=51",
+  "description": "",
+  "name": "Quần Kaki Nam",
+  "slug": "quan-kaki-nam",
+  "parentId": "66e9076f71049ba8da1a8041",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e90a8c71049ba8da1a806d"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=52",
+  "description": "",
+  "name": "Quần Jogger Nam",
+  "slug": "quan-jogger-nam",
+  "parentId": "66e9076f71049ba8da1a8041",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e90a8c71049ba8da1a806e"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=53",
+  "description": "",
+  "name": "Quần Tây Nam",
+  "slug": "quan-tay-nam",
+  "parentId": "66e9076f71049ba8da1a8041",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e90a8c71049ba8da1a8070"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=55",
+  "description": "",
+  "name": "Áo Khoác Da Nam",
+  "slug": "ao-khoac-da-nam",
+  "parentId": "66e9076f71049ba8da1a8043",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e90a8c71049ba8da1a8071"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=56",
+  "description": "",
+  "name": "Áo Khoác Gió Nam",
+  "slug": "ao-khoac-gio-nam",
+  "parentId": "66e9076f71049ba8da1a8043",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e90a8c71049ba8da1a8075"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=59",
+  "description": "",
+  "name": "Thắt Lưng Nam",
+  "slug": "that-lung-nam",
+  "parentId": "66e9076f71049ba8da1a8044",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e90a8c71049ba8da1a8076"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=60",
+  "description": "",
+  "name": "Nón Nam",
+  "slug": "non-nam",
+  "parentId": "66e9076f71049ba8da1a8044",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e90a8c71049ba8da1a8078"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=61",
+  "description": "",
+  "name": "Túi Đeo Chéo Nam",
+  "slug": "tui-deo-cheo-nam",
+  "parentId": "66e9076f71049ba8da1a8044",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e90a8c71049ba8da1a807b"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=62",
+  "description": "",
+  "name": "Áo Croptop Nữ",
+  "slug": "ao-croptop-nu",
+  "parentId": "66e9076f71049ba8da1a8045",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e90a8c71049ba8da1a807c"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=63",
+  "description": "",
+  "name": "Áo Hoodie Nữ",
+  "slug": "ao-hoodie-nu",
+  "parentId": "66e9076f71049ba8da1a8045",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e90a8c71049ba8da1a807e"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=64",
+  "description": "",
+  "name": "Quần Legging Nữ",
+  "slug": "quan-legging-nu",
+  "parentId": "66e9076f71049ba8da1a8046",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e90a8c71049ba8da1a807f"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=65",
+  "description": "",
+  "name": "Quần Short Nữ",
+  "slug": "quan-short-nu",
+  "parentId": "66e9076f71049ba8da1a8046",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e90a8c71049ba8da1a8082"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=66",
+  "description": "",
+  "name": "Đầm Dự Tiệc",
+  "slug": "dam-du-tiec",
+  "parentId": "66e9076f71049ba8da1a8047",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e90a8c71049ba8da1a8083"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=67",
+  "description": "",
+  "name": "Đầm Dạo Phố",
+  "slug": "dam-dao-pho",
+  "parentId": "66e9076f71049ba8da1a8047",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e90a8c71049ba8da1a8084"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=68",
+  "description": "",
+  "name": "Váy Xòe Nữ",
+  "slug": "vay-xoe-nu",
+  "parentId": "66e9076f71049ba8da1a8047",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e90a8c71049ba8da1a8085"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=69",
+  "description": "",
+  "name": "Váy Bút Chì",
+  "slug": "vay-but-chi",
+  "parentId": "66e9076f71049ba8da1a8047",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e90a8c71049ba8da1a8086"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=70",
+  "description": "",
+  "name": "Váy Công Sở",
+  "slug": "vay-cong-so",
+  "parentId": "66e9076f71049ba8da1a8047",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e90a8c71049ba8da1a8087"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=71",
+  "description": "",
+  "name": "Váy Maxi",
+  "slug": "vay-maxi",
+  "parentId": "66e9076f71049ba8da1a8047",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e90a8c71049ba8da1a8088"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=72",
+  "description": "",
+  "name": "Quần Lót Nữ",
+  "slug": "quan-lot-nu",
+  "parentId": "66e9076f71049ba8da1a8048",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e90a8c71049ba8da1a8089"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=73",
+  "description": "",
+  "name": "Áo Lót Nữ",
+  "slug": "ao-lot-nu",
+  "parentId": "66e9076f71049ba8da1a8048",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e90a8c71049ba8da1a808a"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=74",
+  "description": "",
+  "name": "Áo Ngực Nữ",
+  "slug": "ao-nguc-nu",
+  "parentId": "66e9076f71049ba8da1a8048",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e90a8c71049ba8da1a808b"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=75",
+  "description": "",
+  "name": "Bộ Đồ Ngủ Nữ",
+  "slug": "bo-do-ngu-nu",
+  "parentId": "66e9076f71049ba8da1a8048",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e90a8c71049ba8da1a808c"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=76",
+  "description": "",
+  "name": "Set Đồ Lót Nữ",
+  "slug": "set-do-lot-nu",
+  "parentId": "66e9076f71049ba8da1a8048",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a8093"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=77",
+  "description": "",
+  "name": "Quần Short Nam",
+  "slug": "quan-short-nam",
+  "parentId": "66e9076f71049ba8da1a8041",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a809b"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=78",
+  "description": "",
+  "name": "Ví Nam",
+  "slug": "vi-nam",
+  "parentId": "66e9076f71049ba8da1a8044",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a809e"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=79",
+  "description": "",
+  "name": "Kính Râm Nam",
+  "slug": "kinh-ram-nam",
+  "parentId": "66e9076f71049ba8da1a8044",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80a0"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=80",
+  "description": "",
+  "name": "Áo Sơ Mi Nữ",
+  "slug": "ao-so-mi-nu",
+  "parentId": "66e9076f71049ba8da1a8045",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80a1"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=81",
+  "description": "",
+  "name": "Áo Thun Nữ",
+  "slug": "ao-thun-nu",
+  "parentId": "66e9076f71049ba8da1a8045",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80a2"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=82",
+  "description": "",
+  "name": "Áo Croptop Nữ",
+  "slug": "ao-croptop-nu",
+  "parentId": "66e9076f71049ba8da1a8045",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80a3"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=83",
+  "description": "",
+  "name": "Áo Hoodie Nữ",
+  "slug": "ao-hoodie-nu",
+  "parentId": "66e9076f71049ba8da1a8045",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80a4"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=84",
+  "description": "",
+  "name": "Quần Jeans Nữ",
+  "slug": "quan-jeans-nu",
+  "parentId": "66e9076f71049ba8da1a8046",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80a5"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=85",
+  "description": "",
+  "name": "Quần Legging Nữ",
+  "slug": "quan-legging-nu",
+  "parentId": "66e9076f71049ba8da1a8046",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80a7"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=86",
+  "description": "",
+  "name": "Quần Kaki Nữ",
+  "slug": "quan-kaki-nu",
+  "parentId": "66e9076f71049ba8da1a8046",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80a8"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=87",
+  "description": "",
+  "name": "Quần Jogger Nữ",
+  "slug": "quan-jogger-nu",
+  "parentId": "66e9076f71049ba8da1a8046",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80b5"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=89",
+  "description": "",
+  "name": "Áo Sơ Mi Trẻ Em",
+  "slug": "ao-so-mi-tre-em",
+  "parentId": "66e9076f71049ba8da1a804b",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80b9"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=92",
+  "description": "",
+  "name": "Quần Jeans Trẻ Em",
+  "slug": "quan-jeans-tre-em",
+  "parentId": "66e9076f71049ba8da1a804c",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80bb"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=94",
+  "description": "",
+  "name": "Quần Kaki Trẻ Em",
+  "slug": "quan-kaki-tre-em",
+  "parentId": "66e9076f71049ba8da1a804c",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80bd"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=96",
+  "description": "",
+  "name": "Quần Lót Trẻ Em",
+  "slug": "quan-lot-tre-em",
+  "parentId": "66e9076f71049ba8da1a804d",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80bf"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=98",
+  "description": "",
+  "name": "Set Đồ Ngủ Trẻ Em",
+  "slug": "set-do-ngu-tre-em",
+  "parentId": "66e9076f71049ba8da1a804d",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80c0"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=99",
+  "description": "",
+  "name": "Bộ Đồ Lót Trẻ Em",
+  "slug": "bo-do-lot-tre-em",
+  "parentId": "66e9076f71049ba8da1a804d",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80c3"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=102",
+  "description": "",
+  "name": "Giày Lười Nam",
+  "slug": "giay-luoi-nam",
+  "parentId": "66e9076f71049ba8da1a8050",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80d5"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=120",
+  "description": "",
+  "name": "Dép Xỏ Ngón Nữ",
+  "slug": "dep-xo-ngon-nu",
+  "parentId": "66e9076f71049ba8da1a8054",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80d6"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=121",
+  "description": "",
+  "name": "Dép Quai Ngang Nữ",
+  "slug": "dep-quai-ngang-nu",
+  "parentId": "66e9076f71049ba8da1a8054",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80dd"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=128",
+  "description": "",
+  "name": "Dép Lười Trẻ Em",
+  "slug": "dep-luoi-tre-em",
+  "parentId": "66e9076f71049ba8da1a8055",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80df"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=130",
+  "description": "",
+  "name": "Nón Lưỡi Trai",
+  "slug": "non-luoi-trai",
+  "parentId": "66e9076f71049ba8da1a8056",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80e0"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=131",
+  "description": "",
+  "name": "Nón Snapback",
+  "slug": "non-snapback",
+  "parentId": "66e9076f71049ba8da1a8056",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80e1"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=132",
+  "description": "",
+  "name": "Nón Fedore",
+  "slug": "non-fedore",
+  "parentId": "66e9076f71049ba8da1a8056",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80e2"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=133",
+  "description": "",
+  "name": "Nón Len",
+  "slug": "non-len",
+  "parentId": "66e9076f71049ba8da1a8056",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80e3"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=134",
+  "description": "",
+  "name": "Nón Bucket",
+  "slug": "non-bucket",
+  "parentId": "66e9076f71049ba8da1a8056",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80e4"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=135",
+  "description": "",
+  "name": "Túi Đeo Vai",
+  "slug": "tui-deo-vai",
+  "parentId": "66e9076f71049ba8da1a8057",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80e5"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=136",
+  "description": "",
+  "name": "Túi Xách Tay",
+  "slug": "tui-xach-tay",
+  "parentId": "66e9076f71049ba8da1a8057",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80e6"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=137",
+  "description": "",
+  "name": "Balo",
+  "slug": "balo",
+  "parentId": "66e9076f71049ba8da1a8057",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80e7"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=138",
+  "description": "",
+  "name": "Túi Tote",
+  "slug": "tui-tote",
+  "parentId": "66e9076f71049ba8da1a8057",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80e8"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=139",
+  "description": "",
+  "name": "Ví Cầm Tay",
+  "slug": "vi-cam-tay",
+  "parentId": "66e9076f71049ba8da1a8057",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80e9"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=140",
+  "description": "",
+  "name": "Thắt Lưng Da",
+  "slug": "that-lung-da",
+  "parentId": "66e9076f71049ba8da1a8058",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80ea"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=141",
+  "description": "",
+  "name": "Thắt Lưng Vải",
+  "slug": "that-lung-vai",
+  "parentId": "66e9076f71049ba8da1a8058",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80eb"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=142",
+  "description": "",
+  "name": "Thắt Lưng Kim Loại",
+  "slug": "that-lung-kim-loai",
+  "parentId": "66e9076f71049ba8da1a8058",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80ec"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=143",
+  "description": "",
+  "name": "Thắt Lưng Màu Đen",
+  "slug": "that-lung-mau-den",
+  "parentId": "66e9076f71049ba8da1a8058",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80ee"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=144",
+  "description": "",
+  "name": "Kính Râm",
+  "slug": "kinh-ram",
+  "parentId": "66e9076f71049ba8da1a8059",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80ef"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=145",
+  "description": "",
+  "name": "Kính Cận",
+  "slug": "kinh-can",
+  "parentId": "66e9076f71049ba8da1a8059",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80f0"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=146",
+  "description": "",
+  "name": "Kính Bảo Hộ",
+  "slug": "kinh-bao-ho",
+  "parentId": "66e9076f71049ba8da1a8059",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80f1"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=147",
+  "description": "",
+  "name": "Kính Mát Tròn",
+  "slug": "kinh-mat-tron",
+  "parentId": "66e9076f71049ba8da1a8059",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80f2"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=148",
+  "description": "",
+  "name": "Kính Mát Vuông",
+  "slug": "kinh-mat-vuong",
+  "parentId": "66e9076f71049ba8da1a8059",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80f3"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=149",
+  "description": "",
+  "name": "Khăn Len",
+  "slug": "khan-len",
+  "parentId": "66e9076f71049ba8da1a805a",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80f4"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=150",
+  "description": "",
+  "name": "Khăn Lụa",
+  "slug": "khan-lua",
+  "parentId": "66e9076f71049ba8da1a805a",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80f5"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=151",
+  "description": "",
+  "name": "Khăn Pashmina",
+  "slug": "khan-pashmina",
+  "parentId": "66e9076f71049ba8da1a805a",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80f6"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=152",
+  "description": "",
+  "name": "Khăn Cotton",
+  "slug": "khan-cotton",
+  "parentId": "66e9076f71049ba8da1a805a",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80f7"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=153",
+  "description": "",
+  "name": "Khăn Quàng Cổ",
+  "slug": "khan-quang-co",
+  "parentId": "66e9076f71049ba8da1a805a",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80f8"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=154",
+  "description": "",
+  "name": "Găng Tay Da",
+  "slug": "gang-tay-da",
+  "parentId": "66e9076f71049ba8da1a805b",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80f9"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=155",
+  "description": "",
+  "name": "Găng Tay Len",
+  "slug": "gang-tay-len",
+  "parentId": "66e9076f71049ba8da1a805b",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80fa"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=156",
+  "description": "",
+  "name": "Găng Tay Cảm Ứng",
+  "slug": "gang-tay-cam-ung",
+  "parentId": "66e9076f71049ba8da1a805b",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80fb"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=157",
+  "description": "",
+  "name": "Găng Tay Chống Nắng",
+  "slug": "gang-tay-chong-nang",
+  "parentId": "66e9076f71049ba8da1a805b",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80fc"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=158",
+  "description": "",
+  "name": "Găng Tay Hở Ngón",
+  "slug": "gang-tay-ho-ngon",
+  "parentId": "66e9076f71049ba8da1a805b",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80fd"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=159",
+  "description": "",
+  "name": "Kem Dưỡng Da",
+  "slug": "kem-duong-da",
+  "parentId": "66e9076f71049ba8da1a805c",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a80fe"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=160",
+  "description": "",
+  "name": "Sữa Rửa Mặt",
+  "slug": "sua-rua-mat",
+  "parentId": "66e9076f71049ba8da1a805c",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a8101"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=163",
+  "description": "",
+  "name": "Serum Dưỡng Da",
+  "slug": "serum-duong-da",
+  "parentId": "66e9076f71049ba8da1a805c",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a8102"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=164",
+  "description": "",
+  "name": "Son Môi",
+  "slug": "son-moi",
+  "parentId": "66e9076f71049ba8da1a805d",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a8105"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=167",
+  "description": "",
+  "name": "Mascara",
+  "slug": "mascara",
+  "parentId": "66e9076f71049ba8da1a805d",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a8107"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=169",
+  "description": "",
+  "name": "Dầu Gội",
+  "slug": "dau-goi",
+  "parentId": "66e9076f71049ba8da1a805e",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a8108"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=170",
+  "description": "",
+  "name": "Dầu Xả",
+  "slug": "dau-xa",
+  "parentId": "66e9076f71049ba8da1a805e",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a8109"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=171",
+  "description": "",
+  "name": "Tinh Dầu Dưỡng Tóc",
+  "slug": "tinh-dau-duong-toc",
+  "parentId": "66e9076f71049ba8da1a805e",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a810a"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=172",
+  "description": "",
+  "name": "Kem Ủ Tóc",
+  "slug": "kem-u-toc",
+  "parentId": "66e9076f71049ba8da1a805e",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a810b"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=173",
+  "description": "",
+  "name": "Gel Tạo Kiểu Tóc",
+  "slug": "gel-tao-kieu-toc",
+  "parentId": "66e9076f71049ba8da1a805e",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a810c"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=174",
+  "description": "",
+  "name": "Máy Sấy Tóc",
+  "slug": "may-say-toc",
+  "parentId": "66e9076f71049ba8da1a805f",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a810f"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=177",
+  "description": "",
+  "name": "Máy Tạo Kiểu Tóc",
+  "slug": "may-tao-kieu-toc",
+  "parentId": "66e9076f71049ba8da1a805f",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a8111"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=179",
+  "description": "",
+  "name": "Vitamin Tổng Hợp",
+  "slug": "vitamin-tong-hop",
+  "parentId": "66e9076f71049ba8da1a8060",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a8112"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=180",
+  "description": "",
+  "name": "Thực Phẩm Chức Năng",
+  "slug": "thuc-pham-chuc-nang",
+  "parentId": "66e9076f71049ba8da1a8060",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a8113"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=181",
+  "description": "",
+  "name": "Sữa Tăng Cơ",
+  "slug": "sua-tang-co",
+  "parentId": "66e9076f71049ba8da1a8060",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a8114"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=182",
+  "description": "",
+  "name": "Sữa Giảm Cân",
+  "slug": "sua-giam-can",
+  "parentId": "66e9076f71049ba8da1a8060",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a8116"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=184",
+  "description": "",
+  "name": "Chăn Ga Gối",
+  "slug": "chan-ga-goi",
+  "parentId": "66e9076f71049ba8da1a8061",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e9242c71049ba8da1a8117"
+  },
+  "imageURL": "https://picsum.photos/300/300?random=185",
+  "description": "",
+  "name": "Nệm",
+  "slug": "nem",
+  "parentId": "66e9076f71049ba8da1a8061",
+  "createdAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-12T09:03:52.087Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "66e946e488c674d20941671f"
+  },
+  "name": "Áo khoác Phao",
+  "slug": "ao-khoac-phao",
+  "description": "<p>Áo khoác Phao</p>",
+  "content": "Áo khoác Phao",
+  "imageURL": "https://picsum.photos/300/300?random=186",
+  "parentId": {
+    "$oid": "66e9076f71049ba8da1a8049"
+  },
+  "status": true,
+  "createdAt": {
+    "$numberLong": "1726564068833"
+  },
+  "updatedAt": {
+    "$numberLong": "1726564068833"
+  }
+}]

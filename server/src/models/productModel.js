@@ -40,9 +40,11 @@ const getProductsAll = async (page, limit) => {
   const db = await GET_DB().collection('products');
   const result = await db
     .find()
+    .sort({ createdAt: 1 })
     .project({
       _id: 1,
       name: 1,
+      tags: 1,
       variants: 1,
       reviews: 1,
       price: 1,
@@ -59,14 +61,20 @@ const getProductsAll = async (page, limit) => {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
   result.forEach((product) => {
-    const total = product.reviews.reduce(
-      (acc, review) => acc + review.rating,
-      0
-    );
-    product.averageRating = parseFloat(
-      (total / product.reviews.length).toFixed(1)
-    );
-    product.totalComment = product.reviews.length;
+    if (product.reviews && product.reviews.length > 0) {
+      const total = product.reviews.reduce(
+        (acc, review) => acc + review.rating,
+        0
+      );
+      product.averageRating = parseFloat(
+        (total / product.reviews.length).toFixed(1)
+      );
+      product.totalComment = product.reviews.length;
+    } else {
+      product.averageRating = 0;
+      product.totalComment = 0;
+    }
+    delete product.reviews;
   });
   return result;
 };
@@ -84,6 +92,7 @@ const getProductsAllSpecial = async () => {
   if (!result) {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
+
   return result;
 };
 
@@ -144,6 +153,7 @@ const getProductsByCategory = async (slug, page, limit) => {
     .project({
       _id: 1,
       name: 1,
+      tags: 1,
       variants: 1,
       reviews: 1,
       price: 1,
@@ -159,15 +169,22 @@ const getProductsByCategory = async (slug, page, limit) => {
   if (!products) {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
+
   products.forEach((product) => {
-    const total = product.reviews.reduce(
-      (acc, review) => acc + review.rating,
-      0
-    );
-    product.averageRating = parseFloat(
-      (total / product.reviews.length).toFixed(1)
-    );
-    product.totalComment = product.reviews.length;
+    if (product.reviews && product.reviews.length > 0) {
+      const total = product.reviews.reduce(
+        (acc, review) => acc + review.rating,
+        0
+      );
+      product.averageRating = parseFloat(
+        (total / product.reviews.length).toFixed(1)
+      );
+      product.totalComment = product.reviews.length;
+    } else {
+      product.averageRating = 0;
+      product.totalComment = 0;
+    }
+    delete product.reviews;
   });
   return products;
 };
@@ -187,6 +204,7 @@ const getProductsByCategoryId = async (id, page, limit) => {
     .project({
       _id: 1,
       name: 1,
+      tags: 1,
       variants: 1,
       reviews: 1,
       price: 1,
@@ -203,14 +221,20 @@ const getProductsByCategoryId = async (id, page, limit) => {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
   products.forEach((product) => {
-    const total = product.reviews.reduce(
-      (acc, review) => acc + review.rating,
-      0
-    );
-    product.averageRating = parseFloat(
-      (total / product.reviews.length).toFixed(1)
-    );
-    product.totalComment = product.reviews.length;
+    if (product.reviews && product.reviews.length > 0) {
+      const total = product.reviews.reduce(
+        (acc, review) => acc + review.rating,
+        0
+      );
+      product.averageRating = parseFloat(
+        (total / product.reviews.length).toFixed(1)
+      );
+      product.totalComment = product.reviews.length;
+    } else {
+      product.averageRating = 0;
+      product.totalComment = 0;
+    }
+    delete product.reviews;
   });
   return products;
 };
@@ -233,6 +257,7 @@ const getProductsByBrand = async (slug, page, limit) => {
     .project({
       _id: 1,
       name: 1,
+      tags: 1,
       variants: 1,
       reviews: 1,
       price: 1,
@@ -248,14 +273,20 @@ const getProductsByBrand = async (slug, page, limit) => {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
   products.forEach((product) => {
-    const total = product.reviews.reduce(
-      (acc, review) => acc + review.rating,
-      0
-    );
-    product.averageRating = parseFloat(
-      (total / product.reviews.length).toFixed(1)
-    );
-    product.totalComment = product.reviews.length;
+    if (product.reviews && product.reviews.length > 0) {
+      const total = product.reviews.reduce(
+        (acc, review) => acc + review.rating,
+        0
+      );
+      product.averageRating = parseFloat(
+        (total / product.reviews.length).toFixed(1)
+      );
+      product.totalComment = product.reviews.length;
+    } else {
+      product.averageRating = 0;
+      product.totalComment = 0;
+    }
+    delete product.reviews;
   });
   return products;
 };
@@ -270,6 +301,7 @@ const getProductsByBrandId = async (id, page, limit) => {
     .project({
       _id: 1,
       name: 1,
+      tags: 1,
       variants: 1,
       reviews: 1,
       price: 1,
@@ -285,14 +317,20 @@ const getProductsByBrandId = async (id, page, limit) => {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
   products.forEach((product) => {
-    const total = product.reviews.reduce(
-      (acc, review) => acc + review.rating,
-      0
-    );
-    product.averageRating = parseFloat(
-      (total / product.reviews.length).toFixed(1)
-    );
-    product.totalComment = product.reviews.length;
+    if (product.reviews && product.reviews.length > 0) {
+      const total = product.reviews.reduce(
+        (acc, review) => acc + review.rating,
+        0
+      );
+      product.averageRating = parseFloat(
+        (total / product.reviews.length).toFixed(1)
+      );
+      product.totalComment = product.reviews.length;
+    } else {
+      product.averageRating = 0;
+      product.totalComment = 0;
+    }
+    delete product.reviews;
   });
   return products;
 };
@@ -448,6 +486,7 @@ const getProductByAlphabetAZ = async (page, limit) => {
     .project({
       _id: 1,
       name: 1,
+      tags: 1,
       variants: 1,
       reviews: 1,
       price: 1,
@@ -464,14 +503,20 @@ const getProductByAlphabetAZ = async (page, limit) => {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
   result.forEach((product) => {
-    const total = product.reviews.reduce(
-      (acc, review) => acc + review.rating,
-      0
-    );
-    product.averageRating = parseFloat(
-      (total / product.reviews.length).toFixed(1)
-    );
-    product.totalComment = product.reviews.length;
+    if (product.reviews && product.reviews.length > 0) {
+      const total = product.reviews.reduce(
+        (acc, review) => acc + review.rating,
+        0
+      );
+      product.averageRating = parseFloat(
+        (total / product.reviews.length).toFixed(1)
+      );
+      product.totalComment = product.reviews.length;
+    } else {
+      product.averageRating = 0;
+      product.totalComment = 0;
+    }
+    delete product.reviews;
   });
   return result;
 };
@@ -487,6 +532,7 @@ const getProductByAlphabetZA = async (page, limit) => {
     .project({
       _id: 1,
       name: 1,
+      tags: 1,
       variants: 1,
       reviews: 1,
       price: 1,
@@ -503,14 +549,20 @@ const getProductByAlphabetZA = async (page, limit) => {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
   result.forEach((product) => {
-    const total = product.reviews.reduce(
-      (acc, review) => acc + review.rating,
-      0
-    );
-    product.averageRating = parseFloat(
-      (total / product.reviews.length).toFixed(1)
-    );
-    product.totalComment = product.reviews.length;
+    if (product.reviews && product.reviews.length > 0) {
+      const total = product.reviews.reduce(
+        (acc, review) => acc + review.rating,
+        0
+      );
+      product.averageRating = parseFloat(
+        (total / product.reviews.length).toFixed(1)
+      );
+      product.totalComment = product.reviews.length;
+    } else {
+      product.averageRating = 0;
+      product.totalComment = 0;
+    }
+    delete product.reviews;
   });
   return result;
 };
@@ -525,6 +577,7 @@ const getProductByPriceAsc = async (page, limit) => {
     .project({
       _id: 1,
       name: 1,
+      tags: 1,
       variants: 1,
       reviews: 1,
       price: 1,
@@ -541,15 +594,22 @@ const getProductByPriceAsc = async (page, limit) => {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
   result.forEach((product) => {
-    const total = product.reviews.reduce(
-      (acc, review) => acc + review.rating,
-      0
-    );
-    product.averageRating = parseFloat(
-      (total / product.reviews.length).toFixed(1)
-    );
-    product.totalComment = product.reviews.length;
+    if (product.reviews && product.reviews.length > 0) {
+      const total = product.reviews.reduce(
+        (acc, review) => acc + review.rating,
+        0
+      );
+      product.averageRating = parseFloat(
+        (total / product.reviews.length).toFixed(1)
+      );
+      product.totalComment = product.reviews.length;
+    } else {
+      product.averageRating = 0;
+      product.totalComment = 0;
+    }
+    delete product.reviews;
   });
+
   return result;
 };
 
@@ -563,6 +623,7 @@ const getProductByPriceDesc = async (page, limit) => {
     .project({
       _id: 1,
       name: 1,
+      tags: 1,
       variants: 1,
       reviews: 1,
       price: 1,
@@ -579,14 +640,20 @@ const getProductByPriceDesc = async (page, limit) => {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
   result.forEach((product) => {
-    const total = product.reviews.reduce(
-      (acc, review) => acc + review.rating,
-      0
-    );
-    product.averageRating = parseFloat(
-      (total / product.reviews.length).toFixed(1)
-    );
-    product.totalComment = product.reviews.length;
+    if (product.reviews && product.reviews.length > 0) {
+      const total = product.reviews.reduce(
+        (acc, review) => acc + review.rating,
+        0
+      );
+      product.averageRating = parseFloat(
+        (total / product.reviews.length).toFixed(1)
+      );
+      product.totalComment = product.reviews.length;
+    } else {
+      product.averageRating = 0;
+      product.totalComment = 0;
+    }
+    delete product.reviews;
   });
   return result;
 };
@@ -601,6 +668,7 @@ const getProductByNewest = async (page, limit) => {
     .project({
       _id: 1,
       name: 1,
+      tags: 1,
       variants: 1,
       reviews: 1,
       price: 1,
@@ -617,15 +685,22 @@ const getProductByNewest = async (page, limit) => {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
   result.forEach((product) => {
-    const total = product.reviews.reduce(
-      (acc, review) => acc + review.rating,
-      0
-    );
-    product.averageRating = parseFloat(
-      (total / product.reviews.length).toFixed(1)
-    );
-    product.totalComment = product.reviews.length;
+    if (product.reviews && product.reviews.length > 0) {
+      const total = product.reviews.reduce(
+        (acc, review) => acc + review.rating,
+        0
+      );
+      product.averageRating = parseFloat(
+        (total / product.reviews.length).toFixed(1)
+      );
+      product.totalComment = product.reviews.length;
+    } else {
+      product.averageRating = 0;
+      product.totalComment = 0;
+    }
+    delete product.reviews;
   });
+
   return result;
 };
 
@@ -639,6 +714,7 @@ const getProductByOldest = async (page, limit) => {
     .project({
       _id: 1,
       name: 1,
+      tags: 1,
       variants: 1,
       reviews: 1,
       price: 1,
@@ -655,15 +731,22 @@ const getProductByOldest = async (page, limit) => {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
   result.forEach((product) => {
-    const total = product.reviews.reduce(
-      (acc, review) => acc + review.rating,
-      0
-    );
-    product.averageRating = parseFloat(
-      (total / product.reviews.length).toFixed(1)
-    );
-    product.totalComment = product.reviews.length;
+    if (product.reviews && product.reviews.length > 0) {
+      const total = product.reviews.reduce(
+        (acc, review) => acc + review.rating,
+        0
+      );
+      product.averageRating = parseFloat(
+        (total / product.reviews.length).toFixed(1)
+      );
+      product.totalComment = product.reviews.length;
+    } else {
+      product.averageRating = 0;
+      product.totalComment = 0;
+    }
+    delete product.reviews;
   });
+
   return result;
 };
 
@@ -745,7 +828,6 @@ const getProductBySearch = async (search, page, limit) => {
         maxInventory,
         weight,
         height,
-        tags,
         brand,
         cat_id,
         url,
@@ -760,15 +842,114 @@ const getProductBySearch = async (search, page, limit) => {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
   result.forEach((product) => {
-    const total = product.reviews.reduce(
-      (acc, review) => acc + review.rating,
-      0
-    );
-    product.averageRating = parseFloat(
-      (total / product.reviews.length).toFixed(1)
-    );
-    product.totalComment = product.reviews.length;
+    if (product.reviews && product.reviews.length > 0) {
+      const total = product.reviews.reduce(
+        (acc, review) => acc + review.rating,
+        0
+      );
+      product.averageRating = parseFloat(
+        (total / product.reviews.length).toFixed(1)
+      );
+      product.totalComment = product.reviews.length;
+    } else {
+      product.averageRating = 0;
+      product.totalComment = 0;
+    }
+    delete product.reviews;
   });
+  return result;
+};
+
+const getProductByCategoryFilter = async (slug, pages, limit, filter) => {
+  pages = parseInt(pages) || 1;
+  limit = parseInt(limit) || 20;
+
+  const db = await GET_DB();
+
+  let sortCriteria = {};
+  const [field, order] = Object.entries(filter)[0];
+
+  switch (field) {
+    case 'alphabet':
+      if (order.toLowerCase() === 'az') {
+        sortCriteria = { name: 1 };
+      } else if (order.toLowerCase() === 'za') {
+        sortCriteria = { name: -1 };
+      }
+      break;
+
+    case 'price':
+      if (order.toLowerCase() === 'asc') {
+        sortCriteria = { price: 1 };
+      } else if (order.toLowerCase() === 'desc') {
+        sortCriteria = { price: -1 };
+      }
+      break;
+
+    case 'createdAt':
+      if (order.toLowerCase() === 'newest') {
+        sortCriteria = { createdAt: -1 };
+      } else if (order.toLowerCase() === 'oldest') {
+        sortCriteria = { createdAt: 1 };
+      }
+      break;
+
+    default:
+      sortCriteria = {};
+      break;
+  }
+
+  const category = await db.collection('categories').findOne({ slug: slug });
+  if (!category) {
+    throw new Error('Danh mục không tồn tại');
+  }
+
+  const cat_id = category._id;
+
+  const subCategoryIds = await getAllSubCategories(cat_id);
+
+  const categoryIds = [cat_id, ...subCategoryIds];
+
+  const result = await db
+    .collection('products')
+    .find({ cat_id: { $in: categoryIds } })
+    .collation({ locale: 'en', strength: 1 })
+    .project({
+      _id: 1,
+      name: 1,
+      tags: 1,
+      variants: 1,
+      reviews: 1,
+      price: 1,
+      thumbnail: 1,
+      status: 1,
+      statusStock: 1,
+      slug: 1,
+    })
+    .sort(sortCriteria)
+    .skip((pages - 1) * limit)
+    .limit(limit)
+    .toArray();
+  if (!result) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
+  }
+  result.forEach((product) => {
+    if (product.reviews && product.reviews.length > 0) {
+      const total = product.reviews.reduce(
+        (acc, review) => acc + review.rating,
+        0
+      );
+      product.averageRating = parseFloat(
+        (total / product.reviews.length).toFixed(1)
+      );
+      product.totalComment = product.reviews.length;
+    } else {
+      product.averageRating = 0;
+      product.totalComment = 0;
+    }
+    delete product.reviews;
+  });
+
   return result;
 };
 
@@ -795,4 +976,5 @@ export const productModel = {
   getProductByOldest,
   getProductBySearch,
   getProductsAllSpecial,
+  getProductByCategoryFilter,
 };
