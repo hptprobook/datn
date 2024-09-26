@@ -8,7 +8,7 @@ import MainLoading from '~/components/common/Loading/MainLoading';
 import { handleToast } from '~/customHooks/useToast';
 import { useState } from 'react';
 
-export default function CategoryPage() {
+const CategoryPage = () => {
   const { slug } = useParams();
   const [filters, setFilters] = useState({ colors: [], sizes: [] });
 
@@ -48,8 +48,6 @@ export default function CategoryPage() {
     setFilters(newFilters);
   };
 
-  console.log(allProductsData);
-
   return (
     <section className="max-w-container mx-auto mt-16">
       <HeaderBC title={'Danh mục sản phẩm'} name={categoryData?.name} />
@@ -68,4 +66,8 @@ export default function CategoryPage() {
       </div>
     </section>
   );
-}
+};
+
+CategoryPage.propTypes = {};
+
+export default CategoryPage;

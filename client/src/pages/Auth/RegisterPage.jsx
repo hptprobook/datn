@@ -12,7 +12,7 @@ import { useMutation } from '@tanstack/react-query';
 import { handleToast } from '~/customHooks/useToast';
 import useCheckAuth from '~/customHooks/useCheckAuth';
 
-export default function RegisterPage() {
+const RegisterPage = () => {
   const { login } = useCheckAuth();
   const navigate = useNavigate();
 
@@ -161,4 +161,8 @@ export default function RegisterPage() {
       </div>
     </section>
   );
-}
+};
+
+RegisterPage.propTypes = {};
+
+export default RegisterPage;

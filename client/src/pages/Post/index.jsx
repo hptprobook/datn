@@ -140,4 +140,6 @@ const PostPage = () => {
   );
 };
 
+PostPage.propTypes = {};
+
 export default PostPage;

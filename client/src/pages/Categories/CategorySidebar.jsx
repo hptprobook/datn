@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import MultiRangeSlider from '~/components/common/Range/MultiSliderRange';
+import PropTypes from 'prop-types';
 
-export default function CategorySidebar({ products, onFilterChange }) {
+const CategorySidebar = ({ products, onFilterChange }) => {
   const [selectedColors, setSelectedColors] = useState([]);
   const [selectedSizes, setSelectedSizes] = useState([]);
   const [checkboxes, setCheckboxes] = useState({});
@@ -185,4 +186,11 @@ export default function CategorySidebar({ products, onFilterChange }) {
       </div>
     </div>
   );
-}
+};
+
+CategorySidebar.propTypes = {
+  products: PropTypes.array.isRequired,
+  onFilterChange: PropTypes.func,
+};
+
+export default CategorySidebar;

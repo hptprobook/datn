@@ -1,6 +1,7 @@
 import { Rating } from 'flowbite-react';
+import PropTypes from 'prop-types';
 
-export default function ProductDetailReview({ reviews }) {
+const ProductDetailReview = ({ reviews }) => {
   const averageRating = reviews.length
     ? (
         reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
@@ -72,4 +73,10 @@ export default function ProductDetailReview({ reviews }) {
       </div>
     </section>
   );
-}
+};
+
+ProductDetailReview.propTypes = {
+  reviews: PropTypes.array,
+};
+
+export default ProductDetailReview;

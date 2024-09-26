@@ -1,7 +1,7 @@
 import { FaCalendarAlt } from 'react-icons/fa';
 import { NavLink, useParams } from 'react-router-dom';
 
-function PostDetail() {
+const PostDetail = () => {
   const { slug } = useParams();
 
   const suggestedPosts = [
@@ -70,6 +70,8 @@ function PostDetail() {
       </div>
     </div>
   );
-}
+};
+
+PostDetail.propTypes = {};
 
 export default PostDetail;

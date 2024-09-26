@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import { posts } from '~/APIs/mock_data';
 
-export default function Post() {
+const Post = () => {
   const firstPost = posts[0];
   const otherPosts = posts.slice(1, 5); // Lấy 4 bài còn lại
 
@@ -55,4 +55,8 @@ export default function Post() {
       </div>
     </div>
   );
-}
+};
+
+Post.propTypes = {};
+
+export default Post;

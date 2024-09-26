@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import Input from '~/components/common/TextField/Input';
 
-export default function DeliveryDetail() {
+const DeliveryDetail = () => {
   const products = [
     {
       name: 'Balo nam',
@@ -215,4 +215,8 @@ export default function DeliveryDetail() {
       </div>
     </div>
   );
-}
+};
+
+DeliveryDetail.propTypes = {};
+
+export default DeliveryDetail;

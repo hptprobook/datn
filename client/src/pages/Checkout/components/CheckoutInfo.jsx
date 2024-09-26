@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 
-export default function CheckoutInfo() {
+const CheckoutInfo = () => {
   const navigate = useNavigate();
 
   const handleConfirmCheckout = () => {
@@ -61,4 +61,8 @@ export default function CheckoutInfo() {
       </div>
     </div>
   );
-}
+};
+
+CheckoutInfo.propTypes = {};
+
+export default CheckoutInfo;

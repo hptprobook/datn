@@ -180,9 +180,12 @@ export const SAVE_PRODUCT_SCHEMA = Joi.object({
         'Trạng thái sản phẩm phải là một trong các giá trị sau: stock, outStock, preOrder.',
       'any.required': 'Trạng thái sản phẩm là bắt buộc.',
     }),
-  productType: Joi.string().trim().min(1).messages({
-    'string.empty': 'Sản phẩm không được để trống',
-  }),
+  productType: Joi.array().items(
+    Joi.string().trim().min(1).required().messages({
+      'string.empty': 'Loại sản phẩm không được để trống',
+      'any.required': 'Loại sản phẩm là bắt buộc',
+    })
+  ),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(Date.now),
 });
@@ -322,9 +325,11 @@ export const UPDATE_PRODUCT = Joi.object({
       'any.only':
         'Trạng thái sản phẩm phải là một trong các giá trị sau: stock, outStock, preOrder.',
     }),
-  productType: Joi.string().trim().min(1).messages({
-    'string.empty': 'Sản phẩm không được để trống',
-  }),
+  productType: Joi.array().items(
+    Joi.string().trim().min(1).messages({
+      'string.empty': 'Loại sản phẩm không được để trống',
+    })
+  ),
   updatedAt: Joi.date().timestamp('javascript').default(Date.now),
 });
 

@@ -5,7 +5,7 @@ import { FaTrashAlt } from 'react-icons/fa';
 import { useCart } from 'react-use-cart';
 import { formatCurrencyVND } from '~/utils/formatters';
 
-export default function CartListProduct() {
+const CartListProduct = () => {
   const { items } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [checkedItems, setCheckedItems] = useState([]);
@@ -129,4 +129,9 @@ export default function CartListProduct() {
       ))}
     </div>
   );
-}
+};
+
+CartListProduct.propTypes = {};
+
+export default CartListProduct;
+

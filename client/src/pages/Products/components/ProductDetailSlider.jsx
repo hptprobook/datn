@@ -3,8 +3,9 @@ import './style.css';
 import { FreeMode, Navigation, Thumbs } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import ImageViewer from 'react-simple-image-viewer';
+import PropTypes from 'prop-types';
 
-export default function ProductDetailSlider({ images, activeIndex }) {
+const ProductDetailSlider = ({ images, activeIndex }) => {
   const [thumbsSwiper, setThumbsSwiper] = useState(null);
   const [mainSwiper, setMainSwiper] = useState(null);
   const [isViewerOpen, setIsViewerOpen] = useState(false);
@@ -87,4 +88,11 @@ export default function ProductDetailSlider({ images, activeIndex }) {
       )}
     </div>
   );
-}
+};
+
+ProductDetailSlider.propTypes = {
+  images: PropTypes.array.isRequired,
+  activeIndex: PropTypes.number,
+};
+
+export default ProductDetailSlider;

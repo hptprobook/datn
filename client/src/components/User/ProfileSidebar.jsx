@@ -6,7 +6,7 @@ import { FaRegEye } from 'react-icons/fa';
 import { NavLink } from 'react-router-dom';
 import { GrClose } from 'react-icons/gr';
 
-function ProfileSidebar() {
+const ProfileSidebar = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
 
   const toggleSidebar = () => {
@@ -193,6 +193,8 @@ function ProfileSidebar() {
       </aside>
     </div>
   );
-}
+};
+
+ProfileSidebar.propTypes = {};
 
 export default ProfileSidebar;

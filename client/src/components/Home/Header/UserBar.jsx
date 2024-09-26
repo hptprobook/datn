@@ -1,7 +1,7 @@
 import { FaRegUserCircle } from 'react-icons/fa';
 import { NavLink } from 'react-router-dom';
 
-export default function UserBar() {
+const UserBar = () => {
   return (
     <div className="relative text-2xl text-gray-50 cursor-pointer group z-30">
       <FaRegUserCircle />
@@ -24,4 +24,8 @@ export default function UserBar() {
       </div>
     </div>
   );
-}
+};
+
+UserBar.propTypes = {};
+
+export default UserBar;
