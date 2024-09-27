@@ -47,6 +47,20 @@ const CategoryService = {
       throw err;
     }
   },
+  updateWithImage: async ({ file, data, id }) => {
+    try {
+      const res = await upload({
+        path: `categories/${id}`,
+        file,
+        type: 'put',
+        additionalData: data,
+      });
+      return res;
+    } catch (err) {
+      console.error('Error: ', err);
+      throw err;
+    }
+  },
   updateCategory: async (categoryId, data) => {
     try {
       const res = await put(`categories/${categoryId}`, data);

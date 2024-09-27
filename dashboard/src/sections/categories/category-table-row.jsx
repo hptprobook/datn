@@ -12,7 +12,9 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 
 import Iconify from 'src/components/iconify';
+import { renderUrl } from 'src/utils/check';
 
+const backendUrl = import.meta.env.VITE_BACKEND_APP_URL;
 // ----------------------------------------------------------------------
 
 export default function CategoryTableRow({
@@ -51,7 +53,7 @@ export default function CategoryTableRow({
 
         <TableCell component="th" scope="row" padding="none">
           <Stack direction="row" alignItems="center" spacing={2}>
-            <Avatar alt={name} src={imageURL} />
+            <Avatar alt={name} src={renderUrl(imageURL, backendUrl)} />
             <Typography variant="subtitle2" noWrap>
               {name}
             </Typography>
