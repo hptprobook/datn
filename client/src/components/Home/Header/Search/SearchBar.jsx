@@ -3,7 +3,7 @@ import { useState } from 'react';
 import SearchPopular from './SearchPopular';
 import SearchResult from './SearchResult';
 
-export default function SearchBar() {
+const SearchBar = () => {
   const [isFocused, setIsFocused] = useState(false);
   const [searchValue, setSearchValue] = useState('');
 
@@ -58,4 +58,8 @@ export default function SearchBar() {
       )}
     </div>
   );
-}
+};
+
+SearchBar.propTypes = {};
+
+export default SearchBar;

@@ -20,10 +20,13 @@ export default function CategoryTableRow({
   id,
   name,
   imageURL,
-  // parentId,
+  order,
+  slug,
+  parent,
   onDelete,
   createdAt,
   handleClick,
+  handleNavigate,
 }) {
   const [open, setOpen] = useState(null);
 
@@ -54,11 +57,10 @@ export default function CategoryTableRow({
             </Typography>
           </Stack>
         </TableCell>
-
-        {/* <TableCell>{parentId}</TableCell> */}
-        
+        <TableCell  >{slug}</TableCell>
         <TableCell  >{new Date(createdAt).toLocaleDateString()}</TableCell>
-
+        <TableCell  >{order}</TableCell>
+        <TableCell  >{parent}</TableCell>
         <TableCell align="right">
           <IconButton onClick={handleOpenMenu}>
             <Iconify icon="eva:more-vertical-fill" />
@@ -76,7 +78,7 @@ export default function CategoryTableRow({
           sx: { width: 140 },
         }}
       >
-        <MenuItem onClick={handleCloseMenu}>
+        <MenuItem onClick={handleNavigate}>
           <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
           Sửa
         </MenuItem>
@@ -94,8 +96,12 @@ CategoryTableRow.propTypes = {
   id: PropTypes.any,
   onDelete: PropTypes.func,
   name: PropTypes.string,
+  slug: PropTypes.string,
+  order: PropTypes.number,
   imageURL: PropTypes.string,
   createdAt: PropTypes.string,
   selected: PropTypes.any,
+  parent: PropTypes.any,
   handleClick: PropTypes.func,
+  handleNavigate: PropTypes.func,
 };

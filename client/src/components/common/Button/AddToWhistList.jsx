@@ -1,4 +1,4 @@
-export default function AddToWhistListBtn() {
+const AddToWhistListBtn = () => {
   return (
     <button className="group transition-all duration-500 p-0.5">
       <svg
@@ -25,4 +25,8 @@ export default function AddToWhistListBtn() {
       </svg>
     </button>
   );
-}
+};
+
+AddToWhistListBtn.propTypes = {};
+
+export default AddToWhistListBtn;

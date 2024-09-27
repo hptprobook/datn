@@ -2,10 +2,14 @@ import { useEffect, useState } from 'react';
 import './style.css';
 import { FreeMode, Navigation, Thumbs } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
+import ImageViewer from 'react-simple-image-viewer';
+import PropTypes from 'prop-types';
 
-export default function ProductDetailSlider({ images, activeIndex }) {
+const ProductDetailSlider = ({ images, activeIndex }) => {
   const [thumbsSwiper, setThumbsSwiper] = useState(null);
   const [mainSwiper, setMainSwiper] = useState(null);
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(activeIndex || 0);
 
   useEffect(() => {
     if (mainSwiper && activeIndex !== null) {
@@ -13,8 +17,19 @@ export default function ProductDetailSlider({ images, activeIndex }) {
     }
   }, [activeIndex, mainSwiper]);
 
+  // Function to open image viewer
+  const openImageViewer = (index) => {
+    setCurrentImageIndex(index);
+    setIsViewerOpen(true);
+  };
+
+  // Function to close image viewer
+  const closeImageViewer = () => {
+    setIsViewerOpen(false);
+  };
+
   return (
-    <div className="slider-box w-full h-[720px] max-lg:mx-auto mx-0 z-10">
+    <div className="slider-box w-full h-[602px] max-lg:mx-auto mx-0 z-10">
       {/* Swiper chính */}
       <Swiper
         onSwiper={setMainSwiper}
@@ -30,6 +45,7 @@ export default function ProductDetailSlider({ images, activeIndex }) {
               src={image}
               alt={`Product image ${index + 1}`}
               className="cursor-pointer rounded-md transition-all duration-500"
+              onClick={() => openImageViewer(index)} // Open image viewer on click
             />
           </SwiperSlide>
         ))}
@@ -53,11 +69,30 @@ export default function ProductDetailSlider({ images, activeIndex }) {
                 src={image}
                 alt={`Product image ${index + 1}`}
                 className="max-lg:mx-auto cursor-pointer rounded-md transition-all duration-500 aspect-square"
+                onClick={() => openImageViewer(index)} // Open image viewer on thumbnail click
               />
             </div>
           </SwiperSlide>
         ))}
       </Swiper>
+
+      {/* Image Viewer */}
+      {isViewerOpen && (
+        <ImageViewer
+          src={images}
+          currentIndex={currentImageIndex}
+          disableScroll={true}
+          closeOnClickOutside={true}
+          onClose={closeImageViewer}
+        />
+      )}
     </div>
   );
-}
+};
+
+ProductDetailSlider.propTypes = {
+  images: PropTypes.array.isRequired,
+  activeIndex: PropTypes.number,
+};
+
+export default ProductDetailSlider;

@@ -10,8 +10,9 @@ import { formatCurrencyVND, generateMongoObjectId } from '~/utils/formatters';
 import { useCart } from 'react-use-cart';
 import { handleToast } from '~/customHooks/useToast';
 import CartFixed from '~/components/Home/Header/CartFixed';
+import PropTypes from 'prop-types';
 
-export default function ProductDetailInfor({ product, onColorChange }) {
+const ProductDetailInfor = ({ product, onColorChange }) => {
   const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
 
@@ -130,7 +131,7 @@ export default function ProductDetailInfor({ product, onColorChange }) {
       <div className="pro-detail w-full max-lg:max-w-[608px] lg:pl-8 xl:pl-16 max-lg:mx-auto max-lg:mt-8">
         <div className="flex items-center justify-between gap-6 mb-6">
           <div className="text">
-            <h2 className="font-manrope font-bold text-3xl leading-10 text-gray-900 mb-2 text-clamp-3">
+            <h2 className="font-manrope font-bold text-xl leading-10 text-gray-900 mb-2 text-clamp-3">
               {product?.name}
             </h2>
             <p className="font-normal text-base text-gray-500 text-clamp-1">
@@ -215,4 +216,11 @@ export default function ProductDetailInfor({ product, onColorChange }) {
       <CartFixed open={openCartFixed} setOpen={setOpenCartFixed} />
     </div>
   );
-}
+};
+
+ProductDetailInfor.propTypes = {
+  product: PropTypes.object.isRequired,
+  onColorChange: PropTypes.func,
+};
+
+export default ProductDetailInfor;

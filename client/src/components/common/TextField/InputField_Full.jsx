@@ -1,17 +1,18 @@
 import { Icon } from '@iconify/react';
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 
-export default function InputField_Full({
+const InputField_Full = ({
   id,
   label,
   type = 'text',
   name,
-  onChange, // To handle changes in the input
-  onBlur, // To handle onBlur for validation
-  value, // To manage the controlled input
-  error, // To display error messages
+  onChange,
+  onBlur,
+  value,
+  error,
   ...rest
-}) {
+}) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const togglePasswordVisibility = () => {
@@ -57,4 +58,18 @@ export default function InputField_Full({
       {/* Display error if exists */}
     </div>
   );
-}
+};
+
+InputField_Full.propTypes = {
+  id: PropTypes.string,
+  label: PropTypes.string,
+  type: PropTypes.string,
+  name: PropTypes.string,
+  onChange: PropTypes.func,
+  onBlur: PropTypes.func,
+  value: PropTypes.string,
+  error: PropTypes.string,
+  ...PropTypes.any,
+};
+
+export default InputField_Full;

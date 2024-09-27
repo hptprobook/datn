@@ -1,6 +1,8 @@
-export default function RegisterBottom({ checked, onChange }) {
+import PropTypes from 'prop-types';
+
+const RegisterBottom = ({ checked, onChange }) => {
   return (
-    <>
+    <div>
       <div className="col-span-6">
         <label htmlFor="allowNotifies" className="flex gap-4">
           <input
@@ -32,6 +34,13 @@ export default function RegisterBottom({ checked, onChange }) {
           .
         </p>
       </div>
-    </>
+    </div>
   );
-}
+};
+
+RegisterBottom.propTypes = {
+  checked: PropTypes.bool,
+  onChange: PropTypes.func,
+};
+
+export default RegisterBottom;

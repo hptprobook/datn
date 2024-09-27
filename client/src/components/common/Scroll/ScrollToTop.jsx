@@ -11,4 +11,6 @@ const ScrollToTop = () => {
   return null;
 };
 
+ScrollToTop.propTypes = {};
+
 export default ScrollToTop;

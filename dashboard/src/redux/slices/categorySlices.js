@@ -4,8 +4,12 @@ import CategoryService from '../services/category.service';
 
 export const fetchAllCategories = createAsyncThunk(
   'categories/fetchAll',
-  async (_, rejectWithValue) => {
+  async (parent, rejectWithValue) => {
     try {
+      if (parent) {
+        const res = await CategoryService.getCategoriesParent();
+        return res;
+      }
       const res = await CategoryService.getAllCategories();
       return res;
     } catch (err) {
@@ -15,9 +19,9 @@ export const fetchAllCategories = createAsyncThunk(
 );
 export const fetchCategoryById = createAsyncThunk(
   'categories/fetchById',
-  async (categoryId, { rejectWithValue }) => {
+  async (id, { rejectWithValue }) => {
     try {
-      const res = await CategoryService.getCategoryById(categoryId);
+      const res = await CategoryService.getCategoryById(id);
       return res;
     } catch (err) {
       return rejectWithValue(err.response.data);
@@ -26,13 +30,11 @@ export const fetchCategoryById = createAsyncThunk(
 );
 export const createCategory = createAsyncThunk(
   'categories/createCategory',
-  async ({ data, image }, thunkAPI) => {
+  async ({ file, data }, { rejectWithValue }) => {
     try {
-      const res = await CategoryService.createCategory({data: image, additionalData: data});
-
-      return res.data; // Assuming res.data contains the categories array
+      return await CategoryService.createCategory({ file, additionalData: data });
     } catch (error) {
-      throw error;
+      return rejectWithValue(err.response.data);
     }
   }
 );
@@ -63,15 +65,16 @@ export const resetDelete = createAction('categories/resetDelete');
 const initialState = {
   categories: [],
   selectedCategory: null,
+  category: {},
   delete: null,
-  status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
+  status: 'idle', // 'idle' | 'loading' | 'successful' | 'failed'
   statusDelete: 'idle',
   error: null,
 };
 
 export const setStatus = createAction('categories/setStatus');
 
-const categoriesSlice = createSlice({
+const categorySlices = createSlice({
   name: 'categories',
   initialState,
   reducers: {},
@@ -81,8 +84,8 @@ const categoriesSlice = createSlice({
         state.status = 'loading';
       })
       .addCase(fetchAllCategories.fulfilled, (state, action) => {
-        state.status = 'succeeded';
-        state.data = action.payload.categories; // Storing only the categories array
+        state.status = 'successful';
+        state.categories = action.payload; // Storing only the categories array
       })
       .addCase(fetchAllCategories.rejected, (state, action) => {
         state.status = 'failed';
@@ -92,8 +95,8 @@ const categoriesSlice = createSlice({
         state.status = 'loading';
       })
       .addCase(fetchCategoryById.fulfilled, (state, action) => {
-        state.status = 'succeeded';
-        state.selectedCategory = action.payload; // Storing the details of a specific category
+        state.status = 'successful';
+        state.category = action.payload; // Storing the details of a specific category
       })
       .addCase(fetchCategoryById.rejected, (state, action) => {
         state.status = 'failed';
@@ -103,8 +106,8 @@ const categoriesSlice = createSlice({
         state.statusCreate = 'loading';
       })
       .addCase(createCategory.fulfilled, (state, action) => {
-        state.statusCreate = 'succeeded';
-        state.newCategory = action.payload; // Update based on the actual structure
+        state.statusCreate = 'successful';
+        state.category = action.payload; // Update based on the actual structure
       })
       .addCase(createCategory.rejected, (state, action) => {
         state.statusCreate = 'failed';
@@ -114,7 +117,7 @@ const categoriesSlice = createSlice({
         state.statusDelete = 'loading delete';
       })
       .addCase(deleteCategory.fulfilled, (state, action) => {
-        state.statusDelete = 'succeeded';
+        state.statusDelete = 'successful';
         state.delete = action.payload; // Storing only the categories array
       })
       .addCase(deleteCategory.rejected, (state, action) => {
@@ -125,7 +128,7 @@ const categoriesSlice = createSlice({
         state.statusUpdate = 'loading';
       })
       .addCase(updateCategory.fulfilled, (state, action) => {
-        state.statusUpdate = 'succeeded';
+        state.statusUpdate = 'successful';
         state.dataUpdate = action.payload;
       })
       .addCase(updateCategory.rejected, (state, action) => {
@@ -133,7 +136,10 @@ const categoriesSlice = createSlice({
         state.error = action.error.message;
       })
       .addCase(setStatus, (state, action) => {
-        state.status = action.payload;
+        const { key, value } = action.payload; // Destructure key and value from payload
+        if (state[key] !== undefined) {
+          state[key] = value; // Update the status field dynamically
+        }
       })
       .addCase(resetDelete, (state) => {
         state.status = 'idle';
@@ -143,4 +149,4 @@ const categoriesSlice = createSlice({
   },
 });
 
-export default categoriesSlice.reducer;
+export default categorySlices.reducer;

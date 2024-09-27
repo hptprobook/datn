@@ -44,7 +44,7 @@ export const cartTotalPriceState = selector<number>({
       (total, item) =>
         total +
         Number(item.order.quantity) *
-          Number(products.find((product) => product.id === item.id)?.salePrice),
+          Number(products.find((product) => product._id === String(item.id))?.salePrice),
       0
     );
     return result;
@@ -100,7 +100,7 @@ export const openProductPickerState = atom<boolean>({
 });
 
 export const initialProductInfoPickedState = {
-  productId: -1,
+  productId: "-1",
   isUpdate: false,
 };
 

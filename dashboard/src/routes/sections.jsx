@@ -16,9 +16,9 @@ export const CreateProductPage = lazy(() => import('src/pages/products/createPro
 
 export const Page404 = lazy(() => import('src/pages/page-not-found'));
 // category page
-export const CategoryPage = lazy(() => import('src/pages/category/category'));
-export const CreateCategoryPage = lazy(() => import('src/pages/category/createCategory'));
-export const EditCategoryPage = lazy(() => import('src/pages/category/editCategory'));
+export const CategoryPage = lazy(() => import('src/pages/categories/category'));
+export const CreateCategoryPage = lazy(() => import('src/pages/categories/create'));
+export const EditCategoryPage = lazy(() => import('src/pages/categories/detail'));
 // config page
 export const NavDashboardPage = lazy(() => import('src/pages/settings/nav-dashboard'));
 export const NavDashboardCreatePage = lazy(() => import('src/pages/settings/create-nav'));
@@ -40,6 +40,8 @@ export const OrderDetailPage = lazy(() => import('src/pages/orders/detail'));
 // brand page
 export const BrandsPage = lazy(() => import('src/pages/brands/brands'));
 export const BrandCreatePage = lazy(() => import('src/pages/brands/create'));
+export const BrandDetailPage = lazy(() => import('src/pages/brands/detail'));
+
 // ----------------------------------------------------------------------
 
 const childRoutes = [
@@ -68,6 +70,7 @@ const childRoutes = [
   { path: 'suppliers/:id', element: <SupplierDetailPage /> },
   { path: 'brands', element: <BrandsPage /> },
   { path: 'brands/create', element: <BrandCreatePage /> },
+  { path: 'brands/:id', element: <BrandDetailPage /> },
 ];
 export const routePath = childRoutes
   .filter((item) => !item.path?.includes(':id'))

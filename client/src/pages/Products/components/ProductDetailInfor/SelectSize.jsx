@@ -1,6 +1,8 @@
-export default function SelectSize({ sizes, onChange, selectedSize }) {
+import PropTypes from 'prop-types';
+
+const SelectSize = ({ sizes, onChange, selectedSize }) => {
   return (
-    <div className="grid grid-cols-2 min-[400px]:grid-cols-4 gap-3 mb-3 min-[400px]:mb-8">
+    <div className="grid grid-cols-2 min-[400px]:grid-cols-5 gap-3 mb-3 min-[400px]:mb-8">
       {sizes.map((size) => (
         <div key={size.size} className="relative group">
           <button
@@ -25,4 +27,12 @@ export default function SelectSize({ sizes, onChange, selectedSize }) {
       ))}
     </div>
   );
-}
+};
+
+SelectSize.propTypes = {
+  sizes: PropTypes.array.isRequired,
+  onChange: PropTypes.func.isRequired,
+  selectedSize: PropTypes.string.isRequired,
+};
+
+export default SelectSize;

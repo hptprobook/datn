@@ -18,7 +18,8 @@ import CardProductOrder from "../components/custom-card/card-product-order";
 import { changeStatusBarColor, pay } from "../services";
 import useSetHeader from "../hooks/useSetHeader";
 import { getConfig } from "../components/config-provider";
-
+import { useLocation } from "react-router-dom";
+import axios from "axios";
 const { Option } = Select;
 
 const locationVnState = selector({
@@ -27,7 +28,8 @@ const locationVnState = selector({
 });
 
 const FinishOrder = () => {
-  const cart = useRecoilValue(cartState);
+  const location = useLocation();
+  const { cart } = location.state || { cart: { listOrder: [] } };
   const totalPrice = useRecoilValue(cartTotalPriceState);
   const listProducts = useRecoilValue(productState);
   const storeInfo = useRecoilValue(storeState);
@@ -38,30 +40,69 @@ const FinishOrder = () => {
   const setOpenSheet = useSetRecoilState(openProductPickerState);
   const setProductInfoPicked = useSetRecoilState(productInfoPickedState);
   const setHeader = useSetHeader();
+  
+  const [provinces, setProvinces] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [wards, setWards] = useState([]);
 
-  const locationVN = useRecoilValue(locationVnState);
-
-  const [currentCity, setCurrentCity] = useState(locationVN[0]);
-  const [currentDistrict, setCurrentDistrict] = useState(
-    locationVN[0].districts[0]
-  );
-  const [currentWard, setCurrentWard] = useState(
-    locationVN[0].districts[0].wards[0]
-  );
+  const [currentCity, setCurrentCity] = useState(null);
+  const [currentDistrict, setCurrentDistrict] = useState(null);
+  const [currentWard, setCurrentWard] = useState(null);
 
   const [selectedDistrictId, setSelectedDistrictId] = useState<string | null>(
-    locationVN[0].districts[0].id
+    null
   );
-  const [selectedWardId, setSelectedWardId] = useState<string | null>(
-    locationVN[0].districts[0].wards[0].id
-  );
+  const [selectedWardId, setSelectedWardId] = useState<string | null>(null);
 
+
+  useEffect(() => {
+    const fetchProvinces = async () => {
+      const response = await fetch('http://localhost:3000/api/address/tinh');
+      const data = await response.json();
+      setProvinces(data);
+      setCurrentCity(data[0]);
+    };
+
+    fetchProvinces();
+  }, []);
+
+  useEffect(() => {
+    if (currentCity) {
+      const fetchDistricts = async () => {
+        const response = await fetch(
+          `http://localhost:3000/api/address/huyen/${currentCity.id}`
+        );
+        const data = await response.json();
+        setDistricts(data);
+        setCurrentDistrict(data[0]);
+        setSelectedDistrictId(data[0].id);
+      };
+
+      fetchDistricts();
+    }
+  }, [currentCity]);
+
+  useEffect(() => {
+    if (currentDistrict) {
+      const fetchWards = async () => {
+        const response = await fetch(
+          `http://localhost:3000/api/address/xa/${currentDistrict.id}`
+        );
+        const data = await response.json();
+        setWards(data);
+        setCurrentWard(data[0]);
+        setSelectedWardId(data[0].id);
+      };
+
+      fetchWards();
+    }
+  }, [currentDistrict]);
   const handlePayMoney = async (e: SyntheticEvent) => {
     e.preventDefault();
     await pay(totalPrice);
   };
 
-  const handleChooseProduct = (productId: number) => {
+  const handleChooseProduct = (productId: string) => {
     setOpenSheet(true);
     setProductInfoPicked({ productId, isUpdate: true });
   };
@@ -135,22 +176,26 @@ const FinishOrder = () => {
             />
           </Box>
           <Box mx={3} mb={2}>
-            {cart.listOrder.map((product) => {
-              const productInfo = listProducts.find(
-                (prod) => prod.id === product.id
-              );
-              return (
-                <CardProductOrder
-                  pathImg={productInfo!.imgProduct}
-                  nameProduct={productInfo!.nameProduct}
-                  salePrice={productInfo!.salePrice}
-                  quantity={product!.order.quantity}
-                  key={productInfo!.id}
-                  id={product.id}
-                  handleOnClick={(productId) => handleChooseProduct(productId)}
-                />
-              );
-            })}
+          {cart.listOrder.map((product) => {
+        const productInfo = listProducts.find(
+          (prod) => prod._id.toString() === product._id
+        );
+        if (!productInfo) {
+          console.error(`Product info not found for product ID: ${product._id}`);
+          return null;
+        }
+        return (
+          <CardProductOrder
+            pathImg={productInfo.imgProduct}
+            nameProduct={productInfo.nameProduct}
+            salePrice={productInfo.salePrice}
+            quantity={product.order.quantity}
+            key={productInfo._id}
+            _id={product._id}
+            handleOnClick={(productId) => handleChooseProduct(productId.toString())}
+          />
+        );
+      })}
           </Box>
           <Box m={4} flex flexDirection="row" justifyContent="space-between">
             <span className=" text-base font-medium">Đơn hàng</span>

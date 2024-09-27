@@ -16,8 +16,9 @@ export const SAVE_BRAND = Joi.object({
     'string.empty': 'Nội dung không được để trống',
     'any.required': 'Nội dung là bắt buộc',
   }),
-  website: Joi.string().trim().min(1).uri().messages({
+  website: Joi.string().trim().max(255).uri().messages({
     'string.uri': 'Website không hợp lệ',
+    'string.max': 'Website không được quá 255 ký tự',
   }),
   image: Joi.string().trim().min(1).required().messages({
     'string.empty': 'Ảnh không được để trống',

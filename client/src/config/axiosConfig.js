@@ -32,9 +32,9 @@ request.interceptors.response.use(
       return Promise.reject({ type: 'unauthorized' });
     }
 
-    if (error.response && error.response.status === 500) {
-      window.location.href = '/';
-    }
+    // if (error.response && error.response.status === 500) {
+    //   window.location.href = '/';
+    // }
     return Promise.reject(error);
   }
 );

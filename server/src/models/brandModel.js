@@ -25,6 +25,7 @@ const getBrandsAll = async (page, limit) => {
   const db = await GET_DB().collection('brands');
   const result = await db
     .find()
+    .sort({ createdAt: 1 })
     .skip((page - 1) * limit)
     .limit(limit)
     .toArray();
@@ -71,7 +72,10 @@ const create = async (data) => {
 const update = async (id, data) => {
   const validData = await validateBeforeUpdate(data);
   const db = GET_DB().collection('brands');
-
+  const brand = await db.findOne({ _id: new ObjectId(id) });
+  if (!brand) {
+    throw new Error('Không tìm thấy thương hiệu');
+  }
   const result = await db.findOneAndUpdate(
     { _id: new ObjectId(id) },
     { $set: validData },
@@ -80,7 +84,10 @@ const update = async (id, data) => {
   if (!result) {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
-  return { result: result };
+  return {
+    data: result,
+    image: brand.image,
+  };
 };
 
 const deleteBrand = async (id) => {

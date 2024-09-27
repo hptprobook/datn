@@ -8,7 +8,7 @@ import { getProductBySlug } from '~/APIs';
 import { useState } from 'react';
 import MainLoading from '~/components/common/Loading/MainLoading';
 
-export default function ProductPage() {
+const ProductPage = () => {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const { slug } = useParams();
 
@@ -19,7 +19,7 @@ export default function ProductPage() {
 
   if (isLoading || !data) return <MainLoading />;
 
-  const productInfo = data && data.product;
+  const productInfo = data && data;
 
   const variantImages = productInfo?.variants
     ?.map((variant) => variant.image)
@@ -69,7 +69,11 @@ export default function ProductPage() {
         <div className="divider"></div>
         <div>{productInfo?.content}</div>
       </div>
-      <ProductDetailReview />
+      <ProductDetailReview reviews={productInfo.reviews} />
     </section>
   );
-}
+};
+
+ProductPage.propTypes = {};
+
+export default ProductPage;

@@ -3,13 +3,14 @@ import { FaAngleRight, FaArrowLeft, FaBars, FaTimes } from 'react-icons/fa';
 import { NavLink } from 'react-router-dom';
 import { menu } from '~/APIs/mock_data';
 import Logo from '~/assets/logo2.png';
+import PropTypes from 'prop-types';
 
-export default function SideNavMenu({
+const SideNavMenu = ({
   openMenu,
   setOpenMenu,
   currentTitle,
   setCurrentTitle,
-}) {
+}) => {
   const [menuPath, setMenuPath] = useState([]);
   const [animateMenu, setAnimateMenu] = useState(false);
 
@@ -39,7 +40,7 @@ export default function SideNavMenu({
     menuPath.length === 0 ? menu : menuPath[menuPath.length - 1].list || [];
 
   return (
-    <div className="z-10">
+    <div className="z-20">
       {animateMenu && (
         <div>
           <div
@@ -47,7 +48,7 @@ export default function SideNavMenu({
             onClick={() => setOpenMenu(false)}
           />
           <div
-            className={`fixed top-0 left-0 w-3/4 md:w-2/5 h-full overflow-y-auto bg-white shadow-lg z-30 transition-transform duration-300 ${
+            className={`fixed top-0 left-0 w-3/4 md:w-2/5 h-screen overflow-y-auto bg-white shadow-lg z-30 transition-transform duration-300 ${
               openMenu ? 'animate-slideIn' : 'animate-slideOut'
             }`}
           >
@@ -134,4 +135,11 @@ export default function SideNavMenu({
       )}
     </div>
   );
-}
+};
+
+SideNavMenu.propTypes = {
+  openMenu: PropTypes.bool.isRequired,
+  setOpenMenu: PropTypes.func.isRequired,
+};
+
+export default SideNavMenu;

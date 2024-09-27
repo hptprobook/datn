@@ -1,0 +1,1 @@
+export { default as CreateCategoryView } from './create-view';

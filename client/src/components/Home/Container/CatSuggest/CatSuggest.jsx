@@ -12,7 +12,7 @@ function getRandomCategories(categories, count) {
   return shuffled.slice(0, count);
 }
 
-export default function CatSuggest() {
+const CatSuggest = () => {
   const [randomCategories, setRandomCategories] = useState([]);
 
   const { data } = useQuery({
@@ -68,4 +68,8 @@ export default function CatSuggest() {
       </div>
     </div>
   );
-}
+};
+
+CatSuggest.propTypes = {};
+
+export default CatSuggest;

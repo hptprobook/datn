@@ -1,6 +1,8 @@
-export default function SelectColor({ variants, onChange, selectedColor }) {
+import PropTypes from 'prop-types';
+
+const SelectColor = ({ variants, onChange, selectedColor }) => {
   return (
-    <div className="grid grid-cols-4 gap-3 mb-6 max-w-sm">
+    <div className="grid grid-cols-6 gap-3 mb-6 max-w-sm">
       {variants.map((variant) => (
         <div
           key={variant.color}
@@ -27,7 +29,7 @@ export default function SelectColor({ variants, onChange, selectedColor }) {
               )}
             </div>
             <p
-              className={`font-bold text-md leading-6 ${
+              className={`font-bold text-sm leading-6 ${
                 selectedColor === variant.color
                   ? 'text-red-600'
                   : 'text-gray-700'
@@ -40,4 +42,12 @@ export default function SelectColor({ variants, onChange, selectedColor }) {
       ))}
     </div>
   );
-}
+};
+
+SelectColor.propTypes = {
+  variants: PropTypes.array.isRequired,
+  onChange: PropTypes.func.isRequired,
+  selectedColor: PropTypes.string.isRequired,
+};
+
+export default SelectColor;

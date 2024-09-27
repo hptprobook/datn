@@ -1,4 +1,6 @@
-export default function AddToCartBtn({ onClick }) {
+import PropTypes from 'prop-types';
+
+const AddToCartBtn = ({ onClick = () => {} }) => {
   return (
     <button
       onClick={onClick}
@@ -17,4 +19,10 @@ export default function AddToCartBtn({ onClick }) {
       Thêm vào giỏ hàng
     </button>
   );
-}
+};
+
+AddToCartBtn.propTypes = {
+  onClick: PropTypes.func,
+};
+
+export default AddToCartBtn;

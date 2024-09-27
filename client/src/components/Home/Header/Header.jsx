@@ -12,8 +12,10 @@ import SearchResponsiveModal from './Responsive/SearchResponsiveModal';
 import CartFixed from './CartFixed';
 import useCheckAuth from '~/customHooks/useCheckAuth';
 import { useCart } from 'react-use-cart';
+import { Icon } from '@iconify/react';
+import PropTypes from 'prop-types';
 
-export default function Header() {
+const Header = () => {
   const { isAuthenticated } = useCheckAuth();
 
   const [openCart, setOpenCart] = useState(false);
@@ -35,6 +37,14 @@ export default function Header() {
           </NavLink>
           <SearchBar />
           <div className="flex gap-4">
+            <NavLink to={'/danh-sach-yeu-thich'}>
+              <div
+                className="text-2xl text-gray-50 cursor-pointer relative hover:text-red-600"
+                title="Danh sách yêu thích"
+              >
+                <Icon icon="iconamoon:heart-fill" />
+              </div>
+            </NavLink>
             <div
               className="text-2xl text-gray-50 cursor-pointer relative"
               onClick={() => setOpenCart(true)}
@@ -100,4 +110,15 @@ export default function Header() {
       />
     </div>
   );
-}
+};
+
+Header.propTypes = {
+  openCart: PropTypes.bool,
+  setOpenCart: PropTypes.func,
+  openMenu: PropTypes.bool,
+  setOpenMenu: PropTypes.func,
+  currentTitle: PropTypes.string,
+  setCurrentTitle: PropTypes.func,
+};
+
+export default Header;

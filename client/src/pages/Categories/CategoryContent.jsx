@@ -3,8 +3,9 @@ import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getProductsByCatSlug } from '~/APIs';
 import ProductItem from '~/components/common/Product/ProductItem';
+import PropTypes from 'prop-types';
 
-export default function CategoryContent({ catData }) {
+const CategoryContent = ({ catData }) => {
   const [limit, setLimit] = useState(20);
   const [hasMore, setHasMore] = useState(true);
 
@@ -14,7 +15,7 @@ export default function CategoryContent({ catData }) {
     keepPreviousData: true,
   });
 
-  const products = data?.product || [];
+  const products = data || [];
 
   useEffect(() => {
     if (products.length < limit) {
@@ -75,4 +76,10 @@ export default function CategoryContent({ catData }) {
       </div>
     </div>
   );
-}
+};
+
+CategoryContent.propTypes = {
+  catData: PropTypes.object,
+};
+
+export default CategoryContent;

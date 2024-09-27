@@ -35,13 +35,14 @@ const DetailProduct = () => {
 
   const product: Product | undefined = useMemo(() => {
     if (storeInfo) {
+      console.log(storeInfo.listProducts);
       const currentProduct = storeInfo.listProducts.find(
-        (item) => item.id === Number(productId)
+        (item) => item._id === productId
       );
       return currentProduct;
     }
     return undefined;
-  }, [productId]);
+  }, [productId, storeInfo]);
 
   const salePercentage = useMemo(
     () => calcSalePercentage(product?.salePrice!, product?.retailPrice!),
@@ -55,7 +56,7 @@ const DetailProduct = () => {
       type: "primary",
       onClick: () => {
         setOpenSheet(true);
-        setProductInfoPicked({ productId: Number(productId), isUpdate: true });
+        setProductInfoPicked({ productId: productId!, isUpdate: true });
       },
     }),
     [product, storeInfo, productId]
@@ -70,7 +71,7 @@ const DetailProduct = () => {
         navigate("/finish-order");
       },
     }),
-    [cart]
+    [cart, navigate]
   );
 
   const listBtn = useMemo<ButtonType[]>(
@@ -88,9 +89,9 @@ const DetailProduct = () => {
               type: "zmp",
               data: {
                 path: "/",
-                title: product?.nameProduct,
+                title: product?.nameProduct || "",
                 description: product?.description.slice(0, 100),
-                thumbnail: product?.imgProduct,
+                thumbnail: product?.imgProduct || "",
               },
             })
           }
@@ -100,11 +101,12 @@ const DetailProduct = () => {
       ),
     });
     changeStatusBarColor();
-  }, []);
+  }, [product, setHeader]);
+
   return (
     <Page>
       <div
-        className=" relative bg-white w-full"
+        className="relative bg-white w-full"
         style={{ paddingBottom: totalPrice > 0 ? "120px" : "80px" }}
       >
         {product && (
@@ -116,12 +118,12 @@ const DetailProduct = () => {
               </div>
             )}
             <Box m={0} p={4} className="border-b">
-              <div className=" text-lg">{product?.nameProduct}</div>
-              <span className=" pt-1 font-semibold text-base text-primary">
-                <span className=" font-normal text-xs text-primary">đ</span>
+              <div className="text-lg">{product?.nameProduct}</div>
+              <span className="pt-1 font-semibold text-base text-primary">
+                <span className="font-normal text-xs text-primary">đ</span>
                 {convertPrice(product.salePrice)}
               </span>
-              <span className=" pl-2 pt-1 font-medium text-sm text-zinc-400">
+              <span className="pl-2 pt-1 font-medium text-sm text-zinc-400">
                 đ{convertPrice(product.retailPrice)}
               </span>
             </Box>
@@ -129,7 +131,7 @@ const DetailProduct = () => {
               m={0}
               px={4}
               py={5}
-              className=" text-justify break-words whitespace-pre-line"
+              className="text-justify break-words whitespace-pre-line"
             >
               {product.description}
             </Box>
