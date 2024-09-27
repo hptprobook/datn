@@ -1,5 +1,7 @@
-function ProductViewed() {
-  return <div>Sản phẩm đã xem</div>;
-}
+const ProductViewed = () => {
+  return <div></div>;
+};
+
+ProductViewed.propTypes = {};
 
 export default ProductViewed;

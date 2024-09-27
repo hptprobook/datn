@@ -1,9 +1,8 @@
 import { Rating } from 'flowbite-react';
 import ProductLabelBadge from '../Badge/ProductLabelBadge';
 import { NavLink } from 'react-router-dom';
-import React from 'react';
 
-const ProductItem = React.memo(({ product, height = false }) => {
+const ProductItem = ({ product, height = false }) => {
   const reviews = Array.isArray(product.reviews) ? product.reviews : [];
 
   // Calculate the average rating from product.reviews[].rating
@@ -58,6 +57,6 @@ const ProductItem = React.memo(({ product, height = false }) => {
       </div>
     </div>
   );
-});
+};
 
 export default ProductItem;

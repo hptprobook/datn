@@ -10,8 +10,9 @@ import { formatCurrencyVND, generateMongoObjectId } from '~/utils/formatters';
 import { useCart } from 'react-use-cart';
 import { handleToast } from '~/customHooks/useToast';
 import CartFixed from '~/components/Home/Header/CartFixed';
+import PropTypes from 'prop-types';
 
-export default function ProductDetailInfor({ product, onColorChange }) {
+const ProductDetailInfor = ({ product, onColorChange }) => {
   const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
 
@@ -215,4 +216,11 @@ export default function ProductDetailInfor({ product, onColorChange }) {
       <CartFixed open={openCartFixed} setOpen={setOpenCartFixed} />
     </div>
   );
-}
+};
+
+ProductDetailInfor.propTypes = {
+  product: PropTypes.object.isRequired,
+  onColorChange: PropTypes.func,
+};
+
+export default ProductDetailInfor;

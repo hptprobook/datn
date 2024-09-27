@@ -64,7 +64,7 @@ export const createDummyProductCategories = async () => {
 };
 
 export const createDummyStore = async (): Promise<Store> => {
-  const storeId = `${+new Date()}-${getRandomInt(1000)}`; // Ensure unique store id by appending random number
+  const storeId = `${+new Date()}`; // Ensure unique store id by appending random number
   const listDummyProducts = await createDummyProductCategories();
   const listType = Object.keys(StoreTypeRef) as (keyof typeof StoreTypeRef)[];
   console.log(listType);
@@ -79,5 +79,6 @@ export const createDummyStore = async (): Promise<Store> => {
     listProducts: listDummyProducts,
     categories: listCategories,
   };
+  console.log(dummyStore);
   return dummyStore;
 };

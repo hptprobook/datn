@@ -1,8 +1,9 @@
 import { Badge } from 'flowbite-react';
 import { FaFire } from 'react-icons/fa6';
 import { hotSearch } from '~/APIs/mock_data';
+import PropTypes from 'prop-types';
 
-export default function SearchPopular({ handleModelClick }) {
+const SearchPopular = ({ handleModelClick }) => {
   return (
     <div className="w-full h-32 bg-yellow-50" onClick={handleModelClick}>
       <div className="max-w-container mx-auto">
@@ -24,4 +25,10 @@ export default function SearchPopular({ handleModelClick }) {
       </div>
     </div>
   );
-}
+};
+
+SearchPopular.propTypes = {
+  handleModelClick: PropTypes.func,
+};
+
+export default SearchPopular;

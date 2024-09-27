@@ -11,7 +11,7 @@ import useCheckAuth from '~/customHooks/useCheckAuth';
 import { handleToast } from '~/customHooks/useToast';
 import { loginSchema } from '~/utils/schema';
 
-export default function LoginPage() {
+const LoginPage = () => {
   const navigate = useNavigate();
   const { login } = useCheckAuth();
 
@@ -136,4 +136,8 @@ export default function LoginPage() {
       </div>
     </section>
   );
-}
+};
+
+LoginPage.propTypes = {};
+
+export default LoginPage;

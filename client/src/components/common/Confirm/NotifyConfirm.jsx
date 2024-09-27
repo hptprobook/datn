@@ -1,5 +1,6 @@
 import { Icon } from '@iconify/react';
 import { forwardRef, useImperativeHandle, useState } from 'react';
+import PropTypes from 'prop-types';
 
 const NotifyConfirm = forwardRef(({ msg, onConfirm, icon }, ref) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -84,5 +85,11 @@ const NotifyConfirm = forwardRef(({ msg, onConfirm, icon }, ref) => {
     </div>
   );
 });
+
+NotifyConfirm.propTypes = {
+  msg: PropTypes.string,
+  onConfirm: PropTypes.func,
+  icon: PropTypes.string,
+};
 
 export default NotifyConfirm;

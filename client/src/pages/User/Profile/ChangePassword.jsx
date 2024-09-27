@@ -1,5 +1,7 @@
-function ChangePassword() {
-  return <div>Change Password</div>;
-}
+const ChangePassword = () => {
+  return <div></div>;
+};
+
+ChangePassword.propTypes = {};
 
 export default ChangePassword;

@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import CheckoutStepper from '~/components/common/Stepper/CheckoutStepper';
 
-export default function CheckoutConfirm() {
+const CheckoutConfirm = () => {
   const products = [
     {
       name: 'Balo nam',
@@ -202,4 +202,8 @@ export default function CheckoutConfirm() {
       </div>
     </section>
   );
-}
+};
+
+CheckoutConfirm.propTypes = {};
+
+export default CheckoutConfirm;

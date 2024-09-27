@@ -1,10 +1,12 @@
-export default function Input({
+import PropTypes from 'prop-types';
+
+const Input = ({
   id,
   type = 'text',
   label,
   placeholder = label,
   isRequire = false,
-}) {
+}) => {
   return (
     <div>
       <label
@@ -24,4 +26,14 @@ export default function Input({
       />
     </div>
   );
-}
+};
+
+Input.propTypes = {
+  id: PropTypes.string,
+  type: PropTypes.string,
+  label: PropTypes.string,
+  placeholder: PropTypes.string,
+  isRequire: PropTypes.bool,
+};
+
+export default Input;

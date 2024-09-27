@@ -6,7 +6,7 @@ import MainLoading from '~/components/common/Loading/MainLoading';
 import { handleToast } from '~/customHooks/useToast';
 import './style.css';
 
-export default function NavBar() {
+const NavBar = () => {
   const [hoveredMenu, setHoveredMenu] = useState(null);
 
   const { data, error, isLoading } = useQuery({
@@ -68,4 +68,8 @@ export default function NavBar() {
       </div>
     </div>
   );
-}
+};
+
+NavBar.propTypes = {};
+
+export default NavBar;

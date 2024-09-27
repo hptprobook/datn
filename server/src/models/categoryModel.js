@@ -23,12 +23,19 @@ const countCategoryAll = async () => {
   return total;
 };
 
-const getCategoriesAll = async () => {
+const getCategoriesAll = async (parent = null) => {
+  if (parent) {
+    const db = await GET_DB().collection('categories');
+    const result = await db.find({ order: { $ne: 2 } }).toArray();
+    if (!result) {
+      throw new Error('Có lỗi xảy ra, xin thử lại sau');
+    }
+    return result;
+  }
   const db = await GET_DB().collection('categories');
   const result = await db
     .find()
     .sort({ createdAt: 1 })
-    .project({ description: 0 })
     .toArray();
   if (!result) {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');

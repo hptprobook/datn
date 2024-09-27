@@ -1,4 +1,6 @@
-export default function ChangeQuantity({ onChange, quantity, setQuantity }) {
+import PropTypes from 'prop-types';
+
+const ChangeQuantity = ({ onChange, quantity, setQuantity }) => {
   const handleIncrease = () => {
     if (quantity < 99) {
       const newQuantity = quantity + 1;
@@ -97,4 +99,12 @@ export default function ChangeQuantity({ onChange, quantity, setQuantity }) {
       </button>
     </div>
   );
-}
+};
+
+ChangeQuantity.propTypes = {
+  onChange: PropTypes.func,
+  quantity: PropTypes.number,
+  setQuantity: PropTypes.func,
+};
+
+export default ChangeQuantity;

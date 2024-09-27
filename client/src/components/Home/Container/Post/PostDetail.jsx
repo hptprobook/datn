@@ -1,17 +1,14 @@
-import React from 'react';
 import { useParams } from 'react-router-dom';
 import { posts } from '~/APIs/mock_data';
 import PostLayout from '~/layouts/PostLayout';
 
-export default function PostDetail() {
+const PostDetail = () => {
   const { id } = useParams();
   const post = posts.find((post) => post.id.toString() === id);
 
   if (!post) {
     return <div>Post not found</div>;
   }
-
-  console.log('Post content:', post.content); // Debugging line
 
   return (
     <PostLayout>
@@ -32,4 +29,8 @@ export default function PostDetail() {
       </div>
     </PostLayout>
   );
-}
+};
+
+PostDetail.propTypes = {};
+
+export default PostDetail;

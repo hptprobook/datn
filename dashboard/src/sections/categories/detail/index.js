@@ -1,0 +1,1 @@
+export { default as DetailCategoryView } from './detail-view';
