@@ -39,7 +39,7 @@ const HomePage: React.FunctionComponent = () => {
   const handleInputSearch = useCallback((text: string) => {
     setSearchProduct(text);
   }, []);
-
+  console.log(cart);
   const searchBar = useMemo(
     () => (
       <Input.Search
@@ -50,7 +50,6 @@ const HomePage: React.FunctionComponent = () => {
     ),
     []
   );
-  console.log("storeProductResult", storeProductResult);  
   useEffect(() => {
     setHeader({
       customTitle: getConfig((c) => c.template.searchBar) ? searchBar : "",
@@ -109,7 +108,7 @@ const HomePage: React.FunctionComponent = () => {
                     content: "Hoàn tất đơn hàng",
                     type: "primary",
                     onClick: () => {
-                      navigate("/finish-order");
+                      navigate("/finish-order", { state: { cart } });
                     },
                   },
                 ]}

@@ -2,7 +2,7 @@ import CheckoutStepper from '~/components/common/Stepper/CheckoutStepper';
 import DeliveryDetail from './components/DeliveryDetail';
 import CheckoutInfo from './components/CheckoutInfo';
 
-export default function CheckoutPage() {
+const CheckoutPage = () => {
   return (
     <section className="bg-white py-8 antialiase md:py-16 max-w-container mx-auto">
       <form action="#" className="mx-auto px-4 2xl:px-0">
@@ -18,4 +18,8 @@ export default function CheckoutPage() {
       </form>
     </section>
   );
-}
+};
+
+CheckoutPage.propTypes = {};
+
+export default CheckoutPage;

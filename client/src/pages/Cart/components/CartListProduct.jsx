@@ -5,7 +5,7 @@ import { FaTrashAlt } from 'react-icons/fa';
 import { useCart } from 'react-use-cart';
 import { formatCurrencyVND } from '~/utils/formatters';
 
-export default function CartListProduct() {
+const CartListProduct = () => {
   const { items } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [checkedItems, setCheckedItems] = useState([]);
@@ -15,13 +15,13 @@ export default function CartListProduct() {
     setQuantity(newQuantity);
   };
 
-  const handleCheckItem = (index) => {
+  const handleCheckItem = (_id) => {
     setCheckedItems((prevCheckedItems) => {
       const newCheckedItems = [...prevCheckedItems];
-      if (newCheckedItems.includes(index)) {
-        newCheckedItems.splice(newCheckedItems.indexOf(index), 1);
+      if (newCheckedItems.includes(_id)) {
+        newCheckedItems.splice(newCheckedItems.indexOf(_id), 1);
       } else {
-        newCheckedItems.push(index);
+        newCheckedItems.push(_id);
       }
       return newCheckedItems;
     });
@@ -31,14 +31,14 @@ export default function CartListProduct() {
     if (checkAll) {
       setCheckedItems([]);
     } else {
-      setCheckedItems([0, 1, 2]);
+      setCheckedItems(items.map((item) => item._id));
     }
     setCheckAll(!checkAll);
   };
 
   return (
     <div className="col-span-12 xl:col-span-8 lg:pr-8 pb-8 w-full max-xl:max-w-3xl max-xl:mx-auto">
-      <div className="block text-center lg:text-left  lg:flex items-center justify-between pb-8 border-b border-gray-300">
+      <div className="block text-center lg:text-left lg:flex items-center justify-between pb-8 border-b border-gray-300">
         <h2 className="font-manrope font-bold text-3xl leading-10 text-black">
           Giỏ hàng
         </h2>
@@ -51,7 +51,6 @@ export default function CartListProduct() {
           <input
             type="checkbox"
             className="checkbox-error checkbox bg-white"
-            defaultChecked
             checked={checkAll}
             onChange={handleCheckAll}
           />
@@ -79,13 +78,12 @@ export default function CartListProduct() {
       {items.map((product) => (
         <div
           key={product.id}
-          className="flex flex-col min-[500px]:flex-row min-[500px]:items-center gap-5 py-6  border-b border-gray-200 group"
+          className="flex flex-col min-[500px]:flex-row min-[500px]:items-center gap-5 py-6 border-b border-gray-200 group"
         >
           <div className="flex items-center justify-center md:justify-start">
             <input
               type="checkbox"
               className="checkbox-error checkbox bg-white hover:bg-white"
-              defaultChecked
               checked={checkedItems.includes(product.id)}
               onChange={() => handleCheckItem(product.id)}
             />
@@ -131,4 +129,9 @@ export default function CartListProduct() {
       ))}
     </div>
   );
-}
+};
+
+CartListProduct.propTypes = {};
+
+export default CartListProduct;
+

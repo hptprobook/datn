@@ -3,8 +3,9 @@ import { FaArrowRightLong } from 'react-icons/fa6';
 import { NavLink } from 'react-router-dom';
 import { productSearchList } from '~/APIs/mock_data';
 import ProductItem from '~/components/common/Product/ProductItem';
+import PropTypes from 'prop-types';
 
-export default function SearchResult({ handleModelClick }) {
+const SearchResult = ({ handleModelClick }) => {
   return (
     <div className="w-full bg-yellow-50" onClick={handleModelClick}>
       <div className="max-w-container mx-auto">
@@ -26,4 +27,10 @@ export default function SearchResult({ handleModelClick }) {
       </div>
     </div>
   );
-}
+};
+
+SearchResult.propTypes = {
+  handleModelClick: PropTypes.func,
+};
+
+export default SearchResult;

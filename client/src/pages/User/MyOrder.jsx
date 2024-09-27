@@ -113,4 +113,6 @@ const MyOrder = () => {
   );
 };
 
+MyOrder.propTypes = {};
+
 export default MyOrder;

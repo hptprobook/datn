@@ -1,6 +1,6 @@
 import './style.css';
 
-function MainLoading() {
+const MainLoading = () => {
   return (
     <div className="mainLoading">
       <div className="loader"></div>
@@ -8,6 +8,8 @@ function MainLoading() {
       <div className="loader"></div>
     </div>
   );
-}
+};
+
+MainLoading.propTypes = {};
 
 export default MainLoading;
