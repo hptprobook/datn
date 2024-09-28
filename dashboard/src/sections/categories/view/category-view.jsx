@@ -21,12 +21,11 @@ import { emptyRows, applyFilter, getComparator } from 'src/components/table/util
 import { IconButton } from '@mui/material';
 import TableNoData from 'src/components/table/table-no-data';
 import LoadingFull from 'src/components/loading/loading-full';
+import ConfirmDelete from 'src/components/modal/confirm-delete';
 import CategoryTableRow from '../category-table-row';
 import CategoryTableHead from '../category-table-head';
 import CategoryTableToolbar from '../category-table-toolbar';
 import { renderCategoryParent } from '../utils';
-
-
 
 // ----------------------------------------------------------------------
 
@@ -53,9 +52,6 @@ export default function CategoryPage() {
       setDataCategories(categories);
     }
   }, [status, dispatch, error, categories]);
-  const handleDelete = (id) => {
-    dispatch(deleteCategory(id));
-  };
   useEffect(() => {
     if (statusDelete === 'successful') {
       handleToast('success', 'Xóa Danh mục thành công');
@@ -126,11 +122,24 @@ export default function CategoryPage() {
   const handleNewCategoryClick = () => {
     navigate('/category/create');
   };
+  const handleDelete = (id) => {
+    setConfirm(id);
+  };
+  const dispatchDelete = () => {
+    dispatch(deleteCategory(confirm));
+  };
+  const [confirm, setConfirm] = useState(false);
   return (
     <Container>
-      {status === 'loading' && <LoadingFull/>}
+      {status === 'loading' && <LoadingFull />}
+      <ConfirmDelete
+        openConfirm={!!confirm}
+        onAgree={dispatchDelete}
+        onClose={() => setConfirm(false)}
+      />
+
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
+        <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
           <Typography variant="h4">Danh mục</Typography>
 
           <IconButton
@@ -144,10 +153,10 @@ export default function CategoryPage() {
         </Stack>
 
         <Button
-          variant="contained" color="inherit"
+          variant="contained"
+          color="inherit"
           startIcon={<Iconify icon="eva:plus-fill" />}
           onClick={handleNewCategoryClick}
-
         >
           Tạo mới danh mục
         </Button>
@@ -184,7 +193,7 @@ export default function CategoryPage() {
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
                     <CategoryTableRow
-                    id={row._id}
+                      id={row._id}
                       key={row._id}
                       name={row.name}
                       imageURL={row.imageURL}
@@ -195,11 +204,12 @@ export default function CategoryPage() {
                       selected={selected.indexOf(row.name) !== -1}
                       handleClick={(event) => handleClick(event, row.name)}
                       onDelete={handleDelete}
+                      handleNavigate={() => navigate(row._id)}
                     />
                   ))}
 
                 <TableEmptyRows
-                col={3}
+                  col={3}
                   height={77}
                   emptyRows={emptyRows(page, rowsPerPage, dataCategories.length)}
                 />

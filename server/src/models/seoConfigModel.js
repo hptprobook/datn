@@ -5,23 +5,17 @@ import {
     UPDATE_SEOCONFIG,
 } from '~/utils/schema/seoConfigSchema';
 
-const validateBeforeCreate = async(data) => {
+const validateBeforeCreate = async (data) => {
     return await SAVE_SEOCONFIG.validateAsync(data, { abortEarly: false });
 };
 
-const getSeoConfig = async() => {
-    try {
-        const db = await GET_DB().collection('seo');
-        const result = await db.findOne();
-        return result;
-    } catch (error) {
-        return {
-            mgs: 'Có lỗi xảy ra xin thử lại sau',
-        };
-    }
+const getSeoConfig = async () => {
+    const db = await GET_DB().collection('seo');
+    const result = await db.findOne();
+    return result;
 };
 
-const createSeo = async(dataSeo) => {
+const createSeo = async (dataSeo) => {
     const validData = await validateBeforeCreate(dataSeo);
     const db = await GET_DB();
     const collection = db.collection('seo');
@@ -31,15 +25,19 @@ const createSeo = async(dataSeo) => {
     return result;
 };
 
-const validateBeforeUpdate = async(data) => {
+const validateBeforeUpdate = async (data) => {
     return await UPDATE_SEOCONFIG.validateAsync(data, { abortEarly: false });
 };
 
-const updateSeo = async(id, dataSeo) => {
+const updateSeo = async (id, dataSeo) => {
     const validData = await validateBeforeUpdate(dataSeo);
     const db = await GET_DB();
     const collection = db.collection('seo');
-    const result = await collection.findOneAndUpdate({ _id: new ObjectId(id) }, { $set: validData }, { returnDocument: 'after' });
+    const result = await collection.findOneAndUpdate(
+        { _id: new ObjectId(id) },
+        { $set: validData },
+        { returnDocument: 'after' }
+    );
     return result;
 };
 
