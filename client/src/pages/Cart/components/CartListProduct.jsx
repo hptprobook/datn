@@ -10,7 +10,6 @@ const CartListProduct = () => {
   const [quantity, setQuantity] = useState(1);
   const [checkedItems, setCheckedItems] = useState([]);
   const [checkAll, setCheckAll] = useState(false);
-
   const handleQuantityChange = (newQuantity) => {
     setQuantity(newQuantity);
   };
