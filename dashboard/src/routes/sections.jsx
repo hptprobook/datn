@@ -16,9 +16,9 @@ export const CreateProductPage = lazy(() => import('src/pages/products/createPro
 
 export const Page404 = lazy(() => import('src/pages/page-not-found'));
 // category page
-export const CategoryPage = lazy(() => import('src/pages/category/category'));
-export const CreateCategoryPage = lazy(() => import('src/pages/category/createCategory'));
-export const EditCategoryPage = lazy(() => import('src/pages/category/editCategory'));
+export const CategoryPage = lazy(() => import('src/pages/categories/category'));
+export const CreateCategoryPage = lazy(() => import('src/pages/categories/create'));
+export const EditCategoryPage = lazy(() => import('src/pages/categories/detail'));
 // config page
 export const NavDashboardPage = lazy(() => import('src/pages/settings/nav-dashboard'));
 export const NavDashboardCreatePage = lazy(() => import('src/pages/settings/create-nav'));

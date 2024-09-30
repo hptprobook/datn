@@ -1,16 +1,16 @@
 import { Helmet } from 'react-helmet-async';
-import { EditCategoryView} from 'src/sections/categorys/edit';
+import { CreateCategoryView } from 'src/sections/categories/create';
 
 // ----------------------------------------------------------------------
 
-export default function EditCategoryPage() {
+export default function CreateCategoryPage() {
   return (
     <>
       <Helmet>
-        <title>Chỉnh sửa Danh mục</title>
+        <title>Tạo Danh Mục</title>
       </Helmet>
 
-      <EditCategoryView />
+      <CreateCategoryView />
     </>
   );
 }

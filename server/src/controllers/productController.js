@@ -153,6 +153,7 @@ const createProduct = async (req, res) => {
       height,
       statusStock,
       variants,
+      price,
     } = req.body;
 
     if (!req.files['thumbnail'] || !req.files['thumbnail'][0]) {
@@ -203,6 +204,8 @@ const createProduct = async (req, res) => {
       !status ||
       !weight ||
       !height ||
+      !price ||
+      !productType ||
       !statusStock
     ) {
       await uploadModel.deleteImg(thumbnail);
@@ -223,6 +226,7 @@ const createProduct = async (req, res) => {
       cat_id,
       name: name,
       slug,
+      price,
       description,
       content,
       tags,
@@ -247,6 +251,31 @@ const createProduct = async (req, res) => {
     }
     return res.status(StatusCodes.OK).json({ dataProduct });
   } catch (error) {
+    if (req.files) {
+      const thumbnail = path.join(
+        'uploads/products',
+        req.files['thumbnail'][0].filename
+      );
+
+      let imagesProduct = req.files['images'].map((file) => {
+        if (file && file.filename) {
+          return path.join('uploads/products', file.filename);
+        } else {
+          throw new Error('File image không hợp lệ');
+        }
+      });
+
+      let imageVariantsC = req.files['imageVariants'].map((file) => {
+        if (file && file.filename) {
+          return path.join('uploads/products', file.filename);
+        } else {
+          throw new Error('File image không hợp lệ');
+        }
+      });
+      await uploadModel.deleteImg(thumbnail);
+      await uploadModel.deleteImgs(imagesProduct);
+      await uploadModel.deleteImgs(imageVariantsC);
+    }
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ message: error.message });
@@ -254,219 +283,254 @@ const createProduct = async (req, res) => {
 };
 
 const updateProduct = async (req, res) => {
-  const { id } = req.params;
-  const {
-    cat_id,
-    name,
-    description,
-    content,
-    tags,
-    brand,
-    status,
-    productType,
-    weight,
-    height,
-    statusStock,
-    variants,
-    imagesDelete,
-    indexVariants,
-    variantsDelete,
-  } = req.body;
+  try {
+    const { id } = req.params;
+    const {
+      cat_id,
+      name,
+      description,
+      content,
+      tags,
+      brand,
+      status,
+      productType,
+      weight,
+      height,
+      statusStock,
+      variants,
+      imagesDelete,
+      indexVariants,
+      variantsDelete,
+    } = req.body;
 
-  let thumbnail;
-  let imagesProduct = [];
-  let imageVariantsC = [];
+    let thumbnail;
+    let imagesProduct = [];
+    let imageVariantsC = [];
 
-  if (req.files['thumbnail']) {
-    thumbnail = path.join(
-      'uploads/products',
-      req.files['thumbnail'][0].filename
-    );
-  }
+    if (req.files['thumbnail']) {
+      thumbnail = path.join(
+        'uploads/products',
+        req.files['thumbnail'][0].filename
+      );
+    }
 
-  if (req.files['images']) {
-    imagesProduct = req.files['images'].map((file) => {
-      if (file && file.filename) {
-        return path.join('uploads/products', file.filename);
-      } else {
-        throw new Error('Images không hợp lệ');
+    if (req.files['images']) {
+      imagesProduct = req.files['images'].map((file) => {
+        if (file && file.filename) {
+          return path.join('uploads/products', file.filename);
+        } else {
+          throw new Error('Images không hợp lệ');
+        }
+      });
+    }
+
+    if (req.files['imageVariants']) {
+      imageVariantsC = req.files['imageVariants'].map((file) => {
+        if (file && file.filename) {
+          return path.join('uploads/products', file.filename);
+        } else {
+          throw new Error('File image không hợp lệ');
+        }
+      });
+    }
+
+    if (
+      !name ||
+      !description ||
+      !cat_id ||
+      !content ||
+      !brand ||
+      !status ||
+      !weight ||
+      !height ||
+      !statusStock ||
+      !variants
+    ) {
+      if (thumbnail) {
+        await uploadModel.deleteImg(product.thumbnail);
       }
-    });
-  }
-
-  if (req.files['imageVariants']) {
-    imageVariantsC = req.files['imageVariants'].map((file) => {
-      if (file && file.filename) {
-        return path.join('uploads/products', file.filename);
-      } else {
-        throw new Error('File image không hợp lệ');
+      if (imagesProduct && imagesProduct.length > 0) {
+        await uploadModel.deleteImgs(imagesProduct);
       }
-    });
-  }
-
-  if (
-    !name ||
-    !description ||
-    !cat_id ||
-    !content ||
-    !brand ||
-    !status ||
-    !weight ||
-    !height ||
-    !statusStock ||
-    !variants
-  ) {
-    if (thumbnail) {
-      await uploadModel.deleteImg(product.thumbnail);
+      if (imageVariantsC && imageVariantsC.length > 0) {
+        await uploadModel.deleteImgs(imageVariantsC);
+      }
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: ERROR_MESSAGES.REQUIRED,
+      });
     }
-    if (imagesProduct && imagesProduct.length > 0) {
-      await uploadModel.deleteImgs(imagesProduct);
-    }
-    if (imageVariantsC && imageVariantsC.length > 0) {
-      await uploadModel.deleteImgs(imageVariantsC);
-    }
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      message: ERROR_MESSAGES.REQUIRED,
-    });
-  }
 
-  const product = await productModel.getProductById(id);
+    const product = await productModel.getProductById(id);
 
-  let parsedVariants = [];
-  let oldImageVariants = [];
+    let parsedVariants = [];
+    let oldImageVariants = [];
 
-  if (Array.isArray(variants)) {
-    parsedVariants = variants.map((variant, index) => {
-      let parsedVariant = JSON.parse(variant);
+    if (Array.isArray(variants)) {
+      parsedVariants = variants.map((variant, index) => {
+        let parsedVariant = JSON.parse(variant);
 
-      if ('imageAdd' in parsedVariant) {
-        if ('image' in parsedVariant) {
-          if (product.variants[index].image === parsedVariant.image) {
-            oldImageVariants.push(parsedVariant.image);
+        if ('imageAdd' in parsedVariant) {
+          if ('image' in parsedVariant) {
+            if (product.variants[index].image === parsedVariant.image) {
+              oldImageVariants.push(parsedVariant.image);
+            }
+          }
+          delete parsedVariant.imageAdd;
+        }
+
+        return parsedVariant;
+      });
+    } else {
+      parsedVariants = JSON.parse(variants);
+      if ('imageAdd' in parsedVariants) {
+        if ('image' in parsedVariants) {
+          const indexVar = indexVariants[0];
+          if (product.variants[indexVar].image === parsedVariants.image) {
+            oldImageVariants.push(parsedVariants.image);
           }
         }
-        delete parsedVariant.imageAdd;
+        delete parsedVariants.imageAdd;
+      }
+    }
+
+    let parsedImageDelete = [];
+
+    if (Array.isArray(variantsDelete) && variantsDelete.length > 0) {
+      parsedImageDelete = variantsDelete.map((variant) => JSON.parse(variant));
+    } else if (
+      typeof variantsDelete === 'string' &&
+      variantsDelete.trim() !== ''
+    ) {
+      parsedImageDelete.push(JSON.parse(variantsDelete));
+    }
+
+    let deleteImgsVars = [];
+    const variantsArray = Array.isArray(product.variants)
+      ? product.variants
+      : [product.variants];
+
+    variantsArray.forEach((v, index) => {
+      const parsedVar = parsedImageDelete[index];
+      if (parsedVar && parsedVar.image !== v.image) {
+        deleteImgsVars.push(parsedVar.image);
+      }
+    });
+
+    let validImgs = [];
+    let deleteImgs = [];
+
+    if (imagesDelete && imagesDelete.length > 0) {
+      validImgs = product.images.filter(
+        (image) => !imagesDelete.includes(image)
+      );
+      deleteImgs = product.images.filter((image) =>
+        imagesDelete.includes(image)
+      );
+    } else {
+      validImgs = product.images;
+    }
+
+    if (imageVariantsC) {
+      imageVariantsC.forEach((file, index) => {
+        const indexVar = indexVariants[index];
+        parsedVariants[indexVar].image = file;
+      });
+    }
+
+    const newimgURLs = [...validImgs, ...imagesProduct];
+    const newThumbnail = thumbnail ? thumbnail : product.thumbnail;
+
+    const slug = createSlug(name);
+
+    const data = {
+      cat_id,
+      name: name,
+      slug,
+      description,
+      content,
+      tags,
+      thumbnail: newThumbnail,
+      images: newimgURLs,
+      brand,
+      status,
+      variants: parsedVariants,
+      weight,
+      height,
+      statusStock,
+      productType,
+    };
+    const dataProduct = await productModel.update(id, data);
+
+    if (dataProduct.error) {
+      if (thumbnail) {
+        await uploadModel.deleteImg(product.thumbnail);
+      }
+      if (imagesProduct && imagesProduct.length > 0) {
+        await uploadModel.deleteImgs(imagesProduct);
+      }
+      if (imageVariantsC && imageVariantsC.length > 0) {
+        await uploadModel.deleteImgs(imageVariantsC);
+      }
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
+    }
+    if (dataProduct) {
+      if (deleteImgs && deleteImgs.length > 0) {
+        await uploadModel.deleteImgs(deleteImgs);
       }
 
-      return parsedVariant;
-    });
-  } else {
-    parsedVariants = JSON.parse(variants);
-    if ('imageAdd' in parsedVariants) {
-      if ('image' in parsedVariants) {
-        const indexVar = indexVariants[0];
-        if (product.variants[indexVar].image === parsedVariants.image) {
-          oldImageVariants.push(parsedVariants.image);
+      if (deleteImgsVars && deleteImgsVars.length > 0) {
+        await uploadModel.deleteImgs(deleteImgsVars);
+      }
+
+      if (oldImageVariants && oldImageVariants.length > 0) {
+        await uploadModel.deleteImgs(oldImageVariants);
+      }
+
+      if (thumbnail) {
+        await uploadModel.deleteImg(product.thumbnail);
+      }
+
+      const result = dataProduct.result;
+      if (!result) {
+        return res
+          .status(StatusCodes.NOT_FOUND)
+          .json({ message: 'Không tìm thấy sản phẩm!' });
+      }
+      return res.status(StatusCodes.OK).json({
+        result,
+      });
+    }
+  } catch (error) {
+    if (req.files) {
+      const thumbnail = path.join(
+        'uploads/products',
+        req.files['thumbnail'][0].filename
+      );
+
+      let imagesProduct = req.files['images'].map((file) => {
+        if (file && file.filename) {
+          return path.join('uploads/products', file.filename);
+        } else {
+          throw new Error('File image không hợp lệ');
         }
-      }
-      delete parsedVariants.imageAdd;
-    }
-  }
+      });
 
-  let parsedImageDelete = [];
-
-  if (Array.isArray(variantsDelete) && variantsDelete.length > 0) {
-    parsedImageDelete = variantsDelete.map((variant) => JSON.parse(variant));
-  } else if (
-    typeof variantsDelete === 'string' &&
-    variantsDelete.trim() !== ''
-  ) {
-    parsedImageDelete.push(JSON.parse(variantsDelete));
-  }
-
-  let deleteImgsVars = [];
-  const variantsArray = Array.isArray(product.variants)
-    ? product.variants
-    : [product.variants];
-
-  variantsArray.forEach((v, index) => {
-    const parsedVar = parsedImageDelete[index];
-    if (parsedVar && parsedVar.image !== v.image) {
-      deleteImgsVars.push(parsedVar.image);
-    }
-  });
-
-  let validImgs = [];
-  let deleteImgs = [];
-
-  if (imagesDelete && imagesDelete.length > 0) {
-    validImgs = product.images.filter((image) => !imagesDelete.includes(image));
-    deleteImgs = product.images.filter((image) => imagesDelete.includes(image));
-  } else {
-    validImgs = product.images;
-  }
-
-  if (imageVariantsC) {
-    imageVariantsC.forEach((file, index) => {
-      const indexVar = indexVariants[index];
-      parsedVariants[indexVar].image = file;
-    });
-  }
-
-  const newimgURLs = [...validImgs, ...imagesProduct];
-  const newThumbnail = thumbnail ? thumbnail : product.thumbnail;
-
-  const slug = createSlug(name);
-
-  const data = {
-    cat_id,
-    name: name,
-    slug,
-    description,
-    content,
-    tags,
-    thumbnail: newThumbnail,
-    images: newimgURLs,
-    brand,
-    status,
-    variants: parsedVariants,
-    weight,
-    height,
-    statusStock,
-    productType,
-  };
-  const dataProduct = await productModel.update(id, data);
-
-  if (dataProduct.error) {
-    if (thumbnail) {
-      await uploadModel.deleteImg(product.thumbnail);
-    }
-    if (imagesProduct && imagesProduct.length > 0) {
-      await uploadModel.deleteImgs(imagesProduct);
-    }
-    if (imageVariantsC && imageVariantsC.length > 0) {
-      await uploadModel.deleteImgs(imageVariantsC);
+      let imageVariantsC = req.files['imageVariants'].map((file) => {
+        if (file && file.filename) {
+          return path.join('uploads/products', file.filename);
+        } else {
+          throw new Error('File image không hợp lệ');
+        }
+      });
+      uploadModel.deleteImg(thumbnail);
+      uploadModel.deleteImgs(imagesProduct);
+      uploadModel.deleteImgs(imageVariantsC);
     }
     return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
-  }
-  if (dataProduct) {
-    if (deleteImgs && deleteImgs.length > 0) {
-      await uploadModel.deleteImgs(deleteImgs);
-    }
-
-    if (deleteImgsVars && deleteImgsVars.length > 0) {
-      await uploadModel.deleteImgs(deleteImgsVars);
-    }
-
-    if (oldImageVariants && oldImageVariants.length > 0) {
-      await uploadModel.deleteImgs(oldImageVariants);
-    }
-
-    if (thumbnail) {
-      await uploadModel.deleteImg(product.thumbnail);
-    }
-
-    const result = dataProduct.result;
-    if (!result) {
-      return res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ message: 'Không tìm thấy sản phẩm!' });
-    }
-    return res.status(StatusCodes.OK).json({
-      result,
-    });
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
   }
 };
 
@@ -716,6 +780,22 @@ const getProductByCategoryFilter = async (req, res) => {
   }
 };
 
+const getProductByEvent = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    let { pages, limit } = req.query;
+    const product = await productModel.getProductsByEvent(slug, pages, limit);
+    if (!product) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: 'Không tìm thấy sản phẩm!' });
+    }
+    return res.status(StatusCodes.OK).json(product);
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
+  }
+};
+
 export const productController = {
   createProduct,
   getAllProducts,
@@ -739,4 +819,5 @@ export const productController = {
   getProductBySearch,
   getAllProductsSpecial,
   getProductByCategoryFilter,
+  getProductByEvent,
 };

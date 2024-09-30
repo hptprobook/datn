@@ -4,8 +4,12 @@ import CategoryService from '../services/category.service';
 
 export const fetchAllCategories = createAsyncThunk(
   'categories/fetchAll',
-  async (_, rejectWithValue) => {
+  async (parent, rejectWithValue) => {
     try {
+      if (parent) {
+        const res = await CategoryService.getCategoriesParent();
+        return res;
+      }
       const res = await CategoryService.getAllCategories();
       return res;
     } catch (err) {
@@ -15,9 +19,9 @@ export const fetchAllCategories = createAsyncThunk(
 );
 export const fetchCategoryById = createAsyncThunk(
   'categories/fetchById',
-  async (categoryId, { rejectWithValue }) => {
+  async (id, { rejectWithValue }) => {
     try {
-      const res = await CategoryService.getCategoryById(categoryId);
+      const res = await CategoryService.getCategoryById(id);
       return res;
     } catch (err) {
       return rejectWithValue(err.response.data);
@@ -26,13 +30,11 @@ export const fetchCategoryById = createAsyncThunk(
 );
 export const createCategory = createAsyncThunk(
   'categories/createCategory',
-  async ({ data, image }, thunkAPI) => {
+  async ({ file, data }, { rejectWithValue }) => {
     try {
-      const res = await CategoryService.createCategory({data: image, additionalData: data});
-
-      return res.data; // Assuming res.data contains the categories array
+      return await CategoryService.createCategory({ file, additionalData: data });
     } catch (error) {
-      throw error;
+      return rejectWithValue(err.response.data);
     }
   }
 );
@@ -58,14 +60,29 @@ export const updateCategory = createAsyncThunk(
     }
   }
 );
+export const updateWithImage = createAsyncThunk(
+  'categories/updateWithImage',
+  async ({ file, data, id }, { rejectWithValue }) => {
+    try {
+      const response = await CategoryService.updateWithImage({ file, data, id });
+      return response;
+    } catch (err) {
+      return rejectWithValue(err.response.data.errors);
+    }
+  }
+);
 
 export const resetDelete = createAction('categories/resetDelete');
 const initialState = {
   categories: [],
   selectedCategory: null,
+  category: {},
+  update: {},
   delete: null,
   status: 'idle', // 'idle' | 'loading' | 'successful' | 'failed'
   statusDelete: 'idle',
+  statusUpdate: 'idle',
+  statusCreate: 'idle',
   error: null,
 };
 
@@ -93,7 +110,7 @@ const categorySlices = createSlice({
       })
       .addCase(fetchCategoryById.fulfilled, (state, action) => {
         state.status = 'successful';
-        state.selectedCategory = action.payload; // Storing the details of a specific category
+        state.category = action.payload; // Storing the details of a specific category
       })
       .addCase(fetchCategoryById.rejected, (state, action) => {
         state.status = 'failed';
@@ -104,7 +121,7 @@ const categorySlices = createSlice({
       })
       .addCase(createCategory.fulfilled, (state, action) => {
         state.statusCreate = 'successful';
-        state.newCategory = action.payload; // Update based on the actual structure
+        state.category = action.payload; // Update based on the actual structure
       })
       .addCase(createCategory.rejected, (state, action) => {
         state.statusCreate = 'failed';
@@ -126,11 +143,22 @@ const categorySlices = createSlice({
       })
       .addCase(updateCategory.fulfilled, (state, action) => {
         state.statusUpdate = 'successful';
-        state.dataUpdate = action.payload;
+        state.update = action.payload;
       })
       .addCase(updateCategory.rejected, (state, action) => {
         state.statusUpdate = 'failed';
-        state.error = action.error.message;
+        state.error = action.error;
+      })
+      .addCase(updateWithImage.pending, (state) => {
+        state.statusUpdate = 'loading';
+      })
+      .addCase(updateWithImage.fulfilled, (state, action) => {
+        state.statusUpdate = 'successful';
+        state.update = action.payload;
+      })
+      .addCase(updateWithImage.rejected, (state, action) => {
+        state.statusUpdate = 'failed';
+        state.error = action.error;
       })
       .addCase(setStatus, (state, action) => {
         const { key, value } = action.payload; // Destructure key and value from payload

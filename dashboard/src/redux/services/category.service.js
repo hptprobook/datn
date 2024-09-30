@@ -10,6 +10,14 @@ const CategoryService = {
       throw err;
     }
   },
+  getCategoriesParent: async () => {
+    try {
+      const res = await get('categories?parent=true');
+      return res;
+    } catch (err) {
+      throw err;
+    }
+  },
   getCategoryById: async (categoryId) => {
     try {
       const res = await get(`categories/${categoryId}`);
@@ -18,11 +26,11 @@ const CategoryService = {
       throw err;
     }
   },
-  createCategory: async ({ data, additionalData = {} }) => {
+  createCategory: async ({ file, additionalData = {} }) => {
     try {
       const res = await upload({
         path: 'categories',
-        file: data,
+        file,
         type: 'post',
         additionalData,
       });
@@ -34,6 +42,20 @@ const CategoryService = {
   deleteCategory: async (id) => {
     try {
       return await del(`categories/${id}`);
+    } catch (err) {
+      console.error('Error: ', err);
+      throw err;
+    }
+  },
+  updateWithImage: async ({ file, data, id }) => {
+    try {
+      const res = await upload({
+        path: `categories/${id}`,
+        file,
+        type: 'put',
+        additionalData: data,
+      });
+      return res;
     } catch (err) {
       console.error('Error: ', err);
       throw err;
