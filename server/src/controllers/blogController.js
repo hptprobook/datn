@@ -3,8 +3,10 @@
 import { StatusCodes } from 'http-status-codes';
 import { uploadModel } from '~/models/uploadModel';
 import { blogModel } from '~/models/blogModel';
+import { authModel } from '~/models/authModel';
 import path from 'path';
-const getAllBlogs = async (req, res) => {
+
+const getAllBlogs = async(req, res) => {
     try {
         const { limit, page } = req.query;
         const blogs = await blogModel.getAllBlogs(page, limit);
@@ -15,8 +17,21 @@ const getAllBlogs = async (req, res) => {
             .json('Có lỗi xảy ra xin thử lại sau');
     }
 };
+const findByStatus = async(req, res) => {
+    try {
+        const { limit, page } = req.query;
+        const { status } = req.params;
 
-const findBlogByID = async (req, res) => {
+        const blogs = await blogModel.findBlogByStatus(status, page, limit);
+        return res.status(StatusCodes.OK).json(blogs);
+    } catch (error) {
+        return res
+            .status(StatusCodes.BAD_REQUEST)
+            .json('Có lỗi xảy ra xin thử lại sau');
+    }
+};
+
+const findBlogByID = async(req, res) => {
     try {
         const { blogID } = req.params;
         const blog = await blogModel.findBlogByID(blogID);
@@ -27,8 +42,31 @@ const findBlogByID = async (req, res) => {
             .json('Có lỗi xảy ra xin thử lại sau');
     }
 };
+const findBlogByAuthID = async(req, res) => {
+    try {
+        const { limit, page } = req.query;
+        const { authID } = req.params;
+        const blogs = await blogModel.findBlogAuthID(authID, page, limit);
+        return res.status(StatusCodes.OK).json(blogs);
+    } catch (error) {
+        return res
+            .status(StatusCodes.BAD_REQUEST)
+            .json('Có lỗi xảy ra xin thử lại sau');
+    }
+};
+const findBlogBySlug = async(req, res) => {
+    try {
+        const { slug } = req.params;
+        const blog = await blogModel.findBlogBySlug(slug);
+        return res.status(StatusCodes.OK).json(blog);
+    } catch (error) {
+        return res
+            .status(StatusCodes.BAD_REQUEST)
+            .json('Có lỗi xảy ra xin thử lại sau');
+    }
+};
 
-const createBlog = async (req, res) => {
+const createBlog = async(req, res) => {
     try {
         if (!req.file) {
             return res
@@ -64,7 +102,7 @@ const createBlog = async (req, res) => {
     }
 };
 
-const updateBlog = async (req, res) => {
+const updateBlog = async(req, res) => {
     try {
         const { blogID } = req.params;
         // Tìm dữ liệu từ id
@@ -104,7 +142,38 @@ const updateBlog = async (req, res) => {
     }
 };
 
-const deleteBlog = async (req, res) => {
+const updateComment = async(req, res) => {
+    //     try {
+    //         const idUser = req.user.user_id;
+    //         const dUser = await authModel.findUserID(idUser);
+    //         const { _id, name, email } = dUser;
+    //         const data = { userId: _id, name, email };
+    // const { blogID } = req.params;
+    //         const { comment } = req.body;
+    //         // const result = await blogModel.updateComment(blogID, comment);
+    //         return res.status(StatusCodes.OK).json(data);
+    //     } catch (error) {
+    //         if (error.details) {
+    //             return res.status(StatusCodes.BAD_REQUEST).json({
+    //                 messages: error.details[0].message,
+    //             });
+    //         }
+    //         return res.status(StatusCodes.BAD_REQUEST).json(error);
+    //     }
+};
+
+const updateViews = async(req, res) => {
+    try {
+        const { blogID } = req.params;
+        // Tìm dữ liệu từ id
+        const result = await blogModel.updateViews(blogID);
+        return res.status(StatusCodes.OK).json(result);
+    } catch (error) {
+        return res.status(StatusCodes.BAD_REQUEST).json(error);
+    }
+};
+
+const deleteBlog = async(req, res) => {
     try {
         const { blogID } = req.params;
         const blog = await blogModel.findBlogByID(blogID);
@@ -133,4 +202,9 @@ export const blogController = {
     getAllBlogs,
     findBlogByID,
     updateBlog,
+    updateViews,
+    findBlogBySlug,
+    findByStatus,
+    findBlogByAuthID,
+    updateComment,
 };
