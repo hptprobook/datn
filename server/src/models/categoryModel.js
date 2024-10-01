@@ -108,7 +108,7 @@ const update = async (id, data) => {
   if (!result) {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
-  return { result: result };
+  return result;
 };
 
 const deleteAllChildCategories = async (parentId) => {
