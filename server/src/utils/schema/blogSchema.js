@@ -43,13 +43,8 @@ export const SAVE_BLOG = Joi.object({
         .default('waiting')
         .messages({
             'string.base': 'Trạng thái phải là một chuỗi.',
-            'any.only':
-                'Trạng thái chỉ có thể là public, private, waiting hoặc reject.',
+            'any.only': 'Trạng thái chỉ có thể là public, private, waiting hoặc reject.',
         }),
-    views: Joi.number().integer().min(0).default(0).messages({
-        'number.base': 'Lượt xem phải là một số nguyên.',
-        'number.min': 'Lượt xem không thể nhỏ hơn 0.',
-    }),
     metaDescription: Joi.string().trim().messages({
         'string.base': 'Meta description phải là một chuỗi văn bản.',
         'string.empty': 'Meta description không được để trống.',
@@ -77,38 +72,6 @@ export const UPDATE_BLOG = Joi.object({
     tags: Joi.string().trim().messages({
         'string.base': 'Tags phải là một chuỗi.',
     }),
-
-    // authID: Joi.string().messages({
-    //     'string.base': 'ID tác giả phải là một chuỗi.',
-    // }),
-    // comments: Joi.array()
-    //     .items(
-    //         Joi.object({
-    //             userId: Joi.string().messages({
-    //                 'string.base': 'User ID phải là một chuỗi.',
-    //             }),
-    //             comment: Joi.string().trim().messages({
-    //                 'string.base': 'Bình luận phải là một chuỗi văn bản.',
-    //                 'string.empty': 'Bình luận không được để trống.',
-    //             }),
-    //             createdAt: Joi.date().timestamp('javascript').default(Date.now),
-    //             updatedAt: Joi.date().timestamp('javascript').default(Date.now),
-    //             email: Joi.string().email().messages({
-    //                 'string.email': 'Email phải đúng định dạng.',
-    //             }),
-    //             name: Joi.string().trim().messages({
-    //                 'string.base': 'Tên phải là một chuỗi văn bản.',
-    //                 'string.empty': 'Tên không được để trống.',
-    //             }),
-    //         })
-    //     )
-    //     .messages({
-    //         'array.base': 'Comments phải là một mảng đối tượng.',
-    //     }),
-    // authName: Joi.string().trim().messages({
-    //     'string.base': 'Tên tác giả phải là một chuỗi văn bản.',
-    //     'string.empty': 'Tên tác giả không được để trống.',
-    // }),
     slug: Joi.string().trim().messages({
         'string.base': 'Slug phải là một chuỗi văn bản.',
         'string.empty': 'Slug không được để trống.',
@@ -121,13 +84,8 @@ export const UPDATE_BLOG = Joi.object({
         .valid('public', 'private', 'waiting', 'reject')
         .messages({
             'string.base': 'Trạng thái phải là một chuỗi.',
-            'any.only':
-                'Trạng thái chỉ có thể là public, private, waiting hoặc reject.',
+            'any.only': 'Trạng thái chỉ có thể là public, private, waiting hoặc reject.',
         }),
-    views: Joi.number().integer().min(0).default(0).messages({
-        'number.base': 'Lượt xem phải là một số nguyên.',
-        'number.min': 'Lượt xem không thể nhỏ hơn 0.',
-    }),
     metaDescription: Joi.string().trim().messages({
         'string.base': 'Meta description phải là một chuỗi văn bản.',
         'string.empty': 'Meta description không được để trống.',
@@ -137,4 +95,30 @@ export const UPDATE_BLOG = Joi.object({
         'string.empty': 'Meta keywords không được để trống.',
     }),
     updatedAt: Joi.date().timestamp('javascript').default(Date.now),
+});
+
+export const UPDATE_COMMENT = Joi.object({
+    comments: Joi.array()
+        .items(
+            Joi.object({
+                userId: Joi.string().messages({
+                    'string.base': 'User ID phải là một chuỗi.',
+                }),
+                email: Joi.string().email().messages({
+                    'string.email': 'Email phải đúng định dạng.',
+                }),
+                name: Joi.string().trim().messages({
+                    'string.base': 'Tên phải là một chuỗi văn bản.',
+                    'string.empty': 'Tên không được để trống.',
+                }),
+                comment: Joi.string().trim().messages({
+                    'string.base': 'Bình luận phải là một chuỗi văn bản.',
+                    'string.empty': 'Bình luận không được để trống.',
+                }),
+                createdAt: Joi.date().timestamp('javascript').default(Date.now),
+            })
+        )
+        .messages({
+            'array.base': 'Comments phải là một mảng đối tượng.',
+        }),
 });
