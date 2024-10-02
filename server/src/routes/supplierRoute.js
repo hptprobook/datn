@@ -14,18 +14,21 @@ Router.get(
   verifyAdmin,
   supplierController.getSupplierById
 );
-Router.post(
-  '/',
-  verifyToken,
-  verifyAdmin,
-  supplierController.createSupplier
-);
+Router.post('/', verifyToken, verifyAdmin, supplierController.createSupplier);
 Router.delete(
   '/:id',
   verifyToken,
   verifyAdmin,
   supplierController.deleteSupplier
 );
+//Delete all
+Router.post(
+  '/all',
+  verifyToken,
+  verifyAdmin,
+  supplierController.deleteAllSupplier
+);
+
 Router.put('/:id', verifyToken, verifyAdmin, supplierController.updateSupplier);
 
 export const suppliersApi = Router;
