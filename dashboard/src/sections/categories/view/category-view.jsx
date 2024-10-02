@@ -69,18 +69,18 @@ export default function CategoryPage() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = dataCategories.map((n) => n.name);
+      const newSelecteds = dataCategories.map((n) => n._id);
       setSelected(newSelecteds);
       return;
     }
     setSelected([]);
   };
 
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
+  const handleClick = (event, id) => {
+    const selectedIndex = selected.indexOf(id);
     let newSelected = [];
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
+      newSelected = newSelected.concat(selected, id);
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
     } else if (selectedIndex === selected.length - 1) {
@@ -128,7 +128,13 @@ export default function CategoryPage() {
   const dispatchDelete = () => {
     dispatch(deleteCategory(confirm));
   };
+  const handleMultiDelete = () => {
+    console.log(selected);
+  };
+
   const [confirm, setConfirm] = useState(false);
+  const [confirmMulti, setConfirmMulti] = useState(false);
+
   return (
     <Container>
       {status === 'loading' && <LoadingFull />}
@@ -137,7 +143,12 @@ export default function CategoryPage() {
         onAgree={dispatchDelete}
         onClose={() => setConfirm(false)}
       />
-
+      <ConfirmDelete
+        openConfirm={!!confirmMulti}
+        onAgree={handleMultiDelete}
+        onClose={() => setConfirmMulti(false)}
+        label="những danh mục đã chọn"
+      />
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
           <Typography variant="h4">Danh mục</Typography>
@@ -167,6 +178,7 @@ export default function CategoryPage() {
           numSelected={selected.length}
           filterName={filterName}
           onFilterName={handleFilterByName}
+          onMultiDelete={() => setConfirmMulti(true)}
         />
 
         <Scrollbar>
@@ -201,8 +213,8 @@ export default function CategoryPage() {
                       order={row.order}
                       slug={row.slug}
                       parent={renderCategoryParent(dataCategories, row.parentId)}
-                      selected={selected.indexOf(row.name) !== -1}
-                      handleClick={(event) => handleClick(event, row.name)}
+                      selected={selected.indexOf(row._id) !== -1}
+                      handleClick={(event) => handleClick(event, row._id)}
                       onDelete={handleDelete}
                       handleNavigate={() => navigate(row._id)}
                     />
