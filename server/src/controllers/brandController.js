@@ -100,9 +100,7 @@ const update = async (req, res) => {
 
     if (!req.file) {
       const dataBrand = await brandModel.update(id, data);
-      return res
-        .status(StatusCodes.OK)
-        .json(dataBrand.data);
+      return res.status(StatusCodes.OK).json(dataBrand.data);
     }
     const file = req.file;
     const fileName = file.filename;
@@ -111,11 +109,8 @@ const update = async (req, res) => {
 
     const dataBrand = await brandModel.update(id, data);
 
-
     await uploadModel.deleteImg(dataBrand.image);
-    return res
-      .status(StatusCodes.OK)
-      .json(dataBrand.data);
+    return res.status(StatusCodes.OK).json(dataBrand.data);
   } catch (error) {
     if (req.file) {
       const file = req.file;
@@ -137,15 +132,28 @@ const deleteBrand = async (req, res) => {
       if (data.image) {
         await uploadModel.deleteImg(data.image);
       }
-      return res
-        .status(StatusCodes.OK)
-        .json(data.brands);
+      return res.status(StatusCodes.OK).json(data.brands);
     }
-
   } catch (error) {
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ message: error.message });
+  }
+};
+
+const deleteAllBrand = async (req, res) => {
+  try {
+    const result = await brandModel.deleteAllBrands();
+
+    if (result) {
+      result.map((result) => {
+        uploadModel.deleteImg(result.image);
+      });
+
+      return res.status(StatusCodes.OK).json({ message: 'Xóa thành công' });
+    }
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
   }
 };
 
@@ -156,4 +164,5 @@ export const brandController = {
   deleteBrand,
   getBrandById,
   getBrandBySlug,
+  deleteAllBrand,
 };
