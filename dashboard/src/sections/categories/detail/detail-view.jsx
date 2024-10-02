@@ -18,7 +18,7 @@ import {
   FormControlLabel,
 } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { setStatus, createCategory, fetchAllCategories } from 'src/redux/slices/categorySlices';
+import { setStatus, updateCategory, updateWithImage, fetchAllCategories } from 'src/redux/slices/categorySlices';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { useFormik } from 'formik';
 import { handleToast } from 'src/hooks/toast';
@@ -51,7 +51,7 @@ const DetailCategoryView = () => {
   const [category, setCategory] = useState(null);
   const categories = useSelector((state) => state.categories.categories);
   const statusGetCategories = useSelector((state) => state.categories.status);
-  const statusCreate = useSelector((state) => state.categories.statusCreate);
+  const statusUpdate = useSelector((state) => state.categories.statusUpdate);
   const error = useSelector((state) => state.categories.error);
   const [uploadedImageUrl, setUploadedImageUrl] = useState(null);
   useEffect(() => {
@@ -81,12 +81,7 @@ const DetailCategoryView = () => {
     validationSchema,
     onSubmit: async (values) => {
       const data = JSON.parse(JSON.stringify(values));
-
-      if (!uploadedImageUrl) {
-        handleToast('error', 'Hình ảnh không được để trống');
-        return;
-      }
-      if (data.parentId === '') {
+   if (data.parentId === '') {
         data.parentId = 'ROOT';
         data.order = 0;
       } else {
@@ -104,20 +99,24 @@ const DetailCategoryView = () => {
         handleToast('error', 'Mô tả không được để trống');
         return;
       }
-      dispatch(createCategory({ file: uploadedImageUrl, data }));
+      if (!uploadedImageUrl) {
+        dispatch(updateCategory({ id, data }));
+        return;
+      }
+      dispatch(updateWithImage({ file: uploadedImageUrl, data, id }));
     },
   });
 
   useEffect(() => {
     dispatch(fetchAllCategories());
-    if (statusCreate === 'successful') {
-      handleToast('success', 'Tạo Danh mục thành công');
-    } else if (statusCreate === 'failed') {
+    if (statusUpdate === 'successful') {
+      handleToast('success', 'Cập nhật Danh mục thành công');
+    } else if (statusUpdate === 'failed') {
       handleToast('error', error?.message || 'Có lỗi xảy ra khi tạo Danh mục');
       dispatch(setStatus({ key: 'error', value: null }));
     }
-    dispatch(setStatus({ key: 'statusCreate', value: 'idle' }));
-  }, [statusCreate, dispatch, error]);
+    dispatch(setStatus({ key: 'statusUpdate', value: 'idle' }));
+  }, [statusUpdate, dispatch, error]);
 
   useEffect(() => {
     if (statusGetCategories === 'idle') {
@@ -146,7 +145,7 @@ const DetailCategoryView = () => {
   };
   return (
     <Container>
-      {statusCreate === 'loading' && <LoadingFull />}
+      {statusUpdate === 'loading' && <LoadingFull />}
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Typography variant="h4">Chỉnh sửa danh mục</Typography>
       </Stack>

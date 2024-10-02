@@ -25,6 +25,7 @@ import { couponApi } from './couponRouter';
 // ad
 import { addressApi } from './addressRouter';
 import { webBannerApi } from './routeConfigs/webBannerRouter';
+import { blogApi } from './blogRouter';
 const Router = express.Router();
 
 Router.use('/auth', authApi);
@@ -50,6 +51,8 @@ Router.use('/web-banner', webBannerApi);
 
 Router.use('/navDashboard', navDashboardApi);
 Router.use('/address', addressApi);
+
+Router.use('/blogs', blogApi);
 
 Router.get('/', (req, res) => {
     res.send('Hello from API!');

@@ -60,15 +60,29 @@ export const updateCategory = createAsyncThunk(
     }
   }
 );
+export const updateWithImage = createAsyncThunk(
+  'categories/updateWithImage',
+  async ({ file, data, id }, { rejectWithValue }) => {
+    try {
+      const response = await CategoryService.updateWithImage({ file, data, id });
+      return response;
+    } catch (err) {
+      return rejectWithValue(err.response.data.errors);
+    }
+  }
+);
 
 export const resetDelete = createAction('categories/resetDelete');
 const initialState = {
   categories: [],
   selectedCategory: null,
   category: {},
+  update: {},
   delete: null,
   status: 'idle', // 'idle' | 'loading' | 'successful' | 'failed'
   statusDelete: 'idle',
+  statusUpdate: 'idle',
+  statusCreate: 'idle',
   error: null,
 };
 
@@ -129,11 +143,22 @@ const categorySlices = createSlice({
       })
       .addCase(updateCategory.fulfilled, (state, action) => {
         state.statusUpdate = 'successful';
-        state.dataUpdate = action.payload;
+        state.update = action.payload;
       })
       .addCase(updateCategory.rejected, (state, action) => {
         state.statusUpdate = 'failed';
-        state.error = action.error.message;
+        state.error = action.error;
+      })
+      .addCase(updateWithImage.pending, (state) => {
+        state.statusUpdate = 'loading';
+      })
+      .addCase(updateWithImage.fulfilled, (state, action) => {
+        state.statusUpdate = 'successful';
+        state.update = action.payload;
+      })
+      .addCase(updateWithImage.rejected, (state, action) => {
+        state.statusUpdate = 'failed';
+        state.error = action.error;
       })
       .addCase(setStatus, (state, action) => {
         const { key, value } = action.payload; // Destructure key and value from payload
