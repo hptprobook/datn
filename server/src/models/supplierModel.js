@@ -81,6 +81,14 @@ const deleteSupplier = async (id) => {
   return result;
 };
 
+const deleteAllSuppliers = async () => {
+  const result = await GET_DB().collection('suppliers').deleteMany({});
+  if (!result || result.deletedCount === 0) {
+    throw new Error('Không có nhà cung cấp nào để xóa.');
+  }
+  return result;
+};
+
 export const supplierModel = {
   countSupplierAll,
   getSuppliersAll,
@@ -88,4 +96,5 @@ export const supplierModel = {
   createSupplier,
   deleteSupplier,
   update,
+  deleteAllSuppliers,
 };
