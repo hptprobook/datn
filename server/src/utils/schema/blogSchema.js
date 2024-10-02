@@ -11,14 +11,14 @@ export const SAVE_BLOG = Joi.object({
         'string.empty': 'Nội dung không được để trống.',
         'any.required': 'Nội dung là bắt buộc.',
     }),
-    // tags: Joi.array().items(Joi.string().trim()).required().messages({
-    //     'array.base': 'Tags phải là một mảng chuỗi.',
-    //     'any.required': 'Tags là bắt buộc.',
-    // }),
-    tags: Joi.string().trim().required().messages({
-        'string.base': 'Tags phảỉ có kiểu dữ liệu là String.',
+    tags: Joi.array().items(Joi.string().trim()).required().messages({
+        'array.base': 'Tags phải là một mảng chuỗi.',
         'any.required': 'Tags là bắt buộc.',
     }),
+    // tags: Joi.string().trim().required().messages({
+    //     'string.base': 'Tags phảỉ có kiểu dữ liệu là String.',
+    //     'any.required': 'Tags là bắt buộc.',
+    // }),
     authID: Joi.string().required().messages({
         'string.base': 'ID tác giả phải là một chuỗi.',
         'any.required': 'ID tác giả là bắt buộc.',
@@ -38,6 +38,7 @@ export const SAVE_BLOG = Joi.object({
         'string.empty': 'Thumnail không được để trống.',
         'any.required': 'Thumnail là bắt buộc.',
     }),
+    comments: Joi.array().default([]),
     status: Joi.string()
         .valid('public', 'private', 'waiting', 'reject')
         .default('waiting')
@@ -66,12 +67,12 @@ export const UPDATE_BLOG = Joi.object({
         'string.base': 'Nội dung phải là một chuỗi văn bản.',
         'string.empty': 'Nội dung không được để trống.',
     }),
-    // tags: Joi.array().items(Joi.string().trim()).messages({
-    //     'array.base': 'Tags phải là một mảng chuỗi.',
-    // }),
-    tags: Joi.string().trim().messages({
-        'string.base': 'Tags phải là một chuỗi.',
+    tags: Joi.array().items(Joi.string().trim()).messages({
+        'array.base': 'Tags phải là một mảng chuỗi.',
     }),
+    // tags: Joi.string().trim().messages({
+    //     'string.base': 'Tags phải là một chuỗi.',
+    // }),
     slug: Joi.string().trim().messages({
         'string.base': 'Slug phải là một chuỗi văn bản.',
         'string.empty': 'Slug không được để trống.',
@@ -98,27 +99,25 @@ export const UPDATE_BLOG = Joi.object({
 });
 
 export const UPDATE_COMMENT = Joi.object({
-    comments: Joi.array()
-        .items(
-            Joi.object({
-                userId: Joi.string().messages({
-                    'string.base': 'User ID phải là một chuỗi.',
-                }),
-                email: Joi.string().email().messages({
-                    'string.email': 'Email phải đúng định dạng.',
-                }),
-                name: Joi.string().trim().messages({
-                    'string.base': 'Tên phải là một chuỗi văn bản.',
-                    'string.empty': 'Tên không được để trống.',
-                }),
-                comment: Joi.string().trim().messages({
-                    'string.base': 'Bình luận phải là một chuỗi văn bản.',
-                    'string.empty': 'Bình luận không được để trống.',
-                }),
-                createdAt: Joi.date().timestamp('javascript').default(Date.now),
-            })
-        )
-        .messages({
-            'array.base': 'Comments phải là một mảng đối tượng.',
-        }),
+    commentId: Joi.string().messages({
+        'string.base': 'comment ID phải là một chuỗi.',
+        'string.empty': 'comment ID không được để trống.',
+    }),
+    userId: Joi.string().messages({
+        'string.base': 'User ID phải là một chuỗi.',
+        'string.empty': 'User ID không được để trống.',
+    }),
+    email: Joi.string().email().messages({
+        'string.email': 'Email phải đúng định dạng.',
+        'string.empty': 'Email không được để trống.',
+    }),
+    name: Joi.string().trim().messages({
+        'string.base': 'Tên phải là một chuỗi văn bản.',
+        'string.empty': 'Tên không được để trống.',
+    }),
+    comment: Joi.string().trim().messages({
+        'string.base': 'Bình luận phải là một chuỗi văn bản.',
+        'string.empty': 'Bình luận không được để trống.',
+    }),
+    createdAt: Joi.date().timestamp('javascript').default(Date.now),
 });
