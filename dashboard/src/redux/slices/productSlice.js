@@ -61,7 +61,11 @@ export const resetState = createAction('products/resetState');
 
 const productsSlice = createSlice({
   name: 'products',
-  initialState: { data: [], status: 'idle', error: null },
+  initialState: {
+    products: [],
+    status: 'idle',
+    error: null
+  },
   reducers: {
     resetState: (state) => {
       state.error = null;
@@ -80,7 +84,7 @@ const productsSlice = createSlice({
         state.status = 'loading';
       })
       .addCase(fetchAllProducts.fulfilled, (state, action) => {
-        state.status = 'succeeded';
+        state.status = 'successful';
         state.products = action.payload.products;
       })
       .addCase(fetchAllProducts.rejected, (state, action) => {
@@ -91,7 +95,7 @@ const productsSlice = createSlice({
         state.statusFetchById = 'loading';
       })
       .addCase(fetchProductById.fulfilled, (state, action) => {
-        state.statusFetchById = 'succeeded';
+        state.statusFetchById = 'successful';
         state.product = action.payload;
       })
       .addCase(fetchProductById.rejected, (state, action) => {
@@ -102,7 +106,7 @@ const productsSlice = createSlice({
         state.statusCreate = 'loading';
       })
       .addCase(createProduct.fulfilled, (state, action) => {
-        state.statusCreate = 'succeeded';
+        state.statusCreate = 'successful';
         state.dataCreate = action.payload;
       })
       .addCase(createProduct.rejected, (state, action) => {
@@ -113,7 +117,7 @@ const productsSlice = createSlice({
         state.statusDelete = 'loading';
       })
       .addCase(deleteProductById.fulfilled, (state, action) => {
-        state.statusDelete = 'succeeded';
+        state.statusDelete = 'successful';
         state.deleteReturn = action.payload;
       })
       .addCase(deleteProductById.rejected, (state, action) => {
@@ -124,7 +128,7 @@ const productsSlice = createSlice({
         state.statusUpdate = 'loading';
       })
       .addCase(updateProduct.fulfilled, (state, action) => {
-        state.statusUpdate = 'succeeded';
+        state.statusUpdate = 'successful';
         state.dataUpdateReturn = action.payload;
       })
       .addCase(updateProduct.rejected, (state, action) => {

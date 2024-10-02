@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { Outlet, Navigate, useRoutes } from 'react-router-dom';
 
 import { ProtectedRoute } from './components/ProtectedRoute';
+import Products from 'src/sections/products/detail/products';
 // ----------------------------------------------------------------------
 export const IndexPage = lazy(() => import('src/pages/app'));
 export const BlogPage = lazy(() => import('src/pages/blog'));
@@ -50,6 +51,7 @@ const childRoutes = [
   { path: 'user/create', element: <CreateUserPage /> },
   { path: 'products', element: <ProductsPage /> },
   { path: 'products/create', element: <CreateProductPage /> },
+  {path: 'products/test', element: <Products />},
   { path: 'blog', element: <BlogPage /> },
   { path: 'category', element: <CategoryPage /> },
   { path: 'category/create', element: <CreateCategoryPage /> },
