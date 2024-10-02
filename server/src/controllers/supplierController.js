@@ -76,10 +76,20 @@ const deleteSupplier = async (req, res) => {
   }
 };
 
+const deleteAllSupplier = async (req, res) => {
+  try {
+    await supplierModel.deleteAllSuppliers();
+    return res.status(StatusCodes.OK).json({ message: 'Xóa thành công' });
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
+  }
+};
+
 export const supplierController = {
   createSupplier,
   getAllSuppliers,
   updateSupplier,
   deleteSupplier,
   getSupplierById,
+  deleteAllSupplier,
 };

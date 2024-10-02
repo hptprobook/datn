@@ -110,6 +110,16 @@ const deleteBrand = async (id) => {
   };
 };
 
+const deleteAllBrands = async () => {
+  const brands = await GET_DB().collection('brands').find().toArray();
+  const result = await GET_DB().collection('brands').deleteMany({});
+
+  if (!result || result.deletedCount === 0) {
+    throw new Error('Không có nhà cung cấp nào để xóa.');
+  }
+  return brands;
+};
+
 export const brandModel = {
   getBrandsAll,
   countBrandsAll,
@@ -118,4 +128,5 @@ export const brandModel = {
   deleteBrand,
   getBrandById,
   getBrandBySlug,
+  deleteAllBrands,
 };

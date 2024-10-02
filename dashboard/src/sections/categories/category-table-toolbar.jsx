@@ -11,7 +11,7 @@ import Iconify from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export default function CategoryTableToolbar({ numSelected, filterName, onFilterName }) {
+export default function CategoryTableToolbar({ numSelected, filterName, onFilterName, onMultiDelete }) {
   return (
     <Toolbar
       sx={{
@@ -47,7 +47,7 @@ export default function CategoryTableToolbar({ numSelected, filterName, onFilter
 
       {numSelected > 0 ? (
         <Tooltip title="Delete">
-          <IconButton>
+          <IconButton onClick={onMultiDelete}>
             <Iconify icon="eva:trash-2-fill" />
           </IconButton>
         </Tooltip>
@@ -66,4 +66,5 @@ CategoryTableToolbar.propTypes = {
   numSelected: PropTypes.number,
   filterName: PropTypes.string,
   onFilterName: PropTypes.func,
+  onMultiDelete: PropTypes.func,
 };
