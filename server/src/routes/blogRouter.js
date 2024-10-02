@@ -30,6 +30,8 @@ Router.get('/:blogID', blogController.findBlogByID);
 
 Router.get('/slug/:slug', blogController.findBlogBySlug);
 
+Router.get('/title/all', blogController.findBlogByTitle);
+
 Router.get('/status/:status', blogController.findByStatus);
 
 Router.get('/authID/:authID', blogController.findBlogByAuthID);
@@ -43,6 +45,7 @@ Router.patch('/views/:blogID', blogController.updateViews);
 Router.delete('/:blogID', blogController.deleteBlog);
 
 // comment
-Router.post('/comment', verifyToken, blogController.updateComment);
+Router.post('/comment/:blogID', verifyToken, blogController.updateComment);
+Router.delete('/comment/:blogID', verifyToken, blogController.delComment);
 
 export const blogApi = Router;

@@ -3,9 +3,8 @@
 import { StatusCodes } from 'http-status-codes';
 import { uploadModel } from '~/models/uploadModel';
 import { blogModel } from '~/models/blogModel';
-import { authModel } from '~/models/authModel';
 import path from 'path';
-
+import { v4 as uuidv4 } from 'uuid';
 const getAllBlogs = async(req, res) => {
     try {
         const { limit, page } = req.query;
@@ -58,6 +57,23 @@ const findBlogBySlug = async(req, res) => {
     try {
         const { slug } = req.params;
         const blog = await blogModel.findBlogBySlug(slug);
+        return res.status(StatusCodes.OK).json(blog);
+    } catch (error) {
+        return res
+            .status(StatusCodes.BAD_REQUEST)
+            .json('Có lỗi xảy ra xin thử lại sau');
+    }
+};
+const findBlogByTitle = async(req, res) => {
+    try {
+        const { limit, page, title } = req.query;
+        // const {} = req.body;
+        if (!title) {
+            return res
+                .status(StatusCodes.BAD_REQUEST)
+                .json({ message: 'Thiếu thông tin tiêu đề' });
+        }
+        const blog = await blogModel.findBlogByTitle(title, page, limit);
         return res.status(StatusCodes.OK).json(blog);
     } catch (error) {
         return res
@@ -143,23 +159,35 @@ const updateBlog = async(req, res) => {
 };
 
 const updateComment = async(req, res) => {
-    //     try {
-    //         const idUser = req.user.user_id;
-    //         const dUser = await authModel.findUserID(idUser);
-    //         const { _id, name, email } = dUser;
-    //         const data = { userId: _id, name, email };
-    // const { blogID } = req.params;
-    //         const { comment } = req.body;
-    //         // const result = await blogModel.updateComment(blogID, comment);
-    //         return res.status(StatusCodes.OK).json(data);
-    //     } catch (error) {
-    //         if (error.details) {
-    //             return res.status(StatusCodes.BAD_REQUEST).json({
-    //                 messages: error.details[0].message,
-    //             });
-    //         }
-    //         return res.status(StatusCodes.BAD_REQUEST).json(error);
-    //     }
+    try {
+        const { blogID } = req.params;
+        const commentId = uuidv4();
+        const dataComment = {...req.body, commentId };
+        const result = await blogModel.updateComment(blogID, dataComment);
+        return res.status(StatusCodes.OK).json(result);
+    } catch (error) {
+        if (error.details) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                messages: error.details[0].message,
+            });
+        }
+        return res.status(StatusCodes.BAD_REQUEST).json(error);
+    }
+};
+const delComment = async(req, res) => {
+    try {
+        const { blogID } = req.params;
+        const { commentId } = req.body;
+        const result = await blogModel.delComment(blogID, commentId);
+        if (result.acknowledged) {
+            return res
+                .status(StatusCodes.OK)
+                .json({ message: 'Xóa comment thành công' });
+        }
+        return res.status(StatusCodes.BAD_REQUEST).json(result);
+    } catch (error) {
+        return res.status(StatusCodes.BAD_REQUEST).json(error);
+    }
 };
 
 const updateViews = async(req, res) => {
@@ -207,4 +235,6 @@ export const blogController = {
     findByStatus,
     findBlogByAuthID,
     updateComment,
+    delComment,
+    findBlogByTitle,
 };
