@@ -90,3 +90,18 @@ export const getProductsByBrandSlug = async (slug, limit = 20) => {
     throw error;
   }
 };
+
+export const getProductsByEventSlug = async (slug, limit = 20) => {
+  try {
+    const response = await request.get(
+      `/products/event/${slug}?limit=${limit}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(
+      'Xảy ra lỗi khi lọc tất cả sản phẩm bằng slug su.awtextra:',
+      error
+    );
+    throw error;
+  }
+};
