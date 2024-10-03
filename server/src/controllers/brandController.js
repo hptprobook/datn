@@ -157,6 +157,24 @@ const deleteAllBrand = async (req, res) => {
   }
 };
 
+const deleteManyBrand = async (req, res) => {
+  try {
+    const { ids } = req.body;
+
+    const { images } = await brandModel.deleteManyBrands(ids);
+
+    uploadModel.deleteImgs(images);
+
+    return res.status(StatusCodes.OK).json({
+      message: 'Xóa thành công',
+    });
+  } catch (error) {
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
+  }
+};
+
 export const brandController = {
   getAllBrands,
   createBrand,
@@ -165,4 +183,5 @@ export const brandController = {
   getBrandById,
   getBrandBySlug,
   deleteAllBrand,
+  deleteManyBrand,
 };

@@ -47,5 +47,11 @@ Router.delete(
   verifyAdmin,
   categoryController.deleteCategory
 );
+Router.post(
+  '/many',
+  verifyToken,
+  verifyAdmin,
+  categoryController.deleteManyCategory
+);
 
 export const categoriesApi = Router;
