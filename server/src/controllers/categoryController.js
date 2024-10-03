@@ -133,13 +133,6 @@ const update = async (req, res) => {
   try {
     const { id } = req.params;
     const data = req.body;
-    const category = await categoryModel.getCategoryById(id);
-    if (!category) {
-      uploadModel.deleteImg(filePath);
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .json({ message: 'Danh mục chưa được tạo' });
-    }
     if (!req.file) {
       const result = await categoryModel.update(id, data);
       return res.status(StatusCodes.OK).json(result);
@@ -147,6 +140,14 @@ const update = async (req, res) => {
     const file = req.file;
     const fileName = file.filename;
     const filePath = path.join('uploads/categories', fileName);
+    const category = await categoryModel.getCategoryById(id);
+
+    if (!category) {
+      uploadModel.deleteImg(filePath);
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Danh mục chưa được tạo' });
+    }
     data.imageURL = filePath;
 
     const dataCategory = await categoryModel.update(id, data);
