@@ -45,9 +45,26 @@ const FinishOrder = () => {
   const [districts, setDistricts] = useState([]);
   const [wards, setWards] = useState([]);
 
-  const [currentCity, setCurrentCity] = useState(null);
-  const [currentDistrict, setCurrentDistrict] = useState(null);
-  const [currentWard, setCurrentWard] = useState(null);
+  interface City {
+    id: string;
+    name: string;
+    districts: District[];
+  }
+
+  interface District {
+    id: string;
+    name: string;
+    wards: Ward[];
+  }
+
+  interface Ward {
+    id: string;
+    name: string;
+  }
+
+  const [currentCity, setCurrentCity] = useState<City | null>(null);
+  const [currentDistrict, setCurrentDistrict] = useState<District | null>(null);
+  const [currentWard, setCurrentWard] = useState<Ward | null>(null);
 
   const [selectedDistrictId, setSelectedDistrictId] = useState<string | null>(
     null
@@ -108,55 +125,57 @@ const FinishOrder = () => {
   };
 
   const filterSelectionInput = (item: AddressFormType) => {
-    let listOptions: any = locationVN;
-    let value;
-    let handleOnSelect: (id: string) => void;
-
-    switch (item.name) {
-      case "city":
-        listOptions = locationVN;
-        value = currentCity.id;
-        handleOnSelect = (cityId) => {
-          const indexCity = Number(cityId) - 1 > -1 ? Number(cityId) - 1 : 0;
-          const firstDistrict = locationVN[indexCity].districts[0];
-          const firstWard = firstDistrict.wards[0];
-          setCurrentCity(locationVN[indexCity]);
-          setCurrentDistrict(firstDistrict);
-          setSelectedDistrictId(firstDistrict.id);
-          setCurrentWard(firstWard);
-          setSelectedWardId(firstWard.id);
-        };
-        break;
-      case "district":
-        listOptions = currentCity.districts;
-        value = selectedDistrictId;
-
-        handleOnSelect = (districtId) => {
-          const district = currentCity.districts.find(
-            (currentDistrict) => currentDistrict.id === districtId
-          );
-          if (district) {
-            const firstWard = district.wards[0];
-            setCurrentDistrict(district);
-            setSelectedDistrictId(districtId);
-            setCurrentWard(firstWard);
-            setSelectedWardId(firstWard.id);
-          }
-        };
-        break;
-      case "ward":
-        listOptions = currentDistrict.wards;
-        value = selectedWardId;
-        handleOnSelect = (wardId) => setSelectedWardId(wardId);
-        break;
-      default:
-        listOptions = locationVN;
-        value = undefined;
-        handleOnSelect = () => {};
-        break;
-    }
-    return { listOptions, value, handleOnSelect };
-  };
+      const locationVN = useRecoilValue(locationVnState);
+      let listOptions: any = locationVN;
+      let value: string | undefined;
+      let handleOnSelect: (id: string) => void;
+    
+      switch (item.name) {
+        case "city":
+          listOptions = locationVN;
+          value = currentCity?.id;
+          handleOnSelect = (cityId) => {
+            const selectedCity = locationVN.find(city => city.id === cityId);
+            if (selectedCity) {
+              const firstDistrict = selectedCity.districts[0];
+              const firstWard = firstDistrict.wards[0];
+              setCurrentCity(selectedCity);
+              setCurrentDistrict(firstDistrict);
+              setSelectedDistrictId(firstDistrict.id);
+              setCurrentWard(firstWard);
+              setSelectedWardId(firstWard.id);
+            }
+          };
+          break;
+        case "district":
+          listOptions = currentCity?.districts || [];
+          value = selectedDistrictId ?? undefined;
+          handleOnSelect = (districtId) => {
+            const district = currentCity?.districts.find(
+              (currentDistrict) => currentDistrict.id === districtId
+            );
+            if (district) {
+              const firstWard = district.wards[0];
+              setCurrentDistrict(district);
+              setSelectedDistrictId(districtId);
+              setCurrentWard(firstWard);
+              setSelectedWardId(firstWard.id);
+            }
+          };
+          break;
+        case "ward":
+          listOptions = currentDistrict?.wards || [];
+          value = selectedWardId ?? undefined;
+          handleOnSelect = (wardId) => setSelectedWardId(wardId);
+          break;
+        default:
+          listOptions = locationVN;
+          value = undefined;
+          handleOnSelect = () => {};
+          break;
+      }
+      return { listOptions, value, handleOnSelect };
+    };
 
   useEffect(() => {
     setHeader({ title: "Đơn đặt hàng", type: "secondary" });
