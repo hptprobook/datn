@@ -953,7 +953,9 @@ const getProductByCategoryFilter = async (slug, pages, limit, filter) => {
   return result;
 };
 
-const getProductsByEvent = async (slug) => {
+const getProductsByEvent = async (slug, pages, limit) => {
+  pages = parseInt(pages) || 1;
+  limit = parseInt(limit) || 20;
   const db = await GET_DB();
 
   const category = await db.collection('categories').findOne({ slug: slug });
@@ -981,6 +983,8 @@ const getProductsByEvent = async (slug) => {
       statusStock: 1,
       slug: 1,
     })
+    .skip((pages - 1) * limit)
+    .limit(5)
     .toArray();
 
   if (!products) {
@@ -988,9 +992,9 @@ const getProductsByEvent = async (slug) => {
   }
 
   const categorizedProducts = {
-    Nam: [],
-    Nữ: [],
-    Trẻ_em: [],
+    nam: [],
+    nu: [],
+    treEm: [],
   };
 
   products.forEach((product) => {
@@ -1009,13 +1013,13 @@ const getProductsByEvent = async (slug) => {
     }
 
     if (product.productType.includes('Nam')) {
-      categorizedProducts.Nam.push(product);
+      categorizedProducts.nam.push(product);
     }
     if (product.productType.includes('Nữ')) {
-      categorizedProducts.Nữ.push(product);
+      categorizedProducts.nu.push(product);
     }
     if (product.productType.includes('Trẻ em')) {
-      categorizedProducts.TreEm.push(product);
+      categorizedProducts.treEm.push(product);
     }
 
     delete product.reviews;

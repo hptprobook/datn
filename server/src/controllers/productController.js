@@ -783,6 +783,7 @@ const getProductByCategoryFilter = async (req, res) => {
 const getProductByEvent = async (req, res) => {
   try {
     const { slug } = req.params;
+
     let { pages, limit } = req.query;
     const product = await productModel.getProductsByEvent(slug, pages, limit);
     if (!product) {
