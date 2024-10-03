@@ -28,6 +28,12 @@ Router.post(
   verifyAdmin,
   supplierController.deleteAllSupplier
 );
+Router.post(
+  '/many',
+  verifyToken,
+  verifyAdmin,
+  supplierController.deleteManySupplier
+);
 
 Router.put('/:id', verifyToken, verifyAdmin, supplierController.updateSupplier);
 

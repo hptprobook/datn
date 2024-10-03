@@ -89,6 +89,22 @@ const deleteAllSuppliers = async () => {
   return result;
 };
 
+const deleteManySuppliers = async (ids) => {
+  const db = GET_DB().collection('suppliers');
+
+  const result = await db.deleteMany({
+    _id: { $in: ids.map((id) => new ObjectId(id)) },
+  });
+
+  if (result.deletedCount === 0) {
+    throw new Error('Xóa không thành công');
+  }
+
+  return {
+    result,
+  };
+};
+
 export const supplierModel = {
   countSupplierAll,
   getSuppliersAll,
@@ -97,4 +113,5 @@ export const supplierModel = {
   deleteSupplier,
   update,
   deleteAllSuppliers,
+  deleteManySuppliers,
 };

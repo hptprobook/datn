@@ -163,9 +163,7 @@ const deleteManyBrand = async (req, res) => {
 
     const { images } = await brandModel.deleteManyBrands(ids);
 
-    images.forEach((image) => {
-      uploadModel.deleteImg(image);
-    });
+    uploadModel.deleteImgs(images);
 
     return res.status(StatusCodes.OK).json({
       message: 'Xóa thành công',
