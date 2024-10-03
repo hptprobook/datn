@@ -16,6 +16,7 @@ import Iconify from 'src/components/iconify';
 
 export default function CouponTableRow({
   selected,
+  id,
   code,
   type,
   minPurchasePrice,
@@ -26,6 +27,7 @@ export default function CouponTableRow({
   limitOnUser,
   dateStart,
   dateEnd,
+  onDelete,
   handleClick,
   handleNavigate,
 }) {
@@ -39,6 +41,10 @@ export default function CouponTableRow({
     setOpen(null);
   };
 
+  const handleDelete = (idDelete) => {
+    onDelete(idDelete);
+    handleCloseMenu();
+  }
   return (
     <>
       <TableRow hover tabIndex={-1} role="checkbox" selected={selected}>
@@ -100,7 +106,7 @@ export default function CouponTableRow({
           Xem
         </MenuItem>
 
-        <MenuItem onClick={handleCloseMenu} sx={{ color: 'error.main' }}>
+        <MenuItem onClick={() => handleDelete(id)} sx={{ color: 'error.main' }}>
           <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
           Xóa
         </MenuItem>
@@ -110,6 +116,8 @@ export default function CouponTableRow({
 }
 
 CouponTableRow.propTypes = {
+  id: PropTypes.any,
+  onDelete: PropTypes.func,
   code: PropTypes.string.isRequired,
   type: PropTypes.string.isRequired,
   minPurchasePrice: PropTypes.number.isRequired,
