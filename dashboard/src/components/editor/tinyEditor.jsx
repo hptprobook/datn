@@ -7,6 +7,7 @@ const tinyKey = import.meta.env.VITE_TINYMCE_API_KEY;
 export default function TinyEditor({
   initialValue = 'Đây là nội dung ban đầu của trình soạn thảo.',
   onChange,
+  height = 500,
 }) {
   const editorRef = useRef(null);
   const log = () => {
@@ -23,7 +24,7 @@ export default function TinyEditor({
       onChange={log}
       initialValue={`<p>${initialValue}</p>`}
       init={{
-        height: 500,
+        height,
         menubar: false,
         plugins: [
           'advlist',
@@ -58,4 +59,5 @@ export default function TinyEditor({
 TinyEditor.propTypes = {
   initialValue: PropTypes.string,
   onChange: PropTypes.func.isRequired,
+  height: PropTypes.number,
 };
