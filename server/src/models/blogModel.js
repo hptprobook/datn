@@ -1,6 +1,10 @@
 import { GET_DB } from '~/config/mongodb';
 import { ObjectId } from 'mongodb';
-import { SAVE_BLOG, UPDATE_BLOG } from '~/utils/schema/blogSchema';
+import {
+    SAVE_BLOG,
+    UPDATE_BLOG,
+    UPDATE_COMMENT,
+} from '~/utils/schema/blogSchema';
 const validateBeforeCreate = async(data) => {
     return await SAVE_BLOG.validateAsync(data, { abortEarly: false });
 };
@@ -51,6 +55,17 @@ const findBlogBySlug = async(slug) => {
     const result = await db.findOne({ slug });
     return result;
 };
+const findBlogByTitle = async(title, page, limit) => {
+    page = parseInt(page) || 1;
+    limit = parseInt(limit) || 12;
+    const db = await GET_DB().collection('blogs');
+    const result = await db
+        .find({ title: { $regex: title, $options: 'i' } })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .toArray();
+    return result;
+};
 
 const createBlog = async(dataBlog) => {
     const validData = await validateBeforeCreate(dataBlog);
@@ -77,13 +92,21 @@ const updateBlog = async(id, dataBlog) => {
 };
 
 const validateBeforeUpdateComment = async(data) => {
-    return await UPDATE_BLOG.validateAsync(data, { abortEarly: false });
+    return await UPDATE_COMMENT.validateAsync(data, { abortEarly: false });
 };
+// comment
 const updateComment = async(id, dataComment) => {
     const data = await validateBeforeUpdateComment(dataComment);
+    const newData = {...data, userId: new ObjectId(data.userId) };
     const db = await GET_DB();
     const collection = db.collection('blogs');
-    const result = await collection.findOneAndUpdate({ _id: new ObjectId(id) }, { $set: data }, { returnDocument: 'after' });
+    const result = await collection.findOneAndUpdate({ _id: new ObjectId(id) }, { $push: { comments: newData } }, { returnDocument: 'after' });
+    return result;
+};
+const delComment = async(id, commentId) => {
+    const db = await GET_DB();
+    const collection = db.collection('blogs');
+    const result = await collection.updateOne({ _id: new ObjectId(id) }, { $pull: { comments: { commentId: commentId } } }, { returnDocument: 'after' });
     return result;
 };
 
@@ -115,4 +138,6 @@ export const blogModel = {
     findBlogByStatus,
     findBlogAuthID,
     updateComment,
+    delComment,
+    findBlogByTitle,
 };
