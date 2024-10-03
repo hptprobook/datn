@@ -1,8 +1,8 @@
 import { lazy, Suspense } from 'react';
 import { Outlet, Navigate, useRoutes } from 'react-router-dom';
 
-import { ProtectedRoute } from './components/ProtectedRoute';
 import Products from 'src/sections/products/detail/products';
+import { ProtectedRoute } from './components/ProtectedRoute';
 // ----------------------------------------------------------------------
 export const IndexPage = lazy(() => import('src/pages/app'));
 export const BlogPage = lazy(() => import('src/pages/blog'));

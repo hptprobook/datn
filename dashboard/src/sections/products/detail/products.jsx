@@ -152,7 +152,12 @@ export default function Products() {
     try {
       const response = await axios.post(
         'http://localhost:3000/api/products',
-        formDatas
+        formDatas,
+        {
+          headers: {
+            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjZlMjc0MjFhN2U0MzJkODY3YTM4NWExIiwiZW1haWwiOiJhZG1pbkBnbWFpbC5jb20iLCJyb2xlIjoicm9vdCIsImlhdCI6MTcyNzk2MzU0MiwiZXhwIjoxNzI3OTg1MTQyfQ.ZvhU-IbI28N0Tq0UkfxDGPgG-qOmlrCeMh5fAiJnjp0`,
+          },
+        }
       );
       console.log(response);
     } catch (err) {

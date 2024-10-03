@@ -5,6 +5,11 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import {
   Card,
+  FormControl,
+  FormHelperText,
+  InputLabel,
+  MenuItem,
+  Select,
   TextField,
 } from '@mui/material';
 import { useFormik } from 'formik';
@@ -15,6 +20,13 @@ import checkBox from '@iconify/icons-ic/baseline-check-box';
 import './styles.css';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { slugify } from 'src/utils/format-text';
+import TinyEditor from 'src/components/editor/tinyEditor';
+import { useCallback, useEffect, useState } from 'react';
+import ImageDropZone from 'src/components/drop-zone-upload/upload-img';
+import { useDispatch } from 'react-redux';
+import { fetchAllCategories } from 'src/redux/slices/categorySlices';
+import { fetchAll } from 'src/redux/slices/brandSlices';
+import { AutoSelect } from '../auto-select';
 
 // ----------------------------------------------------------------------
 
@@ -26,9 +38,7 @@ const productSchema = Yup.object({
     .required('Tên sản phẩm là bắt buộc')
     .min(5, 'Tên sản phẩm phải ít nhất 5 ký tự')
     .max(255, 'Tên sản phẩm không được quá 255 ký tự'),
-  slug: Yup.string()
-    .min(5, 'Slug phải ít nhất 5 ký tự')
-    .max(255, 'Slug không được quá 255 ký tự'),
+  slug: Yup.string().min(5, 'Slug phải ít nhất 5 ký tự').max(255, 'Slug không được quá 255 ký tự'),
   description: Yup.string()
     .required('Mô tả là bắt buộc')
     .min(5, 'Mô tả phải ít nhất 5 ký tự')
@@ -48,31 +58,77 @@ const productSchema = Yup.object({
   salePrice: Yup.number().min(0, 'Giá khuyến mãi không được âm'),
 });
 export default function CreateProductPage() {
-  const handleChangeUploadImg = (value) => {
-    // setImglist(value);
-  };
-
+  const [uploadedThumbnailUrl, setUploadedThumbnailUrl] = useState(null);
+  const [uploadedImgsUrl, setUploadedImgsUrl] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [brands, setBrands] = useState([]);
+  const [tags, setTags] = useState([]);
+  const dispatch = useDispatch();
   const formik = useFormik({
     initialValues: {
       name: '',
       description: '',
       shortDescription: '',
+      brand: '',
+      cat_id: '',
+      content: '',
       slug: '',
       quantity: 0,
       stock: 0,
       price: 0,
       salePrice: 0,
+      tags: [],
     },
     validationSchema: productSchema,
     onSubmit: (values) => {
       console.log(values);
     },
   });
+  useEffect(() => {
+    dispatch(fetchAllCategories()).then((res) => {
+      setCategories(res.payload);
+    });
+    dispatch(fetchAll()).then((res) => {
+      setBrands(res.payload);
+    });
+  }, [dispatch, tags]);
+  useEffect(() => {
+    if (categories.length > 0) {
+      const newTags = categories.map((category) => {
+        if (category.parentId === 'ROOT') {
+          return category.name;
+        }
+        return null;
+      }).filter((tag) => tag !== null);
+      // Only update tags if they are different to avoid triggering re-render
+      if (JSON.stringify(newTags) !== JSON.stringify(tags)) {
+        setTags(newTags);
+      }
+    }
+  }, [categories, tags]);
+
   const handleCreateSlug = (e) => {
     formik.setFieldValue('name', e.target.value);
     const slug = slugify(e.target.value);
     formik.setFieldValue('slug', slug);
   };
+  const handleChangeUploadThumbnail = useCallback((files) => {
+    if (files) {
+      setUploadedThumbnailUrl({
+        file: files,
+        name: 'thumbnail',
+      });
+    }
+  }, []);
+  const handleChangeUploadImgs = useCallback((files) => {
+    if (files) {
+      setUploadedImgsUrl({
+        file: files,
+        name: 'images',
+      });
+    }
+  }, []);
+
   return (
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
@@ -91,7 +147,7 @@ export default function CreateProductPage() {
                   Thông tin cơ bản
                 </Typography>
                 <Grid2 container spacing={3}>
-                  <Grid2 item xs={12}>
+                  <Grid2 xs={12}>
                     <TextField
                       fullWidth
                       label="Tên sản phẩm"
@@ -104,7 +160,7 @@ export default function CreateProductPage() {
                       helperText={formik.touched.name && formik.errors.name}
                     />
                   </Grid2>
-                  <Grid2 item xs={12}>
+                  <Grid2 xs={12}>
                     <TextField
                       fullWidth
                       label="Slug"
@@ -124,18 +180,88 @@ export default function CreateProductPage() {
                   padding: 3,
                 }}
               >
-                xin chào
+                <Stack spacing={3}>
+                  <Typography variant="h6" sx={{ mb: 3 }}>
+                    Mô tả sản phẩm
+                  </Typography>
+                  <TinyEditor
+                    initialValue="Đây là nội dung mô tả của sản phẩm"
+                    onChange={(value) => formik.setFieldValue('description', value)}
+                  />
+                  <Typography variant="h6" sx={{ mb: 3 }}>
+                    Mô tả ngắn sản phẩm
+                  </Typography>
+                  <TinyEditor
+                    initialValue="Đây là mô tả ngắn của sản phẩm"
+                    onChange={(value) => formik.setFieldValue('content', value)}
+                    height={200}
+                  />
+                </Stack>
               </Card>
             </Stack>
           </Grid2>
           <Grid2 xs={4}>
-            {' '}
             <Card
               sx={{
                 padding: 3,
               }}
             >
-              xin chào
+              <Stack spacing={3}>
+                <Typography variant="h6" sx={{ mb: 3 }}>
+                  Hình ảnh đại diện sản phẩm
+                </Typography>
+                <ImageDropZone singleFile handleUpload={handleChangeUploadThumbnail} />
+                <Typography variant="h6" sx={{ mb: 3 }}>
+                  Hình ảnh sản phẩm
+                </Typography>
+                <ImageDropZone singleFile={false} handleUpload={handleChangeUploadImgs} />
+                <FormControl fullWidth>
+                  <InputLabel id="category-select-label">Danh mục</InputLabel>
+                  <Select
+                    labelId="category-select-label"
+                    id="category-select"
+                    value={formik.values.cat_id}
+                    label="Danh mục"
+                    name="cat_id"
+                    onChange={formik.handleChange}
+                  >
+                    {categories.map((category) => (
+                      <MenuItem key={category._id} value={category._id}>
+                        {category.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  <FormHelperText>
+                    {formik.touched.cat_id && formik.errors.cat_id ? formik.errors.cat_id : ''}
+                  </FormHelperText>
+                </FormControl>
+                <FormControl fullWidth>
+                  <InputLabel id="category-select-label">Nhãn hàng</InputLabel>
+                  <Select
+                    labelId="category-select-label"
+                    id="category-select"
+                    value={formik.values.brand}
+                    label="Nhãn hàng"
+                    name="brand"
+                    onChange={formik.handleChange}
+                  >
+                    {brands.map((brand) => (
+                      <MenuItem key={brand._id} value={brand._id}>
+                        {brand.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  <FormHelperText>
+                    {formik.touched.brand && formik.errors.brand ? formik.errors.brand : ''}
+                  </FormHelperText>
+                </FormControl>
+                <AutoSelect
+                  value={formik.values.tags}
+                  setValue={(value) => formik.setFieldValue('tags', value)}
+                  data={tags}
+                  label="Loại sản phẩm"
+                />
+              </Stack>
             </Card>
           </Grid2>
         </Grid2>
