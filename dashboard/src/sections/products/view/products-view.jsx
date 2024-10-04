@@ -18,12 +18,12 @@ import { handleToast } from 'src/hooks/toast';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 
-import TableNoData from '../table-no-data';
+import TableEmptyRows from 'src/components/table/table-empty-rows';
+import TableNoData from 'src/components/table/table-no-data';
+import { emptyRows, applyFilter, getComparator } from 'src/components/table/utils';
 import ProductTableRow from '../product-table-row';
 import ProductTableHead from '../product-table-head';
-import TableEmptyRows from '../table-empty-rows';
 import ProductTableToolbar from '../product-table-toolbar';
-import { emptyRows, applyFilter, getComparator } from '../utils';
 
 // ----------------------------------------------------------------------
 
@@ -37,7 +37,7 @@ export default function ProductsPage() {
 
   const dispatch = useDispatch();
   const products = useSelector((state) => state.products.products);
-  const statusPro = useSelector((state) => state.products.status);
+  const status = useSelector((state) => state.products.status);
   const [productsList, setProductsList] = React.useState([]);
   // const errorPro = useSelector((state) => state.products.error);
 
@@ -46,18 +46,13 @@ export default function ProductsPage() {
   }, [dispatch]);
 
   useEffect(() => {
-    if (statusPro === 'succeeded') {
+    if (status === 'failed') {
+      handleToast('error', 'Có lỗi xảy ra vui lòng thử lại!');
+    } else if (status === 'successful') {
       setProductsList(products);
+      console.log(products);
     }
-  }, [products, statusPro]);
-
-  useEffect(() => {
-    if (statusPro === 'failed') {
-      handleToast('error', 'Failed to fetch products');
-    } else if (statusPro === 'succeeded') {
-      setProductsList(products);
-    }
-  }, [products, statusPro]);
+  }, [products, status]);
 
   // console.log(productsList);
 
@@ -114,6 +109,7 @@ export default function ProductsPage() {
     inputData: productsList,
     comparator: getComparator(order, orderBy),
     filterName,
+    fillerQuery: 'name',
   });
 
   const notFound = !dataFiltered.length && !!filterName;
@@ -156,9 +152,11 @@ export default function ProductsPage() {
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
                   { id: 'name', label: 'Tên' },
+                  { id: 'slug', label: 'Slug' },
                   { id: 'price', label: 'Giá' },
                   { id: 'brand', label: 'Thương hiệu' },
-                  { id: 'stock', label: 'Stock' },
+                  { id: 'averageRating', label: 'Đánh giá' },
+                  { id: 'statusStock', label: 'Trạng thái' },
                   { id: '' },
                 ]}
               />
@@ -170,16 +168,19 @@ export default function ProductsPage() {
                       key={row._id}
                       _id={row._id}
                       name={row.name}
-                      imgURLs={row.imgURLs}
+                      imgURLs={row.thumbnail}
                       price={row.price}
                       brand={row.brand}
-                      stock={row.stock}
-                      selected={selected.indexOf(row.name) !== -1}
-                      handleClick={(event) => handleClick(event, row.name)}
+                      slug={row.slug}
+                      averageRating={row.averageRating}
+                      statusStock={row.statusStock}
+                      selected={selected.indexOf(row._id) !== -1}
+                      handleClick={(event) => handleClick(event, row._id)}
                     />
                   ))}
 
                 <TableEmptyRows
+                  col={5}
                   height={77}
                   emptyRows={emptyRows(page, rowsPerPage, productsList.length)}
                 />

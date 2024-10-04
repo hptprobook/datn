@@ -3,7 +3,7 @@ export const isValidObjectId = (id) =>
    ;
 
 export const renderUrl = (url, backendUrl = '') => {
-   if (!url.startsWith('http://') && !url.startsWith('https://')) {  
+   if (!url.startsWith('http://') && !url.startsWith('https://') && url.startsWith('/uploads')) {  
      return `${backendUrl}/${url}`.replace(/([^:]\/)\/+/g, '$1');  // Avoid double slashes
    }
    return url;

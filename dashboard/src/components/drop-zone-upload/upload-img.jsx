@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { useDropzone } from 'react-dropzone';
 import PropTypes from 'prop-types';
 import { Box, Button, IconButton } from '@mui/material';
-import { setStatus } from 'src/redux/slices/settingSlices';
 import { renderUrl } from 'src/utils/check';
 import { handleToast } from '../../hooks/toast';
 import './style.css';
@@ -20,16 +18,6 @@ const ImageDropZone = ({ handleUpload, singleFile = false, defaultImg = '' }) =>
   });
   const [url, setUrl] = useState('');
   const [uploadFile, setUploadFile] = useState([]);
-  const status = useSelector((state) => state.settings.statusUploadWeb);
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    if (status === 'succeeded') {
-      handleToast('success', 'Upload ảnh thành công');
-      dispatch(setStatus({ key: 'statusUploadWeb', value: 'idle' }));
-      setUploadFile([]);
-    }
-  }, [status, dispatch]);
 
   useEffect(() => {
     if (fileRejections.length > 0) {
@@ -51,8 +39,8 @@ const ImageDropZone = ({ handleUpload, singleFile = false, defaultImg = '' }) =>
         setUploadFile(acceptedFiles);
         handleUpload(acceptedFiles[0]);
       } else {
-        setUploadFile([acceptedFiles[0]]);
-        handleUpload([acceptedFiles[0]]);
+        setUploadFile((prevFiles) => [...prevFiles, ...acceptedFiles]);
+        handleUpload(acceptedFiles);
       }
     }
   }, [acceptedFiles, singleFile, handleUpload]);
@@ -71,6 +59,11 @@ const ImageDropZone = ({ handleUpload, singleFile = false, defaultImg = '' }) =>
     const updatedFiles = [...uploadFile];
     updatedFiles.splice(index, 1);
     setUploadFile(updatedFiles);
+    if (singleFile) {
+      handleUpload(null);
+    } else {
+      handleUpload(updatedFiles);
+    }
   };
 
   const uploads = uploadFile.map((file, index) => {
@@ -79,41 +72,58 @@ const ImageDropZone = ({ handleUpload, singleFile = false, defaultImg = '' }) =>
 
     return (
       <li key={file.path}>
-        <div>
-          <img src={preview} alt={`Preview ${index}`} />
-          {`${file.path.slice(0, 30)}...`} - {file.size} B - {file.type}
+        <div className="imageMulti">
+          <div>
+            <img className="img" src={preview} alt={`Preview ${index}`} />
+          </div>
+          <div>
+            <p>{`${file.path.slice(0, 30)}...`}</p>
+            <p>
+              {file.size} B - {file.type}
+            </p>
+          </div>
+          <IconButton
+            sx={{
+              backgroundColor: 'white',
+              height: 40,
+              width: 40,
+            }}
+            color="inherit"
+            variant="contained"
+            onClick={() => removeFile(index)}
+          >
+            <Iconify icon="eva:close-fill" />
+          </IconButton>
         </div>
-        <Button color="inherit" variant="contained" onClick={() => removeFile(index)}>
-          Xóa
-        </Button>
       </li>
     );
   });
 
   // Preview for single file mode
-  const upload = uploadFile[0] ? (
-    <Box
-      sx={{
-        position: 'relative',
-        borderRadius: '12px',
-      }}
-    >
-      <img src={URL.createObjectURL(uploadFile[0])} alt="Preview" />
-      <IconButton
+  const upload =
+    uploadFile[0] && singleFile ? (
+      <Box
         sx={{
-          position: 'absolute',
-          top: 8,
-          right: 8,
-          backgroundColor: 'white',
+          position: 'relative',
+          borderRadius: '12px',
         }}
-        color="inherit"
-        variant="contained"
-        onClick={() => removeFile(0)}
       >
-        <Iconify icon="eva:close-fill" />
-      </IconButton>
-    </Box>
-  ) : null;
+        <img src={URL.createObjectURL(uploadFile[0])} alt="Preview" />
+        <IconButton
+          sx={{
+            position: 'absolute',
+            top: 8,
+            right: 8,
+            backgroundColor: 'white',
+          }}
+          color="inherit"
+          variant="contained"
+          onClick={() => removeFile(0)}
+        >
+          <Iconify icon="eva:close-fill" />
+        </IconButton>
+      </Box>
+    ) : null;
 
   return (
     <section className="container ImageDropZone">
