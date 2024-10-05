@@ -107,6 +107,22 @@ const variantSchema = Yup.object().shape({
     .min(1, 'Màu sắc không được để trống')
     .max(255, 'Màu sắc không được quá 255 ký tự'),
 });
+const sizeSchema = Yup.object().shape({
+  size: Yup.string()
+    .required('Kích thước không được để trống')
+    .min(1, 'Kích thước không được để trống')
+    .max(255, 'Kích thước không được quá 255 ký tự'),
+  stock: Yup.number()
+    .required('Số lượng không được để trống')
+    .min(0, 'Số lượng không được âm')
+    .max(1000000000, 'Số lượng không được quá 1 tỷ')
+    .typeError('Số lượng phải là số'),
+  price: Yup.number()
+    .required('Giá không được để trống')
+    .min(0, 'Giá không được âm')
+    .max(1000000000, 'Giá không được quá 1 tỷ')
+    .typeError('Giá phải là số'),
+});
 const colorsWithHex = [
   { name: 'Đỏ', hex: '#FF0000' },
   { name: 'Xanh lá cây', hex: '#00FF00' },
@@ -163,6 +179,25 @@ export default function CreateVariant() {
       setVariants([...variants, newVariant]);
       formik.resetForm();
       handleClose();
+    },
+  });
+  const formikSize = useFormik({
+    initialValues: {
+      size: '',
+      stock: '',
+      price: '',
+      index: '',
+    },
+    validationSchema: sizeSchema,
+    onSubmit: (values) => {
+      const newVariant = [...variants];
+      newVariant[values.index].sizes.push({
+        size: values.size,
+        stock: values.stock,
+        price: values.price,
+      });
+      setVariants(newVariant);
+      formikSize.resetForm();
     },
   });
   const handleDeleteVariant = (index) => {
@@ -342,6 +377,42 @@ export default function CreateVariant() {
                 {formatCurrency(variant.onlinePrice)} - Giá vốn:{' '}
                 {formatCurrency(variant.capitalPrice)}
               </Typography>
+              <form onSubmit={formikSize.handleSubmit}>
+                <Typography fontWeight={600}>Thêm kích thước</Typography>
+                <Stack spacing={2} direction="row" mt={2} justifyContent="flex-end">
+                  <TextField
+                    id="size"
+                    name="size"
+                    label="Kích thước"
+                    value={formikSize.values.size}
+                    onChange={formikSize.handleChange}
+                    error={formikSize.touched.size && Boolean(formikSize.errors.size)}
+                    helperText={formikSize.touched.size && formikSize.errors.size}
+                  />
+                  <TextField
+                    id="stock"
+                    name="stock"
+                    label="Số lượng"
+                    value={formikSize.values.stock}
+                    onChange={formikSize.handleChange}
+                    error={formikSize.touched.stock && Boolean(formikSize.errors.stock)}
+                    helperText={formikSize.touched.stock && formikSize.errors.stock}
+                  />
+                  <TextField
+                    id="price"
+                    name="price"
+                    label="Giá"
+                    value={formikSize.values.price}
+                    onChange={formikSize.handleChange}
+                    error={formikSize.touched.price && Boolean(formikSize.errors.price)}
+                    helperText={formikSize.touched.price && formikSize.errors.price}
+                  />
+                  <input type="hidden" name="index" value={index} />
+                  <Button type="submit" variant="contained" color="inherit">
+                    Thêm
+                  </Button>
+                </Stack>
+              </form>
             </AccordionDetails>
           </Accordion>
         ))}
