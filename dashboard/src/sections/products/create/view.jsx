@@ -4,36 +4,43 @@ import Stack from '@mui/material/Stack';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import {
+  Box,
+  Tab,
   Card,
-  FormControl,
-  FormHelperText,
-  InputLabel,
-  MenuItem,
+  Chip,
+  Tabs,
   Select,
+  Switch,
+  Button,
+  MenuItem,
   TextField,
+  FormLabel,
+  SpeedDial,
+  InputLabel,
+  FormControl,
+  OutlinedInput,
+  FormHelperText,
+  InputAdornment,
+  FormControlLabel,
 } from '@mui/material';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { Icon } from '@iconify/react';
-import checkBoxOutlineBlank from '@iconify/icons-ic/baseline-check-box-outline-blank';
-import checkBox from '@iconify/icons-ic/baseline-check-box';
 import './styles.css';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { slugify } from 'src/utils/format-text';
 import TinyEditor from 'src/components/editor/tinyEditor';
-import { useCallback, useEffect, useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import ImageDropZone from 'src/components/drop-zone-upload/upload-img';
 import { useDispatch } from 'react-redux';
 import { fetchAllCategories } from 'src/redux/slices/categorySlices';
 import { fetchAll } from 'src/redux/slices/brandSlices';
+import PropTypes from 'prop-types';
+import Iconify from 'src/components/iconify/iconify';
 import { AutoSelect } from '../auto-select';
+import CreateVariant from '../variant';
 
 // ----------------------------------------------------------------------
-
-const icon = <Icon icon={checkBoxOutlineBlank} />;
-const checkedIcon = <Icon icon={checkBox} />;
-// Define validation schema
-const productSchema = Yup.object({
+const productSchema = Yup.object().shape({
   name: Yup.string()
     .required('Tên sản phẩm là bắt buộc')
     .min(5, 'Tên sản phẩm phải ít nhất 5 ký tự')
@@ -57,13 +64,31 @@ const productSchema = Yup.object({
   price: Yup.number().required('Cần nhập có giá thông thường').min(0, 'Giá không được âm'),
   salePrice: Yup.number().min(0, 'Giá khuyến mãi không được âm'),
 });
+
 export default function CreateProductPage() {
   const [uploadedThumbnailUrl, setUploadedThumbnailUrl] = useState(null);
   const [uploadedImgsUrl, setUploadedImgsUrl] = useState(null);
   const [categories, setCategories] = useState([]);
-  const [brands, setBrands] = useState([]);
   const [tags, setTags] = useState([]);
+  const [inputValue, setInputValue] = useState('');
+  const [value, setValue] = useState(0);
+  const [brands, setBrands] = useState([]);
+  const [dataTags, setDataTags] = useState([]);
   const dispatch = useDispatch();
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  };
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter' && inputValue.trim()) {
+      setTags([...tags, inputValue.trim()]);
+      setInputValue('');
+    }
+  };
+
+  const handleDelete = (tagToDelete) => {
+    setTags(tags.filter((tag) => tag !== tagToDelete));
+  };
+
   const formik = useFormik({
     initialValues: {
       name: '',
@@ -73,15 +98,22 @@ export default function CreateProductPage() {
       cat_id: '',
       content: '',
       slug: '',
+      productType: ['Nam'],
       quantity: 0,
       stock: 0,
       price: 0,
       salePrice: 0,
+      statusStock: 'stock',
       tags: [],
+      status: true,
+      height: 0,
+      weight: 0,
     },
     validationSchema: productSchema,
     onSubmit: (values) => {
       console.log(values);
+      console.log(uploadedThumbnailUrl);
+      console.log(uploadedImgsUrl);
     },
   });
   useEffect(() => {
@@ -91,21 +123,23 @@ export default function CreateProductPage() {
     dispatch(fetchAll()).then((res) => {
       setBrands(res.payload);
     });
-  }, [dispatch, tags]);
+  }, [dispatch]);
   useEffect(() => {
     if (categories.length > 0) {
-      const newTags = categories.map((category) => {
-        if (category.parentId === 'ROOT') {
-          return category.name;
-        }
-        return null;
-      }).filter((tag) => tag !== null);
+      const newTags = categories
+        .map((category) => {
+          if (category.parentId === 'ROOT') {
+            return category.name;
+          }
+          return null;
+        })
+        .filter((tag) => tag !== null);
       // Only update tags if they are different to avoid triggering re-render
-      if (JSON.stringify(newTags) !== JSON.stringify(tags)) {
-        setTags(newTags);
+      if (JSON.stringify(newTags) !== JSON.stringify(dataTags)) {
+        setDataTags(newTags);
       }
     }
-  }, [categories, tags]);
+  }, [categories, dataTags]);
 
   const handleCreateSlug = (e) => {
     formik.setFieldValue('name', e.target.value);
@@ -128,9 +162,21 @@ export default function CreateProductPage() {
       });
     }
   }, []);
+  const formatNumber = (number) => {
+    if (!number) return '';
+    // Remove non-numeric characters first to prevent errors
+    const numericValue = number.replace(/\D/g, '');
+    return new Intl.NumberFormat('vi-VN').format(numericValue);
+  };
 
   return (
     <Container>
+      <SpeedDial
+        ariaLabel="SpeedDial basic example"
+        sx={{ position: 'fixed', bottom: 16, right: 16 }}
+        onClick={() => formik.handleSubmit()}
+        icon={<Iconify icon="eva:save-fill" />}
+      />
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Typography variant="h4">Tạo một sản phẩm mới</Typography>
       </Stack>
@@ -155,7 +201,6 @@ export default function CreateProductPage() {
                       name="name"
                       value={formik.values.name}
                       onChange={(e) => handleCreateSlug(e)}
-                      onBlur={(e) => handleCreateSlug(e)}
                       error={formik.touched.name && Boolean(formik.errors.name)}
                       helperText={formik.touched.name && formik.errors.name}
                     />
@@ -175,6 +220,114 @@ export default function CreateProductPage() {
                   </Grid2>
                 </Grid2>
               </Card>
+              <Card sx={{ flexGrow: 1, bgcolor: 'background.paper', display: 'flex', padding: 3 }}>
+                <Tabs
+                  orientation="vertical"
+                  variant="scrollable"
+                  value={value}
+                  onChange={handleChange}
+                  aria-label="Vertical tabs example"
+                  sx={{ borderRight: 1, borderColor: 'divider' }}
+                >
+                  <Tab label="Giá" {...a11yProps(0)} />
+                  <Tab label="Biến thể" {...a11yProps(1)} />
+                  <Tab label="Kích thước" {...a11yProps(2)} />
+                  <Tab label="SEO" {...a11yProps(3)} />
+                </Tabs>
+                <TabPanel value={value} index={0}>
+                  <Stack spacing={3} sx={{ width: '100%' }}>
+                    <FormControl variant="outlined">
+                      <InputLabel htmlFor="outlined-adornment-money">Giá</InputLabel>
+                      <OutlinedInput
+                        id="outlined-adornment-money"
+                        type="text"
+                        name="price"
+                        value={formatNumber(formik.values.price)}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        endAdornment={<InputAdornment position="end">vnđ</InputAdornment>}
+                        label="Giá"
+                      />
+                      <FormHelperText>
+                        {formik.touched.price && formik.errors.price ? formik.errors.price : ''}
+                      </FormHelperText>
+                    </FormControl>
+                    <FormControl fullWidth>
+                      <InputLabel id="statusStock-select-label">Trạng thái sản phẩm</InputLabel>
+                      <Select
+                        labelId="statusStock-select-label"
+                        id="statusStock-select"
+                        name="statusStock"
+                        value={formik.values.statusStock}
+                        label="Trạng thái sản phẩm"
+                        onChange={formik.handleChange}
+                      >
+                        <MenuItem value="stock">Còn hàng</MenuItem>
+                        <MenuItem value="outStock">Hết hàng</MenuItem>
+                        <MenuItem value="preOrder">Đang nhập hàng</MenuItem>
+                      </Select>
+                    </FormControl>
+                    <Box>
+                      <FormControl component="fieldset" variant="standard">
+                        <FormLabel component="legend">Trạng thái</FormLabel>
+                        <FormControlLabel
+                          control={
+                            <Switch
+                              onChange={formik.handleChange}
+                              name="status"
+                              value={formik.values.status}
+                              checked={formik.values.status}
+                            />
+                          }
+                          label={formik.values.status ? 'Hiện' : 'Ẩn'}
+                        />
+                      </FormControl>
+                    </Box>
+                  </Stack>
+                </TabPanel>
+                <TabPanel value={value} index={1}>
+                  <CreateVariant />
+                </TabPanel>
+                <TabPanel value={value} index={2}>
+                  <Stack spacing={3}>
+                    <FormControl variant="outlined">
+                      <InputLabel htmlFor="outlined-adornment-height">Chiều dài</InputLabel>
+                      <OutlinedInput
+                        id="outlined-adornment-height"
+                        type="text"
+                        name="height"
+                        value={formik.values.height}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        endAdornment={<InputAdornment position="end">cm</InputAdornment>}
+                        label="Chiều dài"
+                      />
+                      <FormHelperText>
+                        {formik.touched.height && formik.errors.height ? formik.errors.height : ''}
+                      </FormHelperText>
+                    </FormControl>
+                    <FormControl variant="outlined">
+                      <InputLabel htmlFor="outlined-adornment-weight">Cân nặng</InputLabel>
+                      <OutlinedInput
+                        id="outlined-adornment-weight"
+                        type="text"
+                        name="weight"
+                        value={formik.values.weight}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        endAdornment={<InputAdornment position="end">g</InputAdornment>}
+                        label="Cân nặng"
+                      />
+                      <FormHelperText>
+                        {formik.touched.weight && formik.errors.weight ? formik.errors.weight : ''}
+                      </FormHelperText>
+                    </FormControl>
+                  </Stack>
+                </TabPanel>
+                <TabPanel value={value} index={3}>
+                  Đang cập nhật
+                </TabPanel>
+              </Card>
               <Card
                 sx={{
                   padding: 3,
@@ -186,16 +339,21 @@ export default function CreateProductPage() {
                   </Typography>
                   <TinyEditor
                     initialValue="Đây là nội dung mô tả của sản phẩm"
-                    onChange={(value) => formik.setFieldValue('description', value)}
+                    onChange={(text) => formik.setFieldValue('description', text)}
                   />
                   <Typography variant="h6" sx={{ mb: 3 }}>
                     Mô tả ngắn sản phẩm
                   </Typography>
                   <TinyEditor
                     initialValue="Đây là mô tả ngắn của sản phẩm"
-                    onChange={(value) => formik.setFieldValue('content', value)}
+                    onChange={(content) => formik.setFieldValue('content', content)}
                     height={200}
                   />
+                </Stack>
+                <Stack spacing={3} direction="row" mt={2} justifyContent="flex-end">
+                  <Button type="submit" variant="contained" color="inherit">
+                    Lưu
+                  </Button>
                 </Stack>
               </Card>
             </Stack>
@@ -256,11 +414,31 @@ export default function CreateProductPage() {
                   </FormHelperText>
                 </FormControl>
                 <AutoSelect
-                  value={formik.values.tags}
-                  setValue={(value) => formik.setFieldValue('tags', value)}
-                  data={tags}
+                  value={formik.values.productType}
+                  setValue={(select) => formik.setFieldValue('productType', select)}
+                  data={dataTags}
                   label="Loại sản phẩm"
                 />
+                <Box>
+                  <TextField
+                    label="Nhập nhãn sản phẩm"
+                    variant="outlined"
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    fullWidth
+                  />
+                  <Box mt={2}>
+                    {tags.map((tag, index) => (
+                      <Chip
+                        key={index}
+                        label={tag}
+                        onDelete={() => handleDelete(tag)}
+                        style={{ marginRight: 5, marginBottom: 5 }}
+                      />
+                    ))}
+                  </Box>
+                </Box>
               </Stack>
             </Card>
           </Grid2>
@@ -268,4 +446,33 @@ export default function CreateProductPage() {
       </form>
     </Container>
   );
+}
+function TabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <Box
+      role="tabpanel"
+      hidden={value !== index}
+      id={`vertical-tabpanel-${index}`}
+      aria-labelledby={`vertical-tab-${index}`}
+      {...other}
+      sx={{ p: 3, width: '100%' }}
+    >
+      {value === index && children}
+    </Box>
+  );
+}
+
+TabPanel.propTypes = {
+  children: PropTypes.node,
+  index: PropTypes.number.isRequired,
+  value: PropTypes.number.isRequired,
+};
+
+function a11yProps(index) {
+  return {
+    id: `vertical-tab-${index}`,
+    'aria-controls': `vertical-tabpanel-${index}`,
+  };
 }
