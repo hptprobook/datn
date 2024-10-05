@@ -8,7 +8,7 @@ import './style.css';
 import Iconify from '../iconify/iconify';
 
 const backendUrl = import.meta.env.VITE_BACKEND_APP_URL;
-const ImageDropZone = ({ handleUpload, singleFile = false, defaultImg = '' }) => {
+const ImageDropZone = ({ handleUpload, singleFile = false, defaultImg = '', error = null }) => {
   const { fileRejections, acceptedFiles, getRootProps, getInputProps } = useDropzone({
     accept: {
       'image/jpeg': [],
@@ -71,7 +71,7 @@ const ImageDropZone = ({ handleUpload, singleFile = false, defaultImg = '' }) =>
     const preview = URL.createObjectURL(file);
 
     return (
-      <li key={file.path}>
+      <li key={index}>
         <div className="imageMulti">
           <div>
             <img className="img" src={preview} alt={`Preview ${index}`} />
@@ -127,7 +127,7 @@ const ImageDropZone = ({ handleUpload, singleFile = false, defaultImg = '' }) =>
 
   return (
     <section className="container ImageDropZone">
-      <div {...getRootProps({ className: `dropzone ${(upload || url !== '') && 'hidden'}` })}>
+      <div {...getRootProps({ className: `dropzone ${error && 'error'} ${(upload || url !== '') && 'hidden'}` })}>
         <input {...getInputProps()} />
         <p className="DropZoneTitle" style={{ textAlign: 'center' }}>
           Kéo thả hoặc chọn ảnh bất kì
@@ -135,6 +135,7 @@ const ImageDropZone = ({ handleUpload, singleFile = false, defaultImg = '' }) =>
         <p className="DropZoneTitle" style={{ textAlign: 'center' }}>
           (Chỉ nhận các ảnh có đuôi jpeg, png)
         </p>
+        {error && <p className="error">{error}</p>}
       </div>
       <aside>
         {!singleFile && uploads.length > 0 && <ul>{uploads}</ul>}
@@ -171,6 +172,7 @@ ImageDropZone.propTypes = {
   handleUpload: PropTypes.func.isRequired,
   singleFile: PropTypes.bool,
   defaultImg: PropTypes.string,
+  error: PropTypes.string,
 };
 
 export default ImageDropZone;
