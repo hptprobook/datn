@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import PropTypes from 'prop-types';
-import { Box, Button, IconButton } from '@mui/material';
+import { Box, IconButton } from '@mui/material';
 import { renderUrl } from 'src/utils/check';
 import { handleToast } from '../../hooks/toast';
 import './style.css';
