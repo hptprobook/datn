@@ -13,14 +13,19 @@ import {
   MenuItem,
   TextField,
   InputLabel,
-  FormControl,
-  FormHelperText,
   IconButton,
+  FormControl,
+  OutlinedInput,
+  FormHelperText,
+  InputAdornment,
 } from '@mui/material';
 import Iconify from 'src/components/iconify/iconify';
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
 import { formatCurrency } from 'src/utils/format-number';
+import ImageDropZone from 'src/components/drop-zone-upload/upload-img';
+import Grid2 from '@mui/material/Unstable_Grid2';
+import PropTypes from 'prop-types';
 
 const Accordion = styled((props) => (
   <MuiAccordion disableGutters elevation={0} square {...props} />
@@ -141,11 +146,14 @@ const colorsWithHex = [
   { name: 'Xanh đậm', hex: '#4B0082' },
   { name: 'Tím nhạt', hex: '#EE82EE' },
 ];
+const clothingSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
-export default function CreateVariant() {
+export default function CreateVariant({ onUpdate }) {
   const [expanded, setExpanded] = React.useState('panel1');
   const [variants, setVariants] = React.useState([]);
+  const [errorUpload, setErrorUpload] = React.useState('');
   const [open, setOpen] = React.useState(false);
+  const [openSize, setOpenSize] = React.useState(null);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   const handleChange = (panel) => (event, newExpanded) => {
@@ -161,10 +169,16 @@ export default function CreateVariant() {
       stock: '',
       sku: '',
       color: '',
+      image: null,
       sizes: [],
     },
     validationSchema: variantSchema,
     onSubmit: (values) => {
+      if (!values.image) {
+        setErrorUpload('Vui lòng chọn ảnh');
+        return;
+      }
+      setErrorUpload('');
       const newVariant = {
         price: values.price,
         marketPrice: values.marketPrice,
@@ -174,6 +188,7 @@ export default function CreateVariant() {
         stock: values.stock,
         sku: values.sku,
         color: values.color,
+        image: values.image,
         sizes: [],
       };
       setVariants([...variants, newVariant]);
@@ -191,12 +206,13 @@ export default function CreateVariant() {
     validationSchema: sizeSchema,
     onSubmit: (values) => {
       const newVariant = [...variants];
-      newVariant[values.index].sizes.push({
+      newVariant[openSize].sizes.push({
         size: values.size,
         stock: values.stock,
         price: values.price,
       });
       setVariants(newVariant);
+      setOpenSize(null);
       formikSize.resetForm();
     },
   });
@@ -205,6 +221,19 @@ export default function CreateVariant() {
     newVariants.splice(index, 1);
     setVariants(newVariants);
   };
+
+  const handleChangeUpload = React.useCallback((files) => {
+    if (files) {
+      formik.setFieldValue('image', files);
+      setErrorUpload('');
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  React.useEffect(() => {
+    onUpdate(variants);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [variants]);
+
   return (
     <Stack spacing={3}>
       <Modal
@@ -215,116 +244,183 @@ export default function CreateVariant() {
       >
         <Box sx={style}>
           <form onSubmit={formik.handleSubmit}>
-            <Typography variant="h6" id="modal-modal-title" align="left" gutterBottom>
-              Thêm biến thể
-            </Typography>
-            <Stack spacing={{ xs: 1, sm: 2 }} direction="row" useFlexGap sx={{ flexWrap: 'wrap' }}>
-              <TextField
-                id="price"
-                name="price"
-                label="Giá"
-                value={formik.values.price}
-                onChange={formik.handleChange}
-                error={formik.touched.price && Boolean(formik.errors.price)}
-                helperText={formik.touched.price && formik.errors.price}
-              />
-              <TextField
-                id="marketPrice"
-                name="marketPrice"
-                label="Giá cửa hàng"
-                value={formik.values.marketPrice}
-                onChange={formik.handleChange}
-                error={formik.touched.marketPrice && Boolean(formik.errors.marketPrice)}
-                helperText={formik.touched.marketPrice && formik.errors.marketPrice}
-              />
-              <TextField
-                id="capitalPrice"
-                name="capitalPrice"
-                label="Giá vốn"
-                value={formik.values.capitalPrice}
-                onChange={formik.handleChange}
-                error={formik.touched.capitalPrice && Boolean(formik.errors.capitalPrice)}
-                helperText={formik.touched.capitalPrice && formik.errors.capitalPrice}
-              />
-              <TextField
-                id="onlinePrice"
-                name="onlinePrice"
-                label="Giá online"
-                value={formik.values.onlinePrice}
-                onChange={formik.handleChange}
-                error={formik.touched.onlinePrice && Boolean(formik.errors.onlinePrice)}
-                helperText={formik.touched.onlinePrice && formik.errors.onlinePrice}
-              />
-              <TextField
-                id="saleOff"
-                name="saleOff"
-                label="Giá giảm"
-                value={formik.values.saleOff}
-                onChange={formik.handleChange}
-                error={formik.touched.saleOff && Boolean(formik.errors.saleOff)}
-                helperText={formik.touched.saleOff && formik.errors.saleOff}
-              />
-              <TextField
-                id="stock"
-                name="stock"
-                label="Số lượng"
-                value={formik.values.stock}
-                onChange={formik.handleChange}
-                error={formik.touched.stock && Boolean(formik.errors.stock)}
-                helperText={formik.touched.stock && formik.errors.stock}
-              />
-              <TextField
-                id="sku"
-                name="sku"
-                label="Mã SKU"
-                value={formik.values.sku}
-                onChange={formik.handleChange}
-                error={formik.touched.sku && Boolean(formik.errors.sku)}
-                helperText={formik.touched.sku && formik.errors.sku}
-              />
-              <FormControl>
-                <InputLabel id="color-select-label">Màu sắc</InputLabel>
-                <Select
-                  labelId="color-select-label"
-                  id="color-select"
-                  value={formik.values.color}
-                  error={formik.touched.color && Boolean(formik.errors.color)}
-                  label="Màu sắc"
-                  name="color"
-                  onChange={formik.handleChange}
-                >
-                  {colorsWithHex.map((color, index) => (
-                    <MenuItem
-                      key={index}
-                      value={color.name}
+            <Stack spacing={2} direction="row" justifyContent="space-between" mb={5}>
+              <Typography variant="h6" id="modal-modal-title" align="left" gutterBottom>
+                Thêm biến thể
+              </Typography>
+              <IconButton onClick={handleClose}>
+                <Iconify icon="eva:close-fill" />
+              </IconButton>
+            </Stack>
+            <Grid2 container spacing={3}>
+              <Grid2 xs={6}>
+                <Stack spacing={{ xs: 1, sm: 2 }}>
+                  <FormControl variant="outlined">
+                    <InputLabel htmlFor="outlined-adornment-priceVariant">Giá</InputLabel>
+                    <OutlinedInput
+                      id="outlined-adornment-priceVariant"
+                      type="text"
+                      name="price"
+                      value={formik.values.price}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      endAdornment={<InputAdornment position="end">vnđ</InputAdornment>}
+                      label="Giá"
+                      error={formik.touched.price && Boolean(formik.errors.price)}
+                    />
+                    <FormHelperText
                       sx={{
-                        display: 'flex',
-                        alignItems: 'center',
+                        color: 'red',
                       }}
                     >
-                      {color.name}
-                      <span
-                        style={{
-                          display: 'inline-block',
-                          width: 20,
-                          height: 20,
-                          backgroundColor: color.hex,
-                          borderRadius: '50%',
-                          marginLeft: 10,
-                        }}
-                      />
-                    </MenuItem>
-                  ))}
-                </Select>
-                <FormHelperText
-                  sx={{
-                    color: formik.touched.color && formik.errors.color ? 'red' : 'inherit',
-                  }}
-                >
-                  {formik.touched.color && formik.errors.color ? formik.errors.color : ''}
-                </FormHelperText>
-              </FormControl>
-            </Stack>
+                      {formik.touched.price && formik.errors.price ? formik.errors.price : ''}
+                    </FormHelperText>
+                  </FormControl>
+                  <FormControl variant="outlined">
+                    <InputLabel htmlFor="outlined-adornment-marketPrice">Giá cửa hàng</InputLabel>
+                    <OutlinedInput
+                      id="outlined-adornment-marketPrice"
+                      type="text"
+                      name="marketPrice"
+                      value={formik.values.marketPrice}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      endAdornment={<InputAdornment position="end">vnđ</InputAdornment>}
+                      label="Giá cửa hàng"
+                      error={formik.touched.marketPrice && Boolean(formik.errors.marketPrice)}
+                    />
+                    <FormHelperText sx={{ color: 'red' }}>
+                      {formik.touched.marketPrice && formik.errors.marketPrice
+                        ? formik.errors.marketPrice
+                        : ''}
+                    </FormHelperText>
+                  </FormControl>
+                  <FormControl variant="outlined">
+                    <InputLabel htmlFor="outlined-adornment-capitalPrice">Giá vốn</InputLabel>
+                    <OutlinedInput
+                      id="outlined-adornment-capitalPrice"
+                      type="text"
+                      name="capitalPrice"
+                      value={formik.values.capitalPrice}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      endAdornment={<InputAdornment position="end">vnđ</InputAdornment>}
+                      label="Giá vốn"
+                      error={formik.touched.capitalPrice && Boolean(formik.errors.capitalPrice)}
+                    />
+                    <FormHelperText sx={{ color: 'red' }}>
+                      {formik.touched.capitalPrice && formik.errors.capitalPrice
+                        ? formik.errors.capitalPrice
+                        : ''}
+                    </FormHelperText>
+                  </FormControl>
+
+                  <FormControl variant="outlined">
+                    <InputLabel htmlFor="outlined-adornment-onlinePrice">Giá online</InputLabel>
+                    <OutlinedInput
+                      id="outlined-adornment-onlinePrice"
+                      type="text"
+                      name="onlinePrice"
+                      value={formik.values.onlinePrice}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      endAdornment={<InputAdornment position="end">vnđ</InputAdornment>}
+                      label="Giá online"
+                      error={formik.touched.onlinePrice && Boolean(formik.errors.onlinePrice)}
+                    />
+                    <FormHelperText sx={{ color: 'red' }}>
+                      {formik.touched.onlinePrice && formik.errors.onlinePrice
+                        ? formik.errors.onlinePrice
+                        : ''}
+                    </FormHelperText>
+                  </FormControl>
+
+                  <FormControl variant="outlined">
+                    <InputLabel htmlFor="outlined-adornment-saleOff">Giảm giá</InputLabel>
+                    <OutlinedInput
+                      id="outlined-adornment-saleOff"
+                      type="text"
+                      name="saleOff"
+                      value={formik.values.saleOff}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      endAdornment={<InputAdornment position="end">vnđ</InputAdornment>}
+                      label="Giảm giá"
+                      error={formik.touched.saleOff && Boolean(formik.errors.saleOff)}
+                    />
+                    <FormHelperText sx={{ color: 'red' }}>
+                      {formik.touched.saleOff && formik.errors.saleOff ? formik.errors.saleOff : ''}
+                    </FormHelperText>
+                  </FormControl>
+                </Stack>
+              </Grid2>
+              <Grid2 xs={6}>
+                <ImageDropZone singleFile handleUpload={handleChangeUpload} />
+                <FormHelperText sx={{ color: 'red' }}>{errorUpload}</FormHelperText>
+                <Stack spacing={2} mt={3}>
+                  <FormControl fullWidth>
+                    <InputLabel id="color-select-label">Màu sắc</InputLabel>
+                    <Select
+                      labelId="color-select-label"
+                      id="color-select"
+                      value={formik.values.color}
+                      error={formik.touched.color && Boolean(formik.errors.color)}
+                      label="Màu sắc"
+                      name="color"
+                      onChange={formik.handleChange}
+                    >
+                      {colorsWithHex.map((color, index) => (
+                        <MenuItem
+                          key={index}
+                          value={color.name}
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                          }}
+                        >
+                          {color.name}
+                          <span
+                            style={{
+                              display: 'inline-block',
+                              width: 20,
+                              height: 20,
+                              backgroundColor: color.hex,
+                              borderRadius: '50%',
+                              marginLeft: 10,
+                            }}
+                          />
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    <FormHelperText
+                      sx={{
+                        color: formik.touched.color && formik.errors.color ? 'red' : 'inherit',
+                      }}
+                    >
+                      {formik.touched.color && formik.errors.color ? formik.errors.color : ''}
+                    </FormHelperText>
+                  </FormControl>
+                  <TextField
+                    id="sku"
+                    name="sku"
+                    label="Mã SKU"
+                    value={formik.values.sku}
+                    onChange={formik.handleChange}
+                    error={formik.touched.sku && Boolean(formik.errors.sku)}
+                    helperText={formik.touched.sku && formik.errors.sku}
+                  />
+                  <TextField
+                    id="stock"
+                    name="stock"
+                    label="Số lượng"
+                    value={formik.values.stock}
+                    onChange={formik.handleChange}
+                    error={formik.touched.stock && Boolean(formik.errors.stock)}
+                    helperText={formik.touched.stock && formik.errors.stock}
+                  />
+                </Stack>
+              </Grid2>
+            </Grid2>
             <Stack spacing={3} direction="row" mt={2} justifyContent="flex-end">
               <Button variant="outline" onClick={handleClose}>
                 Hủy
@@ -336,6 +432,67 @@ export default function CreateVariant() {
           </form>
         </Box>
       </Modal>
+      <Modal
+        open={openSize !== null}
+        onClose={() => setOpenSize(null)}
+        aria-labelledby="modal-size-title"
+        aria-describedby="modal-size-description"
+      >
+        <Box sx={style}>
+          <form onSubmit={formikSize.handleSubmit}>
+            <Typography fontWeight={600}>Thêm kích thước</Typography>
+            <Stack spacing={2} direction="row" mt={2} justifyContent="flex-end">
+              <FormControl fullWidth>
+                <InputLabel id="size-select-label">Kích thước</InputLabel>
+                <Select
+                  labelId="size-select-label"
+                  id="size-select"
+                  value={formikSize.values.size}
+                  error={formikSize.touched.size && Boolean(formikSize.errors.size)}
+                  label="Kích thước"
+                  name="size"
+                  onChange={formikSize.handleChange}
+                >
+                  {clothingSizes.map((size, index) => (
+                    <MenuItem key={index} value={size}>
+                      {size}
+                    </MenuItem>
+                  ))}
+                </Select>
+                <FormHelperText
+                  sx={{
+                    color: formikSize.touched.size && formikSize.errors.size ? 'red' : 'inherit',
+                  }}
+                >
+                  {formikSize.touched.size && formikSize.errors.size ? formikSize.errors.size : ''}
+                </FormHelperText>
+              </FormControl>
+              <TextField
+                id="stock"
+                name="stock"
+                label="Số lượng"
+                value={formikSize.values.stock}
+                onChange={formikSize.handleChange}
+                error={formikSize.touched.stock && Boolean(formikSize.errors.stock)}
+                helperText={formikSize.touched.stock && formikSize.errors.stock}
+              />
+              <TextField
+                id="price"
+                name="price"
+                label="Giá"
+                value={formikSize.values.price}
+                onChange={formikSize.handleChange}
+                error={formikSize.touched.price && Boolean(formikSize.errors.price)}
+                helperText={formikSize.touched.price && formikSize.errors.price}
+              />
+              <Button type="submit" variant="contained" color="inherit">
+                Thêm
+              </Button>
+            </Stack>
+          </form>
+        </Box>
+      </Modal>
+
       <Button variant="contained" color="inherit" onClick={handleOpen}>
         Thêm biến thể
       </Button>
@@ -364,6 +521,11 @@ export default function CreateVariant() {
                     Số lượng: {variant.stock} - Giá: {formatCurrency(variant.price)}
                   </Typography>
                 </Stack>
+                <img
+                  style={{ height: '50px', width: '50px' }}
+                  src={URL.createObjectURL(variant.image)}
+                  alt="Preview"
+                />
                 <Box>
                   <IconButton sx={{ display: 'flex' }} onClick={() => handleDeleteVariant(index)}>
                     <Iconify icon="eva:trash-2-fill" />
@@ -372,47 +534,24 @@ export default function CreateVariant() {
               </Stack>
             </AccordionSummary>
             <AccordionDetails>
-              <Typography>
-                Giá cửa hàng: {formatCurrency(variant.marketPrice)} - Giá online:{' '}
-                {formatCurrency(variant.onlinePrice)} - Giá vốn:{' '}
-                {formatCurrency(variant.capitalPrice)}
-              </Typography>
-              <form onSubmit={formikSize.handleSubmit}>
-                <Typography fontWeight={600}>Thêm kích thước</Typography>
-                <Stack spacing={2} direction="row" mt={2} justifyContent="flex-end">
-                  <TextField
-                    id="size"
-                    name="size"
-                    label="Kích thước"
-                    value={formikSize.values.size}
-                    onChange={formikSize.handleChange}
-                    error={formikSize.touched.size && Boolean(formikSize.errors.size)}
-                    helperText={formikSize.touched.size && formikSize.errors.size}
-                  />
-                  <TextField
-                    id="stock"
-                    name="stock"
-                    label="Số lượng"
-                    value={formikSize.values.stock}
-                    onChange={formikSize.handleChange}
-                    error={formikSize.touched.stock && Boolean(formikSize.errors.stock)}
-                    helperText={formikSize.touched.stock && formikSize.errors.stock}
-                  />
-                  <TextField
-                    id="price"
-                    name="price"
-                    label="Giá"
-                    value={formikSize.values.price}
-                    onChange={formikSize.handleChange}
-                    error={formikSize.touched.price && Boolean(formikSize.errors.price)}
-                    helperText={formikSize.touched.price && formikSize.errors.price}
-                  />
-                  <input type="hidden" name="index" value={index} />
-                  <Button type="submit" variant="contained" color="inherit">
-                    Thêm
-                  </Button>
-                </Stack>
-              </form>
+              <Stack spacing={2}>
+                <Typography>
+                  Giá cửa hàng: {formatCurrency(variant.marketPrice)} - Giá online:{' '}
+                  {formatCurrency(variant.onlinePrice)} - Giá vốn:{' '}
+                  {formatCurrency(variant.capitalPrice)}
+                </Typography>
+                {variant.sizes.length > 0 &&
+                  variant.sizes.map((size, i) => (
+                    <Typography key={i}>
+                      Kích thước: {size.size} - Số lượng: {size.stock} - Giá:{' '}
+                      {formatCurrency(size.price)}
+                    </Typography>
+                  ))}
+
+                <Button variant="contained" color="inherit" onClick={() => setOpenSize(index)}>
+                  Thêm kích thước
+                </Button>
+              </Stack>
             </AccordionDetails>
           </Accordion>
         ))}
@@ -420,3 +559,6 @@ export default function CreateVariant() {
     </Stack>
   );
 }
+CreateVariant.propTypes = {
+  onUpdate: PropTypes.func.isRequired,
+};

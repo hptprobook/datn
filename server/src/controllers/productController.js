@@ -217,8 +217,9 @@ const createProduct = async (req, res) => {
         message: ERROR_MESSAGES.REQUIRED,
       });
     }
-
-    const parsedVars = variants.map((v) => JSON.parse(v));
+    const newTags = JSON.parse(tags);
+    const newProductType = JSON.parse(productType);
+    const parsedVars = JSON.parse(variants);
     imageVariantsC.forEach((file, index) => {
       parsedVars[index].image = file;
     });
@@ -230,7 +231,7 @@ const createProduct = async (req, res) => {
       price,
       description,
       content,
-      tags,
+      tags: newTags,
       thumbnail,
       images: imagesProduct,
       brand,
@@ -239,7 +240,7 @@ const createProduct = async (req, res) => {
       weight,
       height,
       statusStock,
-      productType,
+      productType: newProductType,
     };
 
     const dataProduct = await productModel.createProduct(data);

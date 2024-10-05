@@ -1,4 +1,4 @@
-import { get, put , post } from "src/utils/request";
+import { get, put, post, uploadProduct } from "src/utils/request";
 /* eslint-disable */
 const ProductsService = {
   getAllProducts: async () => {
@@ -27,7 +27,11 @@ const ProductsService = {
   },
   createProduct: async (data) => {
     try {
-      const res = await post(`products`, data);
+      const res = await uploadProduct({
+        data,
+        type: 'post',
+        path: 'products',
+      });
       return res.data;
     } catch (err) {
       console.log(err);

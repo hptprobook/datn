@@ -155,7 +155,7 @@ export default function Products() {
         formDatas,
         {
           headers: {
-            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjZlMjc0MjFhN2U0MzJkODY3YTM4NWExIiwiZW1haWwiOiJhZG1pbkBnbWFpbC5jb20iLCJyb2xlIjoicm9vdCIsImlhdCI6MTcyODA0Nzc5MiwiZXhwIjoxNzI4MDY5MzkyfQ.Y_2ThZhyZh_9WnpBbiEeKmn6GhR_CVFXKiWMXOzWxAk`,
+            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjZlMjc0MjFhN2U0MzJkODY3YTM4NWExIiwiZW1haWwiOiJhZG1pbkBnbWFpbC5jb20iLCJyb2xlIjoicm9vdCIsImlhdCI6MTcyODEyNzA2MSwiZXhwIjoxNzI4MTQ4NjYxfQ.xCh2D0Dyj6GLVBavQsoinhMwOPAO5INQKWNcJvajpw8`,
           },
         }
       );

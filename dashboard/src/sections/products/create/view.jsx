@@ -31,13 +31,16 @@ import { slugify } from 'src/utils/format-text';
 import TinyEditor from 'src/components/editor/tinyEditor';
 import { useState, useEffect, useCallback } from 'react';
 import ImageDropZone from 'src/components/drop-zone-upload/upload-img';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { fetchAllCategories } from 'src/redux/slices/categorySlices';
 import { fetchAll } from 'src/redux/slices/brandSlices';
 import PropTypes from 'prop-types';
 import Iconify from 'src/components/iconify/iconify';
+import { handleToast } from 'src/hooks/toast';
+import { createProduct, setStatus } from 'src/redux/slices/productSlice';
 import { AutoSelect } from '../auto-select';
 import CreateVariant from '../variant';
+import LoadingFull from 'src/components/loading/loading-full';
 
 // ----------------------------------------------------------------------
 const productSchema = Yup.object().shape({
@@ -46,28 +49,27 @@ const productSchema = Yup.object().shape({
     .min(5, 'Tên sản phẩm phải ít nhất 5 ký tự')
     .max(255, 'Tên sản phẩm không được quá 255 ký tự'),
   slug: Yup.string().min(5, 'Slug phải ít nhất 5 ký tự').max(255, 'Slug không được quá 255 ký tự'),
+  cat_id: Yup.string().required('Danh mục là bắt buộc'),
+  brand: Yup.string().required('Nhãn hàng là bắt buộc'),
+  productType: Yup.array()
+    .required('Loại sản phẩm là bắt buộc')
+    .min(1, 'Loại sản phẩm là bắt buộc'),
   description: Yup.string()
     .required('Mô tả là bắt buộc')
     .min(5, 'Mô tả phải ít nhất 5 ký tự')
     .max(10000, 'Mô tả không được quá 10000 ký tự'),
-  shortDescription: Yup.string()
+  content: Yup.string()
     .required('Mô tả ngắn là bắt buộc')
     .min(5, 'Mô tả ngắn phải ít nhất 5 ký tự')
     .max(1000, 'Mô tả ngắn không được quá 1000 ký tự'),
-  quantity: Yup.number()
-    .required('Số lượng là bắt buộc')
-    .min(1, 'Số lượng phải ít nhất là 1')
-    .max(1000, 'Số lượng không được quá 1000'),
-  stock: Yup.number()
-    .required('Stock is required')
-    .min(0, 'Stock must be greater than or equal to 0'),
-  price: Yup.number().required('Cần nhập có giá thông thường').min(0, 'Giá không được âm'),
-  salePrice: Yup.number().min(0, 'Giá khuyến mãi không được âm'),
+  price: Yup.string().required('Cần nhập có giá thông thường').typeError('Giá không hợp lệ'),
 });
 
 export default function CreateProductPage() {
-  const [uploadedThumbnailUrl, setUploadedThumbnailUrl] = useState(null);
-  const [uploadedImgsUrl, setUploadedImgsUrl] = useState(null);
+  const [thumbnail, setThumbnail] = useState(null);
+  const [images, setImages] = useState([]);
+  const [errorThumbnail, setErrorThumbnail] = useState(null);
+  const [errorImgs, setErrorImgs] = useState(null);
   const [categories, setCategories] = useState([]);
   const [tags, setTags] = useState([]);
   const [inputValue, setInputValue] = useState('');
@@ -75,9 +77,14 @@ export default function CreateProductPage() {
   const [brands, setBrands] = useState([]);
   const [dataTags, setDataTags] = useState([]);
   const dispatch = useDispatch();
+  const [variants, setVariants] = useState(null);
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
+
+  const status = useSelector((state) => state.products.statusCreate);
+  const error = useSelector((state) => state.products.error);
+
   const handleKeyDown = (event) => {
     if (event.key === 'Enter' && inputValue.trim()) {
       setTags([...tags, inputValue.trim()]);
@@ -93,27 +100,38 @@ export default function CreateProductPage() {
     initialValues: {
       name: '',
       description: '',
-      shortDescription: '',
       brand: '',
       cat_id: '',
       content: '',
       slug: '',
       productType: ['Nam'],
-      quantity: 0,
-      stock: 0,
       price: 0,
-      salePrice: 0,
       statusStock: 'stock',
       tags: [],
       status: true,
-      height: 0,
-      weight: 0,
+      height: 1,
+      weight: 1,
+      variants: [],
     },
     validationSchema: productSchema,
     onSubmit: (values) => {
-      console.log(values);
-      console.log(uploadedThumbnailUrl);
-      console.log(uploadedImgsUrl);
+      if (thumbnail === null) {
+        setErrorThumbnail('Vui lòng chọn ảnh đại diện');
+        return;
+      }
+      if (images === null) {
+        setErrorImgs('Vui lòng chọn ảnh sản phẩm');
+        return;
+      }
+      if (variants === null) {
+        handleToast('error', 'Vui lòng thêm biến thể sản phẩm');
+        return;
+      }
+      values.variants = variants;
+      values.thumbnail = thumbnail;
+      values.images = images;
+      values.tags = tags;
+      dispatch(createProduct({ data: values }));
     },
   });
   useEffect(() => {
@@ -148,31 +166,47 @@ export default function CreateProductPage() {
   };
   const handleChangeUploadThumbnail = useCallback((files) => {
     if (files) {
-      setUploadedThumbnailUrl({
-        file: files,
-        name: 'thumbnail',
-      });
+      setErrorThumbnail('');
+      setThumbnail(files);
+    } else {
+      setThumbnail(null);
     }
   }, []);
   const handleChangeUploadImgs = useCallback((files) => {
     if (files) {
-      setUploadedImgsUrl({
-        file: files,
-        name: 'images',
-      });
+      setErrorImgs('');
+      setImages(files);
+    } else {
+      setImages(null);
     }
   }, []);
-  const formatNumber = (number) => {
-    if (!number) return '';
-    // Remove non-numeric characters first to prevent errors
-    const numericValue = number.replace(/\D/g, '');
-    return new Intl.NumberFormat('vi-VN').format(numericValue);
+  const handleCreateVariant = (values) => {
+    if (values.length > 0) {
+      setVariants(values);
+    } else {
+      setVariants(null);
+    }
   };
-
+  useEffect(() => {
+    if (status === 'failed') {
+      handleToast('error', error.message);
+    }
+    if (status === 'successful') {
+      handleToast('success', 'Tạo sản phẩm thành công');
+      formik.resetForm();
+      setTags([]);
+      setImages([]);
+      setThumbnail(null);
+      setVariants(null);
+    }
+    dispatch(setStatus({ key: 'statusCreate', value: 'idle' }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status, error, dispatch]);
   return (
     <Container>
+      {status === 'loading' && <LoadingFull />}
       <SpeedDial
-        ariaLabel="SpeedDial basic example"
+        ariaLabel="Lưu sản phẩm"
         sx={{ position: 'fixed', bottom: 16, right: 16 }}
         onClick={() => formik.handleSubmit()}
         icon={<Iconify icon="eva:save-fill" />}
@@ -220,6 +254,14 @@ export default function CreateProductPage() {
                   </Grid2>
                 </Grid2>
               </Card>
+
+              <Card
+                sx={{
+                  padding: 3,
+                }}
+              >
+                <CreateVariant onUpdate={handleCreateVariant} />
+              </Card>
               <Card sx={{ flexGrow: 1, bgcolor: 'background.paper', display: 'flex', padding: 3 }}>
                 <Tabs
                   orientation="vertical"
@@ -230,9 +272,8 @@ export default function CreateProductPage() {
                   sx={{ borderRight: 1, borderColor: 'divider' }}
                 >
                   <Tab label="Giá" {...a11yProps(0)} />
-                  <Tab label="Biến thể" {...a11yProps(1)} />
-                  <Tab label="Kích thước" {...a11yProps(2)} />
-                  <Tab label="SEO" {...a11yProps(3)} />
+                  <Tab label="Kích thước" {...a11yProps(1)} />
+                  <Tab label="SEO" {...a11yProps(2)} />
                 </Tabs>
                 <TabPanel value={value} index={0}>
                   <Stack spacing={3} sx={{ width: '100%' }}>
@@ -242,7 +283,7 @@ export default function CreateProductPage() {
                         id="outlined-adornment-money"
                         type="text"
                         name="price"
-                        value={formatNumber(formik.values.price)}
+                        value={formik.values.price}
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
                         endAdornment={<InputAdornment position="end">vnđ</InputAdornment>}
@@ -286,9 +327,6 @@ export default function CreateProductPage() {
                   </Stack>
                 </TabPanel>
                 <TabPanel value={value} index={1}>
-                  <CreateVariant />
-                </TabPanel>
-                <TabPanel value={value} index={2}>
                   <Stack spacing={3}>
                     <FormControl variant="outlined">
                       <InputLabel htmlFor="outlined-adornment-height">Chiều dài</InputLabel>
@@ -324,7 +362,7 @@ export default function CreateProductPage() {
                     </FormControl>
                   </Stack>
                 </TabPanel>
-                <TabPanel value={value} index={3}>
+                <TabPanel value={value} index={2}>
                   Đang cập nhật
                 </TabPanel>
               </Card>
@@ -338,17 +376,27 @@ export default function CreateProductPage() {
                     Mô tả sản phẩm
                   </Typography>
                   <TinyEditor
+                    error={formik.touched.description && Boolean(formik.errors.description)}
                     initialValue="Đây là nội dung mô tả của sản phẩm"
                     onChange={(text) => formik.setFieldValue('description', text)}
                   />
+                  <FormHelperText sx={{ color: 'red' }}>
+                    {formik.touched.description && formik.errors.description
+                      ? formik.errors.description
+                      : ''}
+                  </FormHelperText>
                   <Typography variant="h6" sx={{ mb: 3 }}>
                     Mô tả ngắn sản phẩm
                   </Typography>
                   <TinyEditor
+                    error={formik.touched.content && Boolean(formik.errors.content)}
                     initialValue="Đây là mô tả ngắn của sản phẩm"
                     onChange={(content) => formik.setFieldValue('content', content)}
                     height={200}
                   />
+                  <FormHelperText sx={{ color: 'red' }}>
+                    {formik.touched.content && formik.errors.content ? formik.errors.content : ''}
+                  </FormHelperText>
                 </Stack>
                 <Stack spacing={3} direction="row" mt={2} justifyContent="flex-end">
                   <Button type="submit" variant="contained" color="inherit">
@@ -368,11 +416,19 @@ export default function CreateProductPage() {
                 <Typography variant="h6" sx={{ mb: 3 }}>
                   Hình ảnh đại diện sản phẩm
                 </Typography>
-                <ImageDropZone singleFile handleUpload={handleChangeUploadThumbnail} />
+                <ImageDropZone
+                  error={errorThumbnail}
+                  singleFile
+                  handleUpload={handleChangeUploadThumbnail}
+                />
                 <Typography variant="h6" sx={{ mb: 3 }}>
                   Hình ảnh sản phẩm
                 </Typography>
-                <ImageDropZone singleFile={false} handleUpload={handleChangeUploadImgs} />
+                <ImageDropZone
+                  error={errorImgs}
+                  singleFile={false}
+                  handleUpload={handleChangeUploadImgs}
+                />
                 <FormControl fullWidth>
                   <InputLabel id="category-select-label">Danh mục</InputLabel>
                   <Select
@@ -382,6 +438,7 @@ export default function CreateProductPage() {
                     label="Danh mục"
                     name="cat_id"
                     onChange={formik.handleChange}
+                    error={formik.touched.cat_id && Boolean(formik.errors.cat_id)}
                   >
                     {categories.map((category) => (
                       <MenuItem key={category._id} value={category._id}>
@@ -389,7 +446,11 @@ export default function CreateProductPage() {
                       </MenuItem>
                     ))}
                   </Select>
-                  <FormHelperText>
+                  <FormHelperText
+                    sx={{
+                      color: formik.touched.cat_id && formik.errors.cat_id ? 'red' : 'inherit',
+                    }}
+                  >
                     {formik.touched.cat_id && formik.errors.cat_id ? formik.errors.cat_id : ''}
                   </FormHelperText>
                 </FormControl>
@@ -402,6 +463,7 @@ export default function CreateProductPage() {
                     label="Nhãn hàng"
                     name="brand"
                     onChange={formik.handleChange}
+                    error={formik.touched.brand && Boolean(formik.errors.brand)}
                   >
                     {brands.map((brand) => (
                       <MenuItem key={brand._id} value={brand._id}>
@@ -409,7 +471,7 @@ export default function CreateProductPage() {
                       </MenuItem>
                     ))}
                   </Select>
-                  <FormHelperText>
+                  <FormHelperText sx={{ color: 'red' }}>
                     {formik.touched.brand && formik.errors.brand ? formik.errors.brand : ''}
                   </FormHelperText>
                 </FormControl>
@@ -418,7 +480,13 @@ export default function CreateProductPage() {
                   setValue={(select) => formik.setFieldValue('productType', select)}
                   data={dataTags}
                   label="Loại sản phẩm"
+                  error={formik.touched.productType && Boolean(formik.errors.productType)}
                 />
+                <FormHelperText sx={{ color: 'red' }}>
+                  {formik.touched.productType && formik.errors.productType
+                    ? formik.errors.productType
+                    : ''}
+                </FormHelperText>
                 <Box>
                   <TextField
                     label="Nhập nhãn sản phẩm"
