@@ -65,7 +65,7 @@ const productSchema = Yup.object().shape({
   price: Yup.string().required('Cần nhập có giá thông thường').typeError('Giá không hợp lệ'),
 });
 
-export default function CreateProductPage() {
+export default function DetailProductPage() {
   const [thumbnail, setThumbnail] = useState(null);
   const [images, setImages] = useState([]);
   const [errorThumbnail, setErrorThumbnail] = useState(null);
