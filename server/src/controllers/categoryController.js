@@ -4,7 +4,6 @@ import { categoryModel } from '~/models/categoryModel';
 import { StatusCodes } from 'http-status-codes';
 import { ERROR_MESSAGES } from '~/utils/errorMessage';
 import { uploadModel } from '~/models/uploadModel';
-import { createSlug } from '~/utils/createSlug';
 import path from 'path';
 
 const createCategory = async (req, res) => {
@@ -19,6 +18,14 @@ const createCategory = async (req, res) => {
     const fileName = file.filename;
     const filePath = path.join('uploads/categories', fileName);
     data.imageURL = filePath;
+
+    const category = await categoryModel.getCategoryBySlug(data.slug);
+    if (category) {
+      uploadModel.deleteImg(filePath);
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: 'Danh mục đã tồn tại',
+      });
+    }
     const dataCategory = await categoryModel.createCategory(data);
     return res.status(StatusCodes.OK).json(dataCategory);
   } catch (error) {
@@ -148,10 +155,20 @@ const update = async (req, res) => {
         .status(StatusCodes.BAD_REQUEST)
         .json({ message: 'Danh mục chưa được tạo' });
     }
+
+    if (data.slug && data.slug !== category.slug) {
+      const existingCategory = await categoryModel.getCategoryBySlug(data.slug);
+      if (existingCategory) {
+        uploadModel.deleteImg(filePath);
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          message: 'Danh mục đã tồn tại',
+        });
+      }
+    }
     data.imageURL = filePath;
 
     const dataCategory = await categoryModel.update(id, data);
-    await uploadModel.deleteImg(category.imageURL);
+    uploadModel.deleteImg(category.imageURL);
     return res.status(StatusCodes.OK).json(dataCategory);
   } catch (error) {
     if (req.file) {
