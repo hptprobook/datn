@@ -81,6 +81,7 @@ const update = async (id, data) => {
     { $set: validData },
     { returnDocument: 'after' }
   );
+
   if (!result) {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }

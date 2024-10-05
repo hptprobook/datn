@@ -154,6 +154,7 @@ const createProduct = async (req, res) => {
       statusStock,
       variants,
       price,
+      slug,
     } = req.body;
 
     if (!req.files['thumbnail'] || !req.files['thumbnail'][0]) {
@@ -206,6 +207,7 @@ const createProduct = async (req, res) => {
       !height ||
       !price ||
       !productType ||
+      !slug ||
       !statusStock
     ) {
       await uploadModel.deleteImg(thumbnail);
@@ -220,7 +222,6 @@ const createProduct = async (req, res) => {
     imageVariantsC.forEach((file, index) => {
       parsedVars[index].image = file;
     });
-    const slug = createSlug(name);
 
     const data = {
       cat_id,
@@ -292,6 +293,7 @@ const updateProduct = async (req, res) => {
       content,
       tags,
       brand,
+      slug,
       status,
       productType,
       weight,
@@ -344,6 +346,7 @@ const updateProduct = async (req, res) => {
       !weight ||
       !height ||
       !statusStock ||
+      !slug ||
       !variants
     ) {
       if (thumbnail) {
@@ -439,8 +442,6 @@ const updateProduct = async (req, res) => {
 
     const newimgURLs = [...validImgs, ...imagesProduct];
     const newThumbnail = thumbnail ? thumbnail : product.thumbnail;
-
-    const slug = createSlug(name);
 
     const data = {
       cat_id,
