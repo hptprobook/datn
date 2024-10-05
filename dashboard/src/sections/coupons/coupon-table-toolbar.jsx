@@ -11,7 +11,7 @@ import Iconify from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export default function CouponTableToolbar({ numSelected, filterName, onFilterName }) {
+export default function CouponTableToolbar({ numSelected, filterName, onFilterName, onMultiDelete }) {
   return (
     <Toolbar
       sx={{
@@ -33,7 +33,7 @@ export default function CouponTableToolbar({ numSelected, filterName, onFilterNa
         <OutlinedInput
           value={filterName}
           onChange={onFilterName}
-          placeholder="Search user..."
+          placeholder="Tìm kiếm mã giảm giá ..."
           startAdornment={
             <InputAdornment position="start">
               <Iconify
@@ -46,8 +46,8 @@ export default function CouponTableToolbar({ numSelected, filterName, onFilterNa
       )}
 
       {numSelected > 0 ? (
-        <Tooltip title="Delete">
-          <IconButton>
+        <Tooltip title="Delete" >
+          <IconButton onClick={onMultiDelete}>
             <Iconify icon="eva:trash-2-fill" />
           </IconButton>
         </Tooltip>
@@ -66,4 +66,5 @@ CouponTableToolbar.propTypes = {
   numSelected: PropTypes.number,
   filterName: PropTypes.string,
   onFilterName: PropTypes.func,
+  onMultiDelete: PropTypes.func,
 };
