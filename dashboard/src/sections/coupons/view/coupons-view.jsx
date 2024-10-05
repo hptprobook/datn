@@ -10,6 +10,7 @@ import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 
+import { IconButton } from '@mui/material';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 import LoadingFull from 'src/components/loading/loading-full';
@@ -78,7 +79,7 @@ export default function CouponsPage() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelected = coupons.map((n) => n.name);
+      const newSelected = coupons.map((n) => n._id);
       setSelected(newSelected);
       return;
     }
@@ -132,6 +133,9 @@ export default function CouponsPage() {
   const dispatchDelete = () => {
     dispatch(deleteCoupon(confirm));
   };
+  const handleMultiDelete = () => {
+    console.log(selected);
+  };
   const notFound = !dataFiltered.length && !!filterName;
 
 
@@ -147,14 +151,25 @@ export default function CouponsPage() {
         onAgree={dispatchDelete}
         onClose={() => setConfirm(false)}
       />
-      {/* <ConfirmDelete
+      <ConfirmDelete
         openConfirm={!!confirmMulti}
         onAgree={handleMultiDelete}
         onClose={() => setConfirmMulti(false)}
         label="những mã giảm giá đã chọn"
-      /> */}
+      />
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Mã giảm giá</Typography>
+      <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
+          <Typography variant="h4">Mã giảm giá </Typography>
+
+          <IconButton
+            aria-label="load"
+            variant="contained"
+            color="inherit"
+            onClick={() => dispatch(fetchAll())}
+          >
+            <Iconify icon="mdi:reload" />
+          </IconButton>
+        </Stack>
 
         <Button
           variant="contained"
@@ -171,6 +186,7 @@ export default function CouponsPage() {
           numSelected={selected.length}
           filterName={filterName}
           onFilterName={handleFilterByName}
+          onMultiDelete={() => setConfirmMulti(true)}
         />
 
         <Scrollbar>
@@ -215,7 +231,7 @@ export default function CouponsPage() {
                       limitOnUser={row.limitOnUser} // Make sure to include limitOnUser if you want to display it
                       dateStart={row.dateStart}
                       dateEnd={row.dateEnd}
-                      selected={selected.indexOf(row.code) !== -1}
+                      selected={selected.indexOf(row._id) !== -1}
                       handleClick={(event) => handleClick(event, row._id)}
                       onDelete={handleDelete}
                       handleNavigate={() => handleNavigate(row._id)}
