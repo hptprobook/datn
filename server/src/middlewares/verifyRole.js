@@ -29,7 +29,7 @@ export const isRoot = async (req, res, next) => {
 export const isAdmin = async (req, res, next) => {
   try {
     const { role } = req.user;
-    if (role == 'staff' || role == 'admin' || role == 'root') {
+    if (role == 'admin' || role == 'root') {
       next();
     } else {
       return res.status(401).send({ message: 'Bạn không đủ thẩm quyền' });

@@ -26,6 +26,7 @@ Router.put('/me/password', verifyToken, usersController.changePassWord);
 Router.get('/', verifyToken, verifyAdmin, usersController.getAllUsers);
 Router.put('/:id', verifyToken, isAdmin, usersController.updateUser);
 Router.delete('/:id', verifyToken, isAdmin, usersController.deleteUser);
+Router.post('/', verifyToken, isAdmin, usersController.createUser);
 
 //favorite
 Router.post('/favorite/:id', usersController.favoriteProduct);

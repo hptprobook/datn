@@ -18,12 +18,15 @@ import Scrollbar from 'src/components/scrollbar';
 import { useRouter } from 'src/routes/hooks';
 import { handleToast } from 'src/hooks/toast';
 
-import TableNoData from '../table-no-data';
+import { IconButton } from '@mui/material';
+import LoadingFull from 'src/components/loading/loading-full';
+import ConfirmDelete from 'src/components/modal/confirm-delete';
+import TableNoData from 'src/components/table/table-no-data';
+import { emptyRows, applyFilter, getComparator } from 'src/components/table/utils';
+import TableEmptyRows from 'src/components/table/table-empty-rows';
 import UserTableRow from '../user-table-row';
 import UserTableHead from '../user-table-head';
-import TableEmptyRows from '../table-empty-rows';
 import UserTableToolbar from '../user-table-toolbar';
-import { emptyRows, applyFilter, getComparator } from '../utils';
 
 // ----------------------------------------------------------------------
 
@@ -41,17 +44,16 @@ export default function UserPage() {
       dispatch(fetchAllUsers());
     } else if (status === 'failed') {
       console.error(error);
-    } else if (status === 'succeeded') {
+    } else if (status === 'successful') {
       setUsers(data.users);
     }
   }, [status, dispatch, error, data]);
   useEffect(() => {
-    if (statusDelete === 'succeeded') {
+    if (statusDelete === 'successful') {
       handleToast('success', 'Xóa người dùng thành công');
       dispatch(resetDelete());
     }
   }, [statusDelete, dispatch]);
-
 
   const [page, setPage] = useState(0);
 
@@ -83,12 +85,6 @@ export default function UserPage() {
     }
     setSelected([]);
   };
-
-  const handleDelete = (id) => {
-    dispatch(deleteUser(id));
-  };
-
-
 
   const handleClick = (event, name) => {
     const selectedIndex = selected.indexOf(name);
@@ -126,14 +122,36 @@ export default function UserPage() {
     inputData: users,
     comparator: getComparator(order, orderBy),
     filterName,
+    fillerQuery: 'name',
   });
-
+  const [confirm, setConfirm] = useState(false);
+  const dispatchDelete = () => {
+    dispatch(deleteUser(confirm));
+  };
   const notFound = !dataFiltered.length && !!filterName;
 
   return (
     <Container>
+      {status === 'loading' && <LoadingFull />}
+      {statusDelete === 'loading' && <LoadingFull />}
+      <ConfirmDelete
+        openConfirm={!!confirm}
+        onAgree={dispatchDelete}
+        onClose={() => setConfirm(false)}
+        label="người dùng đã chọn"
+      />
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Người dùng</Typography>
+        <Stack direction="row" alignItems="center">
+          <Typography variant="h4">Người dùng</Typography>
+          <IconButton
+            aria-label="load"
+            variant="contained"
+            color="inherit"
+            onClick={() => dispatch(fetchAllUsers())}
+          >
+            <Iconify icon="mdi:reload" />
+          </IconButton>
+        </Stack>
 
         <Button
           variant="contained"
@@ -186,11 +204,13 @@ export default function UserPage() {
                       isVerified={row.allowNotifies}
                       selected={selected.indexOf(row.name) !== -1}
                       handleClick={(event) => handleClick(event, row.name)}
-                      onDelete={handleDelete}
+                      onDelete={() => setConfirm(row._id)}
+                      handleNavigate={() => route.push(row._id)}
                     />
                   ))}
 
                 <TableEmptyRows
+                  col={5}
                   height={77}
                   emptyRows={emptyRows(page, rowsPerPage, users.length)}
                 />
