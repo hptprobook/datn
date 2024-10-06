@@ -12,7 +12,16 @@ export const fetchAllUsers = createAsyncThunk(
         }
     }
 );
-
+export const createUser = createAsyncThunk(
+    "users/create",
+    async (data, { rejectWithValue }) => {
+        try {
+            return await UserService.create(data);
+        } catch (err) {
+            return rejectWithValue(err.response.data);
+        }
+    }
+);
 export const fetchUserById = createAsyncThunk(
     "users/fetchById",
     async (userId, { rejectWithValue }) => {
@@ -36,9 +45,9 @@ export const deleteUser = createAsyncThunk(
 );
 export const updateUserById = createAsyncThunk(
     "users/updateById",
-    async ({ userId, data }, { rejectWithValue }) => {
+    async ({ id, data }, { rejectWithValue }) => {
         try {
-            const response = await UserService.editUser(userId, data);
+            const response = await UserService.editUser(id, data);
             return response;
         } catch (err) {
             return rejectWithValue(err.response.data);
@@ -48,10 +57,13 @@ export const updateUserById = createAsyncThunk(
 export const resetDelete = createAction('users/resetDelete');
 const initialState = {
     users: [],
-    selectedUser: null,
+    user: null,
     delete: null,
-    status: "idle", // 'idle' | 'loading' | 'succeeded' | 'failed'
+    status: "idle", // 'idle' | 'loading' | 'successful' | 'failed'
     statusDelete: "idle",
+    statusUpdate: "idle",
+    statusCreate: "idle",
+    statusGet: "idle",
     error: null,
 };
 
@@ -67,37 +79,61 @@ const userSlice = createSlice({
                 state.status = "loading";
             })
             .addCase(fetchAllUsers.fulfilled, (state, action) => {
-                state.status = "succeeded";
+                state.status = "successful";
                 state.users = action.payload;
             })
             .addCase(fetchAllUsers.rejected, (state, action) => {
                 state.status = "failed";
                 state.error = action.payload;
             })
+            .addCase(createUser.pending, (state) => {
+                state.statusCreate = "loading";
+            })
+            .addCase(createUser.fulfilled, (state, action) => {
+                state.statusCreate = "successful";
+            })
+            .addCase(createUser.rejected, (state, action) => {
+                state.statusCreate = "failed";
+                state.error = action.payload;
+            })
             .addCase(fetchUserById.pending, (state) => {
-                state.status = "loading";
+                state.statusGet = "loading";
             })
             .addCase(fetchUserById.fulfilled, (state, action) => {
-                state.status = "succeeded";
-                state.selectedUser = action.payload;
+                state.statusGet = "successful";
+                state.user = action.payload;
             })
             .addCase(fetchUserById.rejected, (state, action) => {
-                state.status = "failed";
+                state.statusGet = "failed";
                 state.error = action.payload;
             })
             .addCase(deleteUser.pending, (state) => {
                 state.statusDelete = "loading";
             })
             .addCase(deleteUser.fulfilled, (state, action) => {
-                state.statusDelete = "succeeded";
+                state.statusDelete = "successful";
                 state.delete = action.payload;
             })
             .addCase(deleteUser.rejected, (state, action) => {
                 state.statusDelete = "failed";
                 state.error = action.payload;
             })
+            .addCase(updateUserById.pending, (state) => {
+                state.statusUpdate = "loading";
+            })
+            .addCase(updateUserById.fulfilled, (state, action) => {
+                state.statusUpdate = "successful";
+                state.user = action.payload;
+            })
+            .addCase(updateUserById.rejected, (state, action) => {
+                state.statusUpdate = "failed";
+                state.error = action.payload;
+            })
             .addCase(setStatus, (state, action) => {
-                state.status = action.payload;
+                const { key, value } = action.payload; // Destructure key and value from payload
+                if (state[key] !== undefined) {
+                    state[key] = value; // Update the status field dynamically
+                }
             })
             .addCase(resetDelete, (state) => {
                 state.status = "idle";
