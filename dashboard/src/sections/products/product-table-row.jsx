@@ -29,6 +29,8 @@ export default function ProductTableRow({
   brand,
   statusStock,
   handleClick,
+  onDelete,
+  handleNavigate,
 }) {
   const [open, setOpen] = useState(null);
 
@@ -38,6 +40,7 @@ export default function ProductTableRow({
 
   const handleCloseMenu = () => {
     setOpen(null);
+    onDelete();
   };
 
   return (
@@ -79,7 +82,7 @@ export default function ProductTableRow({
           sx: { width: 140 },
         }}
       >
-        <MenuItem onClick={handleCloseMenu}>
+        <MenuItem onClick={handleNavigate}>
           <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
           Chỉnh sửa
         </MenuItem>
@@ -96,12 +99,14 @@ export default function ProductTableRow({
 ProductTableRow.propTypes = {
   _id: PropTypes.string,
   name: PropTypes.string,
-  imgURLs: PropTypes.array,
-  price: PropTypes.string,
+  imgURLs: PropTypes.string,
+  price: PropTypes.number,
   brand: PropTypes.string,
   statusStock: PropTypes.string,
   averageRating: PropTypes.number,
   slug: PropTypes.string,
   handleClick: PropTypes.func,
   selected: PropTypes.bool,
+  onDelete: PropTypes.func,
+  handleNavigate: PropTypes.func,
 };

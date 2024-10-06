@@ -17,18 +17,17 @@ const START_SERVER = () => {
   const app = express();
   const server = http.createServer(app);
   app.use(cookieParser());
-  app.use(cors());
+  app.use(
+    cors({
+      origin: ['http://localhost:5173', 'http://localhost:3030'],
+      credentials: true,
+    })
+  );
   app.use(express.json());
-  // app.use(
-  //   cors({
-  //     origin: 'http://localhost:5173',
-  //     credentials: true,
-  //   })
-  // );
   app.use(errorHandlingMiddleware);
 
   // Serve static files from the 'src/public/imgs' directory
-  app.use('/uploads', express.static(path.join(__dirname, '../uploads')));  
+  app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
   app.get('/', (req, res) => {
     res.send('Hello World!');
   });
@@ -46,12 +45,12 @@ const START_SERVER = () => {
 };
 
 (async () => {
-    try {
-        await CONNECT_DB();
-        console.log('Connect to MongoDB Atlas successfully');
-        START_SERVER();
-    } catch (error) {
-        console.log(error);
-        process.exit(0);
-    }
+  try {
+    await CONNECT_DB();
+    console.log('Connect to MongoDB Atlas successfully');
+    START_SERVER();
+  } catch (error) {
+    console.log(error);
+    process.exit(0);
+  }
 })();

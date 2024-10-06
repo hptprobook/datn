@@ -9,6 +9,7 @@ const getAccessToken = () => localStorage.getItem("token");
 
 const request = axios.create({
     baseURL,
+    withCredentials: true,
     headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${getAccessToken()}`, // Initial value
@@ -25,10 +26,28 @@ request.interceptors.response.use(
     (error) => {
         // Kiểm tra nếu lỗi là 401
         if (error.response && error.response.status === 401) {
-            handleToast("error", "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
-            setTimeout(() => {
-                window.location.href = `${baseDomain}/login`;
-            }, 2000);
+            axios.post(`${baseURL}/auth/refresh-token`, {}, { withCredentials: true }).then((res) => {
+                if (res.status === 200) {
+                    localStorage.setItem("token", res.data.token);
+                    window.location.reload();
+                }
+                if (res.status === 400) {
+                    handleToast("error", "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
+                    setTimeout(() => {
+                        window.location.href = `${baseDomain}/login`;
+                    }, 2000);
+                }
+                if (res.status === 500) {
+                    handleToast("error", "Có lỗi xảy ra. Vui lòng thử lại sau.");
+                }
+                if (res.status === 401) {
+                    handleToast("error", "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
+                    setTimeout(() => {
+                        window.location.href = `${baseDomain}/login`;
+                    }, 2000);
+                }
+
+            });
         }
         return Promise.reject(error);
     }

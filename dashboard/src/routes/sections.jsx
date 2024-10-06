@@ -1,7 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { Outlet, Navigate, useRoutes } from 'react-router-dom';
 
-import Products from 'src/sections/products/detail/products';
 import { ProtectedRoute } from './components/ProtectedRoute';
 // ----------------------------------------------------------------------
 export const IndexPage = lazy(() => import('src/pages/app'));
@@ -14,7 +13,7 @@ export const LoginPage = lazy(() => import('src/pages/login'));
 // product page
 export const ProductsPage = lazy(() => import('src/pages/products/products'));
 export const CreateProductPage = lazy(() => import('src/pages/products/createProduct'));
-
+export const DetailProductPage = lazy(() => import('src/pages/products/detail'));
 export const Page404 = lazy(() => import('src/pages/page-not-found'));
 // category page
 export const CategoryPage = lazy(() => import('src/pages/categories/category'));
@@ -51,7 +50,7 @@ const childRoutes = [
   { path: 'user/create', element: <CreateUserPage /> },
   { path: 'products', element: <ProductsPage /> },
   { path: 'products/create', element: <CreateProductPage /> },
-  {path: 'products/test', element: <Products />},
+  { path: 'products/:id', element: <DetailProductPage /> },
   { path: 'blog', element: <BlogPage /> },
   { path: 'category', element: <CategoryPage /> },
   { path: 'category/create', element: <CreateCategoryPage /> },
@@ -76,7 +75,7 @@ const childRoutes = [
 ];
 export const routePath = childRoutes
   .filter((item) => !item.path?.includes(':id'))
-  .map((item) => item.path) 
+  .map((item) => item.path)
   .filter(Boolean);
 // Export mảng route
 
