@@ -3,3 +3,8 @@ export const checkoutSteps = [
   { number: 2, label: 'Thanh toán', status: 'doing' },
   { number: 3, label: 'Hoàn thành', status: 'waiting' },
 ];
+
+export const env = {
+  API_URL: import.meta.env.VITE_API_ROOT,
+  SERVER_URL: import.meta.env.VITE_SERVER_URL,
+};

@@ -13,44 +13,13 @@ client = MongoClient('mongodb+srv://admin1:admin1@datn.5mgkgxf.mongodb.net/?retr
 db = client['datn']
 collection = db['products']
 
-maxPage = 23
-base_url = 'https://routine.vn/thoi-trang-nam.html'
+maxPage = 65
+base_url = 'https://j-p.vn/collections/tat-ca-san-pham-1'
 tags_list = ["Bán chạy", "Freeship", "Hot sale"]
 statusStock = ['stock', 'outStock', 'preOrder']
-colors = ["Đỏ", "Cam", "Vàng", "Lam", "Xanh", "Chàm", "Tím", "Trắng", "Đen"]
+colors = ["Đỏ", "Cam", "Vàng", "Lam", "Xanh", "Trắng", "Đen"]
 sizes = ["S", "M", "L", "XL", "XXL"]
 productUrl = 'https://picsum.photos/276/380'
-
-# catIds = [
-#  '66e9076f71049ba8da1a8040', '66e9076f71049ba8da1a8041', '66e9076f71049ba8da1a8042',
-#  '66e9076f71049ba8da1a8043', '66e9076f71049ba8da1a8044', '66e9076f71049ba8da1a8045',
-#  '66e9076f71049ba8da1a8046', '66e9076f71049ba8da1a8047', '66e9076f71049ba8da1a8048',
-#  '66e9076f71049ba8da1a8049', '66e9076f71049ba8da1a804a', '66e9076f71049ba8da1a804b',
-#  '66e9076f71049ba8da1a804c', '66e9076f71049ba8da1a804d', '66e9076f71049ba8da1a804e',
-#  '66e9076f71049ba8da1a804f', '66e9076f71049ba8da1a8050', '66e9076f71049ba8da1a8051',
-#  '66e9076f71049ba8da1a8052', '66e9076f71049ba8da1a8053', '66e9076f71049ba8da1a8054',
-#  '66e9076f71049ba8da1a8055', '66e9076f71049ba8da1a8056', '66e9076f71049ba8da1a8057',
-#  '66e9076f71049ba8da1a8058', '66e9076f71049ba8da1a8059', '66e9076f71049ba8da1a805a',
-#  '66e9076f71049ba8da1a805b', '66e9076f71049ba8da1a805c', '66e9076f71049ba8da1a805d',
-#  '66e9076f71049ba8da1a805e', '66e9076f71049ba8da1a805f', '66e9076f71049ba8da1a8060',
-#  '66e9076f71049ba8da1a8061', '66e9076f71049ba8da1a8062', '66e9076f71049ba8da1a8063',
-#  '66e9076f71049ba8da1a8064', '66e9076f71049ba8da1a8065', '66e90a8c71049ba8da1a8066',
-#  '66e90a8c71049ba8da1a8067', '66e90a8c71049ba8da1a8068', '66e90a8c71049ba8da1a8069',
-#  '66e90a8c71049ba8da1a806a', '66e90a8c71049ba8da1a806b', '66e90a8c71049ba8da1a806d',
-#  '66e90a8c71049ba8da1a806e', '66e90a8c71049ba8da1a806f', '66e90a8c71049ba8da1a8070',
-#  '66e90a8c71049ba8da1a8071', '66e90a8c71049ba8da1a8072', '66e90a8c71049ba8da1a8073',
-#  '66e90a8c71049ba8da1a8075', '66e90a8c71049ba8da1a8076', '66e90a8c71049ba8da1a8078',
-#  '66e90a8c71049ba8da1a807b', '66e90a8c71049ba8da1a807c', '66e90a8c71049ba8da1a807e',
-#  '66e90a8c71049ba8da1a807f', '66e90a8c71049ba8da1a8082', '66e90a8c71049ba8da1a8083',
-#  '66e90a8c71049ba8da1a8084', '66e90a8c71049ba8da1a8085', '66e90a8c71049ba8da1a8086',
-#  '66e90a8c71049ba8da1a8087', '66e90a8c71049ba8da1a8088', '66e90a8c71049ba8da1a8089',
-#  '66e90a8c71049ba8da1a808a', '66e90a8c71049ba8da1a808b', '66e90a8c71049ba8da1a808c',
-#  '66e9242c71049ba8da1a8093', '66e9242c71049ba8da1a809b', '66e9242c71049ba8da1a809e',
-#  '66e9242c71049ba8da1a80a0', '66e9242c71049ba8da1a80a1', '66e9242c71049ba8da1a80a2',
-#  '66e9242c71049ba8da1a80a3', '66e9242c71049ba8da1a80a4', '66e9242c71049ba8da1a80a5',
-#  '66e9242c71049ba8da1a80a7'
-# ]
-
 
 catIds = [
   "66e90a8c71049ba8da1a8066",
@@ -158,13 +127,7 @@ brandIds = [
 ]
 
 productTypes = [
-    '66e906d271049ba8da1a8039',
-    '66e906d271049ba8da1a803a',
-    '66e906d271049ba8da1a803b',
-    '66e906d271049ba8da1a803c',
-    '66e906d271049ba8da1a803d',
-    '66e906d271049ba8da1a803e', 
-    '66e906d271049ba8da1a803f'
+    'Nam', 'Nữ', 'Trẻ em'
 ]
 
 headers = {
@@ -224,26 +187,31 @@ def crawl_product_detail(product_url):
     if product_response.status_code == 200:
         product_soup = BeautifulSoup(product_response.content, 'html.parser')
 
-        product_name_before = product_soup.find('h1', class_='page-title').find('span', class_='base').get_text(strip=True)
-
-        random_number = random.randint(10000000, 9999999999)
+        product_name_before = product_soup.find('div', class_='pro-content-head').find('h1').get_text(strip=True)
 
         # Thêm số ngẫu nhiên vào sau tên sản phẩm
-        product_name = f"{product_name_before} {random_number}"
+        product_name = f"{product_name_before}"
 
-        price_text = product_soup.find('span', class_='price').get_text(strip=True)
+        price_text = product_soup.find('span', class_='price-now').get_text(strip=True)
         product_price = float(re.sub(r'[^\d]', '', price_text))
-        price = product_price + random.randint(10000, 200000)
+        price = product_price + random.randint(10000, 100000)
 
-        imgUrls = [f"https://picsum.photos/276/380?random={image_counter + i}" for i in range(random.randint(3, 6))]
-        image_counter += len(imgUrls)
-        
+        image_elements = product_soup.find_all('img', class_='lazyload-cus dt-width-100')
+        imgUrls = [img.get('src') for img in image_elements if img.get('src')]
+
+        if not imgUrls:
+            print(f"Không thể lấy hình ảnh từ sản phẩm: {product_url}")
+            return
+
+        # Thumbnail là hình ảnh đầu tiên
+        thumbnail = imgUrls[0]
+
         selected_colors = random.sample(colors, random.randint(1, len(colors)))
 
         variants = []
         for color in selected_colors:
-            imgUrl = f"https://picsum.photos/276/380?random={image_counter}" 
-            image_counter += 1
+            # Chọn ảnh từ mảng images cho từng variant
+            imgUrl = random.choice(imgUrls) 
             varStock = random.randint(100, 300)
             sizeStocks = distribute_stock(varStock, 5)
             
@@ -279,7 +247,6 @@ def crawl_product_detail(product_url):
         stock = random.randint(100, 300)
         weight = random.randint(1, 100)
         height = random.randint(1, 100)
-        thumbnail = imgUrls[0] 
         slug = create_slug(product_name)
         minInventory = max(0, stock - random.randint(0, 20))
         maxInventory = stock + random.randint(10, 50)
@@ -299,7 +266,7 @@ def crawl_product_detail(product_url):
             'cat_id': cat_id,
             'statusStock': random.choice(statusStock),
             'view': random.randint(0, 200),
-            'productType': random.choice(productTypes),
+            'productType': random.sample(productTypes, random.randint(1, 2)),
             'weight': weight,
             'height': height,
             'inventory': stock,
@@ -316,17 +283,17 @@ def crawl_product_detail(product_url):
     else:
         print(f"Không thể truy cập sản phẩm: {product_url}")
 
-for page in range(1, maxPage + 1):
-    page_url = f"{base_url}?p={page}"
+for page in range(2, maxPage + 1):
+    page_url = f"{base_url}?page={page}"
     response = requests.get(page_url, headers=headers)
 
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, 'html.parser')
         
-        products = soup.findAll('a', class_='product-item-link')
+        products = soup.findAll('a', class_='image-resize')
         
         for product in products:
-            product_url = product['href']
+            product_url = 'https://j-p.vn' + product['href']
             print(f"Đang crawl sản phẩm: {product_url}")
             
             crawl_product_detail(product_url)
