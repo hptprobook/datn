@@ -4,7 +4,16 @@
     border: 2px dotted #cccccc;
     /* Adjust border color and style as needed */
 }
-
+.ImageDropZone .dropzone.error {
+    border-color: red;
+    /* Adjust border color and style as needed */
+}
+.ImageDropZone .error {
+    color: red;
+    font-size: 14px;
+    margin-top: 8px;
+    text-align: center;
+}
 .UploadImagePreview {
     margin-top: 16px;
     padding: 0;

@@ -11,7 +11,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 
 import { useNavigate } from 'react-router-dom';
-import { fetchAllProducts } from 'src/redux/slices/productSlice';
+import { setStatus, fetchAllProducts, deleteProductById } from 'src/redux/slices/productSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { handleToast } from 'src/hooks/toast';
 
@@ -21,6 +21,8 @@ import Scrollbar from 'src/components/scrollbar';
 import TableEmptyRows from 'src/components/table/table-empty-rows';
 import TableNoData from 'src/components/table/table-no-data';
 import { emptyRows, applyFilter, getComparator } from 'src/components/table/utils';
+import ConfirmDelete from 'src/components/modal/confirm-delete';
+import LoadingFull from 'src/components/loading/loading-full';
 import ProductTableRow from '../product-table-row';
 import ProductTableHead from '../product-table-head';
 import ProductTableToolbar from '../product-table-toolbar';
@@ -38,12 +40,24 @@ export default function ProductsPage() {
   const dispatch = useDispatch();
   const products = useSelector((state) => state.products.products);
   const status = useSelector((state) => state.products.status);
+  const statusDelete = useSelector((state) => state.products.statusDelete);
+  const error = useSelector((state) => state.products.error);
   const [productsList, setProductsList] = React.useState([]);
   // const errorPro = useSelector((state) => state.products.error);
 
   useEffect(() => {
     dispatch(fetchAllProducts());
   }, [dispatch]);
+  useEffect(() => {
+    if (statusDelete === 'successful') {
+      handleToast('success', 'Xóa sản phẩm thành công!');
+      dispatch(fetchAllProducts());
+    }
+    if (statusDelete === 'failed') {
+      handleToast('error', error?.message || 'Có lỗi xảy ra vui lòng thử lại!');
+    }
+    dispatch(setStatus({ key: 'statusDelete', value: '' }));
+  }, [statusDelete, dispatch, error]);
 
   useEffect(() => {
     if (status === 'failed') {
@@ -118,8 +132,21 @@ export default function ProductsPage() {
   const handleNewProductClick = () => {
     navigate('/products/create');
   };
+  const [confirm, setConfirm] = useState(false);
+  const dispatchDelete = () => {
+    dispatch(deleteProductById({ id: confirm }));
+  };
   return (
     <Container>
+      {status === 'loading' && <LoadingFull />}
+      {statusDelete === 'loading' && <LoadingFull />}
+
+      <ConfirmDelete
+        openConfirm={!!confirm}
+        onAgree={dispatchDelete}
+        onClose={() => setConfirm(false)}
+        label="sản phẩm đã chọn"
+      />
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Typography variant="h4">Sản phẩm</Typography>
 
@@ -176,6 +203,8 @@ export default function ProductsPage() {
                       statusStock={row.statusStock}
                       selected={selected.indexOf(row._id) !== -1}
                       handleClick={(event) => handleClick(event, row._id)}
+                      onDelete={() => setConfirm(row._id)}
+                      handleNavigate={() => navigate(row._id)}
                     />
                   ))}
 

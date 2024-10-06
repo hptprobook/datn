@@ -33,12 +33,7 @@ export const SAVE_PRODUCT_SCHEMA = Joi.object({
     'string.empty': 'Giá không được để trống',
     'any.required': 'Giá là bắt buộc',
   }),
-  tags: Joi.array().items(
-    Joi.string().trim().min(1).required().messages({
-      'string.empty': 'Tag không được để trống',
-      'any.required': 'Tag là bắt buộc',
-    })
-  ),
+  tags: Joi.array().default([]),
   thumbnail: Joi.string().trim().min(1).required().messages({
     'string.empty': 'Ảnh đại diện không được để trống',
     'any.required': 'Ảnh đại diện là bắt buộc',
@@ -94,10 +89,7 @@ export const SAVE_PRODUCT_SCHEMA = Joi.object({
             'string.empty': 'Tồn kho không được để trống',
             'any.required': 'Tồn kho là bắt buộc',
           }),
-          sellCount: Joi.number().integer().required().messages({
-            'string.empty': 'Số lượng bán không được để trống',
-            'any.required': 'Số lượng bán là bắt buộc',
-          }),
+          sellCount: Joi.number().integer().default(0),
           sku: Joi.string().trim().min(1).required().messages({
             'string.empty': 'Sku không được để trống',
             'any.required': 'Sku là bắt buộc',

@@ -58,25 +58,13 @@ export const updateProduct = createAsyncThunk(
 );
 
 export const resetState = createAction('products/resetState');
-
+export const setStatus = createAction('products/setStatus');
 const productsSlice = createSlice({
   name: 'products',
   initialState: {
     products: [],
     status: 'idle',
     error: null
-  },
-  reducers: {
-    resetState: (state) => {
-      state.error = null;
-      // Reset the state to its initial values
-      state.status = 'idle';
-      state.statusFetchById = 'idle'; // Add this line if 'statusFetchById' is part of your state
-      state.statusCreate = 'idle';
-      state.statusUpdate = 'idle';
-      state.statusDelete = 'idle'; // Add this line if 'statusCreate' is part of your state
-      // Add this line if 'statusCreate' is part of your state
-    },
   },
   extraReducers: (builder) => {
     builder
@@ -89,7 +77,7 @@ const productsSlice = createSlice({
       })
       .addCase(fetchAllProducts.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.error.message;
+        state.error = action.payload;
       })
       .addCase(fetchProductById.pending, (state) => {
         state.statusFetchById = 'loading';
@@ -100,7 +88,7 @@ const productsSlice = createSlice({
       })
       .addCase(fetchProductById.rejected, (state, action) => {
         state.statusFetchById = 'failed';
-        state.error = action.error.message;
+        state.error = action.payload;
       })
       .addCase(createProduct.pending, (state) => {
         state.statusCreate = 'loading';
@@ -111,7 +99,7 @@ const productsSlice = createSlice({
       })
       .addCase(createProduct.rejected, (state, action) => {
         state.statusCreate = 'failed';
-        state.error = action.error.message;
+        state.error = action.payload;
       })
       .addCase(deleteProductById.pending, (state) => {
         state.statusDelete = 'loading';
@@ -122,7 +110,7 @@ const productsSlice = createSlice({
       })
       .addCase(deleteProductById.rejected, (state, action) => {
         state.statusDelete = 'failed';
-        state.error = action.error.message;
+        state.error = action.payload;
       })
       .addCase(updateProduct.pending, (state) => {
         state.statusUpdate = 'loading';
@@ -133,7 +121,13 @@ const productsSlice = createSlice({
       })
       .addCase(updateProduct.rejected, (state, action) => {
         state.statusUpdate = 'failed';
-        state.error = action.error.message;
+        state.error = action.payload;
+      })
+      .addCase(setStatus, (state, action) => {
+        const { key, value } = action.payload; // Destructure key and value from payload
+        if (state[key] !== undefined) {
+          state[key] = value; // Update the status field dynamically
+        }
       });
   },
 });

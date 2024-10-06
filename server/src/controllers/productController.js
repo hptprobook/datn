@@ -154,6 +154,7 @@ const createProduct = async (req, res) => {
       statusStock,
       variants,
       price,
+      slug,
     } = req.body;
 
     if (!req.files['thumbnail'] || !req.files['thumbnail'][0]) {
@@ -178,16 +179,16 @@ const createProduct = async (req, res) => {
       'uploads/products',
       req.files['thumbnail'][0].filename
     );
-
-    let imagesProduct = req.files['images'].map((file) => {
+    let imagesProduct = [];
+    imagesProduct = req.files['images'].map((file) => {
       if (file && file.filename) {
         return path.join('uploads/products', file.filename);
       } else {
         throw new Error('File image không hợp lệ');
       }
     });
-
-    let imageVariantsC = req.files['imageVariants'].map((file) => {
+    let imageVariantsC = [];
+    imageVariantsC = req.files['imageVariants'].map((file) => {
       if (file && file.filename) {
         return path.join('uploads/products', file.filename);
       } else {
@@ -206,21 +207,22 @@ const createProduct = async (req, res) => {
       !height ||
       !price ||
       !productType ||
+      !slug ||
       !statusStock
     ) {
-      await uploadModel.deleteImg(thumbnail);
-      await uploadModel.deleteImgs(imagesProduct);
-      await uploadModel.deleteImgs(imageVariantsC);
+      uploadModel.deleteImg(thumbnail);
+      uploadModel.deleteImgs(imagesProduct);
+      uploadModel.deleteImgs(imageVariantsC);
       return res.status(StatusCodes.BAD_REQUEST).json({
         message: ERROR_MESSAGES.REQUIRED,
       });
     }
-
-    const parsedVars = variants.map((v) => JSON.parse(v));
+    const newTags = JSON.parse(tags);
+    const newProductType = JSON.parse(productType);
+    const parsedVars = JSON.parse(variants);
     imageVariantsC.forEach((file, index) => {
       parsedVars[index].image = file;
     });
-    const slug = createSlug(name);
 
     const data = {
       cat_id,
@@ -229,7 +231,7 @@ const createProduct = async (req, res) => {
       price,
       description,
       content,
-      tags,
+      tags: newTags,
       thumbnail,
       images: imagesProduct,
       brand,
@@ -238,7 +240,7 @@ const createProduct = async (req, res) => {
       weight,
       height,
       statusStock,
-      productType,
+      productType: newProductType,
     };
 
     const dataProduct = await productModel.createProduct(data);
@@ -292,6 +294,7 @@ const updateProduct = async (req, res) => {
       content,
       tags,
       brand,
+      slug,
       status,
       productType,
       weight,
@@ -344,6 +347,7 @@ const updateProduct = async (req, res) => {
       !weight ||
       !height ||
       !statusStock ||
+      !slug ||
       !variants
     ) {
       if (thumbnail) {
@@ -439,8 +443,6 @@ const updateProduct = async (req, res) => {
 
     const newimgURLs = [...validImgs, ...imagesProduct];
     const newThumbnail = thumbnail ? thumbnail : product.thumbnail;
-
-    const slug = createSlug(name);
 
     const data = {
       cat_id,

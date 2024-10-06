@@ -1,4 +1,4 @@
-import { get, put , post } from "src/utils/request";
+import { get, put, del, uploadProduct } from "src/utils/request";
 /* eslint-disable */
 const ProductsService = {
   getAllProducts: async () => {
@@ -19,7 +19,7 @@ const ProductsService = {
   },
   deleteProductById: async (id) => {
     try {
-      const res = await request.delete(`products/${id}`);
+      const res = await del(`products/${id}`);
       return res.data;
     } catch (err) {
       throw err;
@@ -27,7 +27,11 @@ const ProductsService = {
   },
   createProduct: async (data) => {
     try {
-      const res = await post(`products`, data);
+      const res = await uploadProduct({
+        data,
+        type: 'post',
+        path: 'products',
+      });
       return res.data;
     } catch (err) {
       console.log(err);
