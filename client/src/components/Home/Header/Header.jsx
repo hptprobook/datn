@@ -14,6 +14,7 @@ import useCheckAuth from '~/customHooks/useCheckAuth';
 import { useCart } from 'react-use-cart';
 import { Icon } from '@iconify/react';
 import PropTypes from 'prop-types';
+import UserLoggedBar from './UserLoggedBar';
 
 const Header = () => {
   const { isAuthenticated } = useCheckAuth();
@@ -59,7 +60,13 @@ const Header = () => {
               <MdOutlineContentPasteSearch />
             </div>
             {/* Kiểm tra trạng thái đăng nhập */}
-            {isAuthenticated ? <p>Đã đăng nhập</p> : <UserBar />}
+            {isAuthenticated ? (
+              <NavLink to={'/nguoi-dung/tai-khoan'}>
+                <UserLoggedBar />
+              </NavLink>
+            ) : (
+              <UserBar />
+            )}
           </div>
         </div>
       </header>

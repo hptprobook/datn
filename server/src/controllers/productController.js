@@ -179,16 +179,16 @@ const createProduct = async (req, res) => {
       'uploads/products',
       req.files['thumbnail'][0].filename
     );
-
-    let imagesProduct = req.files['images'].map((file) => {
+    let imagesProduct = [];
+    imagesProduct = req.files['images'].map((file) => {
       if (file && file.filename) {
         return path.join('uploads/products', file.filename);
       } else {
         throw new Error('File image không hợp lệ');
       }
     });
-
-    let imageVariantsC = req.files['imageVariants'].map((file) => {
+    let imageVariantsC = [];
+    imageVariantsC = req.files['imageVariants'].map((file) => {
       if (file && file.filename) {
         return path.join('uploads/products', file.filename);
       } else {
@@ -210,9 +210,9 @@ const createProduct = async (req, res) => {
       !slug ||
       !statusStock
     ) {
-      await uploadModel.deleteImg(thumbnail);
-      await uploadModel.deleteImgs(imagesProduct);
-      await uploadModel.deleteImgs(imageVariantsC);
+      uploadModel.deleteImg(thumbnail);
+      uploadModel.deleteImgs(imagesProduct);
+      uploadModel.deleteImgs(imageVariantsC);
       return res.status(StatusCodes.BAD_REQUEST).json({
         message: ERROR_MESSAGES.REQUIRED,
       });
