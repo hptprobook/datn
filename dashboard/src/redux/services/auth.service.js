@@ -1,4 +1,4 @@
-import { get, post } from "src/utils/request";
+import { post } from "src/utils/request";
 
 const AuthService = {
     login: async (data) => {
@@ -19,7 +19,7 @@ const AuthService = {
     },
     logout: async () => {
         try {
-            return await get("/auth/logout");
+            return await post("/auth/logout");
         } catch (err) {
             console.error("Error: ", err);
             throw err;

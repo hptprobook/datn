@@ -4,7 +4,6 @@ import { categoryModel } from '~/models/categoryModel';
 import { StatusCodes } from 'http-status-codes';
 import { ERROR_MESSAGES } from '~/utils/errorMessage';
 import { uploadModel } from '~/models/uploadModel';
-import { createSlug } from '~/utils/createSlug';
 import path from 'path';
 
 const createCategory = async (req, res) => {
@@ -19,6 +18,14 @@ const createCategory = async (req, res) => {
     const fileName = file.filename;
     const filePath = path.join('uploads/categories', fileName);
     data.imageURL = filePath;
+
+    const category = await categoryModel.getCategoryBySlug(data.slug);
+    if (category) {
+      uploadModel.deleteImg(filePath);
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: 'Danh mục đã tồn tại',
+      });
+    }
     const dataCategory = await categoryModel.createCategory(data);
     return res.status(StatusCodes.OK).json(dataCategory);
   } catch (error) {
@@ -130,43 +137,52 @@ const getCategoryBySlug = async (req, res) => {
 };
 
 const update = async (req, res) => {
- try {
-  const { id } = req.params;
-  const data = req.body;
-  const category = await categoryModel.getCategoryById(id);
-  if (!category) {
-    uploadModel.deleteImg(filePath);
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Danh mục chưa được tạo' });
-  }
-  if (!req.file) {
-    const result = await categoryModel.update(id, data);
-    return res.status(StatusCodes.OK).json(result);
-  }
-  const file = req.file;
-  const fileName = file.filename;
-  const filePath = path.join('uploads/categories', fileName);
-  data.imageURL = filePath;
+  try {
+    const { id } = req.params;
+    const data = req.body;
+    if (!req.file) {
+      const result = await categoryModel.update(id, data);
+      return res.status(StatusCodes.OK).json(result);
+    }
+    const file = req.file;
+    const fileName = file.filename;
+    const filePath = path.join('uploads/categories', fileName);
+    const category = await categoryModel.getCategoryById(id);
 
-  const dataCategory = await categoryModel.update(id, data);
-  await uploadModel.deleteImg(category.imageURL);
-  return res
-    .status(StatusCodes.OK)
-    .json(dataCategory);
- } catch (error) {
-  if (req.file) {
-    uploadModel.deleteImg(req.file.path);
-  }
-  if (error.details) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      message: error.details[0].message,
+    if (!category) {
+      uploadModel.deleteImg(filePath);
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Danh mục chưa được tạo' });
+    }
+
+    if (data.slug && data.slug !== category.slug) {
+      const existingCategory = await categoryModel.getCategoryBySlug(data.slug);
+      if (existingCategory) {
+        uploadModel.deleteImg(filePath);
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          message: 'Danh mục đã tồn tại',
+        });
+      }
+    }
+    data.imageURL = filePath;
+
+    const dataCategory = await categoryModel.update(id, data);
+    uploadModel.deleteImg(category.imageURL);
+    return res.status(StatusCodes.OK).json(dataCategory);
+  } catch (error) {
+    if (req.file) {
+      uploadModel.deleteImg(req.file.path);
+    }
+    if (error.details) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: error.details[0].message,
+      });
+    }
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: 'Có lỗi xảy ra xin thử lại sau',
     });
   }
-  return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-    message: 'Có lỗi xảy ra xin thử lại sau',
-  });
- }
 };
 
 const deleteCategory = async (req, res) => {
@@ -188,6 +204,24 @@ const deleteCategory = async (req, res) => {
   }
 };
 
+const deleteManyCategory = async (req, res) => {
+  try {
+    const { ids } = req.body;
+
+    const { images } = await categoryModel.deleteManyCategories(ids);
+
+    uploadModel.deleteImgs(images);
+
+    return res.status(StatusCodes.OK).json({
+      message: 'Xóa thành công',
+    });
+  } catch (error) {
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
+  }
+};
+
 export const categoryController = {
   getMenuCategories,
   createCategory,
@@ -196,4 +230,5 @@ export const categoryController = {
   getCategoryById,
   getAllCategories,
   getCategoryBySlug,
+  deleteManyCategory,
 };

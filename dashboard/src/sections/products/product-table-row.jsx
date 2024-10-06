@@ -12,16 +12,25 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 
 import Iconify from 'src/components/iconify';
+import { renderUrl } from 'src/utils/check';
+import { formatCurrency } from 'src/utils/format-number';
+import { renderStatusStock } from 'src/utils/format-text';
+
+const backendUrl  = import.meta.env.VITE_BACKEND_APP_URL;
 
 export default function ProductTableRow({
   selected,
   _id,
   name,
   imgURLs,
+  slug,
+  averageRating,
   price,
   brand,
-  stock,
+  statusStock,
   handleClick,
+  onDelete,
+  handleNavigate,
 }) {
   const [open, setOpen] = useState(null);
 
@@ -31,6 +40,7 @@ export default function ProductTableRow({
 
   const handleCloseMenu = () => {
     setOpen(null);
+    onDelete();
   };
 
   return (
@@ -42,18 +52,18 @@ export default function ProductTableRow({
 
         <TableCell component="th" scope="row" padding="none">
           <Stack direction="row" alignItems="center" spacing={2}>
-            <Avatar alt={name} src={imgURLs[0]} />
+            <Avatar alt={name} src={renderUrl(imgURLs, backendUrl)} />
             <Typography variant="subtitle2" noWrap>
               {name}
             </Typography>
           </Stack>
         </TableCell>
-
-        <TableCell>{price}</TableCell>
+        <TableCell>{slug}</TableCell>
+        <TableCell>{formatCurrency(price)}</TableCell>
 
         <TableCell>{brand}</TableCell>
-
-        <TableCell>{stock}</TableCell>
+        <TableCell>{averageRating}</TableCell>
+        <TableCell>{renderStatusStock(statusStock)}</TableCell>
 
         <TableCell align="right">
           <IconButton onClick={handleOpenMenu}>
@@ -72,14 +82,14 @@ export default function ProductTableRow({
           sx: { width: 140 },
         }}
       >
-        <MenuItem onClick={handleCloseMenu}>
+        <MenuItem onClick={handleNavigate}>
           <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
-          Edit
+          Chỉnh sửa
         </MenuItem>
 
         <MenuItem onClick={handleCloseMenu} sx={{ color: 'error.main' }}>
           <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
-          Delete
+          Xóa
         </MenuItem>
       </Popover>
     </>
@@ -89,10 +99,14 @@ export default function ProductTableRow({
 ProductTableRow.propTypes = {
   _id: PropTypes.string,
   name: PropTypes.string,
-  imgURLs: PropTypes.array,
-  price: PropTypes.string,
+  imgURLs: PropTypes.string,
+  price: PropTypes.number,
   brand: PropTypes.string,
-  stock: PropTypes.string,
+  statusStock: PropTypes.string,
+  averageRating: PropTypes.number,
+  slug: PropTypes.string,
   handleClick: PropTypes.func,
   selected: PropTypes.bool,
+  onDelete: PropTypes.func,
+  handleNavigate: PropTypes.func,
 };

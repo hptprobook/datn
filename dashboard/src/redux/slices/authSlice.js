@@ -12,13 +12,26 @@ export const handleLogin = createAsyncThunk(
         }
     }
 );
+export const logout = createAsyncThunk(
+    'auth/logout',
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await AuthService.logout();
+            return response;
+        } catch (err) {
+            return rejectWithValue(err.response.data);
+        }
+    }
+);
+
 const initialState = {
     auth: {},
-    status: "idle", // 'idle' | 'loading' | 'succeeded' | 'failed'
+    status: "idle", 
+    statusLogout: "idle",
     error: null,
 };
 export const resetLogin = createAction('auth/resetLogin');
-
+export const setStatus = createAction('auth/setStatus');
 const authSlice = createSlice({
     name: "auth",
     initialState,
@@ -29,18 +42,38 @@ const authSlice = createSlice({
                 state.status = "loading";
             })
             .addCase(handleLogin.fulfilled, (state, action) => {
-                state.status = "succeeded";
+                state.status = "successful";
                 state.auth = action.payload;
             })
             .addCase(handleLogin.rejected, (state, action) => {
                 state.status = "failed";
                 state.error = action.payload;
             })
+            .addCase(logout.pending, (state) => {
+                state.statusLogout = "loading";
+            })
+            .addCase(logout.fulfilled, (state, action) => {
+                state.statusLogout = "successful";
+                state.status = "idle";
+                state.auth = {};
+            })
+            .addCase(logout.rejected, (state, action) => {
+                state.statusLogout = "failed";
+                state.error = action.payload;
+                state.status = "idle";
+                state.auth = {};
+            })
             .addCase(resetLogin, (state) => {
                 state.status = "idle";
                 state.auth = {};
                 state.error = null;
             })
+            .addCase(setStatus, (state, action) => {
+                const { key, value } = action.payload; // Destructure key and value from payload
+                if (state[key] !== undefined) {
+                    state[key] = value; // Update the status field dynamically
+                }
+            });
     },
 });
 

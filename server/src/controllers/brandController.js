@@ -19,11 +19,17 @@ const createBrand = async (req, res) => {
     const filePath = path.join('uploads/brands', fileName);
 
     data.image = filePath;
-
+    const brand = await brandModel.getBrandBySlug(data.slug);
+    if (brand) {
+      uploadModel.deleteImg(filePath);
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: 'Thương hiệu đã tồn tại',
+      });
+    }
     const result = await brandModel.create(data);
 
     if (!result) {
-      await uploadModel.deleteImg(filePath);
+      uploadModel.deleteImg(filePath);
       return res.status(StatusCodes.BAD_REQUEST).json({
         message: 'Có lỗi xảy ra, xin thử lại sau',
       });
@@ -97,32 +103,49 @@ const update = async (req, res) => {
   try {
     const { id } = req.params;
     const data = req.body;
-
     if (!req.file) {
-      const dataBrand = await brandModel.update(id, data);
-      return res.status(StatusCodes.OK).json(dataBrand.data);
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Ảnh không được để trống' });
     }
     const file = req.file;
     const fileName = file.filename;
     const filePath = path.join('uploads/brands', fileName);
-    data.image = filePath;
+
+    const brand = await brandModel.getBrandById(id);
+    if (!brand) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        message: 'Thương hiệu không tồn tại',
+      });
+    }
+
+    if (data.slug && data.slug !== brand.slug) {
+      const existingBrand = await brandModel.getBrandBySlug(data.slug);
+      if (existingBrand) {
+        uploadModel.deleteImg(filePath);
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          message: 'Thương hiệu đã tồn tại',
+        });
+      }
+    }
 
     const dataBrand = await brandModel.update(id, data);
+    uploadModel.deleteImg(brand.image);
 
-    await uploadModel.deleteImg(dataBrand.image);
     return res.status(StatusCodes.OK).json(dataBrand.data);
   } catch (error) {
     if (req.file) {
       const file = req.file;
       const fileName = file.filename;
       const filePath = path.join('uploads/brands', fileName);
-      await uploadModel.deleteImg(filePath);
+      uploadModel.deleteImg(filePath);
     }
-    return res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ message: error.message });
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: error.message,
+    });
   }
 };
+
 const deleteBrand = async (req, res) => {
   try {
     const { id } = req.params;
@@ -163,9 +186,7 @@ const deleteManyBrand = async (req, res) => {
 
     const { images } = await brandModel.deleteManyBrands(ids);
 
-    images.forEach((image) => {
-      uploadModel.deleteImg(image);
-    });
+    uploadModel.deleteImgs(images);
 
     return res.status(StatusCodes.OK).json({
       message: 'Xóa thành công',

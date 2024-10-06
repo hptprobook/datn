@@ -40,3 +40,12 @@ export const slugify = (string) => {
         .replace(/^-+/, '')
         .replace(/-+$/, '')
 }
+export const renderStatusStock = (status) => {
+    if (status === 'stock') {
+        return 'Còn hàng';
+    }
+    if (status === 'preOrder') {
+        return 'Đang đặt hàng';
+    }
+    return 'Hết hàng'
+}

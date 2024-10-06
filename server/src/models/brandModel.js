@@ -81,6 +81,7 @@ const update = async (id, data) => {
     { $set: validData },
     { returnDocument: 'after' }
   );
+
   if (!result) {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
@@ -135,7 +136,7 @@ const deleteManyBrands = async (ids) => {
   });
 
   if (result.deletedCount === 0) {
-    throw new Error('Xóa thương hiệu không thành công');
+    throw new Error('Xóa  không thành công');
   }
 
   const images = brands.map((brand) => brand.image);
