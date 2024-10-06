@@ -3,7 +3,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import PropTypes from 'prop-types';
 
-export const AutoSelect = ({ value, setValue, data, label }) => (
+export const AutoSelect = ({ value, setValue, data, label, error }) => (
   <Autocomplete
     multiple
     limitTags={2}
@@ -14,7 +14,9 @@ export const AutoSelect = ({ value, setValue, data, label }) => (
     id="product-supplier-select"
     options={data}
     getOptionLabel={(option) => option}
-    renderInput={(params) => <TextField {...params} label={label} placeholder={`${label}...`} />}
+    renderInput={(params) => (
+      <TextField error={error} {...params} label={label} placeholder={`${label}...`} />
+    )}
     sx={{ width: '100%' }}
   />
 );
@@ -23,4 +25,5 @@ AutoSelect.propTypes = {
   setValue: PropTypes.func.isRequired,
   data: PropTypes.array.isRequired,
   label: PropTypes.string.isRequired,
+  error: PropTypes.bool,
 };

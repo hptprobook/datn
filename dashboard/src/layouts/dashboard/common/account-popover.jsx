@@ -13,6 +13,8 @@ import { account } from 'src/_mock/account';
 
 import { useAuth } from 'src/hooks/useAuth';
 import { handleToast } from 'src/hooks/toast';
+import { useDispatch } from 'react-redux';
+import { logout as dangXuat } from 'src/redux/slices/authSlice';
 
 // ----------------------------------------------------------------------
 
@@ -34,20 +36,27 @@ const MENU_OPTIONS = [
 // ----------------------------------------------------------------------
 
 export default function AccountPopover() {
-
   const { logout } = useAuth();
   const [open, setOpen] = useState(null);
 
   const handleOpen = (event) => {
     setOpen(event.currentTarget);
   };
+  const dispatch = useDispatch();
 
   const handleClose = () => {
     setOpen(null);
   };
   const handleLogout = () => {
-    handleToast('success', 'Đăng xuất thành công!');
-    logout();
+    dispatch(dangXuat()).then((response) => {
+      if (response.meta.requestStatus === 'fulfilled') {
+        handleToast('success', 'Đăng xuất thành công');
+        logout();
+      } else {
+        handleToast('error', response.payload.message);
+        logout();
+      }
+    });
   };
   return (
     <>

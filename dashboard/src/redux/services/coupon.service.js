@@ -1,4 +1,4 @@
-import { get, post, del } from 'src/utils/request';
+import { get, del, post  } from 'src/utils/request';
 /* eslint-disable */
 
 const CouponServices = {
