@@ -24,7 +24,7 @@ import { handleToast } from 'src/hooks/toast';
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
 import { useDispatch, useSelector } from 'react-redux';
-import { resetLogin, handleLogin } from 'src/redux/slices/authSlice';
+import { handleLogin } from 'src/redux/slices/authSlice';
 // ----------------------------------------------------------------------
 const loginSchema = Yup.object().shape({
   email: Yup.string().email('Email phải là một địa chỉ email hợp lệ').required('Email là bắt buộc'),
@@ -47,12 +47,6 @@ export default function LoginView() {
   const { login } = useAuth();
 
   useEffect(() => {
-    localStorage.removeItem('token');
-    dispatch(resetLogin());
-  }
-  , [dispatch]);
-
-  useEffect(() => {
     if (status === 'loading') {
       setSubmit(true);
     } else {
@@ -60,7 +54,7 @@ export default function LoginView() {
       if (status === 'failed') {
         handleToast('error', error.message);
       }
-      if (status === 'succeeded') {
+      if (status === 'successful') {
         handleToast('success', 'Đăng nhập thành công');
         login(auth.token);
       }

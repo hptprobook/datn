@@ -6,7 +6,7 @@ import { sendMail } from '~/utils/mail';
 import { createToken, createRefreshToken } from '~/utils/helper';
 // import { userModel } from '~/models/userModel';
 import jwt from 'jsonwebtoken';
-const register = async(req, res) => {
+const register = async (req, res) => {
     try {
         const dataRegister = req.body;
         const { email, password } = dataRegister;
@@ -60,7 +60,7 @@ const register = async(req, res) => {
     }
 };
 
-const login = async(req, res) => {
+const login = async (req, res) => {
     try {
         const { email, password } = req.body;
         if (!email || !password) {
@@ -92,14 +92,15 @@ const login = async(req, res) => {
         const tokenOption = {
             httpOnly: true,
             secure: true,
+            sameSite: 'None', // Để cho phép cookie hoạt động trên các origin khác nhau
         };
         user.token = token;
-        user.refreshToken = refreshToken;
         delete user.password;
         delete user.createdAt;
         delete user.updatedAt;
+        delete user.refreshToken;
         return res
-            .cookie('token_wow', token, tokenOption)
+            .cookie('refreshToken', refreshToken, tokenOption)
             .status(StatusCodes.OK)
             .json(user);
     } catch (error) {
@@ -110,13 +111,13 @@ const login = async(req, res) => {
     }
 };
 
-const logout = async(req, res) => {
-    return await res.clearCookie('token_wow').status(StatusCodes.OK).json({
+const logout = async (req, res) => {
+    return await res.clearCookie('refreshToken').status(StatusCodes.OK).json({
         message: 'Đăng xuất thành công',
     });
 };
 
-const getOtp = async(req, res) => {
+const getOtp = async (req, res) => {
     try {
         const { email } = req.body;
         if (!email) {
@@ -151,7 +152,7 @@ const getOtp = async(req, res) => {
     }
 };
 
-const checkOtp = async(req, res) => {
+const checkOtp = async (req, res) => {
     try {
         const { email, otp } = req.body;
         if (!email || !otp) {
@@ -186,7 +187,7 @@ const checkOtp = async(req, res) => {
     }
 };
 
-const changePassWordByOtp = async(req, res) => {
+const changePassWordByOtp = async (req, res) => {
     try {
         const { email, password } = req.body;
         if (!password || !email) {
@@ -229,31 +230,42 @@ const changePassWordByOtp = async(req, res) => {
     }
 };
 
-const refresh_token = async(req, res) => {
+const refreshToken = async (req, res) => {
     try {
-        const { refreshToken } = req.body;
+        // Lấy refreshToken từ cookie thay vì req.body
+        const { refreshToken } = req.cookies;
         if (!refreshToken) {
             return res
                 .status(StatusCodes.BAD_REQUEST)
                 .json({ message: 'Thiếu dữ liệu refresh token' });
         }
+        const token_secret = process.env.REFRESH_SECRET;
         const decodedToken = jwt.verify(
             refreshToken,
-            process.env.REFRESH_SECRET
+            token_secret
         );
         const { user_id } = decodedToken;
+
+        // Tìm user dựa trên user_id từ token
         const user = await authModel.findUserID(user_id);
         if (!user) {
             return res.status(StatusCodes.BAD_REQUEST).json({
                 message: 'Xác thực không thành công. Vui lòng đăng nhập lại',
             });
         }
+        if (user.refreshToken !== refreshToken) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: 'Xác thực không thành công. Vui lòng đăng nhập lại',
+            });
+        }
+
+        // Tạo access token mới
         const token = createToken(user);
-        return res.status(StatusCodes.OK).json({
-            token,
-            message: 'New token',
-        });
+
+        // Trả về token mới
+        return res.status(StatusCodes.OK).json({ token });
     } catch (error) {
+        // Xử lý các lỗi liên quan đến JWT
         if (error instanceof jwt.TokenExpiredError) {
             return res
                 .status(401)
@@ -267,12 +279,15 @@ const refresh_token = async(req, res) => {
         if (error instanceof jwt.NotBeforeError) {
             return res.status(401).send({ message: 'Dữ liệu không hoạt động' });
         }
+
+        // Xử lý các lỗi khác
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             message: 'Có lỗi xảy ra xin thử lại sau',
             error: error,
         });
     }
 };
+
 
 export const authController = {
     getOtp,
@@ -281,5 +296,5 @@ export const authController = {
     logout,
     checkOtp,
     changePassWordByOtp,
-    refresh_token,
+    refreshToken,
 };
