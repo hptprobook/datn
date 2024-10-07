@@ -18,7 +18,7 @@ import Iconify from 'src/components/iconify';
 export default function UserTableRow({
   selected,
   name,
-  avatarUrl,
+  handleNavigate,
   onDelete,
   id,
   email,
@@ -37,10 +37,10 @@ export default function UserTableRow({
     setOpen(null);
   };
 
-const handleDelete = (idDelete) => {
-  onDelete(idDelete);
-  handleCloseMenu();
-}
+  const handleDelete = (idDelete) => {
+    onDelete(idDelete);
+    handleCloseMenu();
+  };
 
   return (
     <>
@@ -87,7 +87,7 @@ const handleDelete = (idDelete) => {
           sx: { width: 140 },
         }}
       >
-        <MenuItem onClick={handleCloseMenu}>
+        <MenuItem onClick={handleNavigate}>
           <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
           Sửa
         </MenuItem>
@@ -102,7 +102,7 @@ const handleDelete = (idDelete) => {
 }
 
 UserTableRow.propTypes = {
-  avatarUrl: PropTypes.any,
+  handleNavigate: PropTypes.any,
   email: PropTypes.any,
   handleClick: PropTypes.func,
   isVerified: PropTypes.any,

@@ -212,7 +212,7 @@ export default function DetailProductPage() {
         icon={<Iconify icon="eva:save-fill" />}
       />
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Tạo một sản phẩm mới</Typography>
+        <Typography variant="h4">Chi tiết sản phẩm</Typography>
       </Stack>
       <form onSubmit={formik.handleSubmit}>
         <Grid2 container spacing={3}>

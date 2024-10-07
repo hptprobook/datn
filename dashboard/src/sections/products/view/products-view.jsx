@@ -23,6 +23,7 @@ import TableNoData from 'src/components/table/table-no-data';
 import { emptyRows, applyFilter, getComparator } from 'src/components/table/utils';
 import ConfirmDelete from 'src/components/modal/confirm-delete';
 import LoadingFull from 'src/components/loading/loading-full';
+import { IconButton } from '@mui/material';
 import ProductTableRow from '../product-table-row';
 import ProductTableHead from '../product-table-head';
 import ProductTableToolbar from '../product-table-toolbar';
@@ -64,7 +65,6 @@ export default function ProductsPage() {
       handleToast('error', 'Có lỗi xảy ra vui lòng thử lại!');
     } else if (status === 'successful') {
       setProductsList(products);
-      console.log(products);
     }
   }, [products, status]);
 
@@ -148,8 +148,17 @@ export default function ProductsPage() {
         label="sản phẩm đã chọn"
       />
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Sản phẩm</Typography>
-
+        <Stack direction="row" alignItems="center">
+          <Typography variant="h4">Sản phẩm</Typography>
+          <IconButton
+            aria-label="load"
+            variant="contained"
+            color="inherit"
+            onClick={() => dispatch(fetchAllProducts())}
+          >
+            <Iconify icon="mdi:reload" />
+          </IconButton>
+        </Stack>
         <Button
           variant="contained"
           color="inherit"
