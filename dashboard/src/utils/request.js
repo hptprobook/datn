@@ -113,6 +113,37 @@ export const uploadProduct = async ({ path, data, type = 'post' }) => {
 
     return response.data;
 };
+export const updateProduct = async ({ path, data }) => {
+    const formData = new FormData();
+    Object.keys(data).forEach((key) => {
+        if (key === "images") {
+            data[key].forEach((file) => {
+                formData.append(key, file);
+            });
+        }
+        else if (key === "productType" || key === "tags") {
+            formData.append(key, JSON.stringify(data[key]));
+        }
+        else if (key === "variants") {
+            const convert = JSON.stringify(data[key]);
+            formData.append('variants', convert);
+            data[key].forEach((variant) => {
+                formData.append('imageVariants', variant.image);
+            });
+        } else {
+            formData.append(key, data[key]);
+        }
+    });
+
+    const response = await request.put(path, formData, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${getAccessToken()}`,
+        },
+    });
+
+    return response.data;
+};
 
 // Các phương thức khác
 export const get = async (path, options = {}) => {

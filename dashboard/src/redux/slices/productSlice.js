@@ -66,6 +66,7 @@ const productsSlice = createSlice({
     product: {},
     status: 'idle',
     statusGet: 'idle',
+    update: {},
     error: null
   },
   extraReducers: (builder) => {
@@ -119,7 +120,7 @@ const productsSlice = createSlice({
       })
       .addCase(updateProduct.fulfilled, (state, action) => {
         state.statusUpdate = 'successful';
-        state.dataUpdateReturn = action.payload;
+        state.update = action.payload;
       })
       .addCase(updateProduct.rejected, (state, action) => {
         state.statusUpdate = 'failed';
