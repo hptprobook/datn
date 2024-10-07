@@ -14,19 +14,22 @@ const createCategory = async (req, res) => {
         .status(StatusCodes.BAD_REQUEST)
         .json({ message: 'Ảnh không được để trống' });
     }
+
     const file = req.file;
     const fileName = file.filename;
     const filePath = path.join('uploads/categories', fileName);
     data.imageURL = filePath;
-
     const category = await categoryModel.getCategoryBySlug(data.slug);
+
     if (category) {
       uploadModel.deleteImg(filePath);
       return res.status(StatusCodes.BAD_REQUEST).json({
         message: 'Danh mục đã tồn tại',
       });
     }
+
     const dataCategory = await categoryModel.createCategory(data);
+
     return res.status(StatusCodes.OK).json(dataCategory);
   } catch (error) {
     if (req.file) {

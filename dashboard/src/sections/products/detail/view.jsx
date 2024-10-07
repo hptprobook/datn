@@ -37,15 +37,14 @@ import { fetchAll } from 'src/redux/slices/brandSlices';
 import PropTypes from 'prop-types';
 import Iconify from 'src/components/iconify/iconify';
 import { handleToast } from 'src/hooks/toast';
-import { setStatus, createProduct, fetchProductById } from 'src/redux/slices/productSlice';
+import { setStatus, fetchProductById, updateProduct } from 'src/redux/slices/productSlice';
 import LoadingFull from 'src/components/loading/loading-full';
 import { useParams } from 'react-router-dom';
 import { isValidObjectId } from 'src/utils/check';
 import { useRouter } from 'src/routes/hooks';
-import CreateVariant from '../variant';
+import MultiImageDropZone from 'src/components/drop-zone-upload/upload-imgs';
 import { AutoSelect } from '../auto-select';
 import AdvancedVariant from '../variant-advanced';
-import MultiImageDropZone from 'src/components/drop-zone-upload/upload-imgs';
 
 // ----------------------------------------------------------------------
 const productSchema = Yup.object().shape({
@@ -147,8 +146,15 @@ export default function DetailProductPage() {
         handleToast('error', logError);
         return;
       }
+      if (thumbnail !== null) {
+        values.thumbnail = thumbnail;
+      }
+      if (images.length > 0) {
+        values.images = images;
+      }
       values.variants = variants;
       console.log(values);
+      // dispatch(updateProduct({ id, data: values }));
     },
   });
   useEffect(() => {
@@ -193,7 +199,6 @@ export default function DetailProductPage() {
     if (files) {
       setErrorImgs('');
       setImages(files);
-      console.log(files);
     } else {
       setImages(null);
     }
