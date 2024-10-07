@@ -13,7 +13,7 @@ export const SAVE_USER_SCHEMA = Joi.object({
         .default(null),
     // otp: Joi.string(),
     refreshToken: Joi.string().default(null),
-    role: Joi.string().valid('root', 'employee', 'user', 'ban').default('user'),
+    role: Joi.string().valid('user').default('user'),
     allowNotifies: Joi.boolean().default(false),
     createdAt: Joi.date().timestamp('javascript').default(Date.now),
     updatedAt: Joi.date().timestamp('javascript').default(Date.now),
@@ -29,7 +29,7 @@ export const UPDATE_USER = Joi.object({
         .max(15)
         .default(null),
     refreshToken: Joi.string(),
-    role: Joi.string().valid('root', 'employee', 'user', 'ban').default('user'),
+    role: Joi.string().valid('root', 'admin', 'staff', 'user', 'ban').default('user'),
     allowNotifies: Joi.boolean().default(false),
     updatedAt: Joi.date().timestamp('javascript').default(Date.now),
 });
