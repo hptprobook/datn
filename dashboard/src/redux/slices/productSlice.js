@@ -63,7 +63,9 @@ const productsSlice = createSlice({
   name: 'products',
   initialState: {
     products: [],
+    product: {},
     status: 'idle',
+    statusGet: 'idle',
     error: null
   },
   extraReducers: (builder) => {
@@ -80,14 +82,14 @@ const productsSlice = createSlice({
         state.error = action.payload;
       })
       .addCase(fetchProductById.pending, (state) => {
-        state.statusFetchById = 'loading';
+        state.statusGet = 'loading';
       })
       .addCase(fetchProductById.fulfilled, (state, action) => {
-        state.statusFetchById = 'successful';
+        state.statusGet = 'successful';
         state.product = action.payload;
       })
       .addCase(fetchProductById.rejected, (state, action) => {
-        state.statusFetchById = 'failed';
+        state.statusGet = 'failed';
         state.error = action.payload;
       })
       .addCase(createProduct.pending, (state) => {
