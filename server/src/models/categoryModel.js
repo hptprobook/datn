@@ -33,10 +33,7 @@ const getCategoriesAll = async (parent = null) => {
     return result;
   }
   const db = await GET_DB().collection('categories');
-  const result = await db
-    .find()
-    .sort({ createdAt: 1 })
-    .toArray();
+  const result = await db.find().sort({ createdAt: 1 }).toArray();
   if (!result) {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
@@ -64,9 +61,6 @@ const getCategoryById = async (category_id) => {
 const getCategoryBySlug = async (slug) => {
   const db = await GET_DB().collection('categories');
   const category = await db.findOne({ slug: slug });
-  if (!category) {
-    throw new Error('Có lỗi xảy ra, xin thử lại sau');
-  }
   return category;
 };
 
@@ -138,6 +132,31 @@ const deleteCategory = async (id) => {
   return category;
 };
 
+const deleteManyCategories = async (ids) => {
+  const db = GET_DB().collection('categories');
+  const categories = await db
+    .find({ _id: { $in: ids.map((id) => new ObjectId(id)) } })
+    .toArray();
+
+  if (!categories || categories.length === 0) {
+    throw new Error('Không tìm thấy thương hiệu nào');
+  }
+
+  const result = await db.deleteMany({
+    _id: { $in: ids.map((id) => new ObjectId(id)) },
+  });
+
+  if (result.deletedCount === 0) {
+    throw new Error('Xóa  không thành công');
+  }
+
+  const images = categories.map((cat) => cat.imageURL);
+
+  return {
+    images,
+  };
+};
+
 export const categoryModel = {
   getCategoriesAll,
   countCategoryAll,
@@ -148,4 +167,5 @@ export const categoryModel = {
   getCategoriesByParentId,
   deleteAllChildCategories,
   getCategoryBySlug,
+  deleteManyCategories,
 };

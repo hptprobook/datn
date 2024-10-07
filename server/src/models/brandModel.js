@@ -81,6 +81,7 @@ const update = async (id, data) => {
     { $set: validData },
     { returnDocument: 'after' }
   );
+
   if (!result) {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
@@ -120,6 +121,31 @@ const deleteAllBrands = async () => {
   return brands;
 };
 
+const deleteManyBrands = async (ids) => {
+  const db = GET_DB().collection('brands');
+  const brands = await db
+    .find({ _id: { $in: ids.map((id) => new ObjectId(id)) } })
+    .toArray();
+
+  if (!brands || brands.length === 0) {
+    throw new Error('Không tìm thấy thương hiệu nào');
+  }
+
+  const result = await db.deleteMany({
+    _id: { $in: ids.map((id) => new ObjectId(id)) },
+  });
+
+  if (result.deletedCount === 0) {
+    throw new Error('Xóa  không thành công');
+  }
+
+  const images = brands.map((brand) => brand.image);
+
+  return {
+    images,
+  };
+};
+
 export const brandModel = {
   getBrandsAll,
   countBrandsAll,
@@ -129,4 +155,5 @@ export const brandModel = {
   getBrandById,
   getBrandBySlug,
   deleteAllBrands,
+  deleteManyBrands,
 };

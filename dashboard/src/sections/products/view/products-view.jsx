@@ -11,19 +11,22 @@ import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 
 import { useNavigate } from 'react-router-dom';
-import { fetchAllProducts } from 'src/redux/slices/productSlice';
+import { setStatus, fetchAllProducts, deleteProductById } from 'src/redux/slices/productSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { handleToast } from 'src/hooks/toast';
 
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 
-import TableNoData from '../table-no-data';
+import TableEmptyRows from 'src/components/table/table-empty-rows';
+import TableNoData from 'src/components/table/table-no-data';
+import { emptyRows, applyFilter, getComparator } from 'src/components/table/utils';
+import ConfirmDelete from 'src/components/modal/confirm-delete';
+import LoadingFull from 'src/components/loading/loading-full';
+import { IconButton } from '@mui/material';
 import ProductTableRow from '../product-table-row';
 import ProductTableHead from '../product-table-head';
-import TableEmptyRows from '../table-empty-rows';
 import ProductTableToolbar from '../product-table-toolbar';
-import { emptyRows, applyFilter, getComparator } from '../utils';
 
 // ----------------------------------------------------------------------
 
@@ -37,27 +40,33 @@ export default function ProductsPage() {
 
   const dispatch = useDispatch();
   const products = useSelector((state) => state.products.products);
-  const statusPro = useSelector((state) => state.products.status);
+  const status = useSelector((state) => state.products.status);
+  const statusDelete = useSelector((state) => state.products.statusDelete);
+  const error = useSelector((state) => state.products.error);
   const [productsList, setProductsList] = React.useState([]);
   // const errorPro = useSelector((state) => state.products.error);
 
   useEffect(() => {
     dispatch(fetchAllProducts());
   }, [dispatch]);
+  useEffect(() => {
+    if (statusDelete === 'successful') {
+      handleToast('success', 'Xóa sản phẩm thành công!');
+      dispatch(fetchAllProducts());
+    }
+    if (statusDelete === 'failed') {
+      handleToast('error', error?.message || 'Có lỗi xảy ra vui lòng thử lại!');
+    }
+    dispatch(setStatus({ key: 'statusDelete', value: '' }));
+  }, [statusDelete, dispatch, error]);
 
   useEffect(() => {
-    if (statusPro === 'succeeded') {
+    if (status === 'failed') {
+      handleToast('error', 'Có lỗi xảy ra vui lòng thử lại!');
+    } else if (status === 'successful') {
       setProductsList(products);
     }
-  }, [products, statusPro]);
-
-  useEffect(() => {
-    if (statusPro === 'failed') {
-      handleToast('error', 'Failed to fetch products');
-    } else if (statusPro === 'succeeded') {
-      setProductsList(products);
-    }
-  }, [products, statusPro]);
+  }, [products, status]);
 
   // console.log(productsList);
 
@@ -114,6 +123,7 @@ export default function ProductsPage() {
     inputData: productsList,
     comparator: getComparator(order, orderBy),
     filterName,
+    fillerQuery: 'name',
   });
 
   const notFound = !dataFiltered.length && !!filterName;
@@ -122,11 +132,33 @@ export default function ProductsPage() {
   const handleNewProductClick = () => {
     navigate('/products/create');
   };
+  const [confirm, setConfirm] = useState(false);
+  const dispatchDelete = () => {
+    dispatch(deleteProductById({ id: confirm }));
+  };
   return (
     <Container>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Sản phẩm</Typography>
+      {status === 'loading' && <LoadingFull />}
+      {statusDelete === 'loading' && <LoadingFull />}
 
+      <ConfirmDelete
+        openConfirm={!!confirm}
+        onAgree={dispatchDelete}
+        onClose={() => setConfirm(false)}
+        label="sản phẩm đã chọn"
+      />
+      <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
+        <Stack direction="row" alignItems="center">
+          <Typography variant="h4">Sản phẩm</Typography>
+          <IconButton
+            aria-label="load"
+            variant="contained"
+            color="inherit"
+            onClick={() => dispatch(fetchAllProducts())}
+          >
+            <Iconify icon="mdi:reload" />
+          </IconButton>
+        </Stack>
         <Button
           variant="contained"
           color="inherit"
@@ -156,9 +188,11 @@ export default function ProductsPage() {
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
                   { id: 'name', label: 'Tên' },
+                  { id: 'slug', label: 'Slug' },
                   { id: 'price', label: 'Giá' },
                   { id: 'brand', label: 'Thương hiệu' },
-                  { id: 'stock', label: 'Stock' },
+                  { id: 'averageRating', label: 'Đánh giá' },
+                  { id: 'statusStock', label: 'Trạng thái' },
                   { id: '' },
                 ]}
               />
@@ -170,16 +204,21 @@ export default function ProductsPage() {
                       key={row._id}
                       _id={row._id}
                       name={row.name}
-                      imgURLs={row.imgURLs}
+                      imgURLs={row.thumbnail}
                       price={row.price}
                       brand={row.brand}
-                      stock={row.stock}
-                      selected={selected.indexOf(row.name) !== -1}
-                      handleClick={(event) => handleClick(event, row.name)}
+                      slug={row.slug}
+                      averageRating={row.averageRating}
+                      statusStock={row.statusStock}
+                      selected={selected.indexOf(row._id) !== -1}
+                      handleClick={(event) => handleClick(event, row._id)}
+                      onDelete={() => setConfirm(row._id)}
+                      handleNavigate={() => navigate(row._id)}
                     />
                   ))}
 
                 <TableEmptyRows
+                  col={5}
                   height={77}
                   emptyRows={emptyRows(page, rowsPerPage, productsList.length)}
                 />

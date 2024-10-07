@@ -8,12 +8,13 @@ export const BlogPage = lazy(() => import('src/pages/blog'));
 // user page
 export const UserPage = lazy(() => import('src/pages/user/user'));
 export const CreateUserPage = lazy(() => import('src/pages/user/createUser'));
+export const DetailUserPage = lazy(() => import('src/pages/user/detail'));
 // login page
 export const LoginPage = lazy(() => import('src/pages/login'));
 // product page
 export const ProductsPage = lazy(() => import('src/pages/products/products'));
 export const CreateProductPage = lazy(() => import('src/pages/products/createProduct'));
-
+export const DetailProductPage = lazy(() => import('src/pages/products/detail'));
 export const Page404 = lazy(() => import('src/pages/page-not-found'));
 // category page
 export const CategoryPage = lazy(() => import('src/pages/categories/category'));
@@ -48,8 +49,10 @@ const childRoutes = [
   { element: <IndexPage />, index: true },
   { path: 'user', element: <UserPage /> },
   { path: 'user/create', element: <CreateUserPage /> },
+  { path: 'user/:id', element: <DetailUserPage /> },
   { path: 'products', element: <ProductsPage /> },
   { path: 'products/create', element: <CreateProductPage /> },
+  { path: 'products/:id', element: <DetailProductPage /> },
   { path: 'blog', element: <BlogPage /> },
   { path: 'category', element: <CategoryPage /> },
   { path: 'category/create', element: <CreateCategoryPage /> },
@@ -74,7 +77,7 @@ const childRoutes = [
 ];
 export const routePath = childRoutes
   .filter((item) => !item.path?.includes(':id'))
-  .map((item) => item.path) 
+  .map((item) => item.path)
   .filter(Boolean);
 // Export mảng route
 

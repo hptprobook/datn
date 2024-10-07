@@ -27,6 +27,18 @@ export const create = createAsyncThunk(
   }
 );
 
+export const deleteCoupon = createAsyncThunk(
+  'coupons/deleteCoupon',
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await CouponServices.delete(id);
+      return response;
+    } catch (err) {
+      return rejectWithValue(err.response.data.errors);
+    }
+  }
+);
+
 const initialState = {
   coupons: [],
   delete: null,
@@ -63,6 +75,17 @@ const couponSlice = createSlice({
       })
       .addCase(create.rejected, (state, action) => {
         state.statusCreate = 'failed';
+        state.error = action.payload;
+      })
+      .addCase(deleteCoupon.pending, (state) => {
+        state.statusDelete = 'loading delete';
+      })
+      .addCase(deleteCoupon.fulfilled, (state, action) => {
+        state.statusDelete = 'successful';
+        state.delete = action.payload; // Storing only the categories array
+      })
+      .addCase(deleteCoupon.rejected, (state, action) => {
+        state.statusDelete = 'failed';
         state.error = action.payload;
       })
       .addCase(setStatus, (state, action) => {

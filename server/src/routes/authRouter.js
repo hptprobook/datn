@@ -12,6 +12,6 @@ Router.post('/logout', verifyToken, authController.logout);
 Router.post('/otps', authController.getOtp);
 Router.post('/otps/verify', authController.checkOtp);
 Router.put('/otps/reset-password', authController.changePassWordByOtp);
-Router.post('/refresh-token', authController.refresh_token);
+Router.post('/refresh-token', authController.refreshToken);
 
 export const authApi = Router;
