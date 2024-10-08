@@ -17,4 +17,22 @@
   border-color: rgb(79 70 229);
 }
 
+.thumbnail-wrapper {
+  border: 3px solid transparent;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.3s ease;
+}
+
+.active-thumbnail {
+  border-color: red; /* Change this to your preferred color */
+}
+
+.thumbnail-wrapper img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 /* Other styles from your original CSS */

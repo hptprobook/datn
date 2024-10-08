@@ -5,6 +5,10 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import ImageViewer from 'react-simple-image-viewer';
 import PropTypes from 'prop-types';
 
+// Import Swiper styles
+import 'swiper/css';
+import 'swiper/css/navigation';
+
 const ProductDetailSlider = ({ images, activeIndex }) => {
   const [thumbsSwiper, setThumbsSwiper] = useState(null);
   const [mainSwiper, setMainSwiper] = useState(null);
@@ -17,74 +21,86 @@ const ProductDetailSlider = ({ images, activeIndex }) => {
     }
   }, [activeIndex, mainSwiper]);
 
-  // Function to open image viewer
   const openImageViewer = (index) => {
     setCurrentImageIndex(index);
     setIsViewerOpen(true);
+    window.dispatchEvent(new CustomEvent('previewOpen', { detail: true }));
   };
 
-  // Function to close image viewer
   const closeImageViewer = () => {
     setIsViewerOpen(false);
+    window.dispatchEvent(new CustomEvent('previewOpen', { detail: false }));
   };
 
   return (
-    <div className="slider-box w-full h-[602px] max-lg:mx-auto mx-0 z-10">
-      {/* Swiper chính */}
+    <div className="slider-box w-full h-[720px] max-lg:mx-auto mx-0 z-10 relative">
+      {/* Main Swiper */}
       <Swiper
         onSwiper={setMainSwiper}
         spaceBetween={0}
         loop={false}
         className="nav-for-slider"
         thumbs={{ swiper: thumbsSwiper }}
-        modules={[FreeMode, Navigation, Thumbs]}
+        modules={[FreeMode, Thumbs]}
+        onSlideChange={(swiper) => setCurrentImageIndex(swiper.activeIndex)}
       >
         {images.map((image, index) => (
           <SwiperSlide key={index} className="thumbs-slide">
             <img
               src={image}
               alt={`Product image ${index + 1}`}
-              className="cursor-pointer rounded-md transition-all duration-500"
-              onClick={() => openImageViewer(index)} // Open image viewer on click
+              className="cursor-pointer rounded-md transition-all duration-500 object-cover h-full w-full"
+              onClick={() => openImageViewer(index)} // Keep this for main images
             />
           </SwiperSlide>
         ))}
       </Swiper>
 
-      {/* Swiper cho các ảnh nhỏ dùng để chọn */}
-      <Swiper
-        onSwiper={setThumbsSwiper}
-        loop={false} // Vô hiệu hóa loop để tránh tràn
-        slidesPerView={4}
-        spaceBetween={10}
-        freeMode={true}
-        watchSlidesProgress={true}
-        modules={[FreeMode, Navigation, Thumbs]}
-        className="main-slide-carousel h-auto max-h-[150px] overflow-hidden" // Giới hạn chiều cao
-      >
-        {images.map((image, index) => (
-          <SwiperSlide key={index} className="mt-3">
-            <div className="block">
-              <img
-                src={image}
-                alt={`Product image ${index + 1}`}
-                className="max-lg:mx-auto cursor-pointer rounded-md transition-all duration-500 aspect-square"
-                onClick={() => openImageViewer(index)} // Open image viewer on thumbnail click
-              />
-            </div>
-          </SwiperSlide>
-        ))}
-      </Swiper>
+      {/* Thumbnail Swiper */}
+      <div className="thumbnail-container">
+        <Swiper
+          onSwiper={setThumbsSwiper}
+          loop={false}
+          slidesPerView={4}
+          spaceBetween={10}
+          freeMode={true}
+          watchSlidesProgress={true}
+          modules={[FreeMode, Navigation, Thumbs]}
+          className="main-slide-carousel h-auto max-h-[150px] overflow-hidden"
+          navigation={true}
+        >
+          {images.map((image, index) => (
+            <SwiperSlide key={index} className="mt-3">
+              <div
+                className={`block thumbnail-wrapper ${
+                  index === currentImageIndex ? 'active-thumbnail' : ''
+                }`}
+              >
+                <img
+                  src={image}
+                  alt={`Product image ${index + 1}`}
+                  className="max-lg:mx-auto cursor-pointer rounded-md transition-all duration-500 aspect-square"
+                />
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </div>
 
       {/* Image Viewer */}
       {isViewerOpen && (
-        <ImageViewer
-          src={images}
-          currentIndex={currentImageIndex}
-          disableScroll={true}
-          closeOnClickOutside={true}
-          onClose={closeImageViewer}
-        />
+        <div>
+          <ImageViewer
+            src={images}
+            currentIndex={currentImageIndex}
+            disableScroll={true}
+            closeOnClickOutside={true}
+            onClose={closeImageViewer}
+            backgroundStyle={{
+              zIndex: 10000000,
+            }}
+          />
+        </div>
       )}
     </div>
   );
