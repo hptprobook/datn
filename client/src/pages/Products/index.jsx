@@ -6,7 +6,6 @@ import ProductDetailReview from './components/ProductDetailReview';
 import { useQuery } from '@tanstack/react-query';
 import { getProductBySlug } from '~/APIs';
 import { useState } from 'react';
-import MainLoading from '~/components/common/Loading/MainLoading';
 
 const ProductPage = () => {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -17,7 +16,7 @@ const ProductPage = () => {
     queryFn: () => getProductBySlug(slug),
   });
 
-  if (isLoading || !data) return <MainLoading />;
+  if (isLoading || !data) return null;
 
   const productInfo = data && data;
 

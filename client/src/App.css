@@ -43,10 +43,29 @@
 }
 
 .swiper-pagination-bullet-active {
-  background: red !important;
+  background: rgb(250, 171, 0) !important;
 }
 
 .swiper-button-next,
 .swiper-button-prev {
-  color: red !important;
+  color: rgb(250, 171, 0) !important;
+}
+
+@keyframes twinkle {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7);
+  }
+  70% {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 10px rgba(255, 0, 0, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 0, 0, 0);
+  }
+}
+
+.animate-twinkle {
+  animation: twinkle 0.3s ease-in-out;
 }

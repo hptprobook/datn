@@ -799,6 +799,52 @@ const getProductByEvent = async (req, res) => {
   }
 };
 
+const getProductsBySlugAndPriceRange = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const { minPrice, maxPrice, pages, limit, colors, sizes, ...sortCriteria } =
+      req.query;
+
+    const parsedColors = colors ? colors.split(',') : [];
+    const parsedSizes = sizes ? sizes.split(',') : [];
+
+    const products = await productModel.getProductsBySlugAndPriceRange(
+      slug,
+      parseFloat(minPrice),
+      parseFloat(maxPrice),
+      parseInt(pages) || 1,
+      parseInt(limit) || 20,
+      sortCriteria,
+      parsedColors,
+      parsedSizes
+    );
+
+    if (!products || products.length === 0) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: 'Không tìm thấy sản phẩm!' });
+    }
+
+    return res.status(StatusCodes.OK).json(products);
+  } catch (error) {
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
+  }
+};
+
+const getMinMaxPrices = async (req, res) => {
+  try {
+    const priceRange = await productModel.getMinMaxProductPrices();
+    return res.status(StatusCodes.OK).json(priceRange);
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: 'Có lỗi xảy ra khi lấy giá sản phẩm',
+      error: error.message,
+    });
+  }
+};
+
 export const productController = {
   createProduct,
   getAllProducts,
@@ -823,4 +869,6 @@ export const productController = {
   getAllProductsSpecial,
   getProductByCategoryFilter,
   getProductByEvent,
+  getProductsBySlugAndPriceRange,
+  getMinMaxPrices,
 };

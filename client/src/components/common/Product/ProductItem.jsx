@@ -5,6 +5,13 @@ import { NavLink } from 'react-router-dom';
 const ProductItem = ({ product, height = false }) => {
   if (!product) return null;
 
+  const thumbnailUrl =
+    product.thumbnail.startsWith('https://') ||
+    product.thumbnail.startsWith('http://') ||
+    product.thumbnail.startsWith('//')
+      ? product.thumbnail
+      : `${import.meta.env.VITE_SERVER_URL}/${product.thumbnail}`;
+
   return (
     <div className="h-productItem rounded-md">
       <NavLink to={`/san-pham/${product?.slug}`}>
@@ -15,7 +22,7 @@ const ProductItem = ({ product, height = false }) => {
             ))}
           </div>
           <img
-            src={product?.thumbnail}
+            src={thumbnailUrl}
             alt=""
             className="w-full h-full object-cover rounded-md"
           />
@@ -23,7 +30,7 @@ const ProductItem = ({ product, height = false }) => {
       </NavLink>
       <NavLink to={`/san-pham/${product?.slug}`}>
         <div
-          className="mt-3 text-clamp-2 hover:text-red-500"
+          className="mt-3 text-clamp-2 hover:text-red-500 h-12 overflow-hidden"
           title={product?.name}
         >
           {product?.name}

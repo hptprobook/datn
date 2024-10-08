@@ -1,53 +1,154 @@
 import { Icon } from '@iconify/react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getProductsByCatSlug } from '~/APIs';
+import { getProductsByCatSlug, sortProductsByCatSlug } from '~/APIs';
 import ProductItem from '~/components/common/Product/ProductItem';
 import PropTypes from 'prop-types';
+import debounce from 'lodash/debounce';
+import { useNavigate, useParams } from 'react-router-dom';
 
-const CategoryContent = ({ catData }) => {
+const CategoryContent = ({ catData, filteredProductsData }) => {
+  console.log('filteredProductsData in category content', filteredProductsData);
   const [limit, setLimit] = useState(20);
   const [hasMore, setHasMore] = useState(true);
+  const [key, setKey] = useState('');
+  const [value, setValue] = useState('');
+  const [sortOption, setSortOption] = useState('');
 
-  const { data, isFetching } = useQuery({
+  const navigate = useNavigate();
+  const { slug, sort } = useParams();
+
+  const { data: productsData, isFetching: isProductsFetching } = useQuery({
     queryKey: ['getProductsByCategorySlug', catData.slug, limit],
     queryFn: () => getProductsByCatSlug(catData.slug, limit),
     keepPreviousData: true,
+    staleTime: 5 * 60 * 1000,
   });
 
-  const products = data || [];
+  const {
+    data: sortProductsData,
+    isFetching: isSortProductsFetching,
+    refetch: refetchSortedProducts,
+  } = useQuery({
+    queryKey: ['sortProductsByCatSlug', catData.slug, limit, key, value],
+    queryFn: () =>
+      sortProductsByCatSlug({ slug: catData.slug, limit, key, value }),
+    enabled: !!key && !!value && sortOption !== '',
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const products = sortOption ? sortProductsData?.products : productsData || [];
 
   useEffect(() => {
-    if (products.length < limit) {
+    if (products?.length < limit) {
       setHasMore(false);
     } else {
       setHasMore(true);
     }
-  }, [products.length, limit]);
+  }, [products?.length, limit]);
+
+  const debouncedRefetch = useCallback(
+    () =>
+      debounce(() => {
+        refetchSortedProducts();
+      }, 300),
+    [refetchSortedProducts]
+  );
+
+  useEffect(() => {
+    if (key && value) {
+      debouncedRefetch();
+    }
+  }, [key, value, debouncedRefetch]);
+
+  useEffect(() => {
+    if (sort) {
+      setSortOption(sort);
+      const [newKey, newValue] = sort.split('-');
+      setKey(newKey);
+      setValue(newValue);
+    }
+  }, [sort]);
+
+  if (isProductsFetching || isSortProductsFetching) return null;
 
   const handleLoadMore = () => {
     setLimit((prevLimit) => prevLimit + 20);
+    if (sortOption) {
+      refetchSortedProducts();
+    }
+  };
+
+  const handleSortChange = (e) => {
+    const selectedValue = e.target.value;
+    setSortOption(selectedValue);
+
+    let newKey, newValue;
+
+    switch (selectedValue) {
+      case 'alphabet-az':
+        newKey = 'alphabet';
+        newValue = 'az';
+        break;
+      case 'alphabet-za':
+        newKey = 'alphabet';
+        newValue = 'za';
+        break;
+      case 'price-asc':
+        newKey = 'price';
+        newValue = 'asc';
+        break;
+      case 'price-desc':
+        newKey = 'price';
+        newValue = 'desc';
+        break;
+      case 'createdAt-newest':
+        newKey = 'createdAt';
+        newValue = 'newest';
+        break;
+      case 'createdAt-oldest':
+        newKey = 'createdAt';
+        newValue = 'oldest';
+        break;
+      default:
+        newKey = '';
+        newValue = '';
+    }
+
+    setKey(newKey);
+    setValue(newValue);
+
+    // Update the URL
+    if (selectedValue) {
+      navigate(`/danh-muc-san-pham/${slug}/${selectedValue}`);
+    } else {
+      navigate(`/danh-muc-san-pham/${slug}`);
+    }
   };
 
   return (
     <div className="text-black">
-      <h2 className="text-2xl font-bold mb-4">{catData.name} w0wStore</h2>
+      <h2 className="text-2xl font-bold mb-4">{catData.name} - BMT Life</h2>
       <div className="divider"></div>
 
       {/* Sorting Form */}
-      <div className="mb-8">
+      <div className="mb-8 sticky top-0 bg-white z-10 py-4">
         <form className="flex space-x-4 items-center">
           <label htmlFor="sort" className="text-sm font-medium text-gray-700">
             Sắp xếp theo:
           </label>
-          <select className="select select-bordered w-full max-w-xs select-sm bg-white text-black">
-            <option defaultValue>Mặc định</option>
-            <option>Mới nhất</option>
-            <option>Phổ biến</option>
-            <option>Tên (từ A - Z )</option>
-            <option>Tên (từ Z - A )</option>
-            <option>Giá (từ cao - thấp )</option>
-            <option>Giá (từ thấp - cao )</option>
+          <select
+            className="select select-bordered w-full max-w-xs select-sm bg-white text-black"
+            onChange={handleSortChange}
+            value={sortOption}
+          >
+            <option value="">Mặc định</option>
+            <option value="createdAt-newest">Mới nhất</option>
+            <option value="createdAt-oldest">Cũ nhất</option>
+            <option value="alphabet-az">Tên (từ A - Z )</option>
+            <option value="alphabet-za">Tên (từ Z - A )</option>
+            <option value="price-asc">Giá (từ thấp - cao )</option>
+            <option value="price-desc">Giá (từ cao - thấp )</option>
           </select>
         </form>
       </div>
@@ -67,10 +168,14 @@ const CategoryContent = ({ catData }) => {
           <button
             className="btn btn-error bg-red-600"
             onClick={handleLoadMore}
-            disabled={isFetching}
+            disabled={isProductsFetching || isSortProductsFetching}
           >
-            {isFetching ? 'Đang tải...' : 'Xem thêm'}
-            {!isFetching && <Icon icon="mdi:arrow-right" className="ml-2" />}
+            {isProductsFetching || isSortProductsFetching
+              ? 'Đang tải...'
+              : 'Xem thêm'}
+            {!isProductsFetching && !isSortProductsFetching && (
+              <Icon icon="mdi:arrow-right" className="ml-2" />
+            )}
           </button>
         )}
       </div>
@@ -80,6 +185,7 @@ const CategoryContent = ({ catData }) => {
 
 CategoryContent.propTypes = {
   catData: PropTypes.object,
+  filteredProductsData: PropTypes.array,
 };
 
 export default CategoryContent;

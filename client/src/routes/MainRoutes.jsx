@@ -28,6 +28,14 @@ const MainRoutes = {
           path: ':slug',
           element: <CategoryPage />,
         },
+        {
+          path: ':slug/:sort',
+          element: <CategoryPage />,
+        },
+        {
+          path: ':slug/filter',
+          element: <CategoryPage />,
+        },
       ],
     },
     {
