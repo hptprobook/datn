@@ -60,7 +60,7 @@ const create = async (data) => {
   const result = await collection.insertOne({
     ...validData,
   });
-  if (!result || !result.insertedId) {
+  if (!result) {
     throw new Error('Không thể thêm thương hiệu, xin thử lại sau');
   }
   return {

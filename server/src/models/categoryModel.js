@@ -78,7 +78,7 @@ const createCategory = async (dataCategory) => {
       : validData.parentId,
   });
   if (!result) {
-    throw new Error('Có lỗi xảy ra, xin thử lại sau');
+    throw new Error('Không thể thêm danh mục, xin thử lại sau');
   }
   return {
     _id: result.insertedId,

@@ -27,24 +27,19 @@ const createBrand = async (req, res) => {
       });
     }
     const result = await brandModel.create(data);
-
-    if (!result) {
-      uploadModel.deleteImg(filePath);
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        message: 'Có lỗi xảy ra, xin thử lại sau',
-      });
-    }
     return res.status(StatusCodes.OK).json(result);
   } catch (error) {
-    const file = req.file;
-    if (file) {
-      const fileName = file.filename;
-      const filePath = path.join('uploads/brands', fileName);
-      await uploadModel.deleteImg(filePath);
+    if (req.file) {
+      uploadModel.deleteImg(req.file.path);
     }
-    return res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ message: error.message });
+    if (error.details) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: error.details[0].message,
+      });
+    }
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: 'Có lỗi xảy ra xin thử lại sau',
+    });
   }
 };
 
@@ -135,13 +130,15 @@ const update = async (req, res) => {
     return res.status(StatusCodes.OK).json(dataBrand.data);
   } catch (error) {
     if (req.file) {
-      const file = req.file;
-      const fileName = file.filename;
-      const filePath = path.join('uploads/brands', fileName);
-      uploadModel.deleteImg(filePath);
+      uploadModel.deleteImg(req.file.path);
+    }
+    if (error.details) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: error.details[0].message,
+      });
     }
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: error.message,
+      message: 'Có lỗi xảy ra xin thử lại sau',
     });
   }
 };
