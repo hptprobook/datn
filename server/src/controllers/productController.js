@@ -217,8 +217,10 @@ const createProduct = async (req, res) => {
         message: ERROR_MESSAGES.REQUIRED,
       });
     }
+
     const newTags = JSON.parse(tags);
     const newProductType = JSON.parse(productType);
+
     const parsedVars = JSON.parse(variants);
     imageVariantsC.forEach((file, index) => {
       parsedVars[index].image = file;
@@ -336,8 +338,16 @@ const updateProduct = async (req, res) => {
         }
       });
     }
-
-    if (
+    if (thumbnail) {
+      await uploadModel.deleteImg(product.thumbnail);
+    }
+    if (imagesProduct && imagesProduct.length > 0) {
+      await uploadModel.deleteImgs(imagesProduct);
+    }
+    if (imageVariantsC && imageVariantsC.length > 0) {
+      await uploadModel.deleteImgs(imageVariantsC);
+    }
+    /*   if (
       !name ||
       !description ||
       !cat_id ||
@@ -350,19 +360,11 @@ const updateProduct = async (req, res) => {
       !slug ||
       !variants
     ) {
-      if (thumbnail) {
-        await uploadModel.deleteImg(product.thumbnail);
-      }
-      if (imagesProduct && imagesProduct.length > 0) {
-        await uploadModel.deleteImgs(imagesProduct);
-      }
-      if (imageVariantsC && imageVariantsC.length > 0) {
-        await uploadModel.deleteImgs(imageVariantsC);
-      }
+    
       return res.status(StatusCodes.BAD_REQUEST).json({
         message: ERROR_MESSAGES.REQUIRED,
       });
-    }
+    } */
 
     const product = await productModel.getProductById(id);
 
@@ -505,7 +507,8 @@ const updateProduct = async (req, res) => {
       });
     }
   } catch (error) {
-    if (req.files) {
+    /*   if (req.files) {
+      
       const thumbnail = path.join(
         'uploads/products',
         req.files['thumbnail'][0].filename
@@ -529,7 +532,7 @@ const updateProduct = async (req, res) => {
       uploadModel.deleteImg(thumbnail);
       uploadModel.deleteImgs(imagesProduct);
       uploadModel.deleteImgs(imageVariantsC);
-    }
+    } */
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ message: error.message });
