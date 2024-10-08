@@ -37,10 +37,14 @@ import { fetchAll } from 'src/redux/slices/brandSlices';
 import PropTypes from 'prop-types';
 import Iconify from 'src/components/iconify/iconify';
 import { handleToast } from 'src/hooks/toast';
-import { setStatus, createProduct } from 'src/redux/slices/productSlice';
+import { setStatus, fetchProductById, updateProduct } from 'src/redux/slices/productSlice';
 import LoadingFull from 'src/components/loading/loading-full';
+import { useParams } from 'react-router-dom';
+import { isValidObjectId } from 'src/utils/check';
+import { useRouter } from 'src/routes/hooks';
+import MultiImageDropZone from 'src/components/drop-zone-upload/upload-imgs';
 import { AutoSelect } from '../auto-select';
-import CreateVariant from '../variant';
+import AdvancedVariant from '../variant-advanced';
 
 // ----------------------------------------------------------------------
 const productSchema = Yup.object().shape({
@@ -66,8 +70,22 @@ const productSchema = Yup.object().shape({
 });
 
 export default function DetailProductPage() {
+  const { id } = useParams();
+  const route = useRouter();
+  useEffect(() => {
+    if (id) {
+      if (isValidObjectId(id)) {
+        dispatch(fetchProductById({ id }));
+      } else {
+        handleToast('error', 'Id không hợp lệ');
+        route.push('/products');
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
   const [thumbnail, setThumbnail] = useState(null);
   const [images, setImages] = useState([]);
+  const [logError, setLogError] = useState('');
   const [errorThumbnail, setErrorThumbnail] = useState(null);
   const [errorImgs, setErrorImgs] = useState(null);
   const [categories, setCategories] = useState([]);
@@ -77,13 +95,15 @@ export default function DetailProductPage() {
   const [brands, setBrands] = useState([]);
   const [dataTags, setDataTags] = useState([]);
   const dispatch = useDispatch();
-  const [variants, setVariants] = useState(null);
+  const [variants, setVariants] = useState([]);
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
 
   const status = useSelector((state) => state.products.statusCreate);
   const error = useSelector((state) => state.products.error);
+  const product = useSelector((state) => state.products.product);
+  const statusGet = useSelector((state) => state.products.statusGet);
 
   const handleKeyDown = (event) => {
     if (event.key === 'Enter' && inputValue.trim()) {
@@ -91,47 +111,50 @@ export default function DetailProductPage() {
       setInputValue('');
     }
   };
-
+  useEffect(() => {
+    if (statusGet === 'failed') {
+      handleToast('error', error.message);
+    }
+    if (statusGet === 'successful') {
+      setVariants(product?.variants);
+    }
+  }, [statusGet, product, error]);
   const handleDelete = (tagToDelete) => {
     setTags(tags.filter((tag) => tag !== tagToDelete));
   };
-
   const formik = useFormik({
     initialValues: {
-      name: '',
-      description: '',
-      brand: '',
-      cat_id: '',
-      content: '',
-      slug: '',
-      productType: ['Nam'],
-      price: 0,
-      statusStock: 'stock',
-      tags: [],
-      status: true,
-      height: 1,
-      weight: 1,
+      name: product?.name || '',
+      description: product?.description || '',
+      brand: product?.brand || '',
+      cat_id: product?.cat_id || '',
+      content: product?.content || '',
+      slug: product?.slug || '',
+      productType: product?.productType || [],
+      price: product?.price || '',
+      statusStock: product?.statusStock || 'stock',
+      tags: product?.tags || [],
+      status: product?.status || true,
+      height: product?.height || 1,
+      weight: product?.weight || 1,
       variants: [],
     },
+    enableReinitialize: true,
     validationSchema: productSchema,
     onSubmit: (values) => {
-      if (thumbnail === null) {
-        setErrorThumbnail('Vui lòng chọn ảnh đại diện');
+      if (logError !== '') {
+        handleToast('error', logError);
         return;
       }
-      if (images === null) {
-        setErrorImgs('Vui lòng chọn ảnh sản phẩm');
-        return;
+      if (thumbnail !== null) {
+        values.thumbnail = thumbnail;
       }
-      if (variants === null) {
-        handleToast('error', 'Vui lòng thêm biến thể sản phẩm');
-        return;
+      if (images.length > 0) {
+        values.images = images;
       }
       values.variants = variants;
-      values.thumbnail = thumbnail;
-      values.images = images;
-      values.tags = tags;
-      dispatch(createProduct({ data: values }));
+      console.log(values);
+      // dispatch(updateProduct({ id, data: values }));
     },
   });
   useEffect(() => {
@@ -183,28 +206,24 @@ export default function DetailProductPage() {
   const handleCreateVariant = (values) => {
     if (values.length > 0) {
       setVariants(values);
+      setLogError('');
     } else {
-      setVariants(null);
+      setLogError('Vui lòng thêm biến thể sản phẩm');
+      handleToast('error', 'Vui lòng thêm biến thể sản phẩm');
     }
   };
   useEffect(() => {
     if (status === 'failed') {
       handleToast('error', error.message);
     }
-    if (status === 'successful') {
-      handleToast('success', 'Tạo sản phẩm thành công');
-      formik.resetForm();
-      setTags([]);
-      setImages([]);
-      setThumbnail(null);
-      setVariants(null);
-    }
+
     dispatch(setStatus({ key: 'statusCreate', value: 'idle' }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, error, dispatch]);
   return (
     <Container>
       {status === 'loading' && <LoadingFull />}
+
       <SpeedDial
         ariaLabel="Lưu sản phẩm"
         sx={{ position: 'fixed', bottom: 16, right: 16 }}
@@ -212,160 +231,210 @@ export default function DetailProductPage() {
         icon={<Iconify icon="eva:save-fill" />}
       />
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Tạo một sản phẩm mới</Typography>
+        <Typography variant="h4">Chi tiết sản phẩm</Typography>
       </Stack>
-      <form onSubmit={formik.handleSubmit}>
-        <Grid2 container spacing={3}>
-          <Grid2 xs={8}>
-            <Stack spacing={3}>
-              <Card
-                sx={{
-                  padding: 3,
-                }}
-              >
-                <Typography variant="h6" sx={{ mb: 3 }}>
-                  Thông tin cơ bản
-                </Typography>
-                <Grid2 container spacing={3}>
-                  <Grid2 xs={12}>
-                    <TextField
-                      fullWidth
-                      label="Tên sản phẩm"
-                      variant="outlined"
-                      name="name"
-                      value={formik.values.name}
-                      onChange={(e) => handleCreateSlug(e)}
-                      error={formik.touched.name && Boolean(formik.errors.name)}
-                      helperText={formik.touched.name && formik.errors.name}
-                    />
-                  </Grid2>
-                  <Grid2 xs={12}>
-                    <TextField
-                      fullWidth
-                      label="Slug"
-                      variant="outlined"
-                      name="slug"
-                      value={formik.values.slug}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      error={formik.touched.slug && Boolean(formik.errors.slug)}
-                      helperText={formik.touched.slug && formik.errors.slug}
-                    />
-                  </Grid2>
-                </Grid2>
-              </Card>
-
-              <Card
-                sx={{
-                  padding: 3,
-                }}
-              >
-                <CreateVariant onUpdate={handleCreateVariant} />
-              </Card>
-              <Card sx={{ flexGrow: 1, bgcolor: 'background.paper', display: 'flex', padding: 3 }}>
-                <Tabs
-                  orientation="vertical"
-                  variant="scrollable"
-                  value={value}
-                  onChange={handleChange}
-                  aria-label="Vertical tabs example"
-                  sx={{ borderRight: 1, borderColor: 'divider' }}
+      {statusGet === 'loading' ? (
+        <LoadingFull />
+      ) : (
+        <form onSubmit={formik.handleSubmit}>
+          <Grid2 container spacing={3}>
+            <Grid2 xs={8}>
+              <Stack spacing={3}>
+                <Card
+                  sx={{
+                    padding: 3,
+                  }}
                 >
-                  <Tab label="Giá" {...a11yProps(0)} />
-                  <Tab label="Kích thước" {...a11yProps(1)} />
-                  <Tab label="SEO" {...a11yProps(2)} />
-                </Tabs>
-                <TabPanel value={value} index={0}>
-                  <Stack spacing={3} sx={{ width: '100%' }}>
-                    <FormControl variant="outlined">
-                      <InputLabel htmlFor="outlined-adornment-money">Giá</InputLabel>
-                      <OutlinedInput
-                        id="outlined-adornment-money"
-                        type="text"
-                        name="price"
-                        value={formik.values.price}
+                  <Typography variant="h6" sx={{ mb: 3 }}>
+                    Thông tin cơ bản
+                  </Typography>
+                  <Grid2 container spacing={3}>
+                    <Grid2 xs={12}>
+                      <TextField
+                        fullWidth
+                        label="Tên sản phẩm"
+                        variant="outlined"
+                        name="name"
+                        value={formik.values.name}
+                        onChange={(e) => handleCreateSlug(e)}
+                        error={formik.touched.name && Boolean(formik.errors.name)}
+                        helperText={formik.touched.name && formik.errors.name}
+                      />
+                    </Grid2>
+                    <Grid2 xs={12}>
+                      <TextField
+                        fullWidth
+                        label="Slug"
+                        variant="outlined"
+                        name="slug"
+                        value={formik.values.slug}
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
-                        endAdornment={<InputAdornment position="end">vnđ</InputAdornment>}
-                        label="Giá"
+                        error={formik.touched.slug && Boolean(formik.errors.slug)}
+                        helperText={formik.touched.slug && formik.errors.slug}
                       />
-                      <FormHelperText>
-                        {formik.touched.price && formik.errors.price ? formik.errors.price : ''}
-                      </FormHelperText>
-                    </FormControl>
-                    <FormControl fullWidth>
-                      <InputLabel id="statusStock-select-label">Trạng thái sản phẩm</InputLabel>
-                      <Select
-                        labelId="statusStock-select-label"
-                        id="statusStock-select"
-                        name="statusStock"
-                        value={formik.values.statusStock}
-                        label="Trạng thái sản phẩm"
-                        onChange={formik.handleChange}
-                      >
-                        <MenuItem value="stock">Còn hàng</MenuItem>
-                        <MenuItem value="outStock">Hết hàng</MenuItem>
-                        <MenuItem value="preOrder">Đang nhập hàng</MenuItem>
-                      </Select>
-                    </FormControl>
-                    <Box>
-                      <FormControl component="fieldset" variant="standard">
-                        <FormLabel component="legend">Trạng thái</FormLabel>
-                        <FormControlLabel
-                          control={
-                            <Switch
-                              onChange={formik.handleChange}
-                              name="status"
-                              value={formik.values.status}
-                              checked={formik.values.status}
-                            />
-                          }
-                          label={formik.values.status ? 'Hiện' : 'Ẩn'}
+                    </Grid2>
+                  </Grid2>
+                </Card>
+
+                <Card
+                  sx={{
+                    padding: 3,
+                  }}
+                >
+                  <AdvancedVariant onUpdate={handleCreateVariant} defaultVariants={variants} />
+                </Card>
+                <Card
+                  sx={{ flexGrow: 1, bgcolor: 'background.paper', display: 'flex', padding: 3 }}
+                >
+                  <Tabs
+                    orientation="vertical"
+                    variant="scrollable"
+                    value={value}
+                    onChange={handleChange}
+                    aria-label="Vertical tabs example"
+                    sx={{ borderRight: 1, borderColor: 'divider' }}
+                  >
+                    <Tab label="Giá" {...a11yProps(0)} />
+                    <Tab label="Kích thước" {...a11yProps(1)} />
+                    <Tab label="SEO" {...a11yProps(2)} />
+                  </Tabs>
+                  <TabPanel value={value} index={0}>
+                    <Stack spacing={3} sx={{ width: '100%' }}>
+                      <FormControl variant="outlined">
+                        <InputLabel htmlFor="outlined-adornment-money">Giá</InputLabel>
+                        <OutlinedInput
+                          id="outlined-adornment-money"
+                          type="text"
+                          name="price"
+                          value={formik.values.price}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}za
+                          endAdornment={<InputAdornment position="end">vnđ</InputAdornment>}
+                          label="Giá"
                         />
+                        <FormHelperText>
+                          {formik.touched.price && formik.errors.price ? formik.errors.price : ''}
+                        </FormHelperText>
                       </FormControl>
-                    </Box>
-                  </Stack>
-                </TabPanel>
-                <TabPanel value={value} index={1}>
+                      <FormControl fullWidth>
+                        <InputLabel id="statusStock-select-label">Trạng thái sản phẩm</InputLabel>
+                        <Select
+                          labelId="statusStock-select-label"
+                          id="statusStock-select"
+                          name="statusStock"
+                          value={formik.values.statusStock}
+                          label="Trạng thái sản phẩm"
+                          onChange={formik.handleChange}
+                        >
+                          <MenuItem value="stock">Còn hàng</MenuItem>
+                          <MenuItem value="outStock">Hết hàng</MenuItem>
+                          <MenuItem value="preOrder">Đang nhập hàng</MenuItem>
+                        </Select>
+                      </FormControl>
+                      <Box>
+                        <FormControl component="fieldset" variant="standard">
+                          <FormLabel component="legend">Trạng thái</FormLabel>
+                          <FormControlLabel
+                            control={
+                              <Switch
+                                onChange={formik.handleChange}
+                                name="status"
+                                value={formik.values.status}
+                                checked={formik.values.status}
+                              />
+                            }
+                            label={formik.values.status ? 'Hiện' : 'Ẩn'}
+                          />
+                        </FormControl>
+                      </Box>
+                    </Stack>
+                  </TabPanel>
+                  <TabPanel value={value} index={1}>
+                    <Stack spacing={3}>
+                      <FormControl variant="outlined">
+                        <InputLabel htmlFor="outlined-adornment-height">Chiều dài</InputLabel>
+                        <OutlinedInput
+                          id="outlined-adornment-height"
+                          type="text"
+                          name="height"
+                          value={formik.values.height}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          endAdornment={<InputAdornment position="end">cm</InputAdornment>}
+                          label="Chiều dài"
+                        />
+                        <FormHelperText>
+                          {formik.touched.height && formik.errors.height
+                            ? formik.errors.height
+                            : ''}
+                        </FormHelperText>
+                      </FormControl>
+                      <FormControl variant="outlined">
+                        <InputLabel htmlFor="outlined-adornment-weight">Cân nặng</InputLabel>
+                        <OutlinedInput
+                          id="outlined-adornment-weight"
+                          type="text"
+                          name="weight"
+                          value={formik.values.weight}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          endAdornment={<InputAdornment position="end">g</InputAdornment>}
+                          label="Cân nặng"
+                        />
+                        <FormHelperText>
+                          {formik.touched.weight && formik.errors.weight
+                            ? formik.errors.weight
+                            : ''}
+                        </FormHelperText>
+                      </FormControl>
+                    </Stack>
+                  </TabPanel>
+                  <TabPanel value={value} index={2}>
+                    Đang cập nhật
+                  </TabPanel>
+                </Card>
+                <Card
+                  sx={{
+                    padding: 3,
+                  }}
+                >
                   <Stack spacing={3}>
-                    <FormControl variant="outlined">
-                      <InputLabel htmlFor="outlined-adornment-height">Chiều dài</InputLabel>
-                      <OutlinedInput
-                        id="outlined-adornment-height"
-                        type="text"
-                        name="height"
-                        value={formik.values.height}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        endAdornment={<InputAdornment position="end">cm</InputAdornment>}
-                        label="Chiều dài"
-                      />
-                      <FormHelperText>
-                        {formik.touched.height && formik.errors.height ? formik.errors.height : ''}
-                      </FormHelperText>
-                    </FormControl>
-                    <FormControl variant="outlined">
-                      <InputLabel htmlFor="outlined-adornment-weight">Cân nặng</InputLabel>
-                      <OutlinedInput
-                        id="outlined-adornment-weight"
-                        type="text"
-                        name="weight"
-                        value={formik.values.weight}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        endAdornment={<InputAdornment position="end">g</InputAdornment>}
-                        label="Cân nặng"
-                      />
-                      <FormHelperText>
-                        {formik.touched.weight && formik.errors.weight ? formik.errors.weight : ''}
-                      </FormHelperText>
-                    </FormControl>
+                    <Typography variant="h6" sx={{ mb: 3 }}>
+                      Mô tả sản phẩm
+                    </Typography>
+                    <TinyEditor
+                      error={formik.touched.description && Boolean(formik.errors.description)}
+                      initialValue={product?.description}
+                      onChange={(text) => formik.setFieldValue('description', text)}
+                    />
+                    <FormHelperText sx={{ color: 'red' }}>
+                      {formik.touched.description && formik.errors.description
+                        ? formik.errors.description
+                        : ''}
+                    </FormHelperText>
+                    <Typography variant="h6" sx={{ mb: 3 }}>
+                      Mô tả ngắn sản phẩm
+                    </Typography>
+                    <TinyEditor
+                      error={formik.touched.content && Boolean(formik.errors.content)}
+                      initialValue={product?.content}
+                      onChange={(content) => formik.setFieldValue('content', content)}
+                      height={200}
+                    />
+                    <FormHelperText sx={{ color: 'red' }}>
+                      {formik.touched.content && formik.errors.content ? formik.errors.content : ''}
+                    </FormHelperText>
                   </Stack>
-                </TabPanel>
-                <TabPanel value={value} index={2}>
-                  Đang cập nhật
-                </TabPanel>
-              </Card>
+                  <Stack spacing={3} direction="row" mt={2} justifyContent="flex-end">
+                    <Button type="submit" variant="contained" color="inherit">
+                      Lưu
+                    </Button>
+                  </Stack>
+                </Card>
+              </Stack>
+            </Grid2>
+            <Grid2 xs={4}>
               <Card
                 sx={{
                   padding: 3,
@@ -373,145 +442,106 @@ export default function DetailProductPage() {
               >
                 <Stack spacing={3}>
                   <Typography variant="h6" sx={{ mb: 3 }}>
-                    Mô tả sản phẩm
+                    Hình ảnh đại diện sản phẩm
                   </Typography>
-                  <TinyEditor
-                    error={formik.touched.description && Boolean(formik.errors.description)}
-                    initialValue="Đây là nội dung mô tả của sản phẩm"
-                    onChange={(text) => formik.setFieldValue('description', text)}
+                  <ImageDropZone
+                    error={errorThumbnail}
+                    singleFile
+                    defaultImg={product?.thumbnail}
+                    handleUpload={handleChangeUploadThumbnail}
+                  />
+                  <Typography variant="h6" sx={{ mb: 3 }}>
+                    Hình ảnh sản phẩm
+                  </Typography>
+                  <MultiImageDropZone
+                    defaultImgs={product?.images}
+                    error={errorImgs}
+                    handleUpload={handleChangeUploadImgs}
+                  />
+                  <FormControl fullWidth>
+                    <InputLabel id="category-select-label">Danh mục</InputLabel>
+                    <Select
+                      labelId="category-select-label"
+                      id="category-select"
+                      value={formik.values.cat_id}
+                      label="Danh mục"
+                      name="cat_id"
+                      onChange={formik.handleChange}
+                      error={formik.touched.cat_id && Boolean(formik.errors.cat_id)}
+                    >
+                      {categories.map((category) => (
+                        <MenuItem key={category._id} value={category._id}>
+                          {category.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    <FormHelperText
+                      sx={{
+                        color: formik.touched.cat_id && formik.errors.cat_id ? 'red' : 'inherit',
+                      }}
+                    >
+                      {formik.touched.cat_id && formik.errors.cat_id ? formik.errors.cat_id : ''}
+                    </FormHelperText>
+                  </FormControl>
+                  <FormControl fullWidth>
+                    <InputLabel id="category-select-label">Nhãn hàng</InputLabel>
+                    <Select
+                      labelId="category-select-label"
+                      id="category-select"
+                      value={formik.values.brand}
+                      label="Nhãn hàng"
+                      name="brand"
+                      onChange={formik.handleChange}
+                      error={formik.touched.brand && Boolean(formik.errors.brand)}
+                    >
+                      {brands.map((brand) => (
+                        <MenuItem key={brand._id} value={brand._id}>
+                          {brand.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    <FormHelperText sx={{ color: 'red' }}>
+                      {formik.touched.brand && formik.errors.brand ? formik.errors.brand : ''}
+                    </FormHelperText>
+                  </FormControl>
+                  <AutoSelect
+                    value={formik.values.productType}
+                    setValue={(select) => formik.setFieldValue('productType', select)}
+                    data={dataTags}
+                    label="Loại sản phẩm"
+                    error={formik.touched.productType && Boolean(formik.errors.productType)}
                   />
                   <FormHelperText sx={{ color: 'red' }}>
-                    {formik.touched.description && formik.errors.description
-                      ? formik.errors.description
+                    {formik.touched.productType && formik.errors.productType
+                      ? formik.errors.productType
                       : ''}
                   </FormHelperText>
-                  <Typography variant="h6" sx={{ mb: 3 }}>
-                    Mô tả ngắn sản phẩm
-                  </Typography>
-                  <TinyEditor
-                    error={formik.touched.content && Boolean(formik.errors.content)}
-                    initialValue="Đây là mô tả ngắn của sản phẩm"
-                    onChange={(content) => formik.setFieldValue('content', content)}
-                    height={200}
-                  />
-                  <FormHelperText sx={{ color: 'red' }}>
-                    {formik.touched.content && formik.errors.content ? formik.errors.content : ''}
-                  </FormHelperText>
-                </Stack>
-                <Stack spacing={3} direction="row" mt={2} justifyContent="flex-end">
-                  <Button type="submit" variant="contained" color="inherit">
-                    Lưu
-                  </Button>
+                  <Box>
+                    <TextField
+                      label="Nhập nhãn sản phẩm"
+                      variant="outlined"
+                      value={inputValue}
+                      onChange={(e) => setInputValue(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      fullWidth
+                    />
+                    <Box mt={2}>
+                      {tags.map((tag, index) => (
+                        <Chip
+                          key={index}
+                          label={tag}
+                          onDelete={() => handleDelete(tag)}
+                          style={{ marginRight: 5, marginBottom: 5 }}
+                        />
+                      ))}
+                    </Box>
+                  </Box>
                 </Stack>
               </Card>
-            </Stack>
+            </Grid2>
           </Grid2>
-          <Grid2 xs={4}>
-            <Card
-              sx={{
-                padding: 3,
-              }}
-            >
-              <Stack spacing={3}>
-                <Typography variant="h6" sx={{ mb: 3 }}>
-                  Hình ảnh đại diện sản phẩm
-                </Typography>
-                <ImageDropZone
-                  error={errorThumbnail}
-                  singleFile
-                  handleUpload={handleChangeUploadThumbnail}
-                />
-                <Typography variant="h6" sx={{ mb: 3 }}>
-                  Hình ảnh sản phẩm
-                </Typography>
-                <ImageDropZone
-                  error={errorImgs}
-                  singleFile={false}
-                  handleUpload={handleChangeUploadImgs}
-                />
-                <FormControl fullWidth>
-                  <InputLabel id="category-select-label">Danh mục</InputLabel>
-                  <Select
-                    labelId="category-select-label"
-                    id="category-select"
-                    value={formik.values.cat_id}
-                    label="Danh mục"
-                    name="cat_id"
-                    onChange={formik.handleChange}
-                    error={formik.touched.cat_id && Boolean(formik.errors.cat_id)}
-                  >
-                    {categories.map((category) => (
-                      <MenuItem key={category._id} value={category._id}>
-                        {category.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                  <FormHelperText
-                    sx={{
-                      color: formik.touched.cat_id && formik.errors.cat_id ? 'red' : 'inherit',
-                    }}
-                  >
-                    {formik.touched.cat_id && formik.errors.cat_id ? formik.errors.cat_id : ''}
-                  </FormHelperText>
-                </FormControl>
-                <FormControl fullWidth>
-                  <InputLabel id="category-select-label">Nhãn hàng</InputLabel>
-                  <Select
-                    labelId="category-select-label"
-                    id="category-select"
-                    value={formik.values.brand}
-                    label="Nhãn hàng"
-                    name="brand"
-                    onChange={formik.handleChange}
-                    error={formik.touched.brand && Boolean(formik.errors.brand)}
-                  >
-                    {brands.map((brand) => (
-                      <MenuItem key={brand._id} value={brand._id}>
-                        {brand.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                  <FormHelperText sx={{ color: 'red' }}>
-                    {formik.touched.brand && formik.errors.brand ? formik.errors.brand : ''}
-                  </FormHelperText>
-                </FormControl>
-                <AutoSelect
-                  value={formik.values.productType}
-                  setValue={(select) => formik.setFieldValue('productType', select)}
-                  data={dataTags}
-                  label="Loại sản phẩm"
-                  error={formik.touched.productType && Boolean(formik.errors.productType)}
-                />
-                <FormHelperText sx={{ color: 'red' }}>
-                  {formik.touched.productType && formik.errors.productType
-                    ? formik.errors.productType
-                    : ''}
-                </FormHelperText>
-                <Box>
-                  <TextField
-                    label="Nhập nhãn sản phẩm"
-                    variant="outlined"
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    fullWidth
-                  />
-                  <Box mt={2}>
-                    {tags.map((tag, index) => (
-                      <Chip
-                        key={index}
-                        label={tag}
-                        onDelete={() => handleDelete(tag)}
-                        style={{ marginRight: 5, marginBottom: 5 }}
-                      />
-                    ))}
-                  </Box>
-                </Box>
-              </Stack>
-            </Card>
-          </Grid2>
-        </Grid2>
-      </form>
+        </form>
+      )}
     </Container>
   );
 }

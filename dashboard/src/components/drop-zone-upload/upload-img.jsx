@@ -8,7 +8,12 @@ import './style.css';
 import Iconify from '../iconify/iconify';
 
 const backendUrl = import.meta.env.VITE_BACKEND_APP_URL;
-const ImageDropZone = ({ handleUpload, singleFile = false, defaultImg = '', error = null }) => {
+const ImageDropZone = ({
+  handleUpload,
+  singleFile = false,
+  defaultImg = '',
+  error = null,
+}) => {
   const { fileRejections, acceptedFiles, getRootProps, getInputProps } = useDropzone({
     accept: {
       'image/jpeg': [],
@@ -27,8 +32,13 @@ const ImageDropZone = ({ handleUpload, singleFile = false, defaultImg = '', erro
 
   useEffect(() => {
     if (defaultImg !== '') {
-      const uri = renderUrl(defaultImg, backendUrl);
-      setUrl(uri);
+      if (defaultImg instanceof File) {
+        const uri = URL.createObjectURL(defaultImg);
+        setUrl(uri);
+      } else {
+        const uri = renderUrl(defaultImg, backendUrl);
+        setUrl(uri);
+      }
     }
   }, [defaultImg]);
 
@@ -127,7 +137,11 @@ const ImageDropZone = ({ handleUpload, singleFile = false, defaultImg = '', erro
 
   return (
     <section className="container ImageDropZone">
-      <div {...getRootProps({ className: `dropzone ${error && 'error'} ${(upload || url !== '') && 'hidden'}` })}>
+      <div
+        {...getRootProps({
+          className: `dropzone ${error && 'error'} ${(upload || url !== '') && 'hidden'}`,
+        })}
+      >
         <input {...getInputProps()} />
         <p className="DropZoneTitle" style={{ textAlign: 'center' }}>
           Kéo thả hoặc chọn ảnh bất kì

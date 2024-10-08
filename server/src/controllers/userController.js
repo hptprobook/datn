@@ -24,9 +24,37 @@ const getCurrentUser = async (req, res) => {
     });
   }
 };
+const createUser = async (req, res) => {
+  try {
+    const data = req.body;
+    const existUser = await userModel.getUserEmail(data.email);
+    if (existUser) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Email đã tồn tại' });
+    }
+    const hash = await bcrypt.hashSync(data.password, 8);
+    if (!hash) {
+      return res
+
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Có lỗi bảo mật xảy ra' });
+    }
+    data.password = hash;
+
+    const result = await userModel.register(data);
+    return res.status(StatusCodes.OK).json(result);
+  }
+  catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: ERROR_MESSAGES.ERR_AGAIN,
+      error: error,
+    });
+  }
+};
+
 const getCurrentAdmin = async (req, res) => {
   try {
-    console.log(req.user);
     const { user_id } = req.user;
     const user = await userModel.getUserID(user_id);
     delete user.password;
@@ -48,6 +76,7 @@ const getUserById = async (req, res) => {
   try {
     const { id } = req.params;
     const user = await userModel.getUserID(id);
+    console.log(user);
     if (user) {
       return res.status(StatusCodes.OK).json(user);
     }
@@ -159,7 +188,6 @@ const getAllUsers = async (req, res) => {
   try {
     let { pages, limit } = req.query;
     const { user_id } = req.user;
-    console.log(user_id);
     const users = await userModel.getUserAll(pages, limit, user_id);
     const countUsers = await userModel.countUserAll();
     return res.status(StatusCodes.OK).json({
@@ -178,20 +206,20 @@ const updateUser = async (req, res) => {
     const { id } = req.params;
     const data = req.body;
     if (data.password) {
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .json({ message: 'Lỗi bảo mật' });
+      const hash = await bcrypt.hashSync(data.password, 8);
+      if (!hash) {
+        return res
+
+          .status(StatusCodes.BAD_REQUEST)
+          .json({ message: 'Có lỗi bảo mật xảy ra' });
+      }
+      data.password = hash;
     }
     const dataUser = await userModel.update(id, data);
-    if (dataUser.error) {
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
-    }
     if (dataUser) {
       return res
         .status(StatusCodes.OK)
-        .json({ message: 'Cập nhật thông tin thành công', dataUser });
+        .json(dataUser);
     }
   } catch (error) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
@@ -271,4 +299,5 @@ export const usersController = {
   getAllUsers,
   deleteUser,
   favoriteProduct,
+  createUser
 };
