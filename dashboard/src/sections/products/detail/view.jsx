@@ -17,6 +17,7 @@ import {
   FormLabel,
   SpeedDial,
   InputLabel,
+  IconButton,
   FormControl,
   OutlinedInput,
   FormHelperText,
@@ -37,7 +38,7 @@ import { fetchAll } from 'src/redux/slices/brandSlices';
 import PropTypes from 'prop-types';
 import Iconify from 'src/components/iconify/iconify';
 import { handleToast } from 'src/hooks/toast';
-import { setStatus, fetchProductById, updateProduct } from 'src/redux/slices/productSlice';
+import { setStatus, fetchProductById } from 'src/redux/slices/productSlice';
 import LoadingFull from 'src/components/loading/loading-full';
 import { useParams } from 'react-router-dom';
 import { isValidObjectId } from 'src/utils/check';
@@ -45,6 +46,7 @@ import { useRouter } from 'src/routes/hooks';
 import MultiImageDropZone from 'src/components/drop-zone-upload/upload-imgs';
 import { AutoSelect } from '../auto-select';
 import AdvancedVariant from '../variant-advanced';
+import { updateProduct } from 'src/utils/request';
 
 // ----------------------------------------------------------------------
 const productSchema = Yup.object().shape({
@@ -150,10 +152,40 @@ export default function DetailProductPage() {
         values.thumbnail = thumbnail;
       }
       if (images.length > 0) {
+        const imageAdd = images.filter((img) => img instanceof File);
+        const imageDelete = product.images.filter((img) => !images.includes(img));
+        const imageNotChange = product.images.filter((img) => images.includes(img));
+
+        // dưới nếu ảnh gửi lên chỉ là những ảnh không đổi thì gán như này
+        // values.images = imageNotChange;
+        // nếu ảnh gủi lên mà là toàn bộ ảnh thì gán như này
         values.images = images;
+
+        values.imageDelete = imageDelete;
+        // xử lý ảnh cũ
+        values.imageAdd = imageAdd;
+        // xử lý ảnh mới
+      }
+      // xử lý biến thể
+      if (variants.length === 0) {
+        handleToast('error', 'Vui lòng thêm biến thể sản phẩm');
+        return;
       }
       values.variants = variants;
+      // xử lý ảnh biến thể
+      const imageVariantsUpdate = variants.filter((variant) => {
+        if (variant.image instanceof File) {
+          return {
+            image: variant.image,
+            index: variant.index,
+          };
+        }
+        return null;
+      });
+      // gán ảnh biến thể
+      // values.imageVariantsUpdate = imageVariantsUpdate;
       console.log(values);
+      // xóa comment dispatch(updateProduct({ id, data: values })); để chạy code
       // dispatch(updateProduct({ id, data: values }));
     },
   });
@@ -231,7 +263,17 @@ export default function DetailProductPage() {
         icon={<Iconify icon="eva:save-fill" />}
       />
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Chi tiết sản phẩm</Typography>
+        <Stack direction="row" alignItems="center">
+          <Typography variant="h4">Chỉnh sửa sản phẩm</Typography>
+          <IconButton
+            aria-label="load"
+            variant="contained"
+            color="inherit"
+            onClick={() => dispatch(fetchProductById({ id }))}
+          >
+            <Iconify icon="mdi:reload" />
+          </IconButton>
+        </Stack>
       </Stack>
       {statusGet === 'loading' ? (
         <LoadingFull />
@@ -309,7 +351,8 @@ export default function DetailProductPage() {
                           name="price"
                           value={formik.values.price}
                           onChange={formik.handleChange}
-                          onBlur={formik.handleBlur}za
+                          onBlur={formik.handleBlur}
+                          za
                           endAdornment={<InputAdornment position="end">vnđ</InputAdornment>}
                           label="Giá"
                         />
@@ -404,26 +447,26 @@ export default function DetailProductPage() {
                       Mô tả sản phẩm
                     </Typography>
                     <TinyEditor
-                      error={formik.touched.description && Boolean(formik.errors.description)}
-                      initialValue={product?.description}
-                      onChange={(text) => formik.setFieldValue('description', text)}
+                      error={formik.touched.content && Boolean(formik.errors.content)}
+                      initialValue={product?.content}
+                      onChange={(text) => formik.setFieldValue('content', text)}
                     />
                     <FormHelperText sx={{ color: 'red' }}>
-                      {formik.touched.description && formik.errors.description
-                        ? formik.errors.description
-                        : ''}
+                      {formik.touched.content && formik.errors.content ? formik.errors.content : ''}
                     </FormHelperText>
                     <Typography variant="h6" sx={{ mb: 3 }}>
                       Mô tả ngắn sản phẩm
                     </Typography>
                     <TinyEditor
-                      error={formik.touched.content && Boolean(formik.errors.content)}
-                      initialValue={product?.content}
-                      onChange={(content) => formik.setFieldValue('content', content)}
+                      error={formik.touched.description && Boolean(formik.errors.description)}
+                      initialValue={product?.description}
+                      onChange={(description) => formik.setFieldValue('description', description)}
                       height={200}
                     />
                     <FormHelperText sx={{ color: 'red' }}>
-                      {formik.touched.content && formik.errors.content ? formik.errors.content : ''}
+                      {formik.touched.description && formik.errors.description
+                        ? formik.errors.description
+                        : ''}
                     </FormHelperText>
                   </Stack>
                   <Stack spacing={3} direction="row" mt={2} justifyContent="flex-end">
