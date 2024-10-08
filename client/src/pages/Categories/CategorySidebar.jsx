@@ -8,6 +8,7 @@ const CategorySidebar = ({
   priceRangeData,
   onPriceRangeChange,
   initialFilters,
+  // Remove noMatchingProducts from props
 }) => {
   const [selectedColors, setSelectedColors] = useState(
     initialFilters.colors || []
@@ -275,6 +276,7 @@ CategorySidebar.propTypes = {
   onPriceRangeChange: PropTypes.func,
   priceRangeData: PropTypes.object,
   initialFilters: PropTypes.object,
+  // Remove noMatchingProducts from prop types
 };
 
 export default CategorySidebar;

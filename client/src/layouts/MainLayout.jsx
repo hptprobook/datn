@@ -52,35 +52,27 @@ export default function MainLayout() {
       </div>
       {scrollPosition > 0 && (
         <div className="fixed top-4 right-12 z-[1001]">
-          <input
-            type="checkbox"
-            id="headerToggle"
-            className="hidden"
-            checked={isHeaderVisible}
-            onChange={toggleHeaderVisibility}
-          />
-          <label
-            htmlFor="headerToggle"
-            className="toggle cursor-pointer block w-6 h-6 relative"
+          <button
+            onClick={toggleHeaderVisibility}
+            className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center focus:outline-none"
           >
-            <div className="absolute inset-0 flex flex-col justify-around">
-              <div
-                className={`h-1 bg-blue-600 transition-all duration-300 ${
-                  isHeaderVisible ? 'rotate-45 translate-y-[0.48rem]' : ''
-                }`}
-              ></div>
-              <div
-                className={`h-1 bg-blue-600 transition-all duration-300 ${
-                  isHeaderVisible ? 'opacity-0' : ''
-                }`}
-              ></div>
-              <div
-                className={`h-1 bg-blue-600 transition-all duration-300 ${
-                  isHeaderVisible ? '-rotate-45 -translate-y-[0.48rem]' : ''
-                }`}
-              ></div>
-            </div>
-          </label>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              className={`w-5 h-5 text-white transition-transform duration-300 ${
+                isHeaderVisible ? 'rotate-180' : ''
+              }`}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
         </div>
       )}
       <div className="mt-8">

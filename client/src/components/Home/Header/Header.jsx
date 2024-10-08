@@ -15,6 +15,8 @@ import { useCart } from 'react-use-cart';
 import { Icon } from '@iconify/react';
 import PropTypes from 'prop-types';
 import UserLoggedBar from './UserLoggedBar';
+import { useWishlist } from '~/context/WishListContext';
+import WishList from '~/components/common/Product/WishList';
 
 const Header = () => {
   const { isAuthenticated } = useCheckAuth();
@@ -23,12 +25,20 @@ const Header = () => {
   const [openMenu, setOpenMenu] = useState(false);
   const [openSearch, setOpenSearch] = useState(false);
   const [currentTitle, setCurrentTitle] = useState('Danh mục');
+  const [isWishlistOpen, setIsWishlistOpen] = useState(false);
+  const { wishlistItems, removeFromWishlist } = useWishlist();
 
   const { items } = useCart();
 
   return (
     <div>
       {/* Header dùng chung cho Window */}
+      <WishList
+        isOpen={isWishlistOpen}
+        onClose={() => setIsWishlistOpen(false)}
+        wishlistItems={wishlistItems}
+        removeFromWishlist={removeFromWishlist}
+      />
       <header className="w-full h-16 bg-amber-600 hidden lg:block text-black">
         <div className="max-w-container h-full mx-auto flex justify-between items-center">
           <NavLink to="/">
@@ -38,14 +48,13 @@ const Header = () => {
           </NavLink>
           <SearchBar />
           <div className="flex gap-4">
-            <NavLink to={'/danh-sach-yeu-thich'}>
-              <div
-                className="text-2xl text-gray-50 cursor-pointer relative hover:text-red-600"
-                title="Danh sách yêu thích"
-              >
-                <Icon icon="iconamoon:heart-fill" />
-              </div>
-            </NavLink>
+            <div
+              className="text-2xl text-gray-50 cursor-pointer relative hover:text-red-600"
+              title="Danh sách yêu thích"
+              onClick={() => setIsWishlistOpen(true)}
+            >
+              <Icon icon="iconamoon:heart-fill" />
+            </div>
             <div
               className="text-2xl text-gray-50 cursor-pointer relative"
               onClick={() => setOpenCart(true)}

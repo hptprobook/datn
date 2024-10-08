@@ -8,9 +8,10 @@ import {
   getCategoryBySlug,
   getMinMaxPrices,
   getProductsByCatSlug,
-} from '~/APIs'; // Thêm API getAllProducts
+} from '~/APIs';
 import { handleToast } from '~/customHooks/useToast';
 import { useState, useCallback, useEffect } from 'react';
+import { Icon } from '@iconify/react';
 
 const CategoryPage = () => {
   const { slug, sort } = useParams();
@@ -18,10 +19,12 @@ const CategoryPage = () => {
   const [filters, setFilters] = useState({
     colors: [],
     sizes: [],
-    priceRange: { min: 1000, max: 1000000 },
+    priceRange: { min: null, max: null },
   });
   const [sortOption, setSortOption] = useState(sort || '');
   const [shouldFetchFiltered, setShouldFetchFiltered] = useState(false);
+  const [noMatchingProducts, setNoMatchingProducts] = useState(false);
+  const [limit, setLimit] = useState(20);
 
   const { data: priceRangeData } = useQuery({
     queryKey: ['price-range'],
@@ -32,8 +35,8 @@ const CategoryPage = () => {
 
   const { data: filteredProductsData, refetch: refetchFilteredProducts } =
     useQuery({
-      queryKey: ['filtered-products', slug, filters, sortOption],
-      queryFn: () => {
+      queryKey: ['filtered-products', slug, filters, sortOption, limit],
+      queryFn: async () => {
         if (
           !slug ||
           filters.priceRange.min === undefined ||
@@ -42,17 +45,26 @@ const CategoryPage = () => {
         ) {
           return Promise.resolve(null);
         }
-        return filterProductsWithPriceRange({
-          slug,
-          minPrice: filters.priceRange.min,
-          maxPrice: filters.priceRange.max,
-          colors: filters.colors,
-          sizes: filters.sizes,
-          sortOption,
-        });
+        try {
+          const result = await filterProductsWithPriceRange({
+            slug,
+            minPrice: filters.priceRange.min,
+            maxPrice: filters.priceRange.max,
+            colors: filters.colors,
+            sizes: filters.sizes,
+            sortOption,
+            limit,
+          });
+          setNoMatchingProducts(false);
+          return result;
+        } catch (error) {
+          if (error.response && error.response.status === 404) {
+            setNoMatchingProducts(true);
+            return null;
+          }
+          throw error;
+        }
       },
-      staleTime: 1000 * 60 * 5,
-      cacheTime: 1000 * 60 * 10,
       enabled: shouldFetchFiltered,
     });
 
@@ -80,6 +92,11 @@ const CategoryPage = () => {
     },
     [navigate, slug]
   );
+
+  const handleLoadMore = useCallback(() => {
+    setLimit((prevLimit) => prevLimit + 20);
+    setShouldFetchFiltered(true);
+  }, []);
 
   useEffect(() => {
     if (shouldFetchFiltered) {
@@ -132,18 +149,31 @@ const CategoryPage = () => {
             priceRangeData={priceRangeData}
             filters={filters}
             initialFilters={filters}
+            noMatchingProducts={noMatchingProducts}
           />
         </div>
         <div className="col-span-4">
-          <CategoryContent
-            catData={categoryData}
-            filters={filters}
-            filteredProductsData={
-              shouldFetchFiltered ? filteredProductsData : allProductsData
-            }
-            sortOption={sortOption}
-            onSortChange={handleSortChange}
-          />
+          {noMatchingProducts ? (
+            <div className="flex flex-col items-center justify-center h-64 text-gray-600">
+              <Icon icon="tabler:news-off" className="text-6xl mb-4" />
+              <p className="text-xl font-semibold mb-2">
+                Không có sản phẩm nào phù hợp
+              </p>
+              <p className="text-sm">Vui lòng thử lại với các bộ lọc khác</p>
+            </div>
+          ) : (
+            <CategoryContent
+              catData={categoryData}
+              filters={filters}
+              filteredProductsData={
+                shouldFetchFiltered ? filteredProductsData : allProductsData
+              }
+              sortOption={sortOption}
+              setSortOption={setSortOption}
+              onSortChange={handleSortChange}
+              onLoadMore={handleLoadMore}
+            />
+          )}
         </div>
       </div>
     </section>

@@ -154,7 +154,6 @@ const getProductsByCategory = async (slug, page, limit) => {
       _id: 1,
       name: 1,
       tags: 1,
-      variants: 1,
       reviews: 1,
       price: 1,
       thumbnail: 1,
@@ -918,7 +917,6 @@ const getProductByCategoryFilter = async (slug, pages, limit, filter) => {
       _id: 1,
       name: 1,
       tags: 1,
-      variants: 1,
       reviews: 1,
       price: 1,
       thumbnail: 1,
@@ -975,7 +973,6 @@ const getProductsByEvent = async (slug, pages, limit) => {
       name: 1,
       productType: 1,
       tags: 1,
-      variants: 1,
       reviews: 1,
       price: 1,
       thumbnail: 1,
@@ -1051,8 +1048,10 @@ const getProductsBySlugAndPriceRange = async (
   const categoryIds = [cat_id, ...subCategoryIds];
 
   let sortOption = {};
-  if (sortCriteria) {
+
+  if (sortCriteria && Object.keys(sortCriteria).length > 0) {
     const [field, order] = Object.entries(sortCriteria)[0];
+
     switch (field) {
       case 'alphabet':
         sortOption = { name: order.toLowerCase() === 'az' ? 1 : -1 };
@@ -1078,7 +1077,7 @@ const getProductsBySlugAndPriceRange = async (
   }
 
   if (sizes && sizes.length > 0) {
-    query['variants.size'] = { $in: sizes };
+    query['variants.sizes.size'] = { $in: sizes };
   }
 
   const products = await db
@@ -1088,7 +1087,6 @@ const getProductsBySlugAndPriceRange = async (
       _id: 1,
       name: 1,
       tags: 1,
-      variants: 1,
       reviews: 1,
       price: 1,
       thumbnail: 1,
@@ -1096,6 +1094,7 @@ const getProductsBySlugAndPriceRange = async (
       statusStock: 1,
       slug: 1,
     })
+    .collation({ locale: 'en', strength: 2 })
     .sort(sortOption)
     .skip((page - 1) * limit)
     .limit(limit)
@@ -1120,15 +1119,6 @@ const getProductsBySlugAndPriceRange = async (
       product.totalComment = 0;
     }
     delete product.reviews;
-
-    // Filter variants based on colors and sizes
-    if ((colors && colors.length > 0) || (sizes && sizes.length > 0)) {
-      product.variants = product.variants.filter(
-        (variant) =>
-          (!colors || colors.length === 0 || colors.includes(variant.color)) &&
-          (!sizes || sizes.length === 0 || sizes.includes(variant.size))
-      );
-    }
   });
 
   return products;

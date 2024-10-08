@@ -32,10 +32,6 @@ const MainRoutes = {
           path: ':slug/:sort',
           element: <CategoryPage />,
         },
-        {
-          path: ':slug/filter',
-          element: <CategoryPage />,
-        },
       ],
     },
     {

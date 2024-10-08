@@ -7,16 +7,22 @@ import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
 import { useNavigate, useParams } from 'react-router-dom';
 
-const CategoryContent = ({ catData, filteredProductsData }) => {
-  console.log('filteredProductsData in category content', filteredProductsData);
+const CategoryContent = ({
+  catData,
+  filteredProductsData,
+  sortOption,
+  onSortChange,
+  setSortOption,
+  onLoadMore,
+}) => {
+  // eslint-disable-next-line no-unused-vars
   const [limit, setLimit] = useState(20);
   const [hasMore, setHasMore] = useState(true);
   const [key, setKey] = useState('');
   const [value, setValue] = useState('');
-  const [sortOption, setSortOption] = useState('');
 
   const navigate = useNavigate();
-  const { slug, sort } = useParams();
+  const { slug } = useParams();
 
   const { data: productsData, isFetching: isProductsFetching } = useQuery({
     queryKey: ['getProductsByCategorySlug', catData.slug, limit],
@@ -37,7 +43,13 @@ const CategoryContent = ({ catData, filteredProductsData }) => {
     staleTime: 5 * 60 * 1000,
   });
 
-  const products = sortOption ? sortProductsData?.products : productsData || [];
+  // Use filteredProductsData if it's available, otherwise use sortProductsData or productsData
+  const products =
+    filteredProductsData ||
+    (sortOption ? sortProductsData?.products : productsData) ||
+    [];
+
+  const isLoading = isProductsFetching || isSortProductsFetching;
 
   useEffect(() => {
     if (products?.length < limit) {
@@ -62,26 +74,25 @@ const CategoryContent = ({ catData, filteredProductsData }) => {
   }, [key, value, debouncedRefetch]);
 
   useEffect(() => {
-    if (sort) {
-      setSortOption(sort);
-      const [newKey, newValue] = sort.split('-');
+    if (sortOption) {
+      setSortOption(sortOption);
+      const [newKey, newValue] = sortOption.split('-');
       setKey(newKey);
       setValue(newValue);
     }
-  }, [sort]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sortOption]);
 
   if (isProductsFetching || isSortProductsFetching) return null;
 
   const handleLoadMore = () => {
-    setLimit((prevLimit) => prevLimit + 20);
-    if (sortOption) {
-      refetchSortedProducts();
-    }
+    onLoadMore(); // Call the onLoadMore prop instead of directly updating the limit
   };
 
   const handleSortChange = (e) => {
     const selectedValue = e.target.value;
-    setSortOption(selectedValue);
+    // Call the onSortChange prop instead
+    onSortChange(selectedValue);
 
     let newKey, newValue;
 
@@ -132,7 +143,7 @@ const CategoryContent = ({ catData, filteredProductsData }) => {
       <div className="divider"></div>
 
       {/* Sorting Form */}
-      <div className="mb-8 sticky top-0 bg-white z-10 py-4">
+      <div className="mb-8 sticky top-0 bg-white z-20 py-4 shadow-sm">
         <form className="flex space-x-4 items-center">
           <label htmlFor="sort" className="text-sm font-medium text-gray-700">
             Sắp xếp theo:
@@ -156,9 +167,13 @@ const CategoryContent = ({ catData, filteredProductsData }) => {
       {/* Products Grid */}
       <div>
         <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-2 lg:gap-3 lg:px-0">
-          {products.map((product) => (
-            <ProductItem key={product._id} product={product} />
-          ))}
+          {isLoading
+            ? Array.from({ length: 10 }).map((_, index) => (
+                <ProductItem key={index} isLoading={true} />
+              ))
+            : products.map((product) => (
+                <ProductItem key={product._id} product={product} />
+              ))}
         </div>
       </div>
 
@@ -186,6 +201,10 @@ const CategoryContent = ({ catData, filteredProductsData }) => {
 CategoryContent.propTypes = {
   catData: PropTypes.object,
   filteredProductsData: PropTypes.array,
+  sortOption: PropTypes.string,
+  onSortChange: PropTypes.func.isRequired,
+  setSortOption: PropTypes.func.isRequired,
+  onLoadMore: PropTypes.func.isRequired, // Add this prop type
 };
 
 export default CategoryContent;
