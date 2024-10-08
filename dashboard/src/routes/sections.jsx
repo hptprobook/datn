@@ -8,6 +8,7 @@ export const BlogPage = lazy(() => import('src/pages/blog'));
 // user page
 export const UserPage = lazy(() => import('src/pages/user/user'));
 export const CreateUserPage = lazy(() => import('src/pages/user/createUser'));
+export const DetailUserPage = lazy(() => import('src/pages/user/detail'));
 // login page
 export const LoginPage = lazy(() => import('src/pages/login'));
 // product page
@@ -48,6 +49,7 @@ const childRoutes = [
   { element: <IndexPage />, index: true },
   { path: 'user', element: <UserPage /> },
   { path: 'user/create', element: <CreateUserPage /> },
+  { path: 'user/:id', element: <DetailUserPage /> },
   { path: 'products', element: <ProductsPage /> },
   { path: 'products/create', element: <CreateProductPage /> },
   { path: 'products/:id', element: <DetailProductPage /> },

@@ -57,12 +57,12 @@ const validateBeforeUpdate = async (data) => {
 };
 
 const update = async (id, data) => {
-  await validateBeforeUpdate(data);
+  const dataValidate = await validateBeforeUpdate(data);
   const result = await GET_DB()
     .collection('users')
     .findOneAndUpdate(
       { _id: new ObjectId(id) },
-      { $set: data },
+      { $set: dataValidate },
       { returnDocument: 'after' }
     );
   delete result.password;
