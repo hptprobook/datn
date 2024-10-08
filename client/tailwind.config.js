@@ -66,10 +66,30 @@ export default {
           '0%': { transform: 'translateX(0)', opacity: 1 },
           '100%': { transform: 'translateX(-100%)', opacity: 0 },
         },
+        twinkle: {
+          '0%': {
+            transform: 'scale(0.95)',
+            opacity: '0.7',
+          },
+          '50%': {
+            transform: 'scale(1.05)',
+            opacity: '0.9',
+          },
+          '100%': {
+            transform: 'scale(1)',
+            opacity: '1',
+          },
+        },
+        twinkleRing: {
+          '0%': { transform: 'scale(0.8)', opacity: '0.8' },
+          '100%': { transform: 'scale(2)', opacity: '0' },
+        },
       },
       animation: {
         slideIn: 'slideIn 0.3s ease-out forwards',
         slideOut: 'slideOut 0.3s ease-in forwards',
+        twinkle: 'twinkle 0.3s ease-in-out',
+        'twinkle-ring': 'twinkleRing 0.3s ease-out',
       },
     },
   },
@@ -100,6 +120,21 @@ export default {
         },
       };
 
+      addUtilities(newUtilities, ['responsive', 'hover']);
+    },
+    function ({ addUtilities }) {
+      const newUtilities = {
+        '.animate-twinkle-ring': {
+          animation: 'twinkleRing 0.3s ease-out',
+          borderRadius: '50%',
+          boxShadow: '0 0 0 2px rgba(220, 38, 38, 0.5)', // Tailwind red-600 with opacity
+          position: 'absolute',
+          top: '0',
+          right: '0',
+          bottom: '0',
+          left: '0',
+        },
+      };
       addUtilities(newUtilities, ['responsive', 'hover']);
     },
   ],

@@ -154,7 +154,6 @@ const getProductsByCategory = async (slug, page, limit) => {
       _id: 1,
       name: 1,
       tags: 1,
-      variants: 1,
       reviews: 1,
       price: 1,
       thumbnail: 1,
@@ -918,7 +917,6 @@ const getProductByCategoryFilter = async (slug, pages, limit, filter) => {
       _id: 1,
       name: 1,
       tags: 1,
-      variants: 1,
       reviews: 1,
       price: 1,
       thumbnail: 1,
@@ -975,7 +973,6 @@ const getProductsByEvent = async (slug, pages, limit) => {
       name: 1,
       productType: 1,
       tags: 1,
-      variants: 1,
       reviews: 1,
       price: 1,
       thumbnail: 1,
@@ -1029,6 +1026,129 @@ const getProductsByEvent = async (slug, pages, limit) => {
   return categorizedProducts;
 };
 
+const getProductsBySlugAndPriceRange = async (
+  slug,
+  minPrice,
+  maxPrice,
+  page,
+  limit,
+  sortCriteria,
+  colors,
+  sizes
+) => {
+  const db = await GET_DB();
+
+  const category = await db.collection('categories').findOne({ slug: slug });
+  if (!category) {
+    throw new Error('Danh mục không tồn tại');
+  }
+
+  const cat_id = category._id;
+  const subCategoryIds = await getAllSubCategories(cat_id);
+  const categoryIds = [cat_id, ...subCategoryIds];
+
+  let sortOption = {};
+
+  if (sortCriteria && Object.keys(sortCriteria).length > 0) {
+    const [field, order] = Object.entries(sortCriteria)[0];
+
+    switch (field) {
+      case 'alphabet':
+        sortOption = { name: order.toLowerCase() === 'az' ? 1 : -1 };
+        break;
+      case 'price':
+        sortOption = { price: order.toLowerCase() === 'asc' ? 1 : -1 };
+        break;
+      case 'createdAt':
+        sortOption = { createdAt: order.toLowerCase() === 'newest' ? -1 : 1 };
+        break;
+      default:
+        sortOption = {};
+    }
+  }
+
+  let query = {
+    cat_id: { $in: categoryIds },
+    price: { $gte: minPrice, $lte: maxPrice },
+  };
+
+  if (colors && colors.length > 0) {
+    query['variants.color'] = { $in: colors };
+  }
+
+  if (sizes && sizes.length > 0) {
+    query['variants.sizes.size'] = { $in: sizes };
+  }
+
+  const products = await db
+    .collection('products')
+    .find(query)
+    .project({
+      _id: 1,
+      name: 1,
+      tags: 1,
+      reviews: 1,
+      price: 1,
+      thumbnail: 1,
+      status: 1,
+      statusStock: 1,
+      slug: 1,
+    })
+    .collation({ locale: 'en', strength: 2 })
+    .sort(sortOption)
+    .skip((page - 1) * limit)
+    .limit(limit)
+    .toArray();
+
+  if (!products) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
+  }
+
+  products.forEach((product) => {
+    if (product.reviews && product.reviews.length > 0) {
+      const total = product.reviews.reduce(
+        (acc, review) => acc + review.rating,
+        0
+      );
+      product.averageRating = parseFloat(
+        (total / product.reviews.length).toFixed(1)
+      );
+      product.totalComment = product.reviews.length;
+    } else {
+      product.averageRating = 0;
+      product.totalComment = 0;
+    }
+    delete product.reviews;
+  });
+
+  return products;
+};
+
+const getMinMaxProductPrices = async () => {
+  const db = await GET_DB();
+  const result = await db
+    .collection('products')
+    .aggregate([
+      {
+        $group: {
+          _id: null,
+          minPrice: { $min: '$price' },
+          maxPrice: { $max: '$price' },
+        },
+      },
+    ])
+    .toArray();
+
+  if (!result || result.length === 0) {
+    throw new Error('Không thể lấy giá sản phẩm');
+  }
+
+  return {
+    minPrice: result[0].minPrice,
+    maxPrice: result[0].maxPrice,
+  };
+};
+
 export const productModel = {
   countProductAll,
   getProductsAll,
@@ -1054,4 +1174,6 @@ export const productModel = {
   getProductsAllSpecial,
   getProductByCategoryFilter,
   getProductsByEvent,
+  getProductsBySlugAndPriceRange,
+  getMinMaxProductPrices,
 };
