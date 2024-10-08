@@ -11,8 +11,7 @@ const ProductsService = {
   },
   getProductById: async (id) => {
     try {
-      const res = await get(`products/${id}`);
-      return res.data;
+      return await get(`products/${id}`);
     } catch (err) {
       throw err;
     }
