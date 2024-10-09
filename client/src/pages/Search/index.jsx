@@ -1,20 +1,16 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import HeaderBC from '~/components/common/Breadcrumb/HeaderBC';
-import CategorySidebar from './CategorySidebar';
-import CategoryContent from './CategoryContent';
+import SearchSidebar from './SearchSidebar';
+import SearchContent from './SearchContent';
 import { useQuery } from '@tanstack/react-query';
-import {
-  filterProductsWithPriceRange,
-  getCategoryBySlug,
-  getMinMaxPrices,
-  getProductsByCatSlug,
-} from '~/APIs';
+import { filterProductsWithPriceRange, getMinMaxPrices } from '~/APIs';
 import { handleToast } from '~/customHooks/useToast';
 import { useState, useCallback, useEffect } from 'react';
 import { Icon } from '@iconify/react';
+import { searchProducts } from '~/APIs/ProductList/search';
 
-const CategoryPage = () => {
-  const { slug, sort } = useParams();
+const SearchPage = () => {
+  const { keyword, sort } = useParams();
   const navigate = useNavigate();
   const [filters, setFilters] = useState({
     colors: [],
@@ -69,14 +65,14 @@ const CategoryPage = () => {
     });
     setSortOption('');
     setShouldFetchFiltered(false);
-  }, [slug]);
+  }, [keyword]);
 
   const { data: filteredProductsData } = useQuery({
-    queryKey: ['filtered-products', slug, filters, sortOption, limit],
+    queryKey: ['filtered-products', keyword, filters, sortOption, limit],
     queryFn: async () => {
       try {
         const result = await filterProductsWithPriceRange({
-          slug,
+          keyword,
           minPrice: filters.priceRange.min,
           maxPrice: filters.priceRange.max,
           colors: filters.colors,
@@ -119,9 +115,9 @@ const CategoryPage = () => {
     (newSortOption) => {
       setSortOption(newSortOption);
       setShouldFetchFiltered(true);
-      navigate(`/danh-muc-san-pham/${slug}/${newSortOption}`);
+      navigate(`/danh-muc-san-pham/${keyword}/${newSortOption}`);
     },
-    [navigate, slug]
+    [navigate, keyword]
   );
 
   const handleLoadMore = useCallback(() => {
@@ -135,8 +131,9 @@ const CategoryPage = () => {
     error: categoryError,
     isLoading: categoryLoading,
   } = useQuery({
-    queryKey: ['getCategoryBySlug', slug],
-    queryFn: () => getCategoryBySlug(slug),
+    queryKey: ['getProductsByKeyword', keyword, limit],
+    queryFn: () => searchProducts(keyword, limit),
+    enabled: keyword !== '',
     staleTime: 1000 * 60 * 5,
     cacheTime: 1000 * 60 * 10,
   });
@@ -147,8 +144,9 @@ const CategoryPage = () => {
     error: productsError,
     isLoading: productsLoading,
   } = useQuery({
-    queryKey: ['getProductsByCategorySlug', slug],
-    queryFn: () => getProductsByCatSlug(slug),
+    queryKey: ['getProductsByKeyword', keyword],
+    queryFn: () => searchProducts(keyword, limit),
+    enabled: keyword !== '',
     staleTime: 1000 * 60 * 5,
     cacheTime: 1000 * 60 * 10,
   });
@@ -162,11 +160,11 @@ const CategoryPage = () => {
 
   return (
     <section className="max-w-container mx-auto mt-16">
-      <HeaderBC title={'Danh mục sản phẩm'} name={categoryData?.name} />
+      <HeaderBC title={'Kết quả tìm kiếm'} name={keyword} />
       <div className="divider"></div>
       <div className="grid grid-cols-5 gap-6 mt-8">
         <div className="col-span-1">
-          <CategorySidebar
+          <SearchSidebar
             category={categoryData}
             products={allProductsData}
             onFilterChange={handleFilterChange}
@@ -187,7 +185,7 @@ const CategoryPage = () => {
               <p className="text-sm">Vui lòng thử lại với các bộ lọc khác</p>
             </div>
           ) : (
-            <CategoryContent
+            <SearchContent
               catData={categoryData}
               filters={filters}
               filteredProductsData={
@@ -205,6 +203,6 @@ const CategoryPage = () => {
   );
 };
 
-CategoryPage.propTypes = {};
+SearchPage.propTypes = {};
 
-export default CategoryPage;
+export default SearchPage;

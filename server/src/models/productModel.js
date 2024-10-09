@@ -752,94 +752,19 @@ const getProductBySearch = async (search, page, limit) => {
   page = parseInt(page) || 1;
   limit = parseInt(limit) || 20;
 
-  const searchQuery = removeTones(search).toLowerCase();
-  const searchTerms = searchQuery.split(' ');
+  const searchQuery = removeTones(search).toLowerCase().replace(/\s+/g, '-');
 
   const db = await GET_DB();
 
-  const categories = await db.collection('categories').find().toArray();
-  const brands = await db.collection('brands').find().toArray();
+  const results = await db
+    .collection('products')
+    .find({ slug: { $regex: searchQuery, $options: 'i' } })
+    .collation({ locale: 'en', strength: 2 })
+    .limit(limit)
+    .skip((page - 1) * limit)
+    .toArray();
 
-  const categoryIds = categories
-    .filter((category) =>
-      searchTerms.every((term) =>
-        removeTones(category.name).toLowerCase().includes(term)
-      )
-    )
-    .map((category) => category._id);
-
-  const brandIds = brands
-    .filter((brand) =>
-      searchTerms.every((term) =>
-        removeTones(brand.name).toLowerCase().includes(term)
-      )
-    )
-    .map((brand) => brand._id);
-
-  const allProducts = await db.collection('products').find().toArray();
-
-  const filteredProducts = allProducts.filter((product) => {
-    const nameNoTones = removeTones(product.name).toLowerCase();
-    const descriptionNoTones = removeTones(product.description).toLowerCase();
-    const contentNoTones = removeTones(product.content).toLowerCase();
-    const tagsNoTones = product.tags.map((tag) =>
-      removeTones(tag).toLowerCase()
-    );
-
-    const nameMatch = searchTerms.every((term) => nameNoTones.includes(term));
-    const descriptionMatch = searchTerms.every((term) =>
-      descriptionNoTones.includes(term)
-    );
-    const contentMatch = searchTerms.every((term) =>
-      contentNoTones.includes(term)
-    );
-    const tagsMatch = tagsNoTones.some((tag) =>
-      searchTerms.every((term) => tag.includes(term))
-    );
-
-    const categoryMatch =
-      categoryIds.length > 0 ? categoryIds.includes(product.cat_id) : true;
-    const brandMatch =
-      brandIds.length > 0
-        ? brandIds.some((id) => id.equals(product.brand))
-        : true;
-
-    return (
-      nameMatch ||
-      descriptionMatch ||
-      contentMatch ||
-      tagsMatch ||
-      categoryMatch ||
-      brandMatch
-    );
-  });
-
-  const result = filteredProducts
-    .slice((page - 1) * limit, page * limit)
-    .map(
-      ({
-        content,
-        description,
-        images,
-        inventory,
-        minInventory,
-        maxInventory,
-        weight,
-        height,
-        brand,
-        cat_id,
-        url,
-        productType,
-        view,
-        createdAt,
-        updatedAt,
-        ...rest
-      }) => rest
-    );
-  if (!result) {
-    throw new Error('Có lỗi xảy ra, xin thử lại sau');
-  }
-  result.forEach((product) => {
+  results.forEach((product) => {
     if (product.reviews && product.reviews.length > 0) {
       const total = product.reviews.reduce(
         (acc, review) => acc + review.rating,
@@ -855,7 +780,8 @@ const getProductBySearch = async (search, page, limit) => {
     }
     delete product.reviews;
   });
-  return result;
+
+  return results;
 };
 
 const getProductByCategoryFilter = async (slug, pages, limit, filter) => {

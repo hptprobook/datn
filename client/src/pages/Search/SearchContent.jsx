@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
 import { useNavigate, useParams } from 'react-router-dom';
 
-const CategoryContent = ({
+const SearchContent = ({
   catData,
   filteredProductsData,
   sortOption,
@@ -204,7 +204,7 @@ const CategoryContent = ({
   );
 };
 
-CategoryContent.propTypes = {
+SearchContent.propTypes = {
   catData: PropTypes.object,
   filteredProductsData: PropTypes.array,
   sortOption: PropTypes.string,
@@ -213,4 +213,4 @@ CategoryContent.propTypes = {
   onLoadMore: PropTypes.func.isRequired, // Add this prop type
 };
 
-export default CategoryContent;
+export default SearchContent;
