@@ -37,11 +37,11 @@ const ProductsService = {
       throw err;
     }
   },
-  updateProduct: async (id, data) => {
+  updateProductById: async (id, data) => {
     try {
       const res = await updateProduct({
+        id,
         data,
-        path: `products/${id}`,
       });
       return res;
     } catch (err) {

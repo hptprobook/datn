@@ -90,9 +90,6 @@ export const uploadProduct = async ({ path, data, type = 'post' }) => {
                 formData.append(key, file);
             });
         }
-        else if (key === "productType" || key === "tags") {
-            formData.append(key, JSON.stringify(data[key]));
-        }
         else if (key === "variants") {
             const convert = JSON.stringify(data[key]);
             formData.append('variants', convert);
@@ -113,7 +110,7 @@ export const uploadProduct = async ({ path, data, type = 'post' }) => {
 
     return response.data;
 };
-export const updateProduct = async ({ path, data }) => {
+export const updateProduct = async ({ id, data }) => {
     const formData = new FormData();
     Object.keys(data).forEach((key) => {
         if (key === "images") {
@@ -121,21 +118,28 @@ export const updateProduct = async ({ path, data }) => {
                 formData.append(key, file);
             });
         }
-        else if (key === "productType" || key === "tags") {
+        else if (key === "productType" || key === "tags" || key === "variantsDelete") {
             formData.append(key, JSON.stringify(data[key]));
         }
         else if (key === "variants") {
-            const convert = JSON.stringify(data[key]);
-            formData.append('variants', convert);
-            data[key].forEach((variant) => {
-                formData.append('imageVariants', variant.image);
+            data[key].forEach((variant, i) => {
+                formData.append('variants', JSON.stringify(variant));
+                if (variant.image instanceof File) {
+                    formData.append('imageVariants', variant.imageAdd);
+                    formData.append('indexVariants', i);
+                }
+                if (Array.isArray(variant.sizes)) {
+                    variant.sizes.forEach((size, j) => {
+                        formData.append(`variants[${i}].sizes[${j}]`, JSON.stringify(size)); // Hoặc bạn có thể thêm từng thuộc tính của size
+                    });
+                }
             });
+
         } else {
             formData.append(key, data[key]);
         }
     });
-
-    const response = await request.put(path, formData, {
+    const response = await request.put(`products/${id}`, formData, {
         headers: {
             "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${getAccessToken()}`,
