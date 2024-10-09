@@ -1,62 +1,72 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import MultiRangeSlider from '~/components/common/Range/MultiSliderRange';
 import PropTypes from 'prop-types';
+import { Icon } from '@iconify/react';
 
-const CategorySidebar = ({ products, onFilterChange }) => {
-  const [selectedColors, setSelectedColors] = useState([]);
-  const [selectedSizes, setSelectedSizes] = useState([]);
-  const [checkboxes, setCheckboxes] = useState({});
+const CategorySidebar = ({
+  onFilterChange,
+  priceRangeData,
+  onPriceRangeChange,
+  initialFilters,
+  // Remove noMatchingProducts from props
+}) => {
+  const [selectedColors, setSelectedColors] = useState(
+    initialFilters.colors || []
+  );
+  const [selectedSizes, setSelectedSizes] = useState(
+    initialFilters.sizes || []
+  );
+  const [isColorOpen, setIsColorOpen] = useState(false);
+  const [isSizeOpen, setIsSizeOpen] = useState(false);
 
   useEffect(() => {
-    onFilterChange({ colors: selectedColors, sizes: selectedSizes });
+    onFilterChange({
+      colors: selectedColors,
+      sizes: selectedSizes,
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedColors, selectedSizes]);
 
-  if (!products || products.length === 0) {
-    return null;
-  }
-
-  const handleCheckboxChange = (color) => {
-    setCheckboxes((prevCheckboxes) => {
-      const updatedCheckboxes = {
-        ...prevCheckboxes,
-        [color]: !prevCheckboxes[color],
-      };
-      setSelectedColors(
-        Object.keys(updatedCheckboxes).filter((key) => updatedCheckboxes[key])
-      );
-      return updatedCheckboxes;
-    });
-  };
-
-  const resetCheckboxes = () => {
-    const resetState = colors.reduce((acc, color) => {
-      acc[color] = false;
-      return acc;
-    }, {});
-    setCheckboxes(resetState);
-    setSelectedColors([]);
-  };
-
-  const colors = Array.from(
-    new Set(
-      products.flatMap((product) =>
-        product.variants.map((variant) => variant.color)
-      )
-    )
+  const handlePriceRangeChange = useCallback(
+    (newPriceRange) => {
+      if (
+        JSON.stringify(newPriceRange) !==
+        JSON.stringify(initialFilters.priceRange)
+      ) {
+        onPriceRangeChange(newPriceRange);
+      }
+    },
+    [onPriceRangeChange, initialFilters.priceRange]
   );
 
-  const sizes = Array.from(
-    new Set(
-      products.flatMap((product) =>
-        product.variants.flatMap((variant) =>
-          variant.sizes
-            .map((sizeObj) => sizeObj.size)
-            .filter((size) => size !== undefined && size !== null)
-        )
-      )
-    )
-  );
+  const colors = [
+    'Đỏ',
+    'Xanh lá cây',
+    'Xanh dương',
+    'Vàng',
+    'Cam',
+    'Tím',
+    'Hồng',
+    'Đen',
+    'Trắng',
+    'Xám',
+    'Nâu',
+    'Xanh lơ',
+    'Hồng cánh sen',
+    'Xanh lá nhạt',
+    'Xanh đậm',
+    'Tím nhạt',
+  ];
+
+  const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+
+  const handleColorChange = (color) => {
+    setSelectedColors((prevSelectedColors) =>
+      prevSelectedColors.includes(color)
+        ? prevSelectedColors.filter((c) => c !== color)
+        : [...prevSelectedColors, color]
+    );
+  };
 
   const handleSizeChange = (size) => {
     setSelectedSizes((prevSelectedSizes) =>
@@ -66,17 +76,80 @@ const CategorySidebar = ({ products, onFilterChange }) => {
     );
   };
 
+  const getColorClass = (color) => {
+    const colorMap = {
+      Đỏ: 'bg-red-500',
+      'Xanh lá cây': 'bg-green-500',
+      'Xanh dương': 'bg-blue-500',
+      Vàng: 'bg-yellow-500',
+      Cam: 'bg-orange-500',
+      Tím: 'bg-purple-500',
+      Hồng: 'bg-pink-500',
+      Đen: 'bg-black',
+      Trắng: 'bg-white border border-gray-300',
+      Xám: 'bg-gray-500',
+      Nâu: 'bg-amber-800',
+      'Xanh lơ': 'bg-cyan-500',
+      'Hồng cánh sen': 'bg-pink-300',
+      'Xanh lá nhạt': 'bg-green-300',
+      'Xanh đậm': 'bg-blue-700',
+      'Tím nhạt': 'bg-purple-300',
+    };
+    return colorMap[color] || 'bg-gray-200';
+  };
+
+  const removeColor = (color) => {
+    setSelectedColors(selectedColors.filter((c) => c !== color));
+  };
+
+  const removeSize = (size) => {
+    setSelectedSizes(selectedSizes.filter((s) => s !== size));
+  };
+
   return (
-    <div className="">
-      {/* Slider Range */}
-      <MultiRangeSlider min={0} max={100} />
+    <div className="sticky top-4">
+      <MultiRangeSlider
+        min={priceRangeData?.minPrice || 1000}
+        max={priceRangeData?.maxPrice || 1000000}
+        onPriceRangeChange={handlePriceRangeChange}
+      />
+
+      {/* Selected Filters */}
+      <p className="text-gray-700 font-bold">Đã chọn: </p>
+      <div className="flex flex-wrap gap-2 mt-4">
+        {selectedColors.map((color) => (
+          <div key={color} className="badge badge-error flex items-center">
+            {color}
+            <button
+              className="badge-close ml-2 w-4 h-4 font-bold bg-gray-300 hover:bg-white hover:text-gray-900 rounded-full transition-colors duration-200"
+              onClick={() => removeColor(color)}
+            >
+              ×
+            </button>
+          </div>
+        ))}
+        {selectedSizes.map((size) => (
+          <div key={size} className="badge badge-secondary flex items-center">
+            {size}
+            <button
+              className="badge-close ml-2 w-4 h-4 font-bold bg-gray-300 hover:bg-white hover:text-gray-900 rounded-full transition-colors duration-200"
+              onClick={() => removeSize(size)}
+            >
+              ×
+            </button>
+          </div>
+        ))}
+      </div>
 
       {/* Color Filter */}
       <div className="space-y-2 mt-12">
-        <details className="overflow-hidden rounded-md border border-gray-300 transition-all duration-300">
-          <summary className="flex cursor-pointer items-center justify-between gap-2 bg-white p-4 text-gray-900 transition">
-            <span className="text-sm font-medium">Màu sắc</span>
-            <span className="transition group-open:-rotate-180">
+        <div className="overflow-hidden rounded-md border border-gray-300">
+          <button
+            className="flex w-full cursor-pointer items-center justify-between gap-2 bg-white p-4 text-gray-900 transition"
+            onClick={() => setIsColorOpen(!isColorOpen)}
+          >
+            <span className="text-sm font-bold">Màu sắc</span>
+            <span className={`transition ${isColorOpen ? 'rotate-180' : ''}`}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -92,48 +165,55 @@ const CategorySidebar = ({ products, onFilterChange }) => {
                 />
               </svg>
             </span>
-          </summary>
+          </button>
 
-          <div className="border-t border-gray-200 bg-white transition-all duration-300">
+          <div
+            className={`border-t border-gray-200 bg-white transition-all duration-300 ${
+              isColorOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+            } overflow-hidden`}
+          >
             <header className="flex items-center justify-between p-4">
               <span className="text-sm text-gray-700">
                 {selectedColors.length} đã chọn
               </span>
               <button
                 type="button"
-                onClick={resetCheckboxes}
+                onClick={() => setSelectedColors([])}
                 className="text-sm text-gray-900 underline underline-offset-4 hover:text-red-500"
               >
                 Làm mới
               </button>
             </header>
 
-            <ul className="space-y-1 border-t border-gray-200 p-4 transition-all duration-300">
+            <div className="grid grid-cols-4 gap-4 border-t border-gray-200 p-4">
               {colors.map((color) => (
-                <label
+                <button
                   key={color}
-                  className="cursor-pointer label flex gap-4 items-center"
+                  onClick={() => handleColorChange(color)}
+                  className={`w-8 h-8 rounded-full flex justify-center items-center ${getColorClass(
+                    color
+                  )} relative`}
+                  title={color}
                 >
-                  <input
-                    type="checkbox"
-                    checked={checkboxes[color] || false}
-                    onChange={() => handleCheckboxChange(color)}
-                    className="checkbox checkbox-error checkbox-sm"
-                  />
-                  <span className="label-text">{color}</span>
-                </label>
+                  {selectedColors.includes(color) && (
+                    <Icon icon="ph:check-fat-fill" className="text-gray-700" />
+                  )}
+                </button>
               ))}
-            </ul>
+            </div>
           </div>
-        </details>
+        </div>
       </div>
 
       {/* Size Filter */}
       <div className="space-y-2 mt-6">
-        <details className="overflow-hidden rounded-md border border-gray-300 transition-all duration-300">
-          <summary className="flex cursor-pointer items-center justify-between gap-2 bg-white p-4 text-gray-900 transition">
-            <span className="text-sm font-medium">Kích thước</span>
-            <span className="transition group-open:-rotate-180">
+        <div className="overflow-hidden rounded-md border border-gray-300">
+          <button
+            className="flex w-full cursor-pointer items-center justify-between gap-2 bg-white p-4 text-gray-900 transition"
+            onClick={() => setIsSizeOpen(!isSizeOpen)}
+          >
+            <span className="text-sm font-bold">Kích thước</span>
+            <span className={`transition ${isSizeOpen ? 'rotate-180' : ''}`}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -149,9 +229,13 @@ const CategorySidebar = ({ products, onFilterChange }) => {
                 />
               </svg>
             </span>
-          </summary>
+          </button>
 
-          <div className="border-t border-gray-200 bg-white transition-all duration-300">
+          <div
+            className={`border-t border-gray-200 bg-white transition-all duration-300 ${
+              isSizeOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+            } overflow-hidden`}
+          >
             <header className="flex items-center justify-between p-4">
               <span className="text-sm text-gray-700">
                 {selectedSizes.length} đã chọn
@@ -165,32 +249,34 @@ const CategorySidebar = ({ products, onFilterChange }) => {
               </button>
             </header>
 
-            <ul className="space-y-1 border-t border-gray-200 p-4 transition-all duration-300">
+            <div className="grid grid-cols-3 gap-4 border-t border-gray-200 p-4">
               {sizes.map((size) => (
-                <label
+                <button
                   key={size}
-                  className="cursor-pointer label flex gap-4 items-center"
+                  onClick={() => handleSizeChange(size)}
+                  className={`btn px-4 py-2 rounded border flex justify-center items-center ${
+                    selectedSizes.includes(size)
+                      ? 'bg-red-500 text-white'
+                      : 'bg-white text-gray-700 hover:bg-gray-100'
+                  }`}
                 >
-                  <input
-                    type="checkbox"
-                    checked={selectedSizes.includes(size)}
-                    onChange={() => handleSizeChange(size)}
-                    className="checkbox checkbox-error checkbox-sm"
-                  />
-                  <span className="label-text">{size}</span>
-                </label>
+                  {size}
+                </button>
               ))}
-            </ul>
+            </div>
           </div>
-        </details>
+        </div>
       </div>
     </div>
   );
 };
 
 CategorySidebar.propTypes = {
-  products: PropTypes.array.isRequired,
   onFilterChange: PropTypes.func,
+  onPriceRangeChange: PropTypes.func,
+  priceRangeData: PropTypes.object,
+  initialFilters: PropTypes.object,
+  // Remove noMatchingProducts from prop types
 };
 
 export default CategorySidebar;
