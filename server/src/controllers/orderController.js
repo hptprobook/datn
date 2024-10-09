@@ -91,53 +91,63 @@ const updateOrder = async (req, res) => {
         });
     }
 };
+
 const checkStockProducts = async (req, res) => {
     try {
-        if (!Array.isArray(req.body)) {
-            return res
-                .status(StatusCodes.BAD_REQUEST)
-                .json({ message: 'Hãy gửi 1 mảng sản phẩm' });
+        const products = req.body;
+        if (!Array.isArray(products) || products.length === 0) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message:
+                    'Hãy gửi thông tin sản phẩm đúng định dạng và không được bỏ trống.',
+            });
         }
 
-        if (req.body.length === 0) {
-            return res
-                .status(StatusCodes.BAD_REQUEST)
-                .json({ message: 'Thiếu thông tin sản phẩm' });
-        }
-        // Kiểm tra thông tin sản phẩm
-        for (let { _id, quantity, vars } of req.body) {
-            if (!_id || !vars.color || !vars.size || !quantity) {
-                return res
-                    .status(StatusCodes.BAD_REQUEST)
-                    .json({ message: 'Thiếu thông tin của sản phẩm' });
+        for (const {
+            productId,
+            variantColor,
+            variantSize,
+            name,
+            quantity,
+        } of products) {
+            if (
+                !productId ||
+                !name ||
+                !variantColor ||
+                !variantSize ||
+                !quantity
+            ) {
+                return res.status(StatusCodes.BAD_REQUEST).json({
+                    message: 'Thiếu thông tin của sản phẩm',
+                });
             }
         }
-        let a = false;
-        const checkPromises = req.body.map(async (item) => {
-            const product = await orderModel.checkStockProducts(item);
-            if (product.length > 0) {
-                const quantityProduct = product[0].vars[0].stock;
-                if (quantityProduct < item.quantity) {
-                    a = true;
+
+        const results = await Promise.all(
+            products.map(async (item) => {
+                const product = await orderModel.checkStockProducts(item);
+
+                if (!product.length) {
                     return {
-                        id: item._id,
-                        message: `Không đủ số lượng còn: ${quantityProduct}`,
+                        id: item.productId,
+                        message: `${item.name} đã ngưng bán hoặc có lỗi xảy ra`,
                     };
                 }
-            } else {
-                a = true;
-                return {
-                    id: item._id,
-                    message: 'Không có sản phẩm',
-                };
-            }
-        });
+                const quantityProduct = product[0].variants[0].sizes[0].stock;
+                if (quantityProduct < item.quantity) {
+                    return {
+                        id: item.productId,
+                        message: `${item.name} số lượng còn lại: ${quantityProduct}`,
+                    };
+                }
 
-        const results = await Promise.all(checkPromises);
-        const filteredResults = results.filter((n) => n);
-        if (a) {
+                return null;
+            })
+        );
+        const filteredResults = results.filter((result) => result);
+        if (filteredResults.length > 0) {
             return res.status(StatusCodes.BAD_REQUEST).json(filteredResults);
         }
+
         return res.status(StatusCodes.OK).json({ message: 'Có thể mua hàng' });
     } catch (error) {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
@@ -149,10 +159,56 @@ const checkStockProducts = async (req, res) => {
 
 const updateStockProducts = async (req, res) => {
     try {
-        await orderModel.updateStockProducts();
-        return res
-            .status(StatusCodes.BAD_REQUEST)
-            .json({ message: 'Cập nhật số lượng sản phẩm' });
+        const products = req.body;
+        if (!Array.isArray(products) || products.length === 0) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message:
+                    'Hãy gửi thông tin sản phẩm đúng định dạng và không được bỏ trống.',
+            });
+        }
+
+        for (const {
+            productId,
+            variantColor,
+            variantSize,
+            name,
+            quantity,
+        } of products) {
+            if (
+                !productId ||
+                !name ||
+                !variantColor ||
+                !variantSize ||
+                !quantity
+            ) {
+                return res.status(StatusCodes.BAD_REQUEST).json({
+                    message: 'Thiếu thông tin của sản phẩm',
+                });
+            }
+        }
+        const results = await Promise.all(
+            products.map(async (item) => {
+                const updateResult = await orderModel.updateSingleProductStock(
+                    item
+                );
+                if (updateResult.modifiedCount === 0) {
+                    return {
+                        productId: item.productId,
+                        message: `${item.name} không đủ tồn kho hoặc không tìm thấy sản phẩm.`,
+                    };
+                }
+                return null;
+            })
+        );
+        const failedUpdates = results.filter((result) => result !== null);
+
+        if (failedUpdates.length > 0) {
+            return res.status(StatusCodes.BAD_REQUEST).json(failedUpdates);
+        }
+
+        return res.status(StatusCodes.OK).json({
+            message: 'Cập nhật tồn kho thành công.',
+        });
     } catch (error) {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             message: ERROR_MESSAGES.ERR_AGAIN,

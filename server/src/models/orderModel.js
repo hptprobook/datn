@@ -111,42 +111,49 @@ const checkStockProducts = async (data) => {
     const db = await GET_DB().collection('products');
     const result = await db
         .find({
-            _id: new ObjectId(data._id),
-            vars: {
+            _id: new ObjectId(data.productId),
+            variants: {
                 $elemMatch: {
-                    color: data.vars.color,
-                    size: data.vars.size,
+                    color: data.variantColor,
+                    'sizes.size': data.variantSize,
                 },
             },
         })
-        .project({ _id: 0, 'vars.$': 1 })
+        .project({
+            _id: 0,
+            name: 1,
+            'variants.$': 1,
+        })
         .toArray();
+
+    if (result.length > 0 && result[0].variants.length > 0) {
+        const filteredSizes = result[0].variants[0].sizes.filter(
+            (size) => size.size === data.variantSize
+        );
+        result[0].variants[0].sizes = filteredSizes;
+    }
     return result;
 };
 
-const updateStockProducts = async () => {
-    const productId = '669bb95902b3201abc75dad6';
-    const updates = [
-        { color: 'red', size: 'S', stockChange: -1 },
-        { color: 'red', size: 'M', stockChange: -2 },
-        // Thêm các điều kiện khác tại đây
-    ];
-
+const updateSingleProductStock = async (data) => {
     const db = await GET_DB().collection('products');
-    for (const update of updates) {
-        await db.updateOne(
-            {
-                _id: new ObjectId(productId),
-                vars: {
-                    $elemMatch: {
-                        color: update.color,
-                        size: update.size,
-                    },
-                },
+    const result = await db.updateOne(
+        {
+            _id: new ObjectId(data.productId),
+            'variants.color': data.variantColor,
+            'variants.sizes.size': data.variantSize,
+        },
+        {
+            $inc: {
+                'variants.$.stock': data.quantity,
+                'variants.$.sizes.$[size].stock': data.quantity,
             },
-            { $inc: { 'vars.$.stock': update.stockChange } }
-        );
-    }
+        },
+        {
+            arrayFilters: [{ 'size.size': data.variantSize }],
+        }
+    );
+    return result;
 };
 
 export const orderModel = {
@@ -157,7 +164,8 @@ export const orderModel = {
     getCurrentOrder,
     findCartById,
     checkStockProducts,
-    updateStockProducts,
+    updateSingleProductStock,
+    // updateStockProducts,
 
     getOrderById,
     getStatusOrder,
