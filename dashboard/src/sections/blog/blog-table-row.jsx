@@ -48,6 +48,8 @@ export default function BlogTableRow({
           </Stack>
         </TableCell>
 
+        <TableCell>{slug}</TableCell>
+
         <TableCell>{content}</TableCell>
 
         <TableCell>{authName}</TableCell>

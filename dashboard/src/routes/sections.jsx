@@ -4,7 +4,6 @@ import { Outlet, Navigate, useRoutes } from 'react-router-dom';
 import { ProtectedRoute } from './components/ProtectedRoute';
 // ----------------------------------------------------------------------
 export const IndexPage = lazy(() => import('src/pages/app'));
-export const BlogPage = lazy(() => import('src/pages/blog/blogs'));
 // user page
 export const UserPage = lazy(() => import('src/pages/user/user'));
 export const CreateUserPage = lazy(() => import('src/pages/user/createUser'));
@@ -42,7 +41,9 @@ export const OrderDetailPage = lazy(() => import('src/pages/orders/detail'));
 export const BrandsPage = lazy(() => import('src/pages/brands/brands'));
 export const BrandCreatePage = lazy(() => import('src/pages/brands/create'));
 export const BrandDetailPage = lazy(() => import('src/pages/brands/detail'));
-
+// blog page
+export const BlogPage = lazy(() => import('src/pages/blog/blogs'));
+export const CreateBlogPage = lazy(() => import('src/pages/blog/create'));
 // ----------------------------------------------------------------------
 
 const childRoutes = [
@@ -54,6 +55,7 @@ const childRoutes = [
   { path: 'products/create', element: <CreateProductPage /> },
   { path: 'products/:id', element: <DetailProductPage /> },
   { path: 'blog', element: <BlogPage /> },
+  { path: 'blog/create', element: <CreateBlogPage /> },
   { path: 'category', element: <CategoryPage /> },
   { path: 'category/create', element: <CreateCategoryPage /> },
   { path: 'category/:id', element: <EditCategoryPage /> },

@@ -1,0 +1,1 @@
+export { default as CreateBlogView } from './view';
