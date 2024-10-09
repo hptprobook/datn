@@ -1,55 +1,55 @@
 import { createSlice, createAction, createAsyncThunk } from '@reduxjs/toolkit';
-import ProductsService from '../services/product.service';
+import BlogsService from '../services/blog.service';
 
-export const fetchAllProducts = createAsyncThunk(
-  'products/fetchProducts',
+export const fetchAllBlogs = createAsyncThunk(
+  'blogs/fetchBlogs',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await ProductsService.getAllProducts();
+      const response = await BlogsService.getAllBlogs();
       return response;
     } catch (err) {
       return rejectWithValue(err.response.data);
     }
   }
 );
-export const fetchProductById = createAsyncThunk(
-  'products/fetchById',
+export const fetchBlogById = createAsyncThunk(
+  'blogs/fetchById',
   async ({ id }, { rejectWithValue }) => {
     try {
-      const response = await ProductsService.getProductById(id);
+      const response = await BlogsService.getBlogById(id);
       return response;
     } catch (err) {
       return rejectWithValue(err.response.data);
     }
   }
 );
-export const deleteProductById = createAsyncThunk(
-  'products/deleteProductById',
+export const deleteBlogtById = createAsyncThunk(
+  'blogs/deleteBlogtById',
   async ({ id }, { rejectWithValue }) => {
     try {
-      const response = await ProductsService.deleteProductById(id);
+      const response = await BlogsService.deleteBlogtById(id);
       return response;
     } catch (err) {
       return rejectWithValue(err.response.data);
     }
   }
 );
-export const createProduct = createAsyncThunk(
-  'products/createProduct',
+export const createBlog = createAsyncThunk(
+  'blogs/createBlog',
   async ({ data }, { rejectWithValue }) => {
     try {
-      const response = await ProductsService.createProduct(data);
+      const response = await BlogsService.createBlog(data);
       return response;
     } catch (err) {
       return rejectWithValue(err.response.data);
     }
   }
 );
-export const updateProduct = createAsyncThunk(
-  'products/updateProduct',
+export const updateBlog = createAsyncThunk(
+  'blogs/updateBlog',
   async ({ id, data }, { rejectWithValue }) => {
     try {
-      const response = await ProductsService.updateProduct(id, data);
+      const response = await BlogsService.updateBlog(id, data);
       return response;
     } catch (err) {
       return rejectWithValue(err.response.data);
@@ -57,13 +57,13 @@ export const updateProduct = createAsyncThunk(
   }
 );
 
-export const resetState = createAction('products/resetState');
-export const setStatus = createAction('products/setStatus');
-const productsSlice = createSlice({
-  name: 'products',
+export const resetState = createAction('blogs/resetState');
+export const setStatus = createAction('blogs/setStatus');
+const blogsSlice = createSlice({
+  name: 'blogs',
   initialState: {
-    products: [],
-    product: {},
+    blogs: [],
+    blog: {},
     status: 'idle',
     statusGet: 'idle',
     update: {},
@@ -71,58 +71,58 @@ const productsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchAllProducts.pending, (state) => {
+      .addCase(fetchAllBlogs.pending, (state) => {
         state.status = 'loading';
       })
-      .addCase(fetchAllProducts.fulfilled, (state, action) => {
+      .addCase(fetchAllBlogs.fulfilled, (state, action) => {
         state.status = 'successful';
-        state.products = action.payload.products;
+        state.blogs = action.payload;
       })
-      .addCase(fetchAllProducts.rejected, (state, action) => {
+      .addCase(fetchAllBlogs.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload;
       })
-      .addCase(fetchProductById.pending, (state) => {
+      .addCase(fetchBlogById.pending, (state) => {
         state.statusGet = 'loading';
       })
-      .addCase(fetchProductById.fulfilled, (state, action) => {
+      .addCase(fetchBlogById.fulfilled, (state, action) => {
         state.statusGet = 'successful';
-        state.product = action.payload;
+        state.blog = action.payload;
       })
-      .addCase(fetchProductById.rejected, (state, action) => {
+      .addCase(fetchBlogById.rejected, (state, action) => {
         state.statusGet = 'failed';
         state.error = action.payload;
       })
-      .addCase(createProduct.pending, (state) => {
+      .addCase(createBlog.pending, (state) => {
         state.statusCreate = 'loading';
       })
-      .addCase(createProduct.fulfilled, (state, action) => {
+      .addCase(createBlog.fulfilled, (state, action) => {
         state.statusCreate = 'successful';
         state.dataCreate = action.payload;
       })
-      .addCase(createProduct.rejected, (state, action) => {
+      .addCase(createBlog.rejected, (state, action) => {
         state.statusCreate = 'failed';
         state.error = action.payload;
       })
-      .addCase(deleteProductById.pending, (state) => {
+      .addCase(deleteBlogtById.pending, (state) => {
         state.statusDelete = 'loading';
       })
-      .addCase(deleteProductById.fulfilled, (state, action) => {
+      .addCase(deleteBlogtById.fulfilled, (state, action) => {
         state.statusDelete = 'successful';
         state.deleteReturn = action.payload;
       })
-      .addCase(deleteProductById.rejected, (state, action) => {
+      .addCase(deleteBlogtById.rejected, (state, action) => {
         state.statusDelete = 'failed';
         state.error = action.payload;
       })
-      .addCase(updateProduct.pending, (state) => {
+      .addCase(updateBlog.pending, (state) => {
         state.statusUpdate = 'loading';
       })
-      .addCase(updateProduct.fulfilled, (state, action) => {
+      .addCase(updateBlog.fulfilled, (state, action) => {
         state.statusUpdate = 'successful';
         state.update = action.payload;
       })
-      .addCase(updateProduct.rejected, (state, action) => {
+      .addCase(updateBlog.rejected, (state, action) => {
         state.statusUpdate = 'failed';
         state.error = action.payload;
       })
@@ -134,5 +134,5 @@ const productsSlice = createSlice({
       });
   },
 });
-export const { resetState: resetStateAction } = productsSlice.actions;
-export default productsSlice.reducer;
+export const { resetState: resetStateAction } = blogsSlice.actions;
+export default blogsSlice.reducer;

@@ -35,7 +35,7 @@ const CartFixed = ({ open, setOpen }) => {
 
   return (
     <Dialog
-      className="relative z-30"
+      className="relative z-[99999]"
       open={open}
       onClose={() => setOpen(false)}
     >

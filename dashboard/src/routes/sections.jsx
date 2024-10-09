@@ -4,7 +4,7 @@ import { Outlet, Navigate, useRoutes } from 'react-router-dom';
 import { ProtectedRoute } from './components/ProtectedRoute';
 // ----------------------------------------------------------------------
 export const IndexPage = lazy(() => import('src/pages/app'));
-export const BlogPage = lazy(() => import('src/pages/blog'));
+export const BlogPage = lazy(() => import('src/pages/blog/blogs'));
 // user page
 export const UserPage = lazy(() => import('src/pages/user/user'));
 export const CreateUserPage = lazy(() => import('src/pages/user/createUser'));
