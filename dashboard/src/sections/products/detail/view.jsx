@@ -61,13 +61,13 @@ const productSchema = Yup.object().shape({
     .required('Loại sản phẩm là bắt buộc')
     .min(1, 'Loại sản phẩm là bắt buộc'),
   description: Yup.string()
-    .required('Mô tả là bắt buộc')
-    .min(5, 'Mô tả phải ít nhất 5 ký tự')
-    .max(10000, 'Mô tả không được quá 10000 ký tự'),
-  content: Yup.string()
     .required('Mô tả ngắn là bắt buộc')
     .min(5, 'Mô tả ngắn phải ít nhất 5 ký tự')
-    .max(1000, 'Mô tả ngắn không được quá 1000 ký tự'),
+    .max(1000, 'Mô tả ngắn không được quá 10000 ký tự'),
+  content: Yup.string()
+    .required('Mô tả là bắt buộc')
+    .min(5, 'Mô tả phải ít nhất 5 ký tự')
+    .max(10000, 'Mô tả không được quá 1000 ký tự'),
   price: Yup.string().required('Cần nhập có giá thông thường').typeError('Giá không hợp lệ'),
 });
 
@@ -185,6 +185,7 @@ export default function DetailProductPage() {
       // gán ảnh biến thể
       // values.imageVariantsUpdate = imageVariantsUpdate;
       console.log(values);
+      console.log(variants);
       // xóa comment dispatch(updateProduct({ id, data: values })); để chạy code
       // dispatch(updateProduct({ id, data: values }));
     },
