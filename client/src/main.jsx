@@ -26,6 +26,7 @@ import { handleApiError } from './config/helpers.js';
 
 // useCart
 import { CartProvider } from 'react-use-cart';
+import { WishlistProvider } from './context/WishListContext';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -49,9 +50,11 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <BrowserRouter basename="/">
     <QueryClientProvider client={queryClient}>
       <CartProvider>
-        <ReactQueryDevtools initialIsOpen={false} />
-        <ToastContainer />
-        <App />
+        <WishlistProvider>
+          <ReactQueryDevtools initialIsOpen={false} />
+          <ToastContainer />
+          <App />
+        </WishlistProvider>
       </CartProvider>
     </QueryClientProvider>
   </BrowserRouter>

@@ -24,6 +24,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 //admin
+Router.get('/price-range', productController.getMinMaxPrices);
 Router.get('/', productController.getAllProducts);
 Router.get('/event/:slug', productController.getProductByEvent);
 Router.get('/special', productController.getAllProductsSpecial);
@@ -44,8 +45,10 @@ Router.get('/filter/created/newest', productController.getProductByNewest);
 Router.get('/filter/created/oldest', productController.getProductByOldest);
 //search
 Router.get('/search/:search', productController.getProductBySearch);
-//Filter category
+//Sort category
 Router.get('/:slug/filter', productController.getProductByCategoryFilter);
+
+Router.get('/filter/:slug', productController.getProductsBySlugAndPriceRange);
 
 Router.post(
   '/',

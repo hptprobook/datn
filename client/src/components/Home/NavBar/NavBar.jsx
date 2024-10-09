@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { getMenu } from '~/APIs';
-import MainLoading from '~/components/common/Loading/MainLoading';
 import { handleToast } from '~/customHooks/useToast';
 import './style.css';
 
@@ -14,7 +13,7 @@ const NavBar = () => {
     queryFn: getMenu,
   });
 
-  if (isLoading) return <MainLoading />;
+  if (isLoading) return null;
 
   if (error) {
     handleToast('error', error);
@@ -37,16 +36,20 @@ const NavBar = () => {
             onMouseEnter={() => setHoveredMenu(item.id)}
             onMouseLeave={() => setHoveredMenu(null)}
           >
-            <p className="cursor-pointer hover:text-red-500 font-semibold text-sm">
-              {item.title}
-            </p>
+            <NavLink to={`/danh-muc-san-pham/${item.slug}`}>
+              <p className="cursor-pointer hover:text-red-500 font-semibold text-sm">
+                {item.title}
+              </p>
+            </NavLink>
             {hoveredMenu === item.id && (
               <div className="fixed top-32 w-container left-1/2 -translate-x-1/2 bg-slate-50 shadow-lg z-10 p-4 border-t-df grid grid-cols-4 gap-5 menu-hovered">
                 {item.list?.map((subItem) => (
                   <div key={subItem.id} className="mb-4">
-                    <p className="font-bold mb-4 text-sm hover:text-red-600">
-                      {subItem.title}
-                    </p>
+                    <NavLink to={`/danh-muc-san-pham/${subItem.slug}`}>
+                      <p className="font-bold mb-4 text-sm hover:text-red-600">
+                        {subItem.title}
+                      </p>
+                    </NavLink>
                     <div>
                       {subItem.list?.map((childItem) => (
                         <NavLink
