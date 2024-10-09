@@ -765,6 +765,23 @@ const getProductBySearch = async (search, page, limit) => {
     .skip((page - 1) * limit)
     .toArray();
 
+  results.forEach((product) => {
+    if (product.reviews && product.reviews.length > 0) {
+      const total = product.reviews.reduce(
+        (acc, review) => acc + review.rating,
+        0
+      );
+      product.averageRating = parseFloat(
+        (total / product.reviews.length).toFixed(1)
+      );
+      product.totalComment = product.reviews.length;
+    } else {
+      product.averageRating = 0;
+      product.totalComment = 0;
+    }
+    delete product.reviews;
+  });
+
   return results;
 };
 

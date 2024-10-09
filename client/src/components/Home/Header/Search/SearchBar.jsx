@@ -1,5 +1,5 @@
 import { IoIosSearch, IoMdCloseCircleOutline } from 'react-icons/io';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { debounce } from 'lodash'; // Import debounce từ lodash
 import SearchPopular from './SearchPopular';
 import SearchResult from './SearchResult';
@@ -11,6 +11,18 @@ const SearchBar = () => {
   const [searchValue, setSearchValue] = useState('');
   const [keyword, setKeyword] = useState('');
   const [limit, setLimit] = useState(5);
+
+  useEffect(() => {
+    if (isFocused) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isFocused]);
 
   // Gọi API tìm kiếm với debounce 1000ms
   const debouncedSearch = useCallback(
@@ -77,6 +89,8 @@ const SearchBar = () => {
               handleModelClick={handleModelClick}
               searchResults={searchResults?.products}
               searchLoading={searchLoading}
+              isOpen={isFocused}
+              closeModal={handleOverlayClick}
             />
           )}
         </div>

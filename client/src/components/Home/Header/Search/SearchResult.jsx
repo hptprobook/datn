@@ -3,22 +3,27 @@ import { FaArrowRightLong } from 'react-icons/fa6';
 import { NavLink } from 'react-router-dom';
 import ProductItem from '~/components/common/Product/ProductItem';
 import PropTypes from 'prop-types';
+import './style.css';
 
-const SearchResult = ({ handleModelClick, searchResults, searchLoading }) => {
-  if (searchLoading) {
+const SearchResult = ({
+  handleModelClick,
+  searchResults,
+  searchLoading,
+  closeModal,
+}) => {
+  if (searchLoading || !searchResults || searchResults.length === 0) {
     return (
-      <div className="w-full h-96 flex justify-center items-center">
-        Đang tìm kiếm
+      <div
+        className="w-full h-[620px] bg-yellow-50 flex justify-center items-center"
+        onClick={handleModelClick}
+      >
+        <div className="search-loader"></div>
       </div>
     );
   }
 
-  if (!searchResults || searchResults.length === 0) {
-    return null;
-  }
-
   return (
-    <div className="w-full bg-yellow-50" onClick={handleModelClick}>
+    <div className="w-full bg-yellow-50 h-[620px]" onClick={handleModelClick}>
       <div className="max-w-container mx-auto">
         <div className="flex gap-3 items-center py-6">
           <FaFire className="text-red-500" />
@@ -27,7 +32,13 @@ const SearchResult = ({ handleModelClick, searchResults, searchLoading }) => {
         <div className="grid grid-cols-5 gap-6 pb-5">
           {searchResults &&
             searchResults.map((product) => (
-              <ProductItem key={product.id} product={product} />
+              <NavLink
+                to={`/san-pham/${product.slug}`}
+                key={product._id}
+                onClick={closeModal}
+              >
+                <ProductItem product={product} />
+              </NavLink>
             ))}
         </div>
         <NavLink
