@@ -25,10 +25,16 @@ const CategoryContent = ({
   const { slug } = useParams();
 
   const { data: productsData, isFetching: isProductsFetching } = useQuery({
-    queryKey: ['getProductsByCategorySlug', catData.slug, limit],
+    queryKey: [
+      'getProductsByCategorySlug',
+      catData.slug,
+      limit,
+      filteredProductsData,
+    ],
     queryFn: () => getProductsByCatSlug(catData.slug, limit),
     keepPreviousData: true,
     staleTime: 5 * 60 * 1000,
+    enabled: !!filteredProductsData, // Ensure query is enabled when filters are set
   });
 
   const {
@@ -71,7 +77,7 @@ const CategoryContent = ({
     if (key && value) {
       debouncedRefetch();
     }
-  }, [key, value, debouncedRefetch]);
+  }, [key, value, debouncedRefetch, filteredProductsData]); // Add filteredProductsData as a dependency
 
   useEffect(() => {
     if (sortOption) {

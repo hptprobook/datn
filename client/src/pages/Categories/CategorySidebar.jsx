@@ -24,8 +24,7 @@ const CategorySidebar = ({
       colors: selectedColors,
       sizes: selectedSizes,
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedColors, selectedSizes]);
+  }, [selectedColors, selectedSizes, onFilterChange]);
 
   const handlePriceRangeChange = useCallback(
     (newPriceRange) => {

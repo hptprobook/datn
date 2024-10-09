@@ -29,44 +29,75 @@ const CategoryPage = () => {
   const { data: priceRangeData } = useQuery({
     queryKey: ['price-range'],
     queryFn: getMinMaxPrices,
+    initialData: () => {
+      return {
+        minPrice: 1000,
+        maxPrice: 2000000,
+      };
+    },
     staleTime: 1000 * 60 * 30,
     cacheTime: 1000 * 60 * 60,
   });
 
-  const { data: filteredProductsData, refetch: refetchFilteredProducts } =
-    useQuery({
-      queryKey: ['filtered-products', slug, filters, sortOption, limit],
-      queryFn: async () => {
-        if (
-          !slug ||
-          filters.priceRange.min === undefined ||
-          filters.priceRange.max === undefined ||
-          !shouldFetchFiltered
-        ) {
-          return Promise.resolve(null);
-        }
-        try {
-          const result = await filterProductsWithPriceRange({
-            slug,
-            minPrice: filters.priceRange.min,
-            maxPrice: filters.priceRange.max,
-            colors: filters.colors,
-            sizes: filters.sizes,
-            sortOption,
-            limit,
-          });
-          setNoMatchingProducts(false);
-          return result;
-        } catch (error) {
-          if (error.response && error.response.status === 404) {
-            setNoMatchingProducts(true);
-            return null;
-          }
-          throw error;
-        }
-      },
-      enabled: shouldFetchFiltered,
+  const updateUrlWithFilter = (filterParams) => {
+    const params = new URLSearchParams(window.location.search);
+    Object.keys(filterParams).forEach((key) => {
+      if (filterParams[key] !== null) {
+        params.set(key, filterParams[key]);
+      } else {
+        params.delete(key);
+      }
     });
+    window.history.replaceState(null, '', '?' + params.toString());
+  };
+
+  useEffect(() => {
+    const filterParams = {
+      minPrice: filters.priceRange.min,
+      maxPrice: filters.priceRange.max,
+      colors: filters.colors.join(','),
+      sizes: filters.sizes.join(','),
+    };
+    updateUrlWithFilter(filterParams);
+  }, [filters]);
+
+  useEffect(() => {
+    setFilters({
+      colors: [],
+      sizes: [],
+      priceRange: { min: null, max: null },
+    });
+    setSortOption('');
+    setShouldFetchFiltered(false);
+  }, [slug]);
+
+  const { data: filteredProductsData } = useQuery({
+    queryKey: ['filtered-products', slug, filters, sortOption, limit],
+    queryFn: async () => {
+      try {
+        const result = await filterProductsWithPriceRange({
+          slug,
+          minPrice: filters.priceRange.min,
+          maxPrice: filters.priceRange.max,
+          colors: filters.colors,
+          sizes: filters.sizes,
+          sortOption,
+          limit,
+        });
+        setNoMatchingProducts(false);
+        return result;
+      } catch (error) {
+        if (error.response && error.response.status === 404) {
+          setNoMatchingProducts(true);
+          return null;
+        }
+        throw error;
+      }
+    },
+    enabled: !!filters.priceRange.min && !!filters.priceRange.max,
+    staleTime: 1000 * 60 * 30,
+    cacheTime: 1000 * 60 * 60,
+  });
 
   const handleFilterChange = useCallback((newFilters) => {
     setFilters((prevFilters) => ({
@@ -97,12 +128,6 @@ const CategoryPage = () => {
     setLimit((prevLimit) => prevLimit + 20);
     setShouldFetchFiltered(true);
   }, []);
-
-  useEffect(() => {
-    if (shouldFetchFiltered) {
-      refetchFilteredProducts();
-    }
-  }, [filters, sortOption, refetchFilteredProducts, shouldFetchFiltered]);
 
   // Fetch category data
   const {

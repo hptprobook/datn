@@ -1,32 +1,56 @@
 import { IoIosSearch, IoMdCloseCircleOutline } from 'react-icons/io';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
+import { debounce } from 'lodash'; // Import debounce từ lodash
 import SearchPopular from './SearchPopular';
 import SearchResult from './SearchResult';
+import { searchProducts } from '~/APIs/ProductList/search';
+import { useQuery } from '@tanstack/react-query';
 
 const SearchBar = () => {
   const [isFocused, setIsFocused] = useState(false);
   const [searchValue, setSearchValue] = useState('');
+  const [keyword, setKeyword] = useState('');
+  const [limit, setLimit] = useState(5);
 
-  /* Hàm click vào overlay của model tìm kiếm thì đóng model */
+  // Gọi API tìm kiếm với debounce 1000ms
+  const debouncedSearch = useCallback(
+    debounce((value) => {
+      setKeyword(value);
+    }, 1000),
+    []
+  );
+
+  // Xử lý khi input thay đổi
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setSearchValue(value);
+    debouncedSearch(value);
+  };
+
+  const { data: searchResults, isLoading: searchLoading } = useQuery({
+    queryKey: ['search', keyword, limit],
+    queryFn: () => searchProducts({ keyword, limit }),
+    enabled: keyword !== '',
+  });
+
   const handleOverlayClick = () => {
     setIsFocused(false);
   };
 
-  /* Hàm click overlay loại trừ model không phải */
   const handleModelClick = (e) => {
     e.stopPropagation();
   };
 
   return (
     <div>
-      {/* Form Tìm kiếm */}
-      <form className="flex">
+      <form className="flex" onSubmit={(e) => e.preventDefault()}>
         <input
           type="text"
           className="w-search h-10 rounded-l-md outline-none pl-3 text-sm bg-white"
           placeholder="Tìm kiếm ..."
           onFocus={() => setIsFocused(true)}
-          onChange={(e) => setSearchValue(e.target.value)}
+          onChange={handleInputChange} // Gọi hàm xử lý khi input thay đổi
+          value={searchValue}
         />
         <button
           type="submit"
@@ -35,7 +59,6 @@ const SearchBar = () => {
           <IoIosSearch className="text-gray-50" />
         </button>
       </form>
-      {/* Model Tìm kiếm */}
       {isFocused && (
         <div
           className="mt-16 fixed w-fvw bg-slate-400 bg-opacity-60 h-fvh left-0 top-0 z-20"
@@ -47,12 +70,14 @@ const SearchBar = () => {
           >
             <IoMdCloseCircleOutline />
           </div>
-          {/* Tìm kiếm phổ biến */}
           {searchValue === '' ? (
             <SearchPopular handleModelClick={handleModelClick} />
           ) : (
-            /* Tìm kiếm gợi ý */
-            <SearchResult handleModelClick={handleModelClick} />
+            <SearchResult
+              handleModelClick={handleModelClick}
+              searchResults={searchResults?.products}
+              searchLoading={searchLoading}
+            />
           )}
         </div>
       )}
