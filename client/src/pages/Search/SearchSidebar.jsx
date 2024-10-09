@@ -3,7 +3,7 @@ import MultiRangeSlider from '~/components/common/Range/MultiSliderRange';
 import PropTypes from 'prop-types';
 import { Icon } from '@iconify/react';
 
-const CategorySidebar = ({
+const SearchSidebar = ({
   onFilterChange,
   priceRangeData,
   onPriceRangeChange,
@@ -270,7 +270,7 @@ const CategorySidebar = ({
   );
 };
 
-CategorySidebar.propTypes = {
+SearchSidebar.propTypes = {
   onFilterChange: PropTypes.func,
   onPriceRangeChange: PropTypes.func,
   priceRangeData: PropTypes.object,
@@ -278,4 +278,4 @@ CategorySidebar.propTypes = {
   // Remove noMatchingProducts from prop types
 };
 
-export default CategorySidebar;
+export default SearchSidebar;

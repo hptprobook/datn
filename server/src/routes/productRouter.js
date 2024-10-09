@@ -25,6 +25,7 @@ const upload = multer({ storage });
 
 //admin
 Router.get('/price-range', productController.getMinMaxPrices);
+Router.get('/search', productController.getProductBySearch);
 Router.get('/', productController.getAllProducts);
 Router.get('/event/:slug', productController.getProductByEvent);
 Router.get('/special', productController.getAllProductsSpecial);
@@ -44,7 +45,6 @@ Router.get('/filter/price/desc', productController.getProductByPriceDesc);
 Router.get('/filter/created/newest', productController.getProductByNewest);
 Router.get('/filter/created/oldest', productController.getProductByOldest);
 //search
-Router.get('/search/:search', productController.getProductBySearch);
 //Sort category
 Router.get('/:slug/filter', productController.getProductByCategoryFilter);
 

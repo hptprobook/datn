@@ -714,8 +714,8 @@ const getProductByOldest = async (req, res) => {
 
 const getProductBySearch = async (req, res) => {
   try {
-    let { search } = req.params;
-    let { pages, limit } = req.query;
+    console.log(req.query);
+    let { pages, limit, search } = req.query;
     const products = await productModel.getProductBySearch(
       search,
       pages,
