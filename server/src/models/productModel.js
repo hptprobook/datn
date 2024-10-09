@@ -375,13 +375,12 @@ const update = async (id, data) => {
       $set: {
         ...validData,
         cat_id: validCat,
-        productType: new ObjectId(validData.productType),
       },
     },
     { returnDocument: 'after' }
   );
   if (!result) {
-    throw new Error('Có lỗi xảy ra, xin thử lại sau');
+    throw new Error('Có lỗi xảy ra, xin thử lại sau 1');
   }
   return { result: result };
 };
