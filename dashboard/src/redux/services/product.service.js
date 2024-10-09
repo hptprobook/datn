@@ -1,4 +1,4 @@
-import { get, put, del, uploadProduct, updateProduct } from "src/utils/request";
+import { get, del, uploadProduct, updateProduct } from "src/utils/request";
 /* eslint-disable */
 const ProductsService = {
   getAllProducts: async () => {
