@@ -185,7 +185,7 @@ const ImageDropZone = ({
 ImageDropZone.propTypes = {
   handleUpload: PropTypes.func.isRequired,
   singleFile: PropTypes.bool,
-  defaultImg: PropTypes.string,
+  defaultImg: PropTypes.any,
   error: PropTypes.string,
 };
 

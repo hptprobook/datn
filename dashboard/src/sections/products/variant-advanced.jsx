@@ -101,7 +101,11 @@ export default function AdvancedVariant({ onUpdate, defaultVariants }) {
     enableReinitialize: true,
     validationSchema: variantSchema,
     onSubmit: (values) => {
-      console.log(values);
+      values.sizes = variants[openDetail].sizes;
+      const newVariants = [...variants];
+      newVariants[openDetail] = values;
+      setVariants(newVariants);
+      setOpenDetail(null);
     },
   });
   const formikSize = useFormik({

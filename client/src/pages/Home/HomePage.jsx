@@ -27,7 +27,7 @@ const HomePage = () => {
         </div>
         <Post />
       </main>
-      <div className="hidden md:flex h-productItem bg-red-800 mt-12 w-screen flex-col items-center">
+      <div className="hidden md:flex h-productItem bg-red-800 mt-12 w-full flex-col items-center">
         <div>
           <img src={Logo} alt="" />
         </div>
