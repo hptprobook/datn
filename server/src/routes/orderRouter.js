@@ -20,6 +20,7 @@ Router.put('/:id', verifyToken, orderController.updateOrder);
 Router.delete('/:idOrder', verifyToken, orderController.removeOrder);
 
 Router.post('/check_stock', verifyToken, orderController.checkStockProducts);
+Router.post('/update_stock', verifyToken, orderController.updateStockProducts);
 
 Router.post('/test', orderController.updateStockProducts);
 

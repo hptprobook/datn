@@ -332,11 +332,9 @@ const updateProduct = async (req, res) => {
 
     let parsedVariants = [];
     let oldImageVariants = [];
-
     if (Array.isArray(variants)) {
       parsedVariants = variants.map((variant, index) => {
         let parsedVariant = JSON.parse(variant);
-
         if ('imageAdd' in parsedVariant) {
           if ('image' in parsedVariant) {
             if (product.variants[index].image === parsedVariant.image) {
@@ -345,7 +343,6 @@ const updateProduct = async (req, res) => {
           }
           delete parsedVariant.imageAdd;
         }
-
         return parsedVariant;
       });
     } else {
@@ -407,14 +404,13 @@ const updateProduct = async (req, res) => {
 
     const newimgURLs = [...validImgs, ...imagesProduct];
     const newThumbnail = thumbnail ? thumbnail : product.thumbnail;
-
     const data = {
       cat_id,
       name: name,
       slug,
       description,
       content,
-      tags,
+      tags: JSON.parse(tags),
       thumbnail: newThumbnail,
       images: newimgURLs,
       brand,
@@ -423,24 +419,11 @@ const updateProduct = async (req, res) => {
       weight,
       height,
       statusStock,
-      productType,
+      productType: JSON.parse(productType),
     };
-    const dataProduct = await productModel.update(id, data);
 
-    if (dataProduct.error) {
-      if (thumbnail) {
-        uploadModel.deleteImg(product.thumbnail);
-      }
-      if (imagesProduct && imagesProduct.length > 0) {
-        uploadModel.deleteImgs(imagesProduct);
-      }
-      if (imageVariantsC && imageVariantsC.length > 0) {
-        uploadModel.deleteImgs(imageVariantsC);
-      }
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
-    }
+    // return res.status(StatusCodes.OK).json({ parsedVariants });
+    const dataProduct = await productModel.update(id, data);
     if (dataProduct) {
       if (deleteImgs && deleteImgs.length > 0) {
         uploadModel.deleteImgs(deleteImgs);
@@ -459,9 +442,7 @@ const updateProduct = async (req, res) => {
           .status(StatusCodes.NOT_FOUND)
           .json({ message: 'Không tìm thấy sản phẩm!' });
       }
-      return res.status(StatusCodes.OK).json({
-        result,
-      });
+      return res.status(StatusCodes.OK).json(result);
     }
   } catch (error) {
     if (req.files) {
@@ -503,6 +484,7 @@ const updateProduct = async (req, res) => {
     }
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       message: 'Có lỗi xảy ra xin thử lại sau',
+      error
     });
   }
 };
@@ -714,8 +696,8 @@ const getProductByOldest = async (req, res) => {
 
 const getProductBySearch = async (req, res) => {
   try {
-    let { search } = req.params;
-    let { pages, limit } = req.query;
+    console.log(req.query);
+    let { pages, limit, search } = req.query;
     const products = await productModel.getProductBySearch(
       search,
       pages,
