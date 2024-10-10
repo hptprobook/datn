@@ -151,7 +151,6 @@ export default function BlogView() {
                 headLabel={[
                   { id: 'thumbnail', label: 'Tên' },
                   { id: 'slug', label: 'Đường dẫn' },
-                  { id: 'content', label: 'Nội dung' },
                   { id: 'authName', label: 'Tên tác giả', align: 'center' },
                   { id: 'status', label: 'Trạng thái' },
                   { id: '' },
@@ -165,7 +164,6 @@ export default function BlogView() {
                       key={row._id}
                       title={row.title}
                       slug={row.slug}
-                      content={row.content}
                       thumbnail={row.thumbnail}
                       status={row.status}
                       authName={row.authName}
