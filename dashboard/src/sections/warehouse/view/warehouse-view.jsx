@@ -22,7 +22,7 @@ import TableEmptyRows from 'src/components/table/table-empty-rows';
 import TableNoData from 'src/components/table/table-no-data';
 import { emptyRows, applyFilter, getComparator } from 'src/components/table/utils';
 import { IconButton } from '@mui/material';
-import { fetchAll, setStatus, deleteBrand } from 'src/redux/slices/warehouseSlices';
+import { fetchAll, setStatus, deleteWarehouse } from 'src/redux/slices/warehouseSlices';
 import BrandTableToolbar from '../warehouse-table-toolbar';
 import WarehouseTableHead from '../warehouse-table-head';
 import WarehouseTableRow from '../warehouse-table-row';
@@ -64,7 +64,7 @@ export default function WareHousePage() {
   }, [status, dispatch, data]);
   useEffect(() => {
     if (statusDelete === 'successful') {
-      handleToast('success', 'Xóa nhãn hàng thành công!');
+      handleToast('success', 'Xóa kho thành công!');
       dispatch(setStatus({ key: 'statusDelete', value: 'idle' }));
       dispatch(fetchAll());
     }
@@ -136,7 +136,7 @@ export default function WareHousePage() {
     setConfirm(id);
   };
   const dispatchDelete = () => {
-    dispatch(deleteBrand(confirm));
+    dispatch(deleteWarehouse(confirm));
   };
 
   const notFound = !dataFiltered.length && !!filterName;
@@ -148,6 +148,7 @@ export default function WareHousePage() {
         openConfirm={!!confirm}
         onAgree={dispatchDelete}
         onClose={() => setConfirm(false)}
+        label='kho đã chọn'
       />
 
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
@@ -210,10 +211,10 @@ export default function WareHousePage() {
                       name={row.name}
                       status={row.status}
                       createdAt={row.createdAt}
+                      location={row.location}
                       updatedAt={row.updatedAt}
-                      avatar={row.image}
-                      slug={row.slug}
-                      website={row.website}
+                      currentInventory={row.currentInventory}
+                      capacity={row.capacity}
                       selected={selected.indexOf(row.name) !== -1} // Assuming the company name is used for selection
                       handleClick={(event) => handleClick(event, row._id)}
                       handleNavigate={() => handleNavigate(row._id)}
