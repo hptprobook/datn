@@ -1,61 +1,32 @@
 import { Icon } from '@iconify/react';
 import { useState, useEffect, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getProductsByCatSlug, sortProductsByCatSlug } from '~/APIs';
+import { filterProductsWithSearch, sortProductsByCatSlug } from '~/APIs';
 import ProductItem from '~/components/common/Product/ProductItem';
 import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const SearchContent = ({
-  catData,
+  searchProductsData,
   filteredProductsData,
   sortOption,
   onSortChange,
   setSortOption,
   onLoadMore,
+  keyword,
+  shouldFetchFiltered,
 }) => {
-  // eslint-disable-next-line no-unused-vars
   const [limit, setLimit] = useState(20);
   const [hasMore, setHasMore] = useState(true);
   const [key, setKey] = useState('');
   const [value, setValue] = useState('');
 
   const navigate = useNavigate();
-  const { slug } = useParams();
 
-  const { data: productsData, isFetching: isProductsFetching } = useQuery({
-    queryKey: [
-      'getProductsByCategorySlug',
-      catData.slug,
-      limit,
-      filteredProductsData,
-    ],
-    queryFn: () => getProductsByCatSlug(catData.slug, limit),
-    keepPreviousData: true,
-    staleTime: 5 * 60 * 1000,
-    enabled: !!filteredProductsData, // Ensure query is enabled when filters are set
-  });
-
-  const {
-    data: sortProductsData,
-    isFetching: isSortProductsFetching,
-    refetch: refetchSortedProducts,
-  } = useQuery({
-    queryKey: ['sortProductsByCatSlug', catData.slug, limit, key, value],
-    queryFn: () =>
-      sortProductsByCatSlug({ slug: catData.slug, limit, key, value }),
-    enabled: !!key && !!value && sortOption !== '',
-    staleTime: 5 * 60 * 1000,
-  });
-
-  // Use filteredProductsData if it's available, otherwise use sortProductsData or productsData
-  const products =
-    filteredProductsData ||
-    (sortOption ? sortProductsData?.products : productsData) ||
-    [];
-
-  const isLoading = isProductsFetching || isSortProductsFetching;
+  const products = shouldFetchFiltered
+    ? filteredProductsData
+    : searchProductsData;
 
   useEffect(() => {
     if (products?.length < limit) {
@@ -65,39 +36,12 @@ const SearchContent = ({
     }
   }, [products?.length, limit]);
 
-  const debouncedRefetch = useCallback(
-    () =>
-      debounce(() => {
-        refetchSortedProducts();
-      }, 300),
-    [refetchSortedProducts]
-  );
-
-  useEffect(() => {
-    if (key && value) {
-      debouncedRefetch();
-    }
-  }, [key, value, debouncedRefetch, filteredProductsData]); // Add filteredProductsData as a dependency
-
-  useEffect(() => {
-    if (sortOption) {
-      setSortOption(sortOption);
-      const [newKey, newValue] = sortOption.split('-');
-      setKey(newKey);
-      setValue(newValue);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sortOption]);
-
-  if (isProductsFetching || isSortProductsFetching) return null;
-
   const handleLoadMore = () => {
-    onLoadMore(); // Call the onLoadMore prop instead of directly updating the limit
+    onLoadMore();
   };
 
   const handleSortChange = (e) => {
     const selectedValue = e.target.value;
-    // Call the onSortChange prop instead
     onSortChange(selectedValue);
 
     let newKey, newValue;
@@ -135,17 +79,18 @@ const SearchContent = ({
     setKey(newKey);
     setValue(newValue);
 
-    // Update the URL
     if (selectedValue) {
-      navigate(`/danh-muc-san-pham/${slug}/${selectedValue}`);
+      navigate(`/tim-kiem?keyword=${keyword}&sort=${selectedValue}`);
     } else {
-      navigate(`/danh-muc-san-pham/${slug}`);
+      navigate(`/tim-kiem?keyword=${keyword}`);
     }
   };
 
   return (
     <div className="text-black">
-      <h2 className="text-2xl font-bold mb-4">{catData.name} - BMT Life</h2>
+      <h2 className="text-2xl font-bold mb-4">
+        Kết quả tìm kiếm cho &quot;{keyword}&quot;
+      </h2>
       <div className="divider"></div>
 
       {/* Sorting Form */}
@@ -173,33 +118,27 @@ const SearchContent = ({
       {/* Products Grid */}
       <div>
         <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-2 lg:gap-3 lg:px-0">
-          {isLoading
-            ? Array.from({ length: 10 }).map((_, index) => (
-                <ProductItem key={index} isLoading={true} />
-              ))
-            : products.map((product) => (
-                <ProductItem key={product._id} product={product} />
-              ))}
+          {products.map((product) => (
+            <ProductItem key={product._id} product={product} />
+          ))}
         </div>
       </div>
 
       {/* Load More Button */}
-      <div className="w-full flex justify-center mt-8">
+      {/* <div className="w-full flex justify-center mt-8">
         {hasMore && (
           <button
             className="btn btn-error bg-red-600"
             onClick={handleLoadMore}
-            disabled={isProductsFetching || isSortProductsFetching}
+            disabled={isSortProductsFetching}
           >
-            {isProductsFetching || isSortProductsFetching
-              ? 'Đang tải...'
-              : 'Xem thêm'}
-            {!isProductsFetching && !isSortProductsFetching && (
+            {isSortProductsFetching ? 'Đang tải...' : 'Xem thêm'}
+            {!isSortProductsFetching && (
               <Icon icon="mdi:arrow-right" className="ml-2" />
             )}
           </button>
         )}
-      </div>
+      </div> */}
     </div>
   );
 };
@@ -210,7 +149,8 @@ SearchContent.propTypes = {
   sortOption: PropTypes.string,
   onSortChange: PropTypes.func.isRequired,
   setSortOption: PropTypes.func.isRequired,
-  onLoadMore: PropTypes.func.isRequired, // Add this prop type
+  onLoadMore: PropTypes.func.isRequired,
+  keyword: PropTypes.string.isRequired,
 };
 
 export default SearchContent;

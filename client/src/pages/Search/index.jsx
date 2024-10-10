@@ -1,16 +1,21 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import HeaderBC from '~/components/common/Breadcrumb/HeaderBC';
 import SearchSidebar from './SearchSidebar';
 import SearchContent from './SearchContent';
 import { useQuery } from '@tanstack/react-query';
-import { filterProductsWithPriceRange, getMinMaxPrices } from '~/APIs';
-import { handleToast } from '~/customHooks/useToast';
+import {
+  filterProductsWithSearch,
+  getMinMaxPrices,
+  searchProducts,
+} from '~/APIs';
 import { useState, useCallback, useEffect } from 'react';
 import { Icon } from '@iconify/react';
-import { searchProducts } from '~/APIs/ProductList/search';
+import MainLoading from '~/components/common/Loading/MainLoading';
 
 const SearchPage = () => {
-  const { keyword, sort } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const keyword = searchParams.get('keyword');
+  const sort = searchParams.get('sort');
   const navigate = useNavigate();
   const [filters, setFilters] = useState({
     colors: [],
@@ -33,6 +38,17 @@ const SearchPage = () => {
     },
     staleTime: 1000 * 60 * 30,
     cacheTime: 1000 * 60 * 60,
+  });
+
+  const handleLoadMore = useCallback(() => {
+    setLimit((prevLimit) => prevLimit + 20);
+    setShouldFetchFiltered(true);
+  }, []);
+
+  const { data: searchResults, isLoading: searchLoading } = useQuery({
+    queryKey: ['search', keyword, limit],
+    queryFn: () => searchProducts({ keyword, limit }),
+    enabled: !!keyword, // Simplified condition
   });
 
   const updateUrlWithFilter = (filterParams) => {
@@ -65,35 +81,45 @@ const SearchPage = () => {
     });
     setSortOption('');
     setShouldFetchFiltered(false);
-  }, [keyword]);
+  }, [keyword, setFilters, setSortOption, setShouldFetchFiltered]); // Added dependencies
 
-  const { data: filteredProductsData } = useQuery({
-    queryKey: ['filtered-products', keyword, filters, sortOption, limit],
-    queryFn: async () => {
-      try {
-        const result = await filterProductsWithPriceRange({
-          keyword,
-          minPrice: filters.priceRange.min,
-          maxPrice: filters.priceRange.max,
-          colors: filters.colors,
-          sizes: filters.sizes,
-          sortOption,
-          limit,
-        });
-        setNoMatchingProducts(false);
-        return result;
-      } catch (error) {
-        if (error.response && error.response.status === 404) {
-          setNoMatchingProducts(true);
-          return null;
+  const { data: filteredProductsData, isLoading: isFilteredDataLoading } =
+    useQuery({
+      queryKey: [
+        'filtered-products-with-search',
+        keyword,
+        filters,
+        sortOption,
+        limit,
+      ],
+      queryFn: async () => {
+        try {
+          const result = await filterProductsWithSearch({
+            keyword,
+            minPrice: filters.priceRange.min,
+            maxPrice: filters.priceRange.max,
+            colors: filters.colors,
+            sizes: filters.sizes,
+            sortOption,
+            limit,
+          });
+          setNoMatchingProducts(false);
+          return result;
+        } catch (error) {
+          if (error.response && error.response.status === 404) {
+            setNoMatchingProducts(true);
+            return null;
+          }
+          throw error;
         }
-        throw error;
-      }
-    },
-    enabled: !!filters.priceRange.min && !!filters.priceRange.max,
-    staleTime: 1000 * 60 * 30,
-    cacheTime: 1000 * 60 * 60,
-  });
+      },
+      enabled:
+        shouldFetchFiltered &&
+        !!filters.priceRange.min &&
+        !!filters.priceRange.max,
+      staleTime: 1000 * 60 * 30,
+      cacheTime: 1000 * 60 * 60,
+    });
 
   const handleFilterChange = useCallback((newFilters) => {
     setFilters((prevFilters) => ({
@@ -115,48 +141,12 @@ const SearchPage = () => {
     (newSortOption) => {
       setSortOption(newSortOption);
       setShouldFetchFiltered(true);
-      navigate(`/danh-muc-san-pham/${keyword}/${newSortOption}`);
+      navigate(`/tim-kiem?keyword=${keyword}&sort=${newSortOption}`);
     },
     [navigate, keyword]
   );
 
-  const handleLoadMore = useCallback(() => {
-    setLimit((prevLimit) => prevLimit + 20);
-    setShouldFetchFiltered(true);
-  }, []);
-
-  // Fetch category data
-  const {
-    data: categoryData,
-    error: categoryError,
-    isLoading: categoryLoading,
-  } = useQuery({
-    queryKey: ['getProductsByKeyword', keyword, limit],
-    queryFn: () => searchProducts(keyword, limit),
-    enabled: keyword !== '',
-    staleTime: 1000 * 60 * 5,
-    cacheTime: 1000 * 60 * 10,
-  });
-
-  // Fetch all products
-  const {
-    data: allProductsData,
-    error: productsError,
-    isLoading: productsLoading,
-  } = useQuery({
-    queryKey: ['getProductsByKeyword', keyword],
-    queryFn: () => searchProducts(keyword, limit),
-    enabled: keyword !== '',
-    staleTime: 1000 * 60 * 5,
-    cacheTime: 1000 * 60 * 10,
-  });
-
-  if (categoryLoading || productsLoading) return null;
-
-  if (categoryError || productsError) {
-    handleToast('error', categoryError || productsError);
-    return null;
-  }
+  if (searchLoading) return <MainLoading />;
 
   return (
     <section className="max-w-container mx-auto mt-16">
@@ -165,14 +155,10 @@ const SearchPage = () => {
       <div className="grid grid-cols-5 gap-6 mt-8">
         <div className="col-span-1">
           <SearchSidebar
-            category={categoryData}
-            products={allProductsData}
             onFilterChange={handleFilterChange}
             onPriceRangeChange={handlePriceRangeChange}
             priceRangeData={priceRangeData}
-            filters={filters}
             initialFilters={filters}
-            noMatchingProducts={noMatchingProducts}
           />
         </div>
         <div className="col-span-4">
@@ -186,15 +172,21 @@ const SearchPage = () => {
             </div>
           ) : (
             <SearchContent
-              catData={categoryData}
-              filters={filters}
               filteredProductsData={
-                shouldFetchFiltered ? filteredProductsData : allProductsData
+                shouldFetchFiltered
+                  ? filteredProductsData
+                  : searchResults?.products
               }
+              isLoading={
+                shouldFetchFiltered ? isFilteredDataLoading : searchLoading
+              }
+              keyword={keyword}
               sortOption={sortOption}
               setSortOption={setSortOption}
               onSortChange={handleSortChange}
               onLoadMore={handleLoadMore}
+              filters={filters}
+              shouldFetchFiltered={shouldFetchFiltered}
             />
           )}
         </div>

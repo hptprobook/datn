@@ -10,6 +10,7 @@ const SearchResult = ({
   searchResults,
   searchLoading,
   closeModal,
+  keyword,
 }) => {
   if (searchLoading || !searchResults || searchResults.length === 0) {
     return (
@@ -42,8 +43,9 @@ const SearchResult = ({
             ))}
         </div>
         <NavLink
-          to={'#'}
+          to={`/tim-kiem?keyword=${keyword}`}
           className="flex justify-end items-center gap-2 text-red-500 pb-6 font-medium"
+          onClick={closeModal}
         >
           Xem tất cả <FaArrowRightLong />
         </NavLink>

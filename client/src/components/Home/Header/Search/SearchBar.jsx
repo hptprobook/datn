@@ -90,6 +90,7 @@ const SearchBar = () => {
               searchResults={searchResults?.products}
               searchLoading={searchLoading}
               isOpen={isFocused}
+              keyword={keyword}
               closeModal={handleOverlayClick}
             />
           )}

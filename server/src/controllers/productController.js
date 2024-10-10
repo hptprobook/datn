@@ -484,7 +484,7 @@ const updateProduct = async (req, res) => {
     }
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       message: 'Có lỗi xảy ra xin thử lại sau',
-      error
+      error,
     });
   }
 };
@@ -696,7 +696,6 @@ const getProductByOldest = async (req, res) => {
 
 const getProductBySearch = async (req, res) => {
   try {
-    console.log(req.query);
     let { pages, limit, search } = req.query;
     const products = await productModel.getProductBySearch(
       search,
@@ -786,6 +785,40 @@ const getProductsBySlugAndPriceRange = async (req, res) => {
   }
 };
 
+const getProductsBySearchAndFilter = async (req, res) => {
+  try {
+    const { keyword } = req.query;
+    const { minPrice, maxPrice, pages, limit, colors, sizes, ...sortCriteria } =
+      req.query;
+
+    const parsedColors = colors ? colors.split(',') : [];
+    const parsedSizes = sizes ? sizes.split(',') : [];
+
+    const products = await productModel.getProductsBySearchAndFilter(
+      keyword,
+      parseFloat(minPrice),
+      parseFloat(maxPrice),
+      parseInt(pages) || 1,
+      parseInt(limit) || 20,
+      sortCriteria,
+      parsedColors,
+      parsedSizes
+    );
+
+    if (!products || products.length === 0) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: 'Không tìm thấy sản phẩm!' });
+    }
+
+    return res.status(StatusCodes.OK).json(products);
+  } catch (error) {
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
+  }
+};
+
 const getMinMaxPrices = async (req, res) => {
   try {
     const priceRange = await productModel.getMinMaxProductPrices();
@@ -823,5 +856,6 @@ export const productController = {
   getProductByCategoryFilter,
   getProductByEvent,
   getProductsBySlugAndPriceRange,
+  getProductsBySearchAndFilter,
   getMinMaxPrices,
 };

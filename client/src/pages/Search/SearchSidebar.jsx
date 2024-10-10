@@ -8,7 +8,6 @@ const SearchSidebar = ({
   priceRangeData,
   onPriceRangeChange,
   initialFilters,
-  // Remove noMatchingProducts from props
 }) => {
   const [selectedColors, setSelectedColors] = useState(
     initialFilters.colors || []

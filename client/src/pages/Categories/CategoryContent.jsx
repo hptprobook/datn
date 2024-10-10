@@ -34,7 +34,7 @@ const CategoryContent = ({
     queryFn: () => getProductsByCatSlug(catData.slug, limit),
     keepPreviousData: true,
     staleTime: 5 * 60 * 1000,
-    enabled: !!filteredProductsData, // Ensure query is enabled when filters are set
+    enabled: !!filteredProductsData,
   });
 
   const {
@@ -49,7 +49,6 @@ const CategoryContent = ({
     staleTime: 5 * 60 * 1000,
   });
 
-  // Use filteredProductsData if it's available, otherwise use sortProductsData or productsData
   const products =
     filteredProductsData ||
     (sortOption ? sortProductsData?.products : productsData) ||
@@ -77,7 +76,7 @@ const CategoryContent = ({
     if (key && value) {
       debouncedRefetch();
     }
-  }, [key, value, debouncedRefetch, filteredProductsData]); // Add filteredProductsData as a dependency
+  }, [key, value, debouncedRefetch, filteredProductsData]);
 
   useEffect(() => {
     if (sortOption) {
@@ -92,12 +91,11 @@ const CategoryContent = ({
   if (isProductsFetching || isSortProductsFetching) return null;
 
   const handleLoadMore = () => {
-    onLoadMore(); // Call the onLoadMore prop instead of directly updating the limit
+    onLoadMore();
   };
 
   const handleSortChange = (e) => {
     const selectedValue = e.target.value;
-    // Call the onSortChange prop instead
     onSortChange(selectedValue);
 
     let newKey, newValue;
@@ -210,7 +208,7 @@ CategoryContent.propTypes = {
   sortOption: PropTypes.string,
   onSortChange: PropTypes.func.isRequired,
   setSortOption: PropTypes.func.isRequired,
-  onLoadMore: PropTypes.func.isRequired, // Add this prop type
+  onLoadMore: PropTypes.func.isRequired,
 };
 
 export default CategoryContent;

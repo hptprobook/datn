@@ -5,3 +5,4 @@ export * from './user';
 export * from './config';
 export * from './ProductList/sort';
 export * from './ProductList/filter';
+export * from './ProductList/search';
