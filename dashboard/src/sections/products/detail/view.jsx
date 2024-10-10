@@ -161,7 +161,7 @@ export default function DetailProductPage() {
           values.imagesDelete = imagesDelete;
         }
         if (imageAdd.length > 0) {
-          values.imageAdd = imageAdd;
+          values.images = imageAdd;
         }
       }
       values.tags = tags;
@@ -182,6 +182,7 @@ export default function DetailProductPage() {
       if (variantsDelete.length > 0) {
         values.variantsDelete = variantsDelete;
       }
+
       dispatch(updateProduct({ id, data: values }));
     },
   });
