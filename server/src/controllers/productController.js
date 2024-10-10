@@ -403,6 +403,7 @@ const updateProduct = async (req, res) => {
     }
 
     const newimgURLs = [...validImgs, ...imagesProduct];
+
     const newThumbnail = thumbnail ? thumbnail : product.thumbnail;
     const data = {
       cat_id,
