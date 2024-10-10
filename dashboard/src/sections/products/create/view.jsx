@@ -130,7 +130,9 @@ export default function CreateProductPage() {
       values.variants = variants;
       values.thumbnail = thumbnail;
       values.images = images;
-      values.tags = tags;
+      values.tags = JSON.stringify(tags);
+
+      values.productType = JSON.stringify(values.productType);
       dispatch(createProduct({ data: values }));
     },
   });
