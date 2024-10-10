@@ -1,40 +1,31 @@
 import { Icon } from '@iconify/react';
 import { useState, useEffect, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { filterProductsWithSearch, sortProductsByCatSlug } from '~/APIs';
 import ProductItem from '~/components/common/Product/ProductItem';
 import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
 import { useNavigate } from 'react-router-dom';
 
 const SearchContent = ({
-  searchProductsData,
   filteredProductsData,
+  isLoading,
+  keyword,
   sortOption,
   onSortChange,
-  setSortOption,
   onLoadMore,
-  keyword,
-  shouldFetchFiltered,
+  filters,
+  page,
+  itemsPerPage,
 }) => {
-  const [limit, setLimit] = useState(20);
   const [hasMore, setHasMore] = useState(true);
-  const [key, setKey] = useState('');
-  const [value, setValue] = useState('');
-
-  const navigate = useNavigate();
-
-  const products = shouldFetchFiltered
-    ? filteredProductsData
-    : searchProductsData;
 
   useEffect(() => {
-    if (products?.length < limit) {
+    if (filteredProductsData?.length < itemsPerPage) {
       setHasMore(false);
     } else {
       setHasMore(true);
     }
-  }, [products?.length, limit]);
+  }, [filteredProductsData?.length, itemsPerPage]);
 
   const handleLoadMore = () => {
     onLoadMore();
@@ -43,47 +34,6 @@ const SearchContent = ({
   const handleSortChange = (e) => {
     const selectedValue = e.target.value;
     onSortChange(selectedValue);
-
-    let newKey, newValue;
-
-    switch (selectedValue) {
-      case 'alphabet-az':
-        newKey = 'alphabet';
-        newValue = 'az';
-        break;
-      case 'alphabet-za':
-        newKey = 'alphabet';
-        newValue = 'za';
-        break;
-      case 'price-asc':
-        newKey = 'price';
-        newValue = 'asc';
-        break;
-      case 'price-desc':
-        newKey = 'price';
-        newValue = 'desc';
-        break;
-      case 'createdAt-newest':
-        newKey = 'createdAt';
-        newValue = 'newest';
-        break;
-      case 'createdAt-oldest':
-        newKey = 'createdAt';
-        newValue = 'oldest';
-        break;
-      default:
-        newKey = '';
-        newValue = '';
-    }
-
-    setKey(newKey);
-    setValue(newValue);
-
-    if (selectedValue) {
-      navigate(`/tim-kiem?keyword=${keyword}&sort=${selectedValue}`);
-    } else {
-      navigate(`/tim-kiem?keyword=${keyword}`);
-    }
   };
 
   return (
@@ -118,39 +68,39 @@ const SearchContent = ({
       {/* Products Grid */}
       <div>
         <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-2 lg:gap-3 lg:px-0">
-          {products.map((product) => (
+          {filteredProductsData?.map((product) => (
             <ProductItem key={product._id} product={product} />
           ))}
         </div>
       </div>
 
       {/* Load More Button */}
-      {/* <div className="w-full flex justify-center mt-8">
+      <div className="w-full flex justify-center mt-8">
         {hasMore && (
           <button
             className="btn btn-error bg-red-600"
             onClick={handleLoadMore}
-            disabled={isSortProductsFetching}
+            disabled={isLoading}
           >
-            {isSortProductsFetching ? 'Đang tải...' : 'Xem thêm'}
-            {!isSortProductsFetching && (
-              <Icon icon="mdi:arrow-right" className="ml-2" />
-            )}
+            {isLoading ? 'Đang tải...' : 'Xem thêm'}
+            {!isLoading && <Icon icon="mdi:arrow-right" className="ml-2" />}
           </button>
         )}
-      </div> */}
+      </div>
     </div>
   );
 };
 
 SearchContent.propTypes = {
-  catData: PropTypes.object,
   filteredProductsData: PropTypes.array,
+  isLoading: PropTypes.bool,
+  keyword: PropTypes.string.isRequired,
   sortOption: PropTypes.string,
   onSortChange: PropTypes.func.isRequired,
-  setSortOption: PropTypes.func.isRequired,
   onLoadMore: PropTypes.func.isRequired,
-  keyword: PropTypes.string.isRequired,
+  filters: PropTypes.object,
+  page: PropTypes.number,
+  itemsPerPage: PropTypes.number,
 };
 
 export default SearchContent;

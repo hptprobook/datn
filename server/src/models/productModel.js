@@ -1066,6 +1066,10 @@ const getProductsBySearchAndFilter = async (
 
   const db = await GET_DB();
 
+  if (sortCriteria && sortCriteria.keyword) {
+    delete sortCriteria.keyword;
+  }
+
   let sortOption = {};
 
   if (sortCriteria && Object.keys(sortCriteria).length > 0) {
@@ -1086,28 +1090,33 @@ const getProductsBySearchAndFilter = async (
     }
   }
 
+  // Tạo query dựa trên từ khóa tìm kiếm và các bộ lọc
   let query = {
     slug: { $regex: searchQuery, $options: 'i' },
     price: { $gte: minPrice, $lte: maxPrice },
   };
 
+  // Thêm bộ lọc màu sắc nếu có
   if (colors && colors.length > 0) {
     query['variants.color'] = { $in: colors };
   }
 
+  // Thêm bộ lọc kích thước nếu có
   if (sizes && sizes.length > 0) {
     query['variants.sizes.size'] = { $in: sizes };
   }
 
+  // Thực hiện truy vấn với MongoDB
   const products = await db
     .collection('products')
     .find(query)
-    .collation({ locale: 'en', strength: 2 })
+    .collation({ locale: 'en', strength: 2 }) // Collation để sắp xếp không phân biệt chữ hoa/thường
     .sort(sortOption)
     .skip((page - 1) * limit)
     .limit(limit)
     .toArray();
 
+  // Tính toán averageRating và totalComment nếu có đánh giá
   products.forEach((product) => {
     if (product.reviews && product.reviews.length > 0) {
       const total = product.reviews.reduce(
@@ -1122,7 +1131,7 @@ const getProductsBySearchAndFilter = async (
       product.averageRating = 0;
       product.totalComment = 0;
     }
-    delete product.reviews;
+    delete product.reviews; // Xóa reviews để giảm dữ liệu trả về nếu không cần thiết
   });
 
   return products;

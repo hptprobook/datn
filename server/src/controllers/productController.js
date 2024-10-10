@@ -805,11 +805,11 @@ const getProductsBySearchAndFilter = async (req, res) => {
       parsedSizes
     );
 
-    if (!products || products.length === 0) {
-      return res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ message: 'Không tìm thấy sản phẩm!' });
-    }
+    // if (!products || products.length === 0) {
+    //   return res
+    //     .status(StatusCodes.NOT_FOUND)
+    //     .json({ message: 'Không tìm thấy sản phẩm!' });
+    // }
 
     return res.status(StatusCodes.OK).json(products);
   } catch (error) {
