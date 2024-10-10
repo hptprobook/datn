@@ -12,36 +12,25 @@ export const fetchAll = createAsyncThunk(
     }
   }
 );
-export const deleteBrand = createAsyncThunk(
+export const deleteWarehouse = createAsyncThunk(
   'warehouses/delete',
   async (id, { rejectWithValue }) => {
     try {
       const res = await WarehouseServices.delete(id);
       return res;
     } catch (err) {
-      return rejectWithValue(err.response.data);
+      return rejectWithValue(err.response);
     }
   }
 );
-export const createWithImage = createAsyncThunk(
-  'warehouses/createWithImage',
-  async ({ file, data }, { rejectWithValue }) => {
-    try {
-      const res = await WarehouseServices.createWithImage({ file, data });
-      return res;
-    } catch (err) {
-      return rejectWithValue(err.response.data);
-    }
-  }
-);
-export const create = createAsyncThunk(
+export const createWarehouse = createAsyncThunk(
   'warehouses/create',
   async (data, { rejectWithValue }) => {
     try {
       const res = await WarehouseServices.create(data);
       return res;
     } catch (err) {
-      return rejectWithValue(err.response.data);
+      return rejectWithValue(err.response);
     }
   }
 );
@@ -51,17 +40,7 @@ export const fetchById = createAsyncThunk(
     try {
       return await WarehouseServices.getById(id);
     } catch (err) {
-      return rejectWithValue(err.response.data);
-    }
-  }
-);
-export const updateWithImage = createAsyncThunk(
-  'warehouses/updateWithImage',
-  async ({ file, data, id }, { rejectWithValue }) => {
-    try {
-      return await WarehouseServices.updateWithImage({ file, data, id });
-    } catch (err) {
-      return rejectWithValue(err.response.data);
+      return rejectWithValue(err.response);
     }
   }
 );
@@ -71,7 +50,7 @@ export const update = createAsyncThunk(
     try {
       return await WarehouseServices.update({ data, id });
     } catch (err) {
-      return rejectWithValue(err.response.data);
+      return rejectWithValue(err.response);
     }
   }
 );
@@ -110,63 +89,40 @@ const warehouseSlices = createSlice({
       })
       .addCase(fetchById.fulfilled, (state, action) => {
         state.statusGet = 'successful';
-        state.brand = action.payload;
+        state.warehouse = action.payload;
       })
       .addCase(fetchById.rejected, (state, action) => {
         state.statusGet = 'failed';
         state.error = action.payload;
       })
-      .addCase(createWithImage.pending, (state) => {
+      .addCase(createWarehouse.pending, (state) => {
         state.statusCreate = 'loading';
       })
-      .addCase(createWithImage.fulfilled, (state, action) => {
+      .addCase(createWarehouse.fulfilled, (state, action) => {
         state.statusCreate = 'successful';
-        state.brand = action.payload;
       })
-      .addCase(createWithImage.rejected, (state, action) => {
+      .addCase(createWarehouse.rejected, (state, action) => {
         state.statusCreate = 'failed';
-        state.error = action.payload;
-      })
-      .addCase(updateWithImage.pending, (state) => {
-        state.statusUpdate = 'loading';
-      })
-      .addCase(updateWithImage.fulfilled, (state, action) => {
-        state.statusUpdate = 'successful';
-        state.brand = action.payload;
-      })
-      .addCase(updateWithImage.rejected, (state, action) => {
-        state.statusUpdate = 'failed';
         state.error = action.payload;
       }).addCase(update.pending, (state) => {
         state.statusUpdate = 'loading';
       })
       .addCase(update.fulfilled, (state, action) => {
         state.statusUpdate = 'successful';
-        state.brand = action.payload;
+        state.warehouse = action.payload;
       })
       .addCase(update.rejected, (state, action) => {
         state.statusUpdate = 'failed';
         state.error = action.payload;
       })
-      .addCase(create.pending, (state) => {
-        state.statusCreate = 'loading';
-      })
-      .addCase(create.fulfilled, (state, action) => {
-        state.statusCreate = 'successful';
-        state.brand = action.payload;
-      })
-      .addCase(create.rejected, (state, action) => {
-        state.statusCreate = 'failed';
-        state.error = action.payload;
-      })
-      .addCase(deleteBrand.pending, (state) => {
+      .addCase(deleteWarehouse.pending, (state) => {
         state.statusDelete = 'loading';
       })
-      .addCase(deleteBrand.fulfilled, (state, action) => {
+      .addCase(deleteWarehouse.fulfilled, (state, action) => {
         state.statusDelete = 'successful';
         state.brands = action.payload;
       })
-      .addCase(deleteBrand.rejected, (state, action) => {
+      .addCase(deleteWarehouse.rejected, (state, action) => {
         state.statusDelete = 'failed';
         state.error = action.message;
       })
