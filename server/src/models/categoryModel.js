@@ -61,9 +61,6 @@ const getCategoryById = async (category_id) => {
 const getCategoryBySlug = async (slug) => {
   const db = await GET_DB().collection('categories');
   const category = await db.findOne({ slug: slug });
-  if (!category) {
-    throw new Error('Có lỗi xảy ra, xin thử lại sau');
-  }
   return category;
 };
 
@@ -78,7 +75,7 @@ const createCategory = async (dataCategory) => {
       : validData.parentId,
   });
   if (!result) {
-    throw new Error('Có lỗi xảy ra, xin thử lại sau');
+    throw new Error('Không thể thêm danh mục, xin thử lại sau');
   }
   return {
     _id: result.insertedId,

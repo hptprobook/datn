@@ -21,6 +21,7 @@ import { formatCurrency } from 'src/utils/format-number';
 import ImageDropZone from 'src/components/drop-zone-upload/upload-img';
 import Grid2 from '@mui/material/Unstable_Grid2';
 import PropTypes from 'prop-types';
+import { renderUrl } from 'src/utils/check';
 import {
   style,
   Accordion,
@@ -31,7 +32,7 @@ import {
   AccordionDetails,
   AccordionSummary,
 } from './utils';
-import { renderUrl } from 'src/utils/check';
+
 const backendUrl = import.meta.env.VITE_BACKEND_APP_URL;
 
 export default function AdvancedVariant({ onUpdate, defaultVariants }) {
@@ -100,7 +101,11 @@ export default function AdvancedVariant({ onUpdate, defaultVariants }) {
     enableReinitialize: true,
     validationSchema: variantSchema,
     onSubmit: (values) => {
-      console.log(values);
+      values.sizes = variants[openDetail].sizes;
+      const newVariants = [...variants];
+      newVariants[openDetail] = values;
+      setVariants(newVariants);
+      setOpenDetail(null);
     },
   });
   const formikSize = useFormik({

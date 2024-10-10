@@ -17,6 +17,7 @@ import {
   FormLabel,
   SpeedDial,
   InputLabel,
+  IconButton,
   FormControl,
   OutlinedInput,
   FormHelperText,
@@ -37,15 +38,14 @@ import { fetchAll } from 'src/redux/slices/brandSlices';
 import PropTypes from 'prop-types';
 import Iconify from 'src/components/iconify/iconify';
 import { handleToast } from 'src/hooks/toast';
-import { setStatus, createProduct, fetchProductById } from 'src/redux/slices/productSlice';
+import { setStatus, fetchProductById, updateProduct } from 'src/redux/slices/productSlice';
 import LoadingFull from 'src/components/loading/loading-full';
 import { useParams } from 'react-router-dom';
 import { isValidObjectId } from 'src/utils/check';
 import { useRouter } from 'src/routes/hooks';
-import CreateVariant from '../variant';
+import MultiImageDropZone from 'src/components/drop-zone-upload/upload-imgs';
 import { AutoSelect } from '../auto-select';
 import AdvancedVariant from '../variant-advanced';
-import MultiImageDropZone from 'src/components/drop-zone-upload/upload-imgs';
 
 // ----------------------------------------------------------------------
 const productSchema = Yup.object().shape({
@@ -60,13 +60,13 @@ const productSchema = Yup.object().shape({
     .required('Loại sản phẩm là bắt buộc')
     .min(1, 'Loại sản phẩm là bắt buộc'),
   description: Yup.string()
-    .required('Mô tả là bắt buộc')
-    .min(5, 'Mô tả phải ít nhất 5 ký tự')
-    .max(10000, 'Mô tả không được quá 10000 ký tự'),
-  content: Yup.string()
     .required('Mô tả ngắn là bắt buộc')
     .min(5, 'Mô tả ngắn phải ít nhất 5 ký tự')
-    .max(1000, 'Mô tả ngắn không được quá 1000 ký tự'),
+    .max(1000, 'Mô tả ngắn không được quá 10000 ký tự'),
+  content: Yup.string()
+    .required('Mô tả là bắt buộc')
+    .min(5, 'Mô tả phải ít nhất 5 ký tự')
+    .max(10000, 'Mô tả không được quá 1000 ký tự'),
   price: Yup.string().required('Cần nhập có giá thông thường').typeError('Giá không hợp lệ'),
 });
 
@@ -101,7 +101,7 @@ export default function DetailProductPage() {
     setValue(newValue);
   };
 
-  const status = useSelector((state) => state.products.statusCreate);
+  const status = useSelector((state) => state.products.statusUpdate);
   const error = useSelector((state) => state.products.error);
   const product = useSelector((state) => state.products.product);
   const statusGet = useSelector((state) => state.products.statusGet);
@@ -147,10 +147,45 @@ export default function DetailProductPage() {
         handleToast('error', logError);
         return;
       }
-      values.variants = variants;
-      console.log(values);
+      if (thumbnail !== null) {
+        values.thumbnail = thumbnail;
+      }
+      if (variants.length === 0) {
+        handleToast('error', 'Vui lòng thêm biến thể sản phẩm');
+        return;
+      }
+      if (images.length > 0) {
+        const imageAdd = images.filter((img) => img instanceof File);
+        const imagesDelete = product.images.filter((img) => !images.includes(img));
+        if (imagesDelete.length > 0) {
+          values.imagesDelete = imagesDelete;
+        }
+        if (imageAdd.length > 0) {
+          values.imageAdd = imageAdd;
+        }
+      }
+      values.tags = tags;
+      const newVariants = variants.map((variant) => ({
+        ...variant, // Sao chép tất cả các thuộc tính của variant
+        sku: variant.sku.toString(), // Chuyển sku thành chuỗi
+      }));
+
+      values.variants = newVariants;
+      // xử lý ảnh biến thể
+      const variantsDelete = product.variants.filter((variant) => {
+        const check = variants.find((v) => v.sku === variant.sku);
+        if (!check) {
+          return variant;
+        }
+        return null;
+      });
+      if (variantsDelete.length > 0) {
+        values.variantsDelete = variantsDelete;
+      }
+      dispatch(updateProduct({ id, data: values }));
     },
   });
+
   useEffect(() => {
     dispatch(fetchAllCategories()).then((res) => {
       setCategories(res.payload);
@@ -193,7 +228,6 @@ export default function DetailProductPage() {
     if (files) {
       setErrorImgs('');
       setImages(files);
-      console.log(files);
     } else {
       setImages(null);
     }
@@ -208,16 +242,20 @@ export default function DetailProductPage() {
     }
   };
   useEffect(() => {
+    if (status === 'successful') {
+      handleToast('success', 'Cập nhật sản phẩm thành công');
+    }
     if (status === 'failed') {
-      handleToast('error', error.message);
+      handleToast('error', error?.message || 'Có lỗi xảy ra');
     }
 
-    dispatch(setStatus({ key: 'statusCreate', value: 'idle' }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    dispatch(setStatus({ key: 'statusUpdate', value: 'idle' }));
+    dispatch(setStatus({ key: 'error', value: 'idle' }));
   }, [status, error, dispatch]);
   return (
     <Container>
       {status === 'loading' && <LoadingFull />}
+      {statusGet === 'loading' && <LoadingFull />}
 
       <SpeedDial
         ariaLabel="Lưu sản phẩm"
@@ -226,7 +264,17 @@ export default function DetailProductPage() {
         icon={<Iconify icon="eva:save-fill" />}
       />
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Chi tiết sản phẩm</Typography>
+        <Stack direction="row" alignItems="center">
+          <Typography variant="h4">Chỉnh sửa sản phẩm</Typography>
+          <IconButton
+            aria-label="load"
+            variant="contained"
+            color="inherit"
+            onClick={() => dispatch(fetchProductById({ id }))}
+          >
+            <Iconify icon="mdi:reload" />
+          </IconButton>
+        </Stack>
       </Stack>
       {statusGet === 'loading' ? (
         <LoadingFull />
@@ -304,7 +352,7 @@ export default function DetailProductPage() {
                           name="price"
                           value={formik.values.price}
                           onChange={formik.handleChange}
-                          onBlur={formik.handleBlur}za
+                          onBlur={formik.handleBlur}
                           endAdornment={<InputAdornment position="end">vnđ</InputAdornment>}
                           label="Giá"
                         />
@@ -399,26 +447,26 @@ export default function DetailProductPage() {
                       Mô tả sản phẩm
                     </Typography>
                     <TinyEditor
-                      error={formik.touched.description && Boolean(formik.errors.description)}
-                      initialValue={product?.description}
-                      onChange={(text) => formik.setFieldValue('description', text)}
+                      error={formik.touched.content && Boolean(formik.errors.content)}
+                      initialValue={product?.content}
+                      onChange={(text) => formik.setFieldValue('content', text)}
                     />
                     <FormHelperText sx={{ color: 'red' }}>
-                      {formik.touched.description && formik.errors.description
-                        ? formik.errors.description
-                        : ''}
+                      {formik.touched.content && formik.errors.content ? formik.errors.content : ''}
                     </FormHelperText>
                     <Typography variant="h6" sx={{ mb: 3 }}>
                       Mô tả ngắn sản phẩm
                     </Typography>
                     <TinyEditor
-                      error={formik.touched.content && Boolean(formik.errors.content)}
-                      initialValue={product?.content}
-                      onChange={(content) => formik.setFieldValue('content', content)}
+                      error={formik.touched.description && Boolean(formik.errors.description)}
+                      initialValue={product?.description}
+                      onChange={(description) => formik.setFieldValue('description', description)}
                       height={200}
                     />
                     <FormHelperText sx={{ color: 'red' }}>
-                      {formik.touched.content && formik.errors.content ? formik.errors.content : ''}
+                      {formik.touched.description && formik.errors.description
+                        ? formik.errors.description
+                        : ''}
                     </FormHelperText>
                   </Stack>
                   <Stack spacing={3} direction="row" mt={2} justifyContent="flex-end">

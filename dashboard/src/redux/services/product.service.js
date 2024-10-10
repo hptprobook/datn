@@ -1,4 +1,4 @@
-import { get, put, del, uploadProduct } from "src/utils/request";
+import { get, del, uploadProduct, updateProduct } from "src/utils/request";
 /* eslint-disable */
 const ProductsService = {
   getAllProducts: async () => {
@@ -37,10 +37,13 @@ const ProductsService = {
       throw err;
     }
   },
-  updateProduct: async (id, data) => {
+  updateProductById: async (id, data) => {
     try {
-      const res = await put(`products/${id}`, data);
-      return res.data;
+      const res = await updateProduct({
+        id,
+        data,
+      });
+      return res;
     } catch (err) {
       console.log(err);
       throw err;
