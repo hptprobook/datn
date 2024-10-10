@@ -27,6 +27,9 @@ export const WebConfigPage = lazy(() => import('src/pages/settings/config/web-co
 export const SeoConfigPage = lazy(() => import('src/pages/settings/config/seo-config'));
 // warehouse page
 export const WarehousePage = lazy(() => import('src/pages/warehouse/warehouse'));
+export const WarehouseCreatePage = lazy(() => import('src/pages/warehouse/create'));
+export const WarehouseEditPage = lazy(() => import('src/pages/warehouse/edit'));
+// coupon page
 export const CouponsPage = lazy(() => import('src/pages/coupons/coupons'));
 export const CreateCouponPage = lazy(() => import('src/pages/coupons/create'));
 export const CouponDetailPage = lazy(() => import('src/pages/coupons/detail'));
@@ -65,6 +68,8 @@ const childRoutes = [
   { path: 'settings/web-config', element: <WebConfigPage /> },
   { path: 'settings/seo-config', element: <SeoConfigPage /> },
   { path: 'warehouse', element: <WarehousePage /> },
+  { path: 'warehouse/create', element: <WarehouseCreatePage /> },
+  { path: 'warehouse/:id', element: <WarehouseEditPage /> },
   { path: 'coupons', element: <CouponsPage /> },
   { path: 'coupons/create', element: <CreateCouponPage /> },
   { path: 'coupons/:id', element: <CouponDetailPage /> },

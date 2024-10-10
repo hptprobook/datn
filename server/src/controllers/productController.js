@@ -174,8 +174,8 @@ const createProduct = async (req, res) => {
         .status(StatusCodes.BAD_REQUEST)
         .json({ message: 'Ảnh biến thể không được để trống' });
     }
-
-    const thumbnail = path.join(
+    let thumbnail;
+    thumbnail = path.join(
       'uploads/products',
       req.files['thumbnail'][0].filename
     );
@@ -225,7 +225,7 @@ const createProduct = async (req, res) => {
 
     const dataProduct = await productModel.createProduct(data);
 
-    if (dataProduct.error) {
+    if (!dataProduct) {
       uploadModel.deleteImg(thumbnail);
       uploadModel.deleteImgs(imagesProduct);
       uploadModel.deleteImgs(imageVariantsC);
@@ -403,6 +403,7 @@ const updateProduct = async (req, res) => {
     }
 
     const newimgURLs = [...validImgs, ...imagesProduct];
+
     const newThumbnail = thumbnail ? thumbnail : product.thumbnail;
     const data = {
       cat_id,
@@ -484,7 +485,7 @@ const updateProduct = async (req, res) => {
     }
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       message: 'Có lỗi xảy ra xin thử lại sau',
-      error
+      error,
     });
   }
 };
