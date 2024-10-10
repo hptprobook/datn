@@ -156,12 +156,16 @@ export const uploadBlog = async ({ path, data, type = 'post' }) => {
             data[key].forEach((file) => {
                 formData.append(key, file);
             });
-        }
-        else {
+        } else if (key === "tags") {
+            // Convert tags to array if it's a string
+            const tagsArray = Array.isArray(data[key]) ? data[key] : data[key].split(',');
+            tagsArray.forEach((tag) => {
+                formData.append(key, tag);
+            });
+        } else {
             formData.append(key, data[key]);
         }
     });
-
     const response = await request[type](path, formData, {
         headers: {
             "Content-Type": "multipart/form-data",

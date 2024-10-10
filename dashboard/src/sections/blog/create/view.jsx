@@ -33,13 +33,16 @@ import { useDispatch, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import Iconify from 'src/components/iconify/iconify';
 import { handleToast } from 'src/hooks/toast';
-import { setStatus } from 'src/redux/slices/blogSlice';
+import { setStatus, createBlog } from 'src/redux/slices/blogSlice';
 import LoadingFull from 'src/components/loading/loading-full';
 // import { AutoSelect } from '../auto-select';
 
+
+import { fetchAllUsers } from 'src/redux/slices/userSlice';
+
 // ----------------------------------------------------------------------
 const blogSchema = Yup.object().shape({
-  name: Yup.string()
+  title: Yup.string()
     .required('Tên bài viết là bắt buộc')
     .min(5, 'Tên bài viết phải ít nhất 5 ký tự')
     .max(255, 'Tên bài viết không được quá 255 ký tự'),
@@ -48,6 +51,7 @@ const blogSchema = Yup.object().shape({
     .required('Nội dung là bắt buộc')
     .min(5, 'Nội dung  phải ít nhất 5 ký tự')
     .max(10000, 'Nội dung  không được quá 10000 ký tự'),
+  authID: Yup.string().required('Tác giả là bắt buộc'),
 });
 
 export default function CreateBlogPage() {
@@ -56,13 +60,30 @@ export default function CreateBlogPage() {
   const [tags, setTags] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [value, setValue] = useState(0);
+  const [users, setUsers] = useState([]);
+  const statusUser = useSelector((state) => state.users.status);
+  const errorUser = useSelector((state) => state.users.error);
+
+  const dataUser = useSelector((state) => state.users.users);
   const dispatch = useDispatch();
+
+
+  useEffect(() => {
+    if (statusUser === 'idle') {
+      dispatch(fetchAllUsers());
+    } else if (statusUser === 'failed') {
+      console.error(errorUser);
+    } else if (statusUser === 'successful') {
+      setUsers(dataUser.users);
+    }
+  }, [statusUser, dispatch, errorUser, dataUser]);
+
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
 
-  const status = useSelector((state) => state.products.statusCreate);
-  const error = useSelector((state) => state.products.error);
+  const status = useSelector((state) => state.blogs.statusCreate);
+  const error = useSelector((state) => state.blogs.error);
 
   const handleKeyDown = (event) => {
     if (event.key === 'Enter' && inputValue.trim()) {
@@ -77,25 +98,35 @@ export default function CreateBlogPage() {
 
   const formik = useFormik({
     initialValues: {
-      name: '',
-      description: '',
+      title: '',
+      authID: '',
+      authName: '',
       content: '',
       slug: '',
       tags: [],
-      status: true,
+      status: '',
     },
     validationSchema: blogSchema,
     onSubmit: (values) => {
+      console.log(values);
       if (thumbnail === null) {
         setErrorThumbnail('Vui lòng chọn ảnh đại diện');
       }
-      
-    //   dispatch(createProduct({ data: values }));
+      if (tags.length === 0 || tags.length === 1) {
+        handleToast('error', 'Vui lòng nhập ít nhất hai nhãn cho bài viết');
+        return;
+      }
+      if (status === null){
+          handleToast('error', 'Vui lòng chọn trạng thái')
+      }
+      values.thumbnail = thumbnail;
+      values.tags = tags;
+      dispatch(createBlog({ data: values }));
     },
   });
 
   const handleCreateSlug = (e) => {
-    formik.setFieldValue('name', e.target.value);
+    formik.setFieldValue('title', e.target.value);
     const slug = slugify(e.target.value);
     formik.setFieldValue('slug', slug);
   };
@@ -151,11 +182,11 @@ export default function CreateBlogPage() {
                       fullWidth
                       label="Tên bài viết"
                       variant="outlined"
-                      name="name"
-                      value={formik.values.name}
+                      name="title"
+                      value={formik.values.title}
                       onChange={(e) => handleCreateSlug(e)}
-                      error={formik.touched.name && Boolean(formik.errors.name)}
-                      helperText={formik.touched.name && formik.errors.name}
+                      error={formik.touched.title && Boolean(formik.errors.title)}
+                      helperText={formik.touched.title && formik.errors.title}
                     />
                   </Grid2>
                   <Grid2 xs={12}>
@@ -174,7 +205,7 @@ export default function CreateBlogPage() {
                 </Grid2>
               </Card>
 
-            
+
               <Card sx={{ flexGrow: 1, bgcolor: 'background.paper', display: 'flex', padding: 3 }}>
                 <Tabs
                   orientation="vertical"
@@ -184,41 +215,57 @@ export default function CreateBlogPage() {
                   aria-label="Vertical tabs example"
                   sx={{ borderRight: 1, borderColor: 'divider' }}
                 >
-                  <Tab label="Trạng thái" {...a11yProps(0)} />
+                  <Tab label="Trạng thái và người dùng" {...a11yProps(0)} />
                   <Tab label="SEO" {...a11yProps(1)} />
                 </Tabs>
                 <TabPanel value={value} index={0}>
                   <Stack spacing={3} sx={{ width: '100%' }}>
                     <FormControl fullWidth>
-                      <InputLabel id="statusStock-select-label">Trạng thái bài viết</InputLabel>
+                      <InputLabel id="status-select-label">Trạng thái bài viết</InputLabel>
                       <Select
-                        labelId="statusStock-select-label"
-                        id="statusStock-select"
-                        name="statusStock"
-                        value={formik.values.statusStock}
+                        labelId="status-select-label"
+                        id="status-select"
+                        name="status"
+                        value={formik.values.status}
                         label="Trạng thái bài viết"
                         onChange={formik.handleChange}
                       >
-                        <MenuItem value="Publish">Xuất bản</MenuItem>
-                        <MenuItem value="Draft">Nháp</MenuItem>
+                        <MenuItem value="public">Công khai</MenuItem>
+                        <MenuItem value="private">Riêng tư</MenuItem>
+                        <MenuItem value="waiting">Chờ duyệt</MenuItem>
+                        <MenuItem value="reject">Từ chối</MenuItem>
                       </Select>
                     </FormControl>
-                    <Box>
-                      <FormControl component="fieldset" variant="standard">
-                        <FormLabel component="legend">Trạng thái</FormLabel>
-                        <FormControlLabel
-                          control={
-                            <Switch
-                              onChange={formik.handleChange}
-                              name="status"
-                              value={formik.values.status}
-                              checked={formik.values.status}
-                            />
-                          }
-                          label={formik.values.status ? 'Hiện' : 'Ẩn'}
-                        />
-                      </FormControl>
-                    </Box>
+                    <FormControl fullWidth>
+                      <InputLabel id="author-select-label">Tác giả</InputLabel>
+                      <Select
+                        labelId="author-select-label"
+                        id="author-select"
+                        value={formik.values.authID}
+                        label="Tác giả"
+                        name="authID"
+                        onChange={(e) => {
+                          const selectedUser = users.find((user) => user._id === e.target.value);
+                          formik.setFieldValue('authID', e.target.value);
+                          formik.setFieldValue('authName', selectedUser ? selectedUser.name : '');
+                        }
+                        }
+                        error={formik.touched.authID && Boolean(formik.errors.authID)}
+                      >
+                        {users.map((user) => (
+                          <MenuItem key={user._id} value={user._id}>
+                            {user.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                      <FormHelperText
+                        sx={{
+                          color: formik.touched.authID && formik.errors.authID ? 'red' : 'inherit',
+                        }}
+                      >
+                        {formik.touched.authID && formik.errors.authID ? formik.errors.authID : ''}
+                      </FormHelperText>
+                    </FormControl>
                   </Stack>
                 </TabPanel>
                 <TabPanel value={value} index={1}>
@@ -230,9 +277,9 @@ export default function CreateBlogPage() {
                   padding: 3,
                 }}
               >
-                <Stack spacing={3}>  
-                 <Typography variant="h6" sx={{ mb: 3 }}>
-                  Mô tả bài viết
+                <Stack spacing={3}>
+                  <Typography variant="h6" sx={{ mb: 3 }}>
+                    Nội dung bài viết
                   </Typography>
                   <TinyEditor
                     error={formik.touched.content && Boolean(formik.errors.content)}
