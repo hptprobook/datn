@@ -1,14 +1,14 @@
-import { Icon } from '@iconify/react';
-import { useState, useEffect } from 'react';
-import ProductItem from '~/components/common/Product/ProductItem';
+import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import './style.css';
-import MainLoading from '~/components/common/Loading/MainLoading';
+import ProductItem from '../common/Product/ProductItem';
+import MainLoading from '../common/Loading/MainLoading';
+import { Icon } from '@iconify/react';
 
-const SearchContent = ({
+const ProductListWithSort = ({
   filteredProductsData,
   isLoading,
-  keyword,
+  keyword = '',
+  catData = null,
   sortOption,
   onSortChange,
   onLoadMore,
@@ -39,9 +39,14 @@ const SearchContent = ({
 
   return (
     <div className="text-black">
-      <h2 className="text-2xl font-bold mb-4">
-        Kết quả tìm kiếm cho &quot;{keyword}&quot;
-      </h2>
+      {keyword && (
+        <h2 className="text-2xl font-bold mb-4">
+          Kết quả tìm kiếm cho &quot;{keyword}&quot;
+        </h2>
+      )}
+      {catData && (
+        <h2 className="text-2xl font-bold mb-4">{catData.name} - BMT Life</h2>
+      )}
       <div className="divider"></div>
 
       {/* Sorting Form */}
@@ -92,16 +97,15 @@ const SearchContent = ({
   );
 };
 
-SearchContent.propTypes = {
+ProductListWithSort.propTypes = {
   filteredProductsData: PropTypes.array,
   isLoading: PropTypes.bool,
-  keyword: PropTypes.string.isRequired,
+  keyword: PropTypes.string,
+  slug: PropTypes.string,
   sortOption: PropTypes.string,
-  onSortChange: PropTypes.func.isRequired,
-  onLoadMore: PropTypes.func.isRequired,
-  filters: PropTypes.object,
-  page: PropTypes.number,
-  itemsPerPage: PropTypes.number,
+  onSortChange: PropTypes.func,
+  onLoadMore: PropTypes.func,
+  limit: PropTypes.number,
 };
 
-export default SearchContent;
+export default ProductListWithSort;

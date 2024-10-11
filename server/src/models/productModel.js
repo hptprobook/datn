@@ -756,39 +756,15 @@ const getProductBySearch = async (search, page, limit) => {
 
   const db = await GET_DB();
 
-  const nameQuery = {
-    name: { $regex: search, $options: 'i' },
-  };
-
-  let nameResults = await db
+  const results = await db
     .collection('products')
-    .find(nameQuery)
+    .find({ slug: { $regex: searchQuery, $options: 'i' } })
     .collation({ locale: 'en', strength: 2 })
     .limit(limit)
     .skip((page - 1) * limit)
     .toArray();
 
-  let totalResults = nameResults.length;
-
-  if (totalResults < limit) {
-    const remainingLimit = limit - totalResults;
-
-    const slugQuery = {
-      slug: { $regex: searchQuery, $options: 'i' },
-    };
-
-    const slugResults = await db
-      .collection('products')
-      .find(slugQuery)
-      .collation({ locale: 'en', strength: 2 })
-      .limit(remainingLimit)
-      .skip(0)
-      .toArray();
-
-    nameResults = [...nameResults, ...slugResults];
-  }
-
-  nameResults.forEach((product) => {
+  results.forEach((product) => {
     if (product.reviews && product.reviews.length > 0) {
       const total = product.reviews.reduce(
         (acc, review) => acc + review.rating,
@@ -805,7 +781,7 @@ const getProductBySearch = async (search, page, limit) => {
     delete product.reviews;
   });
 
-  return nameResults;
+  return results;
 };
 
 const getProductByCategoryFilter = async (slug, pages, limit, filter) => {
@@ -1087,6 +1063,7 @@ const getProductsBySearchAndFilter = async (
   limit = parseInt(limit) || 20;
 
   const searchQuery = removeTones(keyword).toLowerCase().replace(/\s+/g, '-');
+
   const db = await GET_DB();
 
   if (sortCriteria && sortCriteria.keyword) {
@@ -1094,8 +1071,10 @@ const getProductsBySearchAndFilter = async (
   }
 
   let sortOption = {};
+
   if (sortCriteria && Object.keys(sortCriteria).length > 0) {
     const [field, order] = Object.entries(sortCriteria)[0];
+
     switch (field) {
       case 'alphabet':
         sortOption = { name: order.toLowerCase() === 'az' ? 1 : -1 };
@@ -1111,51 +1090,27 @@ const getProductsBySearchAndFilter = async (
     }
   }
 
-  let baseQuery = {
+  let query = {
+    slug: { $regex: searchQuery, $options: 'i' },
     price: { $gte: minPrice, $lte: maxPrice },
   };
 
   if (colors && colors.length > 0) {
-    baseQuery['variants.color'] = { $in: colors };
+    query['variants.color'] = { $in: colors };
   }
 
   if (sizes && sizes.length > 0) {
-    baseQuery['variants.sizes.size'] = { $in: sizes };
+    query['variants.sizes.size'] = { $in: sizes };
   }
 
-  let nameQuery = {
-    ...baseQuery,
-    name: { $regex: keyword, $options: 'i' },
-  };
-
-  let products = await db
+  const products = await db
     .collection('products')
-    .find(nameQuery)
+    .find(query)
     .collation({ locale: 'en', strength: 2 })
     .sort(sortOption)
     .skip((page - 1) * limit)
     .limit(limit)
     .toArray();
-
-  if (products.length < limit) {
-    const remainingLimit = limit - products.length;
-
-    let slugQuery = {
-      ...baseQuery,
-      slug: { $regex: searchQuery, $options: 'i' },
-    };
-
-    const slugProducts = await db
-      .collection('products')
-      .find(slugQuery)
-      .collation({ locale: 'en', strength: 2 })
-      .sort(sortOption)
-      .skip(0)
-      .limit(remainingLimit)
-      .toArray();
-
-    products = [...products, ...slugProducts];
-  }
 
   products.forEach((product) => {
     if (product.reviews && product.reviews.length > 0) {

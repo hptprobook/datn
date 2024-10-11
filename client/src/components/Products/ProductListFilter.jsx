@@ -1,14 +1,14 @@
-import { useState, useEffect, useCallback } from 'react';
-import MultiRangeSlider from '~/components/common/Range/MultiSliderRange';
+import { useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Icon } from '@iconify/react';
+import MultiRangeSlider from '../common/Range/MultiSliderRange';
+import { debounce } from 'lodash';
 
-const CategorySidebar = ({
+const ProductListFilter = ({
   onFilterChange,
   priceRangeData,
   onPriceRangeChange,
   initialFilters,
-  // Remove noMatchingProducts from props
 }) => {
   const [selectedColors, setSelectedColors] = useState(
     initialFilters.colors || []
@@ -19,12 +19,21 @@ const CategorySidebar = ({
   const [isColorOpen, setIsColorOpen] = useState(false);
   const [isSizeOpen, setIsSizeOpen] = useState(false);
 
+  const debouncedFilterChange = useCallback(
+    debounce((filters) => {
+      onFilterChange(filters);
+    }, 1000),
+    [onFilterChange]
+  );
+
   useEffect(() => {
-    onFilterChange({
+    const filters = {
       colors: selectedColors,
       sizes: selectedSizes,
-    });
-  }, [selectedColors, selectedSizes, onFilterChange]);
+    };
+    sessionStorage.setItem('catProductListFilters', JSON.stringify(filters));
+    debouncedFilterChange(filters);
+  }, [selectedColors, selectedSizes, debouncedFilterChange]);
 
   const handlePriceRangeChange = useCallback(
     (newPriceRange) => {
@@ -270,12 +279,11 @@ const CategorySidebar = ({
   );
 };
 
-CategorySidebar.propTypes = {
+ProductListFilter.propTypes = {
   onFilterChange: PropTypes.func,
-  onPriceRangeChange: PropTypes.func,
   priceRangeData: PropTypes.object,
+  onPriceRangeChange: PropTypes.func,
   initialFilters: PropTypes.object,
-  // Remove noMatchingProducts from prop types
 };
 
-export default CategorySidebar;
+export default ProductListFilter;

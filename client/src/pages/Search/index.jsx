@@ -1,11 +1,11 @@
 import { useSearchParams } from 'react-router-dom';
 import HeaderBC from '~/components/common/Breadcrumb/HeaderBC';
-import SearchSidebar from './SearchSidebar';
-import SearchContent from './SearchContent';
 import { useQuery } from '@tanstack/react-query';
 import { filterProductsWithSearch, getMinMaxPrices } from '~/APIs';
 import { useState, useCallback, useEffect } from 'react';
 import { Icon } from '@iconify/react';
+import ProductListWithSort from '~/components/Products/ProductListWithSort';
+import ProductListFilter from '~/components/Products/ProductListFilter';
 
 const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -173,7 +173,7 @@ const SearchPage = () => {
       <div className="divider"></div>
       <div className="grid grid-cols-5 gap-6 mt-8">
         <div className="col-span-1">
-          <SearchSidebar
+          <ProductListFilter
             onFilterChange={handleFilterChange}
             onPriceRangeChange={handlePriceRangeChange}
             priceRangeData={priceRangeData}
@@ -190,15 +190,15 @@ const SearchPage = () => {
               <p className="text-sm">Vui lòng thử lại với các bộ lọc khác</p>
             </div>
           ) : (
-            <SearchContent
-              filteredProductsData={filteredProductsData}
-              isLoading={isFilteredDataLoading}
+            <ProductListWithSort
               keyword={keyword}
+              filters={filters}
+              filteredProductsData={filteredProductsData}
               sortOption={sortOption}
+              setSortOption={setSortOption}
               onSortChange={handleSortChange}
               onLoadMore={handleLoadMore}
-              filters={filters}
-              limit={limit}
+              isLoading={isFilteredDataLoading}
             />
           )}
         </div>
