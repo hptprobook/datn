@@ -4,6 +4,7 @@ import { NavLink } from 'react-router-dom';
 import ProductItem from '~/components/common/Product/ProductItem';
 import PropTypes from 'prop-types';
 import './style.css';
+import { useEffect } from 'react';
 
 const SearchResult = ({
   handleModelClick,
@@ -11,7 +12,20 @@ const SearchResult = ({
   searchLoading,
   closeModal,
   keyword,
+  isOpen,
 }) => {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   if (searchLoading || !searchResults || searchResults.length === 0) {
     return (
       <div

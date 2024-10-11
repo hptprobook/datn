@@ -756,15 +756,39 @@ const getProductBySearch = async (search, page, limit) => {
 
   const db = await GET_DB();
 
-  const results = await db
+  const nameQuery = {
+    name: { $regex: search, $options: 'i' },
+  };
+
+  let nameResults = await db
     .collection('products')
-    .find({ slug: { $regex: searchQuery, $options: 'i' } })
+    .find(nameQuery)
     .collation({ locale: 'en', strength: 2 })
     .limit(limit)
     .skip((page - 1) * limit)
     .toArray();
 
-  results.forEach((product) => {
+  let totalResults = nameResults.length;
+
+  if (totalResults < limit) {
+    const remainingLimit = limit - totalResults;
+
+    const slugQuery = {
+      slug: { $regex: searchQuery, $options: 'i' },
+    };
+
+    const slugResults = await db
+      .collection('products')
+      .find(slugQuery)
+      .collation({ locale: 'en', strength: 2 })
+      .limit(remainingLimit)
+      .skip(0)
+      .toArray();
+
+    nameResults = [...nameResults, ...slugResults];
+  }
+
+  nameResults.forEach((product) => {
     if (product.reviews && product.reviews.length > 0) {
       const total = product.reviews.reduce(
         (acc, review) => acc + review.rating,
@@ -781,7 +805,7 @@ const getProductBySearch = async (search, page, limit) => {
     delete product.reviews;
   });
 
-  return results;
+  return nameResults;
 };
 
 const getProductByCategoryFilter = async (slug, pages, limit, filter) => {
@@ -1063,7 +1087,6 @@ const getProductsBySearchAndFilter = async (
   limit = parseInt(limit) || 20;
 
   const searchQuery = removeTones(keyword).toLowerCase().replace(/\s+/g, '-');
-
   const db = await GET_DB();
 
   if (sortCriteria && sortCriteria.keyword) {
@@ -1071,10 +1094,8 @@ const getProductsBySearchAndFilter = async (
   }
 
   let sortOption = {};
-
   if (sortCriteria && Object.keys(sortCriteria).length > 0) {
     const [field, order] = Object.entries(sortCriteria)[0];
-
     switch (field) {
       case 'alphabet':
         sortOption = { name: order.toLowerCase() === 'az' ? 1 : -1 };
@@ -1090,33 +1111,52 @@ const getProductsBySearchAndFilter = async (
     }
   }
 
-  // Tạo query dựa trên từ khóa tìm kiếm và các bộ lọc
-  let query = {
-    slug: { $regex: searchQuery, $options: 'i' },
+  let baseQuery = {
     price: { $gte: minPrice, $lte: maxPrice },
   };
 
-  // Thêm bộ lọc màu sắc nếu có
   if (colors && colors.length > 0) {
-    query['variants.color'] = { $in: colors };
+    baseQuery['variants.color'] = { $in: colors };
   }
 
-  // Thêm bộ lọc kích thước nếu có
   if (sizes && sizes.length > 0) {
-    query['variants.sizes.size'] = { $in: sizes };
+    baseQuery['variants.sizes.size'] = { $in: sizes };
   }
 
-  // Thực hiện truy vấn với MongoDB
-  const products = await db
+  let nameQuery = {
+    ...baseQuery,
+    name: { $regex: keyword, $options: 'i' },
+  };
+
+  let products = await db
     .collection('products')
-    .find(query)
-    .collation({ locale: 'en', strength: 2 }) // Collation để sắp xếp không phân biệt chữ hoa/thường
+    .find(nameQuery)
+    .collation({ locale: 'en', strength: 2 })
     .sort(sortOption)
     .skip((page - 1) * limit)
     .limit(limit)
     .toArray();
 
-  // Tính toán averageRating và totalComment nếu có đánh giá
+  if (products.length < limit) {
+    const remainingLimit = limit - products.length;
+
+    let slugQuery = {
+      ...baseQuery,
+      slug: { $regex: searchQuery, $options: 'i' },
+    };
+
+    const slugProducts = await db
+      .collection('products')
+      .find(slugQuery)
+      .collation({ locale: 'en', strength: 2 })
+      .sort(sortOption)
+      .skip(0)
+      .limit(remainingLimit)
+      .toArray();
+
+    products = [...products, ...slugProducts];
+  }
+
   products.forEach((product) => {
     if (product.reviews && product.reviews.length > 0) {
       const total = product.reviews.reduce(
@@ -1131,7 +1171,7 @@ const getProductsBySearchAndFilter = async (
       product.averageRating = 0;
       product.totalComment = 0;
     }
-    delete product.reviews; // Xóa reviews để giảm dữ liệu trả về nếu không cần thiết
+    delete product.reviews;
   });
 
   return products;

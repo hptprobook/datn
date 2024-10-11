@@ -1,10 +1,9 @@
 import { Icon } from '@iconify/react';
-import { useState, useEffect, useCallback } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
 import ProductItem from '~/components/common/Product/ProductItem';
 import PropTypes from 'prop-types';
-import debounce from 'lodash/debounce';
-import { useNavigate } from 'react-router-dom';
+import './style.css';
+import MainLoading from '~/components/common/Loading/MainLoading';
 
 const SearchContent = ({
   filteredProductsData,
@@ -13,21 +12,20 @@ const SearchContent = ({
   sortOption,
   onSortChange,
   onLoadMore,
-  filters,
-  page,
-  itemsPerPage,
+  limit,
 }) => {
   const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
-    if (filteredProductsData?.length < itemsPerPage) {
+    if (filteredProductsData?.length < limit) {
       setHasMore(false);
     } else {
       setHasMore(true);
     }
-  }, [filteredProductsData?.length, itemsPerPage]);
+  }, [filteredProductsData?.length, limit]);
 
-  const handleLoadMore = () => {
+  const handleLoadMore = (event) => {
+    event.preventDefault();
     onLoadMore();
   };
 
@@ -35,6 +33,9 @@ const SearchContent = ({
     const selectedValue = e.target.value;
     onSortChange(selectedValue);
   };
+
+  if (isLoading || !filteredProductsData || filteredProductsData?.length === 0)
+    return <MainLoading />;
 
   return (
     <div className="text-black">

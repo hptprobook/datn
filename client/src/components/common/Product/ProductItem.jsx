@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Rating } from 'flowbite-react';
 import ProductLabelBadge from '../Badge/ProductLabelBadge';
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getProductById } from '~/APIs/product';
 import QuickViewModal from './QuickViewModal';
@@ -52,7 +52,7 @@ const ProductItem = ({ product, height = false, isLoading = false }) => {
   return (
     <div className="h-[480px] rounded-md relative group">
       <div className={`w-full relative ${!height ? 'h-80' : 'h-96'}`}>
-        <NavLink to={`/san-pham/${product?.slug}`}>
+        <Link to={`/san-pham/${product?.slug}`}>
           <div className="flex gap-2 absolute top-2 left-2 z-10">
             {product?.tags?.slice(0, 2).map((label, index) => (
               <ProductLabelBadge key={index} text={label} />
@@ -63,7 +63,7 @@ const ProductItem = ({ product, height = false, isLoading = false }) => {
             alt=""
             className="w-full h-full object-cover rounded-md"
           />
-        </NavLink>
+        </Link>
         <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
             className="bg-gray-800 text-white p-2 rounded-full hover:bg-gray-700 transition-colors"

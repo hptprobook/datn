@@ -1,46 +1,44 @@
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import HeaderBC from '~/components/common/Breadcrumb/HeaderBC';
 import SearchSidebar from './SearchSidebar';
 import SearchContent from './SearchContent';
 import { useQuery } from '@tanstack/react-query';
-import {
-  filterProductsWithSearch,
-  getMinMaxPrices,
-  searchProducts,
-} from '~/APIs';
-import { useState, useCallback } from 'react';
+import { filterProductsWithSearch, getMinMaxPrices } from '~/APIs';
+import { useState, useCallback, useEffect } from 'react';
 import { Icon } from '@iconify/react';
-import MainLoading from '~/components/common/Loading/MainLoading';
 
 const SearchPage = () => {
-  const [searchParams] = useSearchParams();
-  const keyword = searchParams.get('keyword');
-  const sort = searchParams.get('sort');
-  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const keyword = searchParams.get('keyword') || '';
+  const sort = searchParams.get('sort') || '';
+  const colors = searchParams.get('colors')
+    ? searchParams.get('colors').split(',')
+    : [];
+  const sizes = searchParams.get('sizes')
+    ? searchParams.get('sizes').split(',')
+    : [];
+  const minPrice = searchParams.get('minPrice')
+    ? Number(searchParams.get('minPrice'))
+    : null;
+  const maxPrice = searchParams.get('maxPrice')
+    ? Number(searchParams.get('maxPrice'))
+    : null;
 
   const [filters, setFilters] = useState({
-    colors: [],
-    sizes: [],
-    priceRange: { min: null, max: null },
+    colors,
+    sizes,
+    priceRange: { min: minPrice, max: maxPrice },
   });
-  const [sortOption, setSortOption] = useState(sort || '');
+  const [sortOption, setSortOption] = useState(sort);
   const [limit, setLimit] = useState(20);
   const [noMatchingProducts, setNoMatchingProducts] = useState(false);
 
-  // Lấy khoảng giá cho bộ lọc giá
   const { data: priceRangeData } = useQuery({
     queryKey: ['price-range'],
     queryFn: getMinMaxPrices,
     initialData: { minPrice: 1000, maxPrice: 2000000 },
     staleTime: 1000 * 60 * 30,
     cacheTime: 1000 * 60 * 60,
-  });
-
-  // API tìm kiếm sản phẩm (theo từ khóa) khi không có bộ lọc nào
-  const { data: searchResults, isLoading: searchLoading } = useQuery({
-    queryKey: ['search', keyword, limit],
-    queryFn: () => searchProducts({ keyword, limit }),
-    enabled: !!keyword,
   });
 
   const hasActiveFilters = useCallback(() => {
@@ -80,67 +78,98 @@ const SearchPage = () => {
           throw error;
         }
       },
-      enabled: !!keyword && hasActiveFilters(),
-      staleTime: 10 * 1000,
+      enabled: !!keyword || hasActiveFilters(),
+      staleTime: 1000 * 60 * 10,
       cacheTime: 1000 * 60 * 60,
+      keepPreviousData: true,
     });
 
-  const handleFilterChange = useCallback((newFilters) => {
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      ...newFilters,
-    }));
-    setNoMatchingProducts(false);
-  }, []);
+  const updateSearchParams = (newFilters) => {
+    const params = new URLSearchParams(searchParams);
 
-  // Xử lý khi thay đổi khoảng giá
+    if (newFilters.colors.length > 0)
+      params.set('colors', newFilters.colors.join(','));
+    else params.delete('colors');
+
+    if (newFilters.sizes.length > 0)
+      params.set('sizes', newFilters.sizes.join(','));
+    else params.delete('sizes');
+
+    if (newFilters.priceRange.min !== null)
+      params.set('minPrice', newFilters.priceRange.min);
+    else params.delete('minPrice');
+
+    if (newFilters.priceRange.max !== null)
+      params.set('maxPrice', newFilters.priceRange.max);
+    else params.delete('maxPrice');
+
+    if (sortOption) params.set('sort', sortOption);
+    else params.delete('sort');
+
+    setSearchParams(params);
+  };
+
+  const handleFilterChange = useCallback(
+    (newFilters) => {
+      setFilters((prevFilters) => {
+        const updatedFilters = {
+          ...prevFilters,
+          ...newFilters,
+        };
+
+        if (JSON.stringify(prevFilters) !== JSON.stringify(updatedFilters)) {
+          updateSearchParams(updatedFilters);
+        }
+
+        return updatedFilters;
+      });
+      setNoMatchingProducts(false);
+    },
+    [sortOption, searchParams]
+  );
+
   const handlePriceRangeChange = useCallback(
     (newPriceRange) => {
       if (
         filters.priceRange.min !== newPriceRange.min ||
         filters.priceRange.max !== newPriceRange.max
       ) {
-        setFilters((prevFilters) => ({
-          ...prevFilters,
+        const updatedFilters = {
+          ...filters,
           priceRange: newPriceRange,
-        }));
+        };
+        setFilters(updatedFilters);
+        updateSearchParams(updatedFilters);
       }
     },
     [filters]
   );
 
-  // Xử lý khi thay đổi sort
+  useEffect(() => {
+    updateSearchParams(filters);
+  }, [filters]);
+
   const handleSortChange = useCallback(
     (newSortOption) => {
       setSortOption(newSortOption);
-
       const params = new URLSearchParams(searchParams);
       params.set('sort', newSortOption);
-
-      if (filters.colors.length > 0)
-        params.set('colors', filters.colors.join(','));
-      if (filters.sizes.length > 0)
-        params.set('sizes', filters.sizes.join(','));
-      if (filters.priceRange.min)
-        params.set('minPrice', filters.priceRange.min);
-      if (filters.priceRange.max)
-        params.set('maxPrice', filters.priceRange.max);
-
-      navigate(`/tim-kiem?${params.toString()}`);
+      setSearchParams(params);
     },
-    [navigate, searchParams, filters]
+    [searchParams, setSearchParams]
   );
 
-  // Xử lý nút "Xem thêm"
   const handleLoadMore = useCallback(() => {
     setLimit((prevLimit) => prevLimit + 20);
   }, []);
 
-  if (searchLoading) return <MainLoading />;
-
   return (
     <section className="max-w-container mx-auto mt-16">
-      <HeaderBC title={'Kết quả tìm kiếm'} name={keyword} />
+      <HeaderBC
+        title={'Kết quả tìm kiếm'}
+        name={keyword}
+        url={'/tim-kiem?keyword='}
+      />
       <div className="divider"></div>
       <div className="grid grid-cols-5 gap-6 mt-8">
         <div className="col-span-1">
@@ -162,15 +191,14 @@ const SearchPage = () => {
             </div>
           ) : (
             <SearchContent
-              filteredProductsData={
-                filteredProductsData || searchResults?.products
-              }
-              isLoading={isFilteredDataLoading || searchLoading}
+              filteredProductsData={filteredProductsData}
+              isLoading={isFilteredDataLoading}
               keyword={keyword}
               sortOption={sortOption}
               onSortChange={handleSortChange}
               onLoadMore={handleLoadMore}
               filters={filters}
+              limit={limit}
             />
           )}
         </div>

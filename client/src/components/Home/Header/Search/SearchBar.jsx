@@ -83,7 +83,10 @@ const SearchBar = () => {
             <IoMdCloseCircleOutline />
           </div>
           {searchValue === '' ? (
-            <SearchPopular handleModelClick={handleModelClick} />
+            <SearchPopular
+              handleModelClick={handleModelClick}
+              isOpen={isFocused}
+            />
           ) : (
             <SearchResult
               handleModelClick={handleModelClick}

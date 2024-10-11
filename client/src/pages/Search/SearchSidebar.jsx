@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import MultiRangeSlider from '~/components/common/Range/MultiSliderRange';
 import PropTypes from 'prop-types';
 import { Icon } from '@iconify/react';
+import { debounce } from 'lodash'; // Make sure to import lodash
 
 const SearchSidebar = ({
   onFilterChange,
@@ -18,12 +19,22 @@ const SearchSidebar = ({
   const [isColorOpen, setIsColorOpen] = useState(false);
   const [isSizeOpen, setIsSizeOpen] = useState(false);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debouncedFilterChange = useCallback(
+    debounce((filters) => {
+      onFilterChange(filters);
+    }, 1000),
+    [onFilterChange]
+  );
+
   useEffect(() => {
-    onFilterChange({
+    const filters = {
       colors: selectedColors,
       sizes: selectedSizes,
-    });
-  }, [selectedColors, selectedSizes, onFilterChange]);
+    };
+    sessionStorage.setItem('searchFilters', JSON.stringify(filters));
+    debouncedFilterChange(filters);
+  }, [selectedColors, selectedSizes, debouncedFilterChange]);
 
   const handlePriceRangeChange = useCallback(
     (newPriceRange) => {
