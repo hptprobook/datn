@@ -39,11 +39,15 @@ const MainRoutes = {
       path: 'tim-kiem',
       children: [
         {
-          path: ':slug',
+          path: '',
           element: <SearchPage />,
         },
         {
-          path: ':slug/:sort',
+          path: ':keyword',
+          element: <SearchPage />,
+        },
+        {
+          path: ':keyword/:sort',
           element: <SearchPage />,
         },
       ],

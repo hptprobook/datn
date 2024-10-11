@@ -1,15 +1,19 @@
 import { IoIosSearch, IoMdCloseCircleOutline } from 'react-icons/io';
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { debounce } from 'lodash'; // Import debounce từ lodash
 import SearchPopular from './SearchPopular';
 import SearchResult from './SearchResult';
 import { searchProducts } from '~/APIs/ProductList/search';
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 
 const SearchBar = () => {
   const [isFocused, setIsFocused] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [keyword, setKeyword] = useState('');
+  const inputRef = useRef(null);
+  const navigate = useNavigate();
+  // eslint-disable-next-line no-unused-vars
   const [limit, setLimit] = useState(5);
 
   useEffect(() => {
@@ -24,7 +28,6 @@ const SearchBar = () => {
     };
   }, [isFocused]);
 
-  // Gọi API tìm kiếm với debounce 1000ms
   const debouncedSearch = useCallback(
     debounce((value) => {
       setKeyword(value);
@@ -32,7 +35,6 @@ const SearchBar = () => {
     []
   );
 
-  // Xử lý khi input thay đổi
   const handleInputChange = (e) => {
     const value = e.target.value;
     setSearchValue(value);
@@ -53,6 +55,26 @@ const SearchBar = () => {
     e.stopPropagation();
   };
 
+  const handleSearchKeyUp = (e) => {
+    if (e.key === 'Enter') {
+      navigate(`/tim-kiem?keyword=${searchValue}`);
+      handleOverlayClick();
+      inputRef.current.blur();
+    }
+  };
+
+  const handleSearchKeyDown = (e) => {
+    if (e.key === 'Escape') {
+      setSearchValue('');
+    }
+  };
+
+  const handleSearchButtonClick = () => {
+    navigate(`/tim-kiem?keyword=${searchValue}`);
+    handleOverlayClick();
+    inputRef.current.blur();
+  };
+
   return (
     <div>
       <form className="flex" onSubmit={(e) => e.preventDefault()}>
@@ -61,11 +83,15 @@ const SearchBar = () => {
           className="w-search h-10 rounded-l-md outline-none pl-3 text-sm bg-white"
           placeholder="Tìm kiếm ..."
           onFocus={() => setIsFocused(true)}
-          onChange={handleInputChange} // Gọi hàm xử lý khi input thay đổi
+          onChange={handleInputChange}
           value={searchValue}
+          onKeyUp={handleSearchKeyUp}
+          onKeyDown={handleSearchKeyDown}
+          ref={inputRef}
         />
         <button
-          type="submit"
+          type="button"
+          onClick={handleSearchButtonClick}
           className="w-12 h-10 bg-red-800 rounded-r-md flex justify-center items-center"
         >
           <IoIosSearch className="text-gray-50" />
@@ -83,13 +109,17 @@ const SearchBar = () => {
             <IoMdCloseCircleOutline />
           </div>
           {searchValue === '' ? (
-            <SearchPopular handleModelClick={handleModelClick} />
+            <SearchPopular
+              handleModelClick={handleModelClick}
+              isOpen={isFocused}
+            />
           ) : (
             <SearchResult
               handleModelClick={handleModelClick}
               searchResults={searchResults?.products}
               searchLoading={searchLoading}
               isOpen={isFocused}
+              keyword={keyword}
               closeModal={handleOverlayClick}
             />
           )}
