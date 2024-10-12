@@ -45,6 +45,7 @@ module.exports = {
     'comma-dangle': 0,
     'comma-spacing': 1,
     'arrow-spacing': 1,
+    'react-hooks/exhaustive-deps': 0,
     semi: [1, 'always'],
   },
 };

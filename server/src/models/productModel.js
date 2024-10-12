@@ -1049,6 +1049,89 @@ const getProductsBySlugAndPriceRange = async (
   return products;
 };
 
+const getProductsBySearchAndFilter = async (
+  keyword,
+  minPrice,
+  maxPrice,
+  page,
+  limit,
+  sortCriteria,
+  colors,
+  sizes
+) => {
+  page = parseInt(page) || 1;
+  limit = parseInt(limit) || 20;
+
+  const searchQuery = removeTones(keyword).toLowerCase().replace(/\s+/g, '-');
+
+  const db = await GET_DB();
+
+  if (sortCriteria && sortCriteria.keyword) {
+    delete sortCriteria.keyword;
+  }
+
+  let sortOption = {};
+
+  if (sortCriteria && Object.keys(sortCriteria).length > 0) {
+    const [field, order] = Object.entries(sortCriteria)[0];
+
+    switch (field) {
+      case 'alphabet':
+        sortOption = { name: order.toLowerCase() === 'az' ? 1 : -1 };
+        break;
+      case 'price':
+        sortOption = { price: order.toLowerCase() === 'asc' ? 1 : -1 };
+        break;
+      case 'createdAt':
+        sortOption = { createdAt: order.toLowerCase() === 'newest' ? -1 : 1 };
+        break;
+      default:
+        sortOption = {};
+    }
+  }
+
+  let query = {
+    slug: { $regex: searchQuery, $options: 'i' },
+    price: { $gte: minPrice, $lte: maxPrice },
+  };
+
+  if (colors && colors.length > 0) {
+    query['variants.color'] = { $in: colors };
+  }
+
+  if (sizes && sizes.length > 0) {
+    query['variants.sizes.size'] = { $in: sizes };
+  }
+
+  const products = await db
+    .collection('products')
+    .find(query)
+    .collation({ locale: 'en', strength: 2 })
+    .sort(sortOption)
+    .skip((page - 1) * limit)
+    .limit(limit)
+    .toArray();
+
+  products.forEach((product) => {
+    if (product.reviews && product.reviews.length > 0) {
+      const total = product.reviews.reduce(
+        (acc, review) => acc + review.rating,
+        0
+      );
+      product.averageRating = parseFloat(
+        (total / product.reviews.length).toFixed(1)
+      );
+      product.totalComment = product.reviews.length;
+    } else {
+      product.averageRating = 0;
+      product.totalComment = 0;
+    }
+    delete product.reviews;
+  });
+
+  return products;
+};
+
 const getMinMaxProductPrices = async () => {
   const db = await GET_DB();
   const result = await db
@@ -1100,5 +1183,6 @@ export const productModel = {
   getProductByCategoryFilter,
   getProductsByEvent,
   getProductsBySlugAndPriceRange,
+  getProductsBySearchAndFilter,
   getMinMaxProductPrices,
 };

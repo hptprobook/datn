@@ -17,7 +17,6 @@ export default function BlogTableRow({
   title,
   thumbnail,
   slug,
-  content,
   authName,
   status,
   handleClick,
@@ -50,7 +49,6 @@ export default function BlogTableRow({
 
         <TableCell>{slug}</TableCell>
 
-        <TableCell>{content}</TableCell>
 
         <TableCell>{authName}</TableCell>
 
@@ -91,7 +89,6 @@ export default function BlogTableRow({
 
 BlogTableRow.propTypes = {
   thumbnail: PropTypes.any,
-  content: PropTypes.any,
   handleClick: PropTypes.func,
   slug: PropTypes.any,
   title: PropTypes.any,

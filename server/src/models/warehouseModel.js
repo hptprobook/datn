@@ -23,14 +23,10 @@ const countInventoriesAll = async () => {
   return total;
 };
 
-const getWarehousesAll = async (page, limit) => {
-  page = parseInt(page) || 1;
-  limit = parseInt(limit) || 20;
+const getWarehousesAll = async () => {
   const db = await GET_DB().collection('warehouses');
   const result = await db
     .find()
-    .skip((page - 1) * limit)
-    .limit(limit)
     .toArray();
   if (!result) {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
