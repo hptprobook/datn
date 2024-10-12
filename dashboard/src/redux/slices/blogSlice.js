@@ -25,7 +25,7 @@ export const fetchBlogById = createAsyncThunk(
 );
 export const deleteBlogtById = createAsyncThunk(
   'blogs/deleteBlogtById',
-  async ({ id }, { rejectWithValue }) => {
+  async (id, { rejectWithValue }) => {
     try {
       const response = await BlogsService.deleteBlogtById(id);
       return response;
@@ -49,6 +49,7 @@ export const updateBlog = createAsyncThunk(
   'blogs/updateBlog',
   async ({ id, data }, { rejectWithValue }) => {
     try {
+      console.log('data', data);
       const response = await BlogsService.updateBlog(id, data);
       return response;
     } catch (err) {
@@ -65,8 +66,7 @@ const blogsSlice = createSlice({
     blogs: [],
     blog: {},
     status: 'idle',
-    statusGet: 'idle',
-    update: {},
+    statusUpdate: 'idle',
     error: null
   },
   extraReducers: (builder) => {
@@ -83,14 +83,14 @@ const blogsSlice = createSlice({
         state.error = action.payload;
       })
       .addCase(fetchBlogById.pending, (state) => {
-        state.statusGet = 'loading';
+        state.status = 'loading';
       })
       .addCase(fetchBlogById.fulfilled, (state, action) => {
-        state.statusGet = 'successful';
+        state.status = 'successful';
         state.blog = action.payload;
       })
       .addCase(fetchBlogById.rejected, (state, action) => {
-        state.statusGet = 'failed';
+        state.status = 'failed';
         state.error = action.payload;
       })
       .addCase(createBlog.pending, (state) => {
