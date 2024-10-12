@@ -3,30 +3,22 @@ import * as Yup from 'yup';
 export const schema = Yup.object().shape({
   name: Yup.string()
     .trim()
-    .min(1, 'Tên không được để trống') // equivalent to `string.empty`
-    .required('Tên là bắt buộc'),       // equivalent to `any.required`
-
-  slug: Yup.string()
+    .min(1, 'Tên không được để trống')
+    .required('Tên là bắt buộc'),
+  location: Yup.string()
     .trim()
-    .min(1, 'Slug không được để trống')  // equivalent to `string.empty`
-    .required('Slug là bắt buộc'),       // equivalent to `any.required`
-  website: Yup.string()
-    .trim()
-    .max(255, 'Website không được quá 255 ký tự')
-    .url('Website không hợp lệ'),       
-  category: Yup.string()
-    .trim()
-    .default('Quần áo'),              
-
-  description: Yup.string()
-    .trim()
-    .min(1, 'Nội dung không được để trống')  // equivalent to `string.empty`
-    .required('Nội dung là bắt buộc'),       // equivalent to `any.required`
-
+    .min(1, 'Địa chỉ không được để trống')
+    .required('Địa chỉ là bắt buộc'),
   status: Yup.boolean()
-    .default(true)  // sets the default value
-    .typeError('Trạng thái phải là Đúng/Sai'),  // equivalent to `boolean.base`
+    .required('Trạng thái là bắt buộc'),
+  capacity: Yup.number()
+    .integer('Sức chứa phải là số nguyên')
+    .required('Sức chứa là bắt buộc'),
+  currentInventory: Yup.number()
+    .integer('Số lượng tồn kho phải là số nguyên')
+    .default(0),
 });
+
 export const productCategories = [
   'Giày',
   'Áo',

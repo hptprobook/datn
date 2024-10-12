@@ -34,11 +34,8 @@ const createWarehouse = async (req, res) => {
 
 const getAllWarehouses = async (req, res) => {
   try {
-    let { pages, limit } = req.query;
-    const warehouses = await warehouseModel.getWarehousesAll(pages, limit);
-    return res.status(StatusCodes.OK).json({
-      warehouses,
-    });
+    const warehouses = await warehouseModel.getWarehousesAll();
+    return res.status(StatusCodes.OK).json(warehouses);
   } catch (error) {
     return res
       .status(StatusCodes.BAD_REQUEST)
@@ -51,9 +48,7 @@ const getWarehouseById = async (req, res) => {
     const { id } = req.params;
     const warehouse = await warehouseModel.getWarehouseById(id);
     if (warehouse) {
-      return res.status(StatusCodes.OK).json({
-        warehouse,
-      });
+      return res.status(StatusCodes.OK).json(warehouse);
     }
     return res
       .status(StatusCodes.BAD_REQUEST)
@@ -118,10 +113,7 @@ const updateInventory = async (req, res) => {
         .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
     }
     if (dataWarehouse) {
-      return res.status(StatusCodes.OK).json({
-        message: 'Cập nhật thông tin thành công',
-        dataWarehouse,
-      });
+      return res.status(StatusCodes.OK).json(dataWarehouse);
     }
   } catch (error) {
     return res
