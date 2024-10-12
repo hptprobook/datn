@@ -4,13 +4,28 @@ import { NavLink } from 'react-router-dom';
 import ProductItem from '~/components/common/Product/ProductItem';
 import PropTypes from 'prop-types';
 import './style.css';
+import { useEffect } from 'react';
 
 const SearchResult = ({
   handleModelClick,
   searchResults,
   searchLoading,
   closeModal,
+  keyword,
+  isOpen,
 }) => {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   if (searchLoading || !searchResults || searchResults.length === 0) {
     return (
       <div
@@ -42,8 +57,9 @@ const SearchResult = ({
             ))}
         </div>
         <NavLink
-          to={'#'}
+          to={`/tim-kiem?keyword=${keyword}`}
           className="flex justify-end items-center gap-2 text-red-500 pb-6 font-medium"
+          onClick={closeModal}
         >
           Xem tất cả <FaArrowRightLong />
         </NavLink>

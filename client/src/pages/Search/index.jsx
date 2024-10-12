@@ -1,182 +1,187 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import HeaderBC from '~/components/common/Breadcrumb/HeaderBC';
-import SearchSidebar from './SearchSidebar';
-import SearchContent from './SearchContent';
 import { useQuery } from '@tanstack/react-query';
-import { filterProductsWithPriceRange, getMinMaxPrices } from '~/APIs';
-import { handleToast } from '~/customHooks/useToast';
+import { filterProductsWithSearch, getMinMaxPrices } from '~/APIs';
 import { useState, useCallback, useEffect } from 'react';
 import { Icon } from '@iconify/react';
-import { searchProducts } from '~/APIs/ProductList/search';
+import ProductListWithSort from '~/components/Products/ProductListWithSort';
+import ProductListFilter from '~/components/Products/ProductListFilter';
 
 const SearchPage = () => {
-  const { keyword, sort } = useParams();
-  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const keyword = searchParams.get('keyword') || '';
+  const sort = searchParams.get('sort') || '';
+  const colors = searchParams.get('colors')
+    ? searchParams.get('colors').split(',')
+    : [];
+  const sizes = searchParams.get('sizes')
+    ? searchParams.get('sizes').split(',')
+    : [];
+  const minPrice = searchParams.get('minPrice')
+    ? Number(searchParams.get('minPrice'))
+    : null;
+  const maxPrice = searchParams.get('maxPrice')
+    ? Number(searchParams.get('maxPrice'))
+    : null;
+
   const [filters, setFilters] = useState({
-    colors: [],
-    sizes: [],
-    priceRange: { min: null, max: null },
+    colors,
+    sizes,
+    priceRange: { min: minPrice, max: maxPrice },
   });
-  const [sortOption, setSortOption] = useState(sort || '');
-  const [shouldFetchFiltered, setShouldFetchFiltered] = useState(false);
-  const [noMatchingProducts, setNoMatchingProducts] = useState(false);
+  const [sortOption, setSortOption] = useState(sort);
   const [limit, setLimit] = useState(20);
+  const [noMatchingProducts, setNoMatchingProducts] = useState(false);
 
   const { data: priceRangeData } = useQuery({
     queryKey: ['price-range'],
     queryFn: getMinMaxPrices,
-    initialData: () => {
-      return {
-        minPrice: 1000,
-        maxPrice: 2000000,
-      };
-    },
+    initialData: { minPrice: 1000, maxPrice: 2000000 },
     staleTime: 1000 * 60 * 30,
     cacheTime: 1000 * 60 * 60,
   });
 
-  const updateUrlWithFilter = (filterParams) => {
-    const params = new URLSearchParams(window.location.search);
-    Object.keys(filterParams).forEach((key) => {
-      if (filterParams[key] !== null) {
-        params.set(key, filterParams[key]);
-      } else {
-        params.delete(key);
-      }
-    });
-    window.history.replaceState(null, '', '?' + params.toString());
-  };
-
-  useEffect(() => {
-    const filterParams = {
-      minPrice: filters.priceRange.min,
-      maxPrice: filters.priceRange.max,
-      colors: filters.colors.join(','),
-      sizes: filters.sizes.join(','),
-    };
-    updateUrlWithFilter(filterParams);
+  const hasActiveFilters = useCallback(() => {
+    return (
+      filters.colors.length > 0 ||
+      filters.sizes.length > 0 ||
+      filters.priceRange.min !== null ||
+      filters.priceRange.max !== null
+    );
   }, [filters]);
 
-  useEffect(() => {
-    setFilters({
-      colors: [],
-      sizes: [],
-      priceRange: { min: null, max: null },
-    });
-    setSortOption('');
-    setShouldFetchFiltered(false);
-  }, [keyword]);
-
-  const { data: filteredProductsData } = useQuery({
-    queryKey: ['filtered-products', keyword, filters, sortOption, limit],
-    queryFn: async () => {
-      try {
-        const result = await filterProductsWithPriceRange({
-          keyword,
-          minPrice: filters.priceRange.min,
-          maxPrice: filters.priceRange.max,
-          colors: filters.colors,
-          sizes: filters.sizes,
-          sortOption,
-          limit,
-        });
-        setNoMatchingProducts(false);
-        return result;
-      } catch (error) {
-        if (error.response && error.response.status === 404) {
-          setNoMatchingProducts(true);
-          return null;
+  const { data: filteredProductsData, isLoading: isFilteredDataLoading } =
+    useQuery({
+      queryKey: ['filtered-products', keyword, filters, sortOption, limit],
+      queryFn: async () => {
+        try {
+          const result = await filterProductsWithSearch({
+            keyword,
+            minPrice: filters.priceRange.min,
+            maxPrice: filters.priceRange.max,
+            colors: filters.colors,
+            sizes: filters.sizes,
+            sortOption,
+            limit,
+          });
+          setNoMatchingProducts(false);
+          if (result.length === 0) {
+            setNoMatchingProducts(true);
+            return [];
+          }
+          return result;
+        } catch (error) {
+          if (error.response && error.response.status === 404) {
+            setNoMatchingProducts(true);
+            return [];
+          }
+          throw error;
         }
-        throw error;
+      },
+      enabled: !!keyword || hasActiveFilters(),
+      staleTime: 1000 * 60 * 10,
+      cacheTime: 1000 * 60 * 60,
+      keepPreviousData: true,
+    });
+
+  const updateSearchParams = (newFilters) => {
+    const params = new URLSearchParams(searchParams);
+
+    if (newFilters.colors.length > 0)
+      params.set('colors', newFilters.colors.join(','));
+    else params.delete('colors');
+
+    if (newFilters.sizes.length > 0)
+      params.set('sizes', newFilters.sizes.join(','));
+    else params.delete('sizes');
+
+    if (newFilters.priceRange.min !== null)
+      params.set('minPrice', newFilters.priceRange.min);
+    else params.delete('minPrice');
+
+    if (newFilters.priceRange.max !== null)
+      params.set('maxPrice', newFilters.priceRange.max);
+    else params.delete('maxPrice');
+
+    if (sortOption) params.set('sort', sortOption);
+    else params.delete('sort');
+
+    setSearchParams(params);
+  };
+
+  const handleFilterChange = useCallback(
+    (newFilters) => {
+      setFilters((prevFilters) => {
+        const updatedFilters = {
+          ...prevFilters,
+          ...newFilters,
+        };
+
+        if (JSON.stringify(prevFilters) !== JSON.stringify(updatedFilters)) {
+          updateSearchParams(updatedFilters);
+        }
+
+        return updatedFilters;
+      });
+      setNoMatchingProducts(false);
+    },
+    [sortOption, searchParams]
+  );
+
+  const handlePriceRangeChange = useCallback(
+    (newPriceRange) => {
+      if (
+        filters.priceRange.min !== newPriceRange.min ||
+        filters.priceRange.max !== newPriceRange.max
+      ) {
+        const updatedFilters = {
+          ...filters,
+          priceRange: newPriceRange,
+        };
+        setFilters(updatedFilters);
+        updateSearchParams(updatedFilters);
       }
     },
-    enabled: !!filters.priceRange.min && !!filters.priceRange.max,
-    staleTime: 1000 * 60 * 30,
-    cacheTime: 1000 * 60 * 60,
-  });
+    [filters]
+  );
 
-  const handleFilterChange = useCallback((newFilters) => {
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      ...newFilters,
-    }));
-    setShouldFetchFiltered(true);
-  }, []);
-
-  const handlePriceRangeChange = useCallback((newPriceRange) => {
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      priceRange: newPriceRange,
-    }));
-    setShouldFetchFiltered(true);
-  }, []);
+  useEffect(() => {
+    updateSearchParams(filters);
+  }, [filters]);
 
   const handleSortChange = useCallback(
     (newSortOption) => {
       setSortOption(newSortOption);
-      setShouldFetchFiltered(true);
-      navigate(`/danh-muc-san-pham/${keyword}/${newSortOption}`);
+      const params = new URLSearchParams(searchParams);
+      params.set('sort', newSortOption);
+      setSearchParams(params);
     },
-    [navigate, keyword]
+    [searchParams, setSearchParams]
   );
 
   const handleLoadMore = useCallback(() => {
     setLimit((prevLimit) => prevLimit + 20);
-    setShouldFetchFiltered(true);
   }, []);
-
-  // Fetch category data
-  const {
-    data: categoryData,
-    error: categoryError,
-    isLoading: categoryLoading,
-  } = useQuery({
-    queryKey: ['getProductsByKeyword', keyword, limit],
-    queryFn: () => searchProducts(keyword, limit),
-    enabled: keyword !== '',
-    staleTime: 1000 * 60 * 5,
-    cacheTime: 1000 * 60 * 10,
-  });
-
-  // Fetch all products
-  const {
-    data: allProductsData,
-    error: productsError,
-    isLoading: productsLoading,
-  } = useQuery({
-    queryKey: ['getProductsByKeyword', keyword],
-    queryFn: () => searchProducts(keyword, limit),
-    enabled: keyword !== '',
-    staleTime: 1000 * 60 * 5,
-    cacheTime: 1000 * 60 * 10,
-  });
-
-  if (categoryLoading || productsLoading) return null;
-
-  if (categoryError || productsError) {
-    handleToast('error', categoryError || productsError);
-    return null;
-  }
 
   return (
     <section className="max-w-container mx-auto mt-16">
-      <HeaderBC title={'Kết quả tìm kiếm'} name={keyword} />
+      <HeaderBC
+        title={'Kết quả tìm kiếm'}
+        name={keyword}
+        url={'/tim-kiem?keyword='}
+      />
       <div className="divider"></div>
       <div className="grid grid-cols-5 gap-6 mt-8">
         <div className="col-span-1">
-          <SearchSidebar
-            category={categoryData}
-            products={allProductsData}
+          <ProductListFilter
             onFilterChange={handleFilterChange}
             onPriceRangeChange={handlePriceRangeChange}
             priceRangeData={priceRangeData}
-            filters={filters}
             initialFilters={filters}
-            noMatchingProducts={noMatchingProducts}
           />
         </div>
         <div className="col-span-4">
-          {noMatchingProducts ? (
+          {noMatchingProducts || filteredProductsData?.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-64 text-gray-600">
               <Icon icon="tabler:news-off" className="text-6xl mb-4" />
               <p className="text-xl font-semibold mb-2">
@@ -185,16 +190,15 @@ const SearchPage = () => {
               <p className="text-sm">Vui lòng thử lại với các bộ lọc khác</p>
             </div>
           ) : (
-            <SearchContent
-              catData={categoryData}
+            <ProductListWithSort
+              keyword={keyword}
               filters={filters}
-              filteredProductsData={
-                shouldFetchFiltered ? filteredProductsData : allProductsData
-              }
+              filteredProductsData={filteredProductsData}
               sortOption={sortOption}
               setSortOption={setSortOption}
               onSortChange={handleSortChange}
               onLoadMore={handleLoadMore}
+              isLoading={isFilteredDataLoading}
             />
           )}
         </div>
@@ -202,7 +206,5 @@ const SearchPage = () => {
     </section>
   );
 };
-
-SearchPage.propTypes = {};
 
 export default SearchPage;
