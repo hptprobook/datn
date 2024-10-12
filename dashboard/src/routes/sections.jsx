@@ -47,6 +47,7 @@ export const BrandDetailPage = lazy(() => import('src/pages/brands/detail'));
 // blog page
 export const BlogPage = lazy(() => import('src/pages/blog/blogs'));
 export const CreateBlogPage = lazy(() => import('src/pages/blog/create'));
+export const DetailBlogPage = lazy(() => import('src/pages/blog/detail'));
 // ----------------------------------------------------------------------
 
 const childRoutes = [
@@ -59,6 +60,7 @@ const childRoutes = [
   { path: 'products/:id', element: <DetailProductPage /> },
   { path: 'blog', element: <BlogPage /> },
   { path: 'blog/create', element: <CreateBlogPage /> },
+  { path: 'blog/:id', element: <DetailBlogPage /> },
   { path: 'category', element: <CategoryPage /> },
   { path: 'category/create', element: <CreateCategoryPage /> },
   { path: 'category/:id', element: <EditCategoryPage /> },

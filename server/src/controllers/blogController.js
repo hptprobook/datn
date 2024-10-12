@@ -87,7 +87,7 @@ const createBlog = async(req, res) => {
         if (!req.file) {
             return res
                 .status(StatusCodes.BAD_REQUEST)
-                .json({ mgs: 'Thiếu hình ảnh Thumbnail' });
+                .json({ message: 'Thiếu hình ảnh Thumbnail' });
         }
         const dataBlog = {
             ...req.body,
@@ -97,7 +97,7 @@ const createBlog = async(req, res) => {
         if (result.acknowledged) {
             return res
                 .status(StatusCodes.OK)
-                .json({ mgs: 'Thêm blog thành công' });
+                .json({ message: 'Thêm blog thành công' });
         }
         await uploadModel.deleteImg(
             path.join('uploads/blogs', req.file.filename)
@@ -208,14 +208,14 @@ const deleteBlog = async(req, res) => {
         if (!blog) {
             return res
                 .status(StatusCodes.BAD_REQUEST)
-                .json({ mgs: 'Blog không tồn tại' });
+                .json({ message: 'Blog không tồn tại' });
         }
         const dataDel = await blogModel.deleteBlog(blogID);
         if (dataDel.acknowledged) {
             await uploadModel.deleteImg(blog.thumbnail);
             return res
                 .status(StatusCodes.OK)
-                .json({ mgs: 'Xoá dữ liệu blog thành công' });
+                .json({ message: 'Xoá dữ liệu blog thành công' });
         }
     } catch (error) {
         return res

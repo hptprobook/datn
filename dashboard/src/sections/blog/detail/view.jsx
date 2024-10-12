@@ -17,6 +17,7 @@ import {
   InputLabel,
   FormControl,
   FormHelperText,
+  IconButton,
 } from '@mui/material';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
@@ -30,12 +31,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import Iconify from 'src/components/iconify/iconify';
 import { handleToast } from 'src/hooks/toast';
-import { setStatus, createBlog } from 'src/redux/slices/blogSlice';
+import { setStatus, updateBlog , fetchBlogById } from 'src/redux/slices/blogSlice';
 import LoadingFull from 'src/components/loading/loading-full';
 // import { AutoSelect } from '../auto-select';
 
-
+import { isValidObjectId } from 'src/utils/check';
 import { fetchAllUsers } from 'src/redux/slices/userSlice';
+
+import { useParams } from 'react-router-dom';
+import { useRouter } from 'src/routes/hooks';
 
 // ----------------------------------------------------------------------
 const blogSchema = Yup.object().shape({
@@ -52,8 +56,22 @@ const blogSchema = Yup.object().shape({
   metaDescription: Yup.string().max(255, 'Meta Description không được quá 255 ký tự'),
   metaKeywords: Yup.string().max(255, 'Meta Keywords không được quá 255 ký tự'),
 });
+const backendUrl = import.meta.env.VITE_BACKEND_APP_URL;
 
-export default function CreateBlogPage() {
+export default function DetailBlogView() {
+  const { id } = useParams();
+  const route = useRouter();
+  useEffect(() => {
+    if (id) {
+      if (isValidObjectId(id)) {
+        dispatch(fetchBlogById({ id }));
+      } else {
+        handleToast('error', 'Id không hợp lệ');
+        route.push('/blogs');
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
   const [thumbnail, setThumbnail] = useState(null);
   const [errorThumbnail, setErrorThumbnail] = useState(null);
   const [tags, setTags] = useState([]);
@@ -66,6 +84,10 @@ export default function CreateBlogPage() {
   const dataUser = useSelector((state) => state.users.users);
   const dispatch = useDispatch();
 
+  const status = useSelector((state) => state.blogs.statusUpdate);
+  const blog = useSelector((state) => state.blogs.blog);
+  const error = useSelector((state) => state.blogs.error);
+  const statusGetBlog = useSelector((state) => state.blogs.status);
 
   useEffect(() => {
     if (statusUser === 'idle') {
@@ -80,9 +102,6 @@ export default function CreateBlogPage() {
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
-
-  const status = useSelector((state) => state.blogs.statusCreate);
-  const error = useSelector((state) => state.blogs.error);
   const handleKeyDown = (event) => {
     if (event.key === 'Enter' && inputValue.trim()) {
       setTags([...tags, inputValue.trim()]);
@@ -93,37 +112,33 @@ export default function CreateBlogPage() {
   const handleDelete = (tagToDelete) => {
     setTags(tags.filter((tag) => tag !== tagToDelete));
   };
-
   const formik = useFormik({
     initialValues: {
-      title: '',
-      authID: '',
-      authName: '',
-      content: 'sdssss',
-      slug: '',
-      tags: [],
-      status: 'public',
-      metaDescription: '',
-      metaKeywords: '',
+      title: blog?.title || '',
+      authID: blog?.authID  ||'',
+      authName: blog?.authName || '',
+      content: blog?.content || '',
+      slug: blog?.slug || '',
+      tags: blog?.tags || [],
+      status: blog?.status || 'public',
+      metaDescription: blog?.metaDescription || '',
+      metaKeywords: blog?.metaKeywords || '',
     },
+    enableReinitialize: true,
+
     validationSchema: blogSchema,
     onSubmit: (values) => {
-      if (thumbnail === null) {
-        setErrorThumbnail('Vui lòng chọn ảnh đại diện');
+      if (thumbnail !== null) {
+        values.thumbnail = thumbnail;
       }
       if (status === "" || status === null) {
         handleToast('error', 'Vui lòng chọn trạng thái')
-        return;
       }
-      if( tags.length === 1) {
-        handleToast('error', 'Vui lòng nhập thêm tag')
-        return; 
-      }
-      values.thumbnail = thumbnail;
+    
       values.tags = tags;
       console.log(values);
 
-      dispatch(createBlog({ data: values }));
+      dispatch(updateBlog({ id , data: values }));
     },
   });
 
@@ -142,21 +157,21 @@ export default function CreateBlogPage() {
   }, []);
 
   useEffect(() => {
-    if (status === 'failed') {
-      handleToast('error', error.message);
-    }
     if (status === 'successful') {
-      handleToast('success', 'Tạo bài viết thành công');
-      formik.resetForm();
-      setTags([]);
-      setThumbnail(null);
+      handleToast('success', 'Cập nhật bài viết thành công');
     }
-    dispatch(setStatus({ key: 'statusCreate', value: 'idle' }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (status === 'failed') {
+      handleToast('error', error?.message || 'Có lỗi xảy ra');
+    }
+
+    dispatch(setStatus({ key: 'statusUpdate', value: 'idle' }));
+    dispatch(setStatus({ key: 'error', value: 'idle' }));
   }, [status, error, dispatch]);
   return (
     <Container>
       {status === 'loading' && <LoadingFull />}
+      {statusGetBlog === 'loading' && <LoadingFull />}
+
       <SpeedDial
         ariaLabel="Lưu bài viết"
         sx={{ position: 'fixed', bottom: 16, right: 16 }}
@@ -164,7 +179,17 @@ export default function CreateBlogPage() {
         icon={<Iconify icon="eva:save-fill" />}
       />
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Tạo một bài viết mới</Typography>
+        <Stack direction="row" alignItems="center">
+          <Typography variant="h4">Chỉnh sửa bài viết</Typography>
+          <IconButton
+            aria-label="load"
+            variant="contained"
+            color="inherit"
+            onClick={() => dispatch(fetchBlogById({ id }))}
+          >
+            <Iconify icon="mdi:reload" />
+          </IconButton>
+        </Stack>
       </Stack>
       <form onSubmit={formik.handleSubmit}>
         <Grid2 container spacing={3}>
@@ -186,9 +211,9 @@ export default function CreateBlogPage() {
                       variant="outlined"
                       name="title"
                       value={formik.values.title}
-                      onChange={(e) => handleCreateSlug(e)}
-                      error={formik.touched.title && Boolean(formik.errors.title)}
-                      helperText={formik.touched.title && formik.errors.title}
+                        onChange={(e) => handleCreateSlug(e)}
+                        error={formik.touched.title && Boolean(formik.errors.title)}
+                        helperText={formik.touched.title && formik.errors.title}
                     />
                   </Grid2>
                   <Grid2 xs={12}>
@@ -306,7 +331,7 @@ export default function CreateBlogPage() {
                   </Typography>
                   <TinyEditor
                     error={formik.touched.content && Boolean(formik.errors.content)}
-                    initialValue="Đây là Nội dung của bài viết"
+                    initialValue={blog?.content}
                     onChange={(content) => formik.setFieldValue('content', content)}
                     height={200}
                   />
@@ -315,10 +340,10 @@ export default function CreateBlogPage() {
                   </FormHelperText>
                 </Stack>
                 <Stack spacing={3} direction="row" mt={2} justifyContent="flex-end">
-                  <Button type="button" onClick={() => formik.handleSubmit()} variant="contained" color="inherit">
-                    Lưu
-                  </Button>
-                </Stack>
+                    <Button type="submit" variant="contained" color="inherit">
+                      Lưu
+                    </Button>
+                  </Stack>
               </Card>
             </Stack>
           </Grid2>
@@ -333,9 +358,10 @@ export default function CreateBlogPage() {
                   Hình ảnh đại diện bài viết
                 </Typography>
                 <ImageDropZone
-                  error={errorThumbnail}
-                  singleFile
-                  handleUpload={handleChangeUploadThumbnail}
+                   error={errorThumbnail}
+                   singleFile
+                   defaultImg={`${backendUrl}${blog?.thumbnail}`}
+                   handleUpload={handleChangeUploadThumbnail}
                 />
                 <Box>
                   <TextField

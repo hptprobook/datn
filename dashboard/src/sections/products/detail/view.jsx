@@ -38,7 +38,7 @@ import { fetchAll } from 'src/redux/slices/brandSlices';
 import PropTypes from 'prop-types';
 import Iconify from 'src/components/iconify/iconify';
 import { handleToast } from 'src/hooks/toast';
-import { setStatus, fetchProductById, updateProduct } from 'src/redux/slices/productSlice';
+import { setStatus, updateProduct , fetchProductById,  } from 'src/redux/slices/productSlice';
 import LoadingFull from 'src/components/loading/loading-full';
 import { useParams } from 'react-router-dom';
 import { isValidObjectId } from 'src/utils/check';
