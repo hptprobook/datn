@@ -26,11 +26,14 @@ import { couponApi } from './couponRouter';
 import { addressApi } from './addressRouter';
 import { webBannerApi } from './routeConfigs/webBannerRouter';
 import { blogApi } from './blogRouter';
+import { hotSearchApi } from './hotSearchRouter';
 const Router = express.Router();
 
 Router.use('/auth', authApi);
 Router.use('/users', usersApi);
 Router.use('/categories', categoriesApi);
+
+Router.use('/hotSearch', hotSearchApi);
 
 Router.use('/carts', cartsApi);
 Router.use('/orders', ordersApi);
