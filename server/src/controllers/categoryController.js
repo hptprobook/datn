@@ -123,6 +123,7 @@ const getCategoryById = async (req, res) => {
 const getCategoryBySlug = async (req, res) => {
   try {
     const { slug } = req.params;
+
     const category = await categoryModel.getCategoryBySlug(slug);
 
     if (!category) {
