@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { Outlet, Navigate, useRoutes } from 'react-router-dom';
 
+import { Box, LinearProgress, linearProgressClasses } from '@mui/material';
 import { ProtectedRoute } from './components/ProtectedRoute';
 // ----------------------------------------------------------------------
 export const IndexPage = lazy(() => import('src/pages/app'));
@@ -90,12 +91,25 @@ export const routePath = childRoutes
   .filter(Boolean);
 // Export mảng route
 
+const renderFallback = (
+  <Box display="flex" alignItems="center" justifyContent="center" flex="1 1 auto">
+    <LinearProgress
+      sx={{
+        width: 1,
+        maxWidth: 320,
+        bgcolor: (theme) => (theme.palette.mode === 'light' ? 'primary.lighter' : 'primary.dark'),
+        [`& .${linearProgressClasses.bar}`]: { bgcolor: 'text.primary' },
+      }}
+    />
+  </Box>
+);
+
 export default function Router() {
   return useRoutes([
     {
       element: (
         <ProtectedRoute>
-          <Suspense>
+          <Suspense fallback={renderFallback}>
             <Outlet />
           </Suspense>
         </ProtectedRoute>
