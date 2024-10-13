@@ -36,13 +36,11 @@ const MultiRangeSlider = ({
     };
   }, [minVal, maxVal, debouncedPriceRangeChange]);
 
-  // Convert to percentage
   const getPercent = useCallback(
     (value) => Math.round(((value - min) / (max - min)) * 100),
     [min, max]
   );
 
-  // Set width of the range to decrease from the left side
   useEffect(() => {
     const minPercent = getPercent(minVal);
     const maxPercent = getPercent(maxValRef.current);
@@ -53,7 +51,6 @@ const MultiRangeSlider = ({
     }
   }, [minVal, getPercent]);
 
-  // Set width of the range to decrease from the right side
   useEffect(() => {
     const minPercent = getPercent(minValRef.current);
     const maxPercent = getPercent(maxVal);
@@ -62,8 +59,6 @@ const MultiRangeSlider = ({
       range.current.style.width = `${maxPercent - minPercent}%`;
     }
   }, [maxVal, getPercent]);
-
-  // Add useEffect to call onChange when minVal or maxVal changes
 
   return (
     <div className="text-black">
@@ -74,6 +69,7 @@ const MultiRangeSlider = ({
           min={min}
           max={max}
           value={minVal}
+          step={100}
           onChange={(event) => {
             const value = Math.min(Number(event.target.value), maxVal - 1);
             setMinVal(value);
@@ -87,6 +83,7 @@ const MultiRangeSlider = ({
           min={min}
           max={max}
           value={maxVal}
+          step={100}
           onChange={(event) => {
             const value = Math.max(Number(event.target.value), minVal + 1);
             setMaxVal(value);
@@ -95,7 +92,25 @@ const MultiRangeSlider = ({
           className="thumb thumb--right"
         />
 
-        <div className="slider">
+        <div
+          className="slider"
+          onClick={(event) => {
+            const rect = event.target.getBoundingClientRect();
+            const clickX = event.clientX - rect.left;
+            const newValue = Math.round(
+              (clickX / rect.width) * (max - min) + min
+            );
+            const halfRange = (max - min) / 2;
+
+            if (newValue < minVal + halfRange) {
+              setMinVal(Math.min(newValue, maxVal - 1));
+              minValRef.current = Math.min(newValue, maxVal - 1);
+            } else {
+              setMaxVal(Math.max(newValue, minVal + 1));
+              maxValRef.current = Math.max(newValue, minVal + 1);
+            }
+          }}
+        >
           <div className="slider__track" />
           <div ref={range} className="slider__range" />
           <div className="slider__left-value">{minVal}</div>

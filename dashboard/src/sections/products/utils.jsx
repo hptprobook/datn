@@ -77,6 +77,7 @@ export const sizeSchema = Yup.object().shape({
 export const colorsWithHex = [
   { name: 'Đỏ', hex: '#FF0000' },
   { name: 'Xanh lá cây', hex: '#00FF00' },
+  { name: 'Xanh', hex: '#00FF00' },
   { name: 'Xanh dương', hex: '#0000FF' },
   { name: 'Vàng', hex: '#FFFF00' },
   { name: 'Cam', hex: '#FFA500' },
@@ -92,7 +93,10 @@ export const colorsWithHex = [
   { name: 'Xanh đậm', hex: '#4B0082' },
   { name: 'Tím nhạt', hex: '#EE82EE' },
 ];
-
+export const getHexColor = (name) => {
+  const color = colorsWithHex.find((item) => item.name === name);
+  return color?.hex || '#000000';
+};
 export const clothingSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
 export const Accordion = styled((props) => (
@@ -127,35 +131,38 @@ export const AccordionSummary = styled((props) => (
 }));
 
 export const style = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 800,
-    maxHeight: 'calc(100% - 24px)',
-    overflow: 'auto',
-    maxWidth: 'calc(100% - 24px)',
-    bgcolor: 'background.paper',
-    boxShadow: 24,
-    p: 4,
-    borderRadius: 1,
-    '&::-webkit-scrollbar': {
-      width: '8px', 
-    },
-    '&::-webkit-scrollbar-track': {
-      background: '#f1f1f1', 
-    },
-    '&::-webkit-scrollbar-thumb': {
-      backgroundColor: '#888', 
-      borderRadius: '10px',
-    },
-    '&::-webkit-scrollbar-thumb:hover': {
-      background: '#555', 
-    },
-  };
-  
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 800,
+  maxHeight: 'calc(100% - 24px)',
+  overflow: 'auto',
+  maxWidth: 'calc(100% - 24px)',
+  bgcolor: 'background.paper',
+  boxShadow: 24,
+  p: 4,
+  borderRadius: 1,
+  '&::-webkit-scrollbar': {
+    width: '8px',
+  },
+  '&::-webkit-scrollbar-track': {
+    background: '#f1f1f1',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: '#888',
+    borderRadius: '10px',
+  },
+  '&::-webkit-scrollbar-thumb:hover': {
+    background: '#555',
+  },
+};
 
 export const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
   padding: theme.spacing(2),
   borderTop: '1px solid rgba(0, 0, 0, .125)',
 }));
+export const renderBrand = (id, brands) => {
+  const brand = brands.find((item) => item._id === id);
+  return brand?.name || 'Không tồn tại';
+};

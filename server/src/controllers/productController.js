@@ -174,8 +174,8 @@ const createProduct = async (req, res) => {
         .status(StatusCodes.BAD_REQUEST)
         .json({ message: 'Ảnh biến thể không được để trống' });
     }
-
-    const thumbnail = path.join(
+    let thumbnail;
+    thumbnail = path.join(
       'uploads/products',
       req.files['thumbnail'][0].filename
     );
@@ -225,7 +225,7 @@ const createProduct = async (req, res) => {
 
     const dataProduct = await productModel.createProduct(data);
 
-    if (dataProduct.error) {
+    if (!dataProduct) {
       uploadModel.deleteImg(thumbnail);
       uploadModel.deleteImgs(imagesProduct);
       uploadModel.deleteImgs(imageVariantsC);
@@ -332,11 +332,9 @@ const updateProduct = async (req, res) => {
 
     let parsedVariants = [];
     let oldImageVariants = [];
-
     if (Array.isArray(variants)) {
       parsedVariants = variants.map((variant, index) => {
         let parsedVariant = JSON.parse(variant);
-
         if ('imageAdd' in parsedVariant) {
           if ('image' in parsedVariant) {
             if (product.variants[index].image === parsedVariant.image) {
@@ -345,7 +343,6 @@ const updateProduct = async (req, res) => {
           }
           delete parsedVariant.imageAdd;
         }
-
         return parsedVariant;
       });
     } else {
@@ -406,15 +403,15 @@ const updateProduct = async (req, res) => {
     }
 
     const newimgURLs = [...validImgs, ...imagesProduct];
-    const newThumbnail = thumbnail ? thumbnail : product.thumbnail;
 
+    const newThumbnail = thumbnail ? thumbnail : product.thumbnail;
     const data = {
       cat_id,
       name: name,
       slug,
       description,
       content,
-      tags,
+      tags: JSON.parse(tags),
       thumbnail: newThumbnail,
       images: newimgURLs,
       brand,
@@ -423,24 +420,11 @@ const updateProduct = async (req, res) => {
       weight,
       height,
       statusStock,
-      productType,
+      productType: JSON.parse(productType),
     };
-    const dataProduct = await productModel.update(id, data);
 
-    if (dataProduct.error) {
-      if (thumbnail) {
-        uploadModel.deleteImg(product.thumbnail);
-      }
-      if (imagesProduct && imagesProduct.length > 0) {
-        uploadModel.deleteImgs(imagesProduct);
-      }
-      if (imageVariantsC && imageVariantsC.length > 0) {
-        uploadModel.deleteImgs(imageVariantsC);
-      }
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
-    }
+    // return res.status(StatusCodes.OK).json({ parsedVariants });
+    const dataProduct = await productModel.update(id, data);
     if (dataProduct) {
       if (deleteImgs && deleteImgs.length > 0) {
         uploadModel.deleteImgs(deleteImgs);
@@ -459,9 +443,7 @@ const updateProduct = async (req, res) => {
           .status(StatusCodes.NOT_FOUND)
           .json({ message: 'Không tìm thấy sản phẩm!' });
       }
-      return res.status(StatusCodes.OK).json({
-        result,
-      });
+      return res.status(StatusCodes.OK).json(result);
     }
   } catch (error) {
     if (req.files) {
@@ -503,6 +485,7 @@ const updateProduct = async (req, res) => {
     }
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       message: 'Có lỗi xảy ra xin thử lại sau',
+      error,
     });
   }
 };
@@ -714,8 +697,7 @@ const getProductByOldest = async (req, res) => {
 
 const getProductBySearch = async (req, res) => {
   try {
-    let { search } = req.params;
-    let { pages, limit } = req.query;
+    let { pages, limit, search } = req.query;
     const products = await productModel.getProductBySearch(
       search,
       pages,
@@ -804,6 +786,40 @@ const getProductsBySlugAndPriceRange = async (req, res) => {
   }
 };
 
+const getProductsBySearchAndFilter = async (req, res) => {
+  try {
+    const { keyword } = req.query;
+    const { minPrice, maxPrice, pages, limit, colors, sizes, ...sortCriteria } =
+      req.query;
+
+    const parsedColors = colors ? colors.split(',') : [];
+    const parsedSizes = sizes ? sizes.split(',') : [];
+
+    const products = await productModel.getProductsBySearchAndFilter(
+      keyword,
+      parseFloat(minPrice),
+      parseFloat(maxPrice),
+      parseInt(pages) || 1,
+      parseInt(limit) || 20,
+      sortCriteria,
+      parsedColors,
+      parsedSizes
+    );
+
+    // if (!products || products.length === 0) {
+    //   return res
+    //     .status(StatusCodes.NOT_FOUND)
+    //     .json({ message: 'Không tìm thấy sản phẩm!' });
+    // }
+
+    return res.status(StatusCodes.OK).json(products);
+  } catch (error) {
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
+  }
+};
+
 const getMinMaxPrices = async (req, res) => {
   try {
     const priceRange = await productModel.getMinMaxProductPrices();
@@ -841,5 +857,6 @@ export const productController = {
   getProductByCategoryFilter,
   getProductByEvent,
   getProductsBySlugAndPriceRange,
+  getProductsBySearchAndFilter,
   getMinMaxPrices,
 };

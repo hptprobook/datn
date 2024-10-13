@@ -9,7 +9,9 @@ import settingsReducer from "./slices/settingSlices";
 import couponsReducer from "./slices/couponSlice";
 import suppliersReducer from "./slices/supplierSlices";
 import brandsReducer from "./slices/brandSlices";
+import warehousesReducer from "./slices/warehouseSlices";
 import blogsReducer from "./slices/blogSlice";
+
 export const store = configureStore({
     reducer: {
         users: userReducer,
@@ -21,6 +23,7 @@ export const store = configureStore({
         coupons: couponsReducer,
         suppliers: suppliersReducer,
         brands: brandsReducer,
+        warehouses: warehousesReducer,
         blogs: blogsReducer
     },
 });

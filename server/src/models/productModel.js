@@ -52,6 +52,7 @@ const getProductsAll = async (page, limit) => {
       status: 1,
       statusStock: 1,
       slug: 1,
+      brand: 1,
     })
     .skip((page - 1) * limit)
     .limit(limit)
@@ -375,13 +376,12 @@ const update = async (id, data) => {
       $set: {
         ...validData,
         cat_id: validCat,
-        productType: new ObjectId(validData.productType),
       },
     },
     { returnDocument: 'after' }
   );
   if (!result) {
-    throw new Error('Có lỗi xảy ra, xin thử lại sau');
+    throw new Error('Có lỗi xảy ra, xin thử lại sau 1');
   }
   return { result: result };
 };
@@ -753,94 +753,19 @@ const getProductBySearch = async (search, page, limit) => {
   page = parseInt(page) || 1;
   limit = parseInt(limit) || 20;
 
-  const searchQuery = removeTones(search).toLowerCase();
-  const searchTerms = searchQuery.split(' ');
+  const searchQuery = removeTones(search).toLowerCase().replace(/\s+/g, '-');
 
   const db = await GET_DB();
 
-  const categories = await db.collection('categories').find().toArray();
-  const brands = await db.collection('brands').find().toArray();
+  const results = await db
+    .collection('products')
+    .find({ slug: { $regex: searchQuery, $options: 'i' } })
+    .collation({ locale: 'en', strength: 2 })
+    .limit(limit)
+    .skip((page - 1) * limit)
+    .toArray();
 
-  const categoryIds = categories
-    .filter((category) =>
-      searchTerms.every((term) =>
-        removeTones(category.name).toLowerCase().includes(term)
-      )
-    )
-    .map((category) => category._id);
-
-  const brandIds = brands
-    .filter((brand) =>
-      searchTerms.every((term) =>
-        removeTones(brand.name).toLowerCase().includes(term)
-      )
-    )
-    .map((brand) => brand._id);
-
-  const allProducts = await db.collection('products').find().toArray();
-
-  const filteredProducts = allProducts.filter((product) => {
-    const nameNoTones = removeTones(product.name).toLowerCase();
-    const descriptionNoTones = removeTones(product.description).toLowerCase();
-    const contentNoTones = removeTones(product.content).toLowerCase();
-    const tagsNoTones = product.tags.map((tag) =>
-      removeTones(tag).toLowerCase()
-    );
-
-    const nameMatch = searchTerms.every((term) => nameNoTones.includes(term));
-    const descriptionMatch = searchTerms.every((term) =>
-      descriptionNoTones.includes(term)
-    );
-    const contentMatch = searchTerms.every((term) =>
-      contentNoTones.includes(term)
-    );
-    const tagsMatch = tagsNoTones.some((tag) =>
-      searchTerms.every((term) => tag.includes(term))
-    );
-
-    const categoryMatch =
-      categoryIds.length > 0 ? categoryIds.includes(product.cat_id) : true;
-    const brandMatch =
-      brandIds.length > 0
-        ? brandIds.some((id) => id.equals(product.brand))
-        : true;
-
-    return (
-      nameMatch ||
-      descriptionMatch ||
-      contentMatch ||
-      tagsMatch ||
-      categoryMatch ||
-      brandMatch
-    );
-  });
-
-  const result = filteredProducts
-    .slice((page - 1) * limit, page * limit)
-    .map(
-      ({
-        content,
-        description,
-        images,
-        inventory,
-        minInventory,
-        maxInventory,
-        weight,
-        height,
-        brand,
-        cat_id,
-        url,
-        productType,
-        view,
-        createdAt,
-        updatedAt,
-        ...rest
-      }) => rest
-    );
-  if (!result) {
-    throw new Error('Có lỗi xảy ra, xin thử lại sau');
-  }
-  result.forEach((product) => {
+  results.forEach((product) => {
     if (product.reviews && product.reviews.length > 0) {
       const total = product.reviews.reduce(
         (acc, review) => acc + review.rating,
@@ -856,7 +781,8 @@ const getProductBySearch = async (search, page, limit) => {
     }
     delete product.reviews;
   });
-  return result;
+
+  return results;
 };
 
 const getProductByCategoryFilter = async (slug, pages, limit, filter) => {
@@ -956,14 +882,19 @@ const getProductsByEvent = async (slug, pages, limit) => {
   limit = parseInt(limit) || 20;
   const db = await GET_DB();
 
-  const category = await db.collection('categories').findOne({ slug: slug });
-  if (!category) {
+  const categories = await db
+    .collection('categories')
+    .find({ slug: { $regex: slug, $options: 'i' } })
+    .toArray();
+  if (!categories || categories.length === 0) {
     throw new Error('Danh mục không tồn tại');
   }
 
-  const cat_id = category._id;
-  const subCategoryIds = await getAllSubCategories(cat_id);
-  const categoryIds = [cat_id, ...subCategoryIds];
+  const categoryIds = [];
+  for (const category of categories) {
+    const subCategoryIds = await getAllSubCategories(category._id);
+    categoryIds.push(category._id, ...subCategoryIds);
+  }
 
   const products = await db
     .collection('products')
@@ -981,7 +912,7 @@ const getProductsByEvent = async (slug, pages, limit) => {
       slug: 1,
     })
     .skip((pages - 1) * limit)
-    .limit(5)
+    .limit(limit)
     .toArray();
 
   if (!products) {
@@ -1124,6 +1055,89 @@ const getProductsBySlugAndPriceRange = async (
   return products;
 };
 
+const getProductsBySearchAndFilter = async (
+  keyword,
+  minPrice,
+  maxPrice,
+  page,
+  limit,
+  sortCriteria,
+  colors,
+  sizes
+) => {
+  page = parseInt(page) || 1;
+  limit = parseInt(limit) || 20;
+
+  const searchQuery = removeTones(keyword).toLowerCase().replace(/\s+/g, '-');
+
+  const db = await GET_DB();
+
+  if (sortCriteria && sortCriteria.keyword) {
+    delete sortCriteria.keyword;
+  }
+
+  let sortOption = {};
+
+  if (sortCriteria && Object.keys(sortCriteria).length > 0) {
+    const [field, order] = Object.entries(sortCriteria)[0];
+
+    switch (field) {
+      case 'alphabet':
+        sortOption = { name: order.toLowerCase() === 'az' ? 1 : -1 };
+        break;
+      case 'price':
+        sortOption = { price: order.toLowerCase() === 'asc' ? 1 : -1 };
+        break;
+      case 'createdAt':
+        sortOption = { createdAt: order.toLowerCase() === 'newest' ? -1 : 1 };
+        break;
+      default:
+        sortOption = {};
+    }
+  }
+
+  let query = {
+    slug: { $regex: searchQuery, $options: 'i' },
+    price: { $gte: minPrice, $lte: maxPrice },
+  };
+
+  if (colors && colors.length > 0) {
+    query['variants.color'] = { $in: colors };
+  }
+
+  if (sizes && sizes.length > 0) {
+    query['variants.sizes.size'] = { $in: sizes };
+  }
+
+  const products = await db
+    .collection('products')
+    .find(query)
+    .collation({ locale: 'en', strength: 2 })
+    .sort(sortOption)
+    .skip((page - 1) * limit)
+    .limit(limit)
+    .toArray();
+
+  products.forEach((product) => {
+    if (product.reviews && product.reviews.length > 0) {
+      const total = product.reviews.reduce(
+        (acc, review) => acc + review.rating,
+        0
+      );
+      product.averageRating = parseFloat(
+        (total / product.reviews.length).toFixed(1)
+      );
+      product.totalComment = product.reviews.length;
+    } else {
+      product.averageRating = 0;
+      product.totalComment = 0;
+    }
+    delete product.reviews;
+  });
+
+  return products;
+};
+
 const getMinMaxProductPrices = async () => {
   const db = await GET_DB();
   const result = await db
@@ -1175,5 +1189,6 @@ export const productModel = {
   getProductByCategoryFilter,
   getProductsByEvent,
   getProductsBySlugAndPriceRange,
+  getProductsBySearchAndFilter,
   getMinMaxProductPrices,
 };

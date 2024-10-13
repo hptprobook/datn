@@ -2,8 +2,21 @@ import { Badge } from 'flowbite-react';
 import { FaFire } from 'react-icons/fa6';
 import { hotSearch } from '~/APIs/mock_data';
 import PropTypes from 'prop-types';
+import { useEffect } from 'react';
 
-const SearchPopular = ({ handleModelClick }) => {
+const SearchPopular = ({ handleModelClick, isOpen }) => {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   return (
     <div className="w-full h-32 bg-yellow-50" onClick={handleModelClick}>
       <div className="max-w-container mx-auto">

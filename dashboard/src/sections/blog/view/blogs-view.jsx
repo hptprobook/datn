@@ -10,18 +10,23 @@ import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
-import { setStatus, fetchAllBlogs } from 'src/redux/slices/blogSlice';
+import { setStatus, fetchAllBlogs ,deleteBlogtById  } from 'src/redux/slices/blogSlice';
 import { handleToast } from 'src/hooks/toast';
 
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 
+import ConfirmDelete from 'src/components/modal/confirm-delete';
+import LoadingFull from 'src/components/loading/loading-full';
+import { IconButton } from '@mui/material';
 import TableNoData from '../table-no-data';
 import BlogTableRow from '../blog-table-row';
 import BlogTableHead from '../blog-table-head';
 import TableEmptyRows from '../table-empty-rows';
 import BlogTableToolbar from '../blog-table-toolbar';
+
 import { emptyRows, applyFilter, getComparator } from '../utils';
 
 // ----------------------------------------------------------------------
@@ -41,7 +46,6 @@ export default function BlogView() {
   const error = useSelector((state) => state.blogs.error);
   const [blogsList, setBlogsList] = React.useState([]);
 
-  console.log(blogsList);
   useEffect(() => {
     dispatch(fetchAllBlogs());
   }, [dispatch]);
@@ -81,11 +85,11 @@ export default function BlogView() {
     setSelected([]);
   };
 
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
+  const handleClick = (event, id) => {
+    const selectedIndex = selected.indexOf(id);
     let newSelected = [];
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
+      newSelected = newSelected.concat(selected, id);
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
     } else if (selectedIndex === selected.length - 1) {
@@ -120,13 +124,56 @@ export default function BlogView() {
   });
 
   const notFound = !dataFiltered.length && !!filterName;
+  const navigate = useNavigate();
 
+
+  const handleDelete = (id) => {
+    setConfirm(id);
+  };
+  const dispatchDelete = () => {
+    console.log(confirm);
+    dispatch(deleteBlogtById(confirm));
+  };
+  const handleMultiDelete = () => {
+    console.log(selected);
+  };
+  const handleNewBlogClick = () => {
+    navigate('/blog/create');
+  };
+
+  const [confirm, setConfirm] = useState(false);
+  const [confirmMulti, setConfirmMulti] = useState(false);
   return (
     <Container>
+      {status === 'loading' && <LoadingFull />}
+      <ConfirmDelete
+        openConfirm={!!confirm}
+        onAgree={dispatchDelete}
+        onClose={() => setConfirm(false)}
+      />
+      <ConfirmDelete
+        openConfirm={!!confirmMulti}
+        onAgree={handleMultiDelete}
+        onClose={() => setConfirmMulti(false)}
+        label="Những bài viết đã chọn"
+      />
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Bài viết</Typography>
+      <Stack direction="row" alignItems="center">
+      <Typography variant="h4">Bài viết</Typography>
+        <IconButton
+            aria-label="load"
+            variant="contained"
+            color="inherit"
+            onClick={() => dispatch(fetchAllBlogs())}
+          >
+            <Iconify icon="mdi:reload" />
+          </IconButton>
+        </Stack>
+      
 
-        <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />}>
+        <Button onClick={handleNewBlogClick} variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />}
+        
+        >
           Tạo bài viết
         </Button>
       </Stack>
@@ -136,6 +183,8 @@ export default function BlogView() {
           numSelected={selected.length}
           filterName={filterName}
           onFilterName={handleFilterByName}
+          onMultiDelete={() => setConfirmMulti(true)}
+
         />
 
         <Scrollbar>
@@ -151,12 +200,8 @@ export default function BlogView() {
                 headLabel={[
                   { id: 'thumbnail', label: 'Tên' },
                   { id: 'slug', label: 'Đường dẫn' },
-                  { id: 'title', label: 'Tiêu đề' },
-                  { id: 'content', label: 'nội dung' },
                   { id: 'authName', label: 'Tên tác giả', align: 'center' },
                   { id: 'status', label: 'Trạng thái' },
-                  { id: 'createdAt', label: 'Ngày tạo' },
-                  { id: 'updatedAt', label: 'Ngày cập nhật' },
                   { id: '' },
                 ]}
               />
@@ -165,15 +210,17 @@ export default function BlogView() {
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
                     <BlogTableRow
+                      id={row._id}
                       key={row._id}
                       title={row.title}
                       slug={row.slug}
-                      content={row.content}
                       thumbnail={row.thumbnail}
                       status={row.status}
                       authName={row.authName}
-                      selected={selected.indexOf(row.title) !== -1}
-                      handleClick={(event) => handleClick(event, row.title)}
+                      selected={selected.indexOf(row._id) !== -1}
+                      handleClick={(event) => handleClick(event, row._id)}
+                      onDelete={handleDelete}
+                      handleNavigate={() => navigate(row._id)}
                     />
                   ))}
 

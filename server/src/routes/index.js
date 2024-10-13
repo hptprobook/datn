@@ -55,7 +55,7 @@ Router.use('/address', addressApi);
 Router.use('/blogs', blogApi);
 
 Router.get('/', (req, res) => {
-    res.send('Hello from API!');
+  res.send('Hello from API!');
 });
 
 export const APIs = Router;

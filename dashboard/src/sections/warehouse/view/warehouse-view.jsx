@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -10,17 +10,22 @@ import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 
-import { users } from 'src/_mock/user';
-
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 
-import TableNoData from '../table-no-data';
-import UserTableRow from '../user-table-row';
-import UserTableHead from '../user-table-head';
-import TableEmptyRows from '../table-empty-rows';
-import UserTableToolbar from '../user-table-toolbar';
-import { emptyRows, applyFilter, getComparator } from '../utils';
+import { useDispatch, useSelector } from 'react-redux';
+import { useRouter } from 'src/routes/hooks';
+import ConfirmDelete from 'src/components/modal/confirm-delete';
+import { handleToast } from 'src/hooks/toast';
+import LoadingFull from 'src/components/loading/loading-full';
+import TableEmptyRows from 'src/components/table/table-empty-rows';
+import TableNoData from 'src/components/table/table-no-data';
+import { emptyRows, applyFilter, getComparator } from 'src/components/table/utils';
+import { IconButton } from '@mui/material';
+import { fetchAll, setStatus, deleteWarehouse } from 'src/redux/slices/warehouseSlices';
+import BrandTableToolbar from '../warehouse-table-toolbar';
+import WarehouseTableHead from '../warehouse-table-head';
+import WarehouseTableRow from '../warehouse-table-row';
 
 // ----------------------------------------------------------------------
 
@@ -36,6 +41,38 @@ export default function WareHousePage() {
   const [filterName, setFilterName] = useState('');
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [confirm, setConfirm] = useState(false);
+
+  const [warehouses, setWarehouses] = useState([]);
+
+  const dispatch = useDispatch();
+  const route = useRouter();
+
+  const data = useSelector((state) => state.warehouses.warehouses);
+  const status = useSelector((state) => state.warehouses.status);
+  const error = useSelector((state) => state.warehouses.error);
+  const statusDelete = useSelector((state) => state.warehouses.statusDelete);
+
+  useEffect(() => {
+    dispatch(fetchAll());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (status === 'successful') {
+      setWarehouses(data);
+    }
+  }, [status, dispatch, data]);
+  useEffect(() => {
+    if (statusDelete === 'successful') {
+      handleToast('success', 'Xóa kho thành công!');
+      dispatch(setStatus({ key: 'statusDelete', value: 'idle' }));
+      dispatch(fetchAll());
+    }
+    if (statusDelete === 'failed') {
+      handleToast('error', error.messages);
+      dispatch(setStatus({ key: 'statusDelete', value: 'idle' }));
+    }
+  }, [statusDelete, dispatch, error]);
 
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === 'asc';
@@ -47,8 +84,8 @@ export default function WareHousePage() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = users.map((n) => n.name);
-      setSelected(newSelecteds);
+      const newSelected = warehouses.map((n) => n.name);
+      setSelected(newSelected);
       return;
     }
     setSelected([]);
@@ -87,25 +124,58 @@ export default function WareHousePage() {
   };
 
   const dataFiltered = applyFilter({
-    inputData: users,
+    inputData: warehouses,
     comparator: getComparator(order, orderBy),
     filterName,
+    fillerQuery: 'name',
   });
+  const handleNavigate = (id) => {
+    route.push(id);
+  };
+  const handleDelete = (id) => {
+    setConfirm(id);
+  };
+  const dispatchDelete = () => {
+    dispatch(deleteWarehouse(confirm));
+  };
 
   const notFound = !dataFiltered.length && !!filterName;
 
   return (
     <Container>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Users</Typography>
+      {status === 'loading' && <LoadingFull />}
+      <ConfirmDelete
+        openConfirm={!!confirm}
+        onAgree={dispatchDelete}
+        onClose={() => setConfirm(false)}
+        label='kho đã chọn'
+      />
 
-        <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />}>
-          New User
+      <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
+        <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
+          <Typography variant="h4">Kho</Typography>
+
+          <IconButton
+            aria-label="load"
+            variant="contained"
+            color="inherit"
+            onClick={() => dispatch(fetchAll())}
+          >
+            <Iconify icon="mdi:reload" />
+          </IconButton>
+        </Stack>
+        <Button
+          variant="contained"
+          onClick={() => route.push('create')}
+          color="inherit"
+          startIcon={<Iconify icon="eva:plus-fill" />}
+        >
+          Kho mới
         </Button>
       </Stack>
 
       <Card>
-        <UserTableToolbar
+        <BrandTableToolbar
           numSelected={selected.length}
           filterName={filterName}
           onFilterName={handleFilterByName}
@@ -114,19 +184,21 @@ export default function WareHousePage() {
         <Scrollbar>
           <TableContainer sx={{ overflow: 'unset' }}>
             <Table sx={{ minWidth: 800 }}>
-              <UserTableHead
+              <WarehouseTableHead
                 order={order}
                 orderBy={orderBy}
-                rowCount={users.length}
+                rowCount={warehouses.length}
                 numSelected={selected.length}
                 onRequestSort={handleSort}
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
-                  { id: 'name', label: 'Name' },
-                  { id: 'company', label: 'Company' },
-                  { id: 'role', label: 'Role' },
-                  { id: 'isVerified', label: 'Verified', align: 'center' },
-                  { id: 'status', label: 'Status' },
+                  { id: 'name', label: 'Tên' },
+                  { id: 'capacity', label: 'Sức chứa' },
+                  { id: 'currentInventory', label: 'Hàng hiện tại' },
+                  { id: 'status', label: 'Trạng thái' },
+                  { id: 'location', label: 'Vị trí' },
+                  { id: 'createdAt', label: 'Ngày tạo' },
+                  { id: 'updatedAt', label: 'Ngày nhập' },
                   { id: '' },
                 ]}
               />
@@ -134,22 +206,26 @@ export default function WareHousePage() {
                 {dataFiltered
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
-                    <UserTableRow
-                      key={row.id}
+                    <WarehouseTableRow
+                      key={row._id}
                       name={row.name}
-                      role={row.role}
                       status={row.status}
-                      company={row.company}
-                      avatarUrl={row.avatarUrl}
-                      isVerified={row.isVerified}
-                      selected={selected.indexOf(row.name) !== -1}
-                      handleClick={(event) => handleClick(event, row.name)}
+                      createdAt={row.createdAt}
+                      location={row.location}
+                      updatedAt={row.updatedAt}
+                      currentInventory={row.currentInventory}
+                      capacity={row.capacity}
+                      selected={selected.indexOf(row.name) !== -1} // Assuming the company name is used for selection
+                      handleClick={(event) => handleClick(event, row._id)}
+                      handleNavigate={() => handleNavigate(row._id)}
+                      onDelete={() => handleDelete(row._id)}
                     />
                   ))}
 
                 <TableEmptyRows
                   height={77}
-                  emptyRows={emptyRows(page, rowsPerPage, users.length)}
+                  emptyRows={emptyRows(page, rowsPerPage, warehouses.length)}
+                  col={6}
                 />
 
                 {notFound && <TableNoData query={filterName} />}
@@ -161,7 +237,8 @@ export default function WareHousePage() {
         <TablePagination
           page={page}
           component="div"
-          count={users.length}
+          labelRowsPerPage="Số hàng trên trang"
+          count={warehouses.length}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}
           rowsPerPageOptions={[5, 10, 25]}

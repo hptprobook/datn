@@ -6,12 +6,11 @@ import Checkbox from '@mui/material/Checkbox';
 import TableHead from '@mui/material/TableHead';
 import TableCell from '@mui/material/TableCell';
 import TableSortLabel from '@mui/material/TableSortLabel';
-
-import { visuallyHidden } from './utils';
+import { visuallyHidden } from 'src/components/table/utils';
 
 // ----------------------------------------------------------------------
 
-export default function UserTableHead({
+export default function WarehouseTableHead({
   order,
   orderBy,
   rowCount,
@@ -62,7 +61,7 @@ export default function UserTableHead({
   );
 }
 
-UserTableHead.propTypes = {
+WarehouseTableHead.propTypes = {
   order: PropTypes.oneOf(['asc', 'desc']),
   orderBy: PropTypes.string,
   rowCount: PropTypes.number,

@@ -49,7 +49,7 @@ export const updateProduct = createAsyncThunk(
   'products/updateProduct',
   async ({ id, data }, { rejectWithValue }) => {
     try {
-      const response = await ProductsService.updateProduct(id, data);
+      const response = await ProductsService.updateProductById(id, data);
       return response;
     } catch (err) {
       return rejectWithValue(err.response.data);
@@ -66,7 +66,9 @@ const productsSlice = createSlice({
     product: {},
     status: 'idle',
     statusGet: 'idle',
-    update: {},
+    statusCreate: 'idle',
+    statusDelete: 'idle',
+    statusUpdate: 'idle',
     error: null
   },
   extraReducers: (builder) => {
@@ -120,7 +122,7 @@ const productsSlice = createSlice({
       })
       .addCase(updateProduct.fulfilled, (state, action) => {
         state.statusUpdate = 'successful';
-        state.update = action.payload;
+        state.product = action.payload;
       })
       .addCase(updateProduct.rejected, (state, action) => {
         state.statusUpdate = 'failed';

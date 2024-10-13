@@ -1,10 +1,10 @@
 import { lazy, Suspense } from 'react';
 import { Outlet, Navigate, useRoutes } from 'react-router-dom';
 
+import { Box, LinearProgress, linearProgressClasses } from '@mui/material';
 import { ProtectedRoute } from './components/ProtectedRoute';
 // ----------------------------------------------------------------------
 export const IndexPage = lazy(() => import('src/pages/app'));
-export const BlogPage = lazy(() => import('src/pages/blog/blogs'));
 // user page
 export const UserPage = lazy(() => import('src/pages/user/user'));
 export const CreateUserPage = lazy(() => import('src/pages/user/createUser'));
@@ -28,6 +28,9 @@ export const WebConfigPage = lazy(() => import('src/pages/settings/config/web-co
 export const SeoConfigPage = lazy(() => import('src/pages/settings/config/seo-config'));
 // warehouse page
 export const WarehousePage = lazy(() => import('src/pages/warehouse/warehouse'));
+export const WarehouseCreatePage = lazy(() => import('src/pages/warehouse/create'));
+export const WarehouseEditPage = lazy(() => import('src/pages/warehouse/edit'));
+// coupon page
 export const CouponsPage = lazy(() => import('src/pages/coupons/coupons'));
 export const CreateCouponPage = lazy(() => import('src/pages/coupons/create'));
 export const CouponDetailPage = lazy(() => import('src/pages/coupons/detail'));
@@ -42,7 +45,10 @@ export const OrderDetailPage = lazy(() => import('src/pages/orders/detail'));
 export const BrandsPage = lazy(() => import('src/pages/brands/brands'));
 export const BrandCreatePage = lazy(() => import('src/pages/brands/create'));
 export const BrandDetailPage = lazy(() => import('src/pages/brands/detail'));
-
+// blog page
+export const BlogPage = lazy(() => import('src/pages/blog/blogs'));
+export const CreateBlogPage = lazy(() => import('src/pages/blog/create'));
+export const DetailBlogPage = lazy(() => import('src/pages/blog/detail'));
 // ----------------------------------------------------------------------
 
 const childRoutes = [
@@ -54,6 +60,8 @@ const childRoutes = [
   { path: 'products/create', element: <CreateProductPage /> },
   { path: 'products/:id', element: <DetailProductPage /> },
   { path: 'blog', element: <BlogPage /> },
+  { path: 'blog/create', element: <CreateBlogPage /> },
+  { path: 'blog/:id', element: <DetailBlogPage /> },
   { path: 'category', element: <CategoryPage /> },
   { path: 'category/create', element: <CreateCategoryPage /> },
   { path: 'category/:id', element: <EditCategoryPage /> },
@@ -63,6 +71,8 @@ const childRoutes = [
   { path: 'settings/web-config', element: <WebConfigPage /> },
   { path: 'settings/seo-config', element: <SeoConfigPage /> },
   { path: 'warehouse', element: <WarehousePage /> },
+  { path: 'warehouse/create', element: <WarehouseCreatePage /> },
+  { path: 'warehouse/:id', element: <WarehouseEditPage /> },
   { path: 'coupons', element: <CouponsPage /> },
   { path: 'coupons/create', element: <CreateCouponPage /> },
   { path: 'coupons/:id', element: <CouponDetailPage /> },
@@ -81,12 +91,25 @@ export const routePath = childRoutes
   .filter(Boolean);
 // Export mảng route
 
+const renderFallback = (
+  <Box display="flex" alignItems="center" justifyContent="center" flex="1 1 auto">
+    <LinearProgress
+      sx={{
+        width: 1,
+        maxWidth: 320,
+        bgcolor: (theme) => (theme.palette.mode === 'light' ? 'primary.lighter' : 'primary.dark'),
+        [`& .${linearProgressClasses.bar}`]: { bgcolor: 'text.primary' },
+      }}
+    />
+  </Box>
+);
+
 export default function Router() {
   return useRoutes([
     {
       element: (
         <ProtectedRoute>
-          <Suspense>
+          <Suspense fallback={renderFallback}>
             <Outlet />
           </Suspense>
         </ProtectedRoute>

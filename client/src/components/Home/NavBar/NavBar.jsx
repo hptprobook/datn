@@ -36,7 +36,7 @@ const NavBar = () => {
             onMouseEnter={() => setHoveredMenu(item.id)}
             onMouseLeave={() => setHoveredMenu(null)}
           >
-            <NavLink to={`/danh-muc-san-pham/${item.slug}`}>
+            <NavLink to={`/danh-muc-san-pham/${item.slug}`} end>
               <p className="cursor-pointer hover:text-red-500 font-semibold text-sm">
                 {item.title}
               </p>
@@ -45,7 +45,7 @@ const NavBar = () => {
               <div className="fixed top-32 w-container left-1/2 -translate-x-1/2 bg-slate-50 shadow-lg z-10 p-4 border-t-df grid grid-cols-4 gap-5 menu-hovered">
                 {item.list?.map((subItem) => (
                   <div key={subItem.id} className="mb-4">
-                    <NavLink to={`/danh-muc-san-pham/${subItem.slug}`}>
+                    <NavLink to={`/danh-muc-san-pham/${subItem.slug}`} end>
                       <p className="font-bold mb-4 text-sm hover:text-red-600">
                         {subItem.title}
                       </p>
@@ -55,6 +55,7 @@ const NavBar = () => {
                         <NavLink
                           key={childItem.id}
                           to={`/danh-muc-san-pham/${childItem.slug}`}
+                          end
                         >
                           <p className="mb-3 hover:text-red-500 cursor-pointer text-sm">
                             {childItem.title}
