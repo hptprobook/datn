@@ -52,6 +52,7 @@ const getProductsAll = async (page, limit) => {
       status: 1,
       statusStock: 1,
       slug: 1,
+      brand: 1,
     })
     .skip((page - 1) * limit)
     .limit(limit)

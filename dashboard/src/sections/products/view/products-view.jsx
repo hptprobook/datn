@@ -11,7 +11,12 @@ import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 
 import { useNavigate } from 'react-router-dom';
-import { setStatus, fetchAllProducts, deleteProductById } from 'src/redux/slices/productSlice';
+import {
+  setStatus,
+  fetchAllProducts,
+  fetchProductById,
+  deleteProductById,
+} from 'src/redux/slices/productSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { handleToast } from 'src/hooks/toast';
 
@@ -23,10 +28,13 @@ import TableNoData from 'src/components/table/table-no-data';
 import { emptyRows, applyFilter, getComparator } from 'src/components/table/utils';
 import ConfirmDelete from 'src/components/modal/confirm-delete';
 import LoadingFull from 'src/components/loading/loading-full';
-import { IconButton } from '@mui/material';
+import { Drawer, IconButton } from '@mui/material';
+import { fetchAll } from 'src/redux/slices/brandSlices';
 import ProductTableRow from '../product-table-row';
 import ProductTableHead from '../product-table-head';
 import ProductTableToolbar from '../product-table-toolbar';
+import ProductCard from '../product-card';
+import { renderBrand } from '../utils';
 
 // ----------------------------------------------------------------------
 
@@ -38,14 +46,32 @@ export default function ProductsPage() {
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
+  const [open, setOpen] = React.useState(false);
+
   const dispatch = useDispatch();
   const products = useSelector((state) => state.products.products);
   const status = useSelector((state) => state.products.status);
+  const product = useSelector((state) => state.products.product);
+  const brands = useSelector((state) => state.brands.brands);
+  const statusGet = useSelector((state) => state.products.statusGet);
   const statusDelete = useSelector((state) => state.products.statusDelete);
   const error = useSelector((state) => state.products.error);
   const [productsList, setProductsList] = React.useState([]);
+
   // const errorPro = useSelector((state) => state.products.error);
 
+  const toggleDrawer = (value) => (event) => {
+    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+      return;
+    }
+    if (value) {
+      dispatch(fetchProductById({ id: value }));
+    } else {
+      dispatch(setStatus({ key: 'statusGet', value: '' }));
+      dispatch(setStatus({ key: 'product', value: null }));
+    }
+    setOpen(!open);
+  };
   useEffect(() => {
     dispatch(fetchAllProducts());
   }, [dispatch]);
@@ -65,8 +91,9 @@ export default function ProductsPage() {
       handleToast('error', 'Có lỗi xảy ra vui lòng thử lại!');
     } else if (status === 'successful') {
       setProductsList(products);
+      dispatch(fetchAll());
     }
-  }, [products, status]);
+  }, [products, status, dispatch]);
 
   // console.log(productsList);
 
@@ -129,9 +156,6 @@ export default function ProductsPage() {
   const notFound = !dataFiltered.length && !!filterName;
   const navigate = useNavigate();
 
-  const handleNewProductClick = () => {
-    navigate('/products/create');
-  };
   const [confirm, setConfirm] = useState(false);
   const dispatchDelete = () => {
     dispatch(deleteProductById({ id: confirm }));
@@ -140,7 +164,13 @@ export default function ProductsPage() {
     <Container>
       {status === 'loading' && <LoadingFull />}
       {statusDelete === 'loading' && <LoadingFull />}
-
+      <Drawer anchor="right" open={open} onClose={toggleDrawer()}>
+        <ProductCard
+          product={product}
+          status={statusGet}
+          brand={renderBrand(product?._id, brands)}
+        />
+      </Drawer>
       <ConfirmDelete
         openConfirm={!!confirm}
         onAgree={dispatchDelete}
@@ -163,7 +193,7 @@ export default function ProductsPage() {
           variant="contained"
           color="inherit"
           startIcon={<Iconify icon="eva:plus-fill" />}
-          onClick={handleNewProductClick}
+          onClick={() => navigate('create')}
         >
           Tạo sản phẩm
         </Button>
@@ -201,12 +231,13 @@ export default function ProductsPage() {
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
                     <ProductTableRow
+                      onClick={toggleDrawer(row._id)}
                       key={row._id}
                       _id={row._id}
                       name={row.name}
                       imgURLs={row.thumbnail}
                       price={row.price}
-                      brand={row.brand}
+                      brand={renderBrand(row.brand, brands)}
                       slug={row.slug}
                       averageRating={row.averageRating}
                       statusStock={row.statusStock}
