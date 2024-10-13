@@ -51,7 +51,8 @@ export default function CouponTableHead({
               {headCell.label}
               {orderBy === headCell.id ? (
                 <Box sx={{ ...visuallyHidden }}>
-                  {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+            {order === 'desc' ? 'Sắp xếp giảm dần' : 'Sắp xếp tăng dần'}
+
                 </Box>
               ) : null}
             </TableSortLabel>

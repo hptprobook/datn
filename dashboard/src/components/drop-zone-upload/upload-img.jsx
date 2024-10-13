@@ -8,12 +8,7 @@ import './style.css';
 import Iconify from '../iconify/iconify';
 
 const backendUrl = import.meta.env.VITE_BACKEND_APP_URL;
-const ImageDropZone = ({
-  handleUpload,
-  singleFile = false,
-  defaultImg = '',
-  error = null,
-}) => {
+const ImageDropZone = ({ handleUpload, singleFile = false, defaultImg = '', error = null }) => {
   const { fileRejections, acceptedFiles, getRootProps, getInputProps } = useDropzone({
     accept: {
       'image/jpeg': [],
@@ -41,7 +36,6 @@ const ImageDropZone = ({
       }
     }
   }, [defaultImg]);
-
   useEffect(() => {
     if (acceptedFiles.length > 0) {
       // Ensure there's at least one file

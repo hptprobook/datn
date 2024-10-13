@@ -10,14 +10,14 @@ import Iconify from 'src/components/iconify';
 
 import { useDispatch, useSelector } from 'react-redux';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import { TextField, IconButton } from '@mui/material';
+import { Select, MenuItem, TextField, InputLabel, FormControl } from '@mui/material';
 import { useFormik } from 'formik';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { handleToast } from 'src/hooks/toast';
 import { createNav, resetStatus } from 'src/redux/slices/settingSlices';
-import ModalCreated from './modal-create';
-import { navSchema } from '../nav-schema';
+import { routePath } from 'src/routes/sections';
+import { navSchema, navSchemaItem } from '../nav-schema';
 import ContainerDragDropCreate from '../drag-create';
 // ----------------------------------------------------------------------
 export default function NavCreatedPage() {
@@ -40,16 +40,6 @@ export default function NavCreatedPage() {
     }
   }, [status, error, dispatch]);
 
-  const onCreate = (data) => {
-    const existingItem = menuChild.find((item) => item.path === data.path);
-    if (existingItem) {
-      handleToast('error', 'Đường dẫn đã tồn tại');
-      return;
-    }
-    data.index = menuChild.length;
-    setMenuChild([...menuChild, data]);
-    // setOpen(false);
-  };
   const handleUpdateChild = (id) => {
     const newMenuChild = menuChild.filter((item) => item.index !== id);
     newMenuChild.forEach((item, index) => {
@@ -83,13 +73,31 @@ export default function NavCreatedPage() {
       formik.resetForm();
     },
   });
+  const formikChild = useFormik({
+    enableReinitialize: true,
+    initialValues: {
+      title: '',
+      path: '',
+      icon: '',
+    },
+    validationSchema: navSchemaItem,
+    onSubmit: (values) => {
+      const existingItem = menuChild.find((item) => item.path === values.path);
+      if (existingItem) {
+        handleToast('error', 'Đường dẫn đã tồn tại');
+        return;
+      }
+      values.index = menuChild.length;
+      setMenuChild([...menuChild, values]);
+      formik.resetForm();
+    },
+  });
 
   const handleGetNewNav = (data) => {
     setNewChild(data);
   };
   return (
     <Container>
-      <ModalCreated open={open} handleClose={handleClose} onCreate={onCreate} />
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Typography variant="h4">Tạo mới</Typography>
 
@@ -105,6 +113,9 @@ export default function NavCreatedPage() {
       <Grid2 container spacing={3}>
         <Grid2 xs={8}>
           <Card sx={{ p: 3 }}>
+            <Typography variant="h6" mb={3}>
+              Thông tin menu
+            </Typography>
             <form onSubmit={formik.handleSubmit}>
               <Grid2 container spacing={1}>
                 <Grid2 xs={6}>
@@ -121,17 +132,23 @@ export default function NavCreatedPage() {
                   />
                 </Grid2>
                 <Grid2 xs={6}>
-                  <TextField
-                    fullWidth
-                    id="path-menu"
-                    label="Đường dẫn menu"
-                    name="path"
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    value={formik.values.path}
-                    error={formik.touched.path && Boolean(formik.errors.path)}
-                    helperText={formik.touched.path && formik.errors.path}
-                  />
+                  <FormControl fullWidth>
+                    <InputLabel id="create-path-select-label">Đường dẫn</InputLabel>
+                    <Select
+                      labelId="create-path-select-label"
+                      id="create-path-select"
+                      value={formik.values.path}
+                      label="Đường dẫn"
+                      name="path"
+                      onChange={formik.handleChange}
+                    >
+                      {routePath.map((item) => (
+                        <MenuItem key={item} value={item}>
+                          {item}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
                 </Grid2>
                 <Grid2 xs={6}>
                   <TextField
@@ -160,7 +177,79 @@ export default function NavCreatedPage() {
                   />
                 </Grid2>
                 <Grid2 xs={12}>
-                  <Button variant="contained" type="submit" sx={{ float: 'right' }}>
+                  <Button variant="contained" color="inherit" type="submit" sx={{ float: 'right' }}>
+                    Tạo menu
+                  </Button>
+                </Grid2>
+              </Grid2>
+            </form>
+          </Card>
+          <Card sx={{ p: 3, mt: 3 }}>
+            <Typography mb={4} variant="h6">
+              Tạo mới menu con
+            </Typography>
+            <form onSubmit={formikChild.handleSubmit}>
+              <Grid2 container spacing={1}>
+                <Grid2 xs={6}>
+                  <TextField
+                    fullWidth
+                    id="title-menu"
+                    label="Tên menu"
+                    name="title"
+                    onChange={formikChild.handleChange}
+                    onBlur={formikChild.handleBlur}
+                    value={formikChild.values.title}
+                    error={formikChild.touched.title && Boolean(formikChild.errors.title)}
+                    helperText={formikChild.touched.title && formikChild.errors.title}
+                  />
+                </Grid2>
+                <Grid2 xs={6}>
+                  <FormControl fullWidth>
+                    <InputLabel id="create-path-select-label">Đường dẫn</InputLabel>
+                    <Select
+                      labelId="create-path-select-label"
+                      id="create-path-select"
+                      value={formikChild.values.path}
+                      label="Đường dẫn"
+                      name="path"
+                      onChange={formikChild.handleChange}
+                    >
+                      {routePath.map((item) => (
+                        <MenuItem key={item} value={item}>
+                          {item}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid2>
+                <Grid2 xs={6}>
+                  <TextField
+                    fullWidth
+                    id="index-menu"
+                    label="Vị trí menu"
+                    name="index"
+                    onChange={formikChild.handleChange}
+                    onBlur={formikChild.handleBlur}
+                    value={formikChild.values.index}
+                    error={formikChild.touched.index && Boolean(formikChild.errors.index)}
+                    helperText={formikChild.touched.index && formikChild.errors.index}
+                  />
+                </Grid2>
+                <Grid2 xs={6}>
+                  <TextField
+                    fullWidth
+                    id="icon-menu"
+                    label="Icon"
+                    name="icon"
+                    onChange={formikChild.handleChange}
+                    onBlur={formikChild.handleBlur}
+                    value={formikChild.values.icon}
+                    error={formikChild.touched.icon && Boolean(formikChild.errors.icon)}
+                    helperText={formikChild.touched.icon && formikChild.errors.icon}
+                  />
+                </Grid2>
+                <Grid2 xs={12}>
+                  <Button variant="contained" color="inherit" type="submit" sx={{ float: 'right' }}>
                     Lưu
                   </Button>
                 </Grid2>
@@ -170,18 +259,10 @@ export default function NavCreatedPage() {
         </Grid2>
         <Grid2 xs={4}>
           <Card sx={{ p: 3 }}>
-            <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-              <Typography variant="h6">Tạo mới menu con</Typography>
+            <Typography variant="h6" mb={3}>
+              Danh sách menu con
+            </Typography>
 
-              <IconButton
-                aria-label="load"
-                variant="contained"
-                color="inherit"
-                onClick={() => setOpen(true)}
-              >
-                <Iconify icon="eva:plus-fill" />
-              </IconButton>
-            </Stack>
             <DndProvider backend={HTML5Backend}>
               {menuChild.length > 0 && menuChild ? (
                 <ContainerDragDropCreate
