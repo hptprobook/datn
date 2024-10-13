@@ -8,7 +8,6 @@ import TableCell from '@mui/material/TableCell';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import { visuallyHidden } from 'src/components/table/utils';
 
-
 // ----------------------------------------------------------------------
 
 export default function CategoryTableHead({
@@ -51,7 +50,7 @@ export default function CategoryTableHead({
               {headCell.label}
               {orderBy === headCell.id ? (
                 <Box sx={{ ...visuallyHidden }}>
-                  {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                  {order === 'desc' ? 'Sắp xếp giảm dần' : 'Sắp xếp tăng dần'}
                 </Box>
               ) : null}
             </TableSortLabel>

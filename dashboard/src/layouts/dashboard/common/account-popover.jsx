@@ -20,15 +20,15 @@ import { logout as dangXuat } from 'src/redux/slices/authSlice';
 
 const MENU_OPTIONS = [
   {
-    label: 'Home',
+    label: 'Trang chủ',
     icon: 'eva:home-fill',
   },
   {
-    label: 'Profile',
+    label: 'Thông tin',
     icon: 'eva:person-fill',
   },
   {
-    label: 'Settings',
+    label: 'Cài đặt',
     icon: 'eva:settings-2-fill',
   },
 ];
@@ -125,7 +125,7 @@ export default function AccountPopover() {
           onClick={handleLogout}
           sx={{ typography: 'body2', color: 'error.main', py: 1.5 }}
         >
-          Logout
+          Đăng xuất
         </MenuItem>
       </Popover>
     </>

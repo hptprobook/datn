@@ -49,6 +49,17 @@ export const deleteCategory = createAsyncThunk(
     }
   }
 );
+export const deleteManyCategory = createAsyncThunk(
+  'categories/deleteManyCategory',
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await CategoryService.deleteMany(data);
+      return response;
+    } catch (err) {
+      return rejectWithValue(err.response.data.errors);
+    }
+  }
+);
 export const updateCategory = createAsyncThunk(
   'categories/updateCategory',
   async ({ id, data }, { rejectWithValue }) => {
@@ -79,7 +90,7 @@ const initialState = {
   category: {},
   update: {},
   delete: null,
-  status: 'idle', // 'idle' | 'loading' | 'successful' | 'failed'
+  status: 'idle',
   statusDelete: 'idle',
   statusUpdate: 'idle',
   statusCreate: 'idle',
@@ -135,6 +146,17 @@ const categorySlices = createSlice({
         state.delete = action.payload; // Storing only the categories array
       })
       .addCase(deleteCategory.rejected, (state, action) => {
+        state.statusDelete = 'failed';
+        state.error = action.payload;
+      })
+      .addCase(deleteManyCategory.pending, (state) => {
+        state.statusDelete = 'loading delete';
+      })
+      .addCase(deleteManyCategory.fulfilled, (state, action) => {
+        state.statusDelete = 'successful';
+        state.delete = action.payload;
+      })
+      .addCase(deleteManyCategory.rejected, (state, action) => {
         state.statusDelete = 'failed';
         state.error = action.payload;
       })

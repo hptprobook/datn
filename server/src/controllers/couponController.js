@@ -5,8 +5,7 @@ import { StatusCodes } from 'http-status-codes';
 // import { ERROR_MESSAGES } from '~/utils/errorMessage';
 const getCoupons = async (req, res) => {
   try {
-    const { limit, page } = req.query;
-    const coupons = await couponModel.getCoupons(page, limit);
+    const coupons = await couponModel.getCoupons();
     return res.status(StatusCodes.OK).json(coupons);
   } catch (error) {
     return res
@@ -61,9 +60,9 @@ const createCoupon = async (req, res) => {
 
 const updateCoupon = async (req, res) => {
   try {
-    const { idCoupon } = req.params;
+    const { id } = req.params;
     const dataCoupon = req.body;
-    const result = await couponModel.updateCoupon(idCoupon, dataCoupon);
+    const result = await couponModel.updateCoupon(id, dataCoupon);
     return res.status(StatusCodes.OK).json(result);
   } catch (error) {
     if (error.details) {
@@ -77,8 +76,8 @@ const updateCoupon = async (req, res) => {
 
 const deleteCoupon = async (req, res) => {
   try {
-    const { idCoupon } = req.params;
-    const dataDel = await couponModel.deleteCoupon(idCoupon);
+    const { id } = req.params;
+    const dataDel = await couponModel.deleteCoupon(id);
     if (dataDel.acknowledged) {
       return res
         .status(StatusCodes.OK)

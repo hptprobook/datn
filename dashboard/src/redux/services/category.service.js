@@ -1,4 +1,4 @@
-import { get, put, del, upload } from 'src/utils/request';
+import { get, put, del, post, upload } from 'src/utils/request';
 /* eslint-disable */
 
 const CategoryService = {
@@ -67,6 +67,14 @@ const CategoryService = {
       return res.data;
     } catch (err) {
       console.log('Error: ', err);
+      throw err;
+    }
+  },
+  deleteMany: async (ids) => {
+    try {
+      const res = await post('categories/many', { ids });
+      return res;
+    } catch (err) {
       throw err;
     }
   },

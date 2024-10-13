@@ -18,14 +18,21 @@ import ConfirmDelete from 'src/components/modal/confirm-delete';
 import { handleToast } from 'src/hooks/toast';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchAll, resetDelete , deleteCoupon } from 'src/redux/slices/couponSlice';
+import {
+  fetchAll,
+  resetDelete,
+  deleteCoupon,
+  deleteManyCoupon,
+} from 'src/redux/slices/couponSlice';
 import { useRouter } from 'src/routes/hooks';
-import TableNoData from '../coupon-no-data';
+import { formatCurrency } from 'src/utils/format-number';
+import TableEmptyRows from 'src/components/table/table-empty-rows';
+import TableNoData from 'src/components/table/table-no-data';
 import CouponTableRow from '../coupon-table-row';
-import CouponTableHead from '../coupon-table-head';
-import TableEmptyRows from '../coupon-empty-rows';
+
 import CouponTableToolbar from '../coupon-table-toolbar';
 import { emptyRows, applyFilter, getComparator } from '../utils';
+import CouponTableHead from '../coupon-table-head';
 
 // ----------------------------------------------------------------------
 
@@ -50,7 +57,7 @@ export default function CouponsPage() {
   const data = useSelector((state) => state.coupons.coupons);
   const status = useSelector((state) => state.coupons.status);
   const statusDelete = useSelector((state) => state.coupons.statusDelete);
-  
+
   useEffect(() => {
     dispatch(fetchAll());
   }, [dispatch]);
@@ -61,10 +68,10 @@ export default function CouponsPage() {
     }
   }, [status, dispatch, data]);
 
-
   useEffect(() => {
     if (statusDelete === 'successful') {
       handleToast('success', 'Xóa Mã giảm giá thành công');
+      dispatch(fetchAll());
       dispatch(resetDelete());
     }
   }, [statusDelete, dispatch]);
@@ -101,7 +108,6 @@ export default function CouponsPage() {
         selected.slice(selectedIndex + 1)
       );
     }
-    console.log(newSelected);
     setSelected(newSelected);
   };
 
@@ -134,18 +140,17 @@ export default function CouponsPage() {
     dispatch(deleteCoupon(confirm));
   };
   const handleMultiDelete = () => {
-    console.log(selected);
+    setSelected([]);
+    dispatch(deleteManyCoupon(selected));
   };
   const notFound = !dataFiltered.length && !!filterName;
-
-
-  
 
   const [confirm, setConfirm] = useState(false);
   const [confirmMulti, setConfirmMulti] = useState(false);
   return (
     <Container>
-       {status === 'loading' && <LoadingFull />}
+      {status === 'loading' && <LoadingFull />}
+      {statusDelete === 'loading' && <LoadingFull />}
       <ConfirmDelete
         openConfirm={!!confirm}
         onAgree={dispatchDelete}
@@ -158,7 +163,7 @@ export default function CouponsPage() {
         label="những mã giảm giá đã chọn"
       />
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
+        <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
           <Typography variant="h4">Mã giảm giá </Typography>
 
           <IconButton
@@ -218,17 +223,17 @@ export default function CouponsPage() {
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
                     <CouponTableRow
-                    id={row._id}
+                      id={row._id}
                       key={row._id}
                       code={row.code}
                       type={row.type}
                       applicableProducts={row.applicableProducts}
                       usageLimit={row.usageLimit}
-                      minPurchasePrice={row.minPurchasePrice}
-                      maxPurchasePrice={row.maxPurchasePrice}
+                      minPurchasePrice={formatCurrency(row.minPurchasePrice)}
+                      maxPurchasePrice={formatCurrency(row.maxPurchasePrice)}
                       usageCount={row.usageCount}
                       status={row.status}
-                      limitOnUser={row.limitOnUser} // Make sure to include limitOnUser if you want to display it
+                      limitOnUser={row.limitOnUser}
                       dateStart={row.dateStart}
                       dateEnd={row.dateEnd}
                       selected={selected.indexOf(row._id) !== -1}
@@ -241,9 +246,10 @@ export default function CouponsPage() {
                 <TableEmptyRows
                   height={77}
                   emptyRows={emptyRows(page, rowsPerPage, coupons.length)}
+                  col={12}
                 />
 
-                {notFound && <TableNoData query={filterName} />}
+                {notFound && <TableNoData query={filterName} col={12}/>}
               </TableBody>
             </Table>
           </TableContainer>

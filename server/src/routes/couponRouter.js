@@ -9,8 +9,8 @@ const Router = express.Router();
 Router.get('/', verifyToken, couponController.getCoupons);
 Router.get('/code', verifyToken, couponController.findOneCoupons);
 Router.post('/', verifyToken, couponController.createCoupon);
-Router.put('/:idCoupon', verifyToken, couponController.updateCoupon);
-Router.delete('/:idCoupon', verifyToken, couponController.deleteCoupon);
+Router.put('/:id', verifyToken, couponController.updateCoupon);
+Router.delete('/:id', verifyToken, couponController.deleteCoupon);
 Router.post(
   '/many',
   verifyToken,

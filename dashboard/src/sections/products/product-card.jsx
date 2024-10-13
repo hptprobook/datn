@@ -26,7 +26,6 @@ const ProductCard = ({ status, product, brand }) => {
       setSizes(product.variants[0].sizes);
     }
   }, [product, status]);
-  console.log(product);
 //   const [variantSize, setVariantSize] = React.useState({});
   const handleSelectColor = (c) => {
     setColor(c);
