@@ -10,26 +10,27 @@ import Iconify from 'src/components/iconify';
 
 import { useDispatch, useSelector } from 'react-redux';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import { Select, MenuItem, TextField, InputLabel, FormControl } from '@mui/material';
+import { Select, MenuItem, TextField, InputLabel, IconButton, FormControl } from '@mui/material';
 import { useFormik } from 'formik';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { handleToast } from 'src/hooks/toast';
 import { createNav, resetStatus } from 'src/redux/slices/settingSlices';
-import { routePath } from 'src/routes/sections';
+import { arrPath } from 'src/routes/utils';
+import IconModal from 'src/components/modal/modal-icon';
 import { navSchema, navSchemaItem } from '../nav-schema';
 import ContainerDragDropCreate from '../drag-create';
 // ----------------------------------------------------------------------
-export default function NavCreatedPage() {
+export default function NavCreatedView() {
   const dispatch = useDispatch();
-  const [open, setOpen] = useState(false);
   const [menuChild, setMenuChild] = useState([]);
   const [newChild, setNewChild] = useState([]);
+  const [open, setOpen] = useState(false);
 
   const status = useSelector((state) => state.settings.statusCreate);
   const error = useSelector((state) => state.settings.error);
   useEffect(() => {
-    if (status === 'succeeded') {
+    if (status === 'successful') {
       handleToast('success', 'Tạo mới thành công');
       setNewChild([]);
       setMenuChild([]);
@@ -47,10 +48,6 @@ export default function NavCreatedPage() {
     });
     setMenuChild(newMenuChild);
   };
-  const handleClose = () => {
-    setOpen(false);
-  };
-
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
@@ -61,6 +58,10 @@ export default function NavCreatedPage() {
     },
     validationSchema: navSchema,
     onSubmit: (values) => {
+      if (values.icon === '') {
+        handleToast('error', 'Icon không được để trống');
+        return;
+      }
       if (menuChild.length > 0 && newChild.length > 0) {
         const child = newChild.map((item) => ({
           title: item.title,
@@ -82,6 +83,10 @@ export default function NavCreatedPage() {
     },
     validationSchema: navSchemaItem,
     onSubmit: (values) => {
+      if (values.icon === '') {
+        handleToast('error', 'Icon không được để trống');
+        return;
+      }
       const existingItem = menuChild.find((item) => item.path === values.path);
       if (existingItem) {
         handleToast('error', 'Đường dẫn đã tồn tại');
@@ -96,8 +101,20 @@ export default function NavCreatedPage() {
   const handleGetNewNav = (data) => {
     setNewChild(data);
   };
+  const handleSubmit = (icon) => {
+    console.log(icon);
+    // formik.setFieldValue('icon', icon);
+    if (open === 'formik') {
+      formik.setFieldValue('icon', icon);
+    } else {
+      formikChild.setFieldValue('icon', icon);
+    }
+    setOpen(false);
+  };
+
   return (
     <Container>
+      <IconModal open={open && true} onClose={() => setOpen(false)} onSubmit={handleSubmit} />
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Typography variant="h4">Tạo mới</Typography>
 
@@ -105,6 +122,7 @@ export default function NavCreatedPage() {
           variant="contained"
           color="inherit"
           startIcon={<Iconify icon="material-symbols:help" />}
+          onClick={() => handleToast('info', 'Tính năng đang phát triển')}
         >
           Hỗ trợ
         </Button>
@@ -113,12 +131,26 @@ export default function NavCreatedPage() {
       <Grid2 container spacing={3}>
         <Grid2 xs={8}>
           <Card sx={{ p: 3 }}>
-            <Typography variant="h6" mb={3}>
-              Thông tin menu
-            </Typography>
+            <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2}>
+              <Typography variant="h6">Thông tin menu</Typography>
+              {formik.values.icon ? (
+                <IconButton onClick={() => setOpen('formik')}>
+                  <Iconify icon={formik.values.icon} size={24} />
+                </IconButton>
+              ) : (
+                <Button
+                  type="button"
+                  variant="contained"
+                  color="inherit"
+                  onClick={() => setOpen('formik')}
+                >
+                  Chọn icon
+                </Button>
+              )}
+            </Stack>
             <form onSubmit={formik.handleSubmit}>
               <Grid2 container spacing={1}>
-                <Grid2 xs={6}>
+                <Grid2 xs={12}>
                   <TextField
                     fullWidth
                     id="title-menu"
@@ -131,26 +163,7 @@ export default function NavCreatedPage() {
                     helperText={formik.touched.title && formik.errors.title}
                   />
                 </Grid2>
-                <Grid2 xs={6}>
-                  <FormControl fullWidth>
-                    <InputLabel id="create-path-select-label">Đường dẫn</InputLabel>
-                    <Select
-                      labelId="create-path-select-label"
-                      id="create-path-select"
-                      value={formik.values.path}
-                      label="Đường dẫn"
-                      name="path"
-                      onChange={formik.handleChange}
-                    >
-                      {routePath.map((item) => (
-                        <MenuItem key={item} value={item}>
-                          {item}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid2>
-                <Grid2 xs={6}>
+                <Grid2 xs={4}>
                   <TextField
                     fullWidth
                     id="index-menu"
@@ -163,19 +176,26 @@ export default function NavCreatedPage() {
                     helperText={formik.touched.index && formik.errors.index}
                   />
                 </Grid2>
-                <Grid2 xs={6}>
-                  <TextField
-                    fullWidth
-                    id="icon-menu"
-                    label="Icon"
-                    name="icon"
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    value={formik.values.icon}
-                    error={formik.touched.icon && Boolean(formik.errors.icon)}
-                    helperText={formik.touched.icon && formik.errors.icon}
-                  />
+                <Grid2 xs={8}>
+                  <FormControl fullWidth>
+                    <InputLabel id="create-path-select-label">Đường dẫn</InputLabel>
+                    <Select
+                      labelId="create-path-select-label"
+                      id="create-path-select"
+                      value={formik.values.path}
+                      label="Đường dẫn"
+                      name="path"
+                      onChange={formik.handleChange}
+                    >
+                      {arrPath.map((item) => (
+                        <MenuItem key={item} value={item}>
+                          {item}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
                 </Grid2>
+
                 <Grid2 xs={12}>
                   <Button variant="contained" color="inherit" type="submit" sx={{ float: 'right' }}>
                     Tạo menu
@@ -185,12 +205,26 @@ export default function NavCreatedPage() {
             </form>
           </Card>
           <Card sx={{ p: 3, mt: 3 }}>
-            <Typography mb={4} variant="h6">
-              Tạo mới menu con
-            </Typography>
+            <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2}>
+              <Typography variant="h6">Tạo mới menu con </Typography>
+              {formikChild.values.icon ? (
+                <IconButton onClick={() => setOpen('formikChild')}>
+                  <Iconify icon={formikChild.values.icon} size={24} />
+                </IconButton>
+              ) : (
+                <Button
+                  type="button"
+                  variant="contained"
+                  color="inherit"
+                  onClick={() => setOpen('formikChild')}
+                >
+                  Chọn icon
+                </Button>
+              )}
+            </Stack>
             <form onSubmit={formikChild.handleSubmit}>
               <Grid2 container spacing={1}>
-                <Grid2 xs={6}>
+                <Grid2 xs={12}>
                   <TextField
                     fullWidth
                     id="title-menu"
@@ -203,7 +237,7 @@ export default function NavCreatedPage() {
                     helperText={formikChild.touched.title && formikChild.errors.title}
                   />
                 </Grid2>
-                <Grid2 xs={6}>
+                <Grid2 xs={8}>
                   <FormControl fullWidth>
                     <InputLabel id="create-path-select-label">Đường dẫn</InputLabel>
                     <Select
@@ -214,7 +248,7 @@ export default function NavCreatedPage() {
                       name="path"
                       onChange={formikChild.handleChange}
                     >
-                      {routePath.map((item) => (
+                      {arrPath.map((item) => (
                         <MenuItem key={item} value={item}>
                           {item}
                         </MenuItem>
@@ -222,7 +256,7 @@ export default function NavCreatedPage() {
                     </Select>
                   </FormControl>
                 </Grid2>
-                <Grid2 xs={6}>
+                <Grid2 xs={4}>
                   <TextField
                     fullWidth
                     id="index-menu"
@@ -233,19 +267,6 @@ export default function NavCreatedPage() {
                     value={formikChild.values.index}
                     error={formikChild.touched.index && Boolean(formikChild.errors.index)}
                     helperText={formikChild.touched.index && formikChild.errors.index}
-                  />
-                </Grid2>
-                <Grid2 xs={6}>
-                  <TextField
-                    fullWidth
-                    id="icon-menu"
-                    label="Icon"
-                    name="icon"
-                    onChange={formikChild.handleChange}
-                    onBlur={formikChild.handleBlur}
-                    value={formikChild.values.icon}
-                    error={formikChild.touched.icon && Boolean(formikChild.errors.icon)}
-                    helperText={formikChild.touched.icon && formikChild.errors.icon}
                   />
                 </Grid2>
                 <Grid2 xs={12}>
