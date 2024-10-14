@@ -52,6 +52,7 @@ const getProductsAll = async (page, limit) => {
       status: 1,
       statusStock: 1,
       slug: 1,
+      brand: 1,
     })
     .skip((page - 1) * limit)
     .limit(limit)
@@ -881,14 +882,19 @@ const getProductsByEvent = async (slug, pages, limit) => {
   limit = parseInt(limit) || 20;
   const db = await GET_DB();
 
-  const category = await db.collection('categories').findOne({ slug: slug });
-  if (!category) {
+  const categories = await db
+    .collection('categories')
+    .find({ slug: { $regex: slug, $options: 'i' } })
+    .toArray();
+  if (!categories || categories.length === 0) {
     throw new Error('Danh mục không tồn tại');
   }
 
-  const cat_id = category._id;
-  const subCategoryIds = await getAllSubCategories(cat_id);
-  const categoryIds = [cat_id, ...subCategoryIds];
+  const categoryIds = [];
+  for (const category of categories) {
+    const subCategoryIds = await getAllSubCategories(category._id);
+    categoryIds.push(category._id, ...subCategoryIds);
+  }
 
   const products = await db
     .collection('products')
@@ -906,7 +912,7 @@ const getProductsByEvent = async (slug, pages, limit) => {
       slug: 1,
     })
     .skip((pages - 1) * limit)
-    .limit(5)
+    .limit(limit)
     .toArray();
 
   if (!products) {

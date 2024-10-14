@@ -7,10 +7,10 @@ import Typography from '@mui/material/Typography';
 
 // ----------------------------------------------------------------------
 
-export default function TableNoData({ query }) {
+export default function TableNoData({ query, col = 8 }) {
   return (
     <TableRow>
-      <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
+      <TableCell align="center" colSpan={col} sx={{ py: 3 }}>
         <Paper
           sx={{
             textAlign: 'center',
@@ -33,4 +33,5 @@ export default function TableNoData({ query }) {
 
 TableNoData.propTypes = {
   query: PropTypes.string,
+  col: PropTypes.number,
 };

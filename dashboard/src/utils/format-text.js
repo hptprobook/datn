@@ -49,3 +49,12 @@ export const renderStatusStock = (status) => {
     }
     return 'Hết hàng'
 }
+export const renderStatusStockColor = (status) => {
+    if (status === 'stock') {
+        return 'success';
+    }
+    if (status === 'preOrder') {
+        return 'warning';
+    }
+    return 'error'
+}

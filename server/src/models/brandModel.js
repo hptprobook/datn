@@ -47,9 +47,6 @@ const getBrandById = async (id) => {
 const getBrandBySlug = async (slug) => {
   const db = await GET_DB().collection('brands');
   const brand = await db.findOne({ slug: slug });
-  if (!brand) {
-    throw new Error('Có lỗi xảy ra, xin thử lại sau');
-  }
   return brand;
 };
 

@@ -26,6 +26,7 @@ import Iconify from 'src/components/iconify/iconify';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchNav } from 'src/redux/slices/settingSlices';
+import { IconButton } from '@mui/material';
 import navConfig from './config-navigation';
 import { NAV } from './config-layout';
 
@@ -46,13 +47,12 @@ export default function Nav({ openNav, onCloseNav }) {
     setNavs(navConfig); // Set initial navConfig
 
     if (status === 'succeeded' && data.length > 0) {
-      // Create a new array with the updated 'child' property
       const updatedData = data.map((item) => ({
         ...item,
-        child: item.child || undefined, // Ensure 'child' is either itself or undefined
+        child: item.child || undefined,
       }));
 
-      setNavs(updatedData); // Update 'navs' with the modified data
+      setNavs(updatedData); 
     }
   }, [status, data]);
 
@@ -88,6 +88,14 @@ export default function Nav({ openNav, onCloseNav }) {
           {account.role}
         </Typography>
       </Box>
+      <IconButton
+        aria-label="load"
+        variant="contained"
+        color="inherit"
+        onClick={() => dispatch(fetchNav())}
+      >
+        <Iconify icon="mdi:reload" />
+      </IconButton>
     </Box>
   );
 
@@ -225,17 +233,16 @@ function NavItems({ item, pathname, navigate }) {
       <ListItemButton
         onClick={handleOpen}
         sx={{
-             borderRadius: 0.75,
-        ...(active && {
-          color: 'primary.main',
-          fontWeight: 'fontWeightSemiBold',
-          bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08),
-          '&:hover': {
-            bgcolor: (theme) => alpha(theme.palette.primary.main, 0.16),
-          },
-        })
-      }}
-      
+          borderRadius: 0.75,
+          ...(active && {
+            color: 'primary.main',
+            fontWeight: 'fontWeightSemiBold',
+            bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08),
+            '&:hover': {
+              bgcolor: (theme) => alpha(theme.palette.primary.main, 0.16),
+            },
+          }),
+        }}
       >
         <ListItemIcon>
           <Iconify icon={item.icon} />
