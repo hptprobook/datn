@@ -209,7 +209,7 @@ const settingSlices = createSlice({
         state.statusCreate = 'loading';
       })
       .addCase(createNav.fulfilled, (state, action) => {
-        state.statusCreate = 'succeeded';
+        state.statusCreate = 'successful';
         state.nav = action.payload;
       })
       .addCase(createNav.rejected, (state, action) => {

@@ -1,9 +1,9 @@
 import { Helmet } from 'react-helmet-async';
-import { NavCreatedView } from 'src/sections/navDashboard/create';
+import NavCreatedView from 'src/sections/navDashboard/create';
 
 // ----------------------------------------------------------------------
 
-export default function NavDashBoardPage() {
+export default function NavDashboardCreatePage() {
   return (
     <>
       <Helmet>
