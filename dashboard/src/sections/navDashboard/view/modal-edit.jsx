@@ -26,7 +26,7 @@ const navSchema = Yup.object().shape({
   index: Yup.number()
     .required('Vị trí là bắt buộc')
     .integer('Vị trí phải là số nguyên')
-    .min(1, 'Vị trí phải lớn hơn hoặc bằng 1')
+    .min(0, 'Vị trí phải lớn hơn hoặc bằng 0')
     .max(100, 'Vị trí không được quá 100'),
   icon: Yup.string()
     .required('Icon là bắt buộc')
