@@ -1,17 +1,9 @@
-import { post } from "src/utils/request";
+import { get, post } from "src/utils/request";
 
 const AuthService = {
     login: async (data) => {
         try {
-            return await post("/auth/login", data);
-        } catch (err) {
-            console.error("Error: ", err);
-            throw err;
-        }
-    },
-    register: async (data) => {
-        try {
-            return await post("/auth/register", data);
+            return await post("/staffs/auth/login", data);
         } catch (err) {
             console.error("Error: ", err);
             throw err;
@@ -19,28 +11,20 @@ const AuthService = {
     },
     logout: async () => {
         try {
-            return await post("/auth/logout");
+            return await post("/staffs/auth/logout");
         } catch (err) {
             console.error("Error: ", err);
             throw err;
         }
     },
-    forgotPassword: async (data) => {
+    getMe: async () => {
         try {
-            return await post("/auth/forgot-password", data);
+            return await get("/staffs/auth/me");
         } catch (err) {
             console.error("Error: ", err);
             throw err;
         }
-    },
-    resetPassword: async (data) => {
-        try {
-            return await post("/auth/reset-password", data);
-        } catch (err) {
-            console.error("Error: ", err);
-            throw err;
-        }
-    },
+    }
 };
 
 export default AuthService;
