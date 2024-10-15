@@ -3,7 +3,6 @@ import { Navigate } from 'react-router-dom';
 
 import { useAuth } from 'src/hooks/useAuth';
 
-import DashboardLayout from 'src/layouts/dashboard';
 
 export const ProtectedRoute = ({ children }) => {
   const { token } = useAuth();
@@ -11,7 +10,7 @@ export const ProtectedRoute = ({ children }) => {
     // user is not authenticated
     return <Navigate to="/login" />;
   }
-  return <DashboardLayout>{children}</DashboardLayout>;
+  return children;
 };
 ProtectedRoute.propTypes = {
   children: PropTypes.node.isRequired,

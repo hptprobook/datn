@@ -81,6 +81,8 @@ const getMe = async (req, res) => {
                 });
             }
             staff.token = createStaffToken(staff);
+            delete staff.password;
+            delete staff.refreshToken;
             return res.status(200).json(staff);
         }
         const staff = await staffsModel.getStaffBy('_id', user_id);
@@ -89,6 +91,8 @@ const getMe = async (req, res) => {
                 message: 'Không tồn tại nhân viên',
             });
         }
+        delete staff.password;
+        delete staff.refreshToken;
         res.status(StatusCodes.CREATED).json(staff);
     }
     catch (error) {
