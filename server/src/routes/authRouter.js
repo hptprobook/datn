@@ -6,9 +6,11 @@ import verifyToken from '~/middlewares/verifyToken';
 
 const Router = express.Router();
 
+Router.post('/send-sms', authController.sendSMS);
 Router.post('/register', authController.register);
 Router.post('/login', authController.login);
 Router.post('/logout', verifyToken, authController.logout);
+Router.post('/changePassword', verifyToken, authController.changePassword);
 Router.post('/otps', authController.getOtp);
 Router.post('/otps/verify', authController.checkOtp);
 Router.put('/otps/reset-password', authController.changePassWordByOtp);

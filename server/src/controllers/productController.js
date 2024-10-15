@@ -6,6 +6,8 @@ import { ERROR_MESSAGES } from '~/utils/errorMessage';
 import { uploadModel } from '~/models/uploadModel';
 import { createSlug } from '~/utils/createSlug';
 import path from 'path';
+import { hotSearchController } from './hotSearchController';
+import { hotSearchModel } from '~/models/hotSearchModel';
 
 const getAllProducts = async (req, res) => {
   try {
@@ -772,11 +774,11 @@ const getProductsBySlugAndPriceRange = async (req, res) => {
       parsedSizes
     );
 
-    if (!products || products.length === 0) {
-      return res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ message: 'Không tìm thấy sản phẩm!' });
-    }
+    // if (!products || products.length === 0) {
+    //   return res
+    //     .status(StatusCodes.NOT_FOUND)
+    //     .json({ message: 'Không tìm thấy sản phẩm!' });
+    // }
 
     return res.status(StatusCodes.OK).json(products);
   } catch (error) {
@@ -789,6 +791,7 @@ const getProductsBySlugAndPriceRange = async (req, res) => {
 const getProductsBySearchAndFilter = async (req, res) => {
   try {
     const { keyword } = req.query;
+
     const { minPrice, maxPrice, pages, limit, colors, sizes, ...sortCriteria } =
       req.query;
 
@@ -805,6 +808,14 @@ const getProductsBySearchAndFilter = async (req, res) => {
       parsedColors,
       parsedSizes
     );
+
+    let hotSearch = await hotSearchModel.findHotSearchByKeyword(keyword);
+
+    if (hotSearch) {
+      hotSearch = await hotSearchModel.plusCountHotSearch(hotSearch._id);
+    } else {
+      hotSearch = await hotSearchModel.createHotSearch({ keyword });
+    }
 
     // if (!products || products.length === 0) {
     //   return res

@@ -35,7 +35,7 @@ const InputField_50 = ({
           value={value}
           onChange={onChange}
           onBlur={onBlur}
-          className={`pr-10 w-full rounded-md border-2 bg-white text-sm text-gray-700 shadow-sm h-10 px-3 outline-blue-500 ${
+          className={`pr-10 w-full rounded-md border-2 bg-white text-sm text-gray-700 shadow-sm h-10 px-3 outline-blue-500 dark:outline-blue-500 ${
             error ? 'border-red-500' : 'border-gray-200'
           }`}
           {...rest}
