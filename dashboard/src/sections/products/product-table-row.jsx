@@ -14,13 +14,14 @@ import IconButton from '@mui/material/IconButton';
 import Iconify from 'src/components/iconify';
 import { renderUrl } from 'src/utils/check';
 import { formatCurrency } from 'src/utils/format-number';
-import { renderStatusStock } from 'src/utils/format-text';
+import { renderStatusStock, renderStatusStockColor } from 'src/utils/format-text';
+import Label from 'src/components/label';
 
-const backendUrl  = import.meta.env.VITE_BACKEND_APP_URL;
+const backendUrl = import.meta.env.VITE_BACKEND_APP_URL;
 
 export default function ProductTableRow({
   selected,
-  _id,
+  onClick,
   name,
   imgURLs,
   slug,
@@ -35,19 +36,34 @@ export default function ProductTableRow({
   const [open, setOpen] = useState(null);
 
   const handleOpenMenu = (event) => {
+    event.stopPropagation();
     setOpen(event.currentTarget);
   };
 
   const handleCloseMenu = () => {
     setOpen(null);
-    onDelete();
   };
-
+  const handleDelete = () => {
+    onDelete();
+    setOpen(null);
+  };
   return (
     <>
-      <TableRow hover tabIndex={-1} role="checkbox" selected={selected}>
+      <TableRow
+        hover
+        onClick={onClick}
+        sx={{ cursor: 'pointer' }}
+        tabIndex={-1}
+        role="checkbox"
+        selected={selected}
+      >
         <TableCell padding="checkbox">
-          <Checkbox disableRipple checked={selected} onChange={handleClick} />
+          <Checkbox
+            disableRipple
+            checked={selected}
+            onClick={(event) => event.stopPropagation()}
+            onChange={handleClick}
+          />
         </TableCell>
 
         <TableCell component="th" scope="row" padding="none">
@@ -63,7 +79,11 @@ export default function ProductTableRow({
 
         <TableCell>{brand}</TableCell>
         <TableCell>{averageRating}</TableCell>
-        <TableCell>{renderStatusStock(statusStock)}</TableCell>
+        <TableCell>
+          <Label color={renderStatusStockColor(statusStock)}>
+            {renderStatusStock(statusStock)}
+          </Label>
+        </TableCell>
 
         <TableCell align="right">
           <IconButton onClick={handleOpenMenu}>
@@ -87,7 +107,7 @@ export default function ProductTableRow({
           Chỉnh sửa
         </MenuItem>
 
-        <MenuItem onClick={handleCloseMenu} sx={{ color: 'error.main' }}>
+        <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>
           <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
           Xóa
         </MenuItem>
@@ -97,7 +117,7 @@ export default function ProductTableRow({
 }
 
 ProductTableRow.propTypes = {
-  _id: PropTypes.string,
+  onClick: PropTypes.func,
   name: PropTypes.string,
   imgURLs: PropTypes.string,
   price: PropTypes.number,

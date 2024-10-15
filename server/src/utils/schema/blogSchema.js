@@ -11,10 +11,7 @@ export const SAVE_BLOG = Joi.object({
         'string.empty': 'Nội dung không được để trống.',
         'any.required': 'Nội dung là bắt buộc.',
     }),
-    tags: Joi.array().items(Joi.string().trim()).required().messages({
-        'array.base': 'Tags phải là một mảng chuỗi.',
-        'any.required': 'Tags là bắt buộc.',
-    }),
+    tags: Joi.array().default([]),
     // tags: Joi.string().trim().required().messages({
     //     'string.base': 'Tags phảỉ có kiểu dữ liệu là String.',
     //     'any.required': 'Tags là bắt buộc.',
@@ -67,9 +64,16 @@ export const UPDATE_BLOG = Joi.object({
         'string.base': 'Nội dung phải là một chuỗi văn bản.',
         'string.empty': 'Nội dung không được để trống.',
     }),
-    tags: Joi.array().items(Joi.string().trim()).messages({
-        'array.base': 'Tags phải là một mảng chuỗi.',
+    authID: Joi.string().required().messages({
+        'string.base': 'ID tác giả phải là một chuỗi.',
+        'any.required': 'ID tác giả là bắt buộc.',
     }),
+    authName: Joi.string().trim().required().messages({
+        'string.base': 'Tên tác giả phải là một chuỗi văn bản.',
+        'string.empty': 'Tên tác giả không được để trống.',
+        'any.required': 'Tên tác giả là bắt buộc.',
+    }),
+    tags: Joi.array().default([]),
     // tags: Joi.string().trim().messages({
     //     'string.base': 'Tags phải là một chuỗi.',
     // }),

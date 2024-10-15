@@ -5,7 +5,7 @@ import multer from 'multer';
 import path from 'path';
 import { uploadModel } from '~/models/uploadModel';
 import verifyToken from '~/middlewares/verifyToken';
-import verifyAdmin from '~/middlewares/verifyAdmin';
+import { verifyToken as verifyStaff, isAdmin } from '~/middlewares/verifyRole';
 
 const Router = express.Router();
 
@@ -53,8 +53,8 @@ Router.get('/filter/:slug', productController.getProductsBySlugAndPriceRange);
 
 Router.post(
   '/',
-  verifyToken,
-  verifyAdmin,
+  verifyStaff,
+  isAdmin,
   upload.fields([
     { name: 'images' },
     { name: 'thumbnail' },
@@ -65,8 +65,8 @@ Router.post(
 Router.post('/rating', upload.none(), productController.ratingProduct);
 Router.put(
   '/:id',
-  verifyToken,
-  verifyAdmin,
+  verifyStaff,
+  isAdmin,
   upload.fields([
     { name: 'images' },
     { name: 'thumbnail' },
@@ -77,8 +77,8 @@ Router.put(
 Router.put('/rating/:id', upload.none(), productController.updateRatingProduct);
 Router.delete(
   '/:id',
-  verifyToken,
-  verifyAdmin,
+  verifyStaff,
+  isAdmin,
   productController.deleteProduct
 );
 Router.delete('/rating/:id', productController.deleteRating);

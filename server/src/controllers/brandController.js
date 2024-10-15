@@ -17,7 +17,6 @@ const createBrand = async (req, res) => {
     const file = req.file;
     const fileName = file.filename;
     const filePath = path.join('uploads/brands', fileName);
-
     data.image = filePath;
     const brand = await brandModel.getBrandBySlug(data.slug);
     if (brand) {

@@ -1,6 +1,6 @@
 // import { jwtDecode } from 'jwt-decode';
 import jwt from 'jsonwebtoken';
-const verifyToken = async(req, res, next) => {
+const verifyToken = async (req, res, next) => {
     const data = req.headers.authorization;
     if (!data) {
         return res.status(401).send({ message: 'Bạn không có quyền truy cập' });
@@ -12,11 +12,6 @@ const verifyToken = async(req, res, next) => {
         req.user = decodedToken;
         next();
     } catch (error) {
-        if (error instanceof jwt.TokenExpiredError) {
-            return res
-                .status(401)
-                .send({ message: 'Phiên đăng nhập đã hết hạn' });
-        }
         return res.status(401).send({ message: 'Lỗi bảo mật' });
     }
 };
