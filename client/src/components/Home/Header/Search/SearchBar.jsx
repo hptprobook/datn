@@ -112,6 +112,7 @@ const SearchBar = () => {
             <SearchPopular
               handleModelClick={handleModelClick}
               isOpen={isFocused}
+              handleOverlayClick={handleOverlayClick}
             />
           ) : (
             <SearchResult

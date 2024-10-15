@@ -27,6 +27,7 @@ import { handleApiError } from './config/helpers.js';
 // useCart
 import { CartProvider } from 'react-use-cart';
 import { WishlistProvider } from './context/WishListContext';
+import '~/config/firebaseConfig';
 
 const queryClient = new QueryClient({
   defaultOptions: {
