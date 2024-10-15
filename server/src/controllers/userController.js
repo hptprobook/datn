@@ -36,7 +36,6 @@ const createUser = async (req, res) => {
     const hash = await bcrypt.hashSync(data.password, 8);
     if (!hash) {
       return res
-
         .status(StatusCodes.BAD_REQUEST)
         .json({ message: 'Có lỗi bảo mật xảy ra' });
     }
