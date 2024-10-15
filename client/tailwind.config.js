@@ -58,6 +58,14 @@ export default {
         xs: '4px',
       },
       keyframes: {
+        slideDown: {
+          '0%': { transform: 'translateY(-50px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+        slideUp: {
+          '0%': { transform: 'translateY(0)', opacity: '1' },
+          '100%': { transform: 'translateY(-50px)', opacity: '0' },
+        },
         slideIn: {
           '0%': { transform: 'translateX(-100%)', opacity: 0 },
           '100%': { transform: 'translateX(0)', opacity: 1 },
@@ -88,6 +96,8 @@ export default {
       animation: {
         slideIn: 'slideIn 0.3s ease-out forwards',
         slideOut: 'slideOut 0.3s ease-in forwards',
+        slideDown: 'slideDown 0.3s ease-out forwards',
+        slideUp: 'slideUp 0.3s ease-out forwards',
         twinkle: 'twinkle 0.3s ease-in-out',
         'twinkle-ring': 'twinkleRing 0.3s ease-out',
       },
