@@ -252,7 +252,7 @@ export const UPDATE_ME_SCHEMA = Joi.object({
     address: Joi.string().max(50).messages({
         'string.max': 'Địa chỉ không được vượt quá 50 ký tự'
     }),
-    refreshToken: Joi.string().default(null),
+    refreshToken: Joi.string().allow(null).default(null),
     phone: Joi.string()
         .pattern(/^[0-9]+$/)
         .min(10)

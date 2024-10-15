@@ -1,8 +1,7 @@
 import express from 'express';
 import { categoryController } from '~/controllers/categoryController';
 import multer from 'multer';
-import verifyAdmin from '~/middlewares/verifyAdmin';
-import verifyToken from '~/middlewares/verifyToken';
+import { verifyToken as verifyStaff } from '~/middlewares/verifyRole';
 import path from 'path';
 import { uploadModel } from '~/models/uploadModel';
 
@@ -29,28 +28,24 @@ Router.get('/slug/:slug', categoryController.getCategoryBySlug);
 Router.get('/:id', categoryController.getCategoryById);
 Router.post(
   '/',
-  verifyToken,
-  verifyAdmin,
+  verifyStaff,
   upload.single('image'),
   categoryController.createCategory
 );
 Router.put(
   '/:id',
-  verifyToken,
-  verifyAdmin,
+  verifyStaff,
   upload.single('image'),
   categoryController.update
 );
 Router.delete(
   '/:id',
-  verifyToken,
-  verifyAdmin,
+  verifyStaff,
   categoryController.deleteCategory
 );
 Router.post(
   '/many',
-  verifyToken,
-  verifyAdmin,
+  verifyStaff,
   categoryController.deleteManyCategory
 );
 
