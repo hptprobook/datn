@@ -18,10 +18,12 @@ Router.get('/', verifyToken, verifyAdmin, orderController.getAllOrder);
 Router.post('/', verifyToken, orderController.addOrder);
 Router.put('/:id', verifyToken, orderController.updateOrder);
 Router.delete('/:idOrder', verifyToken, orderController.removeOrder);
-
 Router.post('/check_stock', verifyToken, orderController.checkStockProducts);
 Router.post('/update_stock', verifyToken, orderController.updateStockProducts);
-
-Router.post('/test', orderController.updateStockProducts);
+// notlogin
+Router.get('/not/:orderCode', orderController.findOrderByCode);
+Router.post('/not', orderController.addOrderNot);
+Router.put('/not/:id', orderController.updateOrder);
+Router.delete('/not/:idOrder', orderController.removeOrder);
 
 export const ordersApi = Router;
