@@ -51,11 +51,19 @@ const getCategoriesByParentId = async (category_id) => {
 
 const getCategoryById = async (category_id) => {
   const db = await GET_DB().collection('categories');
+
   const category = await db.findOne({ _id: new ObjectId(category_id) });
-  if (!category) {
-    throw new Error('Có lỗi xảy ra, xin thử lại sau');
-  }
   return category;
+};
+
+const getCategoryByIds = async (ids) => {
+  const db = await GET_DB().collection('categories');
+
+  const categories = await db.find({
+    _id: { $in: ids.map((id) => new ObjectId(id)) },
+  });
+
+  return categories;
 };
 
 const getCategoryBySlug = async (slug) => {
@@ -133,13 +141,18 @@ const deleteCategory = async (id) => {
 };
 
 const deleteManyCategories = async (ids) => {
+  if (!Array.isArray(ids)) {
+    throw new Error('Ids phải là một mảng');
+  }
+
   const db = GET_DB().collection('categories');
+
   const categories = await db
     .find({ _id: { $in: ids.map((id) => new ObjectId(id)) } })
     .toArray();
 
   if (!categories || categories.length === 0) {
-    throw new Error('Không tìm thấy thương hiệu nào');
+    throw new Error('Không tìm thấy danh mục nào');
   }
 
   const result = await db.deleteMany({
@@ -147,13 +160,25 @@ const deleteManyCategories = async (ids) => {
   });
 
   if (result.deletedCount === 0) {
-    throw new Error('Xóa  không thành công');
+    throw new Error('Xóa không thành công');
   }
 
-  const images = categories.map((cat) => cat.imageURL);
+  const remainingCategories = await db
+    .find({ _id: { $in: ids.map((id) => new ObjectId(id)) } })
+    .toArray();
+
+  const remainingIds = remainingCategories.map((cat) => cat._id.toString());
+
+  const deletedIds = ids.filter((id) => !remainingIds.includes(id));
+
+  const images = categories
+    .filter((cat) => deletedIds.includes(cat._id.toString()))
+    .map((cat) => cat.imageURL);
 
   return {
     images,
+    deletedIds,
+    failedIds: remainingIds,
   };
 };
 
@@ -164,6 +189,7 @@ export const categoryModel = {
   update,
   deleteCategory,
   getCategoryById,
+  getCategoryByIds,
   getCategoriesByParentId,
   deleteAllChildCategories,
   getCategoryBySlug,

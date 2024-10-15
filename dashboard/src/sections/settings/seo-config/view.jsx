@@ -4,18 +4,15 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import { Box, Tab, Tabs, Button } from '@mui/material';
+import { Box, Tab, Tabs, Button, IconButton } from '@mui/material';
 import { useRef, useState, useEffect } from 'react';
 import { PropTypes } from 'prop-types';
 import * as Yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  setStatus,
-  getConfigSeo,
-  updateConfigSeo,
-} from 'src/redux/slices/settingSlices';
+import { setStatus, getConfigSeo, updateConfigSeo } from 'src/redux/slices/settingSlices';
 import { useFormik } from 'formik';
 import { handleToast } from 'src/hooks/toast';
+import Iconify from 'src/components/iconify';
 import EditableField from '../edit-field';
 // ----------------------------------------------------------------------
 const configSchema = Yup.object().shape({
@@ -143,17 +140,11 @@ export default function SeoConfigPage() {
   const [inputSelect, setInputSelect] = useState('');
   return (
     <Container>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
+      <Stack direction="row" alignItems="center" mb={5} spacing={1}>
         <Typography variant="h4">Thông tin Seo</Typography>
-
-        {/* <Button
-          variant="contained"
-          color="inherit"
-          startIcon={<Iconify icon="eva:plus-fill" />}
-          onClick={() => route.push('create')}
-        >
-          Thêm người dùng
-        </Button> */}
+        <IconButton onClick={() => dispatch(getConfigSeo())}>
+          <Iconify icon="mdi:reload" />
+        </IconButton>
       </Stack>
       {status === 'succeeded' && formik.initialValues && (
         <form onSubmit={formik.handleSubmit}>
@@ -174,8 +165,10 @@ export default function SeoConfigPage() {
                 <Tab label="Cơ bản" {...a11yProps(0)} />
                 <Tab label="Nâng cao" {...a11yProps(1)} />
               </Tabs>
-              {/* Thông tin cơ bản */}
               <TabPanel value={value} index={0}>
+                <Typography variant="h6" mb={3}>
+                  Thông tin cơ bản
+                </Typography>
                 <Grid2 container spacing={2}>
                   <Grid2 xs={12}>
                     <EditableField
@@ -199,7 +192,9 @@ export default function SeoConfigPage() {
                       value={formik.values.metaDescription}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
-                      error={formik.touched.metaDescription && Boolean(formik.errors.metaDescription)}
+                      error={
+                        formik.touched.metaDescription && Boolean(formik.errors.metaDescription)
+                      }
                       helperText={formik.touched.metaDescription && formik.errors.metaDescription}
                       inputSelect={inputSelect}
                       setInputSelect={setInputSelect}
@@ -241,7 +236,9 @@ export default function SeoConfigPage() {
               </TabPanel>
               {/* Thông tin thanh toán */}
               <TabPanel value={value} index={1}>
-                hello
+                <Typography variant="h6" mb={3}>
+                  Thông tin nâng cao
+                </Typography>
               </TabPanel>
             </Box>
             <Stack
