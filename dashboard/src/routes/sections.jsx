@@ -2,7 +2,9 @@ import { lazy, Suspense } from 'react';
 import { Outlet, Navigate, useRoutes } from 'react-router-dom';
 
 import { Box, LinearProgress, linearProgressClasses } from '@mui/material';
-import { ProtectedRoute } from './components/ProtectedRoute';
+import DashboardLayout from 'src/layouts/dashboard';
+import WarehouseLayout from 'src/layouts/warehouse';
+import { ProtectedRoute } from './components/dashboard-protected';
 import { configPath } from './utils';
 // ----------------------------------------------------------------------
 export const IndexPage = lazy(() => import('src/pages/app'));
@@ -105,12 +107,32 @@ export default function Router() {
     {
       element: (
         <ProtectedRoute>
-          <Suspense fallback={renderFallback}>
-            <Outlet />
-          </Suspense>
+          <DashboardLayout>
+            <Suspense fallback={renderFallback}>
+              <Outlet />
+            </Suspense>
+          </DashboardLayout>
         </ProtectedRoute>
       ),
       children: childRoutes,
+    },
+    {
+      path: 'dashboard',
+      element: (
+        <ProtectedRoute>
+          <WarehouseLayout>
+            <Suspense fallback={renderFallback}>
+              <Outlet />
+            </Suspense>
+          </WarehouseLayout>
+        </ProtectedRoute>
+      ),
+      children: [
+        {
+          index: true,
+          element: <Box>test</Box>,
+        },
+      ],
     },
     {
       path: 'login',

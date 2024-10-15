@@ -1,41 +1,29 @@
 import Joi from 'joi';
 
 export const SAVE_USER_SCHEMA = Joi.object({
-  name: Joi.string()
-    .trim()
-    .min(1)
-    .max(30)
-    .required()
-    .messages({
-      'string.empty': 'Tên không được để trống',
-      'string.min': 'Tên phải có ít nhất 1 ký tự',
-      'string.max': 'Tên không được vượt quá 30 ký tự',
-      'any.required': 'Tên là bắt buộc'
-    }),
-  email: Joi.string()
-    .email()
-    .required()
-    .messages({
-      'string.empty': 'Email không được để trống',
-      'string.email': 'Email không hợp lệ',
-      'any.required': 'Email là bắt buộc'
-    }),
-  password: Joi.string()
-    .trim()
-    .min(1)
-    .required()
-    .messages({
-      'string.empty': 'Mật khẩu không được để trống',
-      'any.required': 'Mật khẩu là bắt buộc'
-    }),
+  name: Joi.string().trim().min(1).max(30).required().messages({
+    'string.empty': 'Tên không được để trống',
+    'string.min': 'Tên phải có ít nhất 1 ký tự',
+    'string.max': 'Tên không được vượt quá 30 ký tự',
+    'any.required': 'Tên là bắt buộc',
+  }),
+  email: Joi.string().email().required().messages({
+    'string.empty': 'Email không được để trống',
+    'string.email': 'Email không hợp lệ',
+    'any.required': 'Email là bắt buộc',
+  }),
+  password: Joi.string().trim().min(1).required().messages({
+    'string.empty': 'Mật khẩu không được để trống',
+    'any.required': 'Mật khẩu là bắt buộc',
+  }),
   otp: Joi.string(),
   addresses: Joi.array().items(
     Joi.object({
       name: Joi.string().max(50).messages({
-        'string.max': 'Tên địa chỉ không được vượt quá 50 ký tự'
+        'string.max': 'Tên địa chỉ không được vượt quá 50 ký tự',
       }),
       phone: Joi.string().max(50).messages({
-        'string.max': 'Số điện thoại không được vượt quá 50 ký tự'
+        'string.max': 'Số điện thoại không được vượt quá 50 ký tự',
       }),
       province_id: Joi.number().integer(),
       district_id: Joi.number().integer(),
@@ -59,7 +47,7 @@ export const SAVE_USER_SCHEMA = Joi.object({
     .valid('root', 'admin', 'staff', 'user', 'ban')
     .default('user')
     .messages({
-      'any.only': 'Vai trò không hợp lệ'
+      'any.only': 'Vai trò không hợp lệ',
     }),
   allowNotifies: Joi.boolean().default(false),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
@@ -69,26 +57,21 @@ export const SAVE_USER_SCHEMA = Joi.object({
 });
 
 export const UPDATE_USER = Joi.object({
-  name: Joi.string()
-    .trim()
-    .min(1)
-    .max(30)
-    .required()
-    .messages({
-      'string.empty': 'Tên không được để trống',
-      'string.min': 'Tên phải có ít nhất 1 ký tự',
-      'string.max': 'Tên không được vượt quá 30 ký tự',
-      'any.required': 'Tên là bắt buộc'
-    }),
+  name: Joi.string().trim().min(1).max(30).required().messages({
+    'string.empty': 'Tên không được để trống',
+    'string.min': 'Tên phải có ít nhất 1 ký tự',
+    'string.max': 'Tên không được vượt quá 30 ký tự',
+    'any.required': 'Tên là bắt buộc',
+  }),
   password: Joi.string(),
   otp: Joi.string(),
   addresses: Joi.array().items(
     Joi.object({
       name: Joi.string().max(50).messages({
-        'string.max': 'Tên địa chỉ không được vượt quá 50 ký tự'
+        'string.max': 'Tên địa chỉ không được vượt quá 50 ký tự',
       }),
       phone: Joi.string().max(50).messages({
-        'string.max': 'Số điện thoại không được vượt quá 50 ký tự'
+        'string.max': 'Số điện thoại không được vượt quá 50 ký tự',
       }),
       province_id: Joi.number().integer(),
       district_id: Joi.number().integer(),
@@ -112,7 +95,7 @@ export const UPDATE_USER = Joi.object({
     .valid('root', 'admin', 'staff', 'user', 'ban')
     .default('user')
     .messages({
-      'any.only': 'Vai trò không hợp lệ'
+      'any.only': 'Vai trò không hợp lệ',
     }),
   allowNotifies: Joi.boolean().default(false),
   updatedAt: Joi.date().timestamp('javascript').default(Date.now),
@@ -121,12 +104,15 @@ export const UPDATE_USER = Joi.object({
 });
 
 export const FAVORITE_PRODUCT = Joi.array().items(
-  Joi.string()
-    .trim()
-    .min(1)
-    .required()
-    .messages({
-      'string.empty': 'Sản phẩm không được để trống',
-      'any.required': 'Sản phẩm là bắt buộc',
-    })
+  Joi.string().trim().min(1).required().messages({
+    'string.empty': 'Sản phẩm không được để trống',
+    'any.required': 'Sản phẩm là bắt buộc',
+  })
+);
+
+export const VIEW_PRODUCT = Joi.array().items(
+  Joi.string().trim().min(1).required().messages({
+    'string.empty': 'Sản phẩm không được để trống',
+    'any.required': 'Sản phẩm là bắt buộc',
+  })
 );

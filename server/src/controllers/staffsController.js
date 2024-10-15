@@ -1,0 +1,182 @@
+
+import { createStaffToken } from '~/utils/helper';
+import { staffsModel } from '../models/staffsModel';
+import { StatusCodes } from 'http-status-codes';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+
+const createStaff = async (req, res) => {
+    try {
+        const data = req.body;
+        const existStaff = await staffsModel.getStaffBy('email', data.email);
+        if (existStaff) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: 'Email đã tồn tại',
+            });
+        }
+        const existStaffCode = await staffsModel.getStaffBy('staffCode', data.staffCode);
+        if (existStaffCode) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: 'Mã nhân viên đã tồn tại',
+            });
+        }
+        const hash = await bcrypt.hash(data.password, 8);
+        data.password = hash;
+        const result = await staffsModel.createStaff(data);
+        res.status(StatusCodes.CREATED).json({
+            result
+        });
+    }
+    catch (error) {
+        res.status(StatusCodes.BAD_REQUEST).json({
+            message: error.message,
+        });
+    }
+}
+const getStaffBy = async (req, res) => {
+    try {
+        const { value } = req.params;
+        const { by } = req.query;
+        if (!by || by !== '_id' && by !== 'email' && by !== 'staffCode' && by !== 'cccd' && by !== 'bankAccount' && by !== 'phone') {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: 'Thiếu thông tin hoặc thông tin không hợp lệ',
+            });
+        }
+        const staff = await staffsModel.getStaffBy(by, value);
+        if (!staff) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: 'Không tồn tại nhân viên',
+            });
+        }
+        delete staff.password;
+        res.status(200).json(staff);
+    }
+    catch (error) {
+        res.status(StatusCodes.BAD_REQUEST).json({
+            message: error.message,
+        });
+    }
+}
+const getMe = async (req, res) => {
+    try {
+        const { user_id } = req.user;
+        const { exp } = req.user;
+        const { refreshToken } = req.cookies;
+        if (!refreshToken) {
+            return res.status(401).json({
+                message: 'Phiên đăng nhập hết hạn',
+            });
+        }
+        if (exp - Date.now() / 1000 > 60 * 60 * 24) {
+            const decodedToken = jwt.verify(refreshToken, process.env.SECRET_STAFF);
+            if (!decodedToken) {
+                return res.status(401).json({
+                    message: 'Phiên đăng nhập hết hạn',
+                });
+            }
+            const staff = await staffsModel.getStaffBy('_id', user_id);
+            if (!staff) {
+                return res.status(401).json({
+                    message: 'Không tồn tại nhân viên',
+                });
+            }
+            staff.token = createStaffToken(staff);
+            delete staff.password;
+            delete staff.refreshToken;
+            return res.status(200).json(staff);
+        }
+        const staff = await staffsModel.getStaffBy('_id', user_id);
+        if (!staff) {
+            return res.status(401).json({
+                message: 'Không tồn tại nhân viên',
+            });
+        }
+        delete staff.password;
+        delete staff.refreshToken;
+        res.status(StatusCodes.CREATED).json(staff);
+    }
+    catch (error) {
+        if (error instanceof jwt.TokenExpiredError) {
+            return res.status(401).json({
+                message: 'Phiên đăng nhập hết hạn',
+            });
+        }
+        res.status(StatusCodes.BAD_REQUEST).json({
+            message: error.message,
+        });
+    }
+}
+const getStaffs = async (req, res) => {
+    try {
+        const staffs = await staffsModel.getStaffs();
+        res.status(StatusCodes.OK).json(staffs);
+    }
+    catch (error) {
+        res.status(StatusCodes.BAD_REQUEST).json({
+            message: error.message,
+        });
+    }
+}
+const loginStaff = async (req, res) => {
+    try {
+        const { type, main, password } = req.body;
+        if (!type || type !== 'email' && type !== 'staffCode' && type !== 'cccd' && type !== 'phone') {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: 'Tên đăng nhập không hợp lệ',
+            });
+        }
+        const staff = await staffsModel.getStaffBy(type, main);
+        if (!staff) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: 'Tài khoản đăng nhập không tồn tại',
+            });
+        }
+
+        const checkPass = await bcrypt.compare(password, staff.password);
+
+        if (!checkPass) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: 'Mật khẩu không đúng',
+            });
+        }
+        const token = createStaffToken(staff);
+        const refreshToken = createStaffToken(staff, 'refresh');
+        await staffsModel.updateMe(staff._id, { refreshToken });
+        const tokenOption = {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'None',
+        };
+        staff.token = token;
+        delete staff.password;
+        delete staff.refreshToken;
+        res.status(200).cookie('refreshToken', refreshToken, tokenOption).json(staff);
+    }
+    catch (error) {
+        res.status(StatusCodes.BAD_REQUEST).json({
+            message: error.message,
+        });
+    }
+}
+const logoutStaff = async (req, res) => {
+    try {
+        const { user_id } = req.user;
+        await staffsModel.updateMe(user_id, { refreshToken: null });
+        return await res.clearCookie('refreshToken').status(StatusCodes.OK).json({
+            message: 'Đăng xuất thành công',
+        });
+    }
+    catch (error) {
+        res.status(StatusCodes.BAD_REQUEST).json({
+            message: error.message,
+        });
+    }
+}
+export const staffsController = {
+    createStaff,
+    getStaffBy,
+    getStaffs,
+    loginStaff,
+    getMe,
+    logoutStaff
+}

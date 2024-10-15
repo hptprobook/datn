@@ -17,6 +17,8 @@ import PropTypes from 'prop-types';
 import UserLoggedBar from './UserLoggedBar';
 import { useWishlist } from '~/context/WishListContext';
 import WishList from '~/components/common/Product/WishList';
+import { useQuery } from '@tanstack/react-query';
+import { getCurrentUser } from '~/APIs';
 
 const Header = () => {
   const { isAuthenticated } = useCheckAuth();
@@ -29,6 +31,14 @@ const Header = () => {
   const { wishlistItems, removeFromWishlist } = useWishlist();
 
   const { items } = useCart();
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['getCurrentUser'],
+    queryFn: getCurrentUser,
+    enabled: isAuthenticated,
+  });
+
+  const currentUserInfor = data ? data : null;
 
   return (
     <div>
@@ -70,9 +80,7 @@ const Header = () => {
             </div>
             {/* Kiểm tra trạng thái đăng nhập */}
             {isAuthenticated ? (
-              <NavLink to={'/nguoi-dung/tai-khoan'}>
-                <UserLoggedBar />
-              </NavLink>
+              <UserLoggedBar currentUserInfor={currentUserInfor} />
             ) : (
               <UserBar />
             )}

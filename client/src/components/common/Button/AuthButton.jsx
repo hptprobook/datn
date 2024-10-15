@@ -1,7 +1,7 @@
 /* eslint-disable indent */
 import PropTypes from 'prop-types';
 
-const AuthButton = ({ text, isLoading, type = 'button', ...rest }) => {
+const AuthButton = ({ text, isLoading, type = 'button' }) => {
   return (
     <button
       className={`inline-block shrink-0 rounded-md px-12 py-3 text-sm font-medium transition focus:outline-none focus:ring w-full md:w-auto
@@ -12,7 +12,6 @@ const AuthButton = ({ text, isLoading, type = 'button', ...rest }) => {
       }
       `}
       type={type}
-      {...rest}
       disabled={isLoading}
     >
       {isLoading ? 'Đang xử lý...' : text}
@@ -24,7 +23,6 @@ AuthButton.propTypes = {
   text: PropTypes.string,
   isLoading: PropTypes.bool,
   type: PropTypes.string,
-  ...PropTypes.any,
 };
 
 export default AuthButton;

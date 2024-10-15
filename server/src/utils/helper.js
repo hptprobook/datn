@@ -26,14 +26,17 @@ export const createRefreshToken = (user, expiresIn = 15 * 60 * 60) => {
     }
     return jwt.sign(dataToken, refresh_secret, { expiresIn });
 };
-
-// export const refreshToken = (token) => {
-//     try {
-//         const decoded = jwt.verify(token, process.env.SECRET);
-//         const refreshTime = 15 * 60 * 60; // 15 days in seconds
-//         const newToken = createToken(decoded, refreshTime);
-//         return newToken;
-//     } catch (error) {
-//         return null;
-//     }
-// };
+export const createStaffToken = (user, type = 'token') => {
+    const expiresIn = type === 'token' ? 6 * 60 * 60 : 15 * 60 * 60;
+    const dataToken = {
+        user_id: user._id,
+        email: user.email,
+        role: user.role,
+        branchId: user.branchId,
+    };
+    const secret = process.env.SECRET_STAFF;
+    if (!secret) {
+        throw new Error('Missing JWT secret in environment variables');
+    }
+    return jwt.sign(dataToken, secret, { expiresIn });
+};

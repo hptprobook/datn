@@ -6,6 +6,8 @@ import { sendMail } from '~/utils/mail';
 import { createToken, createRefreshToken } from '~/utils/helper';
 // import { userModel } from '~/models/userModel';
 import jwt from 'jsonwebtoken';
+import https from 'https';
+
 const register = async (req, res) => {
     try {
         const dataRegister = req.body;
@@ -103,6 +105,45 @@ const login = async (req, res) => {
             .cookie('refreshToken', refreshToken, tokenOption)
             .status(StatusCodes.OK)
             .json(user);
+    } catch (error) {
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            message: ERROR_MESSAGES.ERR_AGAIN,
+            error: error,
+        });
+    }
+};
+
+const changePassword = async (req, res) => {
+    try {
+        const { email } = req.user;
+        const { password, newPassword } = req.body;
+        if (!password) {
+            return res
+                .status(StatusCodes.BAD_REQUEST)
+                .json({ message: 'Thiêu thông tin mật khẩu' });
+        }
+        if (!newPassword) {
+            return res
+                .status(StatusCodes.BAD_REQUEST)
+                .json({ message: 'Thiếu thông tin mật khẩu mới' });
+        }
+        const user = await authModel.getUserEmail(email);
+        const checkPass = await bcrypt.compare(password, user.password);
+        if (!checkPass) {
+            return res
+                .status(StatusCodes.BAD_REQUEST)
+                .json({ message: ERROR_MESSAGES.WRONG_PASSWORD });
+        }
+        const hash = await bcrypt.hashSync(newPassword, 8);
+        if (!hash) {
+            return res
+                .status(StatusCodes.BAD_REQUEST)
+                .json({ message: 'Có lỗi bảo mật xảy ra' });
+        }
+        await authModel.update(user._id, { password: hash });
+        return res
+            .status(StatusCodes.OK)
+            .json({ message: 'Thay đổi mật khẩu thành công' });
     } catch (error) {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             message: ERROR_MESSAGES.ERR_AGAIN,
@@ -240,11 +281,21 @@ const refreshToken = async (req, res) => {
                 .json({ message: 'Thiếu dữ liệu refresh token' });
         }
         const token_secret = process.env.REFRESH_SECRET;
-        const decodedToken = jwt.verify(
-            refreshToken,
-            token_secret
-        );
+        const decodedToken = jwt.verify(refreshToken, token_secret);
         const { user_id } = decodedToken;
+
+        // Tìm user dựa trên user_id từ token
+        const datauser = await authModel.findUserID(user_id);
+        if (!datauser) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: 'Xác thực không thành công. Vui lòng đăng nhập lại',
+            });
+        }
+        if (user.refreshToken !== refreshToken) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: 'Xác thực không thành công. Vui lòng đăng nhập lại',
+            });
+        }
 
         // Tìm user dựa trên user_id từ token
         const user = await authModel.findUserID(user_id);
@@ -288,6 +339,59 @@ const refreshToken = async (req, res) => {
     }
 };
 
+const sendSMS = (req, res) => {
+    const { phoneNumbers, message } = req.body;
+
+    var options = {
+        method: 'POST',
+        hostname: '388q11.api.infobip.com',
+        path: '/sms/2/text/advanced',
+        headers: {
+            Authorization:
+                'App 6d63ec2412fcb421db2c2d8d14ad0f6e-55681b98-beaa-4bdb-90d1-1961ad02c0d1',
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+        },
+        maxRedirects: 20,
+    };
+
+    var reqSms = https.request(options, function (resSms) {
+        var chunks = [];
+
+        resSms.on('data', function (chunk) {
+            chunks.push(chunk);
+        });
+
+        resSms.on('end', function () {
+            var body = Buffer.concat(chunks);
+            res.status(200).json({
+                message: 'Mã OTP đã được gửi đi',
+                data: body.toString(),
+            });
+        });
+
+        resSms.on('error', function (error) {
+            res.status(500).json({ message: 'Gửi tin nhắn thất bại', error });
+        });
+    });
+
+    const destinations = phoneNumbers.map((phoneNumber) => ({
+        to: phoneNumber,
+    }));
+
+    var postData = JSON.stringify({
+        messages: [
+            {
+                destinations,
+                from: '447491163443',
+                text: message || 'Mã OTP của bạn là 123456',
+            },
+        ],
+    });
+
+    reqSms.write(postData);
+    reqSms.end();
+};
 
 export const authController = {
     getOtp,
@@ -297,4 +401,6 @@ export const authController = {
     checkOtp,
     changePassWordByOtp,
     refreshToken,
+    sendSMS,
+    changePassword,
 };

@@ -4,6 +4,7 @@ import {
   SAVE_USER_SCHEMA,
   UPDATE_USER,
   FAVORITE_PRODUCT,
+  VIEW_PRODUCT,
 } from '~/utils/schema/userSchema';
 
 const validateBeforeCreate = async (data) => {
@@ -12,6 +13,10 @@ const validateBeforeCreate = async (data) => {
 
 const validateBeforeFavorite = async (data) => {
   return await FAVORITE_PRODUCT.validateAsync(data, { abortEarly: false });
+};
+
+const validateBeforeView = async (data) => {
+  return await VIEW_PRODUCT.validateAsync(data, { abortEarly: false });
 };
 
 const countUserAll = async () => {
@@ -112,6 +117,27 @@ const favoriteProduct = async (id, userId) => {
   return result;
 };
 
+const viewProduct = async (id, userId) => {
+  const validData = await validateBeforeView([id]);
+  const db = GET_DB().collection('users');
+
+  const result = await db.findOneAndUpdate(
+    { _id: new ObjectId(userId) },
+    {
+      $push: {
+        views: new ObjectId(validData[0]),
+      },
+    },
+    { returnDocument: 'after' }
+  );
+
+  if (!result) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
+  }
+
+  return result;
+};
+
 const removeFavoriteProduct = async (id, userId) => {
   const db = GET_DB().collection('users');
 
@@ -143,6 +169,17 @@ const getFavorite = async (id, userId) => {
   return result;
 };
 
+const getView = async (id, userId) => {
+  const db = GET_DB().collection('users');
+
+  const result = await db.findOne({
+    _id: new ObjectId(userId),
+    views: new ObjectId(id),
+  });
+
+  return result;
+};
+
 export const userModel = {
   getUserAll,
   register,
@@ -155,4 +192,6 @@ export const userModel = {
   favoriteProduct,
   getFavorite,
   removeFavoriteProduct,
+  getView,
+  viewProduct,
 };
