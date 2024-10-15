@@ -1,21 +1,22 @@
 import { Icon } from '@iconify/react';
-import { useQuery } from '@tanstack/react-query';
 import { NavLink } from 'react-router-dom';
-import { getCurrentUser } from '~/APIs';
+import useCheckAuth from '~/customHooks/useCheckAuth';
 
-const UserLoggedBar = () => {
-  const { data, isLoading } = useQuery({
-    queryKey: ['getCurrentUser'],
-    queryFn: getCurrentUser,
-  });
-
-  if (isLoading) return null;
-
-  const currentUserInfor = data ? data : null;
+const UserLoggedBar = ({ currentUserInfor }) => {
+  const { logout } = useCheckAuth();
+  const handleLogout = () => {
+    logout();
+  };
 
   return (
     <div className="relative text-2xl text-gray-50 cursor-pointer group z-30">
-      <Icon icon="solar:user-id-outline" />
+      {currentUserInfor?.avatar ? (
+        <NavLink to={'/nguoi-dung/tai-khoan'}>
+          <div className="">{currentUserInfor.avatar}</div>
+        </NavLink>
+      ) : (
+        <Icon icon="solar:user-id-outline" />
+      )}
       <div className="absolute min-w-64 top-11 right-0 bg-gray-100 text-black cursor-default py-4 text-xs shadow-md shadow-gray-200 hidden group-hover:block before:absolute before:w-8 before:h-5 before:-top-5 before:right-0 before:bg-transparent">
         <NavLink
           to={'/nguoi-dung/tai-khoan'}
@@ -67,11 +68,14 @@ const UserLoggedBar = () => {
               <span className="pl-3">Sản phẩm yêu thích</span>
             </NavLink>
           </div>
-          <div className="hover:bg-gray-200 hover:text-red-600">
-            <NavLink to={'#'} className="flex items-center py-3 text-sm  px-8">
+          <div
+            className="hover:bg-gray-200 hover:text-red-600"
+            onClick={handleLogout}
+          >
+            <div className="flex items-center py-3 text-sm px-8 cursor-pointer">
               <Icon icon="system-uicons:wrap-back" className="text-xl" />
               <span className="pl-3">Đăng xuất</span>
-            </NavLink>
+            </div>
           </div>
         </div>
       </div>

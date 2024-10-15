@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { logoutAPI } from '~/APIs';
 
 export default function useCheckAuth() {
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -13,6 +14,8 @@ export default function useCheckAuth() {
   const logout = useCallback(() => {
     localStorage.removeItem('token');
     setIsAuthenticated(false);
+    window.location.reload();
+    logoutAPI();
   }, []);
 
   const checkAuth = useCallback(() => {
