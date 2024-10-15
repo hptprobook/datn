@@ -32,6 +32,9 @@ export default {
         fvw: '100vw',
         container: '1200px',
       },
+      scale: {
+        101: '1.01',
+      },
       gridColumn: {
         'span-4.5': 'span 4.5 / span 4.5',
         'span-0.5': 'span 0.5 / span 0.5',

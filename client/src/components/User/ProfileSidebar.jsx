@@ -23,7 +23,7 @@ const ProfileSidebar = () => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed md:relative top-0 left-0 h-full md:h-auto w-full md:w-auto bg-white z-10 p-4 md:p-0 transform transition-transform ${
+        className={`fixed md:relative top-0 left-0 h-full md:h-auto w-full md:w-auto bg-white rounded-sm z-10 p-4 md:p-0 transform transition-transform ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } md:translate-x-0`}
       >

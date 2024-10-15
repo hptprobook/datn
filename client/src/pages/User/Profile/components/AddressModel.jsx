@@ -24,9 +24,9 @@ const AddressModel = ({ onClose, isOpen, address }) => {
         fullName: address.name || '',
         phone: address.phone || '',
         email: address.email || '',
-        province: '', // Set giá trị mặc định cho tỉnh
-        district: '', // Set giá trị mặc định cho quận/huyện
-        ward: '', // Set giá trị mặc định cho xã/phường
+        province: '',
+        district: '',
+        ward: '',
         address: address.address || '',
       });
     }
@@ -41,11 +41,11 @@ const AddressModel = ({ onClose, isOpen, address }) => {
   }, [isOpen, isClosing]);
 
   const handleClose = () => {
-    setIsClosing(true); // Bắt đầu quá trình đóng với hiệu ứng
+    setIsClosing(true);
     setTimeout(() => {
       setIsClosing(false);
-      onClose(); // Thực hiện đóng modal sau khi hiệu ứng trượt lên hoàn tất
-    }, 300); // Đảm bảo thời gian này khớp với thời gian hiệu ứng `slideUp`
+      onClose();
+    }, 300);
   };
 
   const handleInputChange = (e) => {
@@ -174,7 +174,7 @@ const AddressModel = ({ onClose, isOpen, address }) => {
 AddressModel.propTypes = {
   onClose: PropTypes.func.isRequired,
   isOpen: PropTypes.bool.isRequired,
-  address: PropTypes.object, // Có thể là null khi thêm mới
+  address: PropTypes.object,
 };
 
 export default AddressModel;
