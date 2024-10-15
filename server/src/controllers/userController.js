@@ -288,7 +288,6 @@ const favoriteProduct = async (req, res) => {
 const viewProduct = async (req, res) => {
   try {
     const { id } = req.params;
-
     const { userId } = req.body;
 
     if (!id || !userId) {
@@ -307,9 +306,7 @@ const viewProduct = async (req, res) => {
         message: 'Xem sản phẩm thành công',
       });
     } else {
-      return res.status(StatusCodes.OK).json({
-        message: 'Đã xem rồi',
-      });
+      return res.sendStatus(StatusCodes.NO_CONTENT);
     }
   } catch (error) {
     console.log(error);
