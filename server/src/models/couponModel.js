@@ -6,22 +6,16 @@ const validateBeforeCreate = async (data) => {
   return await CREATE_COUPONS.validateAsync(data, { abortEarly: false });
 };
 
-const getCoupons = async (page, limit) => {
-  try {
-    page = parseInt(page) || 1;
-    limit = parseInt(limit) || 12;
-    const db = await GET_DB().collection('coupons');
-    const result = await db
-      .find()
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .toArray();
-    return result;
-  } catch (error) {
-    return {
-      mgs: 'Có lỗi xảy ra xin thử lại sau',
-    };
-  }
+const getCoupons = async () => {
+  // page = parseInt(page) || 1;
+  // limit = parseInt(limit) || 12;
+  const db = await GET_DB().collection('coupons');
+  const result = await db
+    .find()
+    // .skip((page - 1) * limit)
+    // .limit(limit)
+    .toArray();
+  return result;
 };
 const findOneCoupons = async (code) => {
   const db = await GET_DB().collection('coupons');

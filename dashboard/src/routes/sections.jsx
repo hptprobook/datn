@@ -1,7 +1,9 @@
 import { lazy, Suspense } from 'react';
 import { Outlet, Navigate, useRoutes } from 'react-router-dom';
 
+import { Box, LinearProgress, linearProgressClasses } from '@mui/material';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { configPath } from './utils';
 // ----------------------------------------------------------------------
 export const IndexPage = lazy(() => import('src/pages/app'));
 // user page
@@ -52,50 +54,58 @@ export const DetailBlogPage = lazy(() => import('src/pages/blog/detail'));
 
 const childRoutes = [
   { element: <IndexPage />, index: true },
-  { path: 'user', element: <UserPage /> },
-  { path: 'user/create', element: <CreateUserPage /> },
-  { path: 'user/:id', element: <DetailUserPage /> },
-  { path: 'products', element: <ProductsPage /> },
-  { path: 'products/create', element: <CreateProductPage /> },
-  { path: 'products/:id', element: <DetailProductPage /> },
-  { path: 'blog', element: <BlogPage /> },
-  { path: 'blog/create', element: <CreateBlogPage /> },
-  { path: 'blog/:id', element: <DetailBlogPage /> },
-  { path: 'category', element: <CategoryPage /> },
-  { path: 'category/create', element: <CreateCategoryPage /> },
-  { path: 'category/:id', element: <EditCategoryPage /> },
-  { path: 'settings/nav', element: <NavDashboardPage /> },
-  { path: 'settings/nav/create', element: <NavDashboardCreatePage /> },
-  { path: 'settings/nav/:id', element: <NavUpdatePage /> },
-  { path: 'settings/web-config', element: <WebConfigPage /> },
-  { path: 'settings/seo-config', element: <SeoConfigPage /> },
-  { path: 'warehouse', element: <WarehousePage /> },
-  { path: 'warehouse/create', element: <WarehouseCreatePage /> },
-  { path: 'warehouse/:id', element: <WarehouseEditPage /> },
-  { path: 'coupons', element: <CouponsPage /> },
-  { path: 'coupons/create', element: <CreateCouponPage /> },
-  { path: 'coupons/:id', element: <CouponDetailPage /> },
-  { path: 'orders', element: <OrdersPage /> },
-  { path: 'orders/:id', element: <OrderDetailPage /> },
-  { path: 'suppliers', element: <SuppliersPage /> },
-  { path: 'suppliers/create', element: <SupplierCreatePage /> },
-  { path: 'suppliers/:id', element: <SupplierDetailPage /> },
-  { path: 'brands', element: <BrandsPage /> },
-  { path: 'brands/create', element: <BrandCreatePage /> },
-  { path: 'brands/:id', element: <BrandDetailPage /> },
+  { path: configPath.user, element: <UserPage /> },
+  { path: configPath.userCreate, element: <CreateUserPage /> },
+  { path: configPath.userDetail, element: <DetailUserPage /> },
+  { path: configPath.products, element: <ProductsPage /> },
+  { path: configPath.productCreate, element: <CreateProductPage /> },
+  { path: configPath.productDetail, element: <DetailProductPage /> },
+  { path: configPath.blog, element: <BlogPage /> },
+  { path: configPath.blogCreate, element: <CreateBlogPage /> },
+  { path: configPath.blogDetail, element: <DetailBlogPage /> },
+  { path: configPath.category, element: <CategoryPage /> },
+  { path: configPath.categoryCreate, element: <CreateCategoryPage /> },
+  { path: configPath.categoryDetail, element: <EditCategoryPage /> },
+  { path: configPath.nav, element: <NavDashboardPage /> },
+  { path: configPath.navCreate, element: <NavDashboardCreatePage /> },
+  { path: configPath.navDetail, element: <NavUpdatePage /> },
+  { path: configPath.webConfig, element: <WebConfigPage /> },
+  { path: configPath.seoConfig, element: <SeoConfigPage /> },
+  { path: configPath.warehouse, element: <WarehousePage /> },
+  { path: configPath.warehouseCreate, element: <WarehouseCreatePage /> },
+  { path: configPath.warehouseDetail, element: <WarehouseEditPage /> },
+  { path: configPath.coupons, element: <CouponsPage /> },
+  { path: configPath.couponsCreate, element: <CreateCouponPage /> },
+  { path: configPath.couponsDetail, element: <CouponDetailPage /> },
+  { path: configPath.orders, element: <OrdersPage /> },
+  { path: configPath.orderDetail, element: <OrderDetailPage /> },
+  { path: configPath.suppliers, element: <SuppliersPage /> },
+  { path: configPath.supplierCreate, element: <SupplierCreatePage /> },
+  { path: configPath.supplierDetail, element: <SupplierDetailPage /> },
+  { path: configPath.brands, element: <BrandsPage /> },
+  { path: configPath.brandCreate, element: <BrandCreatePage /> },
+  { path: configPath.brandDetail, element: <BrandDetailPage /> },
 ];
-export const routePath = childRoutes
-  .filter((item) => !item.path?.includes(':id'))
-  .map((item) => item.path)
-  .filter(Boolean);
-// Export mảng route
+
+const renderFallback = (
+  <Box display="flex" alignItems="center" justifyContent="center" flex="1 1 auto">
+    <LinearProgress
+      sx={{
+        width: 1,
+        maxWidth: 320,
+        bgcolor: (theme) => (theme.palette.mode === 'light' ? 'primary.lighter' : 'primary.dark'),
+        [`& .${linearProgressClasses.bar}`]: { bgcolor: 'text.primary' },
+      }}
+    />
+  </Box>
+);
 
 export default function Router() {
   return useRoutes([
     {
       element: (
         <ProtectedRoute>
-          <Suspense>
+          <Suspense fallback={renderFallback}>
             <Outlet />
           </Suspense>
         </ProtectedRoute>

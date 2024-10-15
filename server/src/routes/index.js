@@ -27,6 +27,7 @@ import { addressApi } from './addressRouter';
 import { webBannerApi } from './routeConfigs/webBannerRouter';
 import { blogApi } from './blogRouter';
 import { hotSearchApi } from './hotSearchRouter';
+import { staffsApi } from './staffsRouter';
 const Router = express.Router();
 
 Router.use('/auth', authApi);
@@ -34,6 +35,8 @@ Router.use('/users', usersApi);
 Router.use('/categories', categoriesApi);
 
 Router.use('/hotSearch', hotSearchApi);
+
+Router.use('/staffs', staffsApi);
 
 Router.use('/carts', cartsApi);
 Router.use('/orders', ordersApi);

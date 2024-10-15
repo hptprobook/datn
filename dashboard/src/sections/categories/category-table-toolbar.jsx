@@ -27,7 +27,7 @@ export default function CategoryTableToolbar({ numSelected, filterName, onFilter
     >
       {numSelected > 0 ? (
         <Typography component="div" variant="subtitle1">
-          {numSelected} selected
+          {numSelected} lựa chọn
         </Typography>
       ) : (
         <OutlinedInput

@@ -11,7 +11,12 @@ import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { resetDelete, deleteCategory, fetchAllCategories } from 'src/redux/slices/categorySlices';
+import {
+  resetDelete,
+  deleteCategory,
+  fetchAllCategories,
+  deleteManyCategory,
+} from 'src/redux/slices/categorySlices';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 import { handleToast } from 'src/hooks/toast';
@@ -55,6 +60,7 @@ export default function CategoryPage() {
   useEffect(() => {
     if (statusDelete === 'successful') {
       handleToast('success', 'Xóa Danh mục thành công');
+      setSelected([]);
       dispatch(resetDelete());
     }
   }, [statusDelete, dispatch]);
@@ -118,10 +124,6 @@ export default function CategoryPage() {
   const notFound = !dataFiltered.length && !!filterName;
   // to new category
   const navigate = useNavigate();
-
-  const handleNewCategoryClick = () => {
-    navigate('/category/create');
-  };
   const handleDelete = (id) => {
     setConfirm(id);
   };
@@ -129,7 +131,7 @@ export default function CategoryPage() {
     dispatch(deleteCategory(confirm));
   };
   const handleMultiDelete = () => {
-    console.log(selected);
+    dispatch(deleteManyCategory(selected));
   };
 
   const [confirm, setConfirm] = useState(false);
@@ -167,7 +169,7 @@ export default function CategoryPage() {
           variant="contained"
           color="inherit"
           startIcon={<Iconify icon="eva:plus-fill" />}
-          onClick={handleNewCategoryClick}
+          onClick={() => navigate('create')}
         >
           Tạo mới danh mục
         </Button>

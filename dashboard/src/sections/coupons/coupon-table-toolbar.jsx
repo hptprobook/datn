@@ -27,7 +27,7 @@ export default function CouponTableToolbar({ numSelected, filterName, onFilterNa
     >
       {numSelected > 0 ? (
         <Typography component="div" variant="subtitle1">
-          {numSelected} selected
+          {numSelected} đã chọn
         </Typography>
       ) : (
         <OutlinedInput
@@ -52,7 +52,7 @@ export default function CouponTableToolbar({ numSelected, filterName, onFilterNa
           </IconButton>
         </Tooltip>
       ) : (
-        <Tooltip title="Filter list">
+        <Tooltip title="Danh sách sắp xếp">
           <IconButton>
             <Iconify icon="ic:round-filter-list" />
           </IconButton>

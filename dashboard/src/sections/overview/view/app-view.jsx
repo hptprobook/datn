@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography';
 
 import Iconify from 'src/components/iconify';
 
+import { useState, useEffect } from 'react';
 import AppTasks from '../app-tasks';
 import AppNewsUpdate from '../app-news-update';
 import AppOrderTimeline from '../app-order-timeline';
@@ -19,10 +20,23 @@ import AppConversionRates from '../app-conversion-rates';
 // ----------------------------------------------------------------------
 
 export default function AppView() {
+  const now = new Date();
+  const currentHour = now.getHours(); // Lấy giờ hiện tại
+  const [mess, setMess] = useState(''); // Khởi tạo state cho thông điệp
+
+  useEffect(() => {
+    if (currentHour < 12) {
+      setMess('Chào buổi sáng');
+    } else if (currentHour < 18) {
+      setMess('Chào buổi chiều');
+    } else {
+      setMess('Chào buổi tối');
+    }
+  }, [currentHour]);
   return (
     <Container maxWidth="xl">
       <Typography variant="h4" sx={{ mb: 5 }}>
-        Hi, Welcome back 👋
+        {mess}, chào mừng trở lại 👋
       </Typography>
 
       <Grid container spacing={3}>

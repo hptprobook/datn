@@ -10,7 +10,6 @@ import Iconify from 'src/components/iconify';
 import { formatDateTime } from 'src/utils/format-time';
 
 // ----------------------------------------------------------------------
-const backendUrl = import.meta.env.VITE_BACKEND_APP_URL;
 
 export default function WarehouseTableRow({
   selected,

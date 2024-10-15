@@ -2,7 +2,7 @@
 import express from 'express';
 import { usersController } from '~/controllers/userController';
 import verifyAdmin from '~/middlewares/verifyAdmin';
-import { isAdmin } from '~/middlewares/verifyRole';
+import { verifyToken as verifyStaff } from '~/middlewares/verifyRole';
 import verifyToken from '~/middlewares/verifyToken';
 
 const Router = express.Router();
@@ -16,19 +16,20 @@ Router.get('/admin', verifyToken, verifyAdmin, (req, res) => {
   usersController.getCurrentAdmin(req, res);
 });
 
-Router.get('/:id', verifyToken, isAdmin, usersController.getUserById);
+Router.get('/:id', usersController.getUserById);
 Router.get('/email/:email', usersController.getUserByEmail);
 
 Router.put('/me', verifyToken, usersController.updateCurrentUser);
 Router.put('/me/password', verifyToken, usersController.changePassWord);
 
 // admin
-Router.get('/', verifyToken, verifyAdmin, usersController.getAllUsers);
-Router.put('/:id', verifyToken, isAdmin, usersController.updateUser);
-Router.delete('/:id', verifyToken, isAdmin, usersController.deleteUser);
-Router.post('/', verifyToken, isAdmin, usersController.createUser);
+Router.get('/', verifyStaff, usersController.getAllUsers);
+Router.put('/:id', verifyStaff, usersController.updateUser);
+Router.delete('/:id', verifyStaff, usersController.deleteUser);
+Router.post('/', verifyStaff, usersController.createUser);
 
 //favorite
 Router.post('/favorite/:id', usersController.favoriteProduct);
+Router.post('/view/:id', usersController.viewProduct);
 
 export const usersApi = Router;
