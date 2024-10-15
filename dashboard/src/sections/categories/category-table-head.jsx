@@ -75,5 +75,4 @@ CategoryTableHead.propTypes = {
   numSelected: PropTypes.number,
   onRequestSort: PropTypes.func,
   onSelectAllClick: PropTypes.func,
-  onFilterChange: PropTypes.func,
 };
