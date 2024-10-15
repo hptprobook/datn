@@ -111,6 +111,45 @@ const login = async (req, res) => {
     }
 };
 
+const changePassword = async (req, res) => {
+    try {
+        const { email } = req.user;
+        const { password, newPassword } = req.body;
+        if (!password) {
+            return res
+                .status(StatusCodes.BAD_REQUEST)
+                .json({ message: 'Thiêu thông tin mật khẩu' });
+        }
+        if (!newPassword) {
+            return res
+                .status(StatusCodes.BAD_REQUEST)
+                .json({ message: 'Thiếu thông tin mật khẩu mới' });
+        }
+        const user = await authModel.getUserEmail(email);
+        const checkPass = await bcrypt.compare(password, user.password);
+        if (!checkPass) {
+            return res
+                .status(StatusCodes.BAD_REQUEST)
+                .json({ message: ERROR_MESSAGES.WRONG_PASSWORD });
+        }
+        const hash = await bcrypt.hashSync(newPassword, 8);
+        if (!hash) {
+            return res
+                .status(StatusCodes.BAD_REQUEST)
+                .json({ message: 'Có lỗi bảo mật xảy ra' });
+        }
+        await authModel.update(user._id, { password: hash });
+        return res
+            .status(StatusCodes.OK)
+            .json({ message: 'Thay đổi mật khẩu thành công' });
+    } catch (error) {
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            message: ERROR_MESSAGES.ERR_AGAIN,
+            error: error,
+        });
+    }
+};
+
 const logout = async (req, res) => {
     return await res.clearCookie('refreshToken').status(StatusCodes.OK).json({
         message: 'Đăng xuất thành công',
@@ -240,10 +279,7 @@ const refreshToken = async (req, res) => {
                 .json({ message: 'Thiếu dữ liệu refresh token' });
         }
         const token_secret = process.env.REFRESH_SECRET;
-        const decodedToken = jwt.verify(
-            refreshToken,
-            token_secret
-        );
+        const decodedToken = jwt.verify(refreshToken, token_secret);
         const { user_id } = decodedToken;
 
         // Tìm user dựa trên user_id từ token
@@ -288,7 +324,6 @@ const refreshToken = async (req, res) => {
     }
 };
 
-
 export const authController = {
     getOtp,
     register,
@@ -296,5 +331,6 @@ export const authController = {
     logout,
     checkOtp,
     changePassWordByOtp,
+    changePassword,
     refreshToken,
 };

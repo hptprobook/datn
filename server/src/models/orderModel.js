@@ -1,9 +1,18 @@
 import { GET_DB } from '~/config/mongodb';
 import { ObjectId } from 'mongodb';
-import { SAVE_ORDER, UPDATE_ORDER } from '~/utils/schema/orderSchema';
+import {
+    SAVE_ORDER,
+    UPDATE_ORDER,
+    SAVE_ORDER_NOT_LOGIN,
+} from '~/utils/schema/orderSchema';
 
 const validateBeforeCreate = async (data) => {
     return await SAVE_ORDER.validateAsync(data, { abortEarly: false });
+};
+const validateBeforeCreateNot = async (data) => {
+    return await SAVE_ORDER_NOT_LOGIN.validateAsync(data, {
+        abortEarly: false,
+    });
 };
 const validateBeforeUpdate = async (data) => {
     return await UPDATE_ORDER.validateAsync(data, { abortEarly: false });
@@ -65,6 +74,31 @@ const addOrder = async (dataOrder) => {
         }),
     };
     const result = await collection.insertOne(data);
+    return result;
+};
+
+const addOrderNotLogin = async (dataOrder) => {
+    const validData = await validateBeforeCreateNot(dataOrder);
+    const db = await GET_DB();
+    const collection = db.collection('orders');
+    const data = {
+        ...validData,
+        productsList: validData.productsList.map((item) => {
+            return {
+                ...item,
+                _id: new ObjectId(item._id),
+            };
+        }),
+    };
+    const result = await collection.insertOne(data);
+    return result;
+};
+
+const findOrderByCode = async (orderCode) => {
+    const db = await GET_DB().collection('orders');
+    const result = await db.findOne({
+        orderCode: orderCode,
+    });
     return result;
 };
 
@@ -166,7 +200,8 @@ export const orderModel = {
     checkStockProducts,
     updateSingleProductStock,
     // updateStockProducts,
-
+    addOrderNotLogin,
     getOrderById,
     getStatusOrder,
+    findOrderByCode,
 };
