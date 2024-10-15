@@ -2,18 +2,18 @@
 import express from 'express';
 import { orderController } from '~/controllers/orderController';
 
-import verifyAdmin from '~/middlewares/verifyAdmin';
 
 import verifyToken from '~/middlewares/verifyToken';
+import { verifyToken as verifyStaff } from '~/middlewares/verifyRole';
 const Router = express.Router();
 
 // Orders
-Router.get('/', verifyToken, verifyAdmin, orderController.getAllOrder);
+Router.get('/', verifyStaff, orderController.getAllOrder);
 Router.get('/:id', verifyToken, orderController.getOrderById);
 Router.get('/me/current', verifyToken, orderController.getCurrentOrder);
 
 // Carts
-Router.get('/', verifyToken, verifyAdmin, orderController.getAllOrder);
+Router.get('/', verifyStaff, orderController.getAllOrder);
 
 Router.post('/', verifyToken, orderController.addOrder);
 Router.put('/:id', verifyToken, orderController.updateOrder);
