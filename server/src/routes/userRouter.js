@@ -30,5 +30,6 @@ Router.post('/', verifyStaff, usersController.createUser);
 
 //favorite
 Router.post('/favorite/:id', usersController.favoriteProduct);
+Router.post('/view/:id', usersController.viewProduct);
 
 export const usersApi = Router;

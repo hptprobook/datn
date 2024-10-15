@@ -43,8 +43,7 @@ const createUser = async (req, res) => {
 
     const result = await userModel.register(data);
     return res.status(StatusCodes.OK).json(result);
-  }
-  catch (error) {
+  } catch (error) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       message: ERROR_MESSAGES.ERR_AGAIN,
       error: error,
@@ -216,9 +215,7 @@ const updateUser = async (req, res) => {
     }
     const dataUser = await userModel.update(id, data);
     if (dataUser) {
-      return res
-        .status(StatusCodes.OK)
-        .json(dataUser);
+      return res.status(StatusCodes.OK).json(dataUser);
     }
   } catch (error) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
@@ -287,6 +284,38 @@ const favoriteProduct = async (req, res) => {
   }
 };
 
+const viewProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userId } = req.body;
+
+    if (!id || !userId) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: ERROR_MESSAGES.REQUIRED,
+      });
+    }
+
+    const view = await userModel.getView(id, userId);
+    if (!view) {
+      const result = await userModel.viewProduct(id, userId);
+      if (result.error) {
+        return res.status(StatusCodes.BAD_REQUEST).json(result.detail);
+      }
+      return res.status(StatusCodes.OK).json({
+        message: 'Xem sản phẩm thành công',
+      });
+    } else {
+      return res.sendStatus(StatusCodes.NO_CONTENT);
+    }
+  } catch (error) {
+    console.log(error);
+
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
+  }
+};
+
 export const usersController = {
   getUserById,
   getCurrentUser,
@@ -298,5 +327,6 @@ export const usersController = {
   getAllUsers,
   deleteUser,
   favoriteProduct,
-  createUser
+  createUser,
+  viewProduct,
 };
