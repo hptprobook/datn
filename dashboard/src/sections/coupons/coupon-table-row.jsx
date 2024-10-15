@@ -58,7 +58,14 @@ export default function CouponTableRow({
           </Typography>
         </TableCell>
 
-        <TableCell>{type}</TableCell>
+        <TableCell>
+
+        {(type === 'percent' && 'Phần trăm') ||
+           (type === 'price' && 'Giá tiền') ||
+           (type === 'shipping' && 'Phí ship') ||
+           type}
+
+        </TableCell>
 
         <TableCell>{minPurchasePrice}</TableCell>
 
@@ -78,7 +85,7 @@ export default function CouponTableRow({
           </Label>
         </TableCell>
 
-        <TableCell>{limitOnUser ? 'Yes' : 'No'}</TableCell>
+        <TableCell>{limitOnUser ? 'Có' : 'Không'}</TableCell>
 
         <TableCell>{new Date(dateStart).toLocaleDateString()}</TableCell>
 
