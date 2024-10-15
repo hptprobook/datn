@@ -3,7 +3,10 @@ import { NavLink } from 'react-router-dom';
 
 const BackToHome = () => {
   return (
-    <NavLink to={'/'} className="hover:text-red-600 flex items-center gap-4">
+    <NavLink
+      to={'/'}
+      className="hover:text-red-600 flex items-center gap-4 text-black"
+    >
       <FaHandPointLeft />
       Về trang chủ
     </NavLink>

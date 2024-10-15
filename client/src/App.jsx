@@ -4,6 +4,7 @@ import ScrollToTop from './components/common/Scroll/ScrollToTop';
 import { NotifyProvider } from './context/ReLoginContext';
 import { useIsFetching } from '@tanstack/react-query';
 import MainLoading from './components/common/Loading/MainLoading';
+import PhoneSignIn from './components/Auth/PhoneSignIn';
 
 const App = () => {
   const isFetching = useIsFetching();
@@ -13,6 +14,7 @@ const App = () => {
       <ScrollToTop />
       {isFetching > 0 && <MainLoading />}
       <Routes />
+      <PhoneSignIn />
     </NotifyProvider>
   );
 };
