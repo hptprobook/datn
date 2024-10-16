@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import Box from '@mui/material/Box';
 import Avatar from '@mui/material/Avatar';
@@ -36,25 +36,26 @@ const MENU_OPTIONS = [
 export default function AccountPopover() {
   const { logout } = useAuth();
   const [open, setOpen] = useState(null);
+  const [account, setAccount] = useState();
 
   const handleOpen = (event) => {
     setOpen(event.currentTarget);
   };
   const dispatch = useDispatch();
-  const account = useSelector((state) => state.auth.auth);
+  const data = useSelector((state) => state.auth.auth);
+
+  useEffect(() => {
+    if (data) {
+      setAccount(data);
+    }
+  }, [data]);
 
   const handleClose = () => {
     setOpen(null);
   };
   const handleLogout = () => {
     dispatch(dangXuat()).then((response) => {
-      if (response.meta.requestStatus === 'fulfilled') {
-        handleToast('success', 'Đăng xuất thành công');
-        logout();
-      } else {
-        handleToast('error', response.payload.message);
-        logout();
-      }
+      logout();
     });
   };
   return (
@@ -72,15 +73,15 @@ export default function AccountPopover() {
         }}
       >
         <Avatar
-          src='https://i.pinimg.com/originals/c6/e5/65/c6e56503cfdd87da299f72dc416023d4.jpg'
-          alt={account.name}
+          src="https://i.pinimg.com/originals/c6/e5/65/c6e56503cfdd87da299f72dc416023d4.jpg"
+          alt={account?.name}
           sx={{
             width: 36,
             height: 36,
             border: (theme) => `solid 2px ${theme.palette.background.default}`,
           }}
         >
-          {account.name.charAt(0).toUpperCase()}
+          {account?.name.charAt(0).toUpperCase()}
         </Avatar>
       </IconButton>
 

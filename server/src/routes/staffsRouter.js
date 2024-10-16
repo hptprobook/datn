@@ -11,7 +11,7 @@ Router.get('/auth/me', verifyTokenNoTime, staffsController.getMe);
 
 Router.post('/', verifyToken, isRoot, staffsController.createStaff);
 Router.get('/:value', verifyToken, staffsController.getStaffBy);
-Router.post('/auth/logout', verifyToken, staffsController.logoutStaff);
+Router.post('/auth/logout', staffsController.logoutStaff);
 
 
 export const staffsApi = Router;

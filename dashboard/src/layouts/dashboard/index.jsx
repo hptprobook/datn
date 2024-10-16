@@ -12,15 +12,6 @@ import Header from './header';
 // ----------------------------------------------------------------------
 
 export default function DashboardLayout({ children }) {
-  const dispatch = useDispatch();
-  const statusMe = useSelector((state) => state.auth.statusMe);
-  const auth = useSelector((state) => state.auth.auth);
-  useEffect(() => {
-    if (auth === null && statusMe === 'idle') {
-      dispatch(getMe());
-    }
-  }, [dispatch, statusMe, auth]);
-
   const [openNav, setOpenNav] = useState(false);
 
   return (
