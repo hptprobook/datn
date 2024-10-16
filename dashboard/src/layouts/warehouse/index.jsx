@@ -12,14 +12,8 @@ import Header from './header';
 // ----------------------------------------------------------------------
 
 export default function WarehouseLayout({ children }) {
-  const dispatch = useDispatch();
-  const statusMe = useSelector((state) => state.auth.statusMe);
   const auth = useSelector((state) => state.auth.auth);
-  useEffect(() => {
-    if (auth === null && statusMe === 'idle') {
-      dispatch(getMe());
-    }
-  }, [dispatch, statusMe, auth]);
+
   return auth ? (
     <>
       <Header />

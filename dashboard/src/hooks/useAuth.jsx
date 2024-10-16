@@ -28,8 +28,8 @@ export const AuthProvider = ({ children }) => {
   const logout = useCallback(() => {
     localStorage.removeItem('token');
     setToken(null);
-    navigate('/login', { replace: true });
-  }, [navigate]);
+    window.location.href = `login`;
+  }, []);
 
   const value = useMemo(
     () => ({
