@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -47,6 +47,7 @@ export default function CategoryPage() {
   const error = useSelector((state) => state.categories.error);
   const [dataCategories, setDataCategories] = useState([]);
   const statusDelete = useSelector((state) => state.categories.statusDelete);
+  const [selectedParentId, setSelectedParentId] = useState('');
 
   useEffect(() => {
     if (status === 'idle') {
@@ -108,6 +109,27 @@ export default function CategoryPage() {
     setPage(0);
     setRowsPerPage(parseInt(event.target.value, 10));
   };
+  const handleFilterChange = useCallback((parentId) => {
+    setSelectedParentId(parentId);
+
+    const filteredByParent = parentId
+      ? categories.filter((category) => category.parentId === parentId)
+      : categories;
+
+    const dataFiltered = applyFilter({
+      inputData: filteredByParent,
+      comparator: getComparator(order, orderBy),
+      filterName,
+      fillerQuery: 'name',
+    });
+
+    setDataCategories(dataFiltered);
+  }, [categories, order, orderBy, filterName]);
+
+  useEffect(() => {
+    handleFilterChange(selectedParentId);
+  }, [selectedParentId, filterName, order, orderBy, categories, handleFilterChange]);
+
 
   const handleFilterByName = (event) => {
     setPage(0);
@@ -136,6 +158,8 @@ export default function CategoryPage() {
 
   const [confirm, setConfirm] = useState(false);
   const [confirmMulti, setConfirmMulti] = useState(false);
+  // lọc danh mục cha
+
 
   return (
     <Container>
@@ -181,6 +205,8 @@ export default function CategoryPage() {
           filterName={filterName}
           onFilterName={handleFilterByName}
           onMultiDelete={() => setConfirmMulti(true)}
+          handleFilterChange={handleFilterChange}
+          dataCategories={categories}
         />
 
         <Scrollbar>

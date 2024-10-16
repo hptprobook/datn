@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 
+
 import Box from '@mui/material/Box';
 import TableRow from '@mui/material/TableRow';
 import Checkbox from '@mui/material/Checkbox';
@@ -18,7 +19,10 @@ export default function CategoryTableHead({
   numSelected,
   onRequestSort,
   onSelectAllClick,
+
 }) {
+
+  
   const onSort = (property) => (event) => {
     onRequestSort(event, property);
   };
@@ -56,6 +60,8 @@ export default function CategoryTableHead({
             </TableSortLabel>
           </TableCell>
         ))}
+
+   
       </TableRow>
     </TableHead>
   );

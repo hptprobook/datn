@@ -60,9 +60,11 @@ export default function CategoryTableRow({
           </Stack>
         </TableCell>
         <TableCell  >{slug}</TableCell>
-        <TableCell  >{new Date(createdAt).toLocaleDateString()}</TableCell>
-        <TableCell  >{order}</TableCell>
         <TableCell  >{parent}</TableCell>
+
+        <TableCell  >{order}</TableCell>
+        <TableCell  >{new Date(createdAt).toLocaleDateString()}</TableCell>
+
         <TableCell align="right">
           <IconButton onClick={handleOpenMenu}>
             <Iconify icon="eva:more-vertical-fill" />
