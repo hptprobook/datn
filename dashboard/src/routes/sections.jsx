@@ -2,7 +2,9 @@ import { lazy, Suspense } from 'react';
 import { Outlet, Navigate, useRoutes } from 'react-router-dom';
 
 import { Box, LinearProgress, linearProgressClasses } from '@mui/material';
-import { ProtectedRoute } from './components/ProtectedRoute';
+import DashboardLayout from 'src/layouts/dashboard';
+import WarehouseLayout from 'src/layouts/warehouse';
+import { ProtectedRoute } from './components/dashboard-protected';
 import { configPath } from './utils';
 // ----------------------------------------------------------------------
 export const IndexPage = lazy(() => import('src/pages/app'));
@@ -50,6 +52,10 @@ export const BrandDetailPage = lazy(() => import('src/pages/brands/detail'));
 export const BlogPage = lazy(() => import('src/pages/blog/blogs'));
 export const CreateBlogPage = lazy(() => import('src/pages/blog/create'));
 export const DetailBlogPage = lazy(() => import('src/pages/blog/detail'));
+// webanner page
+export const WebBannerPage = lazy(() => import('src/pages/webBanner/webanners'));
+export const CreateWebBannerPage = lazy(() => import('src/pages/webBanner/create'));
+export const DetailWebBannerPage = lazy(() => import('src/pages/webBanner/detail'));
 // ----------------------------------------------------------------------
 
 const childRoutes = [
@@ -85,6 +91,9 @@ const childRoutes = [
   { path: configPath.brands, element: <BrandsPage /> },
   { path: configPath.brandCreate, element: <BrandCreatePage /> },
   { path: configPath.brandDetail, element: <BrandDetailPage /> },
+  { path: configPath.webBanner, element: <WebBannerPage /> },
+  { path: configPath.webBannerCreate, element: <CreateWebBannerPage /> },
+  { path: configPath.webBannerDetail, element: <DetailWebBannerPage /> }
 ];
 
 const renderFallback = (
@@ -105,12 +114,32 @@ export default function Router() {
     {
       element: (
         <ProtectedRoute>
-          <Suspense fallback={renderFallback}>
-            <Outlet />
-          </Suspense>
+          <DashboardLayout>
+            <Suspense fallback={renderFallback}>
+              <Outlet />
+            </Suspense>
+          </DashboardLayout>
         </ProtectedRoute>
       ),
       children: childRoutes,
+    },
+    {
+      path: 'dashboard',
+      element: (
+        <ProtectedRoute>
+          <WarehouseLayout>
+            <Suspense fallback={renderFallback}>
+              <Outlet />
+            </Suspense>
+          </WarehouseLayout>
+        </ProtectedRoute>
+      ),
+      children: [
+        {
+          index: true,
+          element: <Box>test</Box>,
+        },
+      ],
     },
     {
       path: 'login',

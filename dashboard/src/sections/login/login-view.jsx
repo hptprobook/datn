@@ -27,12 +27,23 @@ import { useDispatch, useSelector } from 'react-redux';
 import { handleLogin } from 'src/redux/slices/authSlice';
 // ----------------------------------------------------------------------
 const loginSchema = Yup.object().shape({
-  email: Yup.string().email('Email phải là một địa chỉ email hợp lệ').required('Email là bắt buộc'),
+  main: Yup.string().required('Tên đăng nhập là bắt buộc'),
   password: Yup.string()
     .required('Mật khẩu là bắt buộc')
     .min(6, 'Mật khẩu phải có ít nhất 6 ký tự')
     .max(50, 'Mật khẩu không được quá 50 ký tự'),
 });
+const checkMainType = (main) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const phoneRegex = /^\+?\d{7,15}$/;
+  if (emailRegex.test(main)) {
+    return 'email';
+  }
+  if (phoneRegex.test(main)) {
+    return 'phone';
+  }
+  return 'staffCode';
+};
 
 export default function LoginView() {
   const theme = useTheme();
@@ -65,12 +76,14 @@ export default function LoginView() {
 
   const formik = useFormik({
     initialValues: {
-      email: '',
+      main: '',
       password: '',
     },
     validationSchema: loginSchema,
     onSubmit: async (values) => {
       setSubmit(true);
+      const mainType = checkMainType(values.main);
+      values.type = mainType;
       dispatch(handleLogin(values));
     },
   });
@@ -79,12 +92,12 @@ export default function LoginView() {
     <form onSubmit={formik.handleSubmit}>
       <Stack spacing={3}>
         <TextField
-          name="email"
-          label="Email"
-          value={formik.values.email}
+          name="main"
+          label="Tên đăng nhập/ Email/ Số điện thoại"
+          value={formik.values.main}
           onChange={formik.handleChange}
-          error={formik.touched.email && Boolean(formik.errors.email)}
-          helperText={formik.touched.email && formik.errors.email}
+          error={formik.touched.main && Boolean(formik.errors.main)}
+          helperText={formik.touched.main && formik.errors.main}
           onBlur={formik.handleBlur}
         />
         <TextField

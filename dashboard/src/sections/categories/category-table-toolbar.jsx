@@ -1,4 +1,6 @@
 import PropTypes from 'prop-types';
+import { useState, useEffect } from 'react';
+import { TextField, Autocomplete } from '@mui/material';
 
 import Tooltip from '@mui/material/Tooltip';
 import Toolbar from '@mui/material/Toolbar';
@@ -11,7 +13,30 @@ import Iconify from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export default function CategoryTableToolbar({ numSelected, filterName, onFilterName, onMultiDelete }) {
+export default function CategoryTableToolbar({ numSelected, filterName, onFilterName, onMultiDelete, handleFilterChange, dataCategories }) {
+
+ 
+  const [selectedParentId, setSelectedParentId] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const handleSelectChange = (event, newValue) => {
+    const selectedValue = newValue ? newValue._id : '';
+    setSelectedParentId(selectedValue);
+    handleFilterChange(selectedValue);
+  };
+
+  
+  const handleSearchChange = (event) => {
+    const term = event.target.value;
+    setSearchTerm(term);
+  };
+  useEffect(() => {
+    handleFilterChange(selectedParentId);
+  }, [selectedParentId, handleFilterChange]);
+
+  const filteredCategories = dataCategories.filter(category =>
+    category.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
   return (
     <Toolbar
       sx={{
@@ -30,6 +55,7 @@ export default function CategoryTableToolbar({ numSelected, filterName, onFilter
           {numSelected} lựa chọn
         </Typography>
       ) : (
+
         <OutlinedInput
           value={filterName}
           onChange={onFilterName}
@@ -42,7 +68,10 @@ export default function CategoryTableToolbar({ numSelected, filterName, onFilter
               />
             </InputAdornment>
           }
+
         />
+
+
       )}
 
       {numSelected > 0 ? (
@@ -52,11 +81,22 @@ export default function CategoryTableToolbar({ numSelected, filterName, onFilter
           </IconButton>
         </Tooltip>
       ) : (
-        <Tooltip title="Filter list">
-          <IconButton>
-            <Iconify icon="ic:round-filter-list" />
-          </IconButton>
-        </Tooltip>
+        <Autocomplete
+            options={filteredCategories}
+            getOptionLabel={(option) => option.name}
+            onChange={handleSelectChange}
+            renderInput={(params) => (
+              <TextField
+              {...params}
+              variant="outlined"
+              size="small"
+              placeholder="Chọn danh mục cha"
+              onChange={handleSearchChange} 
+              sx={{ width: 300 }}
+              />
+            )}
+            sx={{ width: 300 }}
+          />
       )}
     </Toolbar>
   );
@@ -67,4 +107,6 @@ CategoryTableToolbar.propTypes = {
   filterName: PropTypes.string,
   onFilterName: PropTypes.func,
   onMultiDelete: PropTypes.func,
+  dataCategories: PropTypes.array,
+  handleFilterChange: PropTypes.func
 };

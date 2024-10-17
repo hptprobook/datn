@@ -1,17 +1,17 @@
 import PropTypes from 'prop-types';
 
-
 import Box from '@mui/material/Box';
 import TableRow from '@mui/material/TableRow';
 import Checkbox from '@mui/material/Checkbox';
 import TableHead from '@mui/material/TableHead';
 import TableCell from '@mui/material/TableCell';
 import TableSortLabel from '@mui/material/TableSortLabel';
-import { visuallyHidden } from 'src/components/table/utils';
+
+import { visuallyHidden } from './utils';
 
 // ----------------------------------------------------------------------
 
-export default function CategoryTableHead({
+export default function WebBannerTableHead({
   order,
   orderBy,
   rowCount,
@@ -19,10 +19,7 @@ export default function CategoryTableHead({
   numSelected,
   onRequestSort,
   onSelectAllClick,
-
 }) {
-
-  
   const onSort = (property) => (event) => {
     onRequestSort(event, property);
   };
@@ -54,20 +51,19 @@ export default function CategoryTableHead({
               {headCell.label}
               {orderBy === headCell.id ? (
                 <Box sx={{ ...visuallyHidden }}>
-                  {order === 'desc' ? 'Sắp xếp giảm dần' : 'Sắp xếp tăng dần'}
+            {order === 'desc' ? 'Sắp xếp giảm dần' : 'Sắp xếp tăng dần'}
+
                 </Box>
               ) : null}
             </TableSortLabel>
           </TableCell>
         ))}
-
-   
       </TableRow>
     </TableHead>
   );
 }
 
-CategoryTableHead.propTypes = {
+WebBannerTableHead.propTypes = {
   order: PropTypes.oneOf(['asc', 'desc']),
   orderBy: PropTypes.string,
   rowCount: PropTypes.number,

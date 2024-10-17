@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 
-import Stack from '@mui/material/Stack';
-import Avatar from '@mui/material/Avatar';
 import Popover from '@mui/material/Popover';
 import TableRow from '@mui/material/TableRow';
 import Checkbox from '@mui/material/Checkbox';
@@ -11,22 +9,25 @@ import TableCell from '@mui/material/TableCell';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 
+import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
-import { renderUrl } from 'src/utils/check';
 
-const backendUrl = import.meta.env.VITE_BACKEND_APP_URL;
 // ----------------------------------------------------------------------
 
-export default function CategoryTableRow({
+export default function WebBannerTableRow({
   selected,
   id,
-  name,
-  imageURL,
-  order,
-  slug,
-  parent,
+  code,
+  type,
+  minPurchasePrice,
+  maxPurchasePrice,
+  usageLimit,
+  usageCount,
+  status,
+  limitOnUser,
+  dateStart,
+  dateEnd,
   onDelete,
-  createdAt,
   handleClick,
   handleNavigate,
 }) {
@@ -52,18 +53,43 @@ export default function CategoryTableRow({
         </TableCell>
 
         <TableCell component="th" scope="row" padding="none">
-          <Stack direction="row" alignItems="center" spacing={2}>
-            <Avatar alt={name} src={renderUrl(imageURL, backendUrl)} />
-            <Typography variant="subtitle2" noWrap>
-              {name}
-            </Typography>
-          </Stack>
+          <Typography variant="subtitle2" noWrap>
+            {code}
+          </Typography>
         </TableCell>
-        <TableCell  >{slug}</TableCell>
-        <TableCell  >{parent}</TableCell>
 
-        <TableCell  >{order}</TableCell>
-        <TableCell  >{new Date(createdAt).toLocaleDateString()}</TableCell>
+        <TableCell>
+
+        {(type === 'percent' && 'Phần trăm') ||
+           (type === 'price' && 'Giá tiền') ||
+           (type === 'shipping' && 'Phí ship') ||
+           type}
+
+        </TableCell>
+
+        <TableCell>{minPurchasePrice}</TableCell>
+
+        <TableCell>{maxPurchasePrice}</TableCell>
+
+        <TableCell>{usageLimit}</TableCell>
+
+        <TableCell>{usageCount}</TableCell>
+
+        <TableCell>
+          <Label
+            color={
+              (status === 'expired' && 'error') || (status === 'inactive' && 'warning') || 'success'
+            }
+          >
+            {status}
+          </Label>
+        </TableCell>
+
+        <TableCell>{limitOnUser ? 'Có' : 'Không'}</TableCell>
+
+        <TableCell>{new Date(dateStart).toLocaleDateString()}</TableCell>
+
+        <TableCell>{new Date(dateEnd).toLocaleDateString()}</TableCell>
 
         <TableCell align="right">
           <IconButton onClick={handleOpenMenu}>
@@ -84,7 +110,7 @@ export default function CategoryTableRow({
       >
         <MenuItem onClick={handleNavigate}>
           <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
-          Sửa
+          Xem
         </MenuItem>
 
         <MenuItem onClick={() => handleDelete(id)} sx={{ color: 'error.main' }}>
@@ -96,16 +122,20 @@ export default function CategoryTableRow({
   );
 }
 
-CategoryTableRow.propTypes = {
+WebBannerTableRow.propTypes = {
   id: PropTypes.any,
   onDelete: PropTypes.func,
-  name: PropTypes.string,
-  slug: PropTypes.string,
-  order: PropTypes.number,
-  imageURL: PropTypes.string,
-  createdAt: PropTypes.string,
-  selected: PropTypes.any,
-  parent: PropTypes.any,
+  code: PropTypes.string.isRequired,
+  type: PropTypes.string.isRequired,
+  minPurchasePrice: PropTypes.number.isRequired,
+  maxPurchasePrice: PropTypes.number.isRequired,
+  usageLimit: PropTypes.number.isRequired,
+  usageCount: PropTypes.number.isRequired,
+  status: PropTypes.string.isRequired,
+  limitOnUser: PropTypes.bool.isRequired,
+  dateStart: PropTypes.any.isRequired,
+  dateEnd: PropTypes.any.isRequired,
+  selected: PropTypes.bool,
   handleClick: PropTypes.func,
   handleNavigate: PropTypes.func,
 };

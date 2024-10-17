@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
@@ -10,58 +10,68 @@ import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 
-import { useDispatch, useSelector } from 'react-redux';
-import {
-  resetDelete,
-  deleteCategory,
-  fetchAllCategories,
-  deleteManyCategory,
-} from 'src/redux/slices/categorySlices';
+import { IconButton } from '@mui/material';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
-import { handleToast } from 'src/hooks/toast';
-
-import TableEmptyRows from 'src/components/table/table-empty-rows';
-import { emptyRows, applyFilter, getComparator } from 'src/components/table/utils';
-import { IconButton } from '@mui/material';
-import TableNoData from 'src/components/table/table-no-data';
 import LoadingFull from 'src/components/loading/loading-full';
 import ConfirmDelete from 'src/components/modal/confirm-delete';
-import CategoryTableRow from '../category-table-row';
-import CategoryTableHead from '../category-table-head';
-import CategoryTableToolbar from '../category-table-toolbar';
-import { renderCategoryParent } from '../utils';
+import { handleToast } from 'src/hooks/toast';
+
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  fetchAll,
+  resetDelete,
+  deleteCoupon,
+  deleteManyCoupon,
+} from 'src/redux/slices/couponSlice';
+import { useRouter } from 'src/routes/hooks';
+import { formatCurrency } from 'src/utils/format-number';
+import TableEmptyRows from 'src/components/table/table-empty-rows';
+import TableNoData from 'src/components/table/table-no-data';
+import WebBannerTableRow from '../webBanner-table-row';
+
+import WebBannerTableToolbar from '../webBanner-table-toolbar';
+import { emptyRows, applyFilter, getComparator } from '../utils';
+import WebBannerTableHead from '../webBanner-table-head';
 
 // ----------------------------------------------------------------------
 
-export default function CategoryPage() {
+export default function WebBannersPage() {
   const [page, setPage] = useState(0);
+
   const [order, setOrder] = useState('asc');
+
   const [selected, setSelected] = useState([]);
+
   const [orderBy, setOrderBy] = useState('name');
+
   const [filterName, setFilterName] = useState('');
+
   const [rowsPerPage, setRowsPerPage] = useState(5);
+
+  const [coupons, setCoupons] = useState([]);
+
   const dispatch = useDispatch();
-  const categories = useSelector((state) => state.categories.categories);
-  const status = useSelector((state) => state.categories.status);
-  const error = useSelector((state) => state.categories.error);
-  const [dataCategories, setDataCategories] = useState([]);
-  const statusDelete = useSelector((state) => state.categories.statusDelete);
-  const [selectedParentId, setSelectedParentId] = useState('');
+  const route = useRouter();
+
+  const data = useSelector((state) => state.coupons.coupons);
+  const status = useSelector((state) => state.coupons.status);
+  const statusDelete = useSelector((state) => state.coupons.statusDelete);
 
   useEffect(() => {
-    if (status === 'idle') {
-      dispatch(fetchAllCategories());
-    } else if (status === 'failed') {
-      handleToast('error', 'Có lỗi xảy ra. Vui lòng liên hệ IT');
-    } else if (status === 'successful') {
-      setDataCategories(categories);
+    dispatch(fetchAll());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (status === 'successful') {
+      setCoupons(data);
     }
-  }, [status, dispatch, error, categories]);
+  }, [status, dispatch, data]);
+
   useEffect(() => {
     if (statusDelete === 'successful') {
-      handleToast('success', 'Xóa Danh mục thành công');
-      setSelected([]);
+      handleToast('success', 'Xóa Mã giảm giá thành công');
+      dispatch(fetchAll());
       dispatch(resetDelete());
     }
   }, [statusDelete, dispatch]);
@@ -76,8 +86,8 @@ export default function CategoryPage() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = dataCategories.map((n) => n._id);
-      setSelected(newSelecteds);
+      const newSelected = coupons.map((n) => n._id);
+      setSelected(newSelected);
       return;
     }
     setSelected([]);
@@ -109,27 +119,6 @@ export default function CategoryPage() {
     setPage(0);
     setRowsPerPage(parseInt(event.target.value, 10));
   };
-  const handleFilterChange = useCallback((parentId) => {
-    setSelectedParentId(parentId);
-
-    const filteredByParent = parentId
-      ? categories.filter((category) => category.parentId === parentId)
-      : categories;
-
-    const dataFiltered = applyFilter({
-      inputData: filteredByParent,
-      comparator: getComparator(order, orderBy),
-      filterName,
-      fillerQuery: 'name',
-    });
-
-    setDataCategories(dataFiltered);
-  }, [categories, order, orderBy, filterName]);
-
-  useEffect(() => {
-    handleFilterChange(selectedParentId);
-  }, [selectedParentId, filterName, order, orderBy, categories, handleFilterChange]);
-
 
   const handleFilterByName = (event) => {
     setPage(0);
@@ -137,33 +126,31 @@ export default function CategoryPage() {
   };
 
   const dataFiltered = applyFilter({
-    inputData: dataCategories,
+    inputData: coupons,
     comparator: getComparator(order, orderBy),
     filterName,
-    fillerQuery: 'name',
   });
-
-  const notFound = !dataFiltered.length && !!filterName;
-  // to new category
-  const navigate = useNavigate();
+  const handleNavigate = (id) => {
+    route.push(id);
+  };
   const handleDelete = (id) => {
     setConfirm(id);
   };
   const dispatchDelete = () => {
-    dispatch(deleteCategory(confirm));
+    dispatch(deleteCoupon(confirm));
   };
   const handleMultiDelete = () => {
-    dispatch(deleteManyCategory(selected));
+    setSelected([]);
+    dispatch(deleteManyCoupon(selected));
   };
+  const notFound = !dataFiltered.length && !!filterName;
 
   const [confirm, setConfirm] = useState(false);
   const [confirmMulti, setConfirmMulti] = useState(false);
-  // lọc danh mục cha
-
-
   return (
     <Container>
       {status === 'loading' && <LoadingFull />}
+      {statusDelete === 'loading' && <LoadingFull />}
       <ConfirmDelete
         openConfirm={!!confirm}
         onAgree={dispatchDelete}
@@ -173,17 +160,17 @@ export default function CategoryPage() {
         openConfirm={!!confirmMulti}
         onAgree={handleMultiDelete}
         onClose={() => setConfirmMulti(false)}
-        label="những danh mục đã chọn"
+        label="những mã giảm giá đã chọn"
       />
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
-          <Typography variant="h4">Danh mục</Typography>
+          <Typography variant="h4">Mã giảm giá </Typography>
 
           <IconButton
             aria-label="load"
             variant="contained"
             color="inherit"
-            onClick={() => dispatch(fetchAllCategories())}
+            onClick={() => dispatch(fetchAll())}
           >
             <Iconify icon="mdi:reload" />
           </IconButton>
@@ -191,40 +178,43 @@ export default function CategoryPage() {
 
         <Button
           variant="contained"
+          onClick={() => route.push('create')}
           color="inherit"
           startIcon={<Iconify icon="eva:plus-fill" />}
-          onClick={() => navigate('create')}
         >
-          Tạo mới danh mục
+          Tạo mã giảm giá
         </Button>
       </Stack>
 
       <Card>
-        <CategoryTableToolbar
+        <WebBannerTableToolbar
           numSelected={selected.length}
           filterName={filterName}
           onFilterName={handleFilterByName}
           onMultiDelete={() => setConfirmMulti(true)}
-          handleFilterChange={handleFilterChange}
-          dataCategories={categories}
         />
 
         <Scrollbar>
           <TableContainer sx={{ overflow: 'unset' }}>
             <Table sx={{ minWidth: 800 }}>
-              <CategoryTableHead
+              <WebBannerTableHead
                 order={order}
                 orderBy={orderBy}
-                rowCount={dataCategories.length}
+                rowCount={coupons.length}
                 numSelected={selected.length}
                 onRequestSort={handleSort}
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
-                  { id: 'name', label: 'Tên' },
-                  { id: 'slug', label: 'Slug' },
-                  { id: 'parent', label: 'Danh mục cha' },
-                  { id: 'order', label: 'Vị trí' },
-                  { id: 'createdAt', label: 'Thời gian Tạo' },
+                  { id: 'code', label: 'Mã' },
+                  { id: 'type', label: 'Loại' },
+                  { id: 'minPurchasePrice', label: 'Giá mua tối thiểu' },
+                  { id: 'maxPurchasePrice', label: 'Giá mua tối đa' },
+                  { id: 'usageLimit', label: 'Giới hạn sử dụng' },
+                  { id: 'usageCount', label: 'Số lần sử dụng' },
+                  { id: 'status', label: 'Trạng thái' },
+                  { id: 'limitOnUser', label: 'Giới hạn người dùng' },
+                  { id: 'dateStart', label: 'Ngày bắt đầu' },
+                  { id: 'dateEnd', label: 'Ngày kết thúc' },
                   { id: '' },
                 ]}
               />
@@ -232,29 +222,34 @@ export default function CategoryPage() {
                 {dataFiltered
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
-                    <CategoryTableRow
+                    <WebBannerTableRow
                       id={row._id}
                       key={row._id}
-                      name={row.name}
-                      imageURL={row.imageURL}
-                      createdAt={row.createdAt}
-                      order={row.order}
-                      slug={row.slug}
-                      parent={renderCategoryParent(dataCategories, row.parentId)}
+                      code={row.code}
+                      type={row.type}
+                      applicableProducts={row.applicableProducts}
+                      usageLimit={row.usageLimit}
+                      minPurchasePrice={formatCurrency(row.minPurchasePrice)}
+                      maxPurchasePrice={formatCurrency(row.maxPurchasePrice)}
+                      usageCount={row.usageCount}
+                      status={row.status}
+                      limitOnUser={row.limitOnUser}
+                      dateStart={row.dateStart}
+                      dateEnd={row.dateEnd}
                       selected={selected.indexOf(row._id) !== -1}
                       handleClick={(event) => handleClick(event, row._id)}
                       onDelete={handleDelete}
-                      handleNavigate={() => navigate(row._id)}
+                      handleNavigate={() => handleNavigate(row._id)}
                     />
                   ))}
 
                 <TableEmptyRows
-                  col={3}
                   height={77}
-                  emptyRows={emptyRows(page, rowsPerPage, dataCategories.length)}
+                  emptyRows={emptyRows(page, rowsPerPage, coupons.length)}
+                  col={12}
                 />
 
-                {notFound && <TableNoData query={filterName} />}
+                {notFound && <TableNoData query={filterName} col={12}/>}
               </TableBody>
             </Table>
           </TableContainer>
@@ -263,11 +258,10 @@ export default function CategoryPage() {
         <TablePagination
           page={page}
           component="div"
-          labelRowsPerPage="Số hàng mỗi trang"
-          count={dataCategories.length}
+          count={coupons.length}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}
-          rowsPerPageOptions={[5, 10, 25, 100]}
+          rowsPerPageOptions={[5, 10, 25]}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Card>

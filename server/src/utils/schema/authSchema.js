@@ -29,7 +29,9 @@ export const UPDATE_USER = Joi.object({
         .max(15)
         .default(null),
     refreshToken: Joi.string(),
-    role: Joi.string().valid('root', 'admin', 'staff', 'user', 'ban').default('user'),
+    role: Joi.string()
+        .valid('root', 'admin', 'staff', 'user', 'ban')
+        .default('user'),
     allowNotifies: Joi.boolean().default(false),
     updatedAt: Joi.date().timestamp('javascript').default(Date.now),
 });

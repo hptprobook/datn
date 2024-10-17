@@ -12,6 +12,18 @@ export const handleLogin = createAsyncThunk(
         }
     }
 );
+export const getMe = createAsyncThunk(
+    'auth/me',
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await AuthService.getMe();
+            return response;
+        } catch (err) {
+            return rejectWithValue(err.response.data);
+        }
+    }
+);
+
 export const logout = createAsyncThunk(
     'auth/logout',
     async (_, { rejectWithValue }) => {
@@ -25,9 +37,10 @@ export const logout = createAsyncThunk(
 );
 
 const initialState = {
-    auth: {},
-    status: "idle", 
+    auth: null,
+    status: "idle",
     statusLogout: "idle",
+    statusMe: "idle",
     error: null,
 };
 export const resetLogin = createAction('auth/resetLogin');
@@ -44,6 +57,7 @@ const authSlice = createSlice({
             .addCase(handleLogin.fulfilled, (state, action) => {
                 state.status = "successful";
                 state.auth = action.payload;
+                state.error = null;
             })
             .addCase(handleLogin.rejected, (state, action) => {
                 state.status = "failed";
@@ -55,17 +69,28 @@ const authSlice = createSlice({
             .addCase(logout.fulfilled, (state, action) => {
                 state.statusLogout = "successful";
                 state.status = "idle";
-                state.auth = {};
+                state.auth = null;
             })
             .addCase(logout.rejected, (state, action) => {
                 state.statusLogout = "failed";
                 state.error = action.payload;
                 state.status = "idle";
-                state.auth = {};
+                state.auth = null;
+            })
+            .addCase(getMe.pending, (state) => {
+                state.statusMe = "loading";
+            })
+            .addCase(getMe.fulfilled, (state, action) => {
+                state.statusMe = "successful";
+                state.auth = action.payload;
+            })
+            .addCase(getMe.rejected, (state, action) => {
+                state.statusMe = "failed";
+                state.error = action.payload;
             })
             .addCase(resetLogin, (state) => {
                 state.status = "idle";
-                state.auth = {};
+                state.auth = null;
                 state.error = null;
             })
             .addCase(setStatus, (state, action) => {
