@@ -52,6 +52,10 @@ export const BrandDetailPage = lazy(() => import('src/pages/brands/detail'));
 export const BlogPage = lazy(() => import('src/pages/blog/blogs'));
 export const CreateBlogPage = lazy(() => import('src/pages/blog/create'));
 export const DetailBlogPage = lazy(() => import('src/pages/blog/detail'));
+// webanner page
+export const WebBannerPage = lazy(() => import('src/pages/webBanner/webanners'));
+export const CreateWebBannerPage = lazy(() => import('src/pages/webBanner/create'));
+export const DetailWebBannerPage = lazy(() => import('src/pages/webBanner/detail'));
 // ----------------------------------------------------------------------
 
 const childRoutes = [
@@ -87,6 +91,9 @@ const childRoutes = [
   { path: configPath.brands, element: <BrandsPage /> },
   { path: configPath.brandCreate, element: <BrandCreatePage /> },
   { path: configPath.brandDetail, element: <BrandDetailPage /> },
+  { path: configPath.webBanner, element: <WebBannerPage /> },
+  { path: configPath.webBannerCreate, element: <CreateWebBannerPage /> },
+  { path: configPath.webBannerDetail, element: <DetailWebBannerPage /> }
 ];
 
 const renderFallback = (

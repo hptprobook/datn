@@ -73,14 +73,14 @@ export default function AccountPopover() {
       >
         <Avatar
           src='https://i.pinimg.com/originals/c6/e5/65/c6e56503cfdd87da299f72dc416023d4.jpg'
-          alt={account.name}
+          // alt={account.name}
           sx={{
             width: 36,
             height: 36,
             border: (theme) => `solid 2px ${theme.palette.background.default}`,
           }}
         >
-          {account.name.charAt(0).toUpperCase()}
+          {/* {account.name.charAt(0).toUpperCase()} */}
         </Avatar>
       </IconButton>
 
