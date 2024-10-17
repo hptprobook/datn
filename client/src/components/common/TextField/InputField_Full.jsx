@@ -11,7 +11,6 @@ const InputField_Full = ({
   onBlur,
   value,
   error,
-  ...rest
 }) => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -32,13 +31,12 @@ const InputField_Full = ({
           type={type === 'password' && showPassword ? 'text' : type}
           id={id}
           name={name}
-          value={value} // Controlled input value
-          onChange={onChange} // Formik or other form handlers
-          onBlur={onBlur} // Trigger validation
+          value={value}
+          onChange={onChange}
+          onBlur={onBlur}
           className={`pr-10 w-full rounded-md border-2 bg-white text-sm text-gray-700 shadow-sm h-10 px-3 outline-blue-500 ${
             error ? 'border-red-500' : 'border-gray-200'
           }`}
-          {...rest}
         />
         {type === 'password' && (
           <button
@@ -69,7 +67,6 @@ InputField_Full.propTypes = {
   onBlur: PropTypes.func,
   value: PropTypes.string,
   error: PropTypes.string,
-  ...PropTypes.any,
 };
 
 export default InputField_Full;

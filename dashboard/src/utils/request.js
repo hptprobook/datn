@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { handleToast } from 'src/hooks/toast';
 
-const baseDomain = import.meta.env.VITE_DOMAIN;
 const baseURL = import.meta.env.VITE_REACT_API_URL;
 
 // Function to get the access token from local storage
@@ -26,31 +25,10 @@ request.interceptors.response.use(
   (error) => {
     // Kiểm tra nếu lỗi là 401
     if (error.response && error.response.status === 401) {
-      axios
-        .post(`${baseURL}/auth/refresh-token`, {}, { withCredentials: true })
-        .then((res) => {
-          if (res.status === 200) {
-            localStorage.setItem('token', res.data.token);
-            window.location.reload();
-          }
-        })
-        .catch((err) => {
-          if (err.response.status === 400) {
-            handleToast('error', 'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
-            setTimeout(() => {
-              window.location.href = `${baseDomain}/login`;
-            }, 2000);
-          }
-          if (err.response.status === 500) {
-            handleToast('error', 'Có lỗi xảy ra. Vui lòng thử lại sau.');
-          }
-          if (err.response.status === 401) {
-            handleToast('error', 'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
-            setTimeout(() => {
-              window.location.href = `${baseDomain}/login`;
-            }, 2000);
-          }
-        });
+      handleToast('error', 'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+      setTimeout(() => {
+        window.location.href = `login`;
+      }, 2000);
     }
     return Promise.reject(error);
   }

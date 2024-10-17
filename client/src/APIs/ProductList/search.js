@@ -12,3 +12,13 @@ export const searchProducts = async ({ keyword, limit = 5 } = {}) => {
     throw error;
   }
 };
+
+export const getHotSearch = async () => {
+  try {
+    const response = await request.get('/hotSearch');
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};

@@ -65,7 +65,18 @@ export default function BrandTableRow({
 
         <TableCell>{formatDateTime(updatedAt)}</TableCell>
 
-        <TableCell>{website}</TableCell>
+        <TableCell
+           noWrap
+           sx={{
+             mx: 'auto',
+             maxWidth: 200,
+             overflow: 'hidden',
+             textOverflow: 'ellipsis',
+             whiteSpace: 'nowrap',
+           }}
+        >
+          {website}
+        </TableCell>
 
         <TableCell>{status ? 'Kích hoạt' : 'Không'}</TableCell>
 

@@ -5,7 +5,7 @@ const RegisterBottom = ({ checked, onChange }) => {
     <div className="col-span-6">
       {/* Checkbox section */}
       <div className="col-span-6 mb-4">
-        <label htmlFor="allowNotifies" className="flex items-start gap-2">
+        <label htmlFor="allowNotifies" className="flex items-center gap-2">
           <input
             type="checkbox"
             id="allowNotifies"

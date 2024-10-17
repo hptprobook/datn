@@ -1,23 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import Box from '@mui/material/Box';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { getMe } from 'src/redux/slices/authSlice';
-import Nav from './nav';
+import LoadingFull from 'src/components/loading/loading-full';
 import Main from './main';
 import Header from './header';
 
 // ----------------------------------------------------------------------
 
-export default function DashboardLayout({ children }) {
-  const [openNav, setOpenNav] = useState(false);
+export default function WarehouseLayout({ children }) {
+  const auth = useSelector((state) => state.auth.auth);
 
-  return (
+  return auth ? (
     <>
-      <Header onOpenNav={() => setOpenNav(true)} />
-
+      <Header />
       <Box
         sx={{
           minHeight: 1,
@@ -25,14 +24,14 @@ export default function DashboardLayout({ children }) {
           flexDirection: { xs: 'column', lg: 'row' },
         }}
       >
-        <Nav openNav={openNav} onCloseNav={() => setOpenNav(false)} />
-
         <Main>{children}</Main>
       </Box>
     </>
+  ) : (
+    <LoadingFull position="fixed" />
   );
 }
 
-DashboardLayout.propTypes = {
+WarehouseLayout.propTypes = {
   children: PropTypes.node,
 };
