@@ -98,7 +98,7 @@ export const CREATE_STAFF_SCHEMA = Joi.object({
         .valid('root', 'admin', 'staff', 'ban')
         .messages({
             'any.only': 'Vai trò không hợp lệ'
-        }),
+        }).default('staff'),
     createdAt: Joi.date().timestamp('javascript').default(Date.now),
     updatedAt: Joi.date().timestamp('javascript').default(Date.now),
 }).messages({
