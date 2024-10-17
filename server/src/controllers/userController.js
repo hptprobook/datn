@@ -5,6 +5,7 @@ import { userModel } from '~/models/userModel';
 import { StatusCodes } from 'http-status-codes';
 import bcrypt from 'bcryptjs';
 import { ERROR_MESSAGES } from '~/utils/errorMessage';
+import { ObjectId } from 'mongodb';
 
 const getCurrentUser = async (req, res) => {
   try {
@@ -162,6 +163,7 @@ const updateCurrentUser = async (req, res) => {
         .status(StatusCodes.BAD_REQUEST)
         .json({ message: 'Lỗi bảo mật' });
     }
+
     const dataUser = await userModel.update(user_id, data);
     if (dataUser.error) {
       return res

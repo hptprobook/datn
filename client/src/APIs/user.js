@@ -10,3 +10,13 @@ export const getCurrentUser = async () => {
     throw error;
   }
 };
+
+export const updateCurrentUser = async (data) => {
+  try {
+    const response = await request.put('/users/me', data);
+    return response.data;
+  } catch (error) {
+    console.error('Xảy ra lỗi khi cập nhật thông tin người dùng:', error);
+    throw error;
+  }
+};

@@ -1,9 +1,16 @@
 import { useState } from 'react';
 import AddressModel from './components/AddressModel';
+import { useQuery } from '@tanstack/react-query';
+import { getCurrentUser } from '~/APIs';
 
 const AddressList = () => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [editingAddress, setEditingAddress] = useState(null);
+
+  const { data: user, refetch: refetchUser } = useQuery({
+    queryKey: ['getCurrentUser'],
+    queryFn: getCurrentUser,
+  });
 
   const handleOpenModal = () => setModalOpen(true);
   const handleCloseModal = () => {
@@ -16,36 +23,19 @@ const AddressList = () => {
     setModalOpen(true);
   };
 
-  const addresses = [
-    {
-      id: 1,
-      name: 'Phan Thanh Hoá',
-      phone: '0987654321',
-      address: '45 / 19 Nguyễn Viết Xuân, Tân Thành, Buôn Ma Thuột, Dak lak',
-      default: true,
-    },
-    {
-      id: 2,
-      name: 'Nguyễn Văn A',
-      phone: '0912345678',
-      address: '123 Đường ABC, Phường X, Quận Y, TP Hồ Chí Minh',
-      default: false,
-    },
-  ];
-
   return (
     <div className="text-black bg-white rounded-sm p-10">
       <h1 className="text-xl font-bold pb-3">ĐỊA CHỈ GIAO HÀNG</h1>
       <div className="mt-4">
-        {addresses.map((address) => (
+        {user?.addresses.map((address, index) => (
           <div
-            key={address.id}
+            key={index}
             className="rounded-sm border-b py-4 w-full grid grid-cols-12 gap-4"
           >
             <div className="col-span-8 flex flex-col gap-2">
               <div className="flex gap-3">
-                <p className="font-bold">{address.name}</p>
-                {address.default && (
+                <p className="font-bold">{address?.name}</p>
+                {address?.isDefault && (
                   <span className="badge badge-success rounded-md">
                     Mặc định
                   </span>
@@ -53,11 +43,11 @@ const AddressList = () => {
               </div>
               <p className="break-words w-full">
                 <b>Địa chỉ: </b>
-                {address.address}
+                {address?.address}
               </p>
               <p>
                 <b>Điện thoại: </b>
-                {address.phone}
+                {address?.phone}
               </p>
             </div>
             <div className="col-span-4 flex flex-col items-end gap-2">
@@ -86,6 +76,7 @@ const AddressList = () => {
               isOpen={isModalOpen}
               onClose={handleCloseModal}
               address={editingAddress}
+              refetchUser={refetchUser}
             />
           )}
         </div>

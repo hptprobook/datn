@@ -1,4 +1,5 @@
 import Joi from 'joi';
+import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '../validators';
 
 export const SAVE_USER_SCHEMA = Joi.object({
   name: Joi.string().trim().min(1).max(30).required().messages({
@@ -65,22 +66,28 @@ export const UPDATE_USER = Joi.object({
   }),
   password: Joi.string(),
   otp: Joi.string(),
-  addresses: Joi.array().items(
-    Joi.object({
-      name: Joi.string().max(50).messages({
-        'string.max': 'Tên địa chỉ không được vượt quá 50 ký tự',
-      }),
-      phone: Joi.string().max(50).messages({
-        'string.max': 'Số điện thoại không được vượt quá 50 ký tự',
-      }),
-      province_id: Joi.number().integer(),
-      district_id: Joi.number().integer(),
-      ward_id: Joi.number().integer(),
-      address: Joi.string(),
-      isDefault: Joi.boolean().default(false),
-      note: Joi.string(),
-    })
-  ),
+  addresses: Joi.array()
+    .items(
+      Joi.object({
+        _id: Joi.string()
+          .pattern(OBJECT_ID_RULE)
+          .message(OBJECT_ID_RULE_MESSAGE),
+        name: Joi.string().max(50).messages({
+          'string.max': 'Tên địa chỉ không được vượt quá 50 ký tự',
+        }),
+        phone: Joi.string().max(50).messages({
+          'string.max': 'Số điện thoại không được vượt quá 50 ký tự',
+        }),
+        email: Joi.string().email(),
+        province_id: Joi.number().integer(),
+        district_id: Joi.number().integer(),
+        ward_id: Joi.string(),
+        address: Joi.string(),
+        isDefault: Joi.boolean().default(false),
+        note: Joi.string(),
+      })
+    )
+    .default([]),
   phone: Joi.string()
     .pattern(/^[0-9]+$/)
     .min(10)

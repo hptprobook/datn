@@ -63,6 +63,16 @@ const validateBeforeUpdate = async (data) => {
 
 const update = async (id, data) => {
   const dataValidate = await validateBeforeUpdate(data);
+
+  if (dataValidate.addresses) {
+    const address = dataValidate.addresses;
+    const addressList = address.map((item) => ({
+      ...item,
+      _id: item._id ? new ObjectId(item._id) : new ObjectId(),
+    }));
+    dataValidate.addresses = addressList;
+  }
+
   const result = await GET_DB()
     .collection('users')
     .findOneAndUpdate(
