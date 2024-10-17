@@ -12,9 +12,9 @@ import {
 } from '~/APIs/address';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { handleToast } from '~/customHooks/useToast';
 import { useUser } from '~/context/UserContext';
 import { updateCurrentUser } from '~/APIs';
+import Swal from 'sweetalert2';
 
 const validationSchema = Yup.object({
   name: Yup.string()
@@ -46,17 +46,41 @@ const AddressModel = ({ onClose, isOpen, address, refetchUser }) => {
       phone: address?.phone || '',
       email: address?.email || '',
       province_id: address?.province_id || '',
+      province_name: address?.province_name || '',
       district_id: address?.district_id || '',
+      district_name: address?.district_name || '',
       ward_id: address?.ward_id || '',
+      ward_name: address?.ward_name || '',
       address: address?.address || '',
+      fullAddress: address?.fullAddress || '',
+      isDefault: address?.isDefault || false,
     },
     validationSchema,
     onSubmit: (values) => {
-      const updatedAddresses = address
-        ? user.addresses.map((addr) =>
-            addr._id === address._id ? values : addr
-          )
-        : [...user.addresses, values];
+      let updatedAddresses;
+      const fullAddress = `${values.address}, ${values.ward_name}, ${values.district_name}, ${values.province_name}`;
+
+      const updatedValues = {
+        ...values,
+        fullAddress,
+      };
+
+      if (updatedValues.isDefault) {
+        updatedAddresses = user.addresses.map((addr) => ({
+          ...addr,
+          isDefault: false,
+        }));
+      } else {
+        updatedAddresses = [...user.addresses];
+      }
+
+      if (address) {
+        updatedAddresses = updatedAddresses.map((addr) =>
+          addr._id === address._id ? updatedValues : addr
+        );
+      } else {
+        updatedAddresses.push(updatedValues);
+      }
 
       setUserInfo({ ...user, addresses: updatedAddresses });
       mutation.mutate({ name: user.name, addresses: updatedAddresses });
@@ -68,9 +92,16 @@ const AddressModel = ({ onClose, isOpen, address, refetchUser }) => {
     onSuccess: () => {
       onClose();
       refetchUser();
+      Swal.fire({
+        title: 'Thành công!',
+        icon: 'success',
+      });
     },
     onError: () => {
-      handleToast('error', 'Thêm mới địa chỉ thất bại, vui lòng thử lại');
+      Swal.fire({
+        title: 'Thất bại!',
+        icon: 'error',
+      });
     },
   });
 
@@ -90,13 +121,15 @@ const AddressModel = ({ onClose, isOpen, address, refetchUser }) => {
   const { data: districts, refetch: refetchDistricts } = useQuery({
     queryKey: ['districts', formik.values.province_id],
     queryFn: () => getDistrictsByProvinceId(formik.values.province_id),
-    enabled: !!formik.values.province_id,
+    enabled: !!formik.values.province_id && formik.values.province_id != '',
+    keepPreviousData: true,
   });
 
   const { data: wards, refetch: refetchWards } = useQuery({
     queryKey: ['wards', formik.values.district_id],
     queryFn: () => getWardsByDistrictId(formik.values.district_id),
-    enabled: !!formik.values.district_id,
+    enabled: !!formik.values.district_id && formik.values.district_id != '',
+    keepPreviousData: true,
   });
 
   const provinceOptions = provinces
@@ -137,7 +170,7 @@ const AddressModel = ({ onClose, isOpen, address, refetchUser }) => {
         }`}
       >
         <button
-          className="absolute top-2 right-2 text-gray-500 hover:text-black"
+          className="absolute top-4 right-4 text-gray-500 hover:text-black"
           onClick={handleClose}
         >
           <FaTimes size={20} />
@@ -187,12 +220,18 @@ const AddressModel = ({ onClose, isOpen, address, refetchUser }) => {
               defaultValue={'Chọn tỉnh / thành phố'}
               onChange={(option) => {
                 formik.setFieldValue('province_id', option.value);
+                formik.setFieldValue('province_name', option.label);
+
                 formik.setFieldValue('district_id', '');
+                formik.setFieldValue('district_name', '');
                 formik.setFieldValue('ward_id', '');
+                formik.setFieldValue('ward_name', '');
+
                 refetchDistricts();
               }}
               error={formik.touched.province_id && formik.errors.province_id}
             />
+
             <SearchableSelect
               id="district"
               label="Quận / Huyện"
@@ -201,7 +240,11 @@ const AddressModel = ({ onClose, isOpen, address, refetchUser }) => {
               value={formik.values.district_id}
               onChange={(option) => {
                 formik.setFieldValue('district_id', option.value);
+                formik.setFieldValue('district_name', option.label);
+
                 formik.setFieldValue('ward_id', '');
+                formik.setFieldValue('ward_name', '');
+
                 refetchWards();
               }}
               error={formik.touched.district_id && formik.errors.district_id}
@@ -214,6 +257,7 @@ const AddressModel = ({ onClose, isOpen, address, refetchUser }) => {
               value={formik.values.ward_id}
               onChange={(option) => {
                 formik.setFieldValue('ward_id', option.value.toString());
+                formik.setFieldValue('ward_name', option.label);
               }}
               error={formik.touched.ward_id && formik.errors.ward_id}
             />
@@ -230,6 +274,22 @@ const AddressModel = ({ onClose, isOpen, address, refetchUser }) => {
           />
 
           <div>
+            <div className="mb-4">
+              <label htmlFor="isDefault" className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="isDefault"
+                  name="isDefault"
+                  className="checkbox checkbox-error"
+                  checked={formik.values.isDefault}
+                  onChange={formik.handleChange}
+                />
+                <span className="text-sm text-gray-700">
+                  Đặt làm địa chỉ mặc định
+                </span>
+              </label>
+            </div>
+
             <button
               type="submit"
               className="btn bg-red-600 rounded-md mt-4 px-12"

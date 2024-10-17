@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import AddressModel from './components/AddressModel';
-import { useQuery } from '@tanstack/react-query';
-import { getCurrentUser } from '~/APIs';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { getCurrentUser, updateCurrentUser } from '~/APIs';
+import Swal from 'sweetalert2';
 
 const AddressList = () => {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -10,6 +11,16 @@ const AddressList = () => {
   const { data: user, refetch: refetchUser } = useQuery({
     queryKey: ['getCurrentUser'],
     queryFn: getCurrentUser,
+  });
+
+  const mutation = useMutation({
+    mutationFn: updateCurrentUser,
+    onSuccess: () => {
+      refetchUser();
+    },
+    onError: () => {
+      Swal.fire('Thất bại!', 'Xoá địa chỉ thất bại, vui lòng thử lại', 'error');
+    },
   });
 
   const handleOpenModal = () => setModalOpen(true);
@@ -21,6 +32,31 @@ const AddressList = () => {
   const handleEditAddress = (address) => {
     setEditingAddress(address);
     setModalOpen(true);
+  };
+
+  const handleDeleteAddress = (addressId) => {
+    Swal.fire({
+      title: 'Bạn có chắc chắn muốn xoá?',
+      text: 'Bạn sẽ không thể hoàn tác hành động này!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Xoá',
+      cancelButtonText: 'Hủy',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const updatedAddresses = user.addresses.filter(
+          (address) => address._id !== addressId
+        );
+
+        mutation.mutate({ name: user.name, addresses: updatedAddresses });
+
+        Swal.fire({
+          title: 'Thành công!',
+          text: 'Xoá điạ chỉ thành công.',
+          icon: 'success',
+        });
+      }
+    });
   };
 
   return (
@@ -43,7 +79,7 @@ const AddressList = () => {
               </div>
               <p className="break-words w-full">
                 <b>Địa chỉ: </b>
-                {address?.address}
+                {address?.fullAddress}
               </p>
               <p>
                 <b>Điện thoại: </b>
@@ -59,7 +95,12 @@ const AddressList = () => {
                   Chỉnh sửa
                 </p>
               </div>
-              <p className="cursor-pointer font-bold text-red-500">Xoá</p>
+              <p
+                className="cursor-pointer font-bold text-red-500"
+                onClick={() => handleDeleteAddress(address._id)}
+              >
+                Xoá
+              </p>
             </div>
           </div>
         ))}
