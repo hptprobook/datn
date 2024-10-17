@@ -1,7 +1,10 @@
 import InputField_Full from '~/components/common/TextField/InputField_Full';
 import UploadImage from '~/components/common/UploadImage/UploadImage';
+import { useUser } from '~/context/UserContext';
 
 const MyProfile = () => {
+  const { user } = useUser();
+
   return (
     <div className="text-black bg-white rounded-sm p-10">
       <h1 className="text-xl font-bold border-b pb-3">Hồ sơ của tôi</h1>
@@ -22,6 +25,17 @@ const MyProfile = () => {
                 label="Họ và tên"
                 name="fullName"
                 type="text"
+                value={user?.name}
+              />
+            </div>
+            <div className="mt-2">
+              <InputField_Full
+                id="email"
+                label="Email"
+                name="email"
+                type="email"
+                value={user?.email}
+                disabled
               />
             </div>
             <div className="mt-2">
@@ -30,6 +44,7 @@ const MyProfile = () => {
                 label="Ngày sinh"
                 name="birthday"
                 type="date"
+                // value={user?.birthday}
               />
             </div>
             <div id="gender" className="mt-2 text-sm font-medium text-gray-700">
@@ -70,18 +85,12 @@ const MyProfile = () => {
                 label="Số điện thoại"
                 name="phone"
                 type="text"
+                value={user?.phone}
               />
             </div>
-            <div className="mt-2">
-              <InputField_Full
-                id="email"
-                label="Email"
-                name="email"
-                type="email"
-              />
-            </div>
+
             <div className="mt-4">
-              <button className="btn btn-error float-end rounded-md">
+              <button className="btn bg-red-600 float-end rounded-md">
                 Lưu thay đổi
               </button>
             </div>

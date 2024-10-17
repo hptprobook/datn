@@ -5,6 +5,8 @@ import { userModel } from '~/models/userModel';
 import { StatusCodes } from 'http-status-codes';
 import bcrypt from 'bcryptjs';
 import { ERROR_MESSAGES } from '~/utils/errorMessage';
+
+import { ObjectId } from 'mongodb';
 import path from 'path';
 import { uploadModel } from '~/models/uploadModel';
 const getCurrentUser = async (req, res) => {
@@ -155,6 +157,7 @@ const changePassWord = async (req, res) => {
 };
 
 const updateCurrentUser = async (req, res) => {
+
     try {
         const { user_id } = req.user;
         const data = req.body;

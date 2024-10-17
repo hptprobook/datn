@@ -67,16 +67,26 @@ const validateBeforeUpdate = async (data) => {
 };
 
 const update = async (id, data) => {
-    const dataValidate = await validateBeforeUpdate(data);
-    const result = await GET_DB()
-        .collection('users')
-        .findOneAndUpdate(
-            { _id: new ObjectId(id) },
-            { $set: dataValidate },
-            { returnDocument: 'after' }
-        );
-    delete result.password;
-    return result;
+  const dataValidate = await validateBeforeUpdate(data);
+
+  if (dataValidate.addresses) {
+    const address = dataValidate.addresses;
+    const addressList = address.map((item) => ({
+      ...item,
+      _id: item._id ? new ObjectId(item._id) : new ObjectId(),
+    }));
+    dataValidate.addresses = addressList;
+  }
+
+  const result = await GET_DB()
+    .collection('users')
+    .findOneAndUpdate(
+      { _id: new ObjectId(id) },
+      { $set: dataValidate },
+      { returnDocument: 'after' }
+    );
+  delete result.password;
+  return result;
 };
 
 const updateByEmail = async (email, otp) => {

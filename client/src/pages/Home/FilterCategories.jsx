@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { getProductsByEventSlug } from '~/APIs';
+import MainLoading from '~/components/common/Loading/MainLoading';
 import ProductItem from '~/components/common/Product/ProductItem';
 
 const FilterCategories = ({ slug }) => {
@@ -12,7 +13,7 @@ const FilterCategories = ({ slug }) => {
 
   const tabs = ['Nam', 'Nữ', 'Trẻ em'];
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <MainLoading />;
 
   // Depending on the active tab, select the appropriate product category
   let filteredProducts = [];
