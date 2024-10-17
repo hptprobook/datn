@@ -73,8 +73,10 @@ export default function AccountPopover() {
         }}
       >
         <Avatar
+
           src="https://i.pinimg.com/originals/c6/e5/65/c6e56503cfdd87da299f72dc416023d4.jpg"
           alt={account?.name}
+
           sx={{
             width: 36,
             height: 36,
