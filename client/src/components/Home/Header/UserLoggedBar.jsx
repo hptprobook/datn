@@ -7,12 +7,26 @@ const UserLoggedBar = ({ currentUserInfor }) => {
   const handleLogout = () => {
     logout();
   };
+  let avatarUrl = '';
+  if (currentUserInfor?.avatar) {
+    avatarUrl =
+      currentUserInfor.avatar.startsWith('http://') ||
+      currentUserInfor.avatar.startsWith('https://')
+        ? currentUserInfor.avatar
+        : `${import.meta.env.VITE_SERVER_URL}/${currentUserInfor.avatar}`;
+  }
 
   return (
     <div className="relative text-2xl text-gray-50 cursor-pointer group z-30">
       {currentUserInfor?.avatar ? (
         <NavLink to={'/nguoi-dung/tai-khoan'}>
-          <div className="">{currentUserInfor.avatar}</div>
+          <div className="">
+            <img
+              src={avatarUrl}
+              alt="avatar"
+              className="w-6 h-6 rounded-full object-cover"
+            />
+          </div>
         </NavLink>
       ) : (
         <Icon icon="solar:user-id-outline" />
@@ -25,9 +39,9 @@ const UserLoggedBar = ({ currentUserInfor }) => {
           <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
             {currentUserInfor?.avatar ? (
               <img
-                src={currentUserInfor?.avatar}
+                src={avatarUrl}
                 alt="avatar"
-                className="w-10 h-10 rounded-full"
+                className="w-10 h-10 rounded-full object-cover"
               />
             ) : (
               <Icon icon="mdi:user" className="w-8 h-8 text-red-600" />
