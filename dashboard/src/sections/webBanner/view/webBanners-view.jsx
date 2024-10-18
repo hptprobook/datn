@@ -20,12 +20,9 @@ import { handleToast } from 'src/hooks/toast';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   fetchAll,
-  resetDelete,
-  deleteCoupon,
-  deleteManyCoupon,
-} from 'src/redux/slices/couponSlice';
+  resetDelete
+} from 'src/redux/slices/webBannerSlice';
 import { useRouter } from 'src/routes/hooks';
-import { formatCurrency } from 'src/utils/format-number';
 import TableEmptyRows from 'src/components/table/table-empty-rows';
 import TableNoData from 'src/components/table/table-no-data';
 import WebBannerTableRow from '../webBanner-table-row';
@@ -38,25 +35,19 @@ import WebBannerTableHead from '../webBanner-table-head';
 
 export default function WebBannersPage() {
   const [page, setPage] = useState(0);
-
   const [order, setOrder] = useState('asc');
-
   const [selected, setSelected] = useState([]);
-
   const [orderBy, setOrderBy] = useState('name');
-
   const [filterName, setFilterName] = useState('');
-
   const [rowsPerPage, setRowsPerPage] = useState(5);
-
-  const [coupons, setCoupons] = useState([]);
+  const [webBanners, setWebBanners] = useState([]);
 
   const dispatch = useDispatch();
   const route = useRouter();
 
-  const data = useSelector((state) => state.coupons.coupons);
-  const status = useSelector((state) => state.coupons.status);
-  const statusDelete = useSelector((state) => state.coupons.statusDelete);
+  const data = useSelector((state) => state.webBanners.webBanners);
+  const status = useSelector((state) => state.webBanners.status);
+  const statusDelete = useSelector((state) => state.webBanners.statusDelete);
 
   useEffect(() => {
     dispatch(fetchAll());
@@ -64,13 +55,13 @@ export default function WebBannersPage() {
 
   useEffect(() => {
     if (status === 'successful') {
-      setCoupons(data);
+      setWebBanners(data);
     }
   }, [status, dispatch, data]);
 
   useEffect(() => {
     if (statusDelete === 'successful') {
-      handleToast('success', 'Xóa Mã giảm giá thành công');
+      handleToast('success', 'Xóa Bảng quảng cáo thành công');
       dispatch(fetchAll());
       dispatch(resetDelete());
     }
@@ -86,7 +77,7 @@ export default function WebBannersPage() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelected = coupons.map((n) => n._id);
+      const newSelected = webBanners.map((n) => n._id);
       setSelected(newSelected);
       return;
     }
@@ -126,7 +117,7 @@ export default function WebBannersPage() {
   };
 
   const dataFiltered = applyFilter({
-    inputData: coupons,
+    inputData: webBanners,
     comparator: getComparator(order, orderBy),
     filterName,
   });
@@ -137,11 +128,11 @@ export default function WebBannersPage() {
     setConfirm(id);
   };
   const dispatchDelete = () => {
-    dispatch(deleteCoupon(confirm));
+    // dispatch(deleteCoupon(confirm));
   };
   const handleMultiDelete = () => {
     setSelected([]);
-    dispatch(deleteManyCoupon(selected));
+    // dispatch(deleteManyCoupon(selected));
   };
   const notFound = !dataFiltered.length && !!filterName;
 
@@ -160,11 +151,11 @@ export default function WebBannersPage() {
         openConfirm={!!confirmMulti}
         onAgree={handleMultiDelete}
         onClose={() => setConfirmMulti(false)}
-        label="những mã giảm giá đã chọn"
+        label="những bảng quảng cáo đã chọn"
       />
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
-          <Typography variant="h4">Mã giảm giá </Typography>
+          <Typography variant="h4">Bảng quảng cáo </Typography>
 
           <IconButton
             aria-label="load"
@@ -182,7 +173,7 @@ export default function WebBannersPage() {
           color="inherit"
           startIcon={<Iconify icon="eva:plus-fill" />}
         >
-          Tạo mã giảm giá
+          Tạo bảng quảng cáo
         </Button>
       </Stack>
 
@@ -200,21 +191,14 @@ export default function WebBannersPage() {
               <WebBannerTableHead
                 order={order}
                 orderBy={orderBy}
-                rowCount={coupons.length}
+                rowCount={webBanners.length}
                 numSelected={selected.length}
                 onRequestSort={handleSort}
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
-                  { id: 'code', label: 'Mã' },
-                  { id: 'type', label: 'Loại' },
-                  { id: 'minPurchasePrice', label: 'Giá mua tối thiểu' },
-                  { id: 'maxPurchasePrice', label: 'Giá mua tối đa' },
-                  { id: 'usageLimit', label: 'Giới hạn sử dụng' },
-                  { id: 'usageCount', label: 'Số lần sử dụng' },
-                  { id: 'status', label: 'Trạng thái' },
-                  { id: 'limitOnUser', label: 'Giới hạn người dùng' },
-                  { id: 'dateStart', label: 'Ngày bắt đầu' },
-                  { id: 'dateEnd', label: 'Ngày kết thúc' },
+                  { id: 'title', label: 'Tiêu đề' },
+                  { id: 'description', label: 'Mô tả' },
+                  { id: 'url', label: 'Đường dẫn' },
                   { id: '' },
                 ]}
               />
@@ -225,17 +209,10 @@ export default function WebBannersPage() {
                     <WebBannerTableRow
                       id={row._id}
                       key={row._id}
-                      code={row.code}
-                      type={row.type}
-                      applicableProducts={row.applicableProducts}
-                      usageLimit={row.usageLimit}
-                      minPurchasePrice={formatCurrency(row.minPurchasePrice)}
-                      maxPurchasePrice={formatCurrency(row.maxPurchasePrice)}
-                      usageCount={row.usageCount}
-                      status={row.status}
-                      limitOnUser={row.limitOnUser}
-                      dateStart={row.dateStart}
-                      dateEnd={row.dateEnd}
+                      image={row.image}
+                      title={row.title}
+                      description={row.description}
+                      url={row.url}
                       selected={selected.indexOf(row._id) !== -1}
                       handleClick={(event) => handleClick(event, row._id)}
                       onDelete={handleDelete}
@@ -245,7 +222,7 @@ export default function WebBannersPage() {
 
                 <TableEmptyRows
                   height={77}
-                  emptyRows={emptyRows(page, rowsPerPage, coupons.length)}
+                  emptyRows={emptyRows(page, rowsPerPage, webBanners.length)}
                   col={12}
                 />
 
@@ -258,7 +235,7 @@ export default function WebBannersPage() {
         <TablePagination
           page={page}
           component="div"
-          count={coupons.length}
+          count={webBanners.length}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}
           rowsPerPageOptions={[5, 10, 25]}
