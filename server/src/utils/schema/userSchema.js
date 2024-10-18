@@ -102,17 +102,3 @@ export const UPDATE_USER = Joi.object({
 }).messages({
   'object.unknown': 'Trường không xác định',
 });
-
-export const FAVORITE_PRODUCT = Joi.array().items(
-  Joi.string().trim().min(1).required().messages({
-    'string.empty': 'Sản phẩm không được để trống',
-    'any.required': 'Sản phẩm là bắt buộc',
-  })
-);
-
-export const VIEW_PRODUCT = Joi.array().items(
-  Joi.string().trim().min(1).required().messages({
-    'string.empty': 'Sản phẩm không được để trống',
-    'any.required': 'Sản phẩm là bắt buộc',
-  })
-);

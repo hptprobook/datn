@@ -260,6 +260,7 @@ const favoriteProduct = async (req, res) => {
     }
 
     const favorite = await userModel.getFavorite(id, userId);
+
     if (favorite) {
       const result = await userModel.removeFavoriteProduct(id, userId);
       if (result.error) {
@@ -308,8 +309,6 @@ const viewProduct = async (req, res) => {
       return res.sendStatus(StatusCodes.NO_CONTENT);
     }
   } catch (error) {
-    console.log(error);
-
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ message: error.message });
