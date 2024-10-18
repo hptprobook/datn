@@ -3,6 +3,7 @@ import { Fragment, useEffect } from 'react';
 import ProductDetailInfor from '~/pages/Products/components/ProductDetailInfor';
 import { FaTimes } from 'react-icons/fa';
 import './style.css';
+import MainLoading from '../Loading/MainLoading';
 
 const QuickViewModal = ({ isOpen, onClose, product, isLoading }) => {
   useEffect(() => {
@@ -70,7 +71,7 @@ const QuickViewModal = ({ isOpen, onClose, product, isLoading }) => {
                   </div>
                   <div className="w-3/5">
                     {isLoading ? (
-                      <p>Loading...</p>
+                      <MainLoading />
                     ) : (
                       <ProductDetailInfor
                         product={product}

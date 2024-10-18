@@ -2,7 +2,7 @@ import { PiShoppingCartBold } from 'react-icons/pi';
 import { MdOutlineContentPasteSearch } from 'react-icons/md';
 import { FaBars } from 'react-icons/fa';
 import { IoIosSearch } from 'react-icons/io';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import Logo from '~/assets/logo2.png';
 import UserBar from '~/components/Home/Header/UserBar';
@@ -19,6 +19,7 @@ import { useWishlist } from '~/context/WishListContext';
 import WishList from '~/components/common/Product/WishList';
 import { useQuery } from '@tanstack/react-query';
 import { getCurrentUser } from '~/APIs';
+import { useUser } from '~/context/UserContext';
 
 const Header = () => {
   const { isAuthenticated } = useCheckAuth();
@@ -29,14 +30,21 @@ const Header = () => {
   const [currentTitle, setCurrentTitle] = useState('Danh mục');
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const { wishlistItems, removeFromWishlist } = useWishlist();
+  const { setUserInfo } = useUser();
 
   const { items } = useCart();
 
-  const { data, isLoading } = useQuery({
+  const { data } = useQuery({
     queryKey: ['getCurrentUser'],
     queryFn: getCurrentUser,
     enabled: isAuthenticated,
   });
+
+  useEffect(() => {
+    if (data) {
+      setUserInfo(data);
+    }
+  }, [data, setUserInfo]);
 
   const currentUserInfor = data ? data : null;
 
