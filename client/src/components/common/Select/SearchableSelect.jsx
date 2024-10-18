@@ -9,23 +9,25 @@ const SearchableSelect = ({
   onChange,
   error,
   value,
+  defaultValue,
   isSearchable = true,
+  getOptionLabel = (option) => option.label,
+  getOptionValue = (option) => option.value,
   ...rest
 }) => {
-  // Custom styles for react-select
   const customStyles = {
     option: (provided, state) => ({
       ...provided,
-      backgroundColor: state.isSelected ? '#f87171' : '#ffffff', // màu đỏ khi được chọn
-      color: state.isSelected ? '#ffffff' : '#000000', // màu chữ khi chọn
+      backgroundColor: state.isSelected ? '#f87171' : '#ffffff',
+      color: state.isSelected ? '#ffffff' : '#000000',
       '&:hover': {
-        backgroundColor: '#fecaca', // màu đỏ nhạt khi hover
-        color: '#000000', // màu chữ khi hover
+        backgroundColor: '#fecaca',
+        color: '#000000',
       },
     }),
     control: (provided) => ({
       ...provided,
-      borderColor: error ? '#f87171' : '#d1d5db', // màu viền tùy thuộc vào trạng thái lỗi
+      borderColor: error ? '#f87171' : '#d1d5db',
     }),
   };
 
@@ -40,9 +42,16 @@ const SearchableSelect = ({
       <Select
         id={id}
         name={name}
-        value={options.find((option) => option.value === value)}
+        value={
+          value
+            ? options.find((option) => getOptionValue(option) === value)
+            : null
+        }
+        defaultValue={defaultValue}
         onChange={onChange}
         options={options}
+        getOptionLabel={getOptionLabel}
+        getOptionValue={getOptionValue}
         classNamePrefix="react-select"
         isSearchable={isSearchable}
         styles={customStyles}
@@ -63,14 +72,16 @@ SearchableSelect.propTypes = {
   name: PropTypes.string,
   options: PropTypes.arrayOf(
     PropTypes.shape({
-      value: PropTypes.string,
+      value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
       label: PropTypes.string,
     })
   ).isRequired,
   onChange: PropTypes.func,
   error: PropTypes.string,
-  value: PropTypes.string,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   isSearchable: PropTypes.bool,
+  getOptionLabel: PropTypes.func,
+  getOptionValue: PropTypes.func,
 };
 
 export default SearchableSelect;

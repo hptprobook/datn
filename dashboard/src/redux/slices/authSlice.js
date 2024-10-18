@@ -57,6 +57,7 @@ const authSlice = createSlice({
             .addCase(handleLogin.fulfilled, (state, action) => {
                 state.status = "successful";
                 state.auth = action.payload;
+                state.error = null;
             })
             .addCase(handleLogin.rejected, (state, action) => {
                 state.status = "failed";

@@ -11,6 +11,7 @@ const InputField_Full = ({
   onBlur,
   value,
   error,
+  disabled,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -36,7 +37,8 @@ const InputField_Full = ({
           onBlur={onBlur}
           className={`pr-10 w-full rounded-md border-2 bg-white text-sm text-gray-700 shadow-sm h-10 px-3 outline-blue-500 ${
             error ? 'border-red-500' : 'border-gray-200'
-          }`}
+          } ${disabled ? 'bg-gray-100 text-slate-400' : ''}`}
+          disabled={disabled}
         />
         {type === 'password' && (
           <button

@@ -3,20 +3,15 @@ import { ObjectId } from 'mongodb';
 import {
   SAVE_USER_SCHEMA,
   UPDATE_USER,
-  FAVORITE_PRODUCT,
-  VIEW_PRODUCT,
+  INFOR_USER,
 } from '~/utils/schema/userSchema';
+
+const validateBeforeUpdateInfor = async (data) => {
+  return await INFOR_USER.validateAsync(data, { abortEarly: false });
+};
 
 const validateBeforeCreate = async (data) => {
   return await SAVE_USER_SCHEMA.validateAsync(data, { abortEarly: false });
-};
-
-const validateBeforeFavorite = async (data) => {
-  return await FAVORITE_PRODUCT.validateAsync(data, { abortEarly: false });
-};
-
-const validateBeforeView = async (data) => {
-  return await VIEW_PRODUCT.validateAsync(data, { abortEarly: false });
 };
 
 const countUserAll = async () => {
@@ -63,6 +58,16 @@ const validateBeforeUpdate = async (data) => {
 
 const update = async (id, data) => {
   const dataValidate = await validateBeforeUpdate(data);
+
+  if (dataValidate.addresses) {
+    const address = dataValidate.addresses;
+    const addressList = address.map((item) => ({
+      ...item,
+      _id: item._id ? new ObjectId(item._id) : new ObjectId(),
+    }));
+    dataValidate.addresses = addressList;
+  }
+
   const result = await GET_DB()
     .collection('users')
     .findOneAndUpdate(
@@ -97,14 +102,29 @@ const deleteUser = async (id, role) => {
 };
 
 const favoriteProduct = async (id, userId) => {
-  const validData = await validateBeforeFavorite([id]);
-  const db = GET_DB().collection('users');
+  const dbUsers = GET_DB().collection('users');
+  const dbProducts = GET_DB().collection('products');
 
-  const result = await db.findOneAndUpdate(
+  const product = await dbProducts.findOne(
+    { _id: new ObjectId(id) },
+    { projection: { _id: 1, name: 1, thumbnail: 1, price: 1, reviews: 1 } }
+  );
+
+  if (!product) {
+    throw new Error('Sản phẩm không tồn tại');
+  }
+
+  const result = await dbUsers.findOneAndUpdate(
     { _id: new ObjectId(userId) },
     {
       $push: {
-        favorites: new ObjectId(validData[0]),
+        favorites: {
+          _id: product._id,
+          name: product.name,
+          image: product.thumbnail,
+          price: product.price,
+          reviews: product.reviews,
+        },
       },
     },
     { returnDocument: 'after' }
@@ -118,14 +138,29 @@ const favoriteProduct = async (id, userId) => {
 };
 
 const viewProduct = async (id, userId) => {
-  const validData = await validateBeforeView([id]);
   const db = GET_DB().collection('users');
+  const dbProducts = GET_DB().collection('products');
+
+  const product = await dbProducts.findOne(
+    { _id: new ObjectId(id) },
+    { projection: { _id: 1, name: 1, thumbnail: 1, price: 1, reviews: 1 } }
+  );
+
+  if (!product) {
+    throw new Error('Sản phẩm không tồn tại');
+  }
 
   const result = await db.findOneAndUpdate(
     { _id: new ObjectId(userId) },
     {
       $push: {
-        views: new ObjectId(validData[0]),
+        views: {
+          _id: product._id,
+          name: product.name,
+          image: product.thumbnail,
+          price: product.price,
+          reviews: product.reviews,
+        },
       },
     },
     { returnDocument: 'after' }
@@ -161,22 +196,47 @@ const removeFavoriteProduct = async (id, userId) => {
 const getFavorite = async (id, userId) => {
   const db = GET_DB().collection('users');
 
-  const result = await db.findOne({
-    _id: new ObjectId(userId),
-    favorites: new ObjectId(id),
-  });
-
+  const result = await db.updateOne(
+    { _id: new ObjectId(userId) },
+    {
+      $pull: {
+        favorites: { _id: new ObjectId(id) },
+      },
+    }
+  );
+  if (result.modifiedCount === 0) {
+    return null;
+  }
   return result;
 };
 
 const getView = async (id, userId) => {
   const db = GET_DB().collection('users');
 
-  const result = await db.findOne({
-    _id: new ObjectId(userId),
-    views: new ObjectId(id),
-  });
-
+  const result = await db.updateOne(
+    { _id: new ObjectId(userId) },
+    {
+      $pull: {
+        views: { _id: new ObjectId(id) },
+      },
+    }
+  );
+  if (result.modifiedCount === 0) {
+    return null;
+  }
+  return result;
+};
+// update infor
+const updateInfor = async (id, data) => {
+  const dataValidate = await validateBeforeUpdateInfor(data);
+  const result = await GET_DB()
+    .collection('users')
+    .findOneAndUpdate(
+      { _id: new ObjectId(id) },
+      { $set: dataValidate },
+      { returnDocument: 'after' }
+    );
+  delete result.password;
   return result;
 };
 
@@ -194,4 +254,5 @@ export const userModel = {
   removeFavoriteProduct,
   getView,
   viewProduct,
+  updateInfor,
 };

@@ -160,8 +160,9 @@ const loginStaff = async (req, res) => {
 }
 const logoutStaff = async (req, res) => {
     try {
-        const { user_id } = req.user;
-        await staffsModel.updateMe(user_id, { refreshToken: null });
+        const { refreshToken } = req.cookies;
+        const decodedToken = jwt.verify(refreshToken, process.env.SECRET_STAFF);
+        await staffsModel.updateMe(decodedToken.user_id, { refreshToken: null });
         return await res.clearCookie('refreshToken').status(StatusCodes.OK).json({
             message: 'Đăng xuất thành công',
         });
