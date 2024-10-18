@@ -6,6 +6,9 @@ import { StatusCodes } from 'http-status-codes';
 import bcrypt from 'bcryptjs';
 import { ERROR_MESSAGES } from '~/utils/errorMessage';
 
+import { ObjectId } from 'mongodb';
+import path from 'path';
+import { uploadModel } from '~/models/uploadModel';
 const getCurrentUser = async (req, res) => {
   try {
     const { user_id } = req.user;
@@ -260,7 +263,6 @@ const favoriteProduct = async (req, res) => {
     }
 
     const favorite = await userModel.getFavorite(id, userId);
-
     if (favorite) {
       const result = await userModel.removeFavoriteProduct(id, userId);
       if (result.error) {
@@ -309,9 +311,68 @@ const viewProduct = async (req, res) => {
       return res.sendStatus(StatusCodes.NO_CONTENT);
     }
   } catch (error) {
+    console.log(error);
+
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ message: error.message });
+  }
+};
+const updateInfor = async (req, res) => {
+  try {
+    const { user_id } = req.user;
+    if (!req.file) {
+      const dataInfor = req.body;
+      const result = await userModel.updateInfor(user_id, dataInfor);
+      delete result.refreshToken;
+      delete result.role;
+      delete result.allowNotifies;
+      delete result.createdAt;
+      delete result.updatedAt;
+      delete result.favorites;
+      return res
+        .status(StatusCodes.OK)
+        .json({ message: 'Cập nhật thông tin thành công', result });
+    }
+    const getUser = await userModel.getUserID(user_id);
+    const file = req.file;
+    const fileName = file.filename;
+    const filePath = path.join('uploads/user', fileName);
+    const dataInfor = {
+      ...req.body,
+      avatar: filePath,
+    };
+    const result = await userModel.updateInfor(user_id, dataInfor);
+    delete result.refreshToken;
+    delete result.role;
+    delete result.allowNotifies;
+    delete result.createdAt;
+    delete result.updatedAt;
+    delete result.favorites;
+    if (result) {
+      const fileGetUser = path.join(getUser.avatar);
+      await uploadModel.deleteImg(fileGetUser);
+      return res
+        .status(StatusCodes.OK)
+        .json({ message: 'Cập nhật thông tin thành công', result });
+    }
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
+  } catch (error) {
+    if (req.file) {
+      const file = req.file;
+      const fileName = file.filename;
+      const filePath = path.join('uploads/user', fileName);
+      await uploadModel.deleteImg(filePath);
+    }
+
+    if (error.details) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        messages: error.details[0].message,
+      });
+    }
+    return res.status(StatusCodes.BAD_REQUEST).json(error);
   }
 };
 
@@ -328,4 +389,5 @@ export const usersController = {
   favoriteProduct,
   createUser,
   viewProduct,
+  updateInfor,
 };

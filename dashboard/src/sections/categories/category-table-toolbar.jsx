@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import { useState, useEffect } from 'react';
-import { Select, MenuItem, InputLabel, FormControl } from '@mui/material';
+import { TextField, Autocomplete } from '@mui/material';
 
 import Tooltip from '@mui/material/Tooltip';
 import Toolbar from '@mui/material/Toolbar';
@@ -15,19 +15,28 @@ import Iconify from 'src/components/iconify';
 
 export default function CategoryTableToolbar({ numSelected, filterName, onFilterName, onMultiDelete, handleFilterChange, dataCategories }) {
 
+ 
   const [selectedParentId, setSelectedParentId] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
 
-  const handleSelectChange = (event) => {
-    const selectedValue = event.target.value;
+  const handleSelectChange = (event, newValue) => {
+    const selectedValue = newValue ? newValue._id : '';
     setSelectedParentId(selectedValue);
     handleFilterChange(selectedValue);
   };
 
+  
+  const handleSearchChange = (event) => {
+    const term = event.target.value;
+    setSearchTerm(term);
+  };
   useEffect(() => {
     handleFilterChange(selectedParentId);
   }, [selectedParentId, handleFilterChange]);
 
-
+  const filteredCategories = dataCategories.filter(category =>
+    category.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
   return (
     <Toolbar
       sx={{
@@ -72,30 +81,22 @@ export default function CategoryTableToolbar({ numSelected, filterName, onFilter
           </IconButton>
         </Tooltip>
       ) : (
-        <FormControl variant="outlined" size="small" sx={{ width: 300 }}>
-          <InputLabel id="parent-select-label">Chọn danh mục cha</InputLabel>
-          <Select
-            labelId="parent-select-label"
-            value={selectedParentId}
+        <Autocomplete
+            options={filteredCategories}
+            getOptionLabel={(option) => option.name}
             onChange={handleSelectChange}
-            label="Chọn danh mục cha"
-          >
-            <MenuItem value="">
-              <em>Tất cả</em>
-            </MenuItem>
-            {dataCategories && dataCategories.length > 0 ? (
-              dataCategories.map((category) => (
-                <MenuItem key={category._id} value={category._id}>
-                  {category.name}
-                </MenuItem>
-              ))
-            ) : (
-              <MenuItem value="" disabled>
-                Không có dữ liệu
-              </MenuItem>
+            renderInput={(params) => (
+              <TextField
+              {...params}
+              variant="outlined"
+              size="small"
+              placeholder="Chọn danh mục cha"
+              onChange={handleSearchChange} 
+              sx={{ width: 300 }}
+              />
             )}
-          </Select>
-        </FormControl>
+            sx={{ width: 300 }}
+          />
       )}
     </Toolbar>
   );

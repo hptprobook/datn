@@ -1,6 +1,14 @@
 import { GET_DB } from '~/config/mongodb';
 import { ObjectId } from 'mongodb';
-import { SAVE_USER_SCHEMA, UPDATE_USER } from '~/utils/schema/userSchema';
+import {
+  SAVE_USER_SCHEMA,
+  UPDATE_USER,
+  INFOR_USER,
+} from '~/utils/schema/userSchema';
+
+const validateBeforeUpdateInfor = async (data) => {
+  return await INFOR_USER.validateAsync(data, { abortEarly: false });
+};
 
 const validateBeforeCreate = async (data) => {
   return await SAVE_USER_SCHEMA.validateAsync(data, { abortEarly: false });
@@ -50,6 +58,16 @@ const validateBeforeUpdate = async (data) => {
 
 const update = async (id, data) => {
   const dataValidate = await validateBeforeUpdate(data);
+
+  if (dataValidate.addresses) {
+    const address = dataValidate.addresses;
+    const addressList = address.map((item) => ({
+      ...item,
+      _id: item._id ? new ObjectId(item._id) : new ObjectId(),
+    }));
+    dataValidate.addresses = addressList;
+  }
+
   const result = await GET_DB()
     .collection('users')
     .findOneAndUpdate(
@@ -208,6 +226,19 @@ const getView = async (id, userId) => {
   }
   return result;
 };
+// update infor
+const updateInfor = async (id, data) => {
+  const dataValidate = await validateBeforeUpdateInfor(data);
+  const result = await GET_DB()
+    .collection('users')
+    .findOneAndUpdate(
+      { _id: new ObjectId(id) },
+      { $set: dataValidate },
+      { returnDocument: 'after' }
+    );
+  delete result.password;
+  return result;
+};
 
 export const userModel = {
   getUserAll,
@@ -223,4 +254,5 @@ export const userModel = {
   removeFavoriteProduct,
   getView,
   viewProduct,
+  updateInfor,
 };
