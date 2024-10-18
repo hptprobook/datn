@@ -4,11 +4,10 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { getCurrentUser, updateInfor } from '~/APIs/user';
 import InputField_Full from '~/components/common/TextField/InputField_Full';
 import UploadImage from '~/components/common/UploadImage/UploadImage';
-import Swal from 'sweetalert2';
 import { Datepicker } from 'flowbite-react';
 import moment from 'moment/moment';
 import MainLoading from '~/components/common/Loading/MainLoading';
-import { urlToFile } from '~/utils/formatters';
+import { useSwal } from '~/customHooks/useSwal';
 
 const MyProfile = () => {
   const {
@@ -24,16 +23,16 @@ const MyProfile = () => {
     mutationFn: updateInfor,
     onSuccess: () => {
       refetchUser();
-      Swal.fire({
+      useSwal.fire({
         title: 'Thành công!',
         text: 'Cập nhật thông tin thành công',
         icon: 'success',
       });
     },
     onError: (error) => {
-      Swal.fire({
+      useSwal.fire({
         title: 'Thất bại!',
-        text: 'Cập nhật thông tin thất bại: ' + error.message,
+        text: 'Cập nhật thông tin thất bại: ' + error.messages,
         icon: 'error',
       });
     },
@@ -46,9 +45,12 @@ const MyProfile = () => {
       birthdate: user?.birthdate || null,
       gender: user?.gender || 'male',
       phone: user?.phone || '',
-      avatar: user?.avatar
-        ? `${import.meta.env.VITE_SERVER_URL}/${user?.avatar}`
-        : null,
+      avatar:
+        user?.avatar &&
+        !user?.avatar.startsWith('http://') &&
+        !user?.avatar.startsWith('https://')
+          ? `${import.meta.env.VITE_SERVER_URL}/${user?.avatar}`
+          : user?.avatar,
     },
     validationSchema: Yup.object({
       name: Yup.string()

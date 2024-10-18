@@ -1,136 +1,197 @@
-import { useState } from 'react';
-import { NavLink } from 'react-router-dom';
-import ChangeQuantity from '~/components/common/ButtonGroup/ChangeQuantity';
-import { FaTrashAlt } from 'react-icons/fa';
 import { useCart } from 'react-use-cart';
+import { useEffect } from 'react';
 import { formatCurrencyVND } from '~/utils/formatters';
+import { Icon } from '@iconify/react';
+import QuantityButton from '~/components/common/ButtonGroup/QuantityButton';
+import { useCartContext } from '~/context/CartContext';
+import { Link } from 'react-router-dom';
+import useCheckAuth from '~/customHooks/useCheckAuth';
+import { useSwal, useSwalWithConfirm } from '~/customHooks/useSwal';
 
 const CartListProduct = () => {
-  const { items } = useCart();
-  const [quantity, setQuantity] = useState(1);
-  const [checkedItems, setCheckedItems] = useState([]);
-  const [checkAll, setCheckAll] = useState(false);
-  const handleQuantityChange = (newQuantity) => {
-    setQuantity(newQuantity);
-  };
+  const { items, updateItemQuantity, removeItem } = useCart();
+  const { selectedItems, setSelectedItems } = useCartContext();
+  const { isAuthenticated } = useCheckAuth();
 
-  const handleCheckItem = (_id) => {
-    setCheckedItems((prevCheckedItems) => {
-      const newCheckedItems = [...prevCheckedItems];
-      if (newCheckedItems.includes(_id)) {
-        newCheckedItems.splice(newCheckedItems.indexOf(_id), 1);
+  useEffect(() => {
+    const allItemIds = items.map((product) => product.id);
+    setSelectedItems(allItemIds);
+  }, [items]);
+
+  const handleItemClick = (id) => {
+    setSelectedItems((prevSelectedItems) => {
+      if (prevSelectedItems.includes(id)) {
+        return prevSelectedItems.filter((itemId) => itemId !== id);
       } else {
-        newCheckedItems.push(_id);
+        return [...prevSelectedItems, id];
       }
-      return newCheckedItems;
     });
   };
 
-  const handleCheckAll = () => {
-    if (checkAll) {
-      setCheckedItems([]);
-    } else {
-      setCheckedItems(items.map((item) => item._id));
-    }
-    setCheckAll(!checkAll);
+  const handleQuantityChange = (id, newQuantity) => {
+    updateItemQuantity(id, newQuantity);
+  };
+
+  const handleRemoveItem = (id) => {
+    useSwalWithConfirm
+      .fire({
+        title: 'Bạn có chắc chắn muốn xoá sản phẩm này?',
+        text: 'Hành động này không thể hoàn tác!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Xoá',
+        cancelButtonText: 'Huỷ',
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          removeItem(id);
+          useSwal.fire(
+            'Đã xoá!',
+            'Sản phẩm đã được xoá khỏi giỏ hàng.',
+            'success'
+          );
+        }
+      });
   };
 
   return (
-    <div className="col-span-12 xl:col-span-8 lg:pr-8 pb-8 w-full max-xl:max-w-3xl max-xl:mx-auto">
-      <div className="block text-center lg:text-left lg:flex items-center justify-between pb-8 border-b border-gray-300">
-        <h2 className="font-manrope font-bold text-3xl leading-10 text-black">
+    <div className="mx-auto w-full flex-none lg:max-w-2xl xl:max-w-4xl cursor-pointer relative">
+      <div className="flex justify-between items-center w-full mb-4">
+        <h2 className="text-xl font-semibold text-gray-900 sm:text-2xl">
           Giỏ hàng
         </h2>
-        <h2 className="font-manrope font-bold text-md leading-8 text-gray-600">
-          Số sản phẩm đã chọn: {checkedItems.length}/{items.length}
-        </h2>
+        <h6 className="text-md font-semibold text-gray-900">
+          Đã chọn: {selectedItems.length} sản phẩm
+        </h6>
       </div>
-      <div className="grid grid-cols-12 mt-8 max-md:hidden pb-6 border-b border-gray-200">
-        <div className="col-span-1 flex items-center">
-          <input
-            type="checkbox"
-            className="checkbox-error checkbox bg-white"
-            checked={checkAll}
-            onChange={handleCheckAll}
-          />
-        </div>
-        <div className="col-span-5 md:col-span-4">
-          <p className="font-normal text-lg leading-8 text-gray-400">
-            Sản phẩm
-          </p>
-        </div>
-        <div className="col-span-6 md:col-span-7">
-          <div className="grid grid-cols-5">
-            <div className="col-span-4">
-              <p className="font-normal text-lg leading-8 text-gray-400 text-center">
-                Số lượng
-              </p>
-            </div>
-            <div className="col-span-1">
-              <p className="font-normal text-lg leading-8 text-gray-400 text-right">
-                Tổng tiền
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-      {items.map((product) => (
-        <div
-          key={product.id}
-          className="flex flex-col min-[500px]:flex-row min-[500px]:items-center gap-5 py-6 border-b border-gray-200 group"
-        >
-          <div className="flex items-center justify-center md:justify-start">
-            <input
-              type="checkbox"
-              className="checkbox-error checkbox bg-white hover:bg-white"
-              checked={checkedItems.includes(product.id)}
-              onChange={() => handleCheckItem(product.id)}
-            />
-          </div>
-          <div className="w-full md:max-w-[126px]">
-            <img src={product.image} alt="product image" className="mx-auto" />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-12 w-full">
-            <div className="md:col-span-4">
-              <div className="flex flex-col max-[500px]:items-center gap-3">
-                <NavLink to={`/san-pham/${product.slug}`}>
-                  <h6
-                    className="font-semibold text-base leading-7 text-black hover:text-red-600 cursor-pointer text-clamp-3"
-                    title={product.name}
-                  >
-                    {product.name}
-                  </h6>
-                </NavLink>
-                <h6 className="font-normal text-base leading-7 text-gray-500">
-                  {product.variantColor} - {product.variantSize}
-                </h6>
-                <h6 className="font-medium text-base leading-7 text-gray-600 transition-all duration-300 group-hover:text-amber-600">
-                  {formatCurrencyVND(product.price)}
-                </h6>
-              </div>
-            </div>
-            <div className="flex items-center h-full max-md:mt-3 md:col-span-5">
-              <ChangeQuantity
-                onChange={handleQuantityChange}
-                quantity={quantity}
+      <div className="space-y-6">
+        {items.map((product) => (
+          <div
+            key={product.id}
+            className={`relative rounded-lg border p-4 shadow-sm ${
+              selectedItems.includes(product.id)
+                ? 'border-red-500'
+                : 'border-gray-200'
+            } bg-white`}
+            onClick={() => handleItemClick(product.id)}
+          >
+            {selectedItems.includes(product.id) && (
+              <Icon
+                icon="mage:check"
+                className="absolute top-2 right-2 text-red-600"
+                width="30"
+                height="30"
               />
-            </div>
-            <div className="flex items-center justify-center md:justify-end max-md:mt-3 h-full md:col-span-3">
-              <div className="flex items-center flex-col">
-                <p className="font-bold text-lg leading-8 text-gray-600 text-center transition-all duration-300 group-hover:text-amber-600">
+            )}
+            <div className="space-y-4 md:flex md:items-center md:justify-between md:gap-6 md:space-y-0">
+              <a
+                href="#"
+                className="shrink-0 md:order-1"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <img
+                  className="h-28 w-20 object-cover"
+                  src={product.image}
+                  alt={product.name}
+                />
+              </a>
+
+              <div className="flex items-center justify-between md:order-3 md:justify-end">
+                <QuantityButton
+                  quantity={product.quantity}
+                  onQuantityChange={(newQuantity) =>
+                    handleQuantityChange(product.id, newQuantity)
+                  }
+                  stopPropagation={(e) => e.stopPropagation()}
+                />
+                <div className="text-end md:order-4 md:w-32">
+                  <p className="text-base font-bold text-gray-900">
+                    {formatCurrencyVND(product.itemTotal)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="w-full min-w-0 flex-1 space-y-2 md:order-2 md:max-w-md">
+                <Link
+                  to={`/san-pham/${product.slug}`}
+                  className="text-base font-medium text-gray-900 hover:underline hover:text-red-600"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {product.name}
+                </Link>
+
+                <p className="text-gray-900 mt-0 pt-0">
                   {formatCurrencyVND(product.price)}
                 </p>
-                <FaTrashAlt className="text-gray-600 cursor-pointer hover:text-red-600 transition-all duration-300 mt-2" />
+
+                <p className="text-gray-900 mt-0 pt-0">
+                  {product?.variantColor} - {product?.variantSize}
+                </p>
+
+                <div className="flex items-center gap-4">
+                  {isAuthenticated && (
+                    <button
+                      type="button"
+                      className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 hover:underline"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <svg
+                        className="me-1.5 h-5 w-5"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke="currentColor"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M12.01 6.001C6.5 1 1 8 5.782 13.001L12.011 20l6.23-7C23 8 17.5 1 12.01 6.002Z"
+                        />
+                      </svg>
+                    </button>
+                  )}
+
+                  <button
+                    type="button"
+                    className="inline-flex items-center text-sm font-medium text-red-600 hover:underline"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemoveItem(product.id);
+                    }}
+                  >
+                    <svg
+                      className="me-1.5 h-5 w-5"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M6 18 17.94 6M18 18 6.06 6"
+                      />
+                    </svg>
+                    Xoá
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 };
 
-CartListProduct.propTypes = {};
-
 export default CartListProduct;
-
