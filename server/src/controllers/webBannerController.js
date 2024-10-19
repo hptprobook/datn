@@ -72,7 +72,7 @@ const updateWebBanner = async (req, res) => {
         const result = await webBannerModel.updateWebBanner(
             webBannerID,
             dataWebBanner
-        );
+        ); 
 
         if (result.error) {
             await uploadModel.deleteImg(req.file.filename);
@@ -118,9 +118,26 @@ const deleteWebBanner = async (req, res) => {
     }
 };
 
+const getWebBannerById = async (req, res) => {
+    try {
+        const { webBannerID } = req.params;
+        const result = await webBannerModel.findWebBannerByID(webBannerID);
+        if (!result) {
+            return res
+                .status(StatusCodes.BAD_REQUEST)
+                .json({ mgs: 'Dữ liệu Web banner không tồn tại' });
+        }
+        return res.status(StatusCodes.OK).json(result);
+    } catch (error) {
+        return res
+            .status(StatusCodes.BAD_REQUEST)
+            .json({ message: 'Có lỗi xảy ra xin thử lại sau', error });
+    }
+};
 export const webBannerController = {
     createWebBanner,
     getwebBanner,
     updateWebBanner,
     deleteWebBanner,
+    getWebBannerById
 };

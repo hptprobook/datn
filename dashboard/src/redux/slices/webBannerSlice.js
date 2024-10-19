@@ -9,7 +9,7 @@ export const fetchAll = createAsyncThunk(
       return await WebBannerServices.getAll();
     } catch (err) {
       return rejectWithValue(err.response.data);
-    }
+  }
   }
 );
 export const deleteWebBanner = createAsyncThunk(
@@ -25,7 +25,7 @@ export const deleteWebBanner = createAsyncThunk(
 );
 export const createWebBanner = createAsyncThunk(
   'webBanners/create',
-  async (data, { rejectWithValue }) => {
+  async ({data}, { rejectWithValue }) => {
     try {
       const res = await WebBannerServices.create(data);
       return res;
@@ -36,7 +36,7 @@ export const createWebBanner = createAsyncThunk(
 );
 export const fetchById = createAsyncThunk(
   'webBanners/fetchById',
-  async (id, { rejectWithValue }) => {
+  async ({id}, { rejectWithValue }) => {
     try {
       return await WebBannerServices.getById(id);
     } catch (err) {
@@ -46,9 +46,9 @@ export const fetchById = createAsyncThunk(
 );
 export const update = createAsyncThunk(
   'webBanners/update',
-  async ({ data, id }, { rejectWithValue }) => {
+  async ({id , data}, { rejectWithValue }) => {
     try {
-      return await WebBannerServices.update({ data, id });
+      return await WebBannerServices.update({ id , data });
     } catch (err) {
       return rejectWithValue(err.response);
     }

@@ -34,7 +34,7 @@ export const configPath = {
   brandCreate: 'brands/create',
   brandDetail: 'brands/:id',
   webBanner: 'webBanners',
-  webBannerCreate: 'webBanner/create',
-  webBannerDetail: 'webBanner/:id',
+  webBannerCreate: 'webBanners/create',
+  webBannerDetail: 'webBanners/:id',
 };
 export const arrPath = Object.values(configPath).filter((item) => !includes(item, ':'));
