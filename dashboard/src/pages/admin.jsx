@@ -1,17 +1,16 @@
 import { Helmet } from 'react-helmet-async';
-
-import { AppView } from 'src/sections/overview/view';
+import AdminView from 'src/sections/admin/view/app-view';
 
 // ----------------------------------------------------------------------
 
-export default function AppPage() {
+export default function AdminPage() {
   return (
     <>
       <Helmet>
-        <title> Dashboard </title>
+        <title> Trang quản lý </title>
       </Helmet>
 
-      <AppView />
+      <AdminView />
     </>
   );
 }

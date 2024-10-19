@@ -28,6 +28,7 @@ import { webBannerApi } from './routeConfigs/webBannerRouter';
 import { blogApi } from './blogRouter';
 import { hotSearchApi } from './hotSearchRouter';
 import { staffsApi } from './staffsRouter';
+import { customerGroupApi } from './customerGroupRouter';
 const Router = express.Router();
 
 Router.use('/auth', authApi);
@@ -59,9 +60,10 @@ Router.use('/navDashboard', navDashboardApi);
 Router.use('/address', addressApi);
 
 Router.use('/blogs', blogApi);
+Router.use('/customerGroup', customerGroupApi);
 
 Router.get('/', (req, res) => {
-  res.send('Hello from API!');
+    res.send('Hello from API!');
 });
 
 export const APIs = Router;

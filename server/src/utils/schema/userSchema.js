@@ -1,5 +1,4 @@
 import Joi from 'joi';
-import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '../validators';
 
 export const SAVE_USER_SCHEMA = Joi.object({
   name: Joi.string().trim().min(1).max(30).required().messages({
@@ -8,6 +7,16 @@ export const SAVE_USER_SCHEMA = Joi.object({
     'string.max': 'Tên không được vượt quá 30 ký tự',
     'any.required': 'Tên là bắt buộc',
   }),
+  avatar: Joi.string().trim().messages({
+    'string.empty': 'avatar không được để trống',
+  }),
+  gender: Joi.string()
+    .valid('male', 'female', 'other ')
+    .default('user')
+    .messages({
+      'any.only': 'Giới tính không hợp lệ',
+    }),
+  birthdate: Joi.date().timestamp('javascript').default(null),
   email: Joi.string().email().required().messages({
     'string.empty': 'Email không được để trống',
     'string.email': 'Email không hợp lệ',
@@ -27,13 +36,9 @@ export const SAVE_USER_SCHEMA = Joi.object({
         'string.max': 'Số điện thoại không đư���c vượt quá 50 ký tự',
       }),
       province_id: Joi.number().integer(),
-      province_name: Joi.string(),
       district_id: Joi.number().integer(),
-      district_name: Joi.string(),
       ward_id: Joi.number().integer(),
-      ward_name: Joi.string(),
       address: Joi.string(),
-      fullAddress: Joi.string(),
       isDefault: Joi.boolean().default(false),
       note: Joi.string(),
     })
@@ -48,16 +53,6 @@ export const SAVE_USER_SCHEMA = Joi.object({
       'string.min': 'Số điện thoại phải có ít nhất 10 ký tự',
       'string.max': 'Số điện thoại không được vượt quá 15 ký tự',
     }),
-  avatar: Joi.string().trim().messages({
-    'string.empty': 'avatar không được để trống',
-  }),
-  gender: Joi.string()
-    .valid('male', 'female', 'other')
-    .default('user')
-    .messages({
-      'any.only': 'Giới tính không hợp lệ',
-    }),
-  birthdate: Joi.date().timestamp('javascript').default(null),
   role: Joi.string()
     .valid('root', 'admin', 'staff', 'user', 'ban')
     .default('user')
@@ -164,3 +159,4 @@ export const VIEW_PRODUCT = Joi.array().items(
     'any.required': 'Sản phẩm là bắt buộc',
   })
 );
+

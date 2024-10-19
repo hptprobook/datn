@@ -33,7 +33,7 @@ export default function WebBannerTableToolbar({ numSelected, filterName, onFilte
         <OutlinedInput
           value={filterName}
           onChange={onFilterName}
-          placeholder="Tìm kiếm mã giảm giá ..."
+          placeholder="Tìm kiếm Bảng quảng cáo ..."
           startAdornment={
             <InputAdornment position="start">
               <Iconify
