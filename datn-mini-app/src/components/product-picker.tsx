@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-
 import { createPortal } from "react-dom";
 import ImageRatio from "../components/img-ratio";
 import { CartProduct, Product } from "../models";
@@ -19,14 +18,10 @@ import { useNavigate } from "react-router-dom";
 
 const ProductPicker = () => {
   const { productId, isUpdate } = useRecoilValue(productInfoPickedState);
-  const [openSheet, setOpenSheet] = useRecoilState<boolean>(
-    openProductPickerState
-  );
+  const [openSheet, setOpenSheet] = useRecoilState<boolean>(openProductPickerState);
   const [quantity, setQuantity] = useState<number>(1);
-  const [selectedOptions, setSelectedOptions] = useState<
-    Record<string, any> | undefined
-  >(undefined);
-  const [note, setNote] = useState("");
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, any> | undefined>(undefined);
+  const [note, setNote] = useState<string>("");
 
   const cart = useRecoilValue(cartState);
   const btnRef = useRef<HTMLDivElement | null>(null);
@@ -45,23 +40,14 @@ const ProductPicker = () => {
 
   const product: Product | undefined = useMemo(() => {
     if (store) {
-      const currentProduct = store.listProducts.find(
-        (item) => item.id === Number(productId)
-      );
-      return currentProduct;
+      return store.listProducts.find((item) => item._id === String(productId));
     }
     return undefined;
-  }, [productId]);
+  }, [productId, store]);
 
   const cartProduct: CartProduct | undefined = useMemo(() => {
     if (product && cart) {
-      const currentProductOrder = cart.listOrder.find(
-        (ord) => ord.id === product.id
-      );
-
-      if (currentProductOrder) {
-        return { ...currentProductOrder };
-      }
+      return cart.listOrder.find((ord) => String(ord._id) === product._id);
     }
     return undefined;
   }, [product, cart]);
@@ -96,7 +82,7 @@ const ProductPicker = () => {
 
     addProductToCart({
       productOrder: {
-        id: product!.id,
+        id: product!._id,
         order: productOrder,
       } as CartProduct,
     });
@@ -113,7 +99,7 @@ const ProductPicker = () => {
     };
     addProductToCart({
       productOrder: {
-        id: product!.id,
+        id: product!._id,
         order: productOrder,
       } as CartProduct,
     });
@@ -131,9 +117,7 @@ const ProductPicker = () => {
             clearable
             name="note"
             value={note}
-            onChange={(e) => {
-              setNote(e.target.value);
-            }}
+            onChange={(e) => setNote(e.target.value)}
           />
         </div>
       </>
@@ -161,7 +145,7 @@ const ProductPicker = () => {
           title="Chọn chi tiết"
         >
           <div className="overflow-y-auto overflow-x-hidden pb-32">
-            <div className="w-full flex flex-row items-center justify-between overflow-hidden h-24 m-4 ">
+            <div className="w-full flex flex-row items-center justify-between overflow-hidden h-24 m-4">
               <div className="flex flex-row items-center">
                 <div className="w-24 flex-none">
                   <ImageRatio
@@ -170,12 +154,12 @@ const ProductPicker = () => {
                     ratio={1}
                   />
                 </div>
-                <div className=" p-3 pr-0">
+                <div className="p-3 pr-0">
                   <div className="line-clamp-2 text-sm break-words">
                     {product.nameProduct}
                   </div>
-                  <span className=" pt-1 font-semibold text-sm text-primary">
-                    <span className=" font-normal text-xs text-primary">đ</span>
+                  <span className="pt-1 font-semibold text-sm text-primary">
+                    <span className="font-normal text-xs text-primary">đ</span>
                     {convertPrice(product.salePrice)}
                   </span>
                 </div>
@@ -183,8 +167,8 @@ const ProductPicker = () => {
             </div>
             <hr />
 
-            <div className=" title-type-picker">Số lượng</div>
-            <div className="">
+            <div className="title-type-picker">Số lượng</div>
+            <div>
               <Box m={4} flex justifyContent="center" alignItems="center">
                 <Button
                   variant="tertiary"
@@ -281,8 +265,8 @@ const ProductPicker = () => {
                 ]}
               >
                 <Box m={0} flex justifyContent="space-between" pb={4}>
-                  <div className=" text-sm">Tổng tiền</div>
-                  <div className=" text-lg font-medium text-primary">
+                  <div className="text-sm">Tổng tiền</div>
+                  <div className="text-lg font-medium text-primary">
                     {convertPrice(quantity * Number(product.salePrice))} VNĐ
                   </div>
                 </Box>

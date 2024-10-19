@@ -6,7 +6,7 @@ import { FaRegEye } from 'react-icons/fa';
 import { NavLink } from 'react-router-dom';
 import { GrClose } from 'react-icons/gr';
 
-function ProfileSidebar() {
+const ProfileSidebar = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
 
   const toggleSidebar = () => {
@@ -18,12 +18,12 @@ function ProfileSidebar() {
   };
 
   return (
-    <div className="relative">
+    <div className="relative h-full">
       {/* Header */}
 
       {/* Sidebar */}
       <aside
-        className={`fixed md:relative top-0 left-0 h-full md:h-auto w-full md:w-auto bg-white z-10 p-4 md:p-0 transform transition-transform ${
+        className={`fixed md:relative top-0 left-0 h-full md:h-auto w-full md:w-auto bg-white rounded-sm z-10 p-4 md:p-0 transform transition-transform ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } md:translate-x-0`}
       >
@@ -50,7 +50,7 @@ function ProfileSidebar() {
             </p>
           </div>
         </section>
-        <section className="sidebar-content h-fit min-h-[20rem] overflow-visible text-black">
+        <section className="sidebar-content h-[100%] min-h-[20rem] overflow-visible text-black">
           <nav className="menu rounded-md">
             <section className="menu-section px-4 text-black">
               <ul className="menu-items pt-24 md:pt-0">
@@ -193,6 +193,8 @@ function ProfileSidebar() {
       </aside>
     </div>
   );
-}
+};
+
+ProfileSidebar.propTypes = {};
 
 export default ProfileSidebar;

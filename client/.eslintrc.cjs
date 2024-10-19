@@ -36,7 +36,7 @@ module.exports = {
     'no-multiple-empty-lines': 1,
     'space-before-blocks': ['error', 'always'],
     'object-curly-spacing': [1, 'always'],
-    indent: ['warn', 2],
+    // indent: ['warn', 2],
     quotes: ['error', 'single'],
     'array-bracket-spacing': 1,
     'linebreak-style': 0,
@@ -45,6 +45,7 @@ module.exports = {
     'comma-dangle': 0,
     'comma-spacing': 1,
     'arrow-spacing': 1,
+    'react-hooks/exhaustive-deps': 0,
     semi: [1, 'always'],
   },
 };

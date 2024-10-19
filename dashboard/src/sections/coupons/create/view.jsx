@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable import/no-extraneous-dependencies */
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -22,10 +23,11 @@ import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import { useDispatch, useSelector } from 'react-redux';
-import { create } from 'src/redux/slices/couponSlice';
+import { create, setStatus } from 'src/redux/slices/couponSlice';
 import { useMemo, useState, useEffect } from 'react';
 import { handleToast } from 'src/hooks/toast';
-import { couponSchema } from '../utils';
+import { createCode, couponSchema } from '../utils';
+import ProductAcceptSelect from '../product-select';
 // ----------------------------------------------------------------------
 const now = dayjs();
 export default function CreateCouponPage() {
@@ -34,15 +36,6 @@ export default function CreateCouponPage() {
 
   const status = useSelector((state) => state.coupons.statusCreate);
   const err = useSelector((state) => state.coupons.error);
-
-  useEffect(() => {
-    if (status === 'successful') {
-      handleToast('success', 'Tạo mã giảm giá thành công!');
-    }
-    if (status === 'failed') {
-      handleToast('error', err.messages);
-    }
-  }, [status, err]);
 
   const errorMessage = useMemo(() => {
     switch (error) {
@@ -75,6 +68,17 @@ export default function CreateCouponPage() {
     }
   }, [errorEnd]);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (status === 'successful') {
+      dispatch(setStatus({ key: 'statusCreate', value: 'idle' }));
+      handleToast('success', 'Tạo mã giảm giá thành công!');
+    }
+    if (status === 'failed') {
+      dispatch(setStatus({ key: 'statusCreate', value: 'idle' }));
+      handleToast('error', err.messages);
+    }
+  }, [status, err, dispatch]);
   const formik = useFormik({
     initialValues: {
       name: '',
@@ -97,16 +101,34 @@ export default function CreateCouponPage() {
       const data = { ...values };
       data.minPurchasePrice = Number(values.minPurchasePrice);
       data.maxPurchasePrice = Number(values.maxPurchasePrice);
+      if (data.maxPurchasePrice === 0) {
+        delete data.maxPurchasePrice;
+      }
       data.discountValue = Number(values.discountValue);
       data.discountPercent = Number(values.discountPercent);
+
+      if (data.discountValue === 0 && (data.type === 'price' || data.type === 'shipping')) {
+        formik.setFieldError('discountValue', 'Giá trị khuyến mãi là bắt buộc.');
+        return;
+      }
+      if (data.discountPercent === 0 && data.type === 'percent') {
+        formik.setFieldError('discountPercent', 'Phần trăm khuyến mãi là bắt buộc.');
+        return;
+      }
       data.usageLimit = Number(values.usageLimit);
       data.dateStart = dayjs(values.dateStart).valueOf();
       data.dateEnd = dayjs(values.dateEnd).valueOf();
-      console.log(data);
-
       dispatch(create(data));
     },
   });
+  useEffect(() => {
+    const name = formik.values.name?.trim();
+    if (name) {
+      const code = createCode(name);
+      formik.setFieldValue('code', code);
+    }
+  }, [formik.values.name]);
+
   return (
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
@@ -213,6 +235,7 @@ export default function CreateCouponPage() {
                     fullWidth
                     label="Giá trị khuyến mãi"
                     name="discountValue"
+                    disabled={formik.values.type === 'percent'}
                     value={formik.values.discountValue}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
@@ -225,6 +248,7 @@ export default function CreateCouponPage() {
                     fullWidth
                     label="Giá trị phần trăm"
                     name="discountPercent"
+                    disabled={formik.values.type === 'price' || formik.values.type === 'shipping'}
                     value={formik.values.discountPercent}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
@@ -326,18 +350,7 @@ export default function CreateCouponPage() {
                 <Typography variant="h5">Sản phẩm áp dụng</Typography>
               </Grid2>
               <Grid2 xs={12}>
-                <TextField
-                  fullWidth
-                  label="Sản phẩm"
-                  name="applicableProducts"
-                  value={formik.values.applicableProducts}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  error={
-                    formik.touched.applicableProducts && Boolean(formik.errors.applicableProducts)
-                  }
-                  helperText={formik.touched.applicableProducts && formik.errors.applicableProducts}
-                />
+                <ProductAcceptSelect />
               </Grid2>
             </Card>
           </Grid2>

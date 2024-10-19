@@ -16,17 +16,20 @@ import Iconify from 'src/components/iconify';
 
 export default function CouponTableRow({
   selected,
+  id,
   code,
   type,
   minPurchasePrice,
-  discountValue,
+  maxPurchasePrice,
   usageLimit,
   usageCount,
   status,
   limitOnUser,
   dateStart,
   dateEnd,
+  onDelete,
   handleClick,
+  handleNavigate,
 }) {
   const [open, setOpen] = useState(null);
 
@@ -38,6 +41,10 @@ export default function CouponTableRow({
     setOpen(null);
   };
 
+  const handleDelete = (idDelete) => {
+    onDelete(idDelete);
+    handleCloseMenu();
+  }
   return (
     <>
       <TableRow hover tabIndex={-1} role="checkbox" selected={selected}>
@@ -51,23 +58,34 @@ export default function CouponTableRow({
           </Typography>
         </TableCell>
 
-        <TableCell>{type}</TableCell>
+        <TableCell>
+
+        {(type === 'percent' && 'Phần trăm') ||
+           (type === 'price' && 'Giá tiền') ||
+           (type === 'shipping' && 'Phí ship') ||
+           type}
+
+        </TableCell>
 
         <TableCell>{minPurchasePrice}</TableCell>
 
-        <TableCell>{discountValue}</TableCell>
+        <TableCell>{maxPurchasePrice}</TableCell>
 
         <TableCell>{usageLimit}</TableCell>
 
         <TableCell>{usageCount}</TableCell>
 
         <TableCell>
-          <Label color={(status === 'expired' && 'error') || (status === 'inactive' && 'warning') || 'success'}>
+          <Label
+            color={
+              (status === 'expired' && 'error') || (status === 'inactive' && 'warning') || 'success'
+            }
+          >
             {status}
           </Label>
         </TableCell>
 
-        <TableCell>{limitOnUser ? 'Yes' : 'No'}</TableCell>
+        <TableCell>{limitOnUser ? 'Có' : 'Không'}</TableCell>
 
         <TableCell>{new Date(dateStart).toLocaleDateString()}</TableCell>
 
@@ -90,14 +108,14 @@ export default function CouponTableRow({
           sx: { width: 140 },
         }}
       >
-        <MenuItem onClick={handleCloseMenu}>
+        <MenuItem onClick={handleNavigate}>
           <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
-          Edit
+          Xem
         </MenuItem>
 
-        <MenuItem onClick={handleCloseMenu} sx={{ color: 'error.main' }}>
+        <MenuItem onClick={() => handleDelete(id)} sx={{ color: 'error.main' }}>
           <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
-          Delete
+          Xóa
         </MenuItem>
       </Popover>
     </>
@@ -105,16 +123,19 @@ export default function CouponTableRow({
 }
 
 CouponTableRow.propTypes = {
+  id: PropTypes.any,
+  onDelete: PropTypes.func,
   code: PropTypes.string.isRequired,
   type: PropTypes.string.isRequired,
   minPurchasePrice: PropTypes.number.isRequired,
-  discountValue: PropTypes.number.isRequired,
+  maxPurchasePrice: PropTypes.number.isRequired,
   usageLimit: PropTypes.number.isRequired,
   usageCount: PropTypes.number.isRequired,
   status: PropTypes.string.isRequired,
   limitOnUser: PropTypes.bool.isRequired,
-  dateStart: PropTypes.number.isRequired,
-  dateEnd: PropTypes.number.isRequired,
+  dateStart: PropTypes.any.isRequired,
+  dateEnd: PropTypes.any.isRequired,
   selected: PropTypes.bool,
   handleClick: PropTypes.func,
+  handleNavigate: PropTypes.func,
 };

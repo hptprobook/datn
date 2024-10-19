@@ -1,6 +1,9 @@
 import { GET_DB } from '~/config/mongodb';
 import { ObjectId } from 'mongodb';
-import { SAVE_SUPPLIER_SCHEMA, UPDATE_SUPPLIER } from '~/utils/schema';
+import {
+  SAVE_SUPPLIER_SCHEMA,
+  UPDATE_SUPPLIER,
+} from '~/utils/schema/supplierSchema';
 
 const validateBeforeCreate = async (data) => {
   return await SAVE_SUPPLIER_SCHEMA.validateAsync(data, { abortEarly: false });
@@ -20,49 +23,36 @@ const countSupplierAll = async () => {
 };
 
 const getSuppliersAll = async (page, limit) => {
-  try {
-    page = parseInt(page) || 1;
-    limit = parseInt(limit) || 20;
-    const db = await GET_DB().collection('suppliers');
-    const result = await db
-      .find()
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .toArray();
-    return result;
-  } catch (error) {
-    return {
-      success: false,
-      mgs: 'Có lỗi xảy ra xin thử lại sau',
-    };
+  page = parseInt(page) || 1;
+  limit = parseInt(limit) || 20;
+  const db = await GET_DB().collection('suppliers');
+  const result = await db
+    .find()
+    .skip((page - 1) * limit)
+    .limit(limit)
+    .toArray();
+  if (!result) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
+  return result;
 };
 
 const getSupplierById = async (supplier_id) => {
-  const db = await GET_DB().collection('categories');
+  const db = await GET_DB().collection('suppliers');
   const supplier = await db.findOne({ _id: new ObjectId(supplier_id) });
   return supplier;
 };
 
 const createSupplier = async (dataSupplier) => {
-  try {
-    const validData = await validateBeforeCreate(dataSupplier);
-    const db = await GET_DB();
-    const collection = db.collection('suppliers');
+  const validData = await validateBeforeCreate(dataSupplier);
+  const db = await GET_DB();
+  const collection = db.collection('suppliers');
 
-    /*  const result = await collection.insertOne(validData);
-
-    return result; */
-    const result = await collection.insertOne({
-      ...validData,
-    });
-    return result;
-  } catch (error) {
-    return {
-      success: false,
-      mgs: 'Có lỗi xảy ra xin thử lại sau',
-    };
+  const result = await collection.insertOne(validData);
+  if (result.insertedCount === 0) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
+  return result;
 };
 
 const validateBeforeUpdate = async (data) => {
@@ -70,34 +60,49 @@ const validateBeforeUpdate = async (data) => {
 };
 
 const update = async (id, data) => {
-  try {
-    await validateBeforeUpdate(data);
-    const result = await GET_DB()
-      .collection('suppliers')
-      .findOneAndUpdate(
-        { _id: new ObjectId(id) },
-        { $set: data },
-        { returnDocument: 'after' }
-      );
-    return result;
-  } catch (error) {
-    return {
-      error: true,
-    };
-  }
+  const dataUpdate = await validateBeforeUpdate(data);
+  const result = await GET_DB()
+    .collection('suppliers')
+    .findOneAndUpdate(
+      { _id: new ObjectId(id) },
+      { $set: dataUpdate },
+      { returnDocument: 'after' }
+    );
+  return result;
 };
 
 const deleteSupplier = async (id) => {
-  try {
-    const result = await GET_DB()
-      .collection('suppliers')
-      .deleteOne({ _id: new ObjectId(id) });
-    return result;
-  } catch (error) {
-    return {
-      error: true,
-    };
+  const result = await GET_DB()
+    .collection('suppliers')
+    .deleteOne({ _id: new ObjectId(id) });
+  if (result.deletedCount === 0) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
+  return result;
+};
+
+const deleteAllSuppliers = async () => {
+  const result = await GET_DB().collection('suppliers').deleteMany({});
+  if (!result || result.deletedCount === 0) {
+    throw new Error('Không có nhà cung cấp nào để xóa.');
+  }
+  return result;
+};
+
+const deleteManySuppliers = async (ids) => {
+  const db = GET_DB().collection('suppliers');
+
+  const result = await db.deleteMany({
+    _id: { $in: ids.map((id) => new ObjectId(id)) },
+  });
+
+  if (result.deletedCount === 0) {
+    throw new Error('Xóa không thành công');
+  }
+
+  return {
+    result,
+  };
 };
 
 export const supplierModel = {
@@ -107,4 +112,6 @@ export const supplierModel = {
   createSupplier,
   deleteSupplier,
   update,
+  deleteAllSuppliers,
+  deleteManySuppliers,
 };

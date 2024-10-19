@@ -15,47 +15,55 @@ const validateBeforeUpdate = async (data) => {
 };
 
 const countCategoryAll = async () => {
-  try {
-    const db = await GET_DB().collection('categories');
-    const total = await db.countDocuments();
-    return total;
-  } catch (error) {
-    return {
-      message: 'Có lỗi xảy ra xin thử lại sau',
-    };
+  const db = await GET_DB().collection('categories');
+  const total = await db.countDocuments();
+  if (!total) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
+  return total;
 };
 
-const getCategoriesAll = async () => {
-  try {
+const getCategoriesAll = async (parent = null) => {
+  if (parent) {
     const db = await GET_DB().collection('categories');
-    const result = await db
-      .find()
-      // .project({ _id: 0, age:1 })
-      .toArray();
+    const result = await db.find({ order: { $ne: 2 } }).toArray();
+    if (!result) {
+      throw new Error('Có lỗi xảy ra, xin thử lại sau');
+    }
     return result;
-  } catch (error) {
-    return {
-      message: 'Có lỗi xảy ra xin thử lại sau',
-    };
   }
+  const db = await GET_DB().collection('categories');
+  const result = await db.find().sort({ createdAt: 1 }).toArray();
+  if (!result) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
+  }
+  return result;
 };
+
 const getCategoriesByParentId = async (category_id) => {
-  try {
-    const db = await GET_DB().collection('categories');
-    const result = await db.find({ parentId: category_id }).toArray();
-    return result;
-  } catch (error) {
-    return {
-      message: 'Có lỗi xảy ra, xin thử lại sau',
-    };
+  const db = await GET_DB().collection('categories');
+  const result = await db.find({ parentId: category_id }).toArray();
+  if (!result) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
+  return result;
 };
 
 const getCategoryById = async (category_id) => {
   const db = await GET_DB().collection('categories');
+
   const category = await db.findOne({ _id: new ObjectId(category_id) });
   return category;
+};
+
+const getCategoryByIds = async (ids) => {
+  const db = await GET_DB().collection('categories');
+
+  const categories = await db.find({
+    _id: { $in: ids.map((id) => new ObjectId(id)) },
+  });
+
+  return categories;
 };
 
 const getCategoryBySlug = async (slug) => {
@@ -65,57 +73,54 @@ const getCategoryBySlug = async (slug) => {
 };
 
 const createCategory = async (dataCategory) => {
-  try {
-    const validData = await validateBeforeCreate(dataCategory);
-    const db = await GET_DB();
-    const collection = db.collection('categories');
-    const result = await collection.insertOne({
-      ...validData,
-      parentId: validData.parentId
-        ? new ObjectId(validData.parentId)
-        : validData.parentId,
-    });
-    return result;
-  } catch (error) {
-    if (error.details) {
-      return { detail: error.details };
-    }
-    return { detail: error };
+  const validData = await validateBeforeCreate(dataCategory);
+  const db = await GET_DB();
+  const collection = db.collection('categories');
+  const result = await collection.insertOne({
+    ...validData,
+    parentId: validData.parentId
+      ? new ObjectId(validData.parentId)
+      : validData.parentId,
+  });
+  if (!result) {
+    throw new Error('Không thể thêm danh mục, xin thử lại sau');
   }
+  return {
+    _id: result.insertedId,
+    ...validData,
+  };
 };
 
 const update = async (id, data) => {
-  try {
-    const validData = await validateBeforeUpdate(data);
-    const db = GET_DB().collection('categories');
+  const validData = await validateBeforeUpdate(data);
+  const db = GET_DB().collection('categories');
 
-    const result = await db.findOneAndUpdate(
-      { _id: new ObjectId(id) },
-      {
-        $set: {
-          ...validData,
-          parentId: validData.parentId
-            ? new ObjectId(validData.parentId)
-            : validData.parentId,
-        },
+  const result = await db.findOneAndUpdate(
+    { _id: new ObjectId(id) },
+    {
+      $set: {
+        ...validData,
+        parentId: validData.parentId
+          ? new ObjectId(validData.parentId)
+          : validData.parentId,
       },
-      { returnDocument: 'after' }
-    );
-
-    return { result: result };
-  } catch (error) {
-    if (error.details) {
-      return { detail: error.details };
-    }
-    return { detail: error };
+    },
+    { returnDocument: 'after' }
+  );
+  if (!result) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
+  return result;
 };
+
 const deleteAllChildCategories = async (parentId) => {
   const db = GET_DB().collection('categories');
   const childCategories = await db
     .find({ parentId: new ObjectId(parentId) })
     .toArray();
-
+  if (!childCategories) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
+  }
   for (const child of childCategories) {
     await deleteAllChildCategories(child._id);
     if (child.imageURL) {
@@ -126,16 +131,55 @@ const deleteAllChildCategories = async (parentId) => {
 };
 
 const deleteCategory = async (id) => {
-  try {
-    const db = GET_DB().collection('categories');
-    const category = await db.findOne({ _id: new ObjectId(id) });
-    await db.deleteOne({ _id: new ObjectId(id) });
-    return category;
-  } catch (error) {
-    return {
-      error,
-    };
+  const db = GET_DB().collection('categories');
+  const category = await db.findOne({ _id: new ObjectId(id) });
+  await db.deleteOne({ _id: new ObjectId(id) });
+  if (!category) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
+  return category;
+};
+
+const deleteManyCategories = async (ids) => {
+  if (!Array.isArray(ids)) {
+    throw new Error('Ids phải là một mảng');
+  }
+
+  const db = GET_DB().collection('categories');
+
+  const categories = await db
+    .find({ _id: { $in: ids.map((id) => new ObjectId(id)) } })
+    .toArray();
+
+  if (!categories || categories.length === 0) {
+    throw new Error('Không tìm thấy danh mục nào');
+  }
+
+  const result = await db.deleteMany({
+    _id: { $in: ids.map((id) => new ObjectId(id)) },
+  });
+
+  if (result.deletedCount === 0) {
+    throw new Error('Xóa không thành công');
+  }
+
+  const remainingCategories = await db
+    .find({ _id: { $in: ids.map((id) => new ObjectId(id)) } })
+    .toArray();
+
+  const remainingIds = remainingCategories.map((cat) => cat._id.toString());
+
+  const deletedIds = ids.filter((id) => !remainingIds.includes(id));
+
+  const images = categories
+    .filter((cat) => deletedIds.includes(cat._id.toString()))
+    .map((cat) => cat.imageURL);
+
+  return {
+    images,
+    deletedIds,
+    failedIds: remainingIds,
+  };
 };
 
 export const categoryModel = {
@@ -145,7 +189,9 @@ export const categoryModel = {
   update,
   deleteCategory,
   getCategoryById,
+  getCategoryByIds,
   getCategoriesByParentId,
   deleteAllChildCategories,
   getCategoryBySlug,
+  deleteManyCategories,
 };

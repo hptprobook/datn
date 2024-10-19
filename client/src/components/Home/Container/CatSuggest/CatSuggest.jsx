@@ -1,44 +1,23 @@
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { getAllCategory } from '~/APIs';
 
-function getRandomCategories(categories, count) {
-  if (!Array.isArray(categories)) {
-    return [];
-  }
-
-  const shuffled = categories.sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, count);
-}
-
-export default function CatSuggest() {
-  const [randomCategories, setRandomCategories] = useState([]);
-
-  const { data } = useQuery({
+const CatSuggest = () => {
+  const { data, isLoading } = useQuery({
     queryKey: ['getAllCategories'],
     queryFn: getAllCategory,
   });
 
-  useEffect(() => {
-    if (data) {
-      const storedCategories = localStorage.getItem('randomCategories');
-      const storedDate = localStorage.getItem('randomCategoriesDate');
-      const today = new Date().toISOString().split('T')[0];
+  if (isLoading) return null;
 
-      if (storedCategories && storedCategories.length && storedDate === today) {
-        setRandomCategories(JSON.parse(storedCategories));
-      } else {
-        const randomSelection = getRandomCategories(data?.categories, 12);
-        localStorage.setItem(
-          'randomCategories',
-          JSON.stringify(randomSelection)
-        );
-        localStorage.setItem('randomCategoriesDate', today);
-        setRandomCategories(randomSelection);
-      }
+  const categories = data?.slice(0, 12) || [];
+
+  const getValidImageURL = (url) => {
+    if (!/^https?:\/\//i.test(url)) {
+      return `${import.meta.env.VITE_SERVER_URL}/${url}`;
     }
-  }, [data]);
+    return url;
+  };
 
   return (
     <div className="mt-12">
@@ -46,20 +25,23 @@ export default function CatSuggest() {
         MUA GÌ HÔM NAY?
       </h2>
       <div className="grid grid-cols-4 gap-4 lg:gap-10 sm:grid-cols-6 mt-6 lg:px-0">
-        {randomCategories.length > 0 &&
-          randomCategories.map((item) => (
+        {categories.length > 0 &&
+          categories.map((item) => (
             <div key={item._id} className="flex flex-col items-center">
               <div className="relative w-full" style={{ paddingTop: '100%' }}>
                 <NavLink to={`/danh-muc-san-pham/${item.slug}`}>
                   <img
-                    src={item.imageURL}
+                    src={getValidImageURL(item.imageURL)}
                     alt={item.name}
-                    className="absolute inset-0 w-full h-full object-cover rounded-full"
+                    className="absolute inset-0 w-full h-full object-cover rounded-full hover:scale-105 transition-transform duration-300"
                   />
                 </NavLink>
               </div>
               <NavLink to={`/danh-muc-san-pham/${item.slug}`}>
-                <p className="mt-2 text-center text-black font-medium">
+                <p
+                  className="mt-2 text-center text-black font-medium hover:text-red-500 text-clamp-1"
+                  title={item.name}
+                >
                   {item.name}
                 </p>
               </NavLink>
@@ -68,4 +50,8 @@ export default function CatSuggest() {
       </div>
     </div>
   );
-}
+};
+
+CatSuggest.propTypes = {};
+
+export default CatSuggest;

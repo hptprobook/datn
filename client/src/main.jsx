@@ -26,6 +26,9 @@ import { handleApiError } from './config/helpers.js';
 
 // useCart
 import { CartProvider } from 'react-use-cart';
+import { WishlistProvider } from './context/WishListContext';
+import '~/config/firebaseConfig';
+import { UserProvider } from './context/UserContext';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,6 +36,8 @@ const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
       retry: false,
+      staleTime: 1000 * 60 * 5,
+      cacheTime: 1000 * 60 * 10,
     },
     mutations: {
       onError: (error) => {
@@ -47,9 +52,13 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <BrowserRouter basename="/">
     <QueryClientProvider client={queryClient}>
       <CartProvider>
-        <ReactQueryDevtools initialIsOpen={false} />
-        <ToastContainer />
-        <App />
+        <WishlistProvider>
+          <UserProvider>
+            <ReactQueryDevtools initialIsOpen={false} />
+            <ToastContainer />
+            <App />
+          </UserProvider>
+        </WishlistProvider>
       </CartProvider>
     </QueryClientProvider>
   </BrowserRouter>

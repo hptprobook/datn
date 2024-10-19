@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { offerProducts } from '~/APIs/mock_data';
 import ProductItem from '~/components/common/Product/ProductItem';
 
-export default function Offer() {
+const Offer = () => {
   const [activeTab, setActiveTab] = useState(0);
 
   const tabs = ['Bán chạy nhất', 'Siêu Hot', 'Giảm giá'];
@@ -41,4 +41,8 @@ export default function Offer() {
       </div>
     </div>
   );
-}
+};
+
+Offer.propTypes = {};
+
+export default Offer;

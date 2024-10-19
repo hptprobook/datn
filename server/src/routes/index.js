@@ -8,7 +8,7 @@ import { reviewsApi } from './reviewRouter';
 
 import { suppliersApi } from './supplierRoute';
 import { productsApi } from './productRouter';
-import { inventoriesApi } from './inventoryRouter';
+import { warehousesApi } from './warehouseRouter';
 import { authApi } from './authRouter';
 import { paysApi } from './payRouter';
 
@@ -24,18 +24,27 @@ import { brandsApi } from './brandRouter';
 import { couponApi } from './couponRouter';
 // ad
 import { addressApi } from './addressRouter';
+import { webBannerApi } from './routeConfigs/webBannerRouter';
+import { blogApi } from './blogRouter';
+import { hotSearchApi } from './hotSearchRouter';
+import { staffsApi } from './staffsRouter';
+import { customerGroupApi } from './customerGroupRouter';
 const Router = express.Router();
 
 Router.use('/auth', authApi);
 Router.use('/users', usersApi);
 Router.use('/categories', categoriesApi);
 
+Router.use('/hotSearch', hotSearchApi);
+
+Router.use('/staffs', staffsApi);
+
 Router.use('/carts', cartsApi);
 Router.use('/orders', ordersApi);
 Router.use('/reviews', reviewsApi);
 
 Router.use('/suppliers', suppliersApi);
-Router.use('/inventories', inventoriesApi);
+Router.use('/warehouses', warehousesApi);
 Router.use('/products', productsApi);
 Router.use('/brands', brandsApi);
 
@@ -45,9 +54,13 @@ Router.use('/payments', paymentApi);
 Router.use('/seo', seoConfigApi);
 Router.use('/web', webApi);
 Router.use('/coupons', couponApi);
+Router.use('/web-banner', webBannerApi);
 
 Router.use('/navDashboard', navDashboardApi);
 Router.use('/address', addressApi);
+
+Router.use('/blogs', blogApi);
+Router.use('/customerGroup', customerGroupApi);
 
 Router.get('/', (req, res) => {
     res.send('Hello from API!');

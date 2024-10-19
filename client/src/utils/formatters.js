@@ -23,7 +23,9 @@ export const truncateString = (str, num) => {
 };
 
 export const formatCurrencyVND = (amount) => {
-  return amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+  return amount
+    ? amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
+    : 0;
 };
 
 export const generateMongoObjectId = () => {
@@ -36,4 +38,60 @@ export const generateMongoObjectId = () => {
   ); // 3 bytes counter
 
   return timestamp + random + counter; // MongoDB ObjectId format
+};
+
+export const formatDateToDDMMYYYY = (dateString) => {
+  if (!dateString) return '';
+
+  const date = new Date(dateString);
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+
+  return `${day}/${month}/${year}`;
+};
+
+export const urlToFile = async (url, filename, mimeType) => {
+  const res = await fetch(url);
+  const blob = await res.blob();
+  return new File([blob], filename, { type: mimeType });
+};
+
+export const formatDateToYYYYMMDD = (dateString) => {
+  if (!dateString) return '';
+  const [day, month, year] = dateString.split('/');
+  return `${year}-${month}-${day}`;
+};
+
+export const getTimeDifference = (createdAt) => {
+  const now = Date.now();
+  const diff = now - createdAt;
+
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  const months = Math.floor(days / 30);
+
+  if (minutes < 1) {
+    return `${seconds} giây trước`;
+  } else if (minutes < 60) {
+    return `${minutes} phút trước`;
+  } else if (hours < 24) {
+    return `${hours} giờ trước`;
+  } else if (days === 1) {
+    return 'Hôm qua';
+  } else if (days <= 7) {
+    return `${days} ngày trước`;
+  } else if (days <= 30) {
+    return `${Math.floor(days / 7)} tuần trước`;
+  } else if (months === 1) {
+    return '1 tháng trước';
+  } else if (months > 1) {
+    return `${months} tháng trước`;
+  } else {
+    // Nếu thời gian quá 1 tháng, trả về định dạng ngày cụ thể không có giờ
+    const date = new Date(createdAt);
+    return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+  }
 };

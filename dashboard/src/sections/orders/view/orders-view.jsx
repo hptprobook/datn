@@ -9,7 +9,6 @@ import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 
-
 import Scrollbar from 'src/components/scrollbar';
 
 import { useDispatch, useSelector } from 'react-redux';
@@ -20,8 +19,6 @@ import OrderTableHead from '../order-table-head';
 import TableEmptyRows from '../table-empty-rows';
 import OrderTableToolbar from '../order-table-toolbar';
 import { emptyRows, applyFilter, getComparator } from '../utils';
-
-
 
 // ----------------------------------------------------------------------
 
@@ -139,7 +136,7 @@ export default function OrdersPage() {
                   { id: 'name', label: 'Tên khách hàng' },
                   { id: 'userId', label: 'Mã khách hàng' },
                   { id: 'paymentMethod', label: 'Phương thức thanh toán' },
-                  { id: 'totalAmount', label: 'Tổng tiền'},
+                  { id: 'totalAmount', label: 'Tổng tiền' },
                   { id: 'status', label: 'Trạng thái' },
                   { id: '' },
                 ]}
@@ -162,10 +159,7 @@ export default function OrdersPage() {
                     />
                   ))}
 
-                <TableEmptyRows
-                  height={77}
-                  emptyRows={emptyRows(page, rowsPerPage, data.length)}
-                />
+                <TableEmptyRows height={77} emptyRows={emptyRows(page, rowsPerPage, data.length)} />
 
                 {notFound && <TableNoData query={filterName} />}
               </TableBody>
@@ -176,6 +170,7 @@ export default function OrdersPage() {
         <TablePagination
           page={page}
           component="div"
+          labelRowsPerPage="Số hàng trên trang"
           count={data.length}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}

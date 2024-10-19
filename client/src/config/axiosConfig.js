@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { handleToast } from '~/customHooks/useToast';
 
 // const baseDomain = import.meta.env.VITE_DOMAIN;
 const baseURL = import.meta.env.VITE_API_ROOT;
@@ -28,12 +29,33 @@ export const handleUnauthorizedError = (navigate, openNotify) => {
 request.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Kiểm tra nếu lỗi là 401
     if (error.response && error.response.status === 401) {
-      return Promise.reject({ type: 'unauthorized' });
-    }
-
-    if (error.response && error.response.status === 500) {
-      window.location.href = '/';
+      axios
+        .post(`${baseURL}/auth/refresh-token`, {}, { withCredentials: true })
+        .then((res) => {
+          if (res.status === 200) {
+            localStorage.setItem('token', res.data.token);
+          }
+        })
+        .catch((err) => {
+          if (err.response.status === 400) {
+            localStorage.removeItem('token');
+            handleToast(
+              'error',
+              'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.'
+            );
+            window.location.href = '/';
+          }
+          if (err.response.status === 401) {
+            localStorage.removeItem('token');
+            handleToast(
+              'error',
+              'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.'
+            );
+            window.location.href = '/';
+          }
+        });
     }
     return Promise.reject(error);
   }

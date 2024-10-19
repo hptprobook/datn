@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import AddToWhistListBtn from '~/components/common/Button/AddToWhistList';
 import RateInforBtn from '~/components/common/Button/RateInfor';
 import SelectColor from './SelectColor';
@@ -10,8 +10,14 @@ import { formatCurrencyVND, generateMongoObjectId } from '~/utils/formatters';
 import { useCart } from 'react-use-cart';
 import { handleToast } from '~/customHooks/useToast';
 import CartFixed from '~/components/Home/Header/CartFixed';
+import PropTypes from 'prop-types';
+import { useWishlist } from '~/context/WishListContext';
 
-export default function ProductDetailInfor({ product, onColorChange }) {
+const ProductDetailInfor = ({
+  product,
+  onColorChange,
+  isQuickView = false,
+}) => {
   const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
 
@@ -79,7 +85,6 @@ export default function ProductDetailInfor({ product, onColorChange }) {
     }
   };
 
-  // Hàm xử lý thêm vào giỏ hàng
   const handleAddToCart = () => {
     if (!selectedColor || !selectedSize) {
       setError('Vui lòng chọn đầy đủ màu sắc và kích thước.');
@@ -90,7 +95,6 @@ export default function ProductDetailInfor({ product, onColorChange }) {
         (variant) => variant.color === selectedColor
       );
 
-      // Kiểm tra xem sản phẩm với biến thể đã có trong giỏ hàng chưa
       const existingItem = items.find(
         (item) =>
           item.slug === product.slug &&
@@ -99,10 +103,8 @@ export default function ProductDetailInfor({ product, onColorChange }) {
       );
 
       if (existingItem) {
-        // Nếu sản phẩm đã tồn tại trong giỏ hàng, chỉ cần cập nhật số lượng
         addItem(existingItem, quantity);
       } else {
-        // Nếu sản phẩm là mới, tạo mới cartId và thêm sản phẩm vào giỏ hàng
         const cartId = generateMongoObjectId();
 
         addItem(
@@ -110,6 +112,7 @@ export default function ProductDetailInfor({ product, onColorChange }) {
             id: cartId,
             productId: product._id,
             name: product.name,
+            weight: product.weight,
             price: selectedPrice,
             slug: product.slug,
             image: selectedVariant.image,
@@ -125,19 +128,32 @@ export default function ProductDetailInfor({ product, onColorChange }) {
     }
   };
 
+  const { isInWishlist } = useWishlist();
+
   return (
     <div className="flex justify-center items-center text-black">
       <div className="pro-detail w-full max-lg:max-w-[608px] lg:pl-8 xl:pl-16 max-lg:mx-auto max-lg:mt-8">
         <div className="flex items-center justify-between gap-6 mb-6">
           <div className="text">
-            <h2 className="font-manrope font-bold text-3xl leading-10 text-gray-900 mb-2 text-clamp-3">
-              {product?.name}
-            </h2>
+            {!isQuickView ? (
+              <h2 className="font-manrope font-bold text-xl leading-10 text-gray-900 mb-2 text-clamp-3">
+                {product?.name}
+              </h2>
+            ) : (
+              <NavLink to={`/san-pham/${product?.slug}`}>
+                <h2 className="font-manrope font-bold text-xl leading-10 text-gray-900 mb-2 text-clamp-3 hover:text-red-600">
+                  {product?.name}
+                </h2>
+              </NavLink>
+            )}
             <p className="font-normal text-base text-gray-500 text-clamp-1">
               SKU: {selectedVariant?.sku || product?.variants[0].sku}
             </p>
           </div>
-          <AddToWhistListBtn />
+          <AddToWhistListBtn
+            product={product}
+            isInWishlist={isInWishlist(product._id)}
+          />
         </div>
         <div className="flex flex-col min-[400px]:flex-row min-[400px]:items-center mb-8 gap-y-3">
           <div className="flex items-center">
@@ -215,4 +231,11 @@ export default function ProductDetailInfor({ product, onColorChange }) {
       <CartFixed open={openCartFixed} setOpen={setOpenCartFixed} />
     </div>
   );
-}
+};
+
+ProductDetailInfor.propTypes = {
+  product: PropTypes.object.isRequired,
+  onColorChange: PropTypes.func,
+};
+
+export default ProductDetailInfor;

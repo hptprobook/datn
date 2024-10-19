@@ -1,7 +1,8 @@
 import { Icon } from '@iconify/react';
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 
-export default function InputField_50({
+const InputField_50 = ({
   id,
   label,
   type = 'text',
@@ -11,7 +12,7 @@ export default function InputField_50({
   error,
   value,
   ...rest
-}) {
+}) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const togglePasswordVisibility = () => {
@@ -34,7 +35,7 @@ export default function InputField_50({
           value={value}
           onChange={onChange}
           onBlur={onBlur}
-          className={`pr-10 w-full rounded-md border-2 bg-white text-sm text-gray-700 shadow-sm h-10 px-3 outline-blue-500 ${
+          className={`pr-10 w-full rounded-md border-2 bg-white text-sm text-gray-700 shadow-sm h-10 px-3 outline-blue-500 dark:outline-blue-500 ${
             error ? 'border-red-500' : 'border-gray-200'
           }`}
           {...rest}
@@ -56,4 +57,18 @@ export default function InputField_50({
       {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
     </div>
   );
-}
+};
+
+InputField_50.propTypes = {
+  id: PropTypes.string,
+  label: PropTypes.string,
+  type: PropTypes.string,
+  name: PropTypes.string,
+  onChange: PropTypes.func,
+  onBlur: PropTypes.func,
+  error: PropTypes.string,
+  value: PropTypes.string,
+  ...PropTypes.any,
+};
+
+export default InputField_50;

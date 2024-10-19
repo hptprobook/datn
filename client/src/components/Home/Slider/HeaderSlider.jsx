@@ -1,14 +1,25 @@
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination, Navigation } from 'swiper/modules';
-import { slider } from '~/APIs/mock_data';
 import { NavLink } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { getAllWebBanner } from '~/APIs';
+import { env } from '~/utils/constants';
 
-export default function HeaderSlider() {
+const HeaderSlider = () => {
+  const { data, isLoading } = useQuery({
+    queryKey: ['websiteBanner'],
+    queryFn: getAllWebBanner,
+  });
+
+  if (isLoading) return null;
+
+  const slider = data || [];
+
   return (
     <div className="w-full h-slider z-0">
       <Swiper
         autoplay={{
-          delay: 5000,
+          delay: 7000,
           disableOnInteraction: false,
         }}
         loop={true}
@@ -20,13 +31,21 @@ export default function HeaderSlider() {
         className="mySwiper z-0"
       >
         {slider.map((item) => (
-          <SwiperSlide key={item.id} className="z-0">
-            <NavLink to={item.productLink}>
-              <img src={item.imgURL} alt={item.title} />
+          <SwiperSlide key={item._id} className="z-0">
+            <NavLink to={item.url}>
+              <img
+                src={`${env.SERVER_URL}/${item.image}`}
+                alt={item.title}
+                className="w-full h-full object-cover"
+              />
             </NavLink>
           </SwiperSlide>
         ))}
       </Swiper>
     </div>
   );
-}
+};
+
+HeaderSlider.propTypes = {};
+
+export default HeaderSlider;

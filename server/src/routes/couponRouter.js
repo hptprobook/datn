@@ -1,15 +1,20 @@
 /* eslint-disable semi */
 import express from 'express';
-import verifyToken from '~/middlewares/verifyToken';
 // import isAdmin from '~/middlewares/verifyAdmin';
 import { couponController } from '~/controllers/couponController';
+import { verifyToken as verifyStaff, isAdmin } from '~/middlewares/verifyRole';
 const Router = express.Router();
 // Payments
-Router.get('/', verifyToken, couponController.getCoupons);
-Router.get('/code', verifyToken, couponController.findOneCoupons);
-Router.post('/', verifyToken, couponController.createCoupon);
-Router.put('/:idCoupon', verifyToken, couponController.updateCoupon);
-Router.delete('/:idCoupon', verifyToken, couponController.deleteCoupon);
-// Router.get('/:orderId', verifyToken, couponController.getCurentPayment);
+Router.get('/', verifyStaff, couponController.getCoupons);
+Router.get('/code', couponController.findOneCoupons);
+Router.post('/', verifyStaff, couponController.createCoupon);
+Router.put('/:id', verifyStaff, couponController.updateCoupon);
+Router.delete('/:id', verifyStaff, couponController.deleteCoupon);
+Router.post(
+  '/many',
+  verifyStaff,
+  isAdmin,
+  couponController.deleteManyCoupon
+);
 
 export const couponApi = Router;

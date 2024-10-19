@@ -2,20 +2,45 @@ import { useCallback, useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import './multiRangeSlider.css';
 
-const MultiRangeSlider = ({ min, max }) => {
-  const [minVal, setMinVal] = useState(min);
-  const [maxVal, setMaxVal] = useState(max);
-  const minValRef = useRef(min);
-  const maxValRef = useRef(max);
+const MultiRangeSlider = ({
+  min,
+  max,
+  onPriceRangeChange,
+  initialMin,
+  initialMax,
+}) => {
+  const [minVal, setMinVal] = useState(initialMin || min);
+  const [maxVal, setMaxVal] = useState(initialMax || max);
+  const minValRef = useRef(initialMin || min);
+  const maxValRef = useRef(initialMax || max);
   const range = useRef(null);
+  const timeoutRef = useRef(null);
 
-  // Convert to percentage
+  const debouncedPriceRangeChange = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = setTimeout(() => {
+      if (minVal !== initialMin || maxVal !== initialMax) {
+        onPriceRangeChange({ min: minVal, max: maxVal });
+      }
+    }, 2000);
+  }, [minVal, maxVal, onPriceRangeChange, initialMin, initialMax]);
+
+  useEffect(() => {
+    debouncedPriceRangeChange();
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [minVal, maxVal, debouncedPriceRangeChange]);
+
   const getPercent = useCallback(
     (value) => Math.round(((value - min) / (max - min)) * 100),
     [min, max]
   );
 
-  // Set width of the range to decrease from the left side
   useEffect(() => {
     const minPercent = getPercent(minVal);
     const maxPercent = getPercent(maxValRef.current);
@@ -26,7 +51,6 @@ const MultiRangeSlider = ({ min, max }) => {
     }
   }, [minVal, getPercent]);
 
-  // Set width of the range to decrease from the right side
   useEffect(() => {
     const minPercent = getPercent(minValRef.current);
     const maxPercent = getPercent(maxVal);
@@ -45,6 +69,7 @@ const MultiRangeSlider = ({ min, max }) => {
           min={min}
           max={max}
           value={minVal}
+          step={100}
           onChange={(event) => {
             const value = Math.min(Number(event.target.value), maxVal - 1);
             setMinVal(value);
@@ -58,6 +83,7 @@ const MultiRangeSlider = ({ min, max }) => {
           min={min}
           max={max}
           value={maxVal}
+          step={100}
           onChange={(event) => {
             const value = Math.max(Number(event.target.value), minVal + 1);
             setMaxVal(value);
@@ -66,7 +92,25 @@ const MultiRangeSlider = ({ min, max }) => {
           className="thumb thumb--right"
         />
 
-        <div className="slider">
+        <div
+          className="slider"
+          onClick={(event) => {
+            const rect = event.target.getBoundingClientRect();
+            const clickX = event.clientX - rect.left;
+            const newValue = Math.round(
+              (clickX / rect.width) * (max - min) + min
+            );
+            const halfRange = (max - min) / 2;
+
+            if (newValue < minVal + halfRange) {
+              setMinVal(Math.min(newValue, maxVal - 1));
+              minValRef.current = Math.min(newValue, maxVal - 1);
+            } else {
+              setMaxVal(Math.max(newValue, minVal + 1));
+              maxValRef.current = Math.max(newValue, minVal + 1);
+            }
+          }}
+        >
           <div className="slider__track" />
           <div ref={range} className="slider__range" />
           <div className="slider__left-value">{minVal}</div>
@@ -80,6 +124,9 @@ const MultiRangeSlider = ({ min, max }) => {
 MultiRangeSlider.propTypes = {
   min: PropTypes.number.isRequired,
   max: PropTypes.number.isRequired,
+  onPriceRangeChange: PropTypes.func.isRequired,
+  initialMin: PropTypes.number,
+  initialMax: PropTypes.number,
 };
 
 export default MultiRangeSlider;

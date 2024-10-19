@@ -27,6 +27,29 @@ export const create = createAsyncThunk(
   }
 );
 
+export const deleteCoupon = createAsyncThunk(
+  'coupons/deleteCoupon',
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await CouponServices.delete(id);
+      return response;
+    } catch (err) {
+      return rejectWithValue(err.response.data.errors);
+    }
+  }
+);
+export const deleteManyCoupon = createAsyncThunk(
+  'coupons/deleteManyCoupon',
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await CouponServices.deleteMany(data);
+      return response;
+    } catch (err) {
+      return rejectWithValue(err.response);
+    }
+  }
+);
+
 const initialState = {
   coupons: [],
   delete: null,
@@ -65,8 +88,33 @@ const couponSlice = createSlice({
         state.statusCreate = 'failed';
         state.error = action.payload;
       })
+      .addCase(deleteCoupon.pending, (state) => {
+        state.statusDelete = 'loading';
+      })
+      .addCase(deleteCoupon.fulfilled, (state, action) => {
+        state.statusDelete = 'successful';
+        state.delete = action.payload; // Storing only the categories array
+      })
+      .addCase(deleteCoupon.rejected, (state, action) => {
+        state.statusDelete = 'failed';
+        state.error = action.payload;
+      })
+      .addCase(deleteManyCoupon.pending, (state) => {
+        state.statusDelete = 'loading';
+      })
+      .addCase(deleteManyCoupon.fulfilled, (state, action) => {
+        state.statusDelete = 'successful';
+        state.delete = action.payload; // Storing only the categories array
+      })
+      .addCase(deleteManyCoupon.rejected, (state, action) => {
+        state.statusDelete = 'failed';
+        state.error = action.payload;
+      })
       .addCase(setStatus, (state, action) => {
-        state.status = action.payload;
+        const { key, value } = action.payload; // Destructure key and value from payload
+        if (state[key] !== undefined) {
+          state[key] = value; // Update the status field dynamically
+        }
       })
       .addCase(resetDelete, (state) => {
         state.status = 'idle';

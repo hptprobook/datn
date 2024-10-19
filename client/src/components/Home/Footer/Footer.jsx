@@ -1,6 +1,6 @@
 import Logo from '~/assets/logo2.png';
 
-export default function Footer() {
+const Footer = () => {
   return (
     <footer className="bg-white">
       <div className="mx-auto max-w-screen-xl px-4 pb-6 pt-16 sm:px-6 lg:px-8 lg:pt-24">
@@ -376,4 +376,6 @@ export default function Footer() {
       </div>
     </footer>
   );
-}
+};
+
+export default Footer;

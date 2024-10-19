@@ -2,7 +2,7 @@ import { PiShoppingCartBold } from 'react-icons/pi';
 import { MdOutlineContentPasteSearch } from 'react-icons/md';
 import { FaBars } from 'react-icons/fa';
 import { IoIosSearch } from 'react-icons/io';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import Logo from '~/assets/logo2.png';
 import UserBar from '~/components/Home/Header/UserBar';
@@ -12,20 +12,51 @@ import SearchResponsiveModal from './Responsive/SearchResponsiveModal';
 import CartFixed from './CartFixed';
 import useCheckAuth from '~/customHooks/useCheckAuth';
 import { useCart } from 'react-use-cart';
+import { Icon } from '@iconify/react';
+import PropTypes from 'prop-types';
+import UserLoggedBar from './UserLoggedBar';
+import { useWishlist } from '~/context/WishListContext';
+import WishList from '~/components/common/Product/WishList';
+import { useQuery } from '@tanstack/react-query';
+import { getCurrentUser } from '~/APIs';
+import { useUser } from '~/context/UserContext';
 
-export default function Header() {
+const Header = () => {
   const { isAuthenticated } = useCheckAuth();
 
   const [openCart, setOpenCart] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
   const [openSearch, setOpenSearch] = useState(false);
   const [currentTitle, setCurrentTitle] = useState('Danh mục');
+  const [isWishlistOpen, setIsWishlistOpen] = useState(false);
+  const { wishlistItems, removeFromWishlist } = useWishlist();
+  const { setUserInfo } = useUser();
 
   const { items } = useCart();
+
+  const { data } = useQuery({
+    queryKey: ['getCurrentUser'],
+    queryFn: getCurrentUser,
+    enabled: isAuthenticated,
+  });
+
+  useEffect(() => {
+    if (data) {
+      setUserInfo(data);
+    }
+  }, [data, setUserInfo]);
+
+  const currentUserInfor = data ? data : null;
 
   return (
     <div>
       {/* Header dùng chung cho Window */}
+      <WishList
+        isOpen={isWishlistOpen}
+        onClose={() => setIsWishlistOpen(false)}
+        wishlistItems={wishlistItems}
+        removeFromWishlist={removeFromWishlist}
+      />
       <header className="w-full h-16 bg-amber-600 hidden lg:block text-black">
         <div className="max-w-container h-full mx-auto flex justify-between items-center">
           <NavLink to="/">
@@ -35,6 +66,13 @@ export default function Header() {
           </NavLink>
           <SearchBar />
           <div className="flex gap-4">
+            <div
+              className="text-2xl text-gray-50 cursor-pointer relative hover:text-red-600"
+              title="Danh sách yêu thích"
+              onClick={() => setIsWishlistOpen(true)}
+            >
+              <Icon icon="iconamoon:heart-fill" />
+            </div>
             <div
               className="text-2xl text-gray-50 cursor-pointer relative"
               onClick={() => setOpenCart(true)}
@@ -49,7 +87,11 @@ export default function Header() {
               <MdOutlineContentPasteSearch />
             </div>
             {/* Kiểm tra trạng thái đăng nhập */}
-            {isAuthenticated ? <p>Đã đăng nhập</p> : <UserBar />}
+            {isAuthenticated ? (
+              <UserLoggedBar currentUserInfor={currentUserInfor} />
+            ) : (
+              <UserBar />
+            )}
           </div>
         </div>
       </header>
@@ -100,4 +142,15 @@ export default function Header() {
       />
     </div>
   );
-}
+};
+
+Header.propTypes = {
+  openCart: PropTypes.bool,
+  setOpenCart: PropTypes.func,
+  openMenu: PropTypes.bool,
+  setOpenMenu: PropTypes.func,
+  currentTitle: PropTypes.string,
+  setCurrentTitle: PropTypes.func,
+};
+
+export default Header;

@@ -1,11 +1,10 @@
 /* eslint-disable semi */
 import express from 'express';
 import { brandController } from '~/controllers/brandController';
-import verifyAdmin from '~/middlewares/verifyAdmin';
-import verifyToken from '~/middlewares/verifyToken';
 import multer from 'multer';
 import { uploadModel } from '~/models/uploadModel';
 import path from 'path';
+import { isAdmin, verifyToken } from '~/middlewares/verifyRole';
 
 const Router = express.Router();
 
@@ -29,17 +28,20 @@ Router.get('/slug/:slug', brandController.getBrandBySlug);
 Router.post(
   '/',
   verifyToken,
-  verifyAdmin,
+  isAdmin,
   upload.single('image'),
   brandController.createBrand
 );
 Router.put(
   '/:id',
   verifyToken,
-  verifyAdmin,
+  isAdmin,
   upload.single('image'),
   brandController.update
 );
-Router.delete('/:id', verifyToken, verifyAdmin, brandController.deleteBrand);
+Router.delete('/:id', verifyToken, isAdmin, brandController.deleteBrand);
+//Delete all
+Router.post('/all', verifyToken, isAdmin, brandController.deleteAllBrand);
+Router.post('/many', verifyToken, isAdmin, brandController.deleteManyBrand);
 
 export const brandsApi = Router;

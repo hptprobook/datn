@@ -1,23 +1,21 @@
 /* eslint-disable react/no-unescaped-entities */
 import { NavLink } from 'react-router-dom';
-// import { bestCategories } from '~/APIs/mock_data';
-// import BestCategories from '~/components/Home/Container/BestCategories/BestCategories';
 import CatSuggest from '~/components/Home/Container/CatSuggest/CatSuggest';
-// import Offer from '~/components/Home/Container/Offer/Offer';
 import Post from '~/components/Home/Container/Post/Post';
 import HeaderSlider from '~/components/Home/Slider/HeaderSlider';
 import Logo from '~/assets/logo2.png';
+import FilterCategories from './FilterCategories';
 
-export default function HomePage() {
+const HomePage = () => {
+  const eventCategories = ['ao-polo', 'ao-somi', 'quan-short'];
   return (
     <>
       <main className="z-0 max-w-container mx-auto px-2 lg:px-0 text-black">
         <HeaderSlider />
         <CatSuggest />
-        {/* <Offer />
-        {bestCategories.map((item) => (
-          <BestCategories key={item.id} item={item} />
-        ))} */}
+        {eventCategories.map((item, i) => (
+          <FilterCategories key={i} slug={item} />
+        ))}
         <div className="banner mt-24 w-full h-slider">
           <NavLink to="#">
             <img
@@ -29,7 +27,7 @@ export default function HomePage() {
         </div>
         <Post />
       </main>
-      <div className="hidden md:flex h-productItem bg-red-800 mt-12 w-screen flex-col items-center">
+      <div className="hidden md:flex h-productItem bg-red-800 mt-12 w-full flex-col items-center">
         <div>
           <img src={Logo} alt="" />
         </div>
@@ -55,4 +53,8 @@ export default function HomePage() {
       </div>
     </>
   );
-}
+};
+
+HomePage.propTypes = {};
+
+export default HomePage;

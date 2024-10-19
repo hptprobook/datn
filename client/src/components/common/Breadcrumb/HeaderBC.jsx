@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
-export default function HeaderBC({ title, name }) {
+const HeaderBC = ({ title, name, url = '/danh-muc-san-pham' }) => {
   return (
     <nav aria-label="Breadcrumb">
       <ol className="flex items-center gap-1 text-sm text-gray-600">
@@ -41,10 +42,7 @@ export default function HeaderBC({ title, name }) {
         </li>
 
         <li>
-          <NavLink
-            to={'/danh-muc-san-pham'}
-            className="block transition hover:text-red-500"
-          >
+          <NavLink to={url} className="block transition hover:text-red-500">
             {' '}
             {title}{' '}
           </NavLink>
@@ -74,4 +72,11 @@ export default function HeaderBC({ title, name }) {
       </ol>
     </nav>
   );
-}
+};
+
+HeaderBC.propTypes = {
+  title: PropTypes.string,
+  name: PropTypes.string,
+};
+
+export default HeaderBC;

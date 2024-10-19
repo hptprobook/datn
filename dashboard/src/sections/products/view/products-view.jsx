@@ -11,19 +11,30 @@ import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 
 import { useNavigate } from 'react-router-dom';
-import {fetchAllProducts } from 'src/redux/slices/productSlice';
+import {
+  setStatus,
+  fetchAllProducts,
+  fetchProductById,
+  deleteProductById,
+} from 'src/redux/slices/productSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { handleToast } from 'src/hooks/toast';
 
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 
-import TableNoData from '../table-no-data';
+import TableEmptyRows from 'src/components/table/table-empty-rows';
+import TableNoData from 'src/components/table/table-no-data';
+import { emptyRows, applyFilter, getComparator } from 'src/components/table/utils';
+import ConfirmDelete from 'src/components/modal/confirm-delete';
+import LoadingFull from 'src/components/loading/loading-full';
+import { Drawer, IconButton } from '@mui/material';
+import { fetchAll } from 'src/redux/slices/brandSlices';
 import ProductTableRow from '../product-table-row';
 import ProductTableHead from '../product-table-head';
-import TableEmptyRows from '../table-empty-rows';
 import ProductTableToolbar from '../product-table-toolbar';
-import { emptyRows, applyFilter, getComparator } from '../utils';
+import ProductCard from '../product-card';
+import { renderBrand } from '../utils';
 
 // ----------------------------------------------------------------------
 
@@ -35,29 +46,54 @@ export default function ProductsPage() {
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
+  const [open, setOpen] = React.useState(false);
+
   const dispatch = useDispatch();
   const products = useSelector((state) => state.products.products);
-  const statusPro = useSelector((state) => state.products.status);
+  const status = useSelector((state) => state.products.status);
+  const product = useSelector((state) => state.products.product);
+  const brands = useSelector((state) => state.brands.brands);
+  const statusGet = useSelector((state) => state.products.statusGet);
+  const statusDelete = useSelector((state) => state.products.statusDelete);
+  const error = useSelector((state) => state.products.error);
   const [productsList, setProductsList] = React.useState([]);
+
   // const errorPro = useSelector((state) => state.products.error);
 
+  const toggleDrawer = (value) => (event) => {
+    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+      return;
+    }
+    if (value) {
+      dispatch(fetchProductById({ id: value }));
+    } else {
+      dispatch(setStatus({ key: 'statusGet', value: '' }));
+      dispatch(setStatus({ key: 'product', value: null }));
+    }
+    setOpen(!open);
+  };
   useEffect(() => {
     dispatch(fetchAllProducts());
   }, [dispatch]);
-  
   useEffect(() => {
-    if (statusPro === 'succeeded') {
-      setProductsList(products);
+    if (statusDelete === 'successful') {
+      handleToast('success', 'Xóa sản phẩm thành công!');
+      dispatch(fetchAllProducts());
     }
-  }, [products, statusPro]);
+    if (statusDelete === 'failed') {
+      handleToast('error', error?.message || 'Có lỗi xảy ra vui lòng thử lại!');
+    }
+    dispatch(setStatus({ key: 'statusDelete', value: '' }));
+  }, [statusDelete, dispatch, error]);
 
   useEffect(() => {
-    if (statusPro === 'failed') {
-      handleToast('error', 'Failed to fetch products');
-    } else if (statusPro === 'succeeded') {
+    if (status === 'failed') {
+      handleToast('error', 'Có lỗi xảy ra vui lòng thử lại!');
+    } else if (status === 'successful') {
       setProductsList(products);
+      dispatch(fetchAll());
     }
-  }, [products, statusPro]);
+  }, [products, status, dispatch]);
 
   // console.log(productsList);
 
@@ -114,24 +150,50 @@ export default function ProductsPage() {
     inputData: productsList,
     comparator: getComparator(order, orderBy),
     filterName,
+    fillerQuery: 'name',
   });
 
   const notFound = !dataFiltered.length && !!filterName;
   const navigate = useNavigate();
 
-  const handleNewProductClick = () => {
-    navigate('/products/create');
+  const [confirm, setConfirm] = useState(false);
+  const dispatchDelete = () => {
+    dispatch(deleteProductById({ id: confirm }));
   };
   return (
     <Container>
+      {status === 'loading' && <LoadingFull />}
+      {statusDelete === 'loading' && <LoadingFull />}
+      <Drawer anchor="right" open={open} onClose={toggleDrawer()}>
+        <ProductCard
+          product={product}
+          status={statusGet}
+          brand={renderBrand(product?._id, brands)}
+        />
+      </Drawer>
+      <ConfirmDelete
+        openConfirm={!!confirm}
+        onAgree={dispatchDelete}
+        onClose={() => setConfirm(false)}
+        label="sản phẩm đã chọn"
+      />
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Sản phẩm</Typography>
-
+        <Stack direction="row" alignItems="center">
+          <Typography variant="h4">Sản phẩm</Typography>
+          <IconButton
+            aria-label="load"
+            variant="contained"
+            color="inherit"
+            onClick={() => dispatch(fetchAllProducts())}
+          >
+            <Iconify icon="mdi:reload" />
+          </IconButton>
+        </Stack>
         <Button
           variant="contained"
           color="inherit"
           startIcon={<Iconify icon="eva:plus-fill" />}
-          onClick={handleNewProductClick}
+          onClick={() => navigate('create')}
         >
           Tạo sản phẩm
         </Button>
@@ -156,9 +218,11 @@ export default function ProductsPage() {
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
                   { id: 'name', label: 'Tên' },
+                  { id: 'slug', label: 'Slug' },
                   { id: 'price', label: 'Giá' },
                   { id: 'brand', label: 'Thương hiệu' },
-                  { id: 'stock', label: 'Stock' },
+                  { id: 'averageRating', label: 'Đánh giá' },
+                  { id: 'statusStock', label: 'Trạng thái' },
                   { id: '' },
                 ]}
               />
@@ -167,19 +231,25 @@ export default function ProductsPage() {
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
                     <ProductTableRow
-                    key={row._id}
-                    _id={row._id}
-                    name={row.name}
-                    imgURLs={row.imgURLs}
-                    price={row.price}
-                    brand={row.brand}
-                    stock={row.stock}
-                    selected={selected.indexOf(row.name) !== -1}
-                    handleClick={(event) => handleClick(event, row.name)}
+                      onClick={toggleDrawer(row._id)}
+                      key={row._id}
+                      _id={row._id}
+                      name={row.name}
+                      imgURLs={row.thumbnail}
+                      price={row.price}
+                      brand={renderBrand(row.brand, brands)}
+                      slug={row.slug}
+                      averageRating={row.averageRating}
+                      statusStock={row.statusStock}
+                      selected={selected.indexOf(row._id) !== -1}
+                      handleClick={(event) => handleClick(event, row._id)}
+                      onDelete={() => setConfirm(row._id)}
+                      handleNavigate={() => navigate(row._id)}
                     />
                   ))}
 
                 <TableEmptyRows
+                  col={5}
                   height={77}
                   emptyRows={emptyRows(page, rowsPerPage, productsList.length)}
                 />
@@ -193,6 +263,7 @@ export default function ProductsPage() {
         <TablePagination
           page={page}
           component="div"
+          labelRowsPerPage="Số hàng trên trang"
           count={productsList.length}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}

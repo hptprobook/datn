@@ -49,7 +49,7 @@ export const updateProduct = createAsyncThunk(
   'products/updateProduct',
   async ({ id, data }, { rejectWithValue }) => {
     try {
-      const response = await ProductsService.updateProduct(id, data);
+      const response = await ProductsService.updateProductById(id, data);
       return response;
     } catch (err) {
       return rejectWithValue(err.response.data);
@@ -58,21 +58,18 @@ export const updateProduct = createAsyncThunk(
 );
 
 export const resetState = createAction('products/resetState');
-
+export const setStatus = createAction('products/setStatus');
 const productsSlice = createSlice({
   name: 'products',
-  initialState: { data: [], status: 'idle', error: null },
-  reducers: {
-    resetState: (state) => {
-      state.error = null;
-      // Reset the state to its initial values
-      state.status = 'idle';
-      state.statusFetchById = 'idle'; // Add this line if 'statusFetchById' is part of your state
-      state.statusCreate = 'idle';
-      state.statusUpdate = 'idle';
-      state.statusDelete = 'idle'; // Add this line if 'statusCreate' is part of your state
-      // Add this line if 'statusCreate' is part of your state
-    },
+  initialState: {
+    products: [],
+    product: {},
+    status: 'idle',
+    statusGet: 'idle',
+    statusCreate: 'idle',
+    statusDelete: 'idle',
+    statusUpdate: 'idle',
+    error: null
   },
   extraReducers: (builder) => {
     builder
@@ -80,56 +77,62 @@ const productsSlice = createSlice({
         state.status = 'loading';
       })
       .addCase(fetchAllProducts.fulfilled, (state, action) => {
-        state.status = 'succeeded';
+        state.status = 'successful';
         state.products = action.payload.products;
       })
       .addCase(fetchAllProducts.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.error.message;
+        state.error = action.payload;
       })
       .addCase(fetchProductById.pending, (state) => {
-        state.statusFetchById = 'loading';
+        state.statusGet = 'loading';
       })
       .addCase(fetchProductById.fulfilled, (state, action) => {
-        state.statusFetchById = 'succeeded';
+        state.statusGet = 'successful';
         state.product = action.payload;
       })
       .addCase(fetchProductById.rejected, (state, action) => {
-        state.statusFetchById = 'failed';
-        state.error = action.error.message;
+        state.statusGet = 'failed';
+        state.error = action.payload;
       })
       .addCase(createProduct.pending, (state) => {
         state.statusCreate = 'loading';
       })
       .addCase(createProduct.fulfilled, (state, action) => {
-        state.statusCreate = 'succeeded';
+        state.statusCreate = 'successful';
         state.dataCreate = action.payload;
       })
       .addCase(createProduct.rejected, (state, action) => {
         state.statusCreate = 'failed';
-        state.error = action.error.message;
+        state.error = action.payload;
       })
       .addCase(deleteProductById.pending, (state) => {
         state.statusDelete = 'loading';
       })
       .addCase(deleteProductById.fulfilled, (state, action) => {
-        state.statusDelete = 'succeeded';
+        state.statusDelete = 'successful';
         state.deleteReturn = action.payload;
       })
       .addCase(deleteProductById.rejected, (state, action) => {
         state.statusDelete = 'failed';
-        state.error = action.error.message;
+        state.error = action.payload;
       })
       .addCase(updateProduct.pending, (state) => {
         state.statusUpdate = 'loading';
       })
       .addCase(updateProduct.fulfilled, (state, action) => {
-        state.statusUpdate = 'succeeded';
-        state.dataUpdateReturn = action.payload;
+        state.statusUpdate = 'successful';
+        state.product = action.payload;
       })
       .addCase(updateProduct.rejected, (state, action) => {
         state.statusUpdate = 'failed';
-        state.error = action.error.message;
+        state.error = action.payload;
+      })
+      .addCase(setStatus, (state, action) => {
+        const { key, value } = action.payload; // Destructure key and value from payload
+        if (state[key] !== undefined) {
+          state[key] = value; // Update the status field dynamically
+        }
       });
   },
 });

@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow */
 import { useState, useEffect } from 'react';
 
 import Card from '@mui/material/Card';
@@ -6,10 +7,15 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { Select, MenuItem, TextField, InputLabel, FormControl } from '@mui/material';
-import { getDistrict, getProvince } from 'src/utils/requestGHN';
 import LoadingButton from '@mui/lab/LoadingButton';
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
+import AddressService from 'src/redux/services/address.service';
+import { handleToast } from 'src/hooks/toast';
+import { useDispatch, useSelector } from 'react-redux';
+import { setStatus, createUser, fetchAllUsers } from 'src/redux/slices/userSlice';
+import LoadingFull from 'src/components/loading/loading-full';
+import CountrySelect from '../select-address';
 
 // ----------------------------------------------------------------------
 const userSchema = Yup.object().shape({
@@ -18,14 +24,11 @@ const userSchema = Yup.object().shape({
     .required('Mật khẩu là bắt buộc')
     .min(6, 'Mật khẩu phải có ít nhất 6 ký tự')
     .max(50, 'Mật khẩu không được quá 50 ký tự'),
-  firstName: Yup.string()
+  name: Yup.string()
     .required('Tên là bắt buộc')
     .min(2, 'Tên phải có ít nhất 2 ký tự')
     .max(50, 'Tên không được quá 50 ký tự'),
-  lastName: Yup.string()
-    .required('Họ là bắt buộc')
-    .min(2, 'Họ phải có ít nhất 2 ký tự')
-    .max(50, 'Họ không được quá 50 ký tự'),
+  role: Yup.string().required('Vai trò là bắt buộc'),
   phone: Yup.string()
     .required('Số điện thoại là bắt buộc')
     .min(10, 'Số điện thoại phải có ít nhất 10 ký tự')
@@ -35,122 +38,127 @@ const userSchema = Yup.object().shape({
     .min(10, 'Địa chỉ phải có ít nhất 10 ký tự')
     .max(255, 'Địa chỉ không được quá 255 ký tự'),
 });
+
 export default function CreateUserPage() {
-  const [role, setRole] = useState('user');
   const [province, setProvince] = useState([]);
   const [district, setDistrict] = useState([]);
+  const dispatch = useDispatch();
   const [ward, setWard] = useState([]);
-  const [selectedProvince, setSelectedProvince] = useState('');
-  const [selectedDistrict, setSelectedDistrict] = useState('');
-  const [selectedWard, setSelectedWard] = useState('');
+  const [selectedProvince, setSelectedProvince] = useState(''); // Initialize with ''
+  const [selectedDistrict, setSelectedDistrict] = useState(''); // Initialize with ''
+  const [selectedWard, setSelectedWard] = useState(''); // Initialize with ''
   const [address, setAddress] = useState('Vui lòng chọn địa chỉ');
-
+  const status = useSelector((state) => state.users.statusCreate);
+  const error = useSelector((state) => state.users.error);
   useEffect(() => {
-    getProvince('/province').then((res) => {
-      setProvince(res.data);
+    AddressService.getProvince().then((res) => {
+      setProvince(res);
     });
   }, []);
-
-  const handleChange = (event) => {
-    setRole(event.target.value);
-  };
 
   const formik = useFormik({
     initialValues: {
       email: '',
       password: '',
-      firstName: '',
-      lastName: '',
       phone: '',
       noteAddress: '',
+      role: 'user',
     },
     validationSchema: userSchema,
     onSubmit: async (values) => {
-      console.log(values);
+      if (selectedWard === '') {
+        handleToast('error', 'Vui lòng chọn địa chỉ');
+        return;
+      }
+      const dataAddress = {
+        name: values.name,
+        phone: values.phone,
+        district_id: selectedDistrict.DistrictID,
+        ward_id: selectedWard.WardID,
+        address,
+        province_id: selectedProvince.ProvinceID,
+        isDefault: true,
+        note: values.noteAddress,
+      };
+      const newData = {
+        ...values,
+        addresses: [dataAddress],
+      };
+      delete newData.noteAddress;
+      dispatch(createUser(newData));
     },
   });
 
-  const handleChangeProvince = (event) => {
+  const handleChangeProvince = (province) => {
     setWard([]);
-    setSelectedDistrict('');
-    setSelectedWard('');
     setDistrict([]);
-    setSelectedProvince(event.target.value);
-    const selectedProvinceId = event.target.value;
-    getDistrict('/district', {
-      province_id: selectedProvinceId,
-    }).then((res) => {
-      setDistrict(res.data);
-    });
+    setSelectedDistrict(''); // Reset district
+    setSelectedWard(''); // Reset ward
+    setSelectedProvince(province);
+    if (province) {
+      AddressService.getDistrict(province.ProvinceID).then((res) => {
+        setDistrict(res);
+      });
+    }
   };
 
-  const handleChangeDistrict = (event) => {
+  const handleChangeDistrict = (district) => {
     setWard([]);
     setSelectedWard('');
-    setSelectedDistrict(event.target.value);
-    const selectedDistrictId = event.target.value;
-    getDistrict('/ward?district_id', {
-      district_id: selectedDistrictId,
-    }).then((res) => {
-      setWard(res.data);
-    });
+    setSelectedDistrict(district);
+    if (district) {
+      AddressService.getWard(district.DistrictID).then((res) => {
+        setWard(res);
+      });
+    }
   };
 
-  const handleChangeWard = (event) => {
-    setSelectedWard(event.target.value);
-    let addressStr = '';
-    const selectedWardObj = ward.find((item) => item.WardCode === event.target.value);
-    const selectedDistrictObj = district.find((item) => item.DistrictID === selectedDistrict);
-    const selectedProvinceObj = province.find((item) => item.ProvinceID === selectedProvince);
-
-    if (selectedWardObj && selectedDistrictObj && selectedProvinceObj) {
-      addressStr = `${selectedWardObj.WardName}, ${selectedDistrictObj.DistrictName}, ${selectedProvinceObj.ProvinceName}`;
-    }
+  const handleChangeWard = (ward) => {
+    setSelectedWard(ward);
+    const addressStr = `${ward.WardName}, ${selectedDistrict.DistrictName}, ${selectedProvince.ProvinceName}`;
     setAddress(addressStr);
   };
+  useEffect(() => {
+    if (status === 'successful') {
+      handleToast('success', 'Tạo người dùng thành công');
+      dispatch(setStatus({ key: 'statusCreate', value: '' }));
+      dispatch(fetchAllUsers());
+      dispatch(setStatus({ key: 'error', value: 'idle' }));
+    }
+    if (status === 'failed') {
+      handleToast('error', error?.message || 'Có lỗi xảy ra vui lòng thử lại!');
+      dispatch(setStatus({ key: 'statusCreate', value: '' }));
+      dispatch(setStatus({ key: 'error', value: 'idle' }));
+    }
+  }, [status, error, dispatch]);
 
   return (
     <Container>
+      {status === 'loading' && <LoadingFull />}
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Typography variant="h4">Thêm người dùng mới</Typography>
       </Stack>
 
-      <Card
-        sx={{
-          p: 3,
-        }}
-      >
+      <Card sx={{ p: 3 }}>
         <Typography variant="h6" typography="p">
           Thêm người dùng mới
         </Typography>
         <form onSubmit={formik.handleSubmit}>
           <Grid2 container spacing={3}>
-            <Grid2 xs={12} md={8}>
-              <TextField
-                fullWidth
-                label="Họ"
-                name="firstName"
-                value={formik.values.firstName}
-                onChange={formik.handleChange}
-                error={formik.touched.firstName && Boolean(formik.errors.firstName)}
-                helperText={formik.touched.firstName && formik.errors.firstName}
-                onBlur={formik.handleBlur}
-              />
-            </Grid2>
-            <Grid2 xs={12} md={4}>
+            <Grid2 xs={12} md={6}>
               <TextField
                 fullWidth
                 label="Tên"
-                name="lastName"
-                value={formik.values.lastName}
+                name="name"
+                value={formik.values.name}
                 onChange={formik.handleChange}
-                error={formik.touched.lastName && Boolean(formik.errors.lastName)}
-                helperText={formik.touched.lastName && formik.errors.lastName}
+                error={formik.touched.name && Boolean(formik.errors.name)}
+                helperText={formik.touched.name && formik.errors.name}
                 onBlur={formik.handleBlur}
               />
             </Grid2>
 
-            <Grid2 xs={12} md={8}>
+            <Grid2 xs={12} md={6}>
               <TextField
                 type="password"
                 fullWidth
@@ -164,74 +172,56 @@ export default function CreateUserPage() {
               />
             </Grid2>
             <Grid2 xs={12} md={4}>
+              <TextField
+                fullWidth
+                label="Điện thoại"
+                name="phone"
+                value={formik.values.phone}
+                onChange={formik.handleChange}
+                error={formik.touched.phone && Boolean(formik.errors.phone)}
+                helperText={formik.touched.phone && formik.errors.phone}
+                onBlur={formik.handleBlur}
+              />
+            </Grid2>
+            <Grid2 xs={12} md={4}>
+              <TextField
+                fullWidth
+                label="Email"
+                name="email"
+                value={formik.values.email}
+                onChange={formik.handleChange}
+                error={formik.touched.email && Boolean(formik.errors.email)}
+                helperText={formik.touched.email && formik.errors.email}
+                onBlur={formik.handleBlur}
+              />
+            </Grid2>
+            <Grid2 xs={12} md={4}>
               <FormControl fullWidth>
-                <InputLabel id="demo-simple-select-label">Vai trò</InputLabel>
+                <InputLabel id="role-select-label">Vai trò</InputLabel>
                 <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  value={role}
+                  labelId="role-select-label"
+                  id="role-select"
+                  value={formik.values.role}
+                  name="role"
                   label="Vai trò"
-                  onChange={handleChange}
+                  onChange={formik.handleChange}
                 >
                   <MenuItem value="user">Người dùng</MenuItem>
-                  <MenuItem value="employee">Nhân viên</MenuItem>
-                  <MenuItem value="root">Quảng lý</MenuItem>
+                  <MenuItem value="staff">Nhân viên</MenuItem>
+                  <MenuItem value="admin">Quản trị</MenuItem>
+                  <MenuItem value="root">Quản lý</MenuItem>
                 </Select>
               </FormControl>
             </Grid2>
+
             <Grid2 xs={12} md={4}>
-              <FormControl fullWidth>
-                <InputLabel id="select-province">Tỉnh/Thành phố</InputLabel>
-                <Select
-                  labelId="select-province"
-                  id="id-select-province"
-                  value={selectedProvince}
-                  label="Tỉnh/Thành phố"
-                  onChange={handleChangeProvince}
-                >
-                  {province.map((item) => (
-                    <MenuItem key={item.ProvinceID} value={item.ProvinceID}>
-                      {item.ProvinceName}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <CountrySelect data={province} query="ProvinceName" onSelect={handleChangeProvince} />
             </Grid2>
             <Grid2 xs={12} md={4}>
-              <FormControl fullWidth>
-                <InputLabel id="select-district">Huyện</InputLabel>
-                <Select
-                  labelId="select-district"
-                  id="id-select-district"
-                  value={selectedDistrict}
-                  label="Huyện"
-                  onChange={handleChangeDistrict}
-                >
-                  {district.map((item) => (
-                    <MenuItem key={item.DistrictID} value={item.DistrictID}>
-                      {item.DistrictName}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <CountrySelect data={district} query="DistrictName" onSelect={handleChangeDistrict} />
             </Grid2>
             <Grid2 xs={12} md={4}>
-              <FormControl fullWidth>
-                <InputLabel id="select-ward">Xã</InputLabel>
-                <Select
-                  labelId="select-ward"
-                  id="id-select-ward"
-                  value={selectedWard}
-                  label="Xã"
-                  onChange={handleChangeWard}
-                >
-                  {ward.map((item) => (
-                    <MenuItem key={item.WardCode} value={item.WardCode}>
-                      {item.WardName}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <CountrySelect data={ward} query="WardName" onSelect={handleChangeWard} />
             </Grid2>
             <Grid2 xs={12} md={6}>
               <TextField fullWidth label="Địa chỉ" disabled value={address} />
@@ -248,30 +238,7 @@ export default function CreateUserPage() {
                 onBlur={formik.handleBlur}
               />
             </Grid2>
-            <Grid2 xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Điện thoại"
-                name="phone"
-                value={formik.values.phone}
-                onChange={formik.handleChange}
-                error={formik.touched.phone && Boolean(formik.errors.phone)}
-                helperText={formik.touched.phone && formik.errors.phone}
-                onBlur={formik.handleBlur}
-              />
-            </Grid2>
-            <Grid2 xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Email"
-                name="email"
-                value={formik.values.email}
-                onChange={formik.handleChange}
-                error={formik.touched.email && Boolean(formik.errors.email)}
-                helperText={formik.touched.email && formik.errors.email}
-                onBlur={formik.handleBlur}
-              />
-            </Grid2>
+
             <Grid2 xs={12} md={3}>
               <LoadingButton
                 fullWidth

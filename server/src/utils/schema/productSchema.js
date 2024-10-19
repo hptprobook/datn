@@ -33,12 +33,7 @@ export const SAVE_PRODUCT_SCHEMA = Joi.object({
     'string.empty': 'Giá không được để trống',
     'any.required': 'Giá là bắt buộc',
   }),
-  tags: Joi.array().items(
-    Joi.string().trim().min(1).required().messages({
-      'string.empty': 'Tag không được để trống',
-      'any.required': 'Tag là bắt buộc',
-    })
-  ),
+  tags: Joi.array().default([]),
   thumbnail: Joi.string().trim().min(1).required().messages({
     'string.empty': 'Ảnh đại diện không được để trống',
     'any.required': 'Ảnh đại diện là bắt buộc',
@@ -61,10 +56,10 @@ export const SAVE_PRODUCT_SCHEMA = Joi.object({
   status: Joi.boolean().required().messages({
     'any.required': 'Trạng thái là bắt buộc',
   }),
-  views: Joi.number().integer().min(1).default(0),
-  inventory: Joi.number().integer().min(1).default(0),
-  minInventory: Joi.number().integer().min(1).default(0),
-  maxInventory: Joi.number().integer().min(1).default(0),
+  views: Joi.number().integer().default(0),
+  inventory: Joi.number().integer().default(0),
+  minInventory: Joi.number().integer().default(0),
+  maxInventory: Joi.number().integer().default(0),
   variants: Joi.alternatives()
     .try(
       Joi.object(),
@@ -94,10 +89,7 @@ export const SAVE_PRODUCT_SCHEMA = Joi.object({
             'string.empty': 'Tồn kho không được để trống',
             'any.required': 'Tồn kho là bắt buộc',
           }),
-          sellCount: Joi.number().integer().required().messages({
-            'string.empty': 'Số lượng bán không được để trống',
-            'any.required': 'Số lượng bán là bắt buộc',
-          }),
+          sellCount: Joi.number().integer().default(0),
           sku: Joi.string().trim().min(1).required().messages({
             'string.empty': 'Sku không được để trống',
             'any.required': 'Sku là bắt buộc',
@@ -116,7 +108,7 @@ export const SAVE_PRODUCT_SCHEMA = Joi.object({
                 'string.empty': 'Giá không được để trống',
                 'any.required': 'Giá là bắt buộc',
               }),
-              stock: Joi.number().integer().min(1).required().messages({
+              stock: Joi.number().integer().required().messages({
                 'string.empty': 'Tồn kho không được để trống',
                 'any.required': 'Tồn kho là bắt buộc',
               }),
@@ -180,9 +172,12 @@ export const SAVE_PRODUCT_SCHEMA = Joi.object({
         'Trạng thái sản phẩm phải là một trong các giá trị sau: stock, outStock, preOrder.',
       'any.required': 'Trạng thái sản phẩm là bắt buộc.',
     }),
-  productType: Joi.string().trim().min(1).messages({
-    'string.empty': 'Sản phẩm không được để trống',
-  }),
+  productType: Joi.array().items(
+    Joi.string().trim().min(1).required().messages({
+      'string.empty': 'Loại sản phẩm không được để trống',
+      'any.required': 'Loại sản phẩm là bắt buộc',
+    })
+  ),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(Date.now),
 });
@@ -230,59 +225,56 @@ export const UPDATE_PRODUCT = Joi.object({
     'string.empty': 'Thương hiệu không được để trống',
   }),
   status: Joi.boolean(),
-  views: Joi.number().integer().min(1).default(0),
-  inventory: Joi.number().integer().min(1).default(0),
-  minInventory: Joi.number().integer().min(1).default(0),
-  maxInventory: Joi.number().integer().min(1).default(0),
-  variants: Joi.alternatives().try(
-    Joi.object(),
-    Joi.array().items(
-      Joi.object({
-        price: Joi.number().precision(2).min(1).messages({
-          'string.empty': 'Giá không được để trống',
-        }),
-        saleOff: Joi.number().precision(2).messages({
-          'string.empty': 'Giá giảm không được để trống',
-        }),
-        marketPrice: Joi.number().precision(2).min(1).messages({
-          'string.empty': 'Giá chợ không được để trống',
-        }),
-        capitalPrice: Joi.number().precision(2).min(1).messages({
-          'string.empty': 'Giá gốc không được để trống',
-        }),
-        onlinePrice: Joi.number().precision(2).min(1).messages({
-          'string.empty': 'Giá online không được để trống',
-        }),
-        stock: Joi.number().integer().messages({
-          'string.empty': 'Tồn kho không được để trống',
-        }),
-        sellCount: Joi.number().integer().messages({
-          'string.empty': 'Số lượng bán không được để trống',
-        }),
-        sku: Joi.string().trim().min(1).messages({
-          'string.empty': 'Sku không được để trống',
-        }),
-        color: Joi.string().trim().min(1).messages({
-          'string.empty': 'Màu sắc không được để trống',
-        }),
-        sizes: Joi.array().items(
-          Joi.object({
-            size: Joi.string().trim().min(1).messages({
-              'string.empty': 'Kích thước không được để trống',
-            }),
-            price: Joi.number().precision(2).min(1).messages({
-              'string.empty': 'Giá không được để trống',
-            }),
-            stock: Joi.number().integer().min(1).messages({
-              'string.empty': 'Tồn kho không được để trống',
-            }),
-          })
-        ),
-        image: Joi.string().trim().min(1).messages({
-          'string.empty': 'Ảnh không được để trống',
-        }),
-      })
-    )
+  views: Joi.number().integer().default(0),
+  inventory: Joi.number().integer().default(0),
+  minInventory: Joi.number().integer().default(0),
+  maxInventory: Joi.number().integer().default(0),
+  variants: Joi.array().items(
+    Joi.object({
+      price: Joi.number().precision(2).min(1).messages({
+        'string.empty': 'Giá không được để trống',
+      }),
+      saleOff: Joi.number().precision(2).messages({
+        'string.empty': 'Giá giảm không được để trống',
+      }),
+      marketPrice: Joi.number().precision(2).min(1).messages({
+        'string.empty': 'Giá chợ không được để trống',
+      }),
+      capitalPrice: Joi.number().precision(2).min(1).messages({
+        'string.empty': 'Giá gốc không được để trống',
+      }),
+      onlinePrice: Joi.number().precision(2).min(1).messages({
+        'string.empty': 'Giá online không được để trống',
+      }),
+      stock: Joi.number().integer().messages({
+        'string.empty': 'Tồn kho không được để trống',
+      }),
+      sellCount: Joi.number().integer().messages({
+        'string.empty': 'Số lượng bán không được để trống',
+      }),
+      sku: Joi.string().trim().min(1).messages({
+        'string.empty': 'Sku không được để trống',
+      }),
+      color: Joi.string().trim().min(1).messages({
+        'string.empty': 'Màu sắc không được để trống',
+      }),
+      sizes: Joi.array().items(
+        Joi.object({
+          size: Joi.string().trim().min(1).messages({
+            'string.empty': 'Kích thước không được để trống',
+          }),
+          price: Joi.number().precision(2).min(1).messages({
+            'string.empty': 'Giá không được để trống',
+          }),
+          stock: Joi.number().integer().messages({
+            'string.empty': 'Tồn kho không được để trống',
+          }),
+        })
+      ),
+      image: Joi.string().trim().min(1).messages({
+        'string.empty': 'Ảnh không được để trống',
+      }),
+    })
   ),
   reviews: Joi.array().items(
     Joi.object({
@@ -322,9 +314,11 @@ export const UPDATE_PRODUCT = Joi.object({
       'any.only':
         'Trạng thái sản phẩm phải là một trong các giá trị sau: stock, outStock, preOrder.',
     }),
-  productType: Joi.string().trim().min(1).messages({
-    'string.empty': 'Sản phẩm không được để trống',
-  }),
+  productType: Joi.array().items(
+    Joi.string().trim().min(1).messages({
+      'string.empty': 'Loại sản phẩm không được để trống',
+    })
+  ),
   updatedAt: Joi.date().timestamp('javascript').default(Date.now),
 });
 

@@ -5,7 +5,7 @@ import multer from 'multer';
 import path from 'path';
 import { uploadModel } from '~/models/uploadModel';
 import verifyToken from '~/middlewares/verifyToken';
-import verifyAdmin from '~/middlewares/verifyAdmin';
+import { verifyToken as verifyStaff, isAdmin } from '~/middlewares/verifyRole';
 
 const Router = express.Router();
 
@@ -24,7 +24,12 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 //admin
+Router.get('/price-range', productController.getMinMaxPrices);
+Router.get('/search/keyword', productController.getProductsBySearchAndFilter);
+Router.get('/search', productController.getProductBySearch);
 Router.get('/', productController.getAllProducts);
+Router.get('/event/:slug', productController.getProductByEvent);
+Router.get('/special', productController.getAllProductsSpecial);
 Router.get('/:id', productController.getProductById);
 Router.get('/slug/:slug', productController.getProductBySlug);
 //Category
@@ -40,9 +45,16 @@ Router.get('/filter/price/asc', productController.getProductByPriceAsc);
 Router.get('/filter/price/desc', productController.getProductByPriceDesc);
 Router.get('/filter/created/newest', productController.getProductByNewest);
 Router.get('/filter/created/oldest', productController.getProductByOldest);
+//search
+//Sort category
+Router.get('/:slug/filter', productController.getProductByCategoryFilter);
+
+Router.get('/filter/:slug', productController.getProductsBySlugAndPriceRange);
 
 Router.post(
   '/',
+  verifyStaff,
+  isAdmin,
   upload.fields([
     { name: 'images' },
     { name: 'thumbnail' },
@@ -53,8 +65,8 @@ Router.post(
 Router.post('/rating', upload.none(), productController.ratingProduct);
 Router.put(
   '/:id',
-  verifyToken,
-  verifyAdmin,
+  verifyStaff,
+  isAdmin,
   upload.fields([
     { name: 'images' },
     { name: 'thumbnail' },
@@ -63,12 +75,7 @@ Router.put(
   productController.updateProduct
 );
 Router.put('/rating/:id', upload.none(), productController.updateRatingProduct);
-Router.delete(
-  '/:id',
-  verifyToken,
-  verifyAdmin,
-  productController.deleteProduct
-);
+Router.delete('/:id', verifyStaff, isAdmin, productController.deleteProduct);
 Router.delete('/rating/:id', productController.deleteRating);
 
 export const productsApi = Router;

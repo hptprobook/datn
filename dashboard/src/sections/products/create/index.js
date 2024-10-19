@@ -1,1 +1,1 @@
-export { default as CreateProductView } from './create-product-view';
+export { default as CreateProductView } from './view';

@@ -18,7 +18,8 @@ import CardProductOrder from "../components/custom-card/card-product-order";
 import { changeStatusBarColor, pay } from "../services";
 import useSetHeader from "../hooks/useSetHeader";
 import { getConfig } from "../components/config-provider";
-
+import { useLocation } from "react-router-dom";
+import axios from "axios";
 const { Option } = Select;
 
 const locationVnState = selector({
@@ -27,7 +28,8 @@ const locationVnState = selector({
 });
 
 const FinishOrder = () => {
-  const cart = useRecoilValue(cartState);
+  const location = useLocation();
+  const { cart } = location.state || { cart: { listOrder: [] } };
   const totalPrice = useRecoilValue(cartTotalPriceState);
   const listProducts = useRecoilValue(productState);
   const storeInfo = useRecoilValue(storeState);
@@ -38,84 +40,142 @@ const FinishOrder = () => {
   const setOpenSheet = useSetRecoilState(openProductPickerState);
   const setProductInfoPicked = useSetRecoilState(productInfoPickedState);
   const setHeader = useSetHeader();
+  
+  const [provinces, setProvinces] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [wards, setWards] = useState([]);
 
-  const locationVN = useRecoilValue(locationVnState);
+  interface City {
+    id: string;
+    name: string;
+    districts: District[];
+  }
 
-  const [currentCity, setCurrentCity] = useState(locationVN[0]);
-  const [currentDistrict, setCurrentDistrict] = useState(
-    locationVN[0].districts[0]
-  );
-  const [currentWard, setCurrentWard] = useState(
-    locationVN[0].districts[0].wards[0]
-  );
+  interface District {
+    id: string;
+    name: string;
+    wards: Ward[];
+  }
+
+  interface Ward {
+    id: string;
+    name: string;
+  }
+
+  const [currentCity, setCurrentCity] = useState<City | null>(null);
+  const [currentDistrict, setCurrentDistrict] = useState<District | null>(null);
+  const [currentWard, setCurrentWard] = useState<Ward | null>(null);
 
   const [selectedDistrictId, setSelectedDistrictId] = useState<string | null>(
-    locationVN[0].districts[0].id
+    null
   );
-  const [selectedWardId, setSelectedWardId] = useState<string | null>(
-    locationVN[0].districts[0].wards[0].id
-  );
+  const [selectedWardId, setSelectedWardId] = useState<string | null>(null);
 
+
+  useEffect(() => {
+    const fetchProvinces = async () => {
+      const response = await fetch('http://localhost:3000/api/address/tinh');
+      const data = await response.json();
+      setProvinces(data);
+      setCurrentCity(data[0]);
+    };
+
+    fetchProvinces();
+  }, []);
+
+  useEffect(() => {
+    if (currentCity) {
+      const fetchDistricts = async () => {
+        const response = await fetch(
+          `http://localhost:3000/api/address/huyen/${currentCity.id}`
+        );
+        const data = await response.json();
+        setDistricts(data);
+        setCurrentDistrict(data[0]);
+        setSelectedDistrictId(data[0].id);
+      };
+
+      fetchDistricts();
+    }
+  }, [currentCity]);
+
+  useEffect(() => {
+    if (currentDistrict) {
+      const fetchWards = async () => {
+        const response = await fetch(
+          `http://localhost:3000/api/address/xa/${currentDistrict.id}`
+        );
+        const data = await response.json();
+        setWards(data);
+        setCurrentWard(data[0]);
+        setSelectedWardId(data[0].id);
+      };
+
+      fetchWards();
+    }
+  }, [currentDistrict]);
   const handlePayMoney = async (e: SyntheticEvent) => {
     e.preventDefault();
     await pay(totalPrice);
   };
 
-  const handleChooseProduct = (productId: number) => {
+  const handleChooseProduct = (productId: string) => {
     setOpenSheet(true);
     setProductInfoPicked({ productId, isUpdate: true });
   };
 
   const filterSelectionInput = (item: AddressFormType) => {
-    let listOptions: any = locationVN;
-    let value;
-    let handleOnSelect: (id: string) => void;
-
-    switch (item.name) {
-      case "city":
-        listOptions = locationVN;
-        value = currentCity.id;
-        handleOnSelect = (cityId) => {
-          const indexCity = Number(cityId) - 1 > -1 ? Number(cityId) - 1 : 0;
-          const firstDistrict = locationVN[indexCity].districts[0];
-          const firstWard = firstDistrict.wards[0];
-          setCurrentCity(locationVN[indexCity]);
-          setCurrentDistrict(firstDistrict);
-          setSelectedDistrictId(firstDistrict.id);
-          setCurrentWard(firstWard);
-          setSelectedWardId(firstWard.id);
-        };
-        break;
-      case "district":
-        listOptions = currentCity.districts;
-        value = selectedDistrictId;
-
-        handleOnSelect = (districtId) => {
-          const district = currentCity.districts.find(
-            (currentDistrict) => currentDistrict.id === districtId
-          );
-          if (district) {
-            const firstWard = district.wards[0];
-            setCurrentDistrict(district);
-            setSelectedDistrictId(districtId);
-            setCurrentWard(firstWard);
-            setSelectedWardId(firstWard.id);
-          }
-        };
-        break;
-      case "ward":
-        listOptions = currentDistrict.wards;
-        value = selectedWardId;
-        handleOnSelect = (wardId) => setSelectedWardId(wardId);
-        break;
-      default:
-        listOptions = locationVN;
-        value = undefined;
-        handleOnSelect = () => {};
-        break;
-    }
-    return { listOptions, value, handleOnSelect };
-  };
+      const locationVN = useRecoilValue(locationVnState);
+      let listOptions: any = locationVN;
+      let value: string | undefined;
+      let handleOnSelect: (id: string) => void;
+    
+      switch (item.name) {
+        case "city":
+          listOptions = locationVN;
+          value = currentCity?.id;
+          handleOnSelect = (cityId) => {
+            const selectedCity = locationVN.find(city => city.id === cityId);
+            if (selectedCity) {
+              const firstDistrict = selectedCity.districts[0];
+              const firstWard = firstDistrict.wards[0];
+              setCurrentCity(selectedCity);
+              setCurrentDistrict(firstDistrict);
+              setSelectedDistrictId(firstDistrict.id);
+              setCurrentWard(firstWard);
+              setSelectedWardId(firstWard.id);
+            }
+          };
+          break;
+        case "district":
+          listOptions = currentCity?.districts || [];
+          value = selectedDistrictId ?? undefined;
+          handleOnSelect = (districtId) => {
+            const district = currentCity?.districts.find(
+              (currentDistrict) => currentDistrict.id === districtId
+            );
+            if (district) {
+              const firstWard = district.wards[0];
+              setCurrentDistrict(district);
+              setSelectedDistrictId(districtId);
+              setCurrentWard(firstWard);
+              setSelectedWardId(firstWard.id);
+            }
+          };
+          break;
+        case "ward":
+          listOptions = currentDistrict?.wards || [];
+          value = selectedWardId ?? undefined;
+          handleOnSelect = (wardId) => setSelectedWardId(wardId);
+          break;
+        default:
+          listOptions = locationVN;
+          value = undefined;
+          handleOnSelect = () => {};
+          break;
+      }
+      return { listOptions, value, handleOnSelect };
+    };
 
   useEffect(() => {
     setHeader({ title: "Đơn đặt hàng", type: "secondary" });
@@ -135,22 +195,26 @@ const FinishOrder = () => {
             />
           </Box>
           <Box mx={3} mb={2}>
-            {cart.listOrder.map((product) => {
-              const productInfo = listProducts.find(
-                (prod) => prod.id === product.id
-              );
-              return (
-                <CardProductOrder
-                  pathImg={productInfo!.imgProduct}
-                  nameProduct={productInfo!.nameProduct}
-                  salePrice={productInfo!.salePrice}
-                  quantity={product!.order.quantity}
-                  key={productInfo!.id}
-                  id={product.id}
-                  handleOnClick={(productId) => handleChooseProduct(productId)}
-                />
-              );
-            })}
+          {cart.listOrder.map((product) => {
+        const productInfo = listProducts.find(
+          (prod) => prod._id.toString() === product._id
+        );
+        if (!productInfo) {
+          console.error(`Product info not found for product ID: ${product._id}`);
+          return null;
+        }
+        return (
+          <CardProductOrder
+            pathImg={productInfo.imgProduct}
+            nameProduct={productInfo.nameProduct}
+            salePrice={productInfo.salePrice}
+            quantity={product.order.quantity}
+            key={productInfo._id}
+            _id={product._id}
+            handleOnClick={(productId) => handleChooseProduct(productId.toString())}
+          />
+        );
+      })}
           </Box>
           <Box m={4} flex flexDirection="row" justifyContent="space-between">
             <span className=" text-base font-medium">Đơn hàng</span>

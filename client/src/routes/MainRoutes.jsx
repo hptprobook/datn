@@ -8,6 +8,7 @@ import NotFoundPage from '~/pages/NotFound/404NotFound';
 import PostPage from '~/pages/Post';
 import PostDetail from '~/pages/Post/PostDetail';
 import ProductPage from '~/pages/Products';
+import SearchPage from '~/pages/Search';
 
 const MainRoutes = {
   path: '/',
@@ -27,6 +28,27 @@ const MainRoutes = {
         {
           path: ':slug',
           element: <CategoryPage />,
+        },
+        {
+          path: ':slug/:sort',
+          element: <CategoryPage />,
+        },
+      ],
+    },
+    {
+      path: 'tim-kiem',
+      children: [
+        {
+          path: '',
+          element: <SearchPage />,
+        },
+        {
+          path: ':keyword',
+          element: <SearchPage />,
+        },
+        {
+          path: ':keyword/:sort',
+          element: <SearchPage />,
         },
       ],
     },

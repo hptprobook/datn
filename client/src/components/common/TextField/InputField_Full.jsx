@@ -1,17 +1,18 @@
 import { Icon } from '@iconify/react';
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 
-export default function InputField_Full({
+const InputField_Full = ({
   id,
   label,
   type = 'text',
   name,
-  onChange, // To handle changes in the input
-  onBlur, // To handle onBlur for validation
-  value, // To manage the controlled input
-  error, // To display error messages
-  ...rest
-}) {
+  onChange,
+  onBlur,
+  value,
+  error,
+  disabled,
+}) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const togglePasswordVisibility = () => {
@@ -31,13 +32,13 @@ export default function InputField_Full({
           type={type === 'password' && showPassword ? 'text' : type}
           id={id}
           name={name}
-          value={value} // Controlled input value
-          onChange={onChange} // Formik or other form handlers
-          onBlur={onBlur} // Trigger validation
+          value={value}
+          onChange={onChange}
+          onBlur={onBlur}
           className={`pr-10 w-full rounded-md border-2 bg-white text-sm text-gray-700 shadow-sm h-10 px-3 outline-blue-500 ${
             error ? 'border-red-500' : 'border-gray-200'
-          }`}
-          {...rest}
+          } ${disabled ? 'bg-gray-100 text-slate-400' : ''}`}
+          disabled={disabled}
         />
         {type === 'password' && (
           <button
@@ -57,4 +58,17 @@ export default function InputField_Full({
       {/* Display error if exists */}
     </div>
   );
-}
+};
+
+InputField_Full.propTypes = {
+  id: PropTypes.string,
+  label: PropTypes.string,
+  type: PropTypes.string,
+  name: PropTypes.string,
+  onChange: PropTypes.func,
+  onBlur: PropTypes.func,
+  value: PropTypes.string,
+  error: PropTypes.string,
+};
+
+export default InputField_Full;

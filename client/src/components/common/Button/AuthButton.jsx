@@ -1,11 +1,7 @@
 /* eslint-disable indent */
-export default function AuthButton({
-  text,
-  isLoading,
-  type = 'button',
-  ...rest
-}) {
-  // eslint-disable-next-line indent
+import PropTypes from 'prop-types';
+
+const AuthButton = ({ text, isLoading, type = 'button' }) => {
   return (
     <button
       className={`inline-block shrink-0 rounded-md px-12 py-3 text-sm font-medium transition focus:outline-none focus:ring w-full md:w-auto
@@ -16,10 +12,17 @@ export default function AuthButton({
       }
       `}
       type={type}
-      {...rest}
       disabled={isLoading}
     >
       {isLoading ? 'Đang xử lý...' : text}
     </button>
   );
-}
+};
+
+AuthButton.propTypes = {
+  text: PropTypes.string,
+  isLoading: PropTypes.bool,
+  type: PropTypes.string,
+};
+
+export default AuthButton;
