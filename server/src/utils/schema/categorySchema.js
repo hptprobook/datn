@@ -30,6 +30,29 @@ export const SAVE_CATEGORY_SCHEMA = Joi.object({
   status: Joi.boolean().required().messages({
     'any.required': 'Trạng thái danh mục là bắt buộc',
   }),
+  seoOption: Joi.object({
+    title: Joi.string().trim().min(1).max(70).required().messages({
+      'string.empty': 'Tiêu đề không được để trống',
+      'string.min': 'Tiêu đề phải có ít nhất 1 ký tự',
+      'string.max': 'Tiêu đề tối đa 70 ký tự',
+      'any.required': 'Tiêu đề là bắt buộc',
+    }),
+    description: Joi.string().trim().min(1).max(320).required().messages({
+      'string.empty': 'Mô tả không được để trống',
+      'string.min': 'Mô tả phải có ít nhất 1 ký tự',
+      'string.max': 'Mô tả tối đa 320 ký tự',
+      'any.required': 'Mô tả là bắt buộc',
+    }),
+    alias: Joi.string().trim().min(1).required().messages({
+      'string.empty': 'Đường dẫn không được để trống',
+      'string.min': 'Đường dẫn phải có ít nhất 1 ký tự',
+      'any.required': 'Đường dẫn là bắt buộc',
+    }),
+  })
+    .required()
+    .messages({
+      'any.required': 'SEO là bắt buộc',
+    }),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(Date.now),
 });
@@ -56,5 +79,21 @@ export const UPDATE_CATEGORY = Joi.object({
     'any.only': 'Thứ tự không hợp lệ',
   }),
   status: Joi.boolean(),
+  seoOption: Joi.object({
+    title: Joi.string().trim().min(1).max(70).messages({
+      'string.empty': 'Tiêu đề không được để trống',
+      'string.min': 'Tiêu đề phải có ít nhất 1 ký tự',
+      'string.max': 'Tiêu đề tối đa 70 ký tự',
+    }),
+    description: Joi.string().trim().min(1).max(320).messages({
+      'string.empty': 'Mô tả không được để trống',
+      'string.min': 'Mô tả phải có ít nhất 1 ký tự',
+      'string.max': 'Mô tả tối đa 320 ký tự',
+    }),
+    alias: Joi.string().trim().min(1).messages({
+      'string.empty': 'Đường dẫn không được để trống',
+      'string.min': 'Đường dẫn phải có ít nhất 1 ký tự',
+    }),
+  }),
   updatedAt: Joi.date().timestamp('javascript').default(Date.now),
 });
