@@ -1,4 +1,5 @@
 import Joi from 'joi';
+import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '../validators';
 
 export const SAVE_USER_SCHEMA = Joi.object({
   name: Joi.string().trim().min(1).max(30).required().messages({
@@ -159,4 +160,3 @@ export const VIEW_PRODUCT = Joi.array().items(
     'any.required': 'Sản phẩm là bắt buộc',
   })
 );
-
