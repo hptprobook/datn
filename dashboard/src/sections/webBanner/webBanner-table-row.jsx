@@ -9,24 +9,20 @@ import TableCell from '@mui/material/TableCell';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 
-import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
+import { Stack, Avatar } from '@mui/material';
+import { renderUrl } from 'src/utils/check';
 
 // ----------------------------------------------------------------------
+const backendUrl = import.meta.env.VITE_BACKEND_APP_URL;
 
 export default function WebBannerTableRow({
   selected,
   id,
-  code,
-  type,
-  minPurchasePrice,
-  maxPurchasePrice,
-  usageLimit,
-  usageCount,
-  status,
-  limitOnUser,
-  dateStart,
-  dateEnd,
+  title,
+  description,
+  url,
+  image,
   onDelete,
   handleClick,
   handleNavigate,
@@ -53,43 +49,21 @@ export default function WebBannerTableRow({
         </TableCell>
 
         <TableCell component="th" scope="row" padding="none">
-          <Typography variant="subtitle2" noWrap>
-            {code}
-          </Typography>
+          <Stack direction="row" alignItems="center" spacing={2}>
+            <Avatar alt={title} src={renderUrl(image, backendUrl)} />
+            <Typography variant="subtitle2" noWrap>
+              {title}
+            </Typography>
+          </Stack>
         </TableCell>
 
         <TableCell>
-
-        {(type === 'percent' && 'Phần trăm') ||
-           (type === 'price' && 'Giá tiền') ||
-           (type === 'shipping' && 'Phí ship') ||
-           type}
+           {description}
 
         </TableCell>
 
-        <TableCell>{minPurchasePrice}</TableCell>
+        <TableCell>{url}</TableCell>
 
-        <TableCell>{maxPurchasePrice}</TableCell>
-
-        <TableCell>{usageLimit}</TableCell>
-
-        <TableCell>{usageCount}</TableCell>
-
-        <TableCell>
-          <Label
-            color={
-              (status === 'expired' && 'error') || (status === 'inactive' && 'warning') || 'success'
-            }
-          >
-            {status}
-          </Label>
-        </TableCell>
-
-        <TableCell>{limitOnUser ? 'Có' : 'Không'}</TableCell>
-
-        <TableCell>{new Date(dateStart).toLocaleDateString()}</TableCell>
-
-        <TableCell>{new Date(dateEnd).toLocaleDateString()}</TableCell>
 
         <TableCell align="right">
           <IconButton onClick={handleOpenMenu}>
@@ -125,16 +99,10 @@ export default function WebBannerTableRow({
 WebBannerTableRow.propTypes = {
   id: PropTypes.any,
   onDelete: PropTypes.func,
-  code: PropTypes.string.isRequired,
-  type: PropTypes.string.isRequired,
-  minPurchasePrice: PropTypes.number.isRequired,
-  maxPurchasePrice: PropTypes.number.isRequired,
-  usageLimit: PropTypes.number.isRequired,
-  usageCount: PropTypes.number.isRequired,
-  status: PropTypes.string.isRequired,
-  limitOnUser: PropTypes.bool.isRequired,
-  dateStart: PropTypes.any.isRequired,
-  dateEnd: PropTypes.any.isRequired,
+  title: PropTypes.string.isRequired,
+  description: PropTypes.string.isRequired,
+  url: PropTypes.string.isRequired,
+  image: PropTypes.string.isRequired,
   selected: PropTypes.bool,
   handleClick: PropTypes.func,
   handleNavigate: PropTypes.func,
