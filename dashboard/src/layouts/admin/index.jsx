@@ -4,22 +4,18 @@ import Box from '@mui/material/Box';
 import MuiDrawer from '@mui/material/Drawer';
 import MuiAppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
-import List from '@mui/material/List';
 import CssBaseline from '@mui/material/CssBaseline';
-import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
 
 import Iconify from 'src/components/iconify';
 import PropTypes from 'prop-types';
+import { useParams, useNavigate } from 'react-router-dom';
+import { List } from '@mui/material';
 import Header from './header';
-import Nav from './nav';
+import Nav, { NavItem } from './nav';
 
-const drawerWidth = 240;
+const drawerWidth = 200;
 
 const openedMixin = (theme) => ({
   width: drawerWidth,
@@ -98,7 +94,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
   ],
 }));
 
-export default function WarehouseLayout({ children }) {
+export default function AdminLayout({ children }) {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
 
@@ -109,7 +105,8 @@ export default function WarehouseLayout({ children }) {
   const handleDrawerClose = () => {
     setOpen(false);
   };
-
+  const navigate = useNavigate();
+  const pathname = useParams();
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
@@ -132,7 +129,13 @@ export default function WarehouseLayout({ children }) {
           <Header />
         </Toolbar>
       </AppBar>
-      <Drawer variant="permanent" open={open}>
+      <Drawer
+        variant="permanent"
+        sx={{
+          display: 'flex',
+        }}
+        open={open}
+      >
         <DrawerHeader>
           <IconButton onClick={handleDrawerClose}>
             {theme.direction === 'rtl' ? (
@@ -145,15 +148,37 @@ export default function WarehouseLayout({ children }) {
         <Divider />
 
         <Divider />
-        <Nav open={open}/>
+        <Nav open={open} />
+        {/* <Box sx={{ flexGrow: 1 }} /> */}
+        <Divider />
+        <List>
+          <NavItem
+            item={{
+              title: 'Cài đặt',
+              path: '/admin/settings',
+              icon: 'ion:settings',
+              child: undefined,
+            }}
+            navigate={navigate}
+            pathname={pathname}
+            openMenu={open}
+          />
+        </List>
       </Drawer>
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: 3,
+          position: 'relative',
+        }}
+      >
         <DrawerHeader />
         {children}
       </Box>
     </Box>
   );
 }
-WarehouseLayout.propTypes = {
+AdminLayout.propTypes = {
   children: PropTypes.node,
 };
