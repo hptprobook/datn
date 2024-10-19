@@ -25,7 +25,7 @@ const upload = multer({
 //admin
 Router.get('/', webBannerController.getwebBanner);
 Router.post('/', upload.single('image'), webBannerController.createWebBanner);
-
+Router.get('/:webBannerID', webBannerController.getWebBannerById);
 Router.put(
     '/:webBannerID',
     upload.single('image'),

@@ -3,11 +3,12 @@ import { Outlet, Navigate, useRoutes } from 'react-router-dom';
 
 import { Box, LinearProgress, linearProgressClasses } from '@mui/material';
 import DashboardLayout from 'src/layouts/dashboard';
-import WarehouseLayout from 'src/layouts/warehouse';
+import AdminLayout from 'src/layouts/admin';
 import { ProtectedRoute } from './components/dashboard-protected';
 import { configPath } from './utils';
 // ----------------------------------------------------------------------
 export const IndexPage = lazy(() => import('src/pages/app'));
+export const IndexAdminPage = lazy(() => import('src/pages/admin'));
 // user page
 export const UserPage = lazy(() => import('src/pages/user/user'));
 export const CreateUserPage = lazy(() => import('src/pages/user/createUser'));
@@ -52,41 +53,25 @@ export const BrandDetailPage = lazy(() => import('src/pages/brands/detail'));
 export const BlogPage = lazy(() => import('src/pages/blog/blogs'));
 export const CreateBlogPage = lazy(() => import('src/pages/blog/create'));
 export const DetailBlogPage = lazy(() => import('src/pages/blog/detail'));
+// webanner page
+export const WebBannerPage = lazy(() => import('src/pages/webBanner/webanners'));
+export const CreateWebBannerPage = lazy(() => import('src/pages/webBanner/create'));
+export const DetailWebBannerPage = lazy(() => import('src/pages/webBanner/detail'));
 // ----------------------------------------------------------------------
 
 const childRoutes = [
   { element: <IndexPage />, index: true },
-  { path: configPath.user, element: <UserPage /> },
-  { path: configPath.userCreate, element: <CreateUserPage /> },
-  { path: configPath.userDetail, element: <DetailUserPage /> },
-  { path: configPath.products, element: <ProductsPage /> },
-  { path: configPath.productCreate, element: <CreateProductPage /> },
-  { path: configPath.productDetail, element: <DetailProductPage /> },
   { path: configPath.blog, element: <BlogPage /> },
   { path: configPath.blogCreate, element: <CreateBlogPage /> },
   { path: configPath.blogDetail, element: <DetailBlogPage /> },
-  { path: configPath.category, element: <CategoryPage /> },
-  { path: configPath.categoryCreate, element: <CreateCategoryPage /> },
-  { path: configPath.categoryDetail, element: <EditCategoryPage /> },
-  { path: configPath.nav, element: <NavDashboardPage /> },
-  { path: configPath.navCreate, element: <NavDashboardCreatePage /> },
-  { path: configPath.navDetail, element: <NavUpdatePage /> },
   { path: configPath.webConfig, element: <WebConfigPage /> },
   { path: configPath.seoConfig, element: <SeoConfigPage /> },
-  { path: configPath.warehouse, element: <WarehousePage /> },
-  { path: configPath.warehouseCreate, element: <WarehouseCreatePage /> },
-  { path: configPath.warehouseDetail, element: <WarehouseEditPage /> },
   { path: configPath.coupons, element: <CouponsPage /> },
   { path: configPath.couponsCreate, element: <CreateCouponPage /> },
   { path: configPath.couponsDetail, element: <CouponDetailPage /> },
-  { path: configPath.orders, element: <OrdersPage /> },
-  { path: configPath.orderDetail, element: <OrderDetailPage /> },
-  { path: configPath.suppliers, element: <SuppliersPage /> },
-  { path: configPath.supplierCreate, element: <SupplierCreatePage /> },
-  { path: configPath.supplierDetail, element: <SupplierDetailPage /> },
-  { path: configPath.brands, element: <BrandsPage /> },
-  { path: configPath.brandCreate, element: <BrandCreatePage /> },
-  { path: configPath.brandDetail, element: <BrandDetailPage /> },
+  { path: configPath.webBanner, element: <WebBannerPage /> },
+  { path: configPath.webBannerCreate, element: <CreateWebBannerPage /> },
+  { path: configPath.webBannerDetail, element: <DetailWebBannerPage /> },
 ];
 
 const renderFallback = (
@@ -117,20 +102,100 @@ export default function Router() {
       children: childRoutes,
     },
     {
-      path: 'dashboard',
+      path: 'admin',
       element: (
         <ProtectedRoute>
-          <WarehouseLayout>
+          <AdminLayout>
             <Suspense fallback={renderFallback}>
               <Outlet />
             </Suspense>
-          </WarehouseLayout>
+          </AdminLayout>
         </ProtectedRoute>
       ),
       children: [
         {
           index: true,
-          element: <Box>test</Box>,
+          element: <IndexAdminPage/>,
+        },
+        {
+          path: 'products',
+          element: <ProductsPage />,
+        },
+        {
+          path: 'products/create',
+          element: <CreateProductPage />,
+        },
+        {
+          path: 'products/:id',
+          element: <DetailProductPage />,
+        },
+        {
+          path: 'users',
+          element: <UserPage />,
+        },
+        {
+          path: 'users/create',
+          element: <CreateUserPage />,
+        },
+        {
+          path: 'users/:id',
+          element: <DetailUserPage />,
+        },
+        {
+          path: 'categories',
+          element: <CategoryPage />,
+        },
+        {
+          path: 'categories/create',
+          element: <CreateCategoryPage />,
+        },
+        {
+          path: 'categories/:id',
+          element: <EditCategoryPage />,
+        },
+        {
+          path: 'warehouse',
+          element: <WarehousePage />,
+        },
+        {
+          path: 'warehouse/create',
+          element: <WarehouseCreatePage />,
+        },
+        {
+          path: 'warehouse/:id',
+          element: <WarehouseEditPage />,
+        },
+        {
+          path: 'orders',
+          element: <OrdersPage />,
+        },
+        {
+          path: 'orders/:id',
+          element: <OrderDetailPage />,
+        },
+        {
+          path: 'suppliers',
+          element: <SuppliersPage />,
+        },
+        {
+          path: 'suppliers/create',
+          element: <SupplierCreatePage />,
+        },
+        {
+          path: 'suppliers/:id',
+          element: <SupplierDetailPage />,
+        },
+        {
+          path: 'brands',
+          element: <BrandsPage />,
+        },
+        {
+          path: 'brands/create',
+          element: <BrandCreatePage />,
+        },
+        {
+          path: 'brands/:id',
+          element: <BrandDetailPage />,
         },
       ],
     },

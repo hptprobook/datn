@@ -1,10 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 
 import Box from '@mui/material/Box';
 
-import { useDispatch, useSelector } from 'react-redux';
-import { getMe } from 'src/redux/slices/authSlice';
 import Nav from './nav';
 import Main from './main';
 import Header from './header';

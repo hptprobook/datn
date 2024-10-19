@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import Box from '@mui/material/Box';
 import Avatar from '@mui/material/Avatar';
@@ -10,7 +10,6 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 
 import { useAuth } from 'src/hooks/useAuth';
-import { handleToast } from 'src/hooks/toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout as dangXuat } from 'src/redux/slices/authSlice';
 
@@ -73,8 +72,10 @@ export default function AccountPopover() {
         }}
       >
         <Avatar
+
           src="https://i.pinimg.com/originals/c6/e5/65/c6e56503cfdd87da299f72dc416023d4.jpg"
           alt={account?.name}
+
           sx={{
             width: 36,
             height: 36,
