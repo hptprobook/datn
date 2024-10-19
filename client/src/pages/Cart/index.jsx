@@ -7,19 +7,21 @@ const CartPage = () => {
   return (
     <CartProvider>
       <section className="max-w-container mx-auto mt-16 relative z-10">
-        <div className="w-full lg-6 relative z-10">
+        <div className="w-full relative z-10">
           <div className="flex justify-center mb-2 lg:mb-12">
             <CheckoutStepper currentStep={1} />
           </div>
-          <div className="">
-            <section className="bg-white antialiased">
-              <div className="mx-auto max-w-screen-xl px-4 2xl:px-0">
-                <div className="mt-6 sm:mt-8 md:gap-6 lg:flex lg:items-start xl:gap-8">
+          <div className="bg-white antialiased">
+            <div className="mx-auto max-w-screen-xl px-4 2xl:px-0">
+              <div className="mt-6 sm:mt-8 lg:flex lg:gap-8">
+                <div className="lg:w-2/3">
                   <CartListProduct />
+                </div>
+                <div className="mt-8 lg:mt-0 lg:w-1/3 lg:sticky lg:top-4 lg:self-start">
                   <CartSummary />
                 </div>
               </div>
-            </section>
+            </div>
           </div>
         </div>
       </section>

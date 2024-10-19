@@ -11,7 +11,7 @@ const CartSummary = () => {
   };
 
   return (
-    <div className="mx-auto mt-6 max-w-4xl flex-1 space-y-4 lg:mt-0 lg:w-full">
+    <div className="w-full space-y-4">
       <div className="flex justify-between items-center w-full mb-4">
         <h2 className="text-xl font-semibold text-gray-900 sm:text-2xl">
           Thông tin
