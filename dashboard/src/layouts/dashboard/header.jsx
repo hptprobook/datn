@@ -41,7 +41,7 @@ export default function Header({ onOpenNav }) {
 
       <Stack direction="row" alignItems="center" spacing={1}>
         {/* <LanguagePopover /> */}
-        <Button color="inherit" onClick={() => route.push('/dashboard')} variant='contained'>
+        <Button color="inherit" onClick={() => route.push('/admin')} variant='contained'>
           Kho
         </Button>
         <NotificationsPopover />
