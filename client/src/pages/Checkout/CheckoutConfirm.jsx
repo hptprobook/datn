@@ -9,8 +9,6 @@ const CheckoutConfirm = () => {
   const orderData = location.state?.orderData.data;
   const navigate = useNavigate();
 
-  console.log(orderData);
-
   useEffect(() => {
     if (!orderData) {
       navigate('/');

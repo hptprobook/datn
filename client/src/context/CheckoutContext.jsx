@@ -49,9 +49,6 @@ export const CheckoutProvider = ({ children }) => {
     },
   });
 
-  console.log('Giá trị formik: ', formik.values);
-  console.log('Lỗi formik: ', formik.errors);
-
   const value = {
     selectedItems,
     setSelectedItems,
