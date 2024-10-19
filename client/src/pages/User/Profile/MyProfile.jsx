@@ -1,33 +1,139 @@
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { getCurrentUser, updateInfor } from '~/APIs/user';
 import InputField_Full from '~/components/common/TextField/InputField_Full';
 import UploadImage from '~/components/common/UploadImage/UploadImage';
-import { useUser } from '~/context/UserContext';
+import { Datepicker } from 'flowbite-react';
+import moment from 'moment/moment';
+import MainLoading from '~/components/common/Loading/MainLoading';
+import { useSwal } from '~/customHooks/useSwal';
 
 const MyProfile = () => {
-  const { user } = useUser();
+  const {
+    data: user,
+    refetch: refetchUser,
+    isLoading,
+  } = useQuery({
+    queryKey: ['getCurrentUser'],
+    queryFn: getCurrentUser,
+  });
+
+  const mutation = useMutation({
+    mutationFn: updateInfor,
+    onSuccess: () => {
+      refetchUser();
+      useSwal.fire({
+        title: 'Thành công!',
+        text: 'Cập nhật thông tin thành công',
+        icon: 'success',
+      });
+    },
+    onError: (error) => {
+      useSwal.fire({
+        title: 'Thất bại!',
+        text: 'Cập nhật thông tin thất bại: ' + error.messages,
+        icon: 'error',
+      });
+    },
+  });
+
+  const formik = useFormik({
+    enableReinitialize: true,
+    initialValues: {
+      name: user?.name || '',
+      birthdate: user?.birthdate || null,
+      gender: user?.gender || 'male',
+      phone: user?.phone || '',
+      avatar:
+        user?.avatar &&
+        !user?.avatar.startsWith('http://') &&
+        !user?.avatar.startsWith('https://')
+          ? `${import.meta.env.VITE_SERVER_URL}/${user?.avatar}`
+          : user?.avatar,
+    },
+    validationSchema: Yup.object({
+      name: Yup.string()
+        .required('Họ và tên không được bỏ trống')
+        .min(3, 'Họ tên phải chứa ít nhất 3 ký tự')
+        .max(50, 'Họ tên không được vượt quá 50 ký tự'),
+      birthdate: Yup.date()
+        .required('Ngày sinh không được bỏ trống')
+        .max(
+          new Date(new Date().setFullYear(new Date().getFullYear() - 6)),
+          'Tuổi phải từ 6 trở lên'
+        )
+        .min(
+          new Date(new Date().setFullYear(new Date().getFullYear() - 120)),
+          'Tuổi không được quá 120'
+        ),
+      phone: Yup.string()
+        .required('Số điện thoại không được để trống')
+        .matches(/^(0|\+84)(3|5|7|8|9)\d{8}$/, 'Số điện thoại không hợp lệ'),
+      avatar: Yup.mixed().test(
+        'fileOrUrl',
+        'Ảnh không hợp lệ. Vui lòng chọn file hoặc đường dẫn URL hợp lệ',
+        (value) => {
+          if (!value) return true;
+          if (typeof value === 'string') {
+            return /^https?:\/\//.test(value);
+          } else if (value instanceof File) {
+            return value.size <= 1024 * 1024 * 10;
+          }
+          return false;
+        }
+      ),
+    }),
+
+    onSubmit: async (values) => {
+      const timestampBirthdate = values.birthdate
+        ? new Date(values.birthdate).toISOString()
+        : null;
+
+      const data = {
+        ...values,
+        birthdate: timestampBirthdate,
+        avatar: formik.values.avatar,
+      };
+
+      mutation.mutate(data);
+    },
+  });
+
+  const handleAvatarChange = (file) => {
+    formik.setFieldValue('avatar', file);
+  };
+
+  if (isLoading) {
+    return <MainLoading />;
+  }
 
   return (
     <div className="text-black bg-white rounded-sm p-10">
       <h1 className="text-xl font-bold border-b pb-3">Hồ sơ của tôi</h1>
-      <div className="grid grid-cols-12 gap-2 mt-4">
-        <div className="col-span-4">
-          <UploadImage />
-        </div>
+      <form onSubmit={formik.handleSubmit}>
+        <div className="grid grid-cols-12 gap-2 mt-4">
+          <div className="col-span-4">
+            <UploadImage
+              onFileSelect={handleAvatarChange}
+              avatar={user?.avatar}
+            />
+          </div>
 
-        <div className="col-span-1 flex justify-center">
-          <div className="border-l h-full border-gray-300"></div>
-        </div>
+          <div className="col-span-1 flex justify-center">
+            <div className="border-l h-full border-gray-300"></div>
+          </div>
 
-        <div className="col-span-7 no-gu">
-          <div>
-            <div>
-              <InputField_Full
-                id="fullName"
-                label="Họ và tên"
-                name="fullName"
-                type="text"
-                value={user?.name}
-              />
-            </div>
+          <div className="col-span-7 no-gu">
+            <InputField_Full
+              id="name"
+              label="Họ và tên"
+              name="name"
+              type="text"
+              value={formik.values.name}
+              onChange={formik.handleChange}
+              error={formik.touched.name && formik.errors.name}
+            />
             <div className="mt-2">
               <InputField_Full
                 id="email"
@@ -39,44 +145,62 @@ const MyProfile = () => {
               />
             </div>
             <div className="mt-2">
-              <InputField_Full
-                id="birthday"
+              <label
+                htmlFor="birthdate"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Ngày sinh
+              </label>
+              <Datepicker
+                id="birthdate"
                 label="Ngày sinh"
-                name="birthday"
-                type="date"
-                // value={user?.birthday}
+                name="birthdate"
+                language="vi"
+                selected={formik.values.birthdate}
+                onSelectedDateChanged={(date) =>
+                  formik.setFieldValue('birthdate', date)
+                }
+                defaultValue={user?.birthdate}
+                value={
+                  formik.values.birthdate
+                    ? moment(formik.values.birthdate).format('DD-MM-YYYY')
+                    : moment(user?.birthdate).format('DD-MM-YYYY')
+                }
+                dateFormat="dd-MM-yyyy"
+                className="w-full"
               />
+              {formik.touched.birthdate && formik.errors.birthdate && (
+                <p className="text-red-500 text-xs mt-1">
+                  {formik.errors.birthdate}
+                </p>
+              )}
             </div>
             <div id="gender" className="mt-2 text-sm font-medium text-gray-700">
               <h3 className="">Giới tính</h3>
 
               <div className="flex gap-6 my-3">
-                <label className="flex cursor-pointer gap-2 items-center">
-                  <input
-                    type="radio"
-                    className="radio bg-white"
-                    name="gender"
-                  />
-                  <span>Nam</span>
-                </label>
-
-                <label className="flex cursor-pointer gap-2 items-center">
-                  <input
-                    type="radio"
-                    className="radio bg-white"
-                    name="gender"
-                  />
-                  <span>Nữ</span>
-                </label>
-
-                <label className="flex cursor-pointer gap-2 items-center">
-                  <input
-                    type="radio"
-                    className="radio bg-white"
-                    name="gender"
-                  />
-                  <span>Khác</span>
-                </label>
+                {['male', 'female', 'other'].map((gender) => (
+                  <label
+                    key={gender}
+                    className="flex cursor-pointer gap-2 items-center"
+                  >
+                    <input
+                      type="radio"
+                      className="radio bg-white"
+                      name="gender"
+                      value={gender}
+                      checked={formik.values.gender === gender}
+                      onChange={formik.handleChange}
+                    />
+                    <span>
+                      {gender === 'male'
+                        ? 'Nam'
+                        : gender === 'female'
+                        ? 'Nữ'
+                        : 'Khác'}
+                    </span>
+                  </label>
+                ))}
               </div>
             </div>
             <div className="mt-2">
@@ -85,22 +209,25 @@ const MyProfile = () => {
                 label="Số điện thoại"
                 name="phone"
                 type="text"
-                value={user?.phone}
+                value={formik.values.phone}
+                onChange={formik.handleChange}
+                error={formik.touched.phone && formik.errors.phone}
               />
             </div>
-
             <div className="mt-4">
-              <button className="btn bg-red-600 float-end rounded-md">
-                Lưu thay đổi
+              <button
+                type="submit"
+                className="btn bg-red-600 float-end rounded-md"
+                disabled={mutation.isLoading || !formik.dirty}
+              >
+                {mutation.isLoading ? 'Đang lưu...' : 'Lưu thay đổi'}
               </button>
             </div>
           </div>
         </div>
-      </div>
+      </form>
     </div>
   );
 };
-
-MyProfile.propTypes = {};
 
 export default MyProfile;
