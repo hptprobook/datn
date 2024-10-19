@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react';
-import { FaAngleRight, FaArrowLeft, FaBars, FaTimes } from 'react-icons/fa';
-import { NavLink } from 'react-router-dom';
-import { menu } from '~/APIs/mock_data';
-import Logo from '~/assets/logo2.png';
-import PropTypes from 'prop-types';
+// import { useState, useEffect } from 'react';
+// import { FaAngleRight, FaArrowLeft, FaBars, FaTimes } from 'react-icons/fa';
+// import { NavLink } from 'react-router-dom';
+// import Logo from '~/assets/logo2.png';
+// import PropTypes from 'prop-types';
 
 const SideNavMenu = ({
   openMenu,
@@ -11,37 +10,37 @@ const SideNavMenu = ({
   currentTitle,
   setCurrentTitle,
 }) => {
-  const [menuPath, setMenuPath] = useState([]);
-  const [animateMenu, setAnimateMenu] = useState(false);
+  // const [menuPath, setMenuPath] = useState([]);
+  // const [animateMenu, setAnimateMenu] = useState(false);
 
-  useEffect(() => {
-    if (openMenu) {
-      setAnimateMenu(true);
-    } else {
-      const timeout = setTimeout(() => setAnimateMenu(false), 300);
-      return () => clearTimeout(timeout);
-    }
-  }, [openMenu]);
+  // useEffect(() => {
+  //   if (openMenu) {
+  //     setAnimateMenu(true);
+  //   } else {
+  //     const timeout = setTimeout(() => setAnimateMenu(false), 300);
+  //     return () => clearTimeout(timeout);
+  //   }
+  // }, [openMenu]);
 
-  const handleMenuClick = (menuItem) => {
-    setMenuPath([...menuPath, menuItem]);
-    setCurrentTitle(menuItem.title);
-  };
+  // const handleMenuClick = (menuItem) => {
+  //   setMenuPath([...menuPath, menuItem]);
+  //   setCurrentTitle(menuItem.title);
+  // };
 
-  const handleBackClick = () => {
-    const newPath = menuPath.slice(0, -1);
-    setMenuPath(newPath);
-    setCurrentTitle(
-      newPath.length > 0 ? newPath[newPath.length - 1].title : 'Danh mục'
-    );
-  };
+  // const handleBackClick = () => {
+  //   const newPath = menuPath.slice(0, -1);
+  //   setMenuPath(newPath);
+  //   setCurrentTitle(
+  //     newPath.length > 0 ? newPath[newPath.length - 1].title : 'Danh mục'
+  //   );
+  // };
 
-  const currentMenu =
-    menuPath.length === 0 ? menu : menuPath[menuPath.length - 1].list || [];
+  // const currentMenu =
+  //   menuPath.length === 0 ? menu : menuPath[menuPath.length - 1].list || [];
 
   return (
     <div className="z-20">
-      {animateMenu && (
+      {/* {animateMenu && (
         <div>
           <div
             className="fixed inset-0 bg-black bg-opacity-50 z-20 transform transition-transform duration-300"
@@ -132,14 +131,14 @@ const SideNavMenu = ({
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 };
 
-SideNavMenu.propTypes = {
-  openMenu: PropTypes.bool.isRequired,
-  setOpenMenu: PropTypes.func.isRequired,
-};
+// SideNavMenu.propTypes = {
+//   openMenu: PropTypes.bool.isRequired,
+//   setOpenMenu: PropTypes.func.isRequired,
+// };
 
 export default SideNavMenu;
