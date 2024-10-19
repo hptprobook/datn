@@ -14,8 +14,7 @@ const CartListProduct = () => {
   const { isAuthenticated } = useCheckAuth();
 
   useEffect(() => {
-    const allItemIds = items.map((product) => product.id);
-    setSelectedItems(allItemIds);
+    setSelectedItems(items.map((item) => item.id));
   }, [items]);
 
   const handleItemClick = (id) => {

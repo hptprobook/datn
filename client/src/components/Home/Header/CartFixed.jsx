@@ -6,7 +6,7 @@ import {
   DialogTitle,
 } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { useCart } from 'react-use-cart';
 import { formatCurrencyVND } from '~/utils/formatters';
 import EmptyCart from './EmptyCart';
@@ -173,18 +173,18 @@ const CartFixed = ({ open, setOpen }) => {
                   <div className="border-t border-gray-200 px-4 py-6 sm:px-6">
                     <div className="flex justify-between text-base font-medium text-gray-900">
                       <p>Tạm tính</p>
-                      <p>{formatCurrencyVND(cartTotal)}</p>
+                      <p className="font-semibold text-xl text-red-600">
+                        {formatCurrencyVND(cartTotal)}
+                      </p>
                     </div>
-                    <p className="mt-0.5 text-sm text-gray-500">
-                      Giá vận chuyển và thuế được tính khi thanh toán.
-                    </p>
                     <div className="mt-6">
-                      <a
-                        href="#"
-                        className="flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700"
+                      <Link
+                        to={'/gio-hang'}
+                        className="flex items-center justify-center rounded-md border border-transparent bg-red-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-red-700"
+                        onClick={() => setOpen(false)}
                       >
                         Thanh toán
-                      </a>
+                      </Link>
                     </div>
                     <div className="mt-6 flex justify-center text-center text-sm text-gray-500">
                       <p>

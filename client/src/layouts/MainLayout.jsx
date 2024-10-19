@@ -54,7 +54,7 @@ export default function MainLayout() {
         <div className="fixed top-4 right-12 z-[1001]">
           <button
             onClick={toggleHeaderVisibility}
-            className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center focus:outline-none"
+            className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center focus:outline-none"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

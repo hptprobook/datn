@@ -1,13 +1,18 @@
 import { useCart } from 'react-use-cart';
 import { formatCurrencyVND } from '~/utils/formatters';
 import { useNavigate } from 'react-router-dom';
+import { useCartContext } from '~/context/CartContext';
 
 const CartSummary = () => {
-  const { cartTotal } = useCart();
+  const { cartTotal, items } = useCart();
   const navigate = useNavigate();
+  const { selectedItems } = useCartContext();
 
   const handleCheckout = () => {
-    navigate('/thanh-toan');
+    const selectedProducts = items.filter((item) =>
+      selectedItems.includes(item.id)
+    );
+    navigate('/thanh-toan', { state: { selectedProducts } });
   };
 
   return (
@@ -21,12 +26,12 @@ const CartSummary = () => {
         <p className="text-xl font-semibold text-gray-900 text-center">
           Tổng giá trị đơn hàng
         </p>
-        <p className="text-3xl font-semibold text-red-600 text-center">
+        <p className="text-4xl font-semibold text-red-600 text-center under">
           {formatCurrencyVND(cartTotal)}
         </p>
 
         <button
-          className="btn bg-red-600 rounded-md w-full"
+          className="btn bg-red-600 text-lg font-bold hover:bg-red-700 hover:text-white text-white rounded-md w-full h-12"
           onClick={handleCheckout}
         >
           Thanh toán
@@ -37,7 +42,7 @@ const CartSummary = () => {
           <a
             href="#"
             title=""
-            className="inline-flex items-center gap-2 text-sm font-medium text-gray-700 underline hover:no-underline"
+            className="inline-flex items-center gap-2 text-sm font-medium text-gray-700 underline hover:no-underline hover:text-red-600"
           >
             Tiếp tục mua sắm
             <svg

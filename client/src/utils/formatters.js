@@ -23,7 +23,9 @@ export const truncateString = (str, num) => {
 };
 
 export const formatCurrencyVND = (amount) => {
-  return amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+  return amount
+    ? amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
+    : 0;
 };
 
 export const generateMongoObjectId = () => {
