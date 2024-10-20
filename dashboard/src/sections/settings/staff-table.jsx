@@ -16,36 +16,11 @@ import Paper from '@mui/material/Paper';
 import Checkbox from '@mui/material/Checkbox';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Switch from '@mui/material/Switch';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { visuallyHidden } from '@mui/utils';
-
-function createData(id, name, calories, fat, carbs, protein) {
-  return {
-    id,
-    name,
-    calories,
-    fat,
-    carbs,
-    protein,
-  };
-}
-
-const rows = [
-  createData(1, 'Cupcake', 305, 3.7, 67, 4.3),
-  createData(2, 'Donut', 452, 25.0, 51, 4.9),
-  createData(3, 'Eclair', 262, 16.0, 24, 6.0),
-  createData(4, 'Frozen yoghurt', 159, 6.0, 24, 4.0),
-  createData(5, 'Gingerbread', 356, 16.0, 49, 3.9),
-  createData(6, 'Honeycomb', 408, 3.2, 87, 6.5),
-  createData(7, 'Ice cream sandwich', 237, 9.0, 37, 4.3),
-  createData(8, 'Jelly Bean', 375, 0.0, 94, 0.0),
-  createData(9, 'KitKat', 518, 26.0, 65, 7.0),
-  createData(10, 'Lollipop', 392, 0.2, 98, 0.0),
-  createData(11, 'Marshmallow', 318, 0, 81, 2.0),
-  createData(12, 'Nougat', 360, 19.0, 9, 37.0),
-  createData(13, 'Oreo', 437, 18.0, 63, 4.0),
-];
+import Iconify from 'src/components/iconify';
+import Label from 'src/components/label';
+import { InputAdornment, Stack, TextField } from '@mui/material';
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -68,37 +43,25 @@ const headCells = [
     id: 'name',
     numeric: false,
     disablePadding: true,
-    label: 'Dessert (100g serving)',
+    label: 'Tên nhân viên',
   },
+
   {
-    id: 'calories',
+    id: 'branchId',
     numeric: true,
     disablePadding: false,
-    label: 'Calories',
+    label: 'Chi nhánh',
   },
   {
-    id: 'fat',
+    id: 'role',
     numeric: true,
     disablePadding: false,
-    label: 'Fat (g)',
-  },
-  {
-    id: 'carbs',
-    numeric: true,
-    disablePadding: false,
-    label: 'Carbs (g)',
-  },
-  {
-    id: 'protein',
-    numeric: true,
-    disablePadding: false,
-    label: 'Protein (g)',
+    label: 'Trạng thái',
   },
 ];
 
 function EnhancedTableHead(props) {
-  const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } =
-    props;
+  const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
   };
@@ -152,8 +115,7 @@ EnhancedTableHead.propTypes = {
   rowCount: PropTypes.number.isRequired,
 };
 
-function EnhancedTableToolbar(props) {
-  const { numSelected } = props;
+function EnhancedTableToolbar({ numSelected, onSearch }) {
   return (
     <Toolbar
       sx={[
@@ -168,34 +130,45 @@ function EnhancedTableToolbar(props) {
       ]}
     >
       {numSelected > 0 ? (
-        <Typography
-          sx={{ flex: '1 1 100%' }}
-          color="inherit"
-          variant="subtitle1"
-          component="div"
-        >
-          {numSelected} selected
+        <Typography sx={{ flex: '1 1 100%' }} color="inherit" variant="subtitle1" component="div">
+          {numSelected} lựa chọn
         </Typography>
       ) : (
-        <Typography
-          sx={{ flex: '1 1 100%' }}
-          variant="h6"
-          id="tableTitle"
-          component="div"
-        >
-          Nutrition
-        </Typography>
+        <Stack direction="row" sx={{ flex: '1 1 100%' }} spacing={1} justifyContent="space-between">
+          <Typography
+            variant="p"
+            id="tableTitle"
+            sx={{
+              fontWeight: 'bold',
+            }}
+          >
+            Nhân viên
+          </Typography>
+          <TextField
+            size="small"
+            placeholder="Tìm kiếm"
+            onChange={(e) => onSearch(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Iconify icon="eva:search-fill" />
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Stack>
       )}
+
       {numSelected > 0 ? (
-        <Tooltip title="Delete">
+        <Tooltip title="Xóa">
           <IconButton>
-            <DeleteIcon />
+            <Iconify icon="eva:trash-fill" />
           </IconButton>
         </Tooltip>
       ) : (
-        <Tooltip title="Filter list">
+        <Tooltip title="Lọc">
           <IconButton>
-            <FilterListIcon />
+            <Iconify icon="eva:filter-fill" />
           </IconButton>
         </Tooltip>
       )}
@@ -205,15 +178,20 @@ function EnhancedTableToolbar(props) {
 
 EnhancedTableToolbar.propTypes = {
   numSelected: PropTypes.number.isRequired,
+  onSearch: PropTypes.func,
 };
 
-export default function SettingTable() {
+export default function StaffTable({ data }) {
+  const [staffs, setStaffs] = React.useState([]);
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('calories');
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
-  const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
+
+  React.useEffect(() => {
+    setStaffs(data);
+  }, [data]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -223,7 +201,7 @@ export default function SettingTable() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelected = rows.map((n) => n.id);
+      const newSelected = staffs.map((n) => n._id);
       setSelected(newSelected);
       return;
     }
@@ -231,6 +209,7 @@ export default function SettingTable() {
   };
 
   const handleClick = (event, id) => {
+    event.stopPropagation();
     const selectedIndex = selected.indexOf(id);
     let newSelected = [];
 
@@ -243,7 +222,7 @@ export default function SettingTable() {
     } else if (selectedIndex > 0) {
       newSelected = newSelected.concat(
         selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1),
+        selected.slice(selectedIndex + 1)
       );
     }
     setSelected(newSelected);
@@ -258,58 +237,61 @@ export default function SettingTable() {
     setPage(0);
   };
 
-  const handleChangeDense = (event) => {
-    setDense(event.target.checked);
-  };
-
-  // Avoid a layout jump when reaching the last page with empty rows.
-  const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - staffs.length) : 0;
 
   const visibleRows = React.useMemo(
     () =>
-      [...rows]
+      [...staffs]
         .sort(getComparator(order, orderBy))
         .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
-    [order, orderBy, page, rowsPerPage],
+    [order, orderBy, page, rowsPerPage, staffs]
   );
-
+  const handleSearch = (value) => {
+    if (value) {
+      const searchResult = staffs.filter((staff) =>
+        staff.name.toLowerCase().includes(value.toLowerCase())
+      );
+      setStaffs(searchResult);
+    } else {
+      setStaffs(data);
+    }
+  };
+  const handleClickRow = (id) => {
+    alert('click');
+  };
   return (
     <Box sx={{ width: '100%' }}>
       <Paper sx={{ width: '100%', mb: 2 }}>
-        <EnhancedTableToolbar numSelected={selected.length} />
+        <EnhancedTableToolbar numSelected={selected.length} onSearch={handleSearch} />
         <TableContainer>
-          <Table
-            sx={{ minWidth: 750 }}
-            aria-labelledby="tableTitle"
-            size={dense ? 'small' : 'medium'}
-          >
+          <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle" size="medium">
             <EnhancedTableHead
               numSelected={selected.length}
               order={order}
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
-              rowCount={rows.length}
+              rowCount={staffs.length}
             />
             <TableBody>
               {visibleRows.map((row, index) => {
-                const isItemSelected = selected.includes(row.id);
+                const isItemSelected = selected.includes(row._id);
                 const labelId = `enhanced-table-checkbox-${index}`;
 
                 return (
                   <TableRow
                     hover
-                    onClick={(event) => handleClick(event, row.id)}
+                    onClick={() => handleClickRow(row._id)}
                     role="checkbox"
                     aria-checked={isItemSelected}
                     tabIndex={-1}
-                    key={row.id}
+                    key={row._id}
                     selected={isItemSelected}
                     sx={{ cursor: 'pointer' }}
                   >
                     <TableCell padding="checkbox">
                       <Checkbox
+                        onClick={(event) => handleClick(event, row._id)}
                         color="primary"
                         checked={isItemSelected}
                         inputProps={{
@@ -317,25 +299,31 @@ export default function SettingTable() {
                         }}
                       />
                     </TableCell>
-                    <TableCell
-                      component="th"
-                      id={labelId}
-                      scope="row"
-                      padding="none"
-                    >
+                    <TableCell component="th" id={labelId} scope="row" padding="none">
                       {row.name}
                     </TableCell>
-                    <TableCell align="right">{row.calories}</TableCell>
-                    <TableCell align="right">{row.fat}</TableCell>
-                    <TableCell align="right">{row.carbs}</TableCell>
-                    <TableCell align="right">{row.protein}</TableCell>
+                    <TableCell align="right">{row.branchId}</TableCell>
+                    <TableCell align="right">
+                      <Label color={row.role === 'ban' ? 'error' : 'success'}>
+                        {row.role === 'ban' ? 'Cấm' : 'Hoạt động'}
+                      </Label>
+                    </TableCell>
                   </TableRow>
                 );
               })}
+              {visibleRows.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={6}>
+                    <Typography variant="h6" align="center">
+                      Không có dữ liệu
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              )}
               {emptyRows > 0 && (
                 <TableRow
                   style={{
-                    height: (dense ? 33 : 53) * emptyRows,
+                    height: 33 * emptyRows,
                   }}
                 >
                   <TableCell colSpan={6} />
@@ -347,17 +335,17 @@ export default function SettingTable() {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
-          count={rows.length}
+          count={staffs.length}
           rowsPerPage={rowsPerPage}
+          labelRowsPerPage="Số hàng trên trang"
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Paper>
-      <FormControlLabel
-        control={<Switch checked={dense} onChange={handleChangeDense} />}
-        label="Dense padding"
-      />
     </Box>
   );
 }
+StaffTable.propTypes = {
+  data: PropTypes.array.isRequired,
+};

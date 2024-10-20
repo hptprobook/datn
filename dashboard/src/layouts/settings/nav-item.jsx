@@ -6,7 +6,7 @@ export const NavItem = ({ item, pathname, navigate }) => {
   const handleClick = () => {
     navigate(item.path);
   };
-  const active = item.path === pathname;
+  const active = item.path === pathname || (pathname.includes(item.path) && item.path !== '/admin/settings');
   return (
     <ListItemButton
       onClick={handleClick}

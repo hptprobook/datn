@@ -32,6 +32,9 @@ export const NavUpdatePage = lazy(() => import('src/pages/settings/update-nav'))
 export const WebConfigPage = lazy(() => import('src/pages/settings/config/web-config'));
 export const SeoConfigPage = lazy(() => import('src/pages/settings/config/seo-config'));
 export const StaffsSettingPage = lazy(() => import('src/pages/settings/staffs'));
+export const StaffCreatePage = lazy(() => import('src/pages/settings/staffs/create'));
+export const StaffEditPage = lazy(() => import('src/pages/settings/staffs/edit'));
+
 // warehouse page
 export const WarehousePage = lazy(() => import('src/pages/warehouse/warehouse'));
 export const WarehouseCreatePage = lazy(() => import('src/pages/warehouse/create'));
@@ -211,8 +214,8 @@ export default function Router() {
               index: true,
               element: (
                 <Box>
-                  <h1>Settings</h1>
-                </Box>
+                <p>Chức năng đăng được phát triển</p>
+              </Box>
               ),
             },
             {
@@ -226,6 +229,14 @@ export default function Router() {
             {
               path: 'staffs',
               element: <StaffsSettingPage />,
+            },
+            {
+              path: 'staffs/create',
+              element: <StaffCreatePage />,
+            },
+            {
+              path: 'staffs/:id',
+              element: <StaffEditPage />,
             },
             {
               path: 'notifications',

@@ -3,20 +3,31 @@ import Stack from '@mui/material/Stack';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 
-import { Avatar, IconButton, List, ListItem, ListItemAvatar, ListItemText } from '@mui/material';
+import {
+  List,
+  Avatar,
+  Button,
+  ListItem,
+  IconButton,
+  ListItemText,
+  ListItemAvatar,
+} from '@mui/material';
 
 import Iconify from 'src/components/iconify';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { fetchAllStaffs } from 'src/redux/slices/staffSlices';
 import { useDispatch, useSelector } from 'react-redux';
 import { formatDateTime } from 'src/utils/format-time';
 import Label from 'src/components/label';
+import { useNavigate } from 'react-router-dom';
+import StaffTable from '../staff-table';
 // ----------------------------------------------------------------------
 
 export default function StaffsPage() {
   const dispatch = useDispatch();
   const [staffs, setStaffs] = useState([]);
   const [admins, setAdmins] = useState([]);
+  const navigate = useNavigate();
   const statusGet = useSelector((state) => state.staffs.status);
   const statusCreate = useSelector((state) => state.staffs.statusCreate);
   const statusUpdate = useSelector((state) => state.staffs.statusUpdate);
@@ -30,7 +41,7 @@ export default function StaffsPage() {
     if (statusGet === 'successful') {
       const dataAdmin = data.filter((staff) => staff.role === 'admin' || staff.role === 'root');
       setAdmins(dataAdmin);
-      const dataStaff = data.filter((staff) => staff.role === 'staff');
+      const dataStaff = data.filter((staff) => staff.role === 'staff' || staff.role === 'ban');
       setStaffs(dataStaff);
     }
   }, [statusGet, data]);
@@ -82,8 +93,13 @@ export default function StaffsPage() {
             borderRadius: 1,
           }}
         >
-          <Typography variant="h6">Danh sách nhân viên</Typography>
-         <SettingTable/>
+          <Stack justifyContent="space-between" direction="row" mb={2}>
+            <Typography variant="h6">Danh sách nhân viên</Typography>
+            <Button variant="contained" color="inherit" onClick={() => navigate('create')}>
+              Thêm nhân viên
+            </Button>
+          </Stack>
+          <StaffTable data={staffs} />
         </Card>
       </Stack>
     </Container>

@@ -10,7 +10,7 @@ import IconButton from '@mui/material/IconButton';
 
 import Iconify from 'src/components/iconify';
 import PropTypes from 'prop-types';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { List } from '@mui/material';
 import Header from './header';
 import Nav, { NavItem } from './nav';

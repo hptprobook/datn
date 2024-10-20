@@ -12,8 +12,8 @@ export const fetchAllStaffs = createAsyncThunk(
         }
     }
 );
-export const createUser = createAsyncThunk(
-    "users/create",
+export const createStaff = createAsyncThunk(
+    "staffs/create",
     async (data, { rejectWithValue }) => {
         try {
             return await StaffsService.create(data);
@@ -85,13 +85,13 @@ const staffSlices = createSlice({
                 state.status = "failed";
                 state.error = action.payload;
             })
-            .addCase(createUser.pending, (state) => {
+            .addCase(createStaff.pending, (state) => {
                 state.statusCreate = "loading";
             })
-            .addCase(createUser.fulfilled, (state, action) => {
+            .addCase(createStaff.fulfilled, (state, action) => {
                 state.statusCreate = "successful";
             })
-            .addCase(createUser.rejected, (state, action) => {
+            .addCase(createStaff.rejected, (state, action) => {
                 state.statusCreate = "failed";
                 state.error = action.payload;
             })

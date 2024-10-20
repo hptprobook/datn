@@ -11,7 +11,7 @@ const StaffsService = {
     },
     create: async (data) => {
         try {
-            return await post("/users", data);
+            return await post("/staffs", data);
         } catch (err) {
             console.error("Error: ", err);
             throw err;
