@@ -10,7 +10,7 @@ import IconButton from '@mui/material/IconButton';
 
 import Iconify from 'src/components/iconify';
 import PropTypes from 'prop-types';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { List } from '@mui/material';
 import Header from './header';
 import Nav, { NavItem } from './nav';
@@ -106,7 +106,12 @@ export default function AdminLayout({ children }) {
     setOpen(false);
   };
   const navigate = useNavigate();
-  const pathname = useParams();
+  const {pathname} = useLocation();
+  React.useEffect(() => {
+    if (pathname.includes('settings')) {
+      setOpen(false);
+    }
+  }, [pathname]);
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />

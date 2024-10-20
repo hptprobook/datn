@@ -38,6 +38,9 @@ const updateStaff = async (dataStaff) => {
 }
 const updateMe = async (id, dataStaff) => {
   const validData = await validateBeforeUpdate(dataStaff, 'me');
+  if (validData.lastLogin) {
+    validData.lastLogin = new Date(validData.lastLogin).getTime();
+  }
   const db = await GET_DB();
   const collection = db.collection('staffs');
   const result = await collection.updateOne({ _id: new ObjectId(id) }, { $set: validData });

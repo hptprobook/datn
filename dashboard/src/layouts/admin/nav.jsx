@@ -47,7 +47,7 @@ export default function Nav({ open }) {
       {navConfig.map((item, index) => (
         <ListItem key={index} disablePadding sx={{ display: 'block' }}>
           {item.child ? (
-            <NavItems item={item} pathname={pathname} navigate={navigate} openMenu={open} />
+            <NavItems  item={item} pathname={pathname} navigate={navigate} openMenu={open} />
           ) : (
             <NavItem item={item} pathname={pathname} navigate={navigate} openMenu={open} />
           )}
@@ -148,7 +148,7 @@ export const NavItem = ({
 };
 NavItem.propTypes = {
   item: PropTypes.object,
-  pathname: PropTypes.string,
+  pathname: PropTypes.any,
   navigate: PropTypes.func,
   openMenu: PropTypes.bool,
   iconShow: PropTypes.node,
@@ -191,7 +191,7 @@ function NavItems({ item, pathname, navigate, openMenu }) {
         <List component="div" disablePadding>
           {item.child.map((child) => (
             <ListItemButton
-              key={child.icon}
+              key={child.path}
               sx={{
                 p: 0,
                 pl: 4,
@@ -220,7 +220,7 @@ function NavItems({ item, pathname, navigate, openMenu }) {
 }
 NavItems.propTypes = {
   item: PropTypes.object,
-  pathname: PropTypes.string,
+  pathname: PropTypes.any,
   navigate: PropTypes.func,
   openMenu: PropTypes.bool,
 };
