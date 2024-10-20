@@ -158,6 +158,7 @@ const CreateStaffPage = () => {
                   <Select
                     labelId="role-select-label"
                     id="role-select"
+                    name='role'
                     value={formik.values.role}
                     label="Vai trò"
                     onChange={formik.handleChange}
