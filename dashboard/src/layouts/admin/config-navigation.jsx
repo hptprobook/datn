@@ -1,0 +1,57 @@
+const navConfig = [
+  {
+    title: 'dashboard',
+    path: '/admin/',
+    icon: 'ion:home',
+    child: undefined,
+  },
+  {
+    title: 'Khách hàng',
+    path: '/admin/users',
+    icon: 'ion:person',
+    child: undefined,
+  },
+  {
+    title: 'Đơn hàng',
+    path: '/admin/orders',
+    icon: 'ion:cart',
+  },
+  {
+    title: 'Sản phẩm',
+    path: '/admin/products',
+    icon: 'ion:shirt',
+    child: [
+      {
+        title: 'Danh sách sản phẩm',
+        path: '/admin/products',
+      },
+      {
+        title: 'Danh mục',
+        path: '/admin/categories',
+      },
+    ],
+  },
+
+  {
+    title: 'Kho',
+    path: '/admin/warehouse',
+    icon: 'ion:cube',
+    child: [
+      {
+        title: 'Danh sách kho',
+        path: '/admin/warehouse',
+      },
+      {
+        title: 'Nhà cung cấp',
+        path: '/admin/suppliers',
+      },
+      {
+        title: 'Nhãn hàng',
+        path: '/admin/brands',
+      },
+    ],
+  },
+  
+];
+
+export default navConfig;

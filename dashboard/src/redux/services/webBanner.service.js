@@ -1,14 +1,18 @@
-import { get, put, del, post } from 'src/utils/request';
+import { get, del,  uploadWebBanner ,updateWebBanner } from 'src/utils/request';
 /* eslint-disable */
 
 const WebBannerServices = {
   getAll: async () => await get('web-banner'),
   create: async (data) => {
     try {
-      return await post('/web-banner', data);
-    }
-    catch (err) {
-      console.error('Error: ', err);
+      const res = await uploadWebBanner({
+        data,
+        type: 'post',
+        path: 'web-banner',
+      });
+      return res.data;
+    } catch (err) {
+      console.log(err);
       throw err;
     }
   },
@@ -32,10 +36,13 @@ const WebBannerServices = {
   },
   update: async ({ data, id }) => {
     try {
-      return await put(`web-banner/${id}`, data);
-    }
-    catch (err) {
-      console.error('Error: ', err);
+      const res = await updateWebBanner({
+        data,
+        path: `web-banner/${id}`,
+      });
+      return res;
+    } catch (err) {
+      console.log(err);
       throw err;
     }
   },

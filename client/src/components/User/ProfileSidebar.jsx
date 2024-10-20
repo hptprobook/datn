@@ -18,7 +18,7 @@ const ProfileSidebar = () => {
   };
 
   return (
-    <div className="relative">
+    <div className="relative h-full">
       {/* Header */}
 
       {/* Sidebar */}
@@ -50,7 +50,7 @@ const ProfileSidebar = () => {
             </p>
           </div>
         </section>
-        <section className="sidebar-content h-fit min-h-[20rem] overflow-visible text-black">
+        <section className="sidebar-content h-[100%] min-h-[20rem] overflow-visible text-black">
           <nav className="menu rounded-md">
             <section className="menu-section px-4 text-black">
               <ul className="menu-items pt-24 md:pt-0">

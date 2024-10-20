@@ -14,7 +14,7 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useUser } from '~/context/UserContext';
 import { updateCurrentUser } from '~/APIs';
-import Swal from 'sweetalert2';
+import { useSwal } from '~/customHooks/useSwal';
 
 const validationSchema = Yup.object({
   name: Yup.string()
@@ -92,13 +92,13 @@ const AddressModel = ({ onClose, isOpen, address, refetchUser }) => {
     onSuccess: () => {
       onClose();
       refetchUser();
-      Swal.fire({
+      useSwal.fire({
         title: 'Thành công!',
         icon: 'success',
       });
     },
     onError: () => {
-      Swal.fire({
+      useSwal.fire({
         title: 'Thất bại!',
         icon: 'error',
       });

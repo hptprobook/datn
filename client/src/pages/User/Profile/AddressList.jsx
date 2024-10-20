@@ -2,7 +2,7 @@ import { useState } from 'react';
 import AddressModel from './components/AddressModel';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { getCurrentUser, updateCurrentUser } from '~/APIs';
-import Swal from 'sweetalert2';
+import { useSwal, useSwalWithConfirm } from '~/customHooks/useSwal';
 
 const AddressList = () => {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -19,7 +19,11 @@ const AddressList = () => {
       refetchUser();
     },
     onError: () => {
-      Swal.fire('Thất bại!', 'Xoá địa chỉ thất bại, vui lòng thử lại', 'error');
+      useSwal.fire(
+        'Thất bại!',
+        'Xoá địa chỉ thất bại, vui lòng thử lại',
+        'error'
+      );
     },
   });
 
@@ -35,28 +39,31 @@ const AddressList = () => {
   };
 
   const handleDeleteAddress = (addressId) => {
-    Swal.fire({
-      title: 'Bạn có chắc chắn muốn xoá?',
-      text: 'Bạn sẽ không thể hoàn tác hành động này!',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Xoá',
-      cancelButtonText: 'Hủy',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const updatedAddresses = user.addresses.filter(
-          (address) => address._id !== addressId
-        );
+    useSwalWithConfirm
+      .fire({
+        title: 'Bạn có chắc chắn muốn xoá?',
+        text: 'Bạn sẽ không thể hoàn tác hành động này!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Xoá',
+        cancelButtonText: 'Hủy',
+        scrollbarPadding: false,
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          const updatedAddresses = user.addresses.filter(
+            (address) => address._id !== addressId
+          );
 
-        mutation.mutate({ name: user.name, addresses: updatedAddresses });
+          mutation.mutate({ name: user.name, addresses: updatedAddresses });
 
-        Swal.fire({
-          title: 'Thành công!',
-          text: 'Xoá điạ chỉ thành công.',
-          icon: 'success',
-        });
-      }
-    });
+          useSwal.fire({
+            title: 'Thành công!',
+            text: 'Xoá điạ chỉ thành công.',
+            icon: 'success',
+          });
+        }
+      });
   };
 
   return (

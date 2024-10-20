@@ -85,7 +85,6 @@ const ProductDetailInfor = ({
     }
   };
 
-  // Hàm xử lý thêm vào giỏ hàng
   const handleAddToCart = () => {
     if (!selectedColor || !selectedSize) {
       setError('Vui lòng chọn đầy đủ màu sắc và kích thước.');
@@ -96,7 +95,6 @@ const ProductDetailInfor = ({
         (variant) => variant.color === selectedColor
       );
 
-      // Kiểm tra xem sản phẩm với biến thể đã có trong giỏ hàng chưa
       const existingItem = items.find(
         (item) =>
           item.slug === product.slug &&
@@ -105,10 +103,8 @@ const ProductDetailInfor = ({
       );
 
       if (existingItem) {
-        // Nếu sản phẩm đã tồn tại trong giỏ hàng, chỉ cần cập nhật số lượng
         addItem(existingItem, quantity);
       } else {
-        // Nếu sản phẩm là mới, tạo mới cartId và thêm sản phẩm vào giỏ hàng
         const cartId = generateMongoObjectId();
 
         addItem(
@@ -116,6 +112,7 @@ const ProductDetailInfor = ({
             id: cartId,
             productId: product._id,
             name: product.name,
+            weight: product.weight,
             price: selectedPrice,
             slug: product.slug,
             image: selectedVariant.image,
