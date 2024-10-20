@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -20,7 +20,8 @@ import { handleToast } from 'src/hooks/toast';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   fetchAll,
-  resetDelete
+  setStatus,
+  deleteWebBanner,
 } from 'src/redux/slices/webBannerSlice';
 import { useRouter } from 'src/routes/hooks';
 import TableEmptyRows from 'src/components/table/table-empty-rows';
@@ -37,10 +38,10 @@ export default function WebBannersPage() {
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
   const [selected, setSelected] = useState([]);
-  const [orderBy, setOrderBy] = useState('name');
+  const [orderBy, setOrderBy] = useState('title');
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [webBanners, setWebBanners] = useState([]);
+  const [webBanners, setWebBanners] = React.useState([]);
 
   const dispatch = useDispatch();
   const route = useRouter();
@@ -48,6 +49,7 @@ export default function WebBannersPage() {
   const data = useSelector((state) => state.webBanners.webBanners);
   const status = useSelector((state) => state.webBanners.status);
   const statusDelete = useSelector((state) => state.webBanners.statusDelete);
+  const error = useSelector((state) => state.webBanners.error);
 
   useEffect(() => {
     dispatch(fetchAll());
@@ -61,11 +63,14 @@ export default function WebBannersPage() {
 
   useEffect(() => {
     if (statusDelete === 'successful') {
-      handleToast('success', 'Xóa Bảng quảng cáo thành công');
+      handleToast('success', 'Xóa bài viết thành công!');
       dispatch(fetchAll());
-      dispatch(resetDelete());
     }
-  }, [statusDelete, dispatch]);
+    if (statusDelete === 'failed') {
+      handleToast('error', error?.message || 'Có lỗi xảy ra vui lòng thử lại!');
+    }
+    dispatch(setStatus({ key: 'statusDelete', value: '' }));
+  }, [statusDelete, dispatch, error]);
 
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === 'asc';
@@ -120,7 +125,11 @@ export default function WebBannersPage() {
     inputData: webBanners,
     comparator: getComparator(order, orderBy),
     filterName,
+    fillerQuery: 'title',
   });
+
+  const notFound = !dataFiltered.length && !!filterName;
+
   const handleNavigate = (id) => {
     route.push(id);
   };
@@ -128,13 +137,12 @@ export default function WebBannersPage() {
     setConfirm(id);
   };
   const dispatchDelete = () => {
-    // dispatch(deleteCoupon(confirm));
+    dispatch(deleteWebBanner(confirm));
   };
   const handleMultiDelete = () => {
     setSelected([]);
     // dispatch(deleteManyCoupon(selected));
   };
-  const notFound = !dataFiltered.length && !!filterName;
 
   const [confirm, setConfirm] = useState(false);
   const [confirmMulti, setConfirmMulti] = useState(false);
@@ -151,11 +159,11 @@ export default function WebBannersPage() {
         openConfirm={!!confirmMulti}
         onAgree={handleMultiDelete}
         onClose={() => setConfirmMulti(false)}
-        label="những bảng quảng cáo đã chọn"
+        label="những Banner quảng cáo đã chọn"
       />
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
-          <Typography variant="h4">Bảng quảng cáo </Typography>
+          <Typography variant="h4">Banner quảng cáo </Typography>
 
           <IconButton
             aria-label="load"
@@ -173,7 +181,7 @@ export default function WebBannersPage() {
           color="inherit"
           startIcon={<Iconify icon="eva:plus-fill" />}
         >
-          Tạo bảng quảng cáo
+          Tạo Banner quảng cáo
         </Button>
       </Stack>
 

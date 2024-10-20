@@ -123,33 +123,7 @@ export const updateProduct = async ({ id, data }) => {
   return response.data;
 };
 
-export const uploadBlog = async ({ path, data, type = 'post' }) => {
-  const formData = new FormData();
-  Object.keys(data).forEach((key) => {
-    if (key === 'images') {
-      data[key].forEach((file) => {
-        formData.append(key, file);
-      });
-    } else if (key === 'tags') {
-      // Convert tags to array if it's a string
-      const tagsArray = Array.isArray(data[key]) ? data[key] : data[key].split(',');
-      tagsArray.forEach((tag) => {
-        formData.append(key, tag);
-      });
-    } else {
-      formData.append(key, data[key]);
-    }
-  });
-  const response = await request[type](path, formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-      Authorization: `Bearer ${getAccessToken()}`,
-    },
-  });
-
-  return response.data;
-};
-export const updateBlog = async ({ path, data }) => {
+export const uploadOrUpdate = async ({ path, data, type = 'post', isUpdate = false }) => {
   const formData = new FormData();
   Object.keys(data).forEach((key) => {
     if (key === 'images') {
@@ -167,7 +141,8 @@ export const updateBlog = async ({ path, data }) => {
     }
   });
 
-  const response = await request.put(path, formData, {
+  const requestType = isUpdate ? 'put' : type;
+  const response = await request[requestType](path, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
       Authorization: `Bearer ${getAccessToken()}`,
@@ -177,48 +152,7 @@ export const updateBlog = async ({ path, data }) => {
   return response.data;
 };
 
-export const uploadWebBanner = async ({ path, data, type = 'post' }) => {
-  const formData = new FormData();
-  Object.keys(data).forEach((key) => {
-    if (key === 'images') {
-      data[key].forEach((file) => {
-        formData.append(key, file);
-      });
-        
-    } else {
-      formData.append(key, data[key]);
-    }
-  });
-  const response = await request[type](path, formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-      Authorization: `Bearer ${getAccessToken()}`,
-    },
-  });
 
-  return response.data;
-};
-export const updateWebBanner = async ({ path, data }) => {
-  const formData = new FormData();
-  Object.keys(data).forEach((key) => {
-    if (key === 'images') {
-      data[key].forEach((file) => {
-        formData.append(key, file);
-      });
-    } else {
-      formData.append(key, data[key]);
-    }
-  });
-
-  const response = await request.put(path, formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-      Authorization: `Bearer ${getAccessToken()}`,
-    },
-  });
-
-  return response.data;
-};
 
 // Các phương thức khác
 export const get = async (path, options = {}) => {
