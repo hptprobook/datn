@@ -77,3 +77,30 @@ export const INFOR_USER = Joi.object({
     'date.base': 'Ngày sinh phải là một ngày hợp lệ',
   }),
 });
+
+const OrderStatus = {
+  pending: 'pending',
+  processing: 'processing',
+  shipped: 'shipped',
+  delivered: 'delivered',
+  cancelled: 'cancelled',
+  refund: 'refund',
+  returned: 'returned',
+  completed: 'completed',
+  confirmed: 'confirmed',
+  onHold: 'onHold',
+  shipping: 'shipping',
+};
+
+export const SEND_NOTIFIES = Joi.array().items(
+  Joi.object({
+    status: Joi.string()
+      .trim()
+      .min(1)
+      .valid(...Object.values(OrderStatus))
+      .default(OrderStatus.pending),
+    note: Joi.string().trim().min(1),
+    createdAt: Joi.date().timestamp('javascript').default(Date.now),
+    updatedAt: Joi.date().timestamp('javascript').default(Date.now),
+  })
+);
