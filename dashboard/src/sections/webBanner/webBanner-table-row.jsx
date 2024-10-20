@@ -18,6 +18,7 @@ const backendUrl = import.meta.env.VITE_BACKEND_APP_URL;
 
 export default function WebBannerTableRow({
   selected,
+  onClick,
   id,
   title,
   description,
@@ -30,6 +31,7 @@ export default function WebBannerTableRow({
   const [open, setOpen] = useState(null);
 
   const handleOpenMenu = (event) => {
+    event.stopPropagation();
     setOpen(event.currentTarget);
   };
 
@@ -43,9 +45,19 @@ export default function WebBannerTableRow({
   }
   return (
     <>
-      <TableRow hover tabIndex={-1} role="checkbox" selected={selected}>
-        <TableCell padding="checkbox">
-          <Checkbox disableRipple checked={selected} onChange={handleClick} />
+      <TableRow hover
+        onClick={onClick}
+        sx={{ cursor: 'pointer' }}
+        tabIndex={-1}
+        role="checkbox"
+        selected={selected}>
+       <TableCell padding="checkbox">
+          <Checkbox
+            disableRipple
+            checked={selected}
+            onClick={(event) => event.stopPropagation()}
+            onChange={handleClick}
+          />
         </TableCell>
 
         <TableCell component="th" scope="row" padding="none">
@@ -58,7 +70,7 @@ export default function WebBannerTableRow({
         </TableCell>
 
         <TableCell>
-           {description}
+          {description}
 
         </TableCell>
 
@@ -106,4 +118,5 @@ WebBannerTableRow.propTypes = {
   selected: PropTypes.bool,
   handleClick: PropTypes.func,
   handleNavigate: PropTypes.func,
+  onClick: PropTypes.func,
 };

@@ -70,7 +70,7 @@ export default function DetailBlogView() {
       if (thumbnail !== null) {
         values.image = thumbnail;
       }
-
+     
       console.log(values);
 
       dispatch(update({ id, data: values }));

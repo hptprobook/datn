@@ -10,7 +10,7 @@ import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 
-import { IconButton } from '@mui/material';
+import { Drawer, IconButton } from '@mui/material';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 import LoadingFull from 'src/components/loading/loading-full';
@@ -21,7 +21,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
   fetchAll,
   setStatus,
-  deleteWebBanner,
+  fetchById,
+  deleteWebBanner
 } from 'src/redux/slices/webBannerSlice';
 import { useRouter } from 'src/routes/hooks';
 import TableEmptyRows from 'src/components/table/table-empty-rows';
@@ -31,6 +32,7 @@ import WebBannerTableRow from '../webBanner-table-row';
 import WebBannerTableToolbar from '../webBanner-table-toolbar';
 import { emptyRows, applyFilter, getComparator } from '../utils';
 import WebBannerTableHead from '../webBanner-table-head';
+import WebBannerCard from '../webBanner-card';
 
 // ----------------------------------------------------------------------
 
@@ -46,15 +48,30 @@ export default function WebBannersPage() {
   const dispatch = useDispatch();
   const route = useRouter();
 
+  const [open, setOpen] = React.useState(false);
+
+
   const data = useSelector((state) => state.webBanners.webBanners);
   const status = useSelector((state) => state.webBanners.status);
   const statusDelete = useSelector((state) => state.webBanners.statusDelete);
   const error = useSelector((state) => state.webBanners.error);
+  const webBanner = useSelector((state) => state.webBanners.webBanner);
 
   useEffect(() => {
     dispatch(fetchAll());
   }, [dispatch]);
 
+  const toggleDrawer = (value) => (event) => {
+    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+      return;
+    }
+    if (value) {
+      dispatch(fetchById({ id: value }));
+    } else {
+      dispatch(setStatus({ key: 'webBanner', value: null }));
+    }
+    setOpen(!open);
+  };
   useEffect(() => {
     if (status === 'successful') {
       setWebBanners(data);
@@ -63,7 +80,7 @@ export default function WebBannersPage() {
 
   useEffect(() => {
     if (statusDelete === 'successful') {
-      handleToast('success', 'Xóa bài viết thành công!');
+      handleToast('success', 'Xóa WebBanner thành công!');
       dispatch(fetchAll());
     }
     if (statusDelete === 'failed') {
@@ -125,7 +142,6 @@ export default function WebBannersPage() {
     inputData: webBanners,
     comparator: getComparator(order, orderBy),
     filterName,
-    fillerQuery: 'title',
   });
 
   const notFound = !dataFiltered.length && !!filterName;
@@ -161,6 +177,12 @@ export default function WebBannersPage() {
         onClose={() => setConfirmMulti(false)}
         label="những Banner quảng cáo đã chọn"
       />
+      <Drawer anchor="right" open={open} onClose={toggleDrawer()}>
+        <WebBannerCard
+          webBanner={webBanner}
+          status={status}
+        />
+      </Drawer>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
           <Typography variant="h4">Banner quảng cáo </Typography>
@@ -215,6 +237,7 @@ export default function WebBannersPage() {
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
                     <WebBannerTableRow
+                    onClick={toggleDrawer(row._id)}
                       id={row._id}
                       key={row._id}
                       image={row.image}
@@ -234,7 +257,7 @@ export default function WebBannersPage() {
                   col={12}
                 />
 
-                {notFound && <TableNoData query={filterName} col={12}/>}
+                {notFound && <TableNoData query={filterName} col={12} />}
               </TableBody>
             </Table>
           </TableContainer>
