@@ -215,7 +215,7 @@ export default function Router() {
               element: (
                 <Box>
                 <p>Chức năng đăng được phát triển</p>
-              </Box>
+              </Box> 
               ),
             },
             {

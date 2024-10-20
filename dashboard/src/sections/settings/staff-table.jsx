@@ -20,7 +20,7 @@ import Tooltip from '@mui/material/Tooltip';
 import { visuallyHidden } from '@mui/utils';
 import Iconify from 'src/components/iconify';
 import Label from 'src/components/label';
-import { InputAdornment, Stack, TextField } from '@mui/material';
+import { Stack, TextField, InputAdornment } from '@mui/material';
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -181,7 +181,7 @@ EnhancedTableToolbar.propTypes = {
   onSearch: PropTypes.func,
 };
 
-export default function StaffTable({ data }) {
+export default function StaffTable({ data, onClickRow }) {
   const [staffs, setStaffs] = React.useState([]);
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('calories');
@@ -257,95 +257,94 @@ export default function StaffTable({ data }) {
     }
   };
   const handleClickRow = (id) => {
-    alert('click');
+    onClickRow(id);
   };
   return (
-    <Box sx={{ width: '100%' }}>
-      <Paper sx={{ width: '100%', mb: 2 }}>
-        <EnhancedTableToolbar numSelected={selected.length} onSearch={handleSearch} />
-        <TableContainer>
-          <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle" size="medium">
-            <EnhancedTableHead
-              numSelected={selected.length}
-              order={order}
-              orderBy={orderBy}
-              onSelectAllClick={handleSelectAllClick}
-              onRequestSort={handleRequestSort}
-              rowCount={staffs.length}
-            />
-            <TableBody>
-              {visibleRows.map((row, index) => {
-                const isItemSelected = selected.includes(row._id);
-                const labelId = `enhanced-table-checkbox-${index}`;
+    <Paper sx={{ width: '100%', mb: 2 }}>
+      <EnhancedTableToolbar numSelected={selected.length} onSearch={handleSearch} />
+      <TableContainer>
+        <Table aria-labelledby="tableTitle" size="medium">
+          <EnhancedTableHead
+            numSelected={selected.length}
+            order={order}
+            orderBy={orderBy}
+            onSelectAllClick={handleSelectAllClick}
+            onRequestSort={handleRequestSort}
+            rowCount={staffs.length}
+          />
+          <TableBody>
+            {visibleRows.map((row, index) => {
+              const isItemSelected = selected.includes(row._id);
+              const labelId = `enhanced-table-checkbox-${index}`;
 
-                return (
-                  <TableRow
-                    hover
-                    onClick={() => handleClickRow(row._id)}
-                    role="checkbox"
-                    aria-checked={isItemSelected}
-                    tabIndex={-1}
-                    key={row._id}
-                    selected={isItemSelected}
-                    sx={{ cursor: 'pointer' }}
-                  >
-                    <TableCell padding="checkbox">
-                      <Checkbox
-                        onClick={(event) => handleClick(event, row._id)}
-                        color="primary"
-                        checked={isItemSelected}
-                        inputProps={{
-                          'aria-labelledby': labelId,
-                        }}
-                      />
-                    </TableCell>
-                    <TableCell component="th" id={labelId} scope="row" padding="none">
-                      {row.name}
-                    </TableCell>
-                    <TableCell align="right">{row.branchId}</TableCell>
-                    <TableCell align="right">
-                      <Label color={row.role === 'ban' ? 'error' : 'success'}>
-                        {row.role === 'ban' ? 'Cấm' : 'Hoạt động'}
-                      </Label>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-              {visibleRows.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={6}>
-                    <Typography variant="h6" align="center">
-                      Không có dữ liệu
-                    </Typography>
+              return (
+                <TableRow
+                  hover
+                  onClick={() => handleClickRow(row._id)}
+                  role="checkbox"
+                  aria-checked={isItemSelected}
+                  tabIndex={-1}
+                  key={row._id}
+                  selected={isItemSelected}
+                  sx={{ cursor: 'pointer' }}
+                >
+                  <TableCell padding="checkbox">
+                    <Checkbox
+                      onClick={(event) => handleClick(event, row._id)}
+                      color="primary"
+                      checked={isItemSelected}
+                      inputProps={{
+                        'aria-labelledby': labelId,
+                      }}
+                    />
+                  </TableCell>
+                  <TableCell component="th" id={labelId} scope="row" padding="none">
+                    {row.name}
+                  </TableCell>
+                  <TableCell align="right">{row.branchId}</TableCell>
+                  <TableCell align="right">
+                    <Label color={row.role === 'ban' ? 'error' : 'success'}>
+                      {row.role === 'ban' ? 'Cấm' : 'Hoạt động'}
+                    </Label>
                   </TableCell>
                 </TableRow>
-              )}
-              {emptyRows > 0 && (
-                <TableRow
-                  style={{
-                    height: 33 * emptyRows,
-                  }}
-                >
-                  <TableCell colSpan={6} />
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={staffs.length}
-          rowsPerPage={rowsPerPage}
-          labelRowsPerPage="Số hàng trên trang"
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      </Paper>
-    </Box>
+              );
+            })}
+            {visibleRows.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={6}>
+                  <Typography variant="h6" align="center">
+                    Không có dữ liệu
+                  </Typography>
+                </TableCell>
+              </TableRow>
+            )}
+            {emptyRows > 0 && (
+              <TableRow
+                style={{
+                  height: 33 * emptyRows,
+                }}
+              >
+                <TableCell colSpan={6} />
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[5, 10, 25]}
+        component="div"
+        count={staffs.length}
+        rowsPerPage={rowsPerPage}
+        labelRowsPerPage="Số hàng trên trang"
+        page={page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
+    </Paper>
   );
 }
 StaffTable.propTypes = {
   data: PropTypes.array.isRequired,
+  onClickRow: PropTypes.func,
 };

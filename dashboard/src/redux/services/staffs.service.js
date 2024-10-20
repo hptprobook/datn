@@ -19,24 +19,24 @@ const StaffsService = {
     },
     delete: async (id) => {
         try {
-            return await del(`users/${id}`);
+            return await del(`staffs/${id}`);
         } catch (err) {
             console.error("Error: ", err);
             throw err;
         }
     },
 
-    getUser: async (id) => {
+    getStaffBy: async ({ type, value }) => {
         try {
-            return await get(`users/${id}`);
+            return await get(`staffs/${value}?by=${type}`);
         } catch (err) {
             console.error("Error: ", err);
             throw err;
         }
     },
-    editUser: async (id, data) => {
+    update: async (id, data) => {
         try {
-            return await put(`users/${id}`, data);
+            return await put(`staffs/${id}`, data);
         } catch (err) {
             console.error("Error: ", err);
             throw err;

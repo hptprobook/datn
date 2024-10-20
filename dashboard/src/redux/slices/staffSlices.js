@@ -22,32 +22,35 @@ export const createStaff = createAsyncThunk(
         }
     }
 );
-export const fetchUserById = createAsyncThunk(
-    "users/fetchById",
-    async (userId, { rejectWithValue }) => {
+export const getStaffBy = createAsyncThunk(
+    "staffs/getStaffBy",
+    async ({ type, value }, { rejectWithValue }) => {
         try {
-            const response = await StaffsService.getUser(userId);
+            const response = await StaffsService.getStaffBy({
+                type,
+                value,
+            });
             return response;
         } catch (err) {
             return rejectWithValue(err.response.data);
         }
     }
 );
-export const deleteUser = createAsyncThunk(
-    "users/deleteUser",
-    async (userId, { rejectWithValue }) => {
+export const deleteStaff = createAsyncThunk(
+    "staffs/deleteStaff",
+    async (id, { rejectWithValue }) => {
         try {
-            return await StaffsService.delete(userId);
+            return await StaffsService.delete(id);
         } catch (err) {
             return rejectWithValue(err.response.data);
         }
     }
 );
-export const updateUserById = createAsyncThunk(
-    "users/updateById",
+export const updateStaffById = createAsyncThunk(
+    "staffs/updateStaffById",
     async ({ id, data }, { rejectWithValue }) => {
         try {
-            const response = await StaffsService.editUser(id, data);
+            const response = await StaffsService.update(id, data);
             return response;
         } catch (err) {
             return rejectWithValue(err.response.data);
@@ -95,36 +98,36 @@ const staffSlices = createSlice({
                 state.statusCreate = "failed";
                 state.error = action.payload;
             })
-            .addCase(fetchUserById.pending, (state) => {
+            .addCase(getStaffBy.pending, (state) => {
                 state.statusGet = "loading";
             })
-            .addCase(fetchUserById.fulfilled, (state, action) => {
+            .addCase(getStaffBy.fulfilled, (state, action) => {
                 state.statusGet = "successful";
-                state.user = action.payload;
+                state.staff = action.payload;
             })
-            .addCase(fetchUserById.rejected, (state, action) => {
+            .addCase(getStaffBy.rejected, (state, action) => {
                 state.statusGet = "failed";
                 state.error = action.payload;
             })
-            .addCase(deleteUser.pending, (state) => {
+            .addCase(deleteStaff.pending, (state) => {
                 state.statusDelete = "loading";
             })
-            .addCase(deleteUser.fulfilled, (state, action) => {
+            .addCase(deleteStaff.fulfilled, (state, action) => {
                 state.statusDelete = "successful";
                 state.delete = action.payload;
             })
-            .addCase(deleteUser.rejected, (state, action) => {
+            .addCase(deleteStaff.rejected, (state, action) => {
                 state.statusDelete = "failed";
                 state.error = action.payload;
             })
-            .addCase(updateUserById.pending, (state) => {
+            .addCase(updateStaffById.pending, (state) => {
                 state.statusUpdate = "loading";
             })
-            .addCase(updateUserById.fulfilled, (state, action) => {
+            .addCase(updateStaffById.fulfilled, (state, action) => {
                 state.statusUpdate = "successful";
-                state.user = action.payload;
+                state.staff = action.payload;
             })
-            .addCase(updateUserById.rejected, (state, action) => {
+            .addCase(updateStaffById.rejected, (state, action) => {
                 state.statusUpdate = "failed";
                 state.error = action.payload;
             })
