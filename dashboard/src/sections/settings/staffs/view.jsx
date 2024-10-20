@@ -15,24 +15,32 @@ import {
 
 import Iconify from 'src/components/iconify';
 import { useState, useEffect } from 'react';
-import { fetchAllStaffs } from 'src/redux/slices/staffSlices';
+import { setStatus, deleteStaff, fetchAllStaffs } from 'src/redux/slices/staffSlices';
 import { useDispatch, useSelector } from 'react-redux';
 import { formatDateTime } from 'src/utils/format-time';
 import Label from 'src/components/label';
 import { useNavigate } from 'react-router-dom';
+import ConfirmDelete from 'src/components/modal/confirm-delete';
+import { handleToast } from 'src/hooks/toast';
+import LoadingFull from 'src/components/loading/loading-full';
+import StaffModal from '../staff-modal';
 import StaffTable from '../staff-table';
 // ----------------------------------------------------------------------
 
 export default function StaffsPage() {
-  const dispatch = useDispatch();
   const [staffs, setStaffs] = useState([]);
   const [admins, setAdmins] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [selectedStaff, setSelectedStaff] = useState(null);
+  const [openConfirm, setOpenConfirm] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   const statusGet = useSelector((state) => state.staffs.status);
-  const statusCreate = useSelector((state) => state.staffs.statusCreate);
-  const statusUpdate = useSelector((state) => state.staffs.statusUpdate);
+  // const statusCreate = useSelector((state) => state.staffs.statusCreate);
+  // const statusUpdate = useSelector((state) => state.staffs.statusUpdate);
   const statusDelete = useSelector((state) => state.staffs.statusDelete);
-  const error = useSelector((state) => state.staffs.error);
+  // const error = useSelector((state) => state.staffs.error);
   const data = useSelector((state) => state.staffs.staffs);
   useEffect(() => {
     dispatch(fetchAllStaffs());
@@ -45,8 +53,48 @@ export default function StaffsPage() {
       setStaffs(dataStaff);
     }
   }, [statusGet, data]);
+  useEffect(() => {
+    if (statusDelete === 'successful') {
+      handleToast('success', 'Xóa nhân viên thành công');
+      dispatch(fetchAllStaffs());
+      dispatch(setStatus({ key: 'statusDelete', value: 'idle' }));
+    }
+  }, [statusDelete, dispatch]);
+
+  const handleClickRow = (id) => {
+    const selected = staffs.find((staff) => staff._id === id);
+    setSelectedStaff(selected);
+    setOpen(true);
+  };
+  const handleActionModal = (type, id) => {
+    setOpen(false);
+    setSelectedStaff(null);
+    if (type === 'delete') {
+      setOpenConfirm(id);
+    }
+    if (type === 'edit') {
+      navigate(id);
+    }
+  };
+  const handleDelete = () => {
+    dispatch(deleteStaff(openConfirm));
+  };
   return (
     <Container>
+      {statusGet === 'loading' && <LoadingFull />}
+      {statusDelete === 'loading' && <LoadingFull />}
+
+      <StaffModal
+        open={open}
+        handleClose={() => setOpen(false)}
+        staff={selectedStaff}
+        handleAction={handleActionModal}
+      />
+      <ConfirmDelete
+        openConfirm={openConfirm && true}
+        onClose={() => setOpenConfirm(false)}
+        onAgree={handleDelete}
+      />
       <Stack direction="column" spacing={2}>
         <Stack direction="row" alignItems="center" spacing={1}>
           <Typography variant="h5">Quản lý nhân viên</Typography>
@@ -61,7 +109,11 @@ export default function StaffsPage() {
           }}
         >
           <Typography variant="h6">Danh sách quản lý</Typography>
-          <List>
+          <List
+            sx={{
+              overflowX: 'auto',
+            }}
+          >
             {admins.map((item) => (
               <ListItem key={item._id}>
                 <ListItemAvatar>
@@ -76,12 +128,16 @@ export default function StaffsPage() {
                 <Stack direction="row" spacing={1} alignItems="center">
                   <Label color="success">{item.role === 'root' ? 'Chủ cửa hàng' : 'Quản lý'}</Label>
                   <Label color="success">{item.branchId}</Label>
-                  <IconButton>
-                    <Iconify icon="mdi:delete" />
-                  </IconButton>
-                  <IconButton>
-                    <Iconify icon="mdi:account-edit" />
-                  </IconButton>
+                  {item.role === 'admin' && (
+                    <>
+                      <IconButton>
+                        <Iconify icon="mdi:delete" />
+                      </IconButton>
+                      <IconButton onClick={() => navigate(item._id)}>
+                        <Iconify icon="mdi:account-edit" />
+                      </IconButton>
+                    </>
+                  )}
                 </Stack>
               </ListItem>
             ))}
@@ -99,7 +155,7 @@ export default function StaffsPage() {
               Thêm nhân viên
             </Button>
           </Stack>
-          <StaffTable data={staffs} />
+          <StaffTable data={staffs} onClickRow={handleClickRow} />
         </Card>
       </Stack>
     </Container>

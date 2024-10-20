@@ -11,7 +11,6 @@ export const verifyToken = async (req, res, next) => {
         req.user = decodedToken;
         next();
     } catch (error) {
-        console.log({ token: error });
         if (error instanceof jwt.TokenExpiredError) {
             return res.status(401).send({ message: 'Phiên đăng nhập hết hạn' });
         }
