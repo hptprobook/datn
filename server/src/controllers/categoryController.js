@@ -14,7 +14,6 @@ const createCategory = async (req, res) => {
         .status(StatusCodes.BAD_REQUEST)
         .json({ message: 'Ảnh không được để trống' });
     }
-
     const file = req.file;
     const fileName = file.filename;
     const filePath = path.join('uploads/categories', fileName);

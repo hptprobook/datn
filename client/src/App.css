@@ -51,6 +51,15 @@
   color: rgb(250, 171, 0) !important;
 }
 
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 @keyframes twinkle {
   0% {
     transform: scale(1);
