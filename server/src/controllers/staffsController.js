@@ -141,7 +141,8 @@ const loginStaff = async (req, res) => {
         }
         const token = createStaffToken(staff);
         const refreshToken = createStaffToken(staff, 'refresh');
-        await staffsModel.updateMe(staff._id, { refreshToken });
+        const lastLogin = new Date();
+        await staffsModel.updateMe(staff._id, { refreshToken, lastLogin });
         const tokenOption = {
             httpOnly: true,
             secure: true,
