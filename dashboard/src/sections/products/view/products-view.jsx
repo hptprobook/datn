@@ -65,6 +65,7 @@ export default function ProductsPage() {
       return;
     }
     if (value) {
+      console.log(value);
       dispatch(fetchProductById({ id: value }));
     } else {
       dispatch(setStatus({ key: 'statusGet', value: '' }));
