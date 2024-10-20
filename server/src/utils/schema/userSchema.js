@@ -118,6 +118,8 @@ export const SEND_NOTIFIES = Joi.array().items(
     note: Joi.string().trim().min(1),
     createdAt: Joi.date().timestamp('javascript').default(Date.now),
     updatedAt: Joi.date().timestamp('javascript').default(Date.now),
+  })
+);
 export const UPDATE_USER = Joi.object({
   name: Joi.string().trim().min(1).max(30).required().messages({
     'string.empty': 'Tên không được để trống',
