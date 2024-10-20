@@ -94,6 +94,30 @@ export const INFOR_USER = Joi.object({
     }),
 });
 
+const OrderStatus = {
+  pending: 'pending',
+  processing: 'processing',
+  shipped: 'shipped',
+  delivered: 'delivered',
+  cancelled: 'cancelled',
+  refund: 'refund',
+  returned: 'returned',
+  completed: 'completed',
+  confirmed: 'confirmed',
+  onHold: 'onHold',
+  shipping: 'shipping',
+};
+
+export const SEND_NOTIFIES = Joi.array().items(
+  Joi.object({
+    status: Joi.string()
+      .trim()
+      .min(1)
+      .valid(...Object.values(OrderStatus))
+      .default(OrderStatus.pending),
+    note: Joi.string().trim().min(1),
+    createdAt: Joi.date().timestamp('javascript').default(Date.now),
+    updatedAt: Joi.date().timestamp('javascript').default(Date.now),
 export const UPDATE_USER = Joi.object({
   name: Joi.string().trim().min(1).max(30).required().messages({
     'string.empty': 'Tên không được để trống',
