@@ -1,22 +1,22 @@
 import { createSlice, createAction, createAsyncThunk } from '@reduxjs/toolkit';
-import WebBannerServices from '../services/webBanner.service';
+import WebBannerService from '../services/webBanner.service';
 /* eslint-disable */
 
 export const fetchAll = createAsyncThunk(
   'webBanners/fetchAll',
   async (_, { rejectWithValue }) => {
     try {
-      return await WebBannerServices.getAll();
+      return await WebBannerService.getAll();
     } catch (err) {
       return rejectWithValue(err.response.data);
-  }
+    }
   }
 );
 export const deleteWebBanner = createAsyncThunk(
   'webBanners/delete',
   async (id, { rejectWithValue }) => {
     try {
-      const res = await WebBannerServices.delete(id);
+      const res = await WebBannerService.delete(id);
       return res;
     } catch (err) {
       return rejectWithValue(err.response);
@@ -25,9 +25,9 @@ export const deleteWebBanner = createAsyncThunk(
 );
 export const createWebBanner = createAsyncThunk(
   'webBanners/create',
-  async ({data}, { rejectWithValue }) => {
+  async ({ data }, { rejectWithValue }) => {
     try {
-      const res = await WebBannerServices.create(data);
+      const res = await WebBannerService.create(data);
       return res;
     } catch (err) {
       return rejectWithValue(err.response);
@@ -36,9 +36,9 @@ export const createWebBanner = createAsyncThunk(
 );
 export const fetchById = createAsyncThunk(
   'webBanners/fetchById',
-  async ({id}, { rejectWithValue }) => {
+  async ({ id }, { rejectWithValue }) => {
     try {
-      return await WebBannerServices.getById(id);
+      return await WebBannerService.getById(id);
     } catch (err) {
       return rejectWithValue(err.response);
     }
@@ -46,32 +46,29 @@ export const fetchById = createAsyncThunk(
 );
 export const update = createAsyncThunk(
   'webBanners/update',
-  async ({id , data}, { rejectWithValue }) => {
+  async ({ id, data }, { rejectWithValue }) => {
     try {
-      return await WebBannerServices.update({ id , data });
+      console.log('data', data);
+      const res = await WebBannerService.update({ id, data });
+      return res; // Ensure that the response data is returned correctly
     } catch (err) {
       return rejectWithValue(err.response);
     }
   }
 );
+export const resetState = createAction('webBanners/resetState');
 export const setStatus = createAction('webBanners/setStatus');
-export const resetDelete = createAction('webBanners/resetDelete');
 
-const initialState = {
-  webBanners: [],
-  webBanner: {},
-  delete: null,
-  status: 'idle',
-  statusUpdate: 'idle',
-  statusDelete: 'idle',
-  statusCreate: 'idle',
-  statusGet: 'idle',
-  error: null,
-};
-
-const webBannerSlices = createSlice({
+const webBannerSlice = createSlice({
   name: 'webBanners',
-  initialState,
+  initialState: {
+    webBanners: [],
+    webBanner: {},
+    delete: null,
+    status: 'idle',
+    statusUpdate: 'idle',
+    error: null
+  },
   reducers: {},
   extraReducers: (builder) => {
     builder
@@ -87,14 +84,14 @@ const webBannerSlices = createSlice({
         state.error = action.payload;
       })
       .addCase(fetchById.pending, (state) => {
-        state.statusGet = 'loading';
+        state.status = 'loading';
       })
       .addCase(fetchById.fulfilled, (state, action) => {
-        state.statusGet = 'successful';
+        state.status = 'successful';
         state.webBanner = action.payload;
       })
       .addCase(fetchById.rejected, (state, action) => {
-        state.statusGet = 'failed';
+        state.status = 'failed';
         state.error = action.payload;
       })
       .addCase(createWebBanner.pending, (state) => {
@@ -102,16 +99,18 @@ const webBannerSlices = createSlice({
       })
       .addCase(createWebBanner.fulfilled, (state, action) => {
         state.statusCreate = 'successful';
+        state.dataCreate = action.payload;
       })
       .addCase(createWebBanner.rejected, (state, action) => {
         state.statusCreate = 'failed';
         state.error = action.payload;
-      }).addCase(update.pending, (state) => {
+      })
+      .addCase(update.pending, (state) => {
         state.statusUpdate = 'loading';
       })
       .addCase(update.fulfilled, (state, action) => {
         state.statusUpdate = 'successful';
-        state.webBanner = action.payload;
+        state.update = action.payload;
       })
       .addCase(update.rejected, (state, action) => {
         state.statusUpdate = 'failed';
@@ -134,12 +133,8 @@ const webBannerSlices = createSlice({
           state[key] = value; // Update the status field dynamically
         }
       })
-      .addCase(resetDelete, (state) => {
-        state.status = 'idle';
-        state.statusDelete = 'idle';
-        state.error = null;
-      });
   },
 });
 
-export default webBannerSlices.reducer;
+export const { resetState: resetStateAction } = webBannerSlice.actions;
+export default webBannerSlice.reducer;
