@@ -1,5 +1,5 @@
 import { useCart } from 'react-use-cart';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { formatCurrencyVND } from '~/utils/formatters';
 import { Icon } from '@iconify/react';
 import QuantityButton from '~/components/common/ButtonGroup/QuantityButton';
@@ -10,12 +10,23 @@ import { useSwal, useSwalWithConfirm } from '~/customHooks/useSwal';
 
 const CartListProduct = () => {
   const { items, updateItemQuantity, removeItem } = useCart();
-  const { selectedItems, setSelectedItems } = useCartContext();
+  const { selectedItems, setSelectedItems, updateSelectedTotal } =
+    useCartContext();
   const { isAuthenticated } = useCheckAuth();
+  const [selectAll, setSelectAll] = useState(false);
+
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedItems([]);
+    } else {
+      setSelectedItems(items.map((item) => item.id));
+    }
+    setSelectAll(!selectAll);
+  };
 
   useEffect(() => {
-    setSelectedItems(items.map((item) => item.id));
-  }, [items]);
+    updateSelectedTotal(items, selectedItems);
+  }, [selectedItems, items]);
 
   const handleItemClick = (id) => {
     setSelectedItems((prevSelectedItems) => {
@@ -34,7 +45,7 @@ const CartListProduct = () => {
   const handleRemoveItem = (id) => {
     useSwalWithConfirm
       .fire({
-        title: 'Bạn có chắc chắn muốn xoá sản phẩm này?',
+        title: 'Xoá sản phẩm này khỏi giỏ hàng?',
         text: 'Hành động này không thể hoàn tác!',
         icon: 'warning',
         showCancelButton: true,
@@ -61,6 +72,23 @@ const CartListProduct = () => {
         <h2 className="text-xl font-semibold text-gray-900 sm:text-2xl">
           Giỏ hàng
         </h2>
+
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={selectAll}
+            onChange={handleSelectAll}
+            className="checkbox h-5 w-5 text-red-600"
+            id="check-all"
+          />
+          <label
+            htmlFor="check-all"
+            className="text-md font-semibold text-gray-900 cursor-pointer"
+          >
+            Chọn tất cả
+          </label>
+        </div>
+
         <h6 className="text-md font-semibold text-gray-900">
           Đã chọn: {selectedItems.length} sản phẩm
         </h6>

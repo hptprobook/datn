@@ -31,7 +31,10 @@ const LoginPage = () => {
         if (
           referrer &&
           !referrer.includes('/tai-khoan/dang-nhap') &&
-          !referrer.includes('/tai-khoan/dang-ky')
+          !referrer.includes('/tai-khoan/dang-ky') &&
+          !referrer.includes('/gio-hang') &&
+          !referrer.includes('/thanh-toan') &&
+          !referrer.includes('/thanh-toan/xac-nhan')
         ) {
           navigate(-1);
         } else {
