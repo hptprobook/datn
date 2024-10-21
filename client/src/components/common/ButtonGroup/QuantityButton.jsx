@@ -1,13 +1,40 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-const QuantityButton = ({ quantity, onQuantityChange, stopPropagation }) => {
+const QuantityButton = ({
+  quantity,
+  onQuantityChange,
+  stopPropagation,
+  stockLimit,
+  setHasStockError,
+}) => {
   const [localQuantity, setLocalQuantity] = useState(quantity);
+
+  useEffect(() => {
+    if (localQuantity > stockLimit) {
+      setHasStockError(true);
+    } else {
+      setHasStockError(false);
+    }
+  }, [localQuantity, stockLimit]);
+
+  // Xử lý khi người dùng nhập trực tiếp vào input
+  const handleInputChange = (e) => {
+    stopPropagation(e);
+    const value = e.target.value;
+
+    // Chỉ cho phép nhập số và trong khoảng từ 1 đến 99
+    if (/^\d*$/.test(value)) {
+      const newQuantity = Math.max(1, Math.min(99, Number(value)));
+      setLocalQuantity(newQuantity);
+      onQuantityChange(newQuantity);
+    }
+  };
 
   const handleIncrease = (e) => {
     stopPropagation(e);
-    const newQuantity = localQuantity + 1;
+    const newQuantity = Math.min(localQuantity + 1, 99); // Giới hạn không vượt quá 99
     setLocalQuantity(newQuantity);
-    onQuantityChange(newQuantity); // Gọi hàm cập nhật số lượng từ component cha
+    onQuantityChange(newQuantity);
   };
 
   const handleDecrease = (e) => {
@@ -15,7 +42,7 @@ const QuantityButton = ({ quantity, onQuantityChange, stopPropagation }) => {
     if (localQuantity > 1) {
       const newQuantity = localQuantity - 1;
       setLocalQuantity(newQuantity);
-      onQuantityChange(newQuantity); // Gọi hàm cập nhật số lượng từ component cha
+      onQuantityChange(newQuantity);
     }
   };
 
@@ -46,7 +73,8 @@ const QuantityButton = ({ quantity, onQuantityChange, stopPropagation }) => {
         type="text"
         className="w-10 shrink-0 border-0 bg-transparent text-center text-sm font-medium text-gray-900 focus:outline-none focus:ring-0"
         value={localQuantity}
-        readOnly
+        onChange={handleInputChange}
+        onClick={(e) => e.stopPropagation()}
       />
       <button
         type="button"
