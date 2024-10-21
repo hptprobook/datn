@@ -11,7 +11,6 @@ export default function Header() {
   const route = useRouter();
   return (
       <Stack direction="row" alignItems="center" spacing={1}>
-        {/* <LanguagePopover /> */}
         <Button color="inherit" onClick={() => route.push('/')} variant="contained">
           Dashboard
         </Button>

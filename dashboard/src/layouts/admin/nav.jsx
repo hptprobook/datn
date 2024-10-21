@@ -47,7 +47,7 @@ export default function Nav({ open }) {
       {navConfig.map((item, index) => (
         <ListItem key={index} disablePadding sx={{ display: 'block' }}>
           {item.child ? (
-            <NavItems  item={item} pathname={pathname} navigate={navigate} openMenu={open} />
+            <NavItems item={item} pathname={pathname} navigate={navigate} openMenu={open} />
           ) : (
             <NavItem item={item} pathname={pathname} navigate={navigate} openMenu={open} />
           )}
@@ -67,12 +67,10 @@ export const NavItem = ({
   parentActive,
 }) => {
   const handleClick = () => {
-    if (openMenu) {
-      if (item.child) {
-        onOpenChild();
-      } else {
-        navigate(item.path);
-      }
+    if (item.child && openMenu) {
+      onOpenChild();
+    } else {
+      navigate(item.path);
     }
   };
 

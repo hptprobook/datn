@@ -12,6 +12,7 @@ import Iconify from 'src/components/iconify';
 import PropTypes from 'prop-types';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { List } from '@mui/material';
+import Logo from 'src/components/logo';
 import Header from './header';
 import Nav, { NavItem } from './nav';
 
@@ -106,7 +107,7 @@ export default function AdminLayout({ children }) {
     setOpen(false);
   };
   const navigate = useNavigate();
-  const {pathname} = useLocation();
+  const { pathname } = useLocation();
   React.useEffect(() => {
     if (pathname.includes('settings')) {
       setOpen(false);
@@ -141,7 +142,22 @@ export default function AdminLayout({ children }) {
         }}
         open={open}
       >
-        <DrawerHeader>
+        <DrawerHeader
+          sx={{
+            display: 'flex',
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexGrow: 1,
+            }}
+          >
+            {/* <BmtLifeLogo /> */}
+            <Logo />
+          </Box>
           <IconButton onClick={handleDrawerClose}>
             {theme.direction === 'rtl' ? (
               <Iconify icon="eva:chevron-right-fill" />
