@@ -34,6 +34,7 @@ export const SeoConfigPage = lazy(() => import('src/pages/settings/config/seo-co
 export const StaffsSettingPage = lazy(() => import('src/pages/settings/staffs'));
 export const StaffCreatePage = lazy(() => import('src/pages/settings/staffs/create'));
 export const StaffEditPage = lazy(() => import('src/pages/settings/staffs/edit'));
+export const StoreView = lazy(() => import('src/pages/settings/store'));
 
 // warehouse page
 export const WarehousePage = lazy(() => import('src/pages/warehouse/warehouse'));
@@ -212,11 +213,7 @@ export default function Router() {
           children: [
             {
               index: true,
-              element: (
-                <Box>
-                <p>Chức năng đăng được phát triển</p>
-              </Box> 
-              ),
+              element: <StoreView />,
             },
             {
               path: 'branches',

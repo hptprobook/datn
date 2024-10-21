@@ -137,6 +137,7 @@ const updateOrder = async (req, res) => {
       data.status = newStatus;
     }
     const dataOrder = await orderModel.updateOrder(id, data);
+    dataOrder.type = 'order';
     if (dataOrder) {
       await userModel.sendNotifies(dataOrder);
     }

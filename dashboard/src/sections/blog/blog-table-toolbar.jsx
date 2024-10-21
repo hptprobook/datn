@@ -33,7 +33,7 @@ export default function BlogTableToolbar({ numSelected, filterName, onFilterName
         <OutlinedInput
           value={filterName}
           onChange={onFilterName}
-          placeholder="Search user..."
+          placeholder="Tìm kiếm bài viết..."
           startAdornment={
             <InputAdornment position="start">
               <Iconify

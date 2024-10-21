@@ -920,6 +920,7 @@ const getProductsByEvent = async (slug, pages, limit) => {
   }
 
   const categorizedProducts = {
+    title: categories[0].name,
     nam: [],
     nu: [],
     treEm: [],
