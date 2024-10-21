@@ -88,7 +88,6 @@ export default function DetailBlogView() {
   const blog = useSelector((state) => state.blogs.blog);
   const error = useSelector((state) => state.blogs.error);
   const statusGetBlog = useSelector((state) => state.blogs.status);
-
   useEffect(() => {
     if (statusUser === 'idle') {
       dispatch(fetchAllUsers());
@@ -340,9 +339,9 @@ export default function DetailBlogView() {
                   </FormHelperText>
                 </Stack>
                 <Stack spacing={3} direction="row" mt={2} justifyContent="flex-end">
-                    <Button type="submit" variant="contained" color="inherit">
-                      Lưu
-                    </Button>
+                <Button type="button" onClick={() => formik.handleSubmit()} variant="contained" color="inherit">
+                    Lưu
+                  </Button>
                   </Stack>
               </Card>
             </Stack>

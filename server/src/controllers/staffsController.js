@@ -33,6 +33,63 @@ const createStaff = async (req, res) => {
         });
     }
 }
+const updateStaff = async (req, res) => {
+    try {
+        const data = req.body;
+        const { id } = req.params;
+        const existStaff = await staffsModel.getStaffBy('_id', id);
+        if (!existStaff) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: 'Nhân viên không tồn tại',
+            });
+        }
+        const existEmail = await staffsModel.getStaffBy('email', data.email);
+        if (existEmail && existEmail._id.toString() !== id) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: 'Email đã tồn tại',
+            });
+        }
+        if (data.phone) {
+            const existPhone = await staffsModel.getStaffBy('phone', data.phone);
+            if (existPhone && existPhone._id.toString() !== id) {
+                return res.status(StatusCodes.BAD_REQUEST).json({
+                    message: 'Số điện thoại đã tồn tại',
+                });
+            }
+        }
+        const existStaffCode = await staffsModel.getStaffBy('staffCode', data.staffCode);
+        if (existStaffCode && existStaffCode._id.toString() !== id) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: 'Mã nhân viên đã tồn tại',
+            });
+        }
+        const result = await staffsModel.updateStaff(id, data);
+        res.status(StatusCodes.CREATED).json(result);
+    }
+    catch (error) {
+        res.status(StatusCodes.BAD_REQUEST).json({
+            message: error.message,
+        });
+    }
+}
+const deleteStaff = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const existStaff = await staffsModel.getStaffBy('_id', id);
+        if (!existStaff) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: 'Nhân viên không tồn tại',
+            });
+        }
+        const result = await staffsModel.deleteStaff(id);
+        res.status(StatusCodes.OK).json(result);
+    }
+    catch (error) {
+        res.status(StatusCodes.BAD_REQUEST).json({
+            message: error.message,
+        });
+    }
+}
 const getStaffBy = async (req, res) => {
     try {
         const { value } = req.params;
@@ -141,7 +198,8 @@ const loginStaff = async (req, res) => {
         }
         const token = createStaffToken(staff);
         const refreshToken = createStaffToken(staff, 'refresh');
-        await staffsModel.updateMe(staff._id, { refreshToken });
+        const lastLogin = new Date();
+        await staffsModel.updateMe(staff._id, { refreshToken, lastLogin });
         const tokenOption = {
             httpOnly: true,
             secure: true,
@@ -179,5 +237,7 @@ export const staffsController = {
     getStaffs,
     loginStaff,
     getMe,
-    logoutStaff
+    logoutStaff,
+    updateStaff,
+    deleteStaff
 }

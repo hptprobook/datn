@@ -29,15 +29,28 @@ const getStaffBy = async (by = 'email', value) => {
   const staff = await collection.findOne({ [by]: value });
   return staff;
 }
-const updateStaff = async (dataStaff) => {
+const updateStaff = async (id, dataStaff) => {
   const validData = await validateBeforeUpdate(dataStaff, 'all');
   const db = await GET_DB();
   const collection = db.collection('staffs');
-  const result = await collection.updateOne({ _id: new ObjectId(validData._id) }, { $set: validData });
+  const result = await collection.findOneAndUpdate(
+    { _id: new ObjectId(id) },
+    { $set: validData },
+    { returnDocument: 'after' } // Returns the updated document
+  );
+  return result;
+}
+const deleteStaff = async (id) => {
+  const db = await GET_DB();
+  const collection = db.collection('staffs');
+  const result = await collection.deleteOne({ _id: new ObjectId(id) });
   return result;
 }
 const updateMe = async (id, dataStaff) => {
   const validData = await validateBeforeUpdate(dataStaff, 'me');
+  if (validData.lastLogin) {
+    validData.lastLogin = new Date(validData.lastLogin).getTime();
+  }
   const db = await GET_DB();
   const collection = db.collection('staffs');
   const result = await collection.updateOne({ _id: new ObjectId(id) }, { $set: validData });
@@ -54,5 +67,6 @@ export const staffsModel = {
   getStaffBy,
   getStaffs,
   updateMe,
-  updateStaff
+  updateStaff,
+  deleteStaff
 }

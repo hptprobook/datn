@@ -29,5 +29,8 @@ export function fToNow(date) {
 }
 
 export function formatDateTime(timestamp) {
+  if (!dayjs(timestamp).isValid()) {
+    return 'Không rõ';
+  }
   return dayjs(timestamp).format('DD/MM/YYYY HH:mm:ss');
 }

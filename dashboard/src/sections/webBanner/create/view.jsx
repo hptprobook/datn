@@ -15,7 +15,7 @@ import ImageDropZone from 'src/components/drop-zone-upload/upload-img';
 
 import { useFormik } from 'formik';
 import { useDispatch, useSelector } from 'react-redux';
-import { createWebBanner, setStatus } from 'src/redux/slices/webBannerSlice';
+import { setStatus, createWebBanner } from 'src/redux/slices/webBannerSlice';
 import { useState, useEffect, useCallback } from 'react';
 import { handleToast } from 'src/hooks/toast';
 import LoadingFull from 'src/components/loading/loading-full';
@@ -50,7 +50,7 @@ export default function CreateWebBannerPage() {
   useEffect(() => {
     if (status === 'successful') {
       dispatch(setStatus({ key: 'statusCreate', value: 'idle' }));
-      handleToast('success', 'Tạo bảng quảng cáo thành công!');
+      handleToast('success', 'Tạo banner quảng cáo thành công!');
     }
     if (status === 'failed') {
       dispatch(setStatus({ key: 'statusCreate', value: 'idle' }));
@@ -83,13 +83,13 @@ export default function CreateWebBannerPage() {
     <Container>
       {status === 'loading' && <LoadingFull />}
       <SpeedDial
-        ariaLabel="Lưu bảng quảng cáo"
+        ariaLabel="Lưu banner quảng cáo"
         sx={{ position: 'fixed', bottom: 16, right: 16 }}
         onClick={() => formik.handleSubmit()}
         icon={<Iconify icon="eva:save-fill" />}
       />
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Tạo một bảng quảng cáo</Typography>
+        <Typography variant="h4">Tạo banner quảng cáo</Typography>
       </Stack>
       <form onSubmit={formik.handleSubmit}>
         <Grid2 container spacing={3}>
@@ -138,7 +138,7 @@ export default function CreateWebBannerPage() {
               >
                 <Stack spacing={3}>
                   <Typography variant="h6" sx={{ mb: 3 }}>
-                    Mô tả bảng quảng cáo
+                    Mô tả banner
                   </Typography>
                   <TextField
                     fullWidth
@@ -168,7 +168,7 @@ export default function CreateWebBannerPage() {
             >
               <Stack spacing={3}>
                 <Typography variant="h6" sx={{ mb: 3 }}>
-                  Hình ảnh đại diện bài viết
+                  Hình ảnh Banner
                 </Typography>
                 <ImageDropZone
                   error={errorThumbnail}
