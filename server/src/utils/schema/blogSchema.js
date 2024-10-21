@@ -41,7 +41,8 @@ export const SAVE_BLOG = Joi.object({
         .default('waiting')
         .messages({
             'string.base': 'Trạng thái phải là một chuỗi.',
-            'any.only': 'Trạng thái chỉ có thể là public, private, waiting hoặc reject.',
+            'any.only':
+                'Trạng thái chỉ có thể là public, private, waiting hoặc reject.',
         }),
     metaDescription: Joi.string().trim().messages({
         'string.base': 'Meta description phải là một chuỗi văn bản.',
@@ -89,7 +90,8 @@ export const UPDATE_BLOG = Joi.object({
         .valid('public', 'private', 'waiting', 'reject')
         .messages({
             'string.base': 'Trạng thái phải là một chuỗi.',
-            'any.only': 'Trạng thái chỉ có thể là public, private, waiting hoặc reject.',
+            'any.only':
+                'Trạng thái chỉ có thể là public, private, waiting hoặc reject.',
         }),
     metaDescription: Joi.string().trim().messages({
         'string.base': 'Meta description phải là một chuỗi văn bản.',
