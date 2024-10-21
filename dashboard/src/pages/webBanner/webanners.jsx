@@ -9,7 +9,7 @@ export default function CouponsPage() {
     return (
         <>
             <Helmet>
-                <title>Bảng quảng cáo</title>
+                <title>Banner quảng cáo</title>
             </Helmet>
 
             <WebBannersView/>

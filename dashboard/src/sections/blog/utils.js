@@ -1,3 +1,7 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
+import parse from 'html-react-parser';
+import React from 'react';
+
 export const visuallyHidden = {
   border: 0,
   margin: -1,
@@ -54,3 +58,18 @@ export function applyFilter({ inputData, comparator, filterName }) {
 
   return inputData;
 }
+
+export const parseContent = (content) => parse(content, {
+  replace: domNode => {
+    if (domNode.name === 'img') {
+      return React.createElement('img', {
+        src: domNode.attribs.src,
+        alt: domNode.attribs.alt || ''
+      });
+    }
+    if (domNode.type === 'text') {
+      return domNode.data;
+    }
+    return null;
+  }
+});

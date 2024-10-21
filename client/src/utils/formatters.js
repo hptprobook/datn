@@ -23,7 +23,9 @@ export const truncateString = (str, num) => {
 };
 
 export const formatCurrencyVND = (amount) => {
-  return amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+  return amount
+    ? amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
+    : 0;
 };
 
 export const generateMongoObjectId = () => {
@@ -36,6 +38,29 @@ export const generateMongoObjectId = () => {
   ); // 3 bytes counter
 
   return timestamp + random + counter; // MongoDB ObjectId format
+};
+
+export const formatDateToDDMMYYYY = (dateString) => {
+  if (!dateString) return '';
+
+  const date = new Date(dateString);
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+
+  return `${day}/${month}/${year}`;
+};
+
+export const urlToFile = async (url, filename, mimeType) => {
+  const res = await fetch(url);
+  const blob = await res.blob();
+  return new File([blob], filename, { type: mimeType });
+};
+
+export const formatDateToYYYYMMDD = (dateString) => {
+  if (!dateString) return '';
+  const [day, month, year] = dateString.split('/');
+  return `${year}-${month}-${day}`;
 };
 
 export const getTimeDifference = (createdAt) => {

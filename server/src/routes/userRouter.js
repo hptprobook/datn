@@ -11,29 +11,29 @@ import { uploadModel } from '~/models/uploadModel';
 const Router = express.Router();
 
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        const uploadPath = path.resolve(process.cwd(), 'uploads/user');
-        uploadModel.ensureDirExists(uploadPath);
-        cb(null, uploadPath);
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        cb(null, uniqueSuffix + '.jpg');
-    },
+  destination: function (req, file, cb) {
+    const uploadPath = path.resolve(process.cwd(), 'uploads/user');
+    uploadModel.ensureDirExists(uploadPath);
+    cb(null, uploadPath);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, uniqueSuffix + '.jpg');
+  },
 });
 const upload = multer({
-    storage: storage,
-    limits: { fileSize: 1024 * 1024 * 5 },
+  storage: storage,
+  limits: { fileSize: 1024 * 1024 * 5 },
 });
 
 // user
 Router.get('/me', verifyToken, (req, res) => {
-    // #swagger.tags = ['Users']
-    // #swagger.summary = 'Get my data...'
-    usersController.getCurrentUser(req, res);
+  // #swagger.tags = ['Users']
+  // #swagger.summary = 'Get my data...'
+  usersController.getCurrentUser(req, res);
 });
 Router.get('/admin', verifyToken, verifyAdmin, (req, res) => {
-    usersController.getCurrentAdmin(req, res);
+  usersController.getCurrentAdmin(req, res);
 });
 
 Router.get('/:id', usersController.getUserById);
@@ -53,10 +53,10 @@ Router.post('/favorite/:id', usersController.favoriteProduct);
 Router.post('/view/:id', usersController.viewProduct);
 // update Infor
 Router.put(
-    '/me/infor',
-    verifyToken,
-    upload.single('avatar'),
-    usersController.updateInfor
+  '/me/infor',
+  verifyToken,
+  upload.single('avatar'),
+  usersController.updateInfor
 );
 
 export const usersApi = Router;

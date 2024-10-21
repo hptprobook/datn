@@ -6,30 +6,26 @@ import {
   DialogTitle,
 } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { useCart } from 'react-use-cart';
 import { formatCurrencyVND } from '~/utils/formatters';
-import { handleToast } from '~/customHooks/useToast';
 import EmptyCart from './EmptyCart';
 import PropTypes from 'prop-types';
 
 const CartFixed = ({ open, setOpen }) => {
   const { items, removeItem, cartTotal } = useCart();
-  const [showTooltip, setShowTooltip] = useState(null); // Quản lý tooltip cho từng sản phẩm
+  const [showTooltip, setShowTooltip] = useState(null);
 
-  // Hàm xóa sản phẩm sau khi xác nhận
-  const handleDeleteProduct = (productId, productName) => {
+  const handleDeleteProduct = (productId) => {
     removeItem(productId);
-    setShowTooltip(null); // Đóng tooltip sau khi xóa
-    handleToast('success', `Đã xóa sản phẩm ${productName}`);
+    setShowTooltip(null);
   };
 
-  // Hàm để hiển thị hoặc đóng tooltip
   const toggleTooltip = (productId) => {
     if (showTooltip === productId) {
-      setShowTooltip(null); // Nếu tooltip đang mở, đóng nó
+      setShowTooltip(null);
     } else {
-      setShowTooltip(productId); // Mở tooltip cho sản phẩm được chọn
+      setShowTooltip(productId);
     }
   };
 
@@ -41,7 +37,7 @@ const CartFixed = ({ open, setOpen }) => {
     >
       <DialogBackdrop
         transition
-        className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity duration-500 ease-in-out data-[closed]:opacity-0"
+        className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity duration-300 ease-in-out data-[closed]:opacity-0"
       />
 
       <div className="fixed inset-0 overflow-hidden">
@@ -49,10 +45,10 @@ const CartFixed = ({ open, setOpen }) => {
           <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
             <DialogPanel
               transition
-              className="pointer-events-auto w-screen max-w-md transform transition duration-500 ease-in-out data-[closed]:translate-x-full sm:duration-700"
+              className="pointer-events-auto w-screen max-w-md transform transition duration-300 ease-in-out data-[closed]:translate-x-full sm:duration-300"
             >
-              <div className="flex h-full flex-col overflow-y-scroll bg-white shadow-xl">
-                <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
+              <div className="flex h-full flex-col overflow-y-scroll bg-white shadow-xl hide-scrollbar">
+                <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 hide-scrollbar">
                   <div className="flex items-start justify-between">
                     <DialogTitle className="text-lg font-medium text-gray-900">
                       Giỏ hàng
@@ -177,33 +173,18 @@ const CartFixed = ({ open, setOpen }) => {
                   <div className="border-t border-gray-200 px-4 py-6 sm:px-6">
                     <div className="flex justify-between text-base font-medium text-gray-900">
                       <p>Tạm tính</p>
-                      <p>{formatCurrencyVND(cartTotal)}</p> {/* Subtotal */}
-                    </div>
-                    <p className="mt-0.5 text-sm text-gray-500">
-                      Giá vận chuyển và thuế được tính khi thanh toán.
-                    </p>
-                    <div className="mt-6">
-                      <a
-                        href="#"
-                        className="flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700"
-                      >
-                        Thanh toán
-                      </a>
-                    </div>
-                    <div className="mt-6 flex justify-center text-center text-sm text-gray-500">
-                      <p>
-                        hoặc{' '}
-                        <NavLink to={'/gio-hang'}>
-                          <button
-                            type="button"
-                            className="font-medium text-indigo-600 hover:text-indigo-500"
-                            onClick={() => setOpen(false)}
-                          >
-                            Xem giỏ hàng của bạn
-                            <span aria-hidden="true"> &rarr;</span>
-                          </button>
-                        </NavLink>
+                      <p className="font-semibold text-xl text-red-600">
+                        {formatCurrencyVND(cartTotal)}
                       </p>
+                    </div>
+                    <div className="mt-6">
+                      <Link
+                        to={'/gio-hang'}
+                        className="flex items-center justify-center rounded-md border border-transparent bg-red-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-red-700"
+                        onClick={() => setOpen(false)}
+                      >
+                        Xem giỏ hàng
+                      </Link>
                     </div>
                   </div>
                 )}

@@ -1,7 +1,6 @@
 /* eslint-disable react/no-unescaped-entities */
 import { NavLink } from 'react-router-dom';
 import CatSuggest from '~/components/Home/Container/CatSuggest/CatSuggest';
-import Post from '~/components/Home/Container/Post/Post';
 import HeaderSlider from '~/components/Home/Slider/HeaderSlider';
 import Logo from '~/assets/logo2.png';
 import FilterCategories from './FilterCategories';
@@ -25,7 +24,6 @@ const HomePage = () => {
             />
           </NavLink>
         </div>
-        <Post />
       </main>
       <div className="hidden md:flex h-productItem bg-red-800 mt-12 w-full flex-col items-center">
         <div>

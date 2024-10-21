@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { logoutAPI } from '~/APIs';
+import { useSwalWithConfirm } from './useSwal';
 
 export default function useCheckAuth() {
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -12,11 +13,23 @@ export default function useCheckAuth() {
   }, []);
 
   const logout = useCallback(() => {
-    localStorage.removeItem('token');
-    setIsAuthenticated(false);
-    window.location.reload();
-    logoutAPI();
-  }, []);
+    useSwalWithConfirm
+      .fire({
+        title: 'Bạn có chắc chắn muốn đăng xuất?',
+        text: 'Hành động này sẽ đăng xuất bạn khỏi hệ thống.',
+        icon: 'warning',
+        confirmButtonText: 'Đăng xuất',
+        cancelButtonText: 'Hủy',
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          localStorage.removeItem('token');
+          setIsAuthenticated(false);
+          logoutAPI();
+          window.location.href = '/';
+        }
+      });
+  }, [setIsAuthenticated, logoutAPI]);
 
   const checkAuth = useCallback(() => {
     const token = localStorage.getItem('token');
