@@ -9,6 +9,7 @@ import PostPage from '~/pages/Post';
 import PostDetail from '~/pages/Post/PostDetail';
 import ProductPage from '~/pages/Products';
 import SearchPage from '~/pages/Search';
+import TrackingOrderPage from '~/pages/TrackingOrder';
 
 const MainRoutes = {
   path: '/',
@@ -80,6 +81,15 @@ const MainRoutes = {
         {
           path: 'xac-nhan',
           element: <CheckoutConfirm />,
+        },
+      ],
+    },
+    {
+      path: 'theo-doi-don-hang',
+      children: [
+        {
+          path: '',
+          element: <TrackingOrderPage />,
         },
       ],
     },
