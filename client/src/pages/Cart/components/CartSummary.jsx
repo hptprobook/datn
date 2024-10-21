@@ -1,18 +1,73 @@
 import { useCart } from 'react-use-cart';
 import { formatCurrencyVND } from '~/utils/formatters';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCartContext } from '~/context/CartContext';
+import { useSwal } from '~/customHooks/useSwal';
+import { checkStockProducts } from '~/APIs';
+import { useMutation } from '@tanstack/react-query';
+import { useState } from 'react';
 
 const CartSummary = () => {
-  const { cartTotal, items } = useCart();
+  const { items } = useCart();
   const navigate = useNavigate();
-  const { selectedItems } = useCartContext();
+  const [isDebouncing, setIsDebouncing] = useState(false);
+  const { selectedItems, selectedTotal, setStockErrors } = useCartContext();
+
+  const { mutate: checkStock } = useMutation({
+    mutationFn: checkStockProducts,
+    checkStockProducts,
+    onSuccess: (data) => {
+      const insufficientStock = data.filter((product) => !product.success);
+      if (insufficientStock.length > 0) {
+        setStockErrors(insufficientStock);
+        useSwal.fire({
+          title: 'Lỗi!',
+          text: 'Số lượng sản phẩm không hợp lệ, vui lòng kiểm tra lại!',
+          icon: 'error',
+          confirmButtonText: 'Xác nhận',
+        });
+      } else {
+        navigate('/thanh-toan', {
+          state: {
+            selectedProducts: items.filter((item) =>
+              selectedItems.includes(item.id)
+            ),
+          },
+        });
+      }
+    },
+    onError: () => {
+      useSwal.fire({
+        title: 'Lỗi!',
+        text: 'Có lỗi xảy ra, vui lòng thử lại!',
+        icon: 'error',
+        confirmButtonText: 'Xác nhận',
+      });
+    },
+  });
 
   const handleCheckout = () => {
+    if (isDebouncing) return;
+    setIsDebouncing(true);
+
     const selectedProducts = items.filter((item) =>
       selectedItems.includes(item.id)
     );
-    navigate('/thanh-toan', { state: { selectedProducts } });
+    if (selectedProducts.length > 0) {
+      checkStock(selectedProducts);
+
+      setTimeout(() => {
+        setIsDebouncing(false);
+      }, 1500);
+    } else {
+      useSwal.fire({
+        title: 'Thông báo',
+        text: 'Bạn chưa chọn sản phẩm nào để thanh toán!',
+        icon: 'warning',
+        confirmButtonText: 'OK',
+      });
+      setIsDebouncing(false);
+    }
   };
 
   return (
@@ -26,21 +81,24 @@ const CartSummary = () => {
         <p className="text-xl font-semibold text-gray-900 text-center">
           Tổng giá trị đơn hàng
         </p>
-        <p className="text-4xl font-semibold text-red-600 text-center under">
-          {formatCurrencyVND(cartTotal)}
+        <p className="text-4xl font-semibold text-red-600 text-center">
+          {formatCurrencyVND(selectedTotal)}
         </p>
 
         <button
-          className="btn bg-red-600 text-lg font-bold hover:bg-red-700 hover:text-white text-white rounded-md w-full h-12"
+          className={`btn bg-red-600 text-lg font-bold hover:bg-red-700 hover:text-white text-white rounded-md w-full h-12 ${
+            isDebouncing ? 'disabled' : ''
+          }`}
           onClick={handleCheckout}
+          disabled={isDebouncing}
         >
           Thanh toán
         </button>
 
         <div className="flex items-center justify-center gap-2">
           <span className="text-sm font-normal text-gray-500"> hoặc </span>
-          <a
-            href="#"
+          <Link
+            to="/"
             title=""
             className="inline-flex items-center gap-2 text-sm font-medium text-gray-700 underline hover:no-underline hover:text-red-600"
           >
@@ -60,7 +118,7 @@ const CartSummary = () => {
                 d="M19 12H5m14 0-4 4m4-4-4-4"
               />
             </svg>
-          </a>
+          </Link>
         </div>
       </div>
     </div>

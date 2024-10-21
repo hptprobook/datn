@@ -3,6 +3,7 @@ import { ObjectId } from 'mongodb';
 import {
     SAVE_CUSTOMER_GROUP,
     UPDATE_CUSTOMER_GROUP,
+    UPDATE_USER_CUSTOMER_GROUP,
 } from '~/utils/schema/CustomerGroupSchema';
 
 const validateBeforeCreate = async (data) => {
@@ -22,48 +23,9 @@ const getAllCG = async (page, limit) => {
     return result;
 };
 
-const findBlogByID = async (id) => {
-    const db = await GET_DB().collection('blogs');
-    const result = await db.findOne({ _id: new ObjectId(id) });
-    return result;
-};
-
-const findBlogAuthID = async (authID, page, limit) => {
-    page = parseInt(page) || 1;
-    limit = parseInt(limit) || 12;
-    const db = await GET_DB().collection('blogs');
-    const result = await db
-        .find({ authID: new ObjectId(authID) })
-        .skip((page - 1) * limit)
-        .limit(limit)
-        .toArray();
-    return result;
-};
-const findBlogByStatus = async (status, page, limit) => {
-    page = parseInt(page) || 1;
-    limit = parseInt(limit) || 12;
-    const db = await GET_DB().collection('blogs');
-    const result = await db
-        .find({ status })
-        .skip((page - 1) * limit)
-        .limit(limit)
-        .toArray();
-    return result;
-};
-const findBlogBySlug = async (slug) => {
-    const db = await GET_DB().collection('blogs');
-    const result = await db.findOne({ slug });
-    return result;
-};
-const findBlogByTitle = async (title, page, limit) => {
-    page = parseInt(page) || 1;
-    limit = parseInt(limit) || 12;
-    const db = await GET_DB().collection('blogs');
-    const result = await db
-        .find({ title: { $regex: title, $options: 'i' } })
-        .skip((page - 1) * limit)
-        .limit(limit)
-        .toArray();
+const findOneCG = async (idCG) => {
+    const db = await GET_DB().collection('customerGroup');
+    const result = await db.findOne({ _id: new ObjectId(idCG) });
     return result;
 };
 
@@ -81,10 +43,10 @@ const validateBeforeUpdate = async (data) => {
     });
 };
 
-const updateBlog = async (id, dataBlog) => {
-    const data = await validateBeforeUpdate(dataBlog);
+const updateCG = async (id, dataCG) => {
+    const data = await validateBeforeUpdate(dataCG);
     const db = await GET_DB();
-    const collection = db.collection('blogs');
+    const collection = db.collection('customerGroup');
     const result = await collection.findOneAndUpdate(
         { _id: new ObjectId(id) },
         { $set: data },
@@ -93,68 +55,68 @@ const updateBlog = async (id, dataBlog) => {
     return result;
 };
 
-const validateBeforeUpdateComment = async (data) => {
-    return await UPDATE_CUSTOMER_GROUP.validateAsync(data, {
+const validateBeforeAddCustomer = async (data) => {
+    return await UPDATE_USER_CUSTOMER_GROUP.validateAsync(data, {
         abortEarly: false,
     });
 };
-// comment
-const updateComment = async (id, dataComment) => {
-    const data = await validateBeforeUpdateComment(dataComment);
-    const newData = { ...data, userId: new ObjectId(data.userId) };
+// List customer
+const addUsersCG = async (id, listUser) => {
+    const data = await validateBeforeAddCustomer(listUser);
+    const newData = data.map((user) => ({
+        ...user,
+        id: new ObjectId(user.id),
+    }));
     const db = await GET_DB();
-    const collection = db.collection('blogs');
+    const collection = db.collection('customerGroup');
     const result = await collection.findOneAndUpdate(
         { _id: new ObjectId(id) },
-        { $push: { comments: newData } },
+        { $push: { listCustomer: { $each: newData } } },
         { returnDocument: 'after' }
     );
     return result;
 };
-const delComment = async (id, commentId) => {
+
+const delCustomers = async (id, listUser) => {
     const db = await GET_DB();
-    const collection = db.collection('blogs');
+    const collection = db.collection('customerGroup');
+    const data = await validateBeforeAddCustomer(listUser);
+    const newData = data.map((user) => ({
+        ...user,
+        id: new ObjectId(user.id),
+    }));
     const result = await collection.updateOne(
         { _id: new ObjectId(id) },
-        { $pull: { comments: { commentId: commentId } } },
+        { $pull: { listCustomer: { $in: newData } } },
         { returnDocument: 'after' }
     );
     return result;
 };
 
-const updateViews = async (id) => {
+const delOnceCustomer = async (id, idUser) => {
     const db = await GET_DB();
-    const collection = db.collection('blogs');
-    const result = await collection.findOneAndUpdate(
+    const collection = db.collection('customerGroup');
+    const newId = new ObjectId(idUser);
+    const result = await collection.updateOne(
         { _id: new ObjectId(id) },
-        {
-            $inc: {
-                views: 1,
-            },
-        },
+        { $pull: { listCustomer: { id: newId } } },
         { returnDocument: 'after' }
     );
     return result;
 };
-
-const deleteBlog = async (id) => {
-    const db = GET_DB().collection('blogs');
-    const result = await db.deleteOne({ _id: new ObjectId(id) });
+const deleteCG = async (idCG) => {
+    const db = GET_DB().collection('customerGroup');
+    const result = await db.deleteOne({ _id: new ObjectId(idCG) });
     return result;
 };
 
 export const customerGroupModel = {
     getAllCG,
     createCG,
-
-    updateBlog,
-    deleteBlog,
-    findBlogByID,
-    updateViews,
-    findBlogBySlug,
-    findBlogByStatus,
-    findBlogAuthID,
-    updateComment,
-    delComment,
-    findBlogByTitle,
+    updateCG,
+    deleteCG,
+    findOneCG,
+    addUsersCG,
+    delCustomers,
+    delOnceCustomer,
 };

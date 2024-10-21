@@ -4,10 +4,15 @@ import {
   SAVE_USER_SCHEMA,
   UPDATE_USER,
   INFOR_USER,
+  SEND_NOTIFIES,
 } from '~/utils/schema/userSchema';
 
 const validateBeforeUpdateInfor = async (data) => {
   return await INFOR_USER.validateAsync(data, { abortEarly: false });
+};
+
+const validateBeforeSendNotifies = async (data) => {
+  return await SEND_NOTIFIES.validateAsync(data, { abortEarly: false });
 };
 
 const validateBeforeCreate = async (data) => {
@@ -240,6 +245,35 @@ const updateInfor = async (id, data) => {
   return result;
 };
 
+const sendNotifies = async (data) => {
+  const { userId, ...otherData } = data;
+
+  const status = otherData.status[otherData.status.length - 1];
+
+  const dataValidate = await validateBeforeSendNotifies([status]);
+
+  const result = await GET_DB()
+    .collection('users')
+    .findOneAndUpdate(
+      { _id: userId },
+      {
+        $push: {
+          notifies: {
+            _id: otherData._id,
+            status: dataValidate[0].status,
+            type: otherData.type,
+            note: dataValidate[0].note,
+            createdAt: dataValidate[0].createdAt,
+            updatedAt: dataValidate[0].updatedAt,
+          },
+        },
+      },
+      { returnDocument: 'after' }
+    );
+  delete result.password;
+  return result;
+};
+
 export const userModel = {
   getUserAll,
   register,
@@ -255,4 +289,5 @@ export const userModel = {
   getView,
   viewProduct,
   updateInfor,
+  sendNotifies,
 };

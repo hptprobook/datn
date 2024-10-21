@@ -3,10 +3,10 @@
 import { StatusCodes } from 'http-status-codes';
 import { customerGroupModel } from '~/models/CustomerGroupModel';
 import { v4 as uuidv4 } from 'uuid';
-const getAllBlogs = async (req, res) => {
+const getAllCG = async (req, res) => {
     try {
         const { limit, page } = req.query;
-        const blogs = await customerGroupModel.getAllBlogs(page, limit);
+        const blogs = await customerGroupModel.getAllCG(page, limit);
         return res.status(StatusCodes.OK).json(blogs);
     } catch (error) {
         return res
@@ -32,59 +32,11 @@ const findByStatus = async (req, res) => {
     }
 };
 
-const findBlogByID = async (req, res) => {
+const findOneCG = async (req, res) => {
     try {
-        const { blogID } = req.params;
-        const blog = await customerGroupModel.findBlogByID(blogID);
-        return res.status(StatusCodes.OK).json(blog);
-    } catch (error) {
-        return res
-            .status(StatusCodes.BAD_REQUEST)
-            .json('Có lỗi xảy ra xin thử lại sau');
-    }
-};
-const findBlogByAuthID = async (req, res) => {
-    try {
-        const { limit, page } = req.query;
-        const { authID } = req.params;
-        const blogs = await customerGroupModel.findBlogAuthID(
-            authID,
-            page,
-            limit
-        );
-        return res.status(StatusCodes.OK).json(blogs);
-    } catch (error) {
-        return res
-            .status(StatusCodes.BAD_REQUEST)
-            .json('Có lỗi xảy ra xin thử lại sau');
-    }
-};
-const findBlogBySlug = async (req, res) => {
-    try {
-        const { slug } = req.params;
-        const blog = await customerGroupModel.findBlogBySlug(slug);
-        return res.status(StatusCodes.OK).json(blog);
-    } catch (error) {
-        return res
-            .status(StatusCodes.BAD_REQUEST)
-            .json('Có lỗi xảy ra xin thử lại sau');
-    }
-};
-const findBlogByTitle = async (req, res) => {
-    try {
-        const { limit, page, title } = req.query;
-        // const {} = req.body;
-        if (!title) {
-            return res
-                .status(StatusCodes.BAD_REQUEST)
-                .json({ message: 'Thiếu thông tin tiêu đề' });
-        }
-        const blog = await customerGroupModel.findBlogByTitle(
-            title,
-            page,
-            limit
-        );
-        return res.status(StatusCodes.OK).json(blog);
+        const { idCG } = req.params;
+        const result = await customerGroupModel.findOneCG(idCG);
+        return res.status(StatusCodes.OK).json(result);
     } catch (error) {
         return res
             .status(StatusCodes.BAD_REQUEST)
@@ -94,8 +46,24 @@ const findBlogByTitle = async (req, res) => {
 
 const createCG = async (req, res) => {
     try {
+        const { auto } = req.body;
+        if (auto && auto.length > 0) {
+            const newAuto = auto.map((i) => ({
+                ...i,
+                id: uuidv4(),
+            }));
+            const dataCG = { ...req.body, auto: newAuto };
+            const result = await customerGroupModel.createCG(dataCG);
+            return res.status(StatusCodes.BAD_REQUEST).json(result);
+        }
+
         const dataCG = req.body;
         const result = await customerGroupModel.createCG(dataCG);
+        if (result.acknowledged) {
+            return res
+                .status(StatusCodes.OK)
+                .json({ message: 'Tạo nhóm khách hàng thành công' });
+        }
         return res.status(StatusCodes.BAD_REQUEST).json(result);
     } catch (error) {
         if (error.details) {
@@ -107,36 +75,121 @@ const createCG = async (req, res) => {
     }
 };
 
-// const deleteBlog = async (req, res) => {
-//     try {
-//         const { blogID } = req.params;
-//         const blog = await customerGroupModel.findBlogByID(blogID);
-//         if (!blog) {
-//             return res
-//                 .status(StatusCodes.BAD_REQUEST)
-//                 .json({ message: 'Blog không tồn tại' });
-//         }
-//         const dataDel = await customerGroupModel.deleteBlog(blogID);
-//         if (dataDel.acknowledged) {
-//             await uploadModel.deleteImg(blog.thumbnail);
-//             return res
-//                 .status(StatusCodes.OK)
-//                 .json({ message: 'Xoá dữ liệu blog thành công' });
-//         }
-//     } catch (error) {
-//         return res
-//             .status(StatusCodes.BAD_REQUEST)
-//             .json({ message: 'Có lỗi xảy ra xin thử lại sau', error });
-//     }
-// };
+const updateCG = async (req, res) => {
+    try {
+        const { idCG } = req.params;
+        const { auto } = req.body;
+        if (auto && auto.length > 0) {
+            const newAuto = auto.map((i) => ({
+                ...i,
+                id: uuidv4(),
+            }));
+            const dataCG = { ...req.body, auto: newAuto };
+            const result = await customerGroupModel.updateCG(idCG, dataCG);
+            return res.status(StatusCodes.BAD_REQUEST).json(result);
+        }
+
+        const dataCG = req.body;
+        const result = await customerGroupModel.updateCG(idCG, dataCG);
+        return res.status(StatusCodes.BAD_REQUEST).json(result);
+    } catch (error) {
+        if (error.details) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                messages: error.details[0].message,
+            });
+        }
+        return res.status(StatusCodes.BAD_REQUEST).json(error);
+    }
+};
+
+const adCustomerCG = async (req, res) => {
+    try {
+        const { idCG } = req.params;
+        const dataCustomerCG = req.body;
+        const result = await customerGroupModel.addUsersCG(
+            idCG,
+            dataCustomerCG
+        );
+        return res.status(StatusCodes.BAD_REQUEST).json(result);
+    } catch (error) {
+        if (error.details) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                messages: error.details[0].message,
+            });
+        }
+        return res.status(StatusCodes.BAD_REQUEST).json(error);
+    }
+};
+const removeUserCG = async (req, res) => {
+    try {
+        const { idCG } = req.params;
+        const dataCustomerCG = req.body;
+        const result = await customerGroupModel.delCustomers(
+            idCG,
+            dataCustomerCG
+        );
+        if (result.acknowledged) {
+            return res
+                .status(StatusCodes.OK)
+                .json({ message: 'Xóa danh sách khách hàng thành công' });
+        }
+        return res.status(StatusCodes.BAD_REQUEST).json(result);
+    } catch (error) {
+        if (error.details) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                messages: error.details[0].message,
+            });
+        }
+        return res.status(StatusCodes.BAD_REQUEST).json(error);
+    }
+};
+
+const removeOneUserCG = async (req, res) => {
+    try {
+        const { idCG } = req.params;
+        const { idUser } = req.body;
+
+        const result = await customerGroupModel.delOnceCustomer(idCG, idUser);
+        if (result.acknowledged) {
+            return res
+                .status(StatusCodes.OK)
+                .json({ message: 'Xóa khách hàng thành công' });
+        }
+        return res.status(StatusCodes.BAD_REQUEST).json(result);
+    } catch (error) {
+        if (error.details) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                messages: error.details[0].message,
+            });
+        }
+        return res.status(StatusCodes.BAD_REQUEST).json(error);
+    }
+};
+
+const deleteCG = async (req, res) => {
+    try {
+        const { idCG } = req.params;
+        const result = await customerGroupModel.deleteCG(idCG);
+        if (result.acknowledged) {
+            return res
+                .status(StatusCodes.OK)
+                .json({ message: 'Xoá dữ liệu nhóm khách hàng thành công' });
+        }
+        return res.status(StatusCodes.BAD_REQUEST).json(result);
+    } catch (error) {
+        return res
+            .status(StatusCodes.BAD_REQUEST)
+            .json({ message: 'Có lỗi xảy ra xin thử lại sau', error });
+    }
+};
 
 export const customerGroupController = {
     createCG,
-
-    getAllBlogs,
-    findBlogByID,
-    findBlogBySlug,
-    findByStatus,
-    findBlogByAuthID,
-    findBlogByTitle,
+    getAllCG,
+    updateCG,
+    deleteCG,
+    findOneCG,
+    adCustomerCG,
+    removeUserCG,
+    removeOneUserCG,
 };

@@ -11,6 +11,7 @@ import suppliersReducer from "./slices/supplierSlices";
 import brandsReducer from "./slices/brandSlices";
 import warehousesReducer from "./slices/warehouseSlices";
 import blogsReducer from "./slices/blogSlice";
+import staffsReducer from "./slices/staffSlices";
 import webBannerReducer from "./slices/webBannerSlice";
 
 export const store = configureStore({
@@ -26,6 +27,7 @@ export const store = configureStore({
         brands: brandsReducer,
         warehouses: warehousesReducer,
         blogs: blogsReducer,
-        webBanners : webBannerReducer
+        webBanners : webBannerReducer,
+        staffs: staffsReducer,
     },
 });

@@ -1,5 +1,5 @@
 
-import { get, del, uploadBlog, updateBlog } from "src/utils/request";
+import { get, del, uploadOrUpdate } from "src/utils/request";
 /* eslint-disable */
 const BlogsService = {
   getAllBlogs: async () => {
@@ -27,7 +27,7 @@ const BlogsService = {
   },
   createBlog: async (data) => {
     try {
-      const res = await uploadBlog({
+      const res = await uploadOrUpdate({
         data,
         type: 'post',
         path: 'blogs',
@@ -40,8 +40,9 @@ const BlogsService = {
   },
   updateBlog: async (id, data) => {
     try {
-      const res = await updateBlog({
+      const res = await uploadOrUpdate({
         data,
+        isUpdate: true,
         path: `blogs/${id}`,
       });
       return res;

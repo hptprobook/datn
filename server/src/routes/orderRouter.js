@@ -2,7 +2,6 @@
 import express from 'express';
 import { orderController } from '~/controllers/orderController';
 
-
 import verifyToken from '~/middlewares/verifyToken';
 import { verifyToken as verifyStaff } from '~/middlewares/verifyRole';
 const Router = express.Router();
@@ -16,9 +15,9 @@ Router.get('/me/current', verifyToken, orderController.getCurrentOrder);
 Router.get('/', verifyStaff, orderController.getAllOrder);
 
 Router.post('/', verifyToken, orderController.addOrder);
-Router.put('/:id', verifyToken, orderController.updateOrder);
+Router.put('/:id', orderController.updateOrder);
 Router.delete('/:idOrder', verifyToken, orderController.removeOrder);
-Router.post('/check_stock', verifyToken, orderController.checkStockProducts);
+Router.post('/check_stock', orderController.checkStockProducts);
 Router.post('/update_stock', verifyToken, orderController.updateStockProducts);
 // not login
 Router.get('/not/:orderCode', orderController.findOrderByCode);

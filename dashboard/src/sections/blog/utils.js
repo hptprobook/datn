@@ -1,3 +1,7 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
+import parse from 'html-react-parser';
+import React from 'react';
+
 export const visuallyHidden = {
   border: 0,
   margin: -1,
@@ -36,6 +40,10 @@ export function getComparator(order, orderBy) {
 }
 
 export function applyFilter({ inputData, comparator, filterName }) {
+  if (!Array.isArray(inputData)) {
+    inputData = []; // Ensure inputData is an array
+  }
+
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {
@@ -48,9 +56,24 @@ export function applyFilter({ inputData, comparator, filterName }) {
 
   if (filterName) {
     inputData = inputData.filter(
-      (user) => user.name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1
+      (user) => user.title && user.title.toLowerCase().indexOf(filterName.toLowerCase()) !== -1
     );
   }
 
   return inputData;
 }
+
+export const parseContent = (content) => parse(content, {
+  replace: domNode => {
+    if (domNode.name === 'img') {
+      return React.createElement('img', {
+        src: domNode.attribs.src,
+        alt: domNode.attribs.alt || ''
+      });
+    }
+    if (domNode.type === 'text') {
+      return domNode.data;
+    }
+    return null;
+  }
+});

@@ -67,12 +67,10 @@ export const NavItem = ({
   parentActive,
 }) => {
   const handleClick = () => {
-    if (openMenu) {
-      if (item.child) {
-        onOpenChild();
-      } else {
-        navigate(item.path);
-      }
+    if (item.child && openMenu) {
+      onOpenChild();
+    } else {
+      navigate(item.path);
     }
   };
 
@@ -148,7 +146,7 @@ export const NavItem = ({
 };
 NavItem.propTypes = {
   item: PropTypes.object,
-  pathname: PropTypes.string,
+  pathname: PropTypes.any,
   navigate: PropTypes.func,
   openMenu: PropTypes.bool,
   iconShow: PropTypes.node,
@@ -191,7 +189,7 @@ function NavItems({ item, pathname, navigate, openMenu }) {
         <List component="div" disablePadding>
           {item.child.map((child) => (
             <ListItemButton
-              key={child.icon}
+              key={child.path}
               sx={{
                 p: 0,
                 pl: 4,
@@ -220,7 +218,7 @@ function NavItems({ item, pathname, navigate, openMenu }) {
 }
 NavItems.propTypes = {
   item: PropTypes.object,
-  pathname: PropTypes.string,
+  pathname: PropTypes.any,
   navigate: PropTypes.func,
   openMenu: PropTypes.bool,
 };

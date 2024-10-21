@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { useFormik } from 'formik';
+import { Helmet } from 'react-helmet-async';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { loginAuth } from '~/APIs';
 import AuthBanner from '~/components/Auth/AuthBanner';
@@ -12,6 +13,17 @@ import { handleToast } from '~/customHooks/useToast';
 import { loginSchema } from '~/utils/schema';
 
 const LoginPage = () => {
+  return (
+    <>
+      <Helmet>
+        <title>BMT Life | Đăng nhập </title>
+      </Helmet>
+      <LoginPageUI />
+    </>
+  );
+};
+
+const LoginPageUI = () => {
   const navigate = useNavigate();
   const { login } = useCheckAuth();
 
@@ -31,7 +43,10 @@ const LoginPage = () => {
         if (
           referrer &&
           !referrer.includes('/tai-khoan/dang-nhap') &&
-          !referrer.includes('/tai-khoan/dang-ky')
+          !referrer.includes('/tai-khoan/dang-ky') &&
+          !referrer.includes('/gio-hang') &&
+          !referrer.includes('/thanh-toan') &&
+          !referrer.includes('/thanh-toan/xac-nhan')
         ) {
           navigate(-1);
         } else {

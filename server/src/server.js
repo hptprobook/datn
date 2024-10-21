@@ -19,7 +19,12 @@ const START_SERVER = () => {
   app.use(cookieParser());
   app.use(
     cors({
-      origin: ['http://localhost:5173', 'http://localhost:3030'],
+      origin: [
+        'http://localhost:5173',
+        'http://localhost:3030',
+        'https://bmt-life.vercel.app',
+        'https://dashboard-bmt-life.vercel.app',
+      ],
       credentials: true,
     })
   );

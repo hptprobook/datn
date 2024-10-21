@@ -13,10 +13,16 @@ import { orderNotLoginApi } from '~/APIs/Orders/notLoginOrder';
 import { useSwal } from '~/customHooks/useSwal';
 import { v4 as uuidv4 } from 'uuid';
 import MainLoading from '~/components/common/Loading/MainLoading';
+import { useCart } from 'react-use-cart';
+import LoggedOrder from './components/LoggedOrder';
+import { Helmet } from 'react-helmet-async';
 
 const CheckoutPage = () => {
   return (
     <CheckoutProvider>
+      <Helmet>
+        <title>BMT Life | Thanh toán</title>
+      </Helmet>
       <CheckoutUI />
     </CheckoutProvider>
   );
@@ -29,6 +35,7 @@ const CheckoutUI = () => {
   const location = useLocation();
   const selectedProducts = location.state?.selectedProducts || [];
   const [shippingFee, setShippingFee] = useState(0);
+  const { removeItem } = useCart();
 
   useEffect(() => {
     if (selectedProducts.length === 0) {
@@ -48,6 +55,9 @@ const CheckoutUI = () => {
         'Đơn hàng của bạn đã được đặt thành công',
         'success'
       );
+      selectedProducts.forEach((product) => {
+        removeItem(product.id);
+      });
       navigate('/thanh-toan/xac-nhan', { state: { orderData: data } });
     },
     onError: () => {
@@ -115,7 +125,7 @@ const CheckoutUI = () => {
   }
 
   return (
-    <section className="bg-white py-8 antialiase md:py-16 max-w-container mx-auto">
+    <section className="max-w-container mx-auto mt-16 relative z-10">
       <form onSubmit={formik.handleSubmit} className="mx-auto px-4 2xl:px-0">
         <div className="flex justify-center mb-1 md:mb-12 pl-24">
           <CheckoutStepper currentStep={2} />
@@ -135,7 +145,7 @@ const CheckoutUI = () => {
             />
           </div>
         ) : (
-          <div>Giao diện thanh toán đã đăng nhập</div>
+          <LoggedOrder />
         )}
       </form>
     </section>

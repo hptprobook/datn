@@ -5,6 +5,7 @@ import { StatusCodes } from 'http-status-codes';
 import { ERROR_MESSAGES } from '~/utils/errorMessage';
 import { orderModel } from '~/models/orderModel';
 import { sendMail } from '~/utils/mail';
+import { userModel } from '~/models/userModel';
 const getAllOrder = async (req, res) => {
   try {
     const { page, limit } = req.query;
@@ -64,7 +65,6 @@ const addOrderNot = async (req, res) => {
         message: 'Hệ thống đang bận xin hãy thử lại sau',
       });
     }
-
     const result = await orderModel.addOrderNotLogin(dataOrder);
     const subject = 'Cảm ơn bạn đã đặt hàng tại Wow store';
     const html = `
@@ -137,6 +137,10 @@ const updateOrder = async (req, res) => {
       data.status = newStatus;
     }
     const dataOrder = await orderModel.updateOrder(id, data);
+    dataOrder.type = 'order';
+    if (dataOrder) {
+      await userModel.sendNotifies(dataOrder);
+    }
     return res.status(StatusCodes.OK).json(dataOrder);
   } catch (error) {
     console.log(error);
@@ -158,6 +162,7 @@ const checkStockProducts = async (req, res) => {
     }
 
     for (const {
+      id,
       productId,
       variantColor,
       variantSize,
@@ -177,27 +182,41 @@ const checkStockProducts = async (req, res) => {
 
         if (!product.length) {
           return {
-            id: item.productId,
+            success: false,
+            productId: item.productId,
+            name: item.name,
+            requestedQuantity: item.quantity,
+            availableQuantity: 0,
             message: `${item.name} đã ngưng bán hoặc có lỗi xảy ra`,
           };
         }
+
         const quantityProduct = product[0].variants[0].sizes[0].stock;
         if (quantityProduct < item.quantity) {
           return {
-            id: item.productId,
-            message: `${item.name} số lượng còn lại: ${quantityProduct}`,
+            id: item.id,
+            success: false,
+            productId: item.productId,
+            name: item.name,
+            requestedQuantity: item.quantity,
+            availableQuantity: quantityProduct,
+            type: `${item.variantColor} - ${item.variantSize}`,
           };
         }
 
-        return null;
+        return {
+          id: item.id,
+          success: true,
+          productId: item.productId,
+          name: item.name,
+          requestedQuantity: item.quantity,
+          availableQuantity: quantityProduct,
+          type: `${item.variantColor} - ${item.variantSize}`,
+        };
       })
     );
-    const filteredResults = results.filter((result) => result);
-    if (filteredResults.length > 0) {
-      return res.status(StatusCodes.BAD_REQUEST).json(filteredResults);
-    }
 
-    return res.status(StatusCodes.OK).json({ message: 'Có thể mua hàng' });
+    return res.status(StatusCodes.OK).json(results);
   } catch (error) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       message: ERROR_MESSAGES.ERR_AGAIN,

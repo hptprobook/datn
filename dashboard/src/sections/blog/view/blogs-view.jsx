@@ -12,7 +12,7 @@ import TablePagination from '@mui/material/TablePagination';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
-import { setStatus, fetchAllBlogs ,deleteBlogtById  } from 'src/redux/slices/blogSlice';
+import { setStatus, fetchAllBlogs ,fetchBlogById , deleteBlogtById  } from 'src/redux/slices/blogSlice';
 import { handleToast } from 'src/hooks/toast';
 
 import Iconify from 'src/components/iconify';
@@ -20,12 +20,13 @@ import Scrollbar from 'src/components/scrollbar';
 
 import ConfirmDelete from 'src/components/modal/confirm-delete';
 import LoadingFull from 'src/components/loading/loading-full';
-import { IconButton } from '@mui/material';
+import { Drawer, IconButton } from '@mui/material';
 import TableNoData from '../table-no-data';
 import BlogTableRow from '../blog-table-row';
 import BlogTableHead from '../blog-table-head';
 import TableEmptyRows from '../table-empty-rows';
 import BlogTableToolbar from '../blog-table-toolbar';
+import BlogCard from '../blog-card';
 
 import { emptyRows, applyFilter, getComparator } from '../utils';
 
@@ -45,10 +46,24 @@ export default function BlogView() {
   const statusDelete = useSelector((state) => state.blogs.statusDelete);
   const error = useSelector((state) => state.blogs.error);
   const [blogsList, setBlogsList] = React.useState([]);
+  const [open, setOpen] = React.useState(false);
+  const blog = useSelector((state) => state.blogs.blog);
 
   useEffect(() => {
     dispatch(fetchAllBlogs());
   }, [dispatch]);
+
+  const toggleDrawer = (value) => (event) => {
+    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+      return;
+    }
+    if (value) {
+      dispatch(fetchBlogById({ id: value }));
+    } else {
+      dispatch(setStatus({ key: 'blog', value: null }));
+    }
+    setOpen(!open);
+  };
   useEffect(() => {
     if (statusDelete === 'successful') {
       handleToast('success', 'Xóa bài viết thành công!');
@@ -157,6 +172,14 @@ export default function BlogView() {
         onClose={() => setConfirmMulti(false)}
         label="Những bài viết đã chọn"
       />
+      <Drawer anchor="right" open={open} onClose={toggleDrawer()}>
+      <BlogCard
+          status={status}
+          blog={blog}
+          author={blog?.authName}
+        />
+
+      </Drawer>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
       <Stack direction="row" alignItems="center">
       <Typography variant="h4">Bài viết</Typography>
@@ -210,6 +233,7 @@ export default function BlogView() {
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
                     <BlogTableRow
+                      onClick={toggleDrawer(row._id)}
                       id={row._id}
                       key={row._id}
                       title={row.title}

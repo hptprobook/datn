@@ -11,10 +11,13 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
+import { Box } from '@mui/material';
 
 const backendUrl = import.meta.env.VITE_BACKEND_APP_URL;
+
 export default function BlogTableRow({
   id,
+  onClick,
   selected,
   title,
   thumbnail,
@@ -26,54 +29,75 @@ export default function BlogTableRow({
   handleNavigate
 }) {
   const [open, setOpen] = useState(null);
-  
+
   const handleOpenMenu = (event) => {
+    event.stopPropagation();
     setOpen(event.currentTarget);
   };
 
   const handleCloseMenu = () => {
     setOpen(null);
   };
+
   const handleDelete = (idDelete) => {
     onDelete(idDelete);
     handleCloseMenu();
-  }
+  };
+
   return (
     <>
-      <TableRow hover tabIndex={-1} role="checkbox" selected={selected}>
+      <TableRow
+        hover
+        onClick={onClick}
+        sx={{ cursor: 'pointer' }}
+        tabIndex={-1}
+        role="checkbox"
+        selected={selected}
+      >
         <TableCell padding="checkbox">
-          <Checkbox disableRipple checked={selected} onChange={handleClick} />
+          <Checkbox
+            disableRipple
+            checked={selected}
+            onClick={(event) => event.stopPropagation()}
+            onChange={handleClick}
+          />
         </TableCell>
 
         <TableCell component="th" scope="row" padding="none">
           <Stack direction="row" alignItems="center" spacing={2}>
-          <Avatar alt={title} src={`${backendUrl}${thumbnail}`} />           
-           <Typography variant="subtitle2" noWrap>
-              {title}
-            </Typography>
+            <Avatar alt={title} src={`${backendUrl}${thumbnail}`} />
+            <Box sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <Typography variant="subtitle2" noWrap>
+                {title}
+              </Typography>
+            </Box>
           </Stack>
         </TableCell>
 
-        <TableCell>{slug}</TableCell>
-
-
+        <TableCell>
+          <Box sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <Typography variant="subtitle2" noWrap>
+              {slug}
+            </Typography>
+          </Box>
+        </TableCell>
         <TableCell>{authName}</TableCell>
 
         <TableCell>
           <Label
-          color={
-            (status === 'public' && 'success') ||
-            (status === 'private' && 'default') ||
-            (status === 'waiting' && 'warning') ||
-            (status === 'reject' && 'error') ||
-            'default'
-          }
-        >
-          {(status === 'public' && 'Công khai') ||
-           (status === 'private' && 'Riêng tư') ||
-           (status === 'waiting' && 'Chờ duyệt') ||
-           (status === 'reject' && 'Từ chối') ||
-           status}
+            color={
+              (status === 'public' && 'success') ||
+              (status === 'private' && 'default') ||
+              (status === 'waiting' && 'warning') ||
+              (status === 'reject' && 'error') ||
+              'default'
+            }
+          >
+            {(status === 'public' && 'Công khai') ||
+              (status === 'private' && 'Riêng tư') ||
+              (status === 'waiting' && 'Chờ duyệt') ||
+              (status === 'reject' && 'Từ chối') ||
+              status}
           </Label>
         </TableCell>
 
@@ -110,6 +134,7 @@ export default function BlogTableRow({
 
 BlogTableRow.propTypes = {
   id: PropTypes.any,
+  onClick: PropTypes.func,
   thumbnail: PropTypes.any,
   handleClick: PropTypes.func,
   handleNavigate: PropTypes.func,

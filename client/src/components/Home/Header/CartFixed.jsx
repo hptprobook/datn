@@ -183,23 +183,8 @@ const CartFixed = ({ open, setOpen }) => {
                         className="flex items-center justify-center rounded-md border border-transparent bg-red-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-red-700"
                         onClick={() => setOpen(false)}
                       >
-                        Thanh toán
+                        Xem giỏ hàng
                       </Link>
-                    </div>
-                    <div className="mt-6 flex justify-center text-center text-sm text-gray-500">
-                      <p>
-                        hoặc{' '}
-                        <NavLink to={'/gio-hang'}>
-                          <button
-                            type="button"
-                            className="font-medium text-indigo-600 hover:text-indigo-500"
-                            onClick={() => setOpen(false)}
-                          >
-                            Xem giỏ hàng của bạn
-                            <span aria-hidden="true"> &rarr;</span>
-                          </button>
-                        </NavLink>
-                      </p>
                     </div>
                   </div>
                 )}
