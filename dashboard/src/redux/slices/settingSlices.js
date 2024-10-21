@@ -145,9 +145,7 @@ const initialState = {
   statusCreate: 'idle',
   statusUpload: 'idle',
   statusUpdateWeb: 'idle',
-  statusUploadWeb: 'idle',
   statusUpdateSeo: 'idle',
-  statusUploadSeo: 'idle',
   statusSeo: 'idle',
   error: null,
 };
@@ -231,7 +229,7 @@ const settingSlices = createSlice({
         state.statusWeb = 'loading';
       })
       .addCase(getConfigWebsite.fulfilled, (state, action) => {
-        state.statusWeb = 'succeeded';
+        state.statusWeb = 'successful';
         state.web = action.payload;
       })
       .addCase(getConfigWebsite.rejected, (state, action) => {
@@ -242,7 +240,7 @@ const settingSlices = createSlice({
         state.statusUpdateWeb = 'loading';
       })
       .addCase(updateConfigWebsite.fulfilled, (state, action) => {
-        state.statusUpdateWeb = 'succeeded';
+        state.statusUpdateWeb = 'successful';
         state.web = action.payload;
       })
       .addCase(updateConfigWebsite.rejected, (state, action) => {
@@ -250,14 +248,14 @@ const settingSlices = createSlice({
         state.error = action.payload;
       })
       .addCase(uploadConfigWebsite.pending, (state) => {
-        state.statusUploadWeb = 'loading';
+        state.statusUpdateWeb = 'loading';
       })
       .addCase(uploadConfigWebsite.fulfilled, (state, action) => {
-        state.statusUploadWeb = 'succeeded';
+        state.statusUpdateWeb = 'successful';
         state.web = action.payload;
       })
       .addCase(uploadConfigWebsite.rejected, (state, action) => {
-        state.statusUploadWeb = 'failed';
+        state.statusUpdateWeb = 'failed';
         state.error = action.payload;
       })
       .addCase(getConfigSeo.pending, (state) => {
@@ -265,7 +263,7 @@ const settingSlices = createSlice({
       }
       )
       .addCase(getConfigSeo.fulfilled, (state, action) => {
-        state.statusSeo = 'succeeded';
+        state.statusSeo = 'successful';
         state.seo = action.payload;
       }
       )
@@ -279,7 +277,7 @@ const settingSlices = createSlice({
       }
       )
       .addCase(updateConfigSeo.fulfilled, (state, action) => {
-        state.statusUpdateSeo = 'succeeded';
+        state.statusUpdateSeo = 'successful';
         state.seo = action.payload;
       }
       )
@@ -289,16 +287,16 @@ const settingSlices = createSlice({
       }
       )
       .addCase(uploadConfigSeo.pending, (state) => {
-        state.statusUploadSeo = 'loading';
+        state.statusUpdateSeo = 'loading';
       }
       )
       .addCase(uploadConfigSeo.fulfilled, (state, action) => {
-        state.statusUploadSeo = 'succeeded';
+        state.statusUpdateSeo = 'successful';
         state.seo = action.payload;
       }
       )
       .addCase(uploadConfigSeo.rejected, (state, action) => {
-        state.statusUploadSeo = 'failed';
+        state.statusUpdateSeo = 'failed';
         state.error = action.payload;
       }
       )
