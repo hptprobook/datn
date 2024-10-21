@@ -47,18 +47,7 @@ const BlogCard = ({ status, blog, author }) => {
                 image={renderUrl(blog?.thumbnail, backendUrl)}
                 alt="blog thumbnail"
               />
-              <Box
-                sx={{
-                  position: 'absolute',
-                  bottom: 12,
-                  right: 12,
-                }}
-              >
-                <Stack direction="row" justifyItems="center" spacing={1}>
-                  <Typography variant="body2">{blog?.views}</Typography>
-                  <Iconify icon="eva:eye-fill" />
-                </Stack>
-              </Box>
+          
             </Box>
             <Stack direction="column" spacing={2} mt={2} mb={2}>
               <Typography gutterBottom variant="h5" component="div">
