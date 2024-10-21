@@ -1,11 +1,11 @@
-import { get, del,  uploadWebBanner ,updateWebBanner } from 'src/utils/request';
+import { get, del,  uploadOrUpdate  } from 'src/utils/request';
 /* eslint-disable */
 
-const WebBannerServices = {
+const WebBannerService = {
   getAll: async () => await get('web-banner'),
   create: async (data) => {
     try {
-      const res = await uploadWebBanner({
+      const res = await uploadOrUpdate({
         data,
         type: 'post',
         path: 'web-banner',
@@ -36,8 +36,9 @@ const WebBannerServices = {
   },
   update: async ({ data, id }) => {
     try {
-      const res = await updateWebBanner({
+      const res = await uploadOrUpdate({
         data,
+        isUpdate: true,
         path: `web-banner/${id}`,
       });
       return res;
@@ -48,4 +49,4 @@ const WebBannerServices = {
   },
 };
 
-export default WebBannerServices;
+export default WebBannerService;

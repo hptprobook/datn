@@ -5,6 +5,7 @@ import { StatusCodes } from 'http-status-codes';
 import { ERROR_MESSAGES } from '~/utils/errorMessage';
 import { orderModel } from '~/models/orderModel';
 import { sendMail } from '~/utils/mail';
+import { userModel } from '~/models/userModel';
 const getAllOrder = async (req, res) => {
   try {
     const { page, limit } = req.query;
@@ -64,7 +65,6 @@ const addOrderNot = async (req, res) => {
         message: 'Hệ thống đang bận xin hãy thử lại sau',
       });
     }
-
     const result = await orderModel.addOrderNotLogin(dataOrder);
     const subject = 'Cảm ơn bạn đã đặt hàng tại Wow store';
     const html = `
@@ -137,6 +137,9 @@ const updateOrder = async (req, res) => {
       data.status = newStatus;
     }
     const dataOrder = await orderModel.updateOrder(id, data);
+    if (dataOrder) {
+      await userModel.sendNotifies(dataOrder);
+    }
     return res.status(StatusCodes.OK).json(dataOrder);
   } catch (error) {
     console.log(error);

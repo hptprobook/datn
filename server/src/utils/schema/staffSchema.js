@@ -70,18 +70,19 @@ export const CREATE_STAFF_SCHEMA = Joi.object({
     bankName: Joi.string().max(50).messages({
         'string.max': 'Tên ngân hàng không được vượt quá 50 ký tự'
     }),
+    avatar: Joi.string().default(null),
     bankHolder: Joi.string().max(50).messages({
         'string.max': 'Chủ tài khoản không được vượt quá 50 ký tự'
     }),
     salaryType: Joi.string()
-        .valid('hourly', 'monthly', 'product', 'contract')
+        .valid('hourly', 'monthly', 'product', 'daily', 'customer', 'contract')
         .default('hourly')
         .messages({
             'any.only': 'Loại lương không hợp lệ'
         }),
     salary: Joi.number().default(0),
-    address: Joi.string().max(50).messages({
-        'string.max': 'Địa chỉ không được vượt quá 50 ký tự'
+    address: Joi.string().max(255).messages({
+        'string.max': 'Địa chỉ không được vượt quá 255 ký tự'
     }),
     refreshToken: Joi.string().default(null),
     phone: Joi.string()
@@ -94,6 +95,7 @@ export const CREATE_STAFF_SCHEMA = Joi.object({
             'string.min': 'Số điện thoại phải có ít nhất 10 ký tự',
             'string.max': 'Số điện thoại không được vượt quá 15 ký tự',
         }),
+    lastLogin: Joi.date().timestamp('javascript').default(null),
     role: Joi.string()
         .valid('root', 'admin', 'staff', 'ban')
         .messages({
@@ -114,6 +116,12 @@ export const UPDATE_STAFF_SCHEMA = Joi.object({
             'string.min': 'Tên phải có ít nhất 1 ký tự',
             'string.max': 'Tên không được vượt quá 30 ký tự',
         }),
+    avatar: Joi.string().max(255)
+        .messages({
+            'string.max': 'Đường dẫn ảnh không được vượt quá 255 ký tự',
+            'string.base': 'Đường dẫn ảnh không hợp lệ'
+        }),
+
     staffCode: Joi.string()
         .trim()
         .min(4)
@@ -154,6 +162,7 @@ export const UPDATE_STAFF_SCHEMA = Joi.object({
         }),
     bankAccount: Joi.string()
         .pattern(/^[0-9]+$/)
+        .allow(null)
         .min(10)
         .max(20)
         .messages({
@@ -161,20 +170,20 @@ export const UPDATE_STAFF_SCHEMA = Joi.object({
             'string.min': 'Số tài khoản ngân hàng phải có ít nhất 10 ký tự',
             'string.max': 'Số tài khoản ngân hàng không được vượt quá 20 ký tự',
         }),
-    bankName: Joi.string().max(50).messages({
+    bankName: Joi.string().max(50).allow(null).messages({
         'string.max': 'Tên ngân hàng không được vượt quá 50 ký tự'
     }),
-    bankHolder: Joi.string().max(50).messages({
+    bankHolder: Joi.string().max(50).allow(null).messages({
         'string.max': 'Chủ tài khoản không được vượt quá 50 ký tự'
     }),
     salaryType: Joi.string()
-        .valid('hourly', 'monthly', 'product', 'contract')
+        .valid('hourly', 'monthly', 'product', 'daily', 'customer', 'contract')
         .messages({
             'any.only': 'Loại lương không hợp lệ'
         }),
-    salary: Joi.number().default(0),
-    address: Joi.string().max(50).messages({
-        'string.max': 'Địa chỉ không được vượt quá 50 ký tự'
+    salary: Joi.number(),
+    address: Joi.string().max(255).messages({
+        'string.max': 'Địa chỉ không được vượt quá 255 ký tự'
     }),
     refreshToken: Joi.string().default(null),
     phone: Joi.string()
@@ -205,6 +214,11 @@ export const UPDATE_ME_SCHEMA = Joi.object({
             'string.empty': 'Tên không được để trống',
             'string.min': 'Tên phải có ít nhất 1 ký tự',
             'string.max': 'Tên không được vượt quá 30 ký tự',
+        }),
+    avatar: Joi.string().max(255)
+        .messages({
+            'string.max': 'Đường dẫn ảnh không được vượt quá 255 ký tự',
+            'string.base': 'Đường dẫn ảnh không hợp lệ'
         }),
     email: Joi.string()
         .email()
@@ -243,16 +257,11 @@ export const UPDATE_ME_SCHEMA = Joi.object({
     bankHolder: Joi.string().max(50).messages({
         'string.max': 'Chủ tài khoản không được vượt quá 50 ký tự'
     }),
-    salaryType: Joi.string()
-        .valid('hourly', 'monthly', 'product', 'contract')
-        .messages({
-            'any.only': 'Loại lương không hợp lệ'
-        }),
-    salary: Joi.number().default(0),
-    address: Joi.string().max(50).messages({
-        'string.max': 'Địa chỉ không được vượt quá 50 ký tự'
+    address: Joi.string().max(255).messages({
+        'string.max': 'Địa chỉ không được vượt quá 255 ký tự'
     }),
-    refreshToken: Joi.string().allow(null).default(null),
+    refreshToken: Joi.string().allow(null),
+    lastLogin: Joi.date().timestamp('javascript'),
     phone: Joi.string()
         .pattern(/^[0-9]+$/)
         .min(10)

@@ -9,7 +9,7 @@ export default function CreateWebBannerPage() {
   return (
     <>
       <Helmet>
-        <title> Tạo Bảng quảng cáo</title>
+        <title> Tạo banner quảng cáo</title>
       </Helmet>
       <CreateWebBannerView />
     </>

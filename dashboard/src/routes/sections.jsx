@@ -4,6 +4,7 @@ import { Outlet, Navigate, useRoutes } from 'react-router-dom';
 import { Box, LinearProgress, linearProgressClasses } from '@mui/material';
 import DashboardLayout from 'src/layouts/dashboard';
 import AdminLayout from 'src/layouts/admin';
+import SettingLayout from 'src/layouts/settings';
 import { ProtectedRoute } from './components/dashboard-protected';
 import { configPath } from './utils';
 // ----------------------------------------------------------------------
@@ -24,12 +25,16 @@ export const Page404 = lazy(() => import('src/pages/page-not-found'));
 export const CategoryPage = lazy(() => import('src/pages/categories/category'));
 export const CreateCategoryPage = lazy(() => import('src/pages/categories/create'));
 export const EditCategoryPage = lazy(() => import('src/pages/categories/detail'));
-// config page
+// settings page
 export const NavDashboardPage = lazy(() => import('src/pages/settings/nav-dashboard'));
 export const NavDashboardCreatePage = lazy(() => import('src/pages/settings/create-nav'));
 export const NavUpdatePage = lazy(() => import('src/pages/settings/update-nav'));
 export const WebConfigPage = lazy(() => import('src/pages/settings/config/web-config'));
 export const SeoConfigPage = lazy(() => import('src/pages/settings/config/seo-config'));
+export const StaffsSettingPage = lazy(() => import('src/pages/settings/staffs'));
+export const StaffCreatePage = lazy(() => import('src/pages/settings/staffs/create'));
+export const StaffEditPage = lazy(() => import('src/pages/settings/staffs/edit'));
+
 // warehouse page
 export const WarehousePage = lazy(() => import('src/pages/warehouse/warehouse'));
 export const WarehouseCreatePage = lazy(() => import('src/pages/warehouse/create'));
@@ -115,7 +120,7 @@ export default function Router() {
       children: [
         {
           index: true,
-          element: <IndexAdminPage/>,
+          element: <IndexAdminPage />,
         },
         {
           path: 'products',
@@ -196,6 +201,60 @@ export default function Router() {
         {
           path: 'brands/:id',
           element: <BrandDetailPage />,
+        },
+        {
+          path: 'settings',
+          element: (
+            <SettingLayout>
+              <Outlet />
+            </SettingLayout>
+          ),
+          children: [
+            {
+              index: true,
+              element: (
+                <Box>
+                <p>Chức năng đăng được phát triển</p>
+              </Box> 
+              ),
+            },
+            {
+              path: 'branches',
+              element: (
+                <Box>
+                  <p>Chức năng đăng được phát triển</p>
+                </Box>
+              ),
+            },
+            {
+              path: 'staffs',
+              element: <StaffsSettingPage />,
+            },
+            {
+              path: 'staffs/create',
+              element: <StaffCreatePage />,
+            },
+            {
+              path: 'staffs/:id',
+              element: <StaffEditPage />,
+            },
+            {
+              path: 'notifications',
+              element: (
+                <Box>
+                  <p>Chức năng đăng được phát triển</p>
+                </Box>
+              ),
+            },
+            {
+              path: 'history',
+              element: (
+                <Box>
+                  <p>Chức năng đăng được phát triển</p>
+                </Box>
+              ),
+            },
+          ],
         },
       ],
     },
