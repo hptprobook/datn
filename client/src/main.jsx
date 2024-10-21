@@ -29,6 +29,7 @@ import { CartProvider } from 'react-use-cart';
 import { WishlistProvider } from './context/WishListContext';
 import '~/config/firebaseConfig';
 import { UserProvider } from './context/UserContext';
+import { HelmetProvider } from 'react-helmet-async';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -51,15 +52,17 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   // <React.StrictMode>
   <BrowserRouter basename="/">
     <QueryClientProvider client={queryClient}>
-      <CartProvider>
-        <WishlistProvider>
-          <UserProvider>
-            <ReactQueryDevtools initialIsOpen={false} />
-            <ToastContainer />
-            <App />
-          </UserProvider>
-        </WishlistProvider>
-      </CartProvider>
+      <HelmetProvider>
+        <CartProvider>
+          <WishlistProvider>
+            <UserProvider>
+              <ReactQueryDevtools initialIsOpen={false} />
+              <ToastContainer />
+              <App />
+            </UserProvider>
+          </WishlistProvider>
+        </CartProvider>
+      </HelmetProvider>
     </QueryClientProvider>
   </BrowserRouter>
   // </React.StrictMode>
