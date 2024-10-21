@@ -1,18 +1,29 @@
 import { useCart } from 'react-use-cart';
 import { formatCurrencyVND } from '~/utils/formatters';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCartContext } from '~/context/CartContext';
+import { useSwal } from '~/customHooks/useSwal';
 
 const CartSummary = () => {
-  const { cartTotal, items } = useCart();
+  const { items } = useCart();
   const navigate = useNavigate();
-  const { selectedItems } = useCartContext();
+  const { selectedItems, selectedTotal } = useCartContext();
 
   const handleCheckout = () => {
     const selectedProducts = items.filter((item) =>
       selectedItems.includes(item.id)
     );
-    navigate('/thanh-toan', { state: { selectedProducts } });
+
+    if (selectedProducts.length > 0) {
+      navigate('/thanh-toan', { state: { selectedProducts } });
+    } else {
+      useSwal.fire({
+        title: 'Thông báo',
+        text: 'Bạn chưa chọn sản phẩm nào để thanh toán!',
+        icon: 'warning',
+        confirmButtonText: 'OK',
+      });
+    }
   };
 
   return (
@@ -26,8 +37,8 @@ const CartSummary = () => {
         <p className="text-xl font-semibold text-gray-900 text-center">
           Tổng giá trị đơn hàng
         </p>
-        <p className="text-4xl font-semibold text-red-600 text-center under">
-          {formatCurrencyVND(cartTotal)}
+        <p className="text-4xl font-semibold text-red-600 text-center">
+          {formatCurrencyVND(selectedTotal)}
         </p>
 
         <button
@@ -39,8 +50,8 @@ const CartSummary = () => {
 
         <div className="flex items-center justify-center gap-2">
           <span className="text-sm font-normal text-gray-500"> hoặc </span>
-          <a
-            href="#"
+          <Link
+            to="/"
             title=""
             className="inline-flex items-center gap-2 text-sm font-medium text-gray-700 underline hover:no-underline hover:text-red-600"
           >
@@ -60,7 +71,7 @@ const CartSummary = () => {
                 d="M19 12H5m14 0-4 4m4-4-4-4"
               />
             </svg>
-          </a>
+          </Link>
         </div>
       </div>
     </div>
