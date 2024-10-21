@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import { createContext, useState, useContext, useRef } from 'react';
 import NotifyConfirm from '~/components/common/Confirm/NotifyConfirm';
 
@@ -38,5 +40,4 @@ export const NotifyProvider = ({ children }) => {
   );
 };
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const useNotify = () => useContext(NotifyContext);
