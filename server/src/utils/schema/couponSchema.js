@@ -26,12 +26,7 @@ export const CREATE_COUPONS = Joi.object({
             'any.required': 'Loại khuyến mãi là bắt buộc.',
         })
         .default('percent'),
-    applicableProducts: Joi.array()
-        .items(Joi.string().trim())
-        .messages({
-            'array.base': 'Sản phẩm áp dụng phải là một mảng.',
-        })
-        .default([]),
+        applicableProducts: Joi.array().default([]),
     minPurchasePrice: Joi.number().min(0).max(99999999).messages({
         'number.base': 'Giá trị mua tối thiểu phải là một số.',
         'number.min': 'Giá trị mua tối thiểu phải lớn hơn hoặc bằng {#limit}.',
@@ -117,9 +112,7 @@ export const UPDATE_COUPONS = Joi.object({
         'any.only':
             'Loại khuyến mãi phải là một trong các giá trị sau: percent, price, shipping',
     }),
-    applicableProducts: Joi.array().items(Joi.string().trim()).messages({
-        'array.base': 'Sản phẩm áp dụng phải là một mảng.',
-    }),
+    applicableProducts: Joi.array().default([]),
     minPurchasePrice: Joi.number().min(1).messages({
         'number.base': 'Giá trị mua tối thiểu phải là một số.',
         'number.min': 'Giá trị mua tối thiểu phải lớn hơn hoặc bằng {#limit}.',
@@ -129,9 +122,14 @@ export const UPDATE_COUPONS = Joi.object({
         'number.min':
             'Giá trị mua tối đa phải lớn hơn hoặc bằng giá trị mua tối thiểu.',
     }),
-    discountValue: Joi.number().min(1).messages({
+    discountValue: Joi.number().min(0).messages({
         'number.base': 'Giá trị khuyến mãi phải là một số.',
         'number.min': 'Giá trị khuyến mãi phải lớn hơn hoặc bằng {#limit}.',
+    }),
+    discountPercent: Joi.number().min(0).max(100).messages({
+        'number.base': 'Phần trăm khuyến mãi phải là một số.',
+        'number.min': 'Phần trăm khuyến mãi phải lớn hơn hoặc bằng {#limit}.',
+        'number.max': 'Phần trăm khuyến mãi không được vượt quá {#limit}.',
     }),
     description: Joi.string().trim().min(10).max(255).messages({
         'string.base': 'Mô tả khuyến mãi phải là một chuỗi văn bản.',

@@ -17,6 +17,11 @@ const getCoupons = async () => {
     .toArray();
   return result;
 };
+const getCouponsById = async (id) => {
+  const db = await GET_DB().collection('coupons');
+  const result = await db.findOne({ _id: new ObjectId(id) });
+  return result;
+}
 const findOneCoupons = async (code) => {
   const db = await GET_DB().collection('coupons');
   const result = await db.findOne({
@@ -98,4 +103,5 @@ export const couponModel = {
   findOneCoupons,
   deleteCoupon,
   deleteManyCoupons,
+  getCouponsById
 };
