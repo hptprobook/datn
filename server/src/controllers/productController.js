@@ -157,6 +157,7 @@ const createProduct = async (req, res) => {
       variants,
       price,
       slug,
+      seoOption,
     } = req.body;
 
     if (!req.files['thumbnail'] || !req.files['thumbnail'][0]) {
@@ -199,6 +200,7 @@ const createProduct = async (req, res) => {
     });
 
     const newTags = JSON.parse(tags);
+    const newSeoOption = JSON.parse(seoOption);
     const newProductType = JSON.parse(productType);
 
     const parsedVars = JSON.parse(variants);
@@ -208,7 +210,7 @@ const createProduct = async (req, res) => {
 
     const data = {
       cat_id,
-      name: name,
+      name,
       slug,
       price,
       description,
@@ -223,6 +225,7 @@ const createProduct = async (req, res) => {
       height,
       statusStock,
       productType: newProductType,
+      seoOption: newSeoOption,
     };
 
     const dataProduct = await productModel.createProduct(data);
@@ -267,6 +270,7 @@ const createProduct = async (req, res) => {
         uploadModel.deleteImgs(imageVariantsC);
       }
     }
+
     if (error.details) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         message: error.details[0].message,

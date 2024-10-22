@@ -94,6 +94,10 @@ export const SAVE_PRODUCT_SCHEMA = Joi.object({
             'string.empty': 'Sku không được để trống',
             'any.required': 'Sku là bắt buộc',
           }),
+          warehouseId: Joi.string().required().messages({
+            'string.base': 'ID nhà kho phải là một chuỗi.',
+            'any.required': 'ID nhà kho là bắt buộc.',
+          }),
           color: Joi.string().trim().min(1).required().messages({
             'string.empty': 'Màu sắc không được để trống',
             'any.required': 'Màu sắc là bắt buộc',
@@ -111,6 +115,17 @@ export const SAVE_PRODUCT_SCHEMA = Joi.object({
               stock: Joi.number().integer().required().messages({
                 'string.empty': 'Tồn kho không được để trống',
                 'any.required': 'Tồn kho là bắt buộc',
+              }),
+              sale: Joi.number().integer().required().messages({
+                'string.empty': 'Có thể bán không được để trống',
+                'any.required': 'Có thể bán là bắt buộc',
+              }),
+              trading: Joi.number().integer().default(0).messages({
+                'string.empty': 'Đang giao dịch không được để trống',
+              }),
+              sku: Joi.string().trim().min(1).required().messages({
+                'string.empty': 'Sku không được để trống',
+                'any.required': 'Sku là bắt buộc',
               }),
             })
           ),
