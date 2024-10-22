@@ -44,7 +44,7 @@ const ProductPage = () => {
   return (
     <section className="max-w-container mx-auto mt-16">
       <Helmet>
-        <title>BMT Life | {productInfo?.name}</title>
+        <title>BMT Life | {productInfo?.name || 'Chi tiết sản phẩm'}</title>
       </Helmet>
       <HeaderBC title={'Chi tiết sản phẩm'} name={productInfo?.name} />
 
