@@ -7,7 +7,7 @@ export default function AdminPage() {
   return (
     <>
       <Helmet>
-        <title> Trang quản lý </title>
+        <title>BMT Life - Trang quản lý </title>
       </Helmet>
 
       <AdminView />

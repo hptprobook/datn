@@ -27,7 +27,7 @@ export const createRefreshToken = (user, expiresIn = 15 * 60 * 60) => {
     return jwt.sign(dataToken, refresh_secret, { expiresIn });
 };
 export const createStaffToken = (user, type = 'token') => {
-    const expiresIn = type === 'token' ? 6 * 60 * 60 : 15 * 60 * 60;
+    const expiresIn = type === 'token' ? 6 * 60 * 60 : 30 * 24 * 60 * 60;
     const dataToken = {
         user_id: user._id,
         email: user.email,
