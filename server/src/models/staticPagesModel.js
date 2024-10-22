@@ -1,16 +1,13 @@
 import { GET_DB } from '~/config/mongodb';
 import { ObjectId } from 'mongodb';
-import { CREATE_STAFF_SCHEMA, UPDATE_ME_SCHEMA, UPDATE_STAFF_SCHEMA } from '~/utils/schema/staffSchema';
-import { CREATE_STATIC_PAGE_SCHEMA } from '~/utils/schema/staticPageSchema';
+import { STATIC_PAGE_SCHEMA } from '~/utils/schema/staticPageSchema';
 
 const validateBeforeCreate = async (data) => {
-  return await CREATE_STATIC_PAGE_SCHEMA.validateAsync(data, { abortEarly: false });
+  return await STATIC_PAGE_SCHEMA.validateAsync(data, { abortEarly: false });
 };
-const validateBeforeUpdate = async (data, type) => {
-  if (type === 'me') {
-    return await UPDATE_ME_SCHEMA.validateAsync(data, { abortEarly: false });
-  }
-  return await UPDATE_STAFF_SCHEMA.validateAsync(data, { abortEarly: false });
+const validateBeforeUpdate = async (data) => {
+
+  return await STATIC_PAGE_SCHEMA.validateAsync(data, { abortEarly: false });
 };
 
 const create = async (data) => {
@@ -20,19 +17,19 @@ const create = async (data) => {
   const result = await collection.insertOne(validData);
   return result;
 };
-const getStaffBy = async (by = 'email', value) => {
+const getBy = async (by = '_id', value) => {
   const db = await GET_DB();
   if (by === '_id') {
     value = new ObjectId(value);
   }
-  const collection = db.collection('staffs');
+  const collection = db.collection('staticPages');
   const staff = await collection.findOne({ [by]: value });
   return staff;
 }
-const updateStaff = async (id, dataStaff) => {
-  const validData = await validateBeforeUpdate(dataStaff, 'all');
+const update = async (id, data) => {
+  const validData = await validateBeforeUpdate(data);
   const db = await GET_DB();
-  const collection = db.collection('staffs');
+  const collection = db.collection('staticPages');
   const result = await collection.findOneAndUpdate(
     { _id: new ObjectId(id) },
     { $set: validData },
@@ -40,33 +37,22 @@ const updateStaff = async (id, dataStaff) => {
   );
   return result;
 }
-const deleteStaff = async (id) => {
+const remove = async (id) => {
   const db = await GET_DB();
-  const collection = db.collection('staffs');
+  const collection = db.collection('staticPages');
   const result = await collection.deleteOne({ _id: new ObjectId(id) });
   return result;
 }
-const updateMe = async (id, dataStaff) => {
-  const validData = await validateBeforeUpdate(dataStaff, 'me');
-  if (validData.lastLogin) {
-    validData.lastLogin = new Date(validData.lastLogin).getTime();
-  }
+
+const gets = async () => {
   const db = await GET_DB();
-  const collection = db.collection('staffs');
-  const result = await collection.updateOne({ _id: new ObjectId(id) }, { $set: validData });
-  return result;
-}
-const getStaffs = async () => {
-  const db = await GET_DB();
-  const collection = db.collection('staffs');
-  const staffs = await collection.find({}).toArray();
-  return staffs;
+  const collection = db.collection('staticPages');
+  return await collection.find({}).toArray();
 }
 export const staticPagesModel = {
   create,
-  getStaffBy,
-  getStaffs,
-  updateMe,
-  updateStaff,
-  deleteStaff
+  getBy,
+  gets,
+  remove,
+  update
 }
