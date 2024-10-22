@@ -13,32 +13,56 @@ import {
   MenuItem,
   FormGroup,
   TextField,
+  SpeedDial,
   InputLabel,
+  IconButton,
   FormControl,
   FormControlLabel,
 } from '@mui/material';
 import { useFormik } from 'formik';
+import Iconify from 'src/components/iconify/iconify';
+
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
+import { useParams } from 'react-router-dom';
+import { useRouter } from 'src/routes/hooks';
+import { isValidObjectId } from 'src/utils/check';
 import { useDispatch, useSelector } from 'react-redux';
-import { create, setStatus } from 'src/redux/slices/couponSlice';
+import { update, fetchOne, setStatus } from 'src/redux/slices/couponSlice';
 import { useMemo, useState, useEffect } from 'react';
 import { handleToast } from 'src/hooks/toast';
+import LoadingFull from 'src/components/loading/loading-full';
 import { createCode, couponSchema } from '../utils';
+
 import ProductAcceptSelect from '../product-select';
+
 // ----------------------------------------------------------------------
 const now = dayjs();
 export default function DetailCouponPage() {
-  const [error, setError] = useState(null);
+  const { id } = useParams();
+  const route = useRouter();
+  useEffect(() => {
+    if (id) {
+      if (isValidObjectId(id)) {
+        dispatch(fetchOne(id));
+      } else {
+        handleToast('error', 'Id không hợp lệ');
+        route.push('/coupons');
+      }
+    }
+  }, [id]);
+  const [errorDate, setErrorDate] = useState(null);
   const [errorEnd, setErrorEnd] = useState(null);
 
-  const status = useSelector((state) => state.coupons.statusCreate);
+  const status = useSelector((state) => state.coupons.statusUpdate);
   const err = useSelector((state) => state.coupons.error);
+  const coupon = useSelector((state) => state.coupons.coupon);
+  const statusGetCoupon = useSelector((state) => state.coupons.status);
+  const products_applied = useSelector((state) => state.products.products);
 
   const errorMessage = useMemo(() => {
-    switch (error) {
+    switch (errorDate) {
       case 'minDate': {
         return 'Ngày nhập phải lớn hơn ngày hiện tại';
       }
@@ -51,7 +75,7 @@ export default function DetailCouponPage() {
         return '';
       }
     }
-  }, [error]);
+  }, [errorDate]);
   const errorMessageEnd = useMemo(() => {
     switch (errorEnd) {
       case 'minDate': {
@@ -68,34 +92,38 @@ export default function DetailCouponPage() {
     }
   }, [errorEnd]);
   const dispatch = useDispatch();
-
   useEffect(() => {
     if (status === 'successful') {
-      dispatch(setStatus({ key: 'statusCreate', value: 'idle' }));
-      handleToast('success', 'Tạo mã giảm giá thành công!');
+      handleToast('success', 'Cập nhật mã giảm giá thành công');
+      dispatch(setStatus({ key: 'statusUpdate', value: 'idle' }));
+
     }
     if (status === 'failed') {
-      dispatch(setStatus({ key: 'statusCreate', value: 'idle' }));
-      handleToast('error', err.messages);
+      handleToast('error', err?.message || 'Có lỗi xảy ra');
+      dispatch(setStatus({ key: 'error', value: 'idle' }));
+
     }
+
   }, [status, err, dispatch]);
+
   const formik = useFormik({
     initialValues: {
-      name: '',
-      code: '',
-      type: 'percent',
-      applicableProducts: [],
-      minPurchasePrice: '',
-      maxPurchasePrice: '',
-      discountValue: '',
-      description: '',
-      usageLimit: '',
-      discountPercent: '',
-      status: 'active',
-      dateStart: dayjs(),
-      dateEnd: dayjs(),
-      limitOnUser: false,
+      name: coupon.name || '',
+      code: coupon.code || '',
+      type: coupon.type || 'percent',
+      applicableProducts: coupon.applicableProducts || [],
+      minPurchasePrice: coupon.minPurchasePrice || '',
+      maxPurchasePrice: coupon.maxPurchasePrice || 0,
+      discountValue: coupon.discountValue || 0,
+      description: coupon.description || '',
+      usageLimit: coupon.usageLimit || 0,
+      discountPercent: coupon.discountPercent || 0,
+      status: coupon.status || 'active',
+      dateStart: coupon.dateStart ? dayjs(coupon.dateStart) : dayjs(), // Ensure dateStart is a dayjs object
+      dateEnd: coupon.dateEnd ? dayjs(coupon.dateEnd) : dayjs(), // Ensure dateEnd is a dayjs object
+      limitOnUser: coupon.limitOnUser || false,
     },
+    enableReinitialize: true,
     validationSchema: couponSchema,
     onSubmit: async (values) => {
       const data = { ...values };
@@ -118,9 +146,11 @@ export default function DetailCouponPage() {
       data.usageLimit = Number(values.usageLimit);
       data.dateStart = dayjs(values.dateStart).valueOf();
       data.dateEnd = dayjs(values.dateEnd).valueOf();
-      dispatch(create(data));
+      dispatch(update({ id, data }));
     },
   });
+
+
   useEffect(() => {
     const name = formik.values.name?.trim();
     if (name) {
@@ -131,8 +161,27 @@ export default function DetailCouponPage() {
 
   return (
     <Container>
+      {status === 'loading' && <LoadingFull />}
+      {statusGetCoupon === 'loading' && <LoadingFull />}
+
+      <SpeedDial
+        ariaLabel="Lưu mã giảm giá"
+        sx={{ position: 'fixed', bottom: 16, right: 16 }}
+        onClick={() => formik.handleSubmit()}
+        icon={<Iconify icon="eva:save-fill" />}
+      />
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Tạo mã giảm giá</Typography>
+        <Stack direction="row" alignItems="center">
+          <Typography variant="h4">Chỉnh sửa mã giảm giá</Typography>
+          <IconButton
+            aria-label="load"
+            variant="contained"
+            color="inherit"
+            onClick={() => dispatch(fetchOne(id))}
+          >
+            <Iconify icon="mdi:reload" />
+          </IconButton>
+        </Stack>
       </Stack>
       <form onSubmit={formik.handleSubmit}>
         <Grid2 container spacing={3}>
@@ -300,45 +349,41 @@ export default function DetailCouponPage() {
                 </Grid2>
                 <Grid2 xs={6}>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DemoContainer components={['DateTimePicker']}>
-                      <DateTimePicker
-                        label="Ngày bắt đầu"
-                        value={formik.values.dateStart}
-                        onError={(newError) => setError(newError)}
-                        slotProps={{
-                          textField: {
-                            helperText: errorMessage,
-                          },
-                        }}
-                        minDate={now}
-                        onChange={(date) => formik.setFieldValue('dateStart', date)}
-                      />
-                    </DemoContainer>
+                    <DateTimePicker
+                      label="Ngày bắt đầu"
+                      value={dayjs(formik.values.dateStart)} // Ensure value is a dayjs object
+                      onError={(newError) => setErrorDate(newError)}
+                      slotProps={{
+                        textField: {
+                          helperText: errorMessage,
+                        },
+                      }}
+                      minDate={now}
+                      onChange={(date) => formik.setFieldValue('dateStart', date)}
+                    />
                   </LocalizationProvider>
                 </Grid2>
                 <Grid2 xs={6}>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DemoContainer components={['DateTimePicker']}>
-                      <DateTimePicker
-                        label="Ngày hết hạn"
-                        value={formik.values.dateEnd}
-                        onError={(newError) => setErrorEnd(newError)}
-                        slotProps={{
-                          textField: {
-                            helperText: errorMessageEnd,
-                          },
-                        }}
-                        minDate={formik.values.dateStart}
-                        onChange={(date) => formik.setFieldValue('dateEnd', date)}
-                      />
-                    </DemoContainer>
+                    <DateTimePicker
+                      label="Ngày hết hạn"
+                      value={formik.values.dateEnd} // Ensure value is a dayjs object
+                      onError={(newError) => setErrorEnd(newError)}
+                      slotProps={{
+                        textField: {
+                          helperText: errorMessageEnd,
+                        },
+                      }}
+                      minDate={formik.values.dateStart} // Ensure minDate is a dayjs object
+                      onChange={(date) => formik.setFieldValue('dateEnd', date)}
+                    />
                   </LocalizationProvider>
-                  {}
+                  { }
                 </Grid2>
               </Grid2>
               <Stack direction="row" justifyContent="flex-end" mt={3}>
-                <Button type="submit" color="inherit" variant="contained">
-                  Tạo
+                <Button onClick={() => formik.handleSubmit()} type="button" color="inherit" variant="contained">
+                  Lưu
                 </Button>
               </Stack>
             </Card>
@@ -350,7 +395,17 @@ export default function DetailCouponPage() {
                 <Typography variant="h5">Sản phẩm áp dụng</Typography>
               </Grid2>
               <Grid2 xs={12}>
-                <ProductAcceptSelect />
+                <ProductAcceptSelect
+                  value={formik.values.applicableProducts.map((_id) =>
+                    products_applied.find((product) => product._id === _id)
+                  )}
+                  onChange={(event, newValue) =>
+                    formik.setFieldValue(
+                      'applicableProducts',
+                      newValue.map((product) => product._id)
+                    )
+                  }
+                />
               </Grid2>
             </Card>
           </Grid2>

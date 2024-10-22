@@ -20,7 +20,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { handleToast } from 'src/hooks/toast';
 import LoadingFull from 'src/components/loading/loading-full';
 import Iconify from 'src/components/iconify';
-import { slugify } from 'src/utils/format-text';
 import { schema } from '../utils';
 
 // ----------------------------------------------------------------------
