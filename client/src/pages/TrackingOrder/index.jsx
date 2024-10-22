@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Icon } from '@iconify/react';
+import { Helmet } from 'react-helmet-async';
 
 const TrackingOrderPage = () => {
   const [orderCode, setOrderCode] = useState('');
@@ -55,6 +56,9 @@ const TrackingOrderPage = () => {
 
   return (
     <section className="bg-white py-8 antialiased md:py-16">
+      <Helmet>
+        <title>BMT Life | Theo dõi đơn hàng </title>
+      </Helmet>
       <div className="mx-auto max-w-screen-xl px-4 2xl:px-0">
         {/* Form nhập mã đơn hàng */}
         <form

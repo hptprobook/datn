@@ -3,7 +3,7 @@ import { MdOutlineContentPasteSearch } from 'react-icons/md';
 import { FaBars } from 'react-icons/fa';
 import { IoIosSearch } from 'react-icons/io';
 import { useEffect, useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import Logo from '~/assets/logo2.png';
 import UserBar from '~/components/Home/Header/UserBar';
 import SideNavMenu from './Responsive/SideNavMenu';
@@ -83,9 +83,11 @@ const Header = () => {
               </div>
             </div>
             <CartFixed open={openCart} setOpen={setOpenCart} />
-            <div className="text-2xl text-gray-50 cursor-pointer">
-              <MdOutlineContentPasteSearch />
-            </div>
+            <Link to={'/theo-doi-don-hang'}>
+              <div className="text-2xl text-gray-50 cursor-pointer">
+                <MdOutlineContentPasteSearch />
+              </div>
+            </Link>
             {/* Kiểm tra trạng thái đăng nhập */}
             {isAuthenticated ? (
               <UserLoggedBar currentUserInfor={currentUserInfor} />

@@ -52,18 +52,18 @@ export const SAVE_USER_SOCIAL = Joi.object({
 });
 
 export const UPDATE_USER = Joi.object({
-    name: Joi.string().min(1).max(30),
-    password: Joi.string(),
-    otp: Joi.string(),
-    phone: Joi.string()
-        .pattern(/^[0-9]+$/)
-        .min(10)
-        .max(15)
-        .default(null),
-    refreshToken: Joi.string(),
-    role: Joi.string()
-        .valid('root', 'admin', 'staff', 'user', 'ban')
-        .default('user'),
-    allowNotifies: Joi.boolean().default(false),
-    updatedAt: Joi.date().timestamp('javascript').default(Date.now),
+  name: Joi.string().min(1).max(30),
+  password: Joi.string(),
+  otp: Joi.string(),
+  phone: Joi.string()
+    .pattern(/^[0-9]+$/)
+    .min(10)
+    .max(15)
+    .default(null),
+  refreshToken: Joi.string(),
+  role: Joi.string()
+    .valid('root', 'admin', 'staff', 'user', 'ban')
+    .default('user'),
+  allowNotifies: Joi.boolean().default(false),
+  updatedAt: Joi.date().timestamp('javascript').default(Date.now),
 });

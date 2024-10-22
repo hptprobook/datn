@@ -6,6 +6,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { Icon } from '@iconify/react';
 import ProductListWithSort from '~/components/Products/ProductListWithSort';
 import ProductListFilter from '~/components/Products/ProductListFilter';
+import { Helmet } from 'react-helmet-async';
 
 const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -165,6 +166,9 @@ const SearchPage = () => {
 
   return (
     <section className="max-w-container mx-auto mt-16">
+      <Helmet>
+        <title>BMT Life | Kết quả tìm kiếm cho {keyword || ''}</title>
+      </Helmet>
       <HeaderBC
         title={'Kết quả tìm kiếm'}
         name={keyword}

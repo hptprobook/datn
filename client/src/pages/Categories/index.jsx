@@ -10,6 +10,8 @@ import { useState, useCallback, useEffect } from 'react';
 import { Icon } from '@iconify/react';
 import ProductListWithSort from '~/components/Products/ProductListWithSort';
 import ProductListFilter from '~/components/Products/ProductListFilter';
+import { Helmet } from 'react-helmet-async';
+import MainLoading from '~/components/common/Loading/MainLoading';
 
 const CategoryPage = () => {
   const { slug } = useParams();
@@ -181,8 +183,15 @@ const CategoryPage = () => {
     cacheTime: 1000 * 60 * 10,
   });
 
+  if (isFilteredDataLoading) {
+    return <MainLoading />;
+  }
+
   return (
     <section className="max-w-container mx-auto mt-16">
+      <Helmet>
+        <title>BMT Life | Danh mục sản phẩm - {categoryData?.name}</title>
+      </Helmet>
       <HeaderBC title={'Danh mục sản phẩm'} name={categoryData?.name} />
       <div className="divider"></div>
       <div className="grid grid-cols-5 gap-6 mt-8">

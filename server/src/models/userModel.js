@@ -261,6 +261,7 @@ const sendNotifies = async (data) => {
           notifies: {
             _id: otherData._id,
             status: dataValidate[0].status,
+            type: otherData.type,
             note: dataValidate[0].note,
             createdAt: dataValidate[0].createdAt,
             updatedAt: dataValidate[0].updatedAt,

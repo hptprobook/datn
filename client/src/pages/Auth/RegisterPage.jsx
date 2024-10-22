@@ -11,8 +11,21 @@ import { register } from '~/APIs';
 import { useMutation } from '@tanstack/react-query';
 import { handleToast } from '~/customHooks/useToast';
 import useCheckAuth from '~/customHooks/useCheckAuth';
+import { Helmet } from 'react-helmet-async';
 
 const RegisterPage = () => {
+  return (
+    <>
+      <Helmet>
+        <title>BMT Life | Đăng ký </title>
+      </Helmet>
+
+      <RegisterPageUI />
+    </>
+  );
+};
+
+const RegisterPageUI = () => {
   const { login } = useCheckAuth();
   const navigate = useNavigate();
 
@@ -44,9 +57,6 @@ const RegisterPage = () => {
         }
       }, 1000);
     },
-    // onError: (error) => {
-    //   handleApiError(error);
-    // },
   });
 
   const formik = useFormik({
