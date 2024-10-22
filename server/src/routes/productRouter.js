@@ -4,7 +4,6 @@ import { productController } from '~/controllers/productController';
 import multer from 'multer';
 import path from 'path';
 import { uploadModel } from '~/models/uploadModel';
-import verifyToken from '~/middlewares/verifyToken';
 import { verifyToken as verifyStaff, isAdmin } from '~/middlewares/verifyRole';
 
 const Router = express.Router();
