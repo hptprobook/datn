@@ -90,6 +90,11 @@ export const CREATE_WEB = Joi.object({
         'string.base': 'Liên kết web kết nối phải là một chuỗi văn bản.',
         'string.uri': 'Liên kết web kết nối phải là một địa chỉ web hợp lệ.',
     }),
+    footerThanks: Joi.string().min(50).max(1000).messages({
+        'string.base': 'Lời cảm ơn phải là một chuỗi văn bản.',
+        'string.min': 'Lời cảm ơn phải có ít nhất {#limit} ký tự.',
+        'string.max': 'Lời cảm ơn không được vượt quá {#limit} ký tự.',
+    }),
 });
 
 export const UPDATE_WEB = Joi.object({
@@ -169,5 +174,10 @@ export const UPDATE_WEB = Joi.object({
     LinkWebConnect: Joi.string().uri().messages({
         'string.base': 'Liên kết web kết nối phải là một chuỗi văn bản.',
         'string.uri': 'Liên kết web kết nối phải là một địa chỉ web hợp lệ.',
+    }),
+    footerThanks: Joi.string().min(50).max(1000).messages({
+        'string.base': 'Lời cảm ơn phải là một chuỗi văn bản.',
+        'string.min': 'Lời cảm ơn phải có ít nhất {#limit} ký tự.',
+        'string.max': 'Lời cảm ơn không được vượt quá {#limit} ký tự.',
     }),
 });
