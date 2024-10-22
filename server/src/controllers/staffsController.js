@@ -124,7 +124,7 @@ const getMe = async (req, res) => {
                 message: 'Phiên đăng nhập hết hạn',
             });
         }
-        if (exp - Date.now() / 1000 > 60 * 60 * 24) {
+        if (((exp - Date.now()) / 1000) > 60 * 60 * 24) {
             const decodedToken = jwt.verify(refreshToken, process.env.SECRET_STAFF);
             if (!decodedToken) {
                 return res.status(401).json({
@@ -148,6 +148,7 @@ const getMe = async (req, res) => {
                 message: 'Không tồn tại nhân viên',
             });
         }
+        staff.token = createStaffToken(staff);
         delete staff.password;
         delete staff.refreshToken;
         res.status(StatusCodes.CREATED).json(staff);

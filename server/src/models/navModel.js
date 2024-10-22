@@ -56,7 +56,7 @@ const updateNavDashboard = async (id, data) => {
 
   return db.find({}).toArray();
 };
-const updateMutipleNav = async (data) => {
+const updateMultipleNav = async (data) => {
   const db = await GET_DB().collection('navDashboard');
   const result = await db.find({}).toArray();
   if (!result) {
@@ -86,5 +86,5 @@ export const navDashboardModel = {
   removeNavDashboard,
   updateNavDashboard,
   getNavDashboardById,
-  updateMutipleNav,
+  updateMultipleNav,
 };

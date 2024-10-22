@@ -17,12 +17,12 @@ Router.get('/', verifyStaff, orderController.getAllOrder);
 Router.post('/', verifyToken, orderController.addOrder);
 Router.put('/:id', orderController.updateOrder);
 Router.delete('/:idOrder', verifyToken, orderController.removeOrder);
-Router.post('/check_stock', verifyToken, orderController.checkStockProducts);
+Router.post('/check_stock', orderController.checkStockProducts);
 Router.post('/update_stock', verifyToken, orderController.updateStockProducts);
 // not login
 Router.get('/not/:orderCode', orderController.findOrderByCode);
 Router.post('/not', orderController.addOrderNot);
-Router.put('/not/:id', orderController.updateOrder);
+Router.put('/not/:id', orderController.updateOrderNotLogin);
 Router.delete('/not/:idOrder', orderController.removeOrder);
 
 export const ordersApi = Router;

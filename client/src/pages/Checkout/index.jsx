@@ -15,10 +15,14 @@ import { v4 as uuidv4 } from 'uuid';
 import MainLoading from '~/components/common/Loading/MainLoading';
 import { useCart } from 'react-use-cart';
 import LoggedOrder from './components/LoggedOrder';
+import { Helmet } from 'react-helmet-async';
 
 const CheckoutPage = () => {
   return (
     <CheckoutProvider>
+      <Helmet>
+        <title>BMT Life | Thanh toán</title>
+      </Helmet>
       <CheckoutUI />
     </CheckoutProvider>
   );

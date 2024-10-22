@@ -10,7 +10,6 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { renderUrl } from 'src/utils/check';
 import Divider from '@mui/material/Divider';
-import Iconify from 'src/components/iconify';
 
 const backendUrl = import.meta.env.VITE_BACKEND_APP_URL;
 
@@ -45,18 +44,7 @@ const WebBannerCard = ({ status, webBanner }) => {
                 image={renderUrl(webBanner?.image, backendUrl)}
                 alt="web banner image"
               />
-              <Box
-                sx={{
-                  position: 'absolute',
-                  bottom: 12,
-                  right: 12,
-                }}
-              >
-                <Stack direction="row" justifyItems="center" spacing={1}>
-                  <Typography variant="body2">{webBanner?.views}</Typography>
-                  <Iconify icon="eva:eye-fill" />
-                </Stack>
-              </Box>
+           
             </Box>
             <Stack direction="column" spacing={2} mt={2} mb={2}>
               <Typography gutterBottom variant="h5" component="div">
