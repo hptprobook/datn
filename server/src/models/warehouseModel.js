@@ -2,16 +2,16 @@ import { GET_DB } from '~/config/mongodb';
 import { ObjectId } from 'mongodb';
 import {
     SAVE_WAREHOUSES,
-    // UPDATE_WAREHOUSES,
+    UPDATE_WAREHOUSES,
 } from '~/utils/schema/warehouseSchema';
 
 const validateBeforeCreate = async (data) => {
     return await SAVE_WAREHOUSES.validateAsync(data, { abortEarly: false });
 };
 
-// const validateBeforeUpdate = async (data) => {
-//     return await UPDATE_WAREHOUSES.validateAsync(data, { abortEarly: false });
-// };
+const validateBeforeUpdate = async (data) => {
+    return await UPDATE_WAREHOUSES.validateAsync(data, { abortEarly: false });
+};
 
 const createWarehouse = async (data) => {
     const validData = await validateBeforeCreate(data);
@@ -41,9 +41,9 @@ const getWarehouseById = async (id) => {
     return warehouse;
 };
 
-const getAllProducts = async (page, limit) => {
+const getAllProductsByWareHouse = async (page, limit) => {
     page = parseInt(page) || 1;
-    limit = parseInt(limit) || 20;
+    limit = parseInt(limit) || 12;
     const db = await GET_DB().collection('products');
     const total = await db
         .aggregate([
@@ -53,17 +53,16 @@ const getAllProducts = async (page, limit) => {
         ])
         .toArray();
     const totalCount = total.length > 0 ? total[0].totalCount : 0;
-
     const results = await db
         .aggregate([
             { $unwind: '$variants' },
             // { $unwind: '$variants.sizes' },
-            {
-                $match: {
-                    // 'variants.color': 'Đỏ',
-                    // sku: '379876',
-                },
-            },
+            // {
+            //     $match: {
+            // 'variants.color': 'Đỏ',
+            // sku: '379876',
+            //     },
+            // },
             {
                 $project: {
                     _id: 1,
@@ -73,9 +72,6 @@ const getAllProducts = async (page, limit) => {
                     stockColor: '$variants.stock',
                     color: '$variants.color',
                     sizes: '$variants.sizes',
-
-                    // size: '$variants.sizes.size',
-                    // stock: '$variants.sizes.stock',
                 },
             },
             { $skip: (page - 1) * limit },
@@ -88,33 +84,31 @@ const getAllProducts = async (page, limit) => {
 // note
 const update = async (id, data) => {
     const db = GET_DB().collection('warehouses');
+    const validData = await validateBeforeUpdate(data);
     const result = await db.findOneAndUpdate(
         { _id: new ObjectId(id) },
-        { $set: data },
+        { $set: validData },
         { returnDocument: 'after' }
     );
-    if (!result) {
-        throw new Error('Có lỗi xảy ra, xin thử lại sau');
-    }
     return result;
 };
 
 const deleteWarehouse = async (id) => {
+    // const db = GET_DB().collection('warehouses');
+    // const warehouse = await db.findOne({ _id: new ObjectId(id) });
+    // await db.deleteOne({ _id: new ObjectId(id) });
+    // return warehouse;
+
     const db = GET_DB().collection('warehouses');
-    const warehouse = await db.findOne({ _id: new ObjectId(id) });
-    await db.deleteOne({ _id: new ObjectId(id) });
-    if (!warehouse) {
-        throw new Error('Có lỗi xảy ra, xin thử lại sau');
-    }
-    return warehouse;
+    const result = await db.deleteOne({ _id: new ObjectId(id) });
+    return result;
 };
 
 export const warehouseModel = {
     getWarehousesAll,
     createWarehouse,
     update,
-    deleteWarehouse,
     getWarehouseById,
-
-    getAllProducts,
+    getAllProductsByWareHouse,
+    deleteWarehouse,
 };
