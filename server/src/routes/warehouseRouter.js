@@ -10,7 +10,6 @@ Router.get('/', warehouseController.getAllWarehouses);
 Router.get('/:id', warehouseController.getWarehouseById);
 Router.get('/products/all', warehouseController.getProducts);
 
-Router.put('/:id', warehouseController.updateInventory);
-Router.delete('/:id', warehouseController.deleteInventory);
-
+Router.put('/:id', warehouseController.updateWareHouse);
+Router.delete('/:id', warehouseController.deleteWareHouse);
 export const warehousesApi = Router;

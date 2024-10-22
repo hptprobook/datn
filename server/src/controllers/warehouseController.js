@@ -39,11 +39,12 @@ const getAllWarehouses = async (req, res) => {
 const getProducts = async (req, res) => {
     try {
         const { page, limit } = req.query;
-        const warehouses = await warehouseModel.getAllProducts(page, limit);
+        const warehouses = await warehouseModel.getAllProductsByWareHouse(
+            page,
+            limit
+        );
         return res.status(StatusCodes.OK).json(warehouses);
     } catch (error) {
-        console.log(error);
-
         return res
             .status(StatusCodes.BAD_REQUEST)
             .json({ message: 'Có lỗi xảy ra xin thử lại sau', error });
@@ -63,69 +64,46 @@ const getWarehouseById = async (req, res) => {
     }
 };
 
-const updateInventory = async (req, res) => {
+const updateWareHouse = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, status, location, capacity, currentInventory } = req.body;
-
-        if (!name || !status || !location || !capacity || !currentInventory) {
-            return res.status(StatusCodes.BAD_REQUEST).json({
-                message: ERROR_MESSAGES.REQUIRED,
-            });
-        }
-
-        const data = {
-            name,
-            status,
-            location,
-            capacity,
-            currentInventory,
-        };
-
+        const data = req.body;
         const dataWarehouse = await warehouseModel.update(id, data);
-        if (dataWarehouse.error) {
-            return res
-                .status(StatusCodes.BAD_REQUEST)
-                .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
-        }
         if (dataWarehouse) {
             return res.status(StatusCodes.OK).json(dataWarehouse);
         }
     } catch (error) {
         return res
-            .status(StatusCodes.INTERNAL_SERVER_ERROR)
+            .status(StatusCodes.BAD_REQUEST)
             .json({ message: error.message });
     }
 };
 
-const deleteInventory = async (req, res) => {
+const deleteWareHouse = async (req, res) => {
     try {
         const { id } = req.params;
-        const dataWarehouse = await warehouseModel.deleteWarehouse(id);
-        if (dataWarehouse.error) {
-            return res
-                .status(StatusCodes.BAD_REQUEST)
-                .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
-        }
-        if (dataWarehouse) {
+        const result = await warehouseModel.deleteWarehouse(id);
+        if (result.acknowledged) {
             return res
                 .status(StatusCodes.OK)
-                .json({ message: 'Xóa nhà kho thành công' });
+                .json({ message: 'Xóa thông tin kho thành công' });
         }
+        return res
+            .status(StatusCodes.BAD_REQUEST)
+            .json({ message: 'Có lỗi xảy ra xin thử lại sau', result });
     } catch (error) {
         return res
-            .status(StatusCodes.INTERNAL_SERVER_ERROR)
-            .json({ message: error.message });
+            .status(StatusCodes.BAD_REQUEST)
+            .json({ message: 'Có lỗi xảy ra xin thử lại sau', error });
     }
 };
 
 export const warehouseController = {
     createWarehouse,
-
     getAllWarehouses,
-    updateInventory,
-    deleteInventory,
+    updateWareHouse,
     getWarehouseById,
-
     getProducts,
+
+    deleteWareHouse,
 };
