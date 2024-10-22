@@ -346,12 +346,17 @@ const createProduct = async (data) => {
   } else {
     validCat = new ObjectId(validData.cat_id);
   }
+  validData.variants = validData.variants.map((variant) => {
+    return {
+      ...variant,
+      warehouseId: new ObjectId(variant.warehouseId),
+    };
+  });
 
   const result = await collection.insertOne({
     ...validData,
     cat_id: validCat,
     brand: new ObjectId(validData.brand),
-    productType: validData.productType,
   });
   if (!result) {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');

@@ -1,0 +1,72 @@
+import { GET_DB } from '~/config/mongodb';
+import { ObjectId } from 'mongodb';
+import { CREATE_STAFF_SCHEMA, UPDATE_ME_SCHEMA, UPDATE_STAFF_SCHEMA } from '~/utils/schema/staffSchema';
+import { CREATE_STATIC_PAGE_SCHEMA } from '~/utils/schema/staticPageSchema';
+
+const validateBeforeCreate = async (data) => {
+  return await CREATE_STATIC_PAGE_SCHEMA.validateAsync(data, { abortEarly: false });
+};
+const validateBeforeUpdate = async (data, type) => {
+  if (type === 'me') {
+    return await UPDATE_ME_SCHEMA.validateAsync(data, { abortEarly: false });
+  }
+  return await UPDATE_STAFF_SCHEMA.validateAsync(data, { abortEarly: false });
+};
+
+const create = async (data) => {
+  const validData = await validateBeforeCreate(data);
+  const db = await GET_DB();
+  const collection = db.collection('staticPages');
+  const result = await collection.insertOne(validData);
+  return result;
+};
+const getStaffBy = async (by = 'email', value) => {
+  const db = await GET_DB();
+  if (by === '_id') {
+    value = new ObjectId(value);
+  }
+  const collection = db.collection('staffs');
+  const staff = await collection.findOne({ [by]: value });
+  return staff;
+}
+const updateStaff = async (id, dataStaff) => {
+  const validData = await validateBeforeUpdate(dataStaff, 'all');
+  const db = await GET_DB();
+  const collection = db.collection('staffs');
+  const result = await collection.findOneAndUpdate(
+    { _id: new ObjectId(id) },
+    { $set: validData },
+    { returnDocument: 'after' } // Returns the updated document
+  );
+  return result;
+}
+const deleteStaff = async (id) => {
+  const db = await GET_DB();
+  const collection = db.collection('staffs');
+  const result = await collection.deleteOne({ _id: new ObjectId(id) });
+  return result;
+}
+const updateMe = async (id, dataStaff) => {
+  const validData = await validateBeforeUpdate(dataStaff, 'me');
+  if (validData.lastLogin) {
+    validData.lastLogin = new Date(validData.lastLogin).getTime();
+  }
+  const db = await GET_DB();
+  const collection = db.collection('staffs');
+  const result = await collection.updateOne({ _id: new ObjectId(id) }, { $set: validData });
+  return result;
+}
+const getStaffs = async () => {
+  const db = await GET_DB();
+  const collection = db.collection('staffs');
+  const staffs = await collection.find({}).toArray();
+  return staffs;
+}
+export const staticPagesModel = {
+  create,
+  getStaffBy,
+  getStaffs,
+  updateMe,
+  updateStaff,
+  deleteStaff
+}

@@ -18,6 +18,12 @@ export const settingConfig = [
     child: undefined,
   },
   {
+    title: 'Quản lý trang tĩnh',
+    path: '/admin/settings/static-pages',
+    icon: 'mdi:web',
+    child: undefined,
+  },
+  {
     title: 'Thông báo',
     path: '/admin/settings/notifications',
     icon: 'eva:bell-fill',

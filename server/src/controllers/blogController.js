@@ -5,7 +5,7 @@ import { uploadModel } from '~/models/uploadModel';
 import { blogModel } from '~/models/blogModel';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-const getAllBlogs = async(req, res) => {
+const getAllBlogs = async (req, res) => {
     try {
         const { limit, page } = req.query;
         const blogs = await blogModel.getAllBlogs(page, limit);
@@ -16,7 +16,7 @@ const getAllBlogs = async(req, res) => {
             .json('Có lỗi xảy ra xin thử lại sau');
     }
 };
-const findByStatus = async(req, res) => {
+const findByStatus = async (req, res) => {
     try {
         const { limit, page } = req.query;
         const { status } = req.params;
@@ -30,7 +30,7 @@ const findByStatus = async(req, res) => {
     }
 };
 
-const findBlogByID = async(req, res) => {
+const findBlogByID = async (req, res) => {
     try {
         const { blogID } = req.params;
         const blog = await blogModel.findBlogByID(blogID);
@@ -41,7 +41,7 @@ const findBlogByID = async(req, res) => {
             .json('Có lỗi xảy ra xin thử lại sau');
     }
 };
-const findBlogByAuthID = async(req, res) => {
+const findBlogByAuthID = async (req, res) => {
     try {
         const { limit, page } = req.query;
         const { authID } = req.params;
@@ -53,7 +53,7 @@ const findBlogByAuthID = async(req, res) => {
             .json('Có lỗi xảy ra xin thử lại sau');
     }
 };
-const findBlogBySlug = async(req, res) => {
+const findBlogBySlug = async (req, res) => {
     try {
         const { slug } = req.params;
         const blog = await blogModel.findBlogBySlug(slug);
@@ -64,7 +64,7 @@ const findBlogBySlug = async(req, res) => {
             .json('Có lỗi xảy ra xin thử lại sau');
     }
 };
-const findBlogByTitle = async(req, res) => {
+const findBlogByTitle = async (req, res) => {
     try {
         const { limit, page, title } = req.query;
         // const {} = req.body;
@@ -82,7 +82,7 @@ const findBlogByTitle = async(req, res) => {
     }
 };
 
-const createBlog = async(req, res) => {
+const createBlog = async (req, res) => {
     try {
         if (!req.file) {
             return res
@@ -118,7 +118,7 @@ const createBlog = async(req, res) => {
     }
 };
 
-const updateBlog = async(req, res) => {
+const updateBlog = async (req, res) => {
     try {
         const { blogID } = req.params;
         // Tìm dữ liệu từ id
@@ -158,11 +158,11 @@ const updateBlog = async(req, res) => {
     }
 };
 
-const updateComment = async(req, res) => {
+const updateComment = async (req, res) => {
     try {
         const { blogID } = req.params;
         const commentId = uuidv4();
-        const dataComment = {...req.body, commentId };
+        const dataComment = { ...req.body, commentId };
         const result = await blogModel.updateComment(blogID, dataComment);
         return res.status(StatusCodes.OK).json(result);
     } catch (error) {
@@ -174,7 +174,7 @@ const updateComment = async(req, res) => {
         return res.status(StatusCodes.BAD_REQUEST).json(error);
     }
 };
-const delComment = async(req, res) => {
+const delComment = async (req, res) => {
     try {
         const { blogID } = req.params;
         const { commentId } = req.body;
@@ -190,7 +190,7 @@ const delComment = async(req, res) => {
     }
 };
 
-const updateViews = async(req, res) => {
+const updateViews = async (req, res) => {
     try {
         const { blogID } = req.params;
         // Tìm dữ liệu từ id
@@ -201,7 +201,7 @@ const updateViews = async(req, res) => {
     }
 };
 
-const deleteBlog = async(req, res) => {
+const deleteBlog = async (req, res) => {
     try {
         const { blogID } = req.params;
         const blog = await blogModel.findBlogByID(blogID);

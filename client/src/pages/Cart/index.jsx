@@ -2,10 +2,14 @@ import CheckoutStepper from '~/components/common/Stepper/CheckoutStepper';
 import CartListProduct from './components/CartListProduct';
 import CartSummary from './components/CartSummary';
 import { CartProvider } from '~/context/CartContext';
+import { Helmet } from 'react-helmet-async';
 
 const CartPage = () => {
   return (
     <CartProvider>
+      <Helmet>
+        <title>BMT Life | Giỏ hàng </title>
+      </Helmet>
       <section className="max-w-container mx-auto mt-16 relative z-10">
         <div className="w-full relative z-10">
           <div className="flex justify-center mb-2 lg:mb-12">

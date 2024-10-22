@@ -18,6 +18,7 @@ const createCategory = async (req, res) => {
     const fileName = file.filename;
     const filePath = path.join('uploads/categories', fileName);
     data.imageURL = filePath;
+    data.seoOption = JSON.parse(data.seoOption);
     const category = await categoryModel.getCategoryBySlug(data.slug);
 
     if (category) {

@@ -4,7 +4,7 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import { Button, IconButton } from '@mui/material';
+import { Button } from '@mui/material';
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { PropTypes } from 'prop-types';
 import * as Yup from 'yup';
@@ -18,9 +18,10 @@ import {
 import { useFormik } from 'formik';
 import { handleToast } from 'src/hooks/toast';
 import ImageDropZone from 'src/components/drop-zone-upload/upload-img';
-import Iconify from 'src/components/iconify';
 import LoadingFull from 'src/components/loading/loading-full';
 import LoadingHeader from 'src/components/loading/loading-header';
+import TitlePage from 'src/components/page/title';
+import TinyEditor from 'src/components/editor/tinyEditor';
 import EditableField from '../edit-field';
 // ----------------------------------------------------------------------
 const configSchema = Yup.object().shape({
@@ -56,6 +57,7 @@ const configSchema = Yup.object().shape({
   Youtube: Yup.string().url('URL không hợp lệ'),
   Tiktok: Yup.string().url('URL không hợp lệ'),
   LinkWebConnect: Yup.string().url('URL không hợp lệ'),
+  footerThanks: Yup.string().min(50, 'Lời cảm ơn quá ngắn').max(1000, 'Lời cảm ơn quá dài').required('Lời cảm ơn không được để trống'),
 });
 
 export default function StorePage() {
@@ -95,6 +97,7 @@ export default function StorePage() {
       Youtube: config.Youtube || '',
       Tiktok: config.Tiktok || '',
       LinkWebConnect: config.LinkWebConnect || '',
+      footerThanks: config.footerThanks || '',
     },
     validationSchema: configSchema,
   });
@@ -120,12 +123,14 @@ export default function StorePage() {
     }
   }, [statusUpdate, data, error, dispatch]);
   const handleSubmit = () => {
+
     if (formik.errors && Object.keys(formik.errors).length > 0) {
       Object.keys(formik.errors).forEach((key) => {
         handleToast('error', formik.errors[key]);
       });
       return;
     }
+
     const newValues = { ...formik.values }; // Create a shallow copy of formik.values
     delete newValues.logo; // Delete the 'logo' property
     delete newValues._id; // Delete the '_id' property
@@ -163,12 +168,7 @@ export default function StorePage() {
       {status === 'loading' && <LoadingFull />}
       {statusUpdate === 'loading' && <LoadingHeader />}
       <Stack direction="column" justifyContent="flex-start" spacing={2}>
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <Typography variant="h5">Thông tin cửa hàng</Typography>
-          <IconButton onClick={() => dispatch(getConfigWebsite())}>
-            <Iconify icon="mdi:reload" />
-          </IconButton>
-        </Stack>
+        <TitlePage title="Cài đặt cửa hàng" onClick={() => dispatch(getConfigWebsite())} />
         {status === 'successful' && formik.initialValues && (
           <form onSubmit={formik.handleSubmit}>
             <Stack direction="column" spacing={2}>
@@ -493,6 +493,28 @@ export default function StorePage() {
                     />
                   </Grid2>
                 </Grid2>
+              </Card>
+              <Card
+                sx={{
+                  p: 3,
+                }}
+              >
+                <TitleStoreCard
+                  handleSubmit={handleSubmit}
+                  setInputSelect={setInputSelect}
+                  label="Lời cảm ơn"
+                  inputSelect={inputSelect}
+                  selectLabel="footerThanks"
+                />
+                <TinyEditor
+                  onChange={(value) => formik.setFieldValue('footerThanks', value)}
+                  initialValue={formik.values.footerThanks}
+                  error={formik.touched.footerThanks && Boolean(formik.errors.footerThanks)}
+                  disabled={inputSelect !== 'footerThanks'}
+                />
+                <Typography variant="caption" color="textSecondary">
+                  {formik.touched.footerThanks && formik.errors.footerThanks}
+                </Typography>
               </Card>
             </Stack>
           </form>

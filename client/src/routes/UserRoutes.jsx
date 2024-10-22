@@ -8,11 +8,15 @@ import MyProfile from '~/pages/User/Profile/MyProfile';
 import Notifies from '~/pages/User/Profile/Notifies';
 import VoucherList from '~/pages/User/VoucherList';
 import PrivateRoute from './PrivateRoutes';
+import { Helmet } from 'react-helmet-async';
 
 const UserRoutes = {
   path: '/nguoi-dung',
   element: (
     <PrivateRoute>
+      <Helmet>
+        <title>BMT Life | Hồ sơ</title>
+      </Helmet>
       <ProfileLayout />
     </PrivateRoute>
   ),

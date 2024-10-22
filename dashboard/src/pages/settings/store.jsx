@@ -7,7 +7,7 @@ export default function StorePage() {
   return (
     <>
       <Helmet>
-        <title> Menu quản trị </title>
+        <title> Thông tin cửa hàng </title>
       </Helmet>
 
       <StoreView />

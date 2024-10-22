@@ -6,6 +6,7 @@ import ProductDetailReview from './components/ProductDetailReview';
 import { useQuery } from '@tanstack/react-query';
 import { getProductBySlug } from '~/APIs';
 import { useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 
 const ProductPage = () => {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -42,6 +43,9 @@ const ProductPage = () => {
 
   return (
     <section className="max-w-container mx-auto mt-16">
+      <Helmet>
+        <title>BMT Life | {productInfo?.name || 'Chi tiết sản phẩm'}</title>
+      </Helmet>
       <HeaderBC title={'Chi tiết sản phẩm'} name={productInfo?.name} />
 
       <div className="mb-24 mt-12">

@@ -104,21 +104,29 @@ export const SAVE_ORDER_NOT_LOGIN = Joi.object({
       })
     )
     .required(),
-  status: Joi.array().items(
-    Joi.object({
-      status: Joi.string()
-        .trim()
-        .min(1)
-        .valid(...Object.values(OrderStatus))
-        .default(OrderStatus.pending),
-      note: Joi.string()
-        .trim()
-        .min(1)
-        .required()
-        .default('Đơn hàng chưa được xác nhận'),
-      createdAt: Joi.date().timestamp('javascript').default(Date.now),
-    })
-  ),
+  status: Joi.array()
+    .items(
+      Joi.object({
+        status: Joi.string()
+          .trim()
+          .min(1)
+          .valid(...Object.values(OrderStatus))
+          .default(OrderStatus.pending),
+        note: Joi.string()
+          .trim()
+          .min(1)
+          .required()
+          .default('Đơn hàng chưa được xác nhận'),
+        createdAt: Joi.date().timestamp('javascript').default(Date.now),
+      })
+    )
+    .default([
+      {
+        status: OrderStatus.pending,
+        note: 'Đơn hàng chưa được xác nhận',
+        createdAt: Date.now(),
+      },
+    ]),
   shippingInfo: Joi.object({
     provinceName: Joi.string().trim().min(1),
     districtName: Joi.string().trim().min(1),
@@ -176,7 +184,6 @@ export const UPDATE_ORDER = Joi.object({
     Joi.object({
       status: Joi.string()
         .trim()
-        .min(1)
         .valid(...Object.values(OrderStatus))
         .default(OrderStatus.pending),
       note: Joi.string().trim().min(1),
