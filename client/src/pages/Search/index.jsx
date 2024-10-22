@@ -167,7 +167,7 @@ const SearchPage = () => {
   return (
     <section className="max-w-container mx-auto mt-16">
       <Helmet>
-        <title>BMT Life | Kết quả tìm kiếm cho {keyword || ''}</title>
+        <title>BMT Life | Kết quả tìm kiếm: {keyword || ''}</title>
       </Helmet>
       <HeaderBC
         title={'Kết quả tìm kiếm'}
