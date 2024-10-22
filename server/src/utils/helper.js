@@ -40,3 +40,12 @@ export const createStaffToken = (user, type = 'token') => {
     }
     return jwt.sign(dataToken, secret, { expiresIn });
 };
+export const preCheckId = (id) => {
+    if (!id || id.length !== 24) {
+        return false;
+    }
+    if (id.match(/^[0-9a-fA-F]{24}$/)) {
+        return true;
+    }
+    return false;
+}

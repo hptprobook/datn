@@ -1,6 +1,6 @@
 import Joi from 'joi';
 
-export const CREATE_STATIC_PAGE_SCHEMA = Joi.object({
+export const STATIC_PAGE_SCHEMA = Joi.object({
     title: Joi.string().required().min(4).max(255).messages({
         'string.base': 'Tiêu đề phải là một chuỗi văn bản.',
         'string.empty': 'Tiêu đề không được để trống.',
