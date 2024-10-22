@@ -4,7 +4,7 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import { Button, IconButton } from '@mui/material';
+import { Button } from '@mui/material';
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { PropTypes } from 'prop-types';
 import * as Yup from 'yup';
@@ -18,9 +18,9 @@ import {
 import { useFormik } from 'formik';
 import { handleToast } from 'src/hooks/toast';
 import ImageDropZone from 'src/components/drop-zone-upload/upload-img';
-import Iconify from 'src/components/iconify';
 import LoadingFull from 'src/components/loading/loading-full';
 import LoadingHeader from 'src/components/loading/loading-header';
+import TitlePage from 'src/components/page/title';
 import EditableField from '../edit-field';
 // ----------------------------------------------------------------------
 const configSchema = Yup.object().shape({
@@ -163,12 +163,7 @@ export default function StorePage() {
       {status === 'loading' && <LoadingFull />}
       {statusUpdate === 'loading' && <LoadingHeader />}
       <Stack direction="column" justifyContent="flex-start" spacing={2}>
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <Typography variant="h5">Thông tin cửa hàng</Typography>
-          <IconButton onClick={() => dispatch(getConfigWebsite())}>
-            <Iconify icon="mdi:reload" />
-          </IconButton>
-        </Stack>
+        <TitlePage title="Cài đặt cửa hàng" onClick={() => dispatch(getConfigWebsite())} />
         {status === 'successful' && formik.initialValues && (
           <form onSubmit={formik.handleSubmit}>
             <Stack direction="column" spacing={2}>
