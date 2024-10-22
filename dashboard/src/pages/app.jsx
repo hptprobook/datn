@@ -8,7 +8,7 @@ export default function AppPage() {
   return (
     <>
       <Helmet>
-        <title> Dashboard </title>
+        <title> BMT Life </title>
       </Helmet>
 
       <AppView />

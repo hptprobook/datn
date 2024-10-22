@@ -83,10 +83,10 @@ const updateNavDashboard = async (req, res) => {
         });
     }
 }
-const updateMutipleNav = async (req, res) => {
+const updateMultipleNav = async (req, res) => {
     try {
         const data = req.body;
-        const result = await navDashboardModel.updateMutipleNav(data);
+        const result = await navDashboardModel.updateMultipleNav(data);
         if (result.error) {
             return res.status(StatusCodes.BAD_REQUEST).json({ message: result.error });
         }
@@ -104,5 +104,5 @@ export const navDashboardController = {
     removeNavDashboard,
     updateNavDashboard,
     getNavDashboardById,
-    updateMutipleNav
+    updateMultipleNav
 };

@@ -9,6 +9,7 @@ export default function TinyEditor({
   onChange,
   height = 500,
   error = false,
+  disabled = false,
 }) {
   const editorRef = useRef(null);
   const log = () => {
@@ -25,7 +26,8 @@ export default function TinyEditor({
         }}
         borderColor={error ? 'red' : 'gray'}
         onChange={log}
-        initialValue={`<p>${initialValue}</p>`}
+        initialValue={initialValue}
+        disabled={disabled}
         init={{
           height,
           menubar: false,
@@ -65,4 +67,5 @@ TinyEditor.propTypes = {
   onChange: PropTypes.func.isRequired,
   height: PropTypes.number,
   error: PropTypes.bool,
+  disabled: PropTypes.bool,
 };
