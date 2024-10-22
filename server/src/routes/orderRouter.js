@@ -22,7 +22,7 @@ Router.post('/update_stock', verifyToken, orderController.updateStockProducts);
 // not login
 Router.get('/not/:orderCode', orderController.findOrderByCode);
 Router.post('/not', orderController.addOrderNot);
-Router.put('/not/:id', orderController.updateOrder);
+Router.put('/not/:id', orderController.updateOrdeNotLogin);
 Router.delete('/not/:idOrder', orderController.removeOrder);
 
 export const ordersApi = Router;
