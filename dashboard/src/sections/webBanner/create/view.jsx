@@ -33,11 +33,7 @@ export default function CreateWebBannerPage() {
   const [errorThumbnail, setErrorThumbnail] = useState(null);
 
   const dispatch = useDispatch();
-  const handleCreateSlug = (e) => {
-    formik.setFieldValue('title', e.target.value);
-    const slug = slugify(e.target.value);
-    formik.setFieldValue('url', slug);
-  };
+
   const handleChangeUploadThumbnail = useCallback((files) => {
     if (files) {
       setErrorThumbnail('');
@@ -111,7 +107,7 @@ export default function CreateWebBannerPage() {
                       variant="outlined"
                       name="title"
                       value={formik.values.title}
-                      onChange={(e) => handleCreateSlug(e)}
+                      onChange={formik.handleChange}
                       error={formik.touched.title && Boolean(formik.errors.title)}
                       helperText={formik.touched.title && formik.errors.title}
                     />

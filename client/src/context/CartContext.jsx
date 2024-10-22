@@ -7,6 +7,7 @@ const CartContext = createContext();
 export const CartProvider = ({ children }) => {
   const [selectedItems, setSelectedItems] = useState([]);
   const [selectedTotal, setSelectedTotal] = useState(0);
+  const [stockErrors, setStockErrors] = useState([]);
 
   const updateSelectedTotal = (items, selectedItems) => {
     const total = items
@@ -20,6 +21,8 @@ export const CartProvider = ({ children }) => {
     setSelectedItems,
     selectedTotal,
     updateSelectedTotal,
+    stockErrors,
+    setStockErrors,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

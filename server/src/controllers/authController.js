@@ -113,6 +113,51 @@ const login = async (req, res) => {
     }
 };
 
+const loginSocial = async (req, res) => {
+    try {
+        const { email, name } = req.body;
+        const user = await authModel.getUserEmail(email);
+        if (!user) {
+            const dataSocial = { email, name };
+            const dataUser = await authModel.registerSocial(dataSocial);
+            if (dataUser) {
+                const refreshToken = createRefreshToken(dataUser);
+                await authModel.update(dataUser._id, { refreshToken });
+                dataUser.token = createToken(dataUser);
+                dataUser.refreshToken = refreshToken;
+                return res.status(StatusCodes.OK).json(dataUser);
+            }
+        }
+        if (user.role == 'ban') {
+            return res
+                .status(StatusCodes.BAD_REQUEST)
+                .json({ message: ERROR_MESSAGES.BAN });
+        }
+        // Token
+        const token = createToken(user);
+        const refreshToken = createRefreshToken(user);
+        await authModel.update(user._id, { refreshToken });
+        const tokenOption = {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'None', // Để cho phép cookie hoạt động trên các origin khác nhau
+        };
+        user.token = token;
+        delete user.createdAt;
+        delete user.updatedAt;
+        delete user.refreshToken;
+        return res
+            .cookie('refreshToken', refreshToken, tokenOption)
+            .status(StatusCodes.OK)
+            .json(user);
+    } catch (error) {
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            message: ERROR_MESSAGES.ERR_AGAIN,
+            error: error,
+        });
+    }
+};
+
 const changePassword = async (req, res) => {
     try {
         const { email } = req.user;
@@ -403,4 +448,5 @@ export const authController = {
     refreshToken,
     sendSMS,
     changePassword,
+    loginSocial,
 };
