@@ -13,7 +13,7 @@ import Checkbox from '@mui/material/Checkbox';
 import Label from 'src/components/label';
 import { IconButton } from '@mui/material';
 import Iconify from 'src/components/iconify';
-import { EnhancedTableHead, EnhancedTableToolbar, staticPageType } from './util';
+import { staticPageType, EnhancedTableHead, EnhancedTableToolbar } from './util';
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -125,7 +125,7 @@ export default function StaticPagesTable({ data, onClickRow, onClickAction }) {
   );
   const handleSearch = (value) => {
     if (value) {
-      const searchResult = pages.filter((item) =>
+      const searchResult = data.filter((item) =>
         item.title.toLowerCase().includes(value.toLowerCase())
       );
       setPages(searchResult);

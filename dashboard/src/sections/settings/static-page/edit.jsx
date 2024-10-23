@@ -13,9 +13,10 @@ import TitlePage from 'src/components/page/title';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   setStatus,
+  getPageBy,
   fetchAllPages,
+  updatePageById,
   deleteStaticPage,
-  createStaticPage,
 } from 'src/redux/slices/staticPageSlices';
 import { handleToast } from 'src/hooks/toast';
 import LoadingFull from 'src/components/loading/loading-full';
@@ -26,6 +27,9 @@ import * as Yup from 'yup';
 import { useFormik } from 'formik';
 import FormHelpTextError from 'src/components/errors/form-error';
 import TinyEditor from 'src/components/editor/tinyEditor';
+import { useParams } from 'react-router-dom';
+import { isValidObjectId } from 'src/utils/check';
+import { useRouter } from 'src/routes/hooks';
 import { staticPageType } from '../util';
 
 export const staticPageSchema = Yup.object().shape({
@@ -74,22 +78,41 @@ export const staticPageSchema = Yup.object().shape({
   ),
 });
 
-export default function StaticWebCreatePage() {
+export default function StaticWebEditPage() {
+  const { id } = useParams();
+
   const [confirm, setConfirm] = React.useState(false);
   const dispatch = useDispatch();
-  const status = useSelector((state) => state.staticPages.statusCreate);
+  const status = useSelector((state) => state.staticPages.statusUpdate);
   const error = useSelector((state) => state.staticPages.error);
-
+  const page = useSelector((state) => state.staticPages.page);
+  const route = useRouter();
+  React.useEffect(() => {
+    if (id) {
+      if (isValidObjectId(id)) {
+        dispatch(
+          getPageBy({
+            type: '_id',
+            value: id,
+          })
+        );
+      } else {
+        handleToast('error', 'Id không hợp lệ');
+        route.push('/admin/settings/static-pages');
+      }
+    }
+  }, [id, route, dispatch]);
   const formik = useFormik({
     initialValues: {
-      title: '',
-      metaTitle: '',
-      metaDescription: '',
-      metaKeywords: '',
-      slug: '',
-      content: '',
-      type: '',
+      title: page?.title || '',
+      metaTitle: page?.metaTitle || '',
+      metaDescription: page?.metaDescription || '',
+      metaKeywords: page?.metaKeywords || '',
+      slug: page?.slug || '',
+      content: page?.content || '',
+      type: page?.type || '',
     },
+    enableReinitialize: true,
     validationSchema: staticPageSchema,
     onSubmit: (values) => {
       if (values.metaKeywords === '') {
@@ -98,26 +121,26 @@ export default function StaticWebCreatePage() {
       if (values.metaDescription === '') {
         handleToast('warning', 'Mô tả meta không được để trống.');
       }
-      dispatch(createStaticPage(values));
+      dispatch(updatePageById({ id, data: values }));
     },
   });
   React.useEffect(() => {
     if (status === 'successful') {
-      handleToast('success', 'Tạo trang tĩnh thành công.');
+      handleToast('success', 'Cập nhật trang tĩnh thành công.');
       formik.resetForm();
       dispatch(
         setStatus({
-          key: 'statusCreate',
+          key: 'statusUpdate',
           value: 'idle',
         })
       );
       dispatch(fetchAllPages());
     }
     if (status === 'failed') {
-      handleToast('error', error?.message || 'Tạo trang tĩnh thất bại.');
+      handleToast('error', error?.message || 'Cập nhật trang tĩnh thất bại.');
       dispatch(
         setStatus({
-          key: 'statusCreate',
+          key: 'statusUpdate',
           value: 'idle',
         })
       );
@@ -142,7 +165,7 @@ export default function StaticWebCreatePage() {
       />
       {status === 'loading' && <LoadingFull />}
 
-      <TitlePage title="Thêm trang tĩnh" />
+      <TitlePage title="Cập nhật trang tĩnh" />
       <form onSubmit={formik.handleSubmit}>
         <Stack spacing={2}>
           <CardHaveTitle title="Thông tin trang tĩnh">
@@ -198,7 +221,7 @@ export default function StaticWebCreatePage() {
             <Stack spacing={2} direction="column" justifyContent="flex-start">
               <TinyEditor
                 error={formik.touched.content && Boolean(formik.errors.content)}
-                initialValue="Đây là nội dung của trang tĩnh"
+                initialValue={formik.values.content}
                 onChange={(text) => formik.setFieldValue('content', text)}
               />
               <FormHelpTextError label={formik.touched.content && formik.errors.content} />

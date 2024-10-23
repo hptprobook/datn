@@ -12,7 +12,7 @@ export const fetchAllPages = createAsyncThunk(
         }
     }
 );
-export const createStaff = createAsyncThunk(
+export const createStaticPage = createAsyncThunk(
     "staticPages/create",
     async (data, { rejectWithValue }) => {
         try {
@@ -22,11 +22,11 @@ export const createStaff = createAsyncThunk(
         }
     }
 );
-export const getStaffBy = createAsyncThunk(
-    "staticPages/getStaffBy",
+export const getPageBy = createAsyncThunk(
+    "staticPages/findOne",
     async ({ type, value }, { rejectWithValue }) => {
         try {
-            const response = await StaticPageService.getStaffBy({
+            const response = await StaticPageService.findOne({
                 type,
                 value,
             });
@@ -46,8 +46,8 @@ export const deleteStaticPage = createAsyncThunk(
         }
     }
 );
-export const updateStaffById = createAsyncThunk(
-    "staticPages/updateStaffById",
+export const updatePageById = createAsyncThunk(
+    "staticPages/updatePageById",
     async ({ id, data }, { rejectWithValue }) => {
         try {
             const response = await StaticPageService.update(id, data);
@@ -88,24 +88,24 @@ const staticPageSlices = createSlice({
                 state.status = "failed";
                 state.error = action.payload;
             })
-            .addCase(createStaff.pending, (state) => {
+            .addCase(createStaticPage.pending, (state) => {
                 state.statusCreate = "loading";
             })
-            .addCase(createStaff.fulfilled, (state, action) => {
+            .addCase(createStaticPage.fulfilled, (state, action) => {
                 state.statusCreate = "successful";
             })
-            .addCase(createStaff.rejected, (state, action) => {
+            .addCase(createStaticPage.rejected, (state, action) => {
                 state.statusCreate = "failed";
                 state.error = action.payload;
             })
-            .addCase(getStaffBy.pending, (state) => {
+            .addCase(getPageBy.pending, (state) => {
                 state.statusGet = "loading";
             })
-            .addCase(getStaffBy.fulfilled, (state, action) => {
+            .addCase(getPageBy.fulfilled, (state, action) => {
                 state.statusGet = "successful";
-                state.staff = action.payload;
+                state.page = action.payload;
             })
-            .addCase(getStaffBy.rejected, (state, action) => {
+            .addCase(getPageBy.rejected, (state, action) => {
                 state.statusGet = "failed";
                 state.error = action.payload;
             })
@@ -120,14 +120,14 @@ const staticPageSlices = createSlice({
                 state.statusDelete = "failed";
                 state.error = action.payload;
             })
-            .addCase(updateStaffById.pending, (state) => {
+            .addCase(updatePageById.pending, (state) => {
                 state.statusUpdate = "loading";
             })
-            .addCase(updateStaffById.fulfilled, (state, action) => {
+            .addCase(updatePageById.fulfilled, (state, action) => {
                 state.statusUpdate = "successful";
                 state.staff = action.payload;
             })
-            .addCase(updateStaffById.rejected, (state, action) => {
+            .addCase(updatePageById.rejected, (state, action) => {
                 state.statusUpdate = "failed";
                 state.error = action.payload;
             })

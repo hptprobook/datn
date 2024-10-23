@@ -39,11 +39,14 @@ export default function StaticWebSettingPage() {
     dispatch(fetchAllPages());
   }, [dispatch]);
   const handleClickRow = (id) => {
-    console.log(id);
+    handleToast('info', 'Chức năng xem trước đang được phát triển');
   };
   const handleClickAction = (action, id) => {
     if (action === 'delete') {
       setConfirm(id);
+    }
+    if (action === 'edit') {
+      navigate(id);
     }
   };
 
