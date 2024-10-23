@@ -65,6 +65,10 @@ export const DetailBlogPage = lazy(() => import('src/pages/blog/detail'));
 export const WebBannerPage = lazy(() => import('src/pages/webBanner/webanners'));
 export const CreateWebBannerPage = lazy(() => import('src/pages/webBanner/create'));
 export const DetailWebBannerPage = lazy(() => import('src/pages/webBanner/detail'));
+// Customer Group page
+export const CustomerGroupPage = lazy(() => import('src/pages/customerGroups/customerGroups'));
+export const CreateCustomerGroupPage = lazy(() => import('src/pages/customerGroups/create'));
+export const DetailCustomerGroupPage = lazy(() => import('src/pages/customerGroups/detail'));
 // ----------------------------------------------------------------------
 
 const childRoutes = [
@@ -80,6 +84,9 @@ const childRoutes = [
   { path: configPath.webBanner, element: <WebBannerPage /> },
   { path: configPath.webBannerCreate, element: <CreateWebBannerPage /> },
   { path: configPath.webBannerDetail, element: <DetailWebBannerPage /> },
+  { path: configPath.customerGroups, element: <CustomerGroupPage /> },
+  { path: configPath.customerGroupsCreate, element: <CreateCustomerGroupPage /> },
+  { path: configPath.customerGroupsDetail, element: <DetailCustomerGroupPage /> },
 ];
 
 const renderFallback = (
