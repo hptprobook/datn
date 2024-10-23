@@ -25,7 +25,7 @@ export const STATIC_PAGE_SCHEMA = Joi.object({
         'any.required': 'Mô tả meta là bắt buộc.',
     }),
 
-    metaKeywords: Joi.string().optional().max(255).messages({
+    metaKeywords: Joi.string().optional().allow(null).max(255).messages({
         'string.base': 'Từ khóa SEO phải là một chuỗi văn bản.',
         'string.max': 'Từ khóa SEO không được vượt quá 255 ký tự.',
     }),
