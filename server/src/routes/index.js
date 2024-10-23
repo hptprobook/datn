@@ -29,6 +29,7 @@ import { hotSearchApi } from './hotSearchRouter';
 import { staffsApi } from './staffsRouter';
 import { customerGroupApi } from './customerGroupRouter';
 import { staticPageApi } from './routeForAdmin/staticPagesRoute';
+import { variantsApi } from './variantsRouter';
 const Router = express.Router();
 
 Router.use('/auth', authApi);
@@ -46,6 +47,7 @@ Router.use('/reviews', reviewsApi);
 Router.use('/suppliers', suppliersApi);
 Router.use('/warehouses', warehousesApi);
 Router.use('/products', productsApi);
+Router.use('/variants', variantsApi);
 Router.use('/brands', brandsApi);
 
 Router.use('/pays', paysApi);
@@ -64,7 +66,7 @@ Router.use('/customer-group', customerGroupApi);
 Router.use('/blogs', blogApi);
 
 Router.get('/', (req, res) => {
-    res.send('Hello from API!');
+  res.send('Hello from API!');
 });
 
 export const APIs = Router;
