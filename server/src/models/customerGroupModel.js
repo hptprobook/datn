@@ -4,7 +4,7 @@ import {
     SAVE_CUSTOMER_GROUP,
     UPDATE_CUSTOMER_GROUP,
     UPDATE_USER_CUSTOMER_GROUP,
-} from '~/utils/schema/CustomerGroupSchema';
+} from '~/utils/schema/customerGroupSchema';
 
 const validateBeforeCreate = async (data) => {
     return await SAVE_CUSTOMER_GROUP.validateAsync(data, { abortEarly: false });

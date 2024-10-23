@@ -3,7 +3,7 @@ import express from 'express';
 const Router = express.Router();
 // import { isStaff } from '~/middlewares/verifyRole';
 // import verifyToken from '~/middlewares/verifyToken';
-import { customerGroupController } from '~/controllers/CustomerGroupController';
+import { customerGroupController } from '~/controllers/customerGroupController';
 
 //admin
 Router.get('/', customerGroupController.getAllCG);
