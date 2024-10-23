@@ -26,13 +26,12 @@ import {
   Accordion,
   sizeSchema,
   clothingSizes,
-  colorsWithHex,
   variantSchema,
   AccordionDetails,
   AccordionSummary,
 } from './utils';
 
-export default function CreateVariant({ onUpdate }) {
+export default function CreateVariant({ onUpdate, colorsData, sizesData, wareHousesData }) {
   const [expanded, setExpanded] = React.useState('panel1');
   const [variants, setVariants] = React.useState([]);
   const [errorUpload, setErrorUpload] = React.useState('');
@@ -43,6 +42,7 @@ export default function CreateVariant({ onUpdate }) {
   const handleChange = (panel) => (event, newExpanded) => {
     setExpanded(newExpanded ? panel : false);
   };
+
   const formik = useFormik({
     initialValues: {
       price: '',
@@ -54,6 +54,7 @@ export default function CreateVariant({ onUpdate }) {
       sku: '',
       color: '',
       image: null,
+      warehouseId: '',
       sizes: [],
     },
     validationSchema: variantSchema,
@@ -73,6 +74,7 @@ export default function CreateVariant({ onUpdate }) {
         sku: values.sku,
         color: values.color,
         image: values.image,
+        warehouseId: values.warehouseId,
         sizes: [],
       };
       setVariants([...variants, newVariant]);
@@ -86,15 +88,32 @@ export default function CreateVariant({ onUpdate }) {
       stock: '',
       price: '',
       index: '',
+      sku: '',
     },
     validationSchema: sizeSchema,
     onSubmit: (values) => {
+      console.log(variants[openSize].sizes);
+      if (Number(values.price) < Number(variants[openSize].capitalPrice)) {
+        formikSize.setFieldError('price', 'Giá phải lớn hơn giá vốn');
+        return;
+      }
+      const exitingSize = variants[openSize].sizes.find((size) => size.size === values.size);
+      if (exitingSize) {
+        formikSize.setFieldError('size', 'Kích thước đã tồn tại');
+        return;
+      }
       const newVariant = [...variants];
       newVariant[openSize].sizes.push({
         size: values.size,
         stock: values.stock,
         price: values.price,
+        sku: variants[openSize].sku + values.size,
       });
+      const newStock = newVariant[openSize].sizes.reduce(
+        (acc, size) => acc + Number(size.stock),
+        0
+      );
+      newVariant[openSize].stock = newStock;
       setVariants(newVariant);
       setOpenSize(null);
       formikSize.resetForm();
@@ -104,6 +123,13 @@ export default function CreateVariant({ onUpdate }) {
     const newVariants = [...variants];
     newVariants.splice(index, 1);
     setVariants(newVariants);
+  };
+  const handleDeleteSize = (i, indexSize) => {
+    const newVariant = [...variants];
+    newVariant[i].sizes.splice(indexSize, 1);
+    const newStock = newVariant[i].sizes.reduce((acc, size) => acc + Number(size.stock), 0);
+    newVariant[i].stock = newStock;
+    setVariants(newVariant);
   };
 
   const handleChangeUpload = React.useCallback((files) => {
@@ -236,6 +262,38 @@ export default function CreateVariant({ onUpdate }) {
                       {formik.touched.saleOff && formik.errors.saleOff ? formik.errors.saleOff : ''}
                     </FormHelperText>
                   </FormControl>
+                  <FormControl fullWidth>
+                    <InputLabel id="warehouseId-select-label">Kho</InputLabel>
+                    <Select
+                      labelId="warehouseId-select-label"
+                      id="warehouseId-select"
+                      value={formik.values.warehouseId}
+                      error={formik.touched.warehouseId && Boolean(formik.errors.warehouseId)}
+                      label="Kho"
+                      name="warehouseId"
+                      onChange={formik.handleChange}
+                    >
+                      {wareHousesData.map((w, index) => (
+                        <MenuItem
+                          key={index}
+                          value={w._id}
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                          }}
+                        >
+                          {w.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    <FormHelperText
+                      sx={{
+                        color: formik.touched.warehouseId && formik.errors.warehouseId ? 'red' : 'inherit',
+                      }}
+                    >
+                      {formik.touched.warehouseId && formik.errors.warehouseId ? formik.errors.warehouseId : ''}
+                    </FormHelperText>
+                  </FormControl>
                 </Stack>
               </Grid2>
               <Grid2 xs={6}>
@@ -253,10 +311,10 @@ export default function CreateVariant({ onUpdate }) {
                       name="color"
                       onChange={formik.handleChange}
                     >
-                      {colorsWithHex.map((color, index) => (
+                      {colorsData.map((color, index) => (
                         <MenuItem
                           key={index}
-                          value={color.name}
+                          value={color._id}
                           sx={{
                             display: 'flex',
                             alignItems: 'center',
@@ -268,7 +326,7 @@ export default function CreateVariant({ onUpdate }) {
                               display: 'inline-block',
                               width: 20,
                               height: 20,
-                              backgroundColor: color.hex,
+                              backgroundColor: color.value,
                               borderRadius: '50%',
                               marginLeft: 10,
                             }}
@@ -426,13 +484,31 @@ export default function CreateVariant({ onUpdate }) {
                 </Typography>
                 {variant.sizes.length > 0 &&
                   variant.sizes.map((size, i) => (
-                    <Typography key={i}>
-                      Kích thước: {size.size} - Số lượng: {size.stock} - Giá:{' '}
-                      {formatCurrency(size.price)}
-                    </Typography>
+                    <Stack
+                      key={i}
+                      direction="row"
+                      justifyContent="space-between"
+                      alignItems="center"
+                      sx={{
+                        borderTop: '1px solid #e0e0e0',
+                      }}
+                    >
+                      <Typography>
+                        Kích thước: {size.size} - Số lượng: {size.stock} - Giá:{' '}
+                        {formatCurrency(size.price)} - SKU: {size.sku}
+                      </Typography>
+                      <IconButton onClick={() => handleDeleteSize(index, i)}>
+                        <Iconify icon="eva:trash-2-fill" />
+                      </IconButton>
+                    </Stack>
                   ))}
 
-                <Button variant="contained" color="inherit" onClick={() => setOpenSize(index)}>
+                <Button
+                  variant="contained"
+                  color="inherit"
+                  sx={{ width: 'fit-content' }}
+                  onClick={() => setOpenSize(index)}
+                >
                   Thêm kích thước
                 </Button>
               </Stack>
@@ -445,4 +521,7 @@ export default function CreateVariant({ onUpdate }) {
 }
 CreateVariant.propTypes = {
   onUpdate: PropTypes.func.isRequired,
+  colorsData: PropTypes.array.isRequired,
+  sizesData: PropTypes.array.isRequired,
+  wareHousesData: PropTypes.array.isRequired,
 };

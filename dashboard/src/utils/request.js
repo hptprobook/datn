@@ -77,6 +77,9 @@ export const uploadProduct = async ({ path, data, type = 'post' }) => {
       data[key].forEach((variant) => {
         formData.append('imageVariants', variant.image);
       });
+    } else if (key === 'productType' || key === 'tags') {
+      const convert = JSON.stringify(data[key]);
+      formData.append(key, convert);
     } else {
       formData.append(key, data[key]);
     }
