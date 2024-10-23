@@ -151,7 +151,8 @@ const deleteBrand = async (req, res) => {
       if (data.image) {
         await uploadModel.deleteImg(data.image);
       }
-      return res.status(StatusCodes.OK).json(data.brands);
+
+      return res.status(StatusCodes.OK).json({ message: 'Xóa thành công' });
     }
   } catch (error) {
     return res
