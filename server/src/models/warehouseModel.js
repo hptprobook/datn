@@ -21,18 +21,13 @@ const createWarehouse = async (data) => {
     return result;
 };
 
-const getWarehousesAll = async (page, limit) => {
-    page = parseInt(page) || 1;
-    limit = parseInt(limit) || 12;
+const getWarehousesAll = async () => {
     const db = await GET_DB().collection('warehouses');
-    const total = await db.countDocuments();
     const result = await db
         .find()
-        .skip((page - 1) * limit)
-        .limit(limit)
         // .project({ _id: 0, age:1 })
         .toArray();
-    return { result, total };
+    return result;
 };
 
 const getWarehouseById = async (id) => {
