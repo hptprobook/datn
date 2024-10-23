@@ -18,7 +18,7 @@ export const DetailUserPage = lazy(() => import('src/pages/user/detail'));
 export const LoginPage = lazy(() => import('src/pages/login'));
 // product page
 export const ProductsPage = lazy(() => import('src/pages/products/products'));
-export const CreateProductPage = lazy(() => import('src/pages/products/createProduct'));
+export const CreateProductPage = lazy(() => import('src/pages/products/create'));
 export const DetailProductPage = lazy(() => import('src/pages/products/detail'));
 export const Page404 = lazy(() => import('src/pages/page-not-found'));
 // category page
@@ -35,7 +35,9 @@ export const StaffsSettingPage = lazy(() => import('src/pages/settings/staffs'))
 export const StaffCreatePage = lazy(() => import('src/pages/settings/staffs/create'));
 export const StaffEditPage = lazy(() => import('src/pages/settings/staffs/edit'));
 export const StoreView = lazy(() => import('src/pages/settings/store'));
-export const StaticWebSettingPage = lazy(() => import('src/pages/settings/static-page'));
+export const StaticWebSettingPage = lazy(() => import('src/pages/settings/static-pages'));
+export const StaticWebCreatePage = lazy(() => import('src/pages/settings/static-pages/create'));
+export const StaticWebEditPage = lazy(() => import('src/pages/settings/static-pages/edit'));
 // warehouse page
 export const WarehousePage = lazy(() => import('src/pages/warehouse/warehouse'));
 export const WarehouseCreatePage = lazy(() => import('src/pages/warehouse/create'));
@@ -238,6 +240,14 @@ export default function Router() {
             {
               path: 'static-pages',
               element: <StaticWebSettingPage />,
+            },
+            {
+              path: 'static-pages/create',
+              element: <StaticWebCreatePage />,
+            },
+            {
+              path: 'static-pages/:id',
+              element: <StaticWebEditPage />,
             },
             {
               path: 'notifications',

@@ -1,5 +1,5 @@
 import { Helmet } from 'react-helmet-async';
-import StaticWebSettingView from 'src/sections/settings/store/static-page';
+import { StaticWebSettingView } from 'src/sections/settings/static-page';
 
 // ----------------------------------------------------------------------
 
