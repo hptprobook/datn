@@ -161,9 +161,8 @@ export const SAVE_PRODUCT_SCHEMA = Joi.object({
       updatedAt: Joi.date().timestamp('javascript').default(Date.now),
     })
   ),
-  weight: Joi.number().precision(2).min(1).required().messages({
-    'string.empty': 'Cân nặng không được để trống',
-    'any.required': 'Cân nặng là bắt buộc',
+  weight: Joi.number().precision(2).default(1).messages({
+    'number.base': 'Cân nặng phải là một số',
   }),
   height: Joi.number().precision(2).min(1).required().messages({
     'string.empty': 'Chiều cao không được để trống',
