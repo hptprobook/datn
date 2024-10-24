@@ -40,6 +40,9 @@ const validationSchema = Yup.object({
     .min(2, 'Slug phải chứa ít nhất 2 ký tự')
     .max(255, 'Slug không được vượt quá 255 ký tự'),
   status: Yup.string().required('Trạng thái là bắt buộc'), // Add validation for status
+  title: Yup.string().max(255, 'Tiêu đề SEO không được vượt quá 255 ký tự'),
+  description: Yup.string().required('Mô tả là bắt buộc'), // Add validation for description
+  alias: Yup.string().max(255, 'Đường dẫn SEO không được vượt quá 255 ký tự'),
 });
 
 const CreateCategoryView = () => {
@@ -56,6 +59,11 @@ const CreateCategoryView = () => {
       parentId: '',
       status: true,
       description: '',
+      seoOption: {
+        title: '',
+        description: '',
+        alias: '',
+      },
     },
     validationSchema,
     onSubmit: async (values) => {
@@ -83,23 +91,26 @@ const CreateCategoryView = () => {
         handleToast('error', 'Mô tả không được để trống');
         return;
       }
+
+      data.seoOption.title = data.seoOption.title || data.name;
+      data.seoOption.description = data.seoOption.description || data.description;
+      data.seoOption.alias = data.seoOption.alias || data.slug;
+      
       dispatch(createCategory({ file: uploadedImageUrl, data }));
     },
   });
 
   useEffect(() => {
-    dispatch(fetchAllCategories());
     if (statusCreate === 'successful') {
+    dispatch(setStatus({ key: 'statusCreate', value: 'idle' }));
       handleToast('success', 'Tạo Danh mục thành công');
-      formik.resetForm();
       setUploadedImageUrl(null);
     } else if (statusCreate === 'failed') {
-      handleToast('error', error?.message || 'Có lỗi xảy ra khi tạo Danh mục');
       dispatch(setStatus({ key: 'error', value: null }));
+      handleToast('error', error?.message || 'Có lỗi xảy ra khi tạo Danh mục');
     }
-    dispatch(setStatus({ key: 'statusCreate', value: 'idle' }));
   }, [statusCreate, dispatch, error, formik]);
-
+console.log(statusCreate);
   useEffect(() => {
     if (statusGetCategories === 'idle') {
       dispatch(fetchAllCategories(true));
@@ -125,7 +136,6 @@ const CreateCategoryView = () => {
     formik.setFieldValue('name', value); // Cập nhật giá trị name
     formik.setFieldValue('slug', slugify(value)); // Tạo slug tự động từ name
   };
-  // Filter categories to include only those with parentId as ROOT and their direct children
   return (
     <Container>
       {statusCreate === 'loading' && <LoadingFull />}
@@ -211,6 +221,36 @@ const CreateCategoryView = () => {
                     label="Trạng thái"
                   />
                 </FormGroup>
+              </Grid2>
+              <Grid2 xs={6}>
+                <TextField
+                  fullWidth
+                  id="seoOption.title"
+                  name="seoOption.title"
+                  value={formik.values.seoOption.title}
+                  onChange={formik.handleChange}
+                  label="Tiêu đề SEO"
+                />
+              </Grid2>
+              <Grid2 xs={6}>
+                <TextField
+                  fullWidth
+                  id="seoOption.description"
+                  name="seoOption.description"
+                  value={formik.values.seoOption.description}
+                  onChange={formik.handleChange}
+                  label="Mô tả SEO"
+                />
+              </Grid2>
+              <Grid2 xs={6}>
+                <TextField
+                  fullWidth
+                  id="seoOption.alias"
+                  name="seoOption.alias"
+                  value={formik.values.seoOption.alias}
+                  onChange={formik.handleChange}
+                  label="Đường dẫn SEO"
+                />
               </Grid2>
               <Grid2 xs={12}>
                 <TinyEditor onChange={handleEditorChange} />

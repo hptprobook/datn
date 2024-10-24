@@ -1,16 +1,16 @@
 import { Helmet } from 'react-helmet-async';
-import {CreateProductView }  from 'src/sections/products/view';
+import {DetailBlogView }  from 'src/sections/blog/detail';
 
 // ----------------------------------------------------------------------
 
-export default function CreateProductPage() {
+export default function DetailBlogPage() {
   return (
     <>
       <Helmet>
-        <title>Create Products</title>
+        <title>Chỉnh sửa bài viết</title>
       </Helmet>
 
-      <CreateProductView />
+      <DetailBlogView />
     </>
   );
 }

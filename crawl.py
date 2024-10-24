@@ -17,7 +17,7 @@ maxPage = 65
 base_url = 'https://j-p.vn/collections/tat-ca-san-pham-1'
 tags_list = ["Bán chạy", "Freeship", "Hot sale"]
 statusStock = ['stock', 'outStock', 'preOrder']
-colors = ["Đỏ", "Cam", "Vàng", "Lam", "Xanh", "Trắng", "Đen"]
+colors = ["Đỏ", "Xanh lá cây", "Xanh", "Xanh dương", "Vàng", "Cam", "Tím", "Hồng", "Đen", "Trắng", "Xám", "Nâu", "Xanh lơ", "Hồng cánh sen", "Xanh lá nhạt", "Xanh đậm", "Tím nhạt"]
 sizes = ["S", "M", "L", "XL", "XXL"]
 productUrl = 'https://picsum.photos/276/380'
 
@@ -189,9 +189,7 @@ def crawl_product_detail(product_url):
 
         product_name_before = product_soup.find('div', class_='pro-content-head').find('h1').get_text(strip=True)
 
-        # Thêm số ngẫu nhiên vào sau tên sản phẩm
         product_name = f"{product_name_before}"
-
         price_text = product_soup.find('span', class_='price-now').get_text(strip=True)
         product_price = float(re.sub(r'[^\d]', '', price_text))
         price = product_price + random.randint(10000, 100000)
@@ -203,19 +201,21 @@ def crawl_product_detail(product_url):
             print(f"Không thể lấy hình ảnh từ sản phẩm: {product_url}")
             return
 
-        # Thumbnail là hình ảnh đầu tiên
         thumbnail = imgUrls[0]
 
         selected_colors = random.sample(colors, random.randint(1, len(colors)))
 
         variants = []
         for color in selected_colors:
-            # Chọn ảnh từ mảng images cho từng variant
-            imgUrl = random.choice(imgUrls) 
+            imgUrl = random.choice(imgUrls)
             varStock = random.randint(100, 300)
             sizeStocks = distribute_stock(varStock, 5)
+
+            sku_color = create_slug(f"{product_name_before} {color}").replace('-', '').upper()
+            warehouse_id = ObjectId('66ed216af9110113ec059bd2')
             
             variant = {
+                'warehouseId': warehouse_id,
                 'stock': varStock,
                 'price': price,
                 'marketPrice': price,
@@ -223,23 +223,29 @@ def crawl_product_detail(product_url):
                 'onlinePrice': price,
                 'saleOff': price,
                 'sellCount': random.randint(0, 300),
-                'sku': random.randint(100000, 999999),
+                'sku': sku_color,
                 'color': color,
                 'image': imgUrl,
                 'sizes': []
             }
 
             for i, size in enumerate(sizes):
+                size_sku = f"{sku_color}{size}"
+                sale_quantity = random.randint(1, sizeStocks[i])
+                trading_quantity = random.randint(0, 199)
+                
                 sizeData = {
                     'size': size,
                     'price': price + random.randint(5000, 20000),
-                    'stock': sizeStocks[i]
+                    'stock': sizeStocks[i],
+                    'sale': sale_quantity,
+                    'trading': trading_quantity,
+                    'sku': size_sku
                 }
                 
                 variant['sizes'].append(sizeData)
                 
             variants.append(variant)
-
 
         cat_id = ObjectId(random.choice(catIds))
         brand = ObjectId(random.choice(brandIds))
@@ -251,10 +257,17 @@ def crawl_product_detail(product_url):
         minInventory = max(0, stock - random.randint(0, 20))
         maxInventory = stock + random.randint(10, 50)
 
+        # Tạo đối tượng seoOptions
+        seoOptions = {
+            'title': product_name,
+            'description': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+            'alias': slug
+        }
+
         product_data = {
             'name': product_name,
-            'description': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin efficitur justo vitae felis gravida, nec laoreet ligula consequat. Vivamus ac vehicula ligula. Etiam eu libero sed purus cursus tincidunt.',
-            'content': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin efficitur justo vitae felis gravida, nec laoreet ligula consequat. Vivamus ac vehicula ligula. Etiam eu libero sed purus cursus tincidunt. Nulla facilisi. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Quisque fringilla consectetur dui, sed dictum ex blandit non. Aenean sed justo felis. Integer viverra venenatis arcu ac ullamcorper. Donec posuere ligula ac turpis suscipit, vitae tincidunt ipsum malesuada. Aliquam erat volutpat. Mauris vitae bibendum metus. Phasellus nec bibendum sapien. Aliquam erat volutpat. Suspendisse eget egestas neque, non viverra est. Aenean at est vulputate, pellentesque nunc at, efficitur ipsum.Mauris eget felis accumsan, placerat dolor nec, interdum mauris. Vestibulum tristique augue vel lorem varius, sed luctus nisl suscipit. Praesent aliquam metus sed leo viverra, et lobortis justo suscipit. Nunc ultricies ligula quis dui maximus vehicula. Integer dapibus risus nec scelerisque tincidunt. Curabitur bibendum risus at est dignissim egestas. Integer fermentum dictum felis, quis mollis lacus condimentum eget. Pellentesque convallis erat in felis consectetur, non faucibus lacus dign',
+            'description': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin efficitur justo vitae felis gravida, nec laoreet ligula consequat.',
+            'content': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin efficitur justo vitae felis gravida, nec laoreet ligula consequat.',
             'tags': tags,
             'brand': brand,
             'thumbnail': thumbnail,
@@ -265,13 +278,14 @@ def crawl_product_detail(product_url):
             'variants': variants,
             'cat_id': cat_id,
             'statusStock': random.choice(statusStock),
-            'view': random.randint(0, 200),
+            'views': random.randint(0, 200),
             'productType': random.sample(productTypes, random.randint(1, 2)),
             'weight': weight,
             'height': height,
             'inventory': stock,
             'minInventory': minInventory,
             'maxInventory': maxInventory,
+            'seoOptions': seoOptions,
             'createdAt': 1726476852277,
             'updatedAt': 1726476852277
         }
@@ -282,6 +296,7 @@ def crawl_product_detail(product_url):
         print(f"Đã lưu sản phẩm: {product_name}")
     else:
         print(f"Không thể truy cập sản phẩm: {product_url}")
+
 
 for page in range(2, maxPage + 1):
     page_url = f"{base_url}?page={page}"

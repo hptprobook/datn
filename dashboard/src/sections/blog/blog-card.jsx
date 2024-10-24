@@ -10,7 +10,6 @@ import {
 import PropTypes from 'prop-types';
 import React, { useEffect } from 'react';
 import { renderUrl } from 'src/utils/check';
-import Iconify from 'src/components/iconify';
 import { parseContent } from './utils';
 
 const backendUrl = import.meta.env.VITE_BACKEND_APP_URL;

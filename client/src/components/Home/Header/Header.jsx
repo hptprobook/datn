@@ -61,7 +61,7 @@ const Header = () => {
         <div className="max-w-container h-full mx-auto flex justify-between items-center">
           <NavLink to="/">
             <div>
-              <img src={Logo} alt="Logo" className="h-full w-56" />
+              <img src={Logo} alt="Logo" className="h-full w-48" />
             </div>
           </NavLink>
           <SearchBar />

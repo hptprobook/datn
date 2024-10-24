@@ -1,58 +1,106 @@
 import { useState } from 'react';
 import { Icon } from '@iconify/react';
 import { Helmet } from 'react-helmet-async';
+import {
+  findOrderByCodeAPI,
+  updateOrderNotLoginAPI,
+} from '~/APIs/Orders/notLoginOrder';
+import { useMutation } from '@tanstack/react-query';
+import { useSwal, useSwalWithConfirm } from '~/customHooks/useSwal';
+import { Link } from 'react-router-dom';
+import { formatCurrencyVND } from '~/utils/formatters';
+import MainLoading from '~/components/common/Loading/MainLoading';
 
 const TrackingOrderPage = () => {
   const [orderCode, setOrderCode] = useState('');
+  const [searchedOrder, setSearchedOrder] = useState(null);
+  const [debounce, setDebounce] = useState(false);
+
+  const { mutate, isLoading } = useMutation({
+    mutationFn: findOrderByCodeAPI,
+    onSuccess: (data) => {
+      setSearchedOrder(data);
+      if (!data) {
+        useSwal.fire({
+          icon: 'error',
+          title: 'Thất bại!',
+          text: `Không tìm thấy đơn hàng với mã "${orderCode}", vui lòng kiểm tra lại`,
+          confirmButtonText: 'Xác nhận',
+        });
+      }
+    },
+    onError: () => {
+      useSwal.fire({
+        icon: 'error',
+        title: 'Thất bại!',
+        text: 'Lỗi khi tìm kiếm đơn hàng, vui lòng thử lại',
+        confirmButtonText: 'Xác nhận',
+      });
+    },
+  });
+
+  const { mutate: cancelOrder, isLoading: cancelOrderLoading } = useMutation({
+    mutationFn: updateOrderNotLoginAPI,
+    onSuccess: (data) => {
+      setSearchedOrder(data);
+      useSwal.fire({
+        icon: 'success',
+        title: 'Thành công!',
+        text: 'Đơn hàng đã được hủy thành công.',
+        confirmButtonText: 'Xác nhận',
+      });
+    },
+    onError: () => {
+      useSwal.fire({
+        icon: 'error',
+        title: 'Thất bại!',
+        text: 'Không thể hủy đơn hàng, vui lòng thử lại.',
+        confirmButtonText: 'Xác nhận',
+      });
+    },
+  });
+
+  const handleCancelOrder = (e) => {
+    e.preventDefault();
+    useSwalWithConfirm
+      .fire({
+        icon: 'warning',
+        title: 'Xác nhận hủy đơn hàng?',
+        text: 'Bạn có chắc muốn hủy đơn hàng này không? Hành động này không thể hoàn tác.',
+        confirmButtonText: 'Xác nhận hủy',
+        cancelButtonText: 'Hủy bỏ',
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          cancelOrder({
+            id: searchedOrder?._id,
+            data: {
+              status: {
+                status: 'cancelled',
+                note: 'Khách hàng huỷ đơn',
+              },
+            },
+          });
+        }
+      });
+  };
+
+  if (isLoading || cancelOrderLoading) {
+    return <MainLoading />;
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault();
-  };
+    if (orderCode) {
+      setDebounce(true);
 
-  const orderStatus = [
-    {
-      id: 1,
-      status: 'Chờ xác nhận',
-      time: '19 Nov 2023, 10:45',
-      icon: 'mdi:clock-outline', // icon cho trạng thái chờ xác nhận
-      active: true,
-    },
-    {
-      id: 2,
-      status: 'Đang xử lý',
-      time: '19 Nov 2023, 10:47',
-      icon: 'mdi:cogs', // icon cho trạng thái đang xử lý
-      active: true,
-    },
-    {
-      id: 3,
-      status: 'Đang ở kho',
-      time: '22 Nov 2023, 12:27',
-      icon: 'mdi:warehouse', // icon cho trạng thái đang ở kho
-      active: true,
-    },
-    {
-      id: 4,
-      status: 'Đang được gửi',
-      time: '23 Nov 2023, 15:15',
-      icon: 'mdi:truck-delivery-outline', // icon cho trạng thái đang gửi
-      active: true,
-    },
-    {
-      id: 5,
-      status: 'Đơn vị vận chuyển đang giao hàng',
-      time: '24 Nov 2023',
-      icon: 'mdi:truck-fast', // icon cho trạng thái giao hàng
-      active: false,
-    },
-    {
-      id: 6,
-      status: 'Đã nhận hàng',
-      time: '',
-      icon: 'mdi:checkbox-marked-circle-outline', // icon cho trạng thái đã nhận
-      active: false,
-    },
-  ];
+      setTimeout(() => {
+        setDebounce(false);
+      }, 1500);
+
+      mutate(orderCode);
+    }
+  };
 
   return (
     <section className="bg-white py-8 antialiased md:py-16">
@@ -60,155 +108,212 @@ const TrackingOrderPage = () => {
         <title>BMT Life | Theo dõi đơn hàng </title>
       </Helmet>
       <div className="mx-auto max-w-screen-xl px-4 2xl:px-0">
-        {/* Form nhập mã đơn hàng */}
         <form
           onSubmit={handleSubmit}
           className="flex flex-col items-center gap-4 mb-8"
         >
           <input
             type="text"
-            className="w-full max-w-lg rounded-lg border border-gray-300 p-3 text-sm"
+            className="w-full max-w-lg rounded-md border border-gray-300 p-3 text-sm bg-white text-gray-900"
             placeholder="Nhập mã đơn hàng được gửi trong gmail"
             value={orderCode}
             onChange={(e) => setOrderCode(e.target.value)}
           />
           <button
             type="submit"
-            className="rounded-md bg-blue-500 hover:bg-blue-600 text-white px-6 py-2"
+            className="btn rounded-md bg-red-500 hover:bg-red-700 text-white px-6 py-2"
+            disabled={debounce}
           >
             Tìm kiếm đơn hàng
           </button>
         </form>
 
-        <h2 className="text-xl font-semibold text-gray-900 sm:text-2xl">
-          Theo dõi đơn hàng #957684673
-        </h2>
+        {searchedOrder && (
+          <>
+            <h2 className="text-xl font-semibold text-gray-900 sm:text-2xl">
+              Theo dõi đơn hàng #{orderCode}
+            </h2>
 
-        <div className="mt-6 sm:mt-8 lg:flex lg:gap-8">
-          <div className="w-full divide-y divide-gray-200 overflow-hidden rounded-lg border border-gray-200 lg:max-w-xl xl:max-w-2xl">
-            {/* Sản phẩm */}
-            <div className="space-y-4 p-6">
-              <div className="flex items-center gap-6">
-                <a href="#" className="h-14 w-14 shrink-0">
-                  <img
-                    className="h-full w-full"
-                    src="https://flowbite.s3.amazonaws.com/blocks/e-commerce/imac-front.svg"
-                    alt="imac image"
-                  />
-                </a>
-                <a
-                  href="#"
-                  className="min-w-0 flex-1 font-medium text-gray-900 hover:underline"
-                >
-                  Áo thun nam
-                </a>
-                <p className="text-sm font-normal text-gray-500">
-                  <span className="font-medium text-gray-900">Loại:</span> Đỏ -
-                  M
-                </p>
-              </div>
-              <div className="flex items-center justify-between gap-4">
-                <div></div>
-                <div className="flex items-center justify-end gap-4">
-                  <p className="text-base font-normal text-gray-900">x1</p>
-                  <p className="text-xl font-bold leading-tight text-gray-900">
-                    300.000đ
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="col-span-12 lg:col-span-4 space-y-6">
-              <div className="p-6 border border-gray-200 rounded-lg bg-white shadow-sm">
-                <h3 className="text-lg font-semibold mb-4">
-                  Thông tin đơn hàng
-                </h3>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="font-medium text-gray-700">
-                      Tổng tiền hàng:
-                    </span>
-                    <span className="text-gray-900">300.000đ</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium text-gray-700">Phí ship:</span>
-                    <span className="text-gray-900">20.000đ</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium text-gray-700">Giảm giá:</span>
-                    <span className="text-gray-900">-10.000đ</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium text-gray-700">
-                      Phương thức thanh toán:
-                    </span>
-                    <span className="text-gray-900">
-                      Thanh toán khi nhận hàng
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium text-gray-700 ">
-                      Địa chỉ giao hàng:
-                    </span>
-                    <span className="text-gray-900 ">
-                      123 Đường ABC, Quận X, TP.HCM
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium text-gray-700">Ghi chú:</span>
-                    <span className="text-gray-900">Giao hàng trước 18:00</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-6 grow sm:mt-8 lg:mt-0">
-            <div className="space-y-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-              <h3 className="text-xl font-semibold text-gray-900">
-                Lịch sử đơn hàng
-              </h3>
-
-              <ol className="relative ms-3 border-s border-gray-200">
-                {orderStatus.map((status) => (
-                  <li
-                    key={status.id}
-                    className={`mb-10 ms-6 ${
-                      status.active ? 'text-gray-500' : 'text-red-600'
-                    }`}
-                  >
-                    <span
-                      className={`absolute -start-3 flex h-6 w-6 items-center justify-cen rounded-full ${
-                        status.active ? 'bg-primary-100' : 'bg-gray-100'
-                      } ring-8 ring-white`}
-                    >
-                      <Icon
-                        icon={status.icon}
-                        className={`h-4 w-4 ${
-                          status.active ? 'text-primary-700' : 'text-gray-500'
-                        }`}
-                      />
-                    </span>
-                    <h4 className="mb-0.5 text-base font-semibold">
-                      {status.time ? status.time : status.status}
-                    </h4>
-                    <p className="text-sm">
-                      {status.time ? status.status : ''}
-                    </p>
-                  </li>
+            <div className="mt-6 sm:mt-8 lg:flex lg:gap-8">
+              <div className="w-full divide-y divide-gray-200 overflow-hidden rounded-lg border border-gray-200 lg:max-w-xl xl:max-w-2xl">
+                {searchedOrder?.productsList?.map((product) => (
+                  <>
+                    <div className="space-y-4 p-6">
+                      <div className="flex items-center gap-6">
+                        <Link
+                          to={`/product/${product?.slug}`}
+                          className="h-24 w-20"
+                        >
+                          <img
+                            className="h-full w-full"
+                            src={product?.thumbnail}
+                            alt={product?.name}
+                          />
+                        </Link>
+                        <Link
+                          to={`/product/${product?.slug}`}
+                          className="min-w-0 flex-1 font-medium text-gray-900 hover:underline"
+                        >
+                          {product?.name}
+                        </Link>
+                        <p className="text-sm font-normal text-gray-900">
+                          <span className="font-medium text-gray-900">
+                            Loại:
+                          </span>{' '}
+                          {product?.color} - {product?.size}
+                        </p>
+                      </div>
+                      <div className="flex items-center justify-between gap-4">
+                        <div></div>
+                        <div className="flex items-center justify-end gap-4">
+                          <p className="text-base font-normal text-gray-900">
+                            x{product?.quantity}
+                          </p>
+                          <p className="text-xl font-bold leading-tight text-red-600">
+                            {formatCurrencyVND(product?.price)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </>
                 ))}
-              </ol>
+                <div className="col-span-12 lg:col-span-4 space-y-6">
+                  <div className="p-6 rounded-lg bg-white">
+                    <h3 className="text-lg font-semibold mb-4 text-gray-900">
+                      Thông tin đơn hàng
+                    </h3>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="font-medium text-gray-700">
+                          Tổng tiền hàng:
+                        </span>
+                        <span className="text-gray-900">
+                          {formatCurrencyVND(searchedOrder?.totalPrice)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="font-medium text-gray-700">
+                          Phí ship:
+                        </span>
+                        <span className="text-gray-900">
+                          {formatCurrencyVND(searchedOrder?.shipping?.fee)}
+                        </span>
+                      </div>
+                      {searchedOrder.discountPercentage && (
+                        <div className="flex justify-between">
+                          <span className="font-medium text-gray-700">
+                            Giảm giá:
+                          </span>
+                          {/* <span className="text-gray-900">-10.000đ</span> */}
+                        </div>
+                      )}
+                      <div className="flex justify-between">
+                        <span className="font-medium text-gray-700">
+                          Phương thức thanh toán:
+                        </span>
+                        <span className="text-gray-900">
+                          {searchedOrder?.paymentMethod}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="font-medium text-gray-700 ">
+                          Địa chỉ giao hàng:
+                        </span>
+                        <span className="text-gray-900 text-right">
+                          {searchedOrder?.shipping?.detailAddress}{' '}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="font-medium text-gray-700">
+                          Ghi chú:
+                        </span>
+                        <span className="text-gray-900">
+                          {searchedOrder?.shippingInfo?.note}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-              <div className="gap-4 sm:flex sm:items-center">
-                <button
-                  type="button"
-                  className="w-full rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:outline-none focus:ring-4 focus:ring-gray-100"
-                >
-                  Hủy đơn hàng
-                </button>
+              <div className="mt-6 grow sm:mt-8 lg:mt-0">
+                <div className="space-y-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+                  <h3 className="text-xl font-semibold text-gray-900">
+                    Lịch sử đơn hàng
+                  </h3>
+
+                  <ol className="relative ms-3 border-s border-gray-200">
+                    {searchedOrder?.status?.map((status, index) => {
+                      const isLastStatus =
+                        index === searchedOrder.status.length - 1;
+                      const isCancelled = status.status === 'cancelled';
+
+                      return (
+                        <li
+                          key={index}
+                          className={`mb-10 ms-6 ${
+                            isLastStatus
+                              ? isCancelled
+                                ? 'text-red-600'
+                                : 'text-blue-600'
+                              : 'text-green-600'
+                          }`}
+                        >
+                          <span
+                            className={`absolute -start-3 flex h-6 w-6 items-center justify-center rounded-full ${
+                              isLastStatus
+                                ? isCancelled
+                                  ? 'bg-red-100'
+                                  : 'bg-blue-100'
+                                : 'bg-green-100'
+                            } ring-8 ring-white`}
+                          >
+                            {isLastStatus ? (
+                              isCancelled ? (
+                                <Icon
+                                  icon="mdi:close-circle-outline"
+                                  className="h-4 w-4 text-red-600"
+                                />
+                              ) : (
+                                <Icon
+                                  icon="mdi:clock-outline"
+                                  className="h-4 w-4 text-blue-600"
+                                />
+                              )
+                            ) : (
+                              <Icon
+                                icon="mdi:checkbox-marked-circle-outline"
+                                className="h-4 w-4 text-green-600"
+                              />
+                            )}
+                          </span>
+                          <h4 className="mb-0.5 text-base font-semibold">
+                            {new Date(status.createdAt).toLocaleString()}
+                          </h4>
+                          <p className="text-sm">{status.note}</p>
+                        </li>
+                      );
+                    })}
+                  </ol>
+
+                  <div className="gap-4 sm:flex sm:items-center">
+                    <button
+                      type="button"
+                      className="w-full btn rounded-md bg-red-600 hover:bg-red-700 text-white"
+                      disabled={
+                        searchedOrder?.status[searchedOrder?.status.length - 1]
+                          .status === 'cancelled'
+                      }
+                      onClick={handleCancelOrder}
+                    >
+                      Hủy đơn hàng
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
     </section>
   );
