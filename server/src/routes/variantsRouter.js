@@ -7,6 +7,12 @@ const Router = express.Router();
 
 Router.get('/', variantsController.getAllVariants);
 Router.post('/', isAdmin, verifyToken, variantsController.createVariant);
+Router.post(
+  '/many',
+  isAdmin,
+  verifyToken,
+  variantsController.createManyVariants
+);
 Router.put('/:id', isAdmin, verifyToken, variantsController.update);
 Router.delete('/:id', isAdmin, verifyToken, variantsController.deleteVariant);
 //Delete all
