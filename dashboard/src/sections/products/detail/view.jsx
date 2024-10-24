@@ -29,7 +29,6 @@ import * as Yup from 'yup';
 import './styles.css';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { slugify } from 'src/utils/format-text';
-import TinyEditor from 'src/components/editor/tinyEditor';
 import { useState, useEffect, useCallback } from 'react';
 import ImageDropZone from 'src/components/drop-zone-upload/upload-img';
 import { useDispatch, useSelector } from 'react-redux';
@@ -38,12 +37,15 @@ import { fetchAll } from 'src/redux/slices/brandSlices';
 import PropTypes from 'prop-types';
 import Iconify from 'src/components/iconify/iconify';
 import { handleToast } from 'src/hooks/toast';
-import { setStatus, updateProduct , fetchProductById,  } from 'src/redux/slices/productSlice';
+import { setStatus, updateProduct, fetchProductById } from 'src/redux/slices/productSlice';
 import LoadingFull from 'src/components/loading/loading-full';
 import { useParams } from 'react-router-dom';
 import { isValidObjectId } from 'src/utils/check';
 import { useRouter } from 'src/routes/hooks';
 import MultiImageDropZone from 'src/components/drop-zone-upload/upload-imgs';
+import { fetchAllVariants } from 'src/redux/slices/variantSlices';
+import { fetchAll as fetchAllWareHouse } from 'src/redux/slices/warehouseSlices';
+
 import { AutoSelect } from '../auto-select';
 import AdvancedVariant from '../variant-advanced';
 
@@ -67,7 +69,27 @@ const productSchema = Yup.object().shape({
     .required('Mô tả là bắt buộc')
     .min(5, 'Mô tả phải ít nhất 5 ký tự')
     .max(10000, 'Mô tả không được quá 1000 ký tự'),
-  price: Yup.string().required('Cần nhập có giá thông thường').typeError('Giá không hợp lệ'),
+  price: Yup.string()
+    .required('Cần nhập có giá thông thường')
+    .min(1, 'Giá cơ bản phải lớn hơn 1')
+    .typeError('Giá không hợp lệ'),
+  seoOption: Yup.object().shape({
+    title: Yup.string()
+      .trim()
+      .min(1, 'Tiêu đề phải có ít nhất 1 ký tự')
+      .max(70, 'Tiêu đề tối đa 70 ký tự')
+      .required('Tiêu đề là bắt buộc'),
+    description: Yup.string()
+      .trim()
+      .min(1, 'Mô tả phải có ít nhất 1 ký tự')
+      .max(320, 'Mô tả tối đa 320 ký tự')
+      .required('Mô tả là bắt buộc'),
+
+    alias: Yup.string()
+      .trim()
+      .min(1, 'Đường dẫn phải có ít nhất 1 ký tự')
+      .required('Đường dẫn là bắt buộc'),
+  }),
 });
 
 export default function DetailProductPage() {
@@ -93,7 +115,10 @@ export default function DetailProductPage() {
   const [tags, setTags] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [value, setValue] = useState(0);
+  const [wareHouse, setWareHouse] = useState([]);
   const [brands, setBrands] = useState([]);
+  const [colors, setColors] = useState([]);
+  const [sizes, setSizes] = useState([]);
   const [dataTags, setDataTags] = useState([]);
   const dispatch = useDispatch();
   const [variants, setVariants] = useState([]);
@@ -106,6 +131,25 @@ export default function DetailProductPage() {
   const product = useSelector((state) => state.products.product);
   const statusGet = useSelector((state) => state.products.statusGet);
 
+  useEffect(() => {
+    dispatch(fetchAllCategories()).then((res) => {
+      setCategories(res.payload);
+    });
+    dispatch(fetchAll()).then((res) => {
+      setBrands(res.payload);
+    });
+    dispatch(fetchAllWareHouse()).then((res) => {
+      setWareHouse(res.payload);
+    });
+    dispatch(fetchAllVariants()).then((res) => {
+      if (res.payload) {
+        const a = res.payload.filter((item) => item.type === 'color');
+        const b = res.payload.filter((item) => item.type === 'size');
+        setColors(a);
+        setSizes(b);
+      }
+    });
+  }, [dispatch]);
   const handleKeyDown = (event) => {
     if (event.key === 'Enter' && inputValue.trim()) {
       setTags([...tags, inputValue.trim()]);
@@ -139,6 +183,12 @@ export default function DetailProductPage() {
       height: product?.height || 1,
       weight: product?.weight || 1,
       variants: [],
+      seoOption:
+        {
+          title: '',
+          description: '',
+          alias: '',
+        } || product?.seoOption,
     },
     enableReinitialize: true,
     validationSchema: productSchema,
@@ -166,10 +216,16 @@ export default function DetailProductPage() {
       }
       values.tags = tags;
       const newVariants = variants.map((variant) => ({
-        ...variant, // Sao chép tất cả các thuộc tính của variant
-        sku: variant.sku.toString(), // Chuyển sku thành chuỗi
+        ...variant,
+        sku: variant.sku.toString(),
       }));
-
+      newVariants.forEach((variant) => {
+        if (variant.image instanceof File) {
+          const m = variant.imageAdd;
+          variant.imageAdd = variant.image;
+          variant.image = m;
+        }
+      });
       values.variants = newVariants;
       // xử lý ảnh biến thể
       const variantsDelete = product.variants.filter((variant) => {
@@ -182,19 +238,11 @@ export default function DetailProductPage() {
       if (variantsDelete.length > 0) {
         values.variantsDelete = variantsDelete;
       }
-
+      console.log(values);
       dispatch(updateProduct({ id, data: values }));
     },
   });
 
-  useEffect(() => {
-    dispatch(fetchAllCategories()).then((res) => {
-      setCategories(res.payload);
-    });
-    dispatch(fetchAll()).then((res) => {
-      setBrands(res.payload);
-    });
-  }, [dispatch]);
   useEffect(() => {
     if (categories.length > 0) {
       const newTags = categories
@@ -313,7 +361,6 @@ export default function DetailProductPage() {
                         name="slug"
                         value={formik.values.slug}
                         onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
                         error={formik.touched.slug && Boolean(formik.errors.slug)}
                         helperText={formik.touched.slug && formik.errors.slug}
                       />
@@ -326,7 +373,13 @@ export default function DetailProductPage() {
                     padding: 3,
                   }}
                 >
-                  <AdvancedVariant onUpdate={handleCreateVariant} defaultVariants={variants} />
+                  <AdvancedVariant
+                    onUpdate={handleCreateVariant}
+                    defaultVariants={variants}
+                    colors={colors}
+                    sizes={sizes}
+                    dataWareHouse={wareHouse}
+                  />
                 </Card>
                 <Card
                   sx={{ flexGrow: 1, bgcolor: 'background.paper', display: 'flex', padding: 3 }}
@@ -353,7 +406,6 @@ export default function DetailProductPage() {
                           name="price"
                           value={formik.values.price}
                           onChange={formik.handleChange}
-                          onBlur={formik.handleBlur}
                           endAdornment={<InputAdornment position="end">vnđ</InputAdornment>}
                           label="Giá"
                         />
@@ -404,7 +456,6 @@ export default function DetailProductPage() {
                           name="height"
                           value={formik.values.height}
                           onChange={formik.handleChange}
-                          onBlur={formik.handleBlur}
                           endAdornment={<InputAdornment position="end">cm</InputAdornment>}
                           label="Chiều dài"
                         />
@@ -422,7 +473,6 @@ export default function DetailProductPage() {
                           name="weight"
                           value={formik.values.weight}
                           onChange={formik.handleChange}
-                          onBlur={formik.handleBlur}
                           endAdornment={<InputAdornment position="end">g</InputAdornment>}
                           label="Cân nặng"
                         />
@@ -435,7 +485,52 @@ export default function DetailProductPage() {
                     </Stack>
                   </TabPanel>
                   <TabPanel value={value} index={2}>
-                    Đang cập nhật
+                    <Stack spacing={3}>
+                      <TextField
+                        fullWidth
+                        label="Tiêu đề"
+                        variant="outlined"
+                        name="seoOption.title"
+                        value={formik.values.seoOption?.title}
+                        onChange={formik.handleChange}
+                        error={
+                          formik.touched.seoOption?.title && Boolean(formik.errors.seoOption?.title)
+                        }
+                        helperText={
+                          formik.touched.seoOption?.title && formik.errors.seoOption?.title
+                        }
+                      />
+                      <TextField
+                        fullWidth
+                        label="Mô tả"
+                        variant="outlined"
+                        name="seoOption.description"
+                        value={formik.values.seoOption.description}
+                        onChange={formik.handleChange}
+                        error={
+                          formik.touched.seoOption?.description &&
+                          Boolean(formik.errors.seoOption?.description)
+                        }
+                        helperText={
+                          formik.touched.seoOption?.description &&
+                          formik.errors.seoOption?.description
+                        }
+                      />
+                      <TextField
+                        fullWidth
+                        label="Đường dẫn"
+                        variant="outlined"
+                        name="seoOption.alias"
+                        value={formik.values.seoOption.alias}
+                        onChange={formik.handleChange}
+                        error={
+                          formik.touched.seoOption?.alias && Boolean(formik.errors.seoOption?.alias)
+                        }
+                        helperText={
+                          formik.touched.seoOption?.alias && formik.errors.seoOption?.alias
+                        }
+                      />
+                    </Stack>
                   </TabPanel>
                 </Card>
                 <Card
@@ -447,23 +542,23 @@ export default function DetailProductPage() {
                     <Typography variant="h6" sx={{ mb: 3 }}>
                       Mô tả sản phẩm
                     </Typography>
-                    <TinyEditor
+                    {/* <TinyEditor
                       error={formik.touched.content && Boolean(formik.errors.content)}
                       initialValue={product?.content}
                       onChange={(text) => formik.setFieldValue('content', text)}
-                    />
+                    /> */}
                     <FormHelperText sx={{ color: 'red' }}>
                       {formik.touched.content && formik.errors.content ? formik.errors.content : ''}
                     </FormHelperText>
                     <Typography variant="h6" sx={{ mb: 3 }}>
                       Mô tả ngắn sản phẩm
                     </Typography>
-                    <TinyEditor
+                    {/* <TinyEditor
                       error={formik.touched.description && Boolean(formik.errors.description)}
                       initialValue={product?.description}
                       onChange={(description) => formik.setFieldValue('description', description)}
                       height={200}
-                    />
+                    /> */}
                     <FormHelperText sx={{ color: 'red' }}>
                       {formik.touched.description && formik.errors.description
                         ? formik.errors.description

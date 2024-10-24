@@ -1,4 +1,4 @@
-import { includes } from "lodash";
+import { includes } from 'lodash';
 
 export const configPath = {
   dashboard: '/',

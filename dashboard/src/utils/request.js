@@ -101,7 +101,7 @@ export const updateProduct = async ({ id, data }) => {
       data[key].forEach((file) => {
         formData.append(key, file);
       });
-    } else if (key === 'productType' || key === 'tags' || key === 'variantsDelete') {
+    } else if (key === 'productType' || key === 'tags' || key === 'variantsDelete' || key === 'seoOption') {
       formData.append(key, JSON.stringify(data[key]));
     } else if (key === 'variants') {
       data[key].forEach((variant, i) => {
