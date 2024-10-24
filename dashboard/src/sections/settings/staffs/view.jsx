@@ -98,7 +98,7 @@ export default function StaffsPage() {
       <Stack direction="column" spacing={2}>
         <Stack direction="row" alignItems="center" spacing={1}>
           <Typography variant="h5">Quản lý nhân viên</Typography>
-          <IconButton onClick={() => console.log(1)}>
+          <IconButton onClick={() => dispatch(fetchAllStaffs())}>
             <Iconify icon="mdi:reload" />
           </IconButton>
         </Stack>

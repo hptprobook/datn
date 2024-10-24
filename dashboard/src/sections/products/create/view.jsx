@@ -28,7 +28,6 @@ import * as Yup from 'yup';
 import './styles.css';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { slugify } from 'src/utils/format-text';
-import TinyEditor from 'src/components/editor/tinyEditor';
 import { useState, useEffect, useCallback } from 'react';
 import ImageDropZone from 'src/components/drop-zone-upload/upload-img';
 import { useDispatch, useSelector } from 'react-redux';
@@ -39,6 +38,9 @@ import Iconify from 'src/components/iconify/iconify';
 import { handleToast } from 'src/hooks/toast';
 import { setStatus, createProduct } from 'src/redux/slices/productSlice';
 import LoadingFull from 'src/components/loading/loading-full';
+import { fetchAllVariants } from 'src/redux/slices/variantSlices';
+import { fetchAll as fetchAllWareHouse } from 'src/redux/slices/warehouseSlices';
+import TinyEditor from 'src/components/editor/tinyEditor';
 import { AutoSelect } from '../auto-select';
 import CreateVariant from '../variant';
 
@@ -51,18 +53,41 @@ const productSchema = Yup.object().shape({
   slug: Yup.string().min(5, 'Slug phải ít nhất 5 ký tự').max(255, 'Slug không được quá 255 ký tự'),
   cat_id: Yup.string().required('Danh mục là bắt buộc'),
   brand: Yup.string().required('Nhãn hàng là bắt buộc'),
+  inventory: Yup.number().integer('Số lượng tồn kho phải là số nguyên').default(0),
+
+  minInventory: Yup.number().integer('Số lượng tồn kho tối thiểu phải là số nguyên').default(0),
+
+  maxInventory: Yup.number().integer('Số lượng tồn kho tối đa phải là số nguyên').default(0),
   productType: Yup.array()
     .required('Loại sản phẩm là bắt buộc')
     .min(1, 'Loại sản phẩm là bắt buộc'),
   description: Yup.string()
-    .required('Mô tả là bắt buộc')
+    // .required('Mô tả là bắt buộc')
     .min(5, 'Mô tả phải ít nhất 5 ký tự')
     .max(10000, 'Mô tả không được quá 10000 ký tự'),
   content: Yup.string()
-    .required('Mô tả ngắn là bắt buộc')
+    // .required('Mô tả ngắn là bắt buộc')
     .min(5, 'Mô tả ngắn phải ít nhất 5 ký tự')
     .max(1000, 'Mô tả ngắn không được quá 1000 ký tự'),
-  price: Yup.string().required('Cần nhập có giá thông thường').typeError('Giá không hợp lệ'),
+  seoOption: Yup.object().shape({
+    title: Yup.string()
+      .trim()
+      .min(1, 'Tiêu đề phải có ít nhất 1 ký tự')
+      .max(70, 'Tiêu đề tối đa 70 ký tự')
+      .required('Tiêu đề là bắt buộc'),
+
+    description: Yup.string()
+      .trim()
+      .min(1, 'Mô tả phải có ít nhất 1 ký tự')
+      .max(320, 'Mô tả tối đa 320 ký tự')
+      .required('Mô tả là bắt buộc'),
+
+    alias: Yup.string()
+      .trim()
+      .min(1, 'Đường dẫn phải có ít nhất 1 ký tự')
+      .required('Đường dẫn là bắt buộc'),
+  }),
+  price: Yup.string().required('Cần nhập có giá thông thường').min(1, 'Giá cơ bản phải lớn hơn 1').typeError('Giá không hợp lệ'),
 });
 
 export default function CreateProductPage() {
@@ -71,10 +96,13 @@ export default function CreateProductPage() {
   const [errorThumbnail, setErrorThumbnail] = useState(null);
   const [errorImgs, setErrorImgs] = useState(null);
   const [categories, setCategories] = useState([]);
+  const [wareHouse, setWareHouse] = useState([]);
   const [tags, setTags] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [value, setValue] = useState(0);
   const [brands, setBrands] = useState([]);
+  const [colors, setColors] = useState([]);
+  const [sizes, setSizes] = useState([]);
   const [dataTags, setDataTags] = useState([]);
   const dispatch = useDispatch();
   const [variants, setVariants] = useState(null);
@@ -105,13 +133,21 @@ export default function CreateProductPage() {
       content: '',
       slug: '',
       productType: ['Nam'],
-      price: 0,
+      price: 1,
       statusStock: 'stock',
       tags: [],
       status: true,
       height: 1,
       weight: 1,
       variants: [],
+      inventory: 0,
+      minInventory: 0,
+      maxInventory: 0,
+      seoOption: {
+        title: '',
+        description: '',
+        alias: '',
+      },
     },
     validationSchema: productSchema,
     onSubmit: (values) => {
@@ -130,9 +166,7 @@ export default function CreateProductPage() {
       values.variants = variants;
       values.thumbnail = thumbnail;
       values.images = images;
-      values.tags = JSON.stringify(tags);
-
-      values.productType = JSON.stringify(values.productType);
+      values.seoOption = JSON.stringify(values.seoOption);
       dispatch(createProduct({ data: values }));
     },
   });
@@ -140,8 +174,19 @@ export default function CreateProductPage() {
     dispatch(fetchAllCategories()).then((res) => {
       setCategories(res.payload);
     });
+    dispatch(fetchAllWareHouse()).then((res) => {
+      setWareHouse(res.payload);
+    });
     dispatch(fetchAll()).then((res) => {
       setBrands(res.payload);
+    });
+    dispatch(fetchAllVariants()).then((res) => {
+      if (res.payload) {
+        const a = res.payload.filter((item) => item.type === 'color');
+        const b = res.payload.filter((item) => item.type === 'size');
+        setColors(a);
+        setSizes(b);
+      }
     });
   }, [dispatch]);
   useEffect(() => {
@@ -155,9 +200,7 @@ export default function CreateProductPage() {
         })
         .filter((tag) => tag !== null);
       // Only update tags if they are different to avoid triggering re-render
-      if (JSON.stringify(newTags) !== JSON.stringify(dataTags)) {
-        setDataTags(newTags);
-      }
+      setDataTags(newTags);
     }
   }, [categories, dataTags]);
 
@@ -262,7 +305,12 @@ export default function CreateProductPage() {
                   padding: 3,
                 }}
               >
-                <CreateVariant onUpdate={handleCreateVariant} />
+                <CreateVariant
+                  onUpdate={handleCreateVariant}
+                  wareHousesData={wareHouse}
+                  colorsData={colors}
+                  sizesData={sizes}
+                />
               </Card>
               <Card sx={{ flexGrow: 1, bgcolor: 'background.paper', display: 'flex', padding: 3 }}>
                 <Tabs
@@ -276,6 +324,7 @@ export default function CreateProductPage() {
                   <Tab label="Giá" {...a11yProps(0)} />
                   <Tab label="Kích thước" {...a11yProps(1)} />
                   <Tab label="SEO" {...a11yProps(2)} />
+                  <Tab label="Kho" {...a11yProps(3)} />
                 </Tabs>
                 <TabPanel value={value} index={0}>
                   <Stack spacing={3} sx={{ width: '100%' }}>
@@ -365,7 +414,88 @@ export default function CreateProductPage() {
                   </Stack>
                 </TabPanel>
                 <TabPanel value={value} index={2}>
-                  Đang cập nhật
+                  <Stack spacing={3}>
+                    <TextField
+                      fullWidth
+                      label="Tiêu đề"
+                      variant="outlined"
+                      name="seoOption.title"
+                      value={formik.values.seoOption?.title}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      error={
+                        formik.touched.seoOption?.title && Boolean(formik.errors.seoOption?.title)
+                      }
+                      helperText={formik.touched.seoOption?.title && formik.errors.seoOption?.title}
+                    />
+                    <TextField
+                      fullWidth
+                      label="Mô tả"
+                      variant="outlined"
+                      name="seoOption.description"
+                      value={formik.values.seoOption.description}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      error={
+                        formik.touched.seoOption?.description &&
+                        Boolean(formik.errors.seoOption?.description)
+                      }
+                      helperText={
+                        formik.touched.seoOption?.description &&
+                        formik.errors.seoOption?.description
+                      }
+                    />
+                    <TextField
+                      fullWidth
+                      label="Đường dẫn"
+                      variant="outlined"
+                      name="seoOption.alias"
+                      value={formik.values.seoOption.alias}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      error={
+                        formik.touched.seoOption?.alias && Boolean(formik.errors.seoOption?.alias)
+                      }
+                      helperText={formik.touched.seoOption?.alias && formik.errors.seoOption?.alias}
+                    />
+                  </Stack>
+                </TabPanel>
+                <TabPanel value={value} index={3}>
+                  <Stack spacing={3}>
+                    <TextField
+                      fullWidth
+                      label="Số lượng tồn kho"
+                      variant="outlined"
+                      name="inventory"
+                      value={formik.values.inventory}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      error={formik.touched.inventory && Boolean(formik.errors.inventory)}
+                      helperText={formik.touched.inventory && formik.errors.inventory}
+                    />
+                    <TextField
+                      fullWidth
+                      label="Số lượng tồn kho tối thiểu"
+                      variant="outlined"
+                      name="minInventory"
+                      value={formik.values.minInventory}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      error={formik.touched.minInventory && Boolean(formik.errors.minInventory)}
+                      helperText={formik.touched.minInventory && formik.errors.minInventory}
+                    />
+                    <TextField
+                      fullWidth
+                      label="Số lượng tồn kho tối đa"
+                      variant="outlined"
+                      name="maxInventory"
+                      value={formik.values.maxInventory}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      error={formik.touched.maxInventory && Boolean(formik.errors.maxInventory)}
+                      helperText={formik.touched.maxInventory && formik.errors.maxInventory}
+                    />
+                  </Stack>
                 </TabPanel>
               </Card>
               <Card
@@ -401,7 +531,12 @@ export default function CreateProductPage() {
                   </FormHelperText>
                 </Stack>
                 <Stack spacing={3} direction="row" mt={2} justifyContent="flex-end">
-                  <Button type="submit" variant="contained" color="inherit">
+                  <Button
+                    type="button"
+                    onClick={() => formik.handleSubmit()}
+                    variant="contained"
+                    color="inherit"
+                  >
                     Lưu
                   </Button>
                 </Stack>

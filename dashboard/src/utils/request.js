@@ -39,11 +39,15 @@ export const upload = async ({ path, file, type = 'post', additionalData = {} })
   const formData = new FormData();
   formData.append(file.name, file.file);
 
-  if (Object.keys(additionalData).length) {
-    Object.keys(additionalData).forEach((key) => {
-      formData.append(key, additionalData[key]);
-    });
-  }
+  // Serialize additionalData if necessary
+  Object.keys(additionalData).forEach((key) => {
+    const value = additionalData[key];
+    if (typeof value === 'object' && value !== null) {
+      formData.append(key, JSON.stringify(value));
+    } else {
+      formData.append(key, value);
+    }
+  });
 
   // Kiểm tra xem phương thức HTTP có hợp lệ không
   if (!['get', 'post', 'put', 'patch', 'delete'].includes(type)) {
@@ -73,6 +77,9 @@ export const uploadProduct = async ({ path, data, type = 'post' }) => {
       data[key].forEach((variant) => {
         formData.append('imageVariants', variant.image);
       });
+    } else if (key === 'productType' || key === 'tags') {
+      const convert = JSON.stringify(data[key]);
+      formData.append(key, convert);
     } else {
       formData.append(key, data[key]);
     }

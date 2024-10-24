@@ -1,7 +1,7 @@
 /* eslint-disable comma-dangle */
 /* eslint-disable semi */
 import { StatusCodes } from 'http-status-codes';
-import { customerGroupModel } from '~/models/CustomerGroupModel';
+import { customerGroupModel } from '~/models/customerGroupModel';
 import { v4 as uuidv4 } from 'uuid';
 const getAllCG = async (req, res) => {
     try {

@@ -13,7 +13,6 @@ import {
 import { useFormik } from 'formik';
 import './styles.css';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import { slugify } from 'src/utils/format-text';
 import { useState, useEffect, useCallback } from 'react';
 import ImageDropZone from 'src/components/drop-zone-upload/upload-img';
 import { useDispatch, useSelector } from 'react-redux';
