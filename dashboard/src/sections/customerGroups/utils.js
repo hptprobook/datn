@@ -1,4 +1,6 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
+import * as Yup from 'yup';
+
 export const visuallyHidden = {
   border: 0,
   margin: -1,
@@ -60,3 +62,49 @@ export function applyFilter({ inputData, comparator, filterName }) {
   return inputData;
 }
 
+export const custormerGroupSchema = Yup.object().shape({
+  name: Yup.string()
+    .required('Tên bài viết là bắt buộc')
+    .min(5, 'Tên bài viết phải ít nhất 5 ký tự')
+    .max(255, 'Tên bài viết không được quá 255 ký tự'),
+  note: Yup.string()
+    .required('Ghi chú là bắt buộc')
+    .min(5, 'Ghi chú phải ít nhất 5 ký tự')
+    .max(255, 'Ghi chú không được quá 255 ký tự'),
+  manual: Yup.boolean().required('Manual là bắt buộc'),
+  satisfy: Yup.string().when('manual', {
+    is: false,
+    then: Yup.string().required('Satisfy là bắt buộc'),
+  }),
+  auto: Yup.lazy((value) => {
+    if (value && value.manual === false) {
+      return Yup.array()
+        .of(
+          Yup.object().shape({
+            id: Yup.string().trim(),
+            field: Yup.string().required('Trường là bắt buộc'),
+            query: Yup.string().required('Điều kiện là bắt buộc'),
+            status: Yup.string().required('Giá trị là bắt buộc'),
+          })
+        )
+        .default([
+          {
+            id: '',
+            field: 'Trạng thái',
+            query: 'Là',
+            status: 'Vui lòng chọn',
+          },
+        ]);
+    }
+    return Yup.array()
+      .of(
+        Yup.object().shape({
+          id: Yup.string().trim(),
+          field: Yup.string().trim(),
+          query: Yup.string().trim(),
+          status: Yup.string().trim(),
+        })
+      )
+      .default([]);
+  }),
+});

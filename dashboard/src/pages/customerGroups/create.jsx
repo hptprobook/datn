@@ -1,16 +1,16 @@
 import { Helmet } from 'react-helmet-async';
-import {CreateBlogView }  from 'src/sections/blog/create';
+import {CreateCustormerGroupView }  from 'src/sections/customerGroups/create';
 
 // ----------------------------------------------------------------------
 
-export default function CreateBlogPage() {
+export default function CreateCustormerGroupPage() {
   return (
     <>
       <Helmet>
-        <title>Tạo mới bài viết</title>
+        <title>Tạo nhóm khách hàng</title>
       </Helmet>
 
-      <CreateBlogView />
+      <CreateCustormerGroupView />
     </>
   );
 }

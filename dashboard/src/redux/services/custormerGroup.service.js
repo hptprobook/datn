@@ -27,7 +27,7 @@ const CustormerGroupsService = {
   },
   createCustormerGroup: async (data) => {
     try {
-      const res = await post(`customer-group/${id}`);
+      const res = await post('customer-group', data); 
       return res.data;
     } catch (err) {
       console.log(err);
@@ -36,8 +36,8 @@ const CustormerGroupsService = {
   },
   updateCustormerGroup: async (id, data) => {
     try {
-      const res = await put(`customer-group/${id}`,data);
-      return res;
+      const res = await put(`customer-group/${id}`, data); 
+      return res.data; 
     } catch (err) {
       console.log(err);
       throw err;

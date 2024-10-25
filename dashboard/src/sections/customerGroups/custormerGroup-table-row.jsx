@@ -10,6 +10,7 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import Iconify from 'src/components/iconify';
 import { Box } from '@mui/material';
+import Label from 'src/components/label';
 
 
 export default function CustormerGroupTableRow({
@@ -39,7 +40,11 @@ export default function CustormerGroupTableRow({
     onDelete(idDelete);
     handleCloseMenu();
   };
-
+  const satisfyMapping = {
+    all: 'Tất cả',
+    once: 'Một lần',
+    manual: 'Thủ công',
+  };
   return (
     <>
       <TableRow
@@ -74,10 +79,22 @@ export default function CustormerGroupTableRow({
             </Typography>
           </Box>
         </TableCell>
-        <TableCell>{manual}</TableCell>
+        <TableCell align="center">
+      <Label
+        color={
+          (manual === true && 'success') ||
+          (manual === false && 'error') ||
+          'default'
+        }
+      >
+        {(manual === true && 'Có') ||
+          (manual === false && 'Không') ||
+          manual}
+      </Label>
+    </TableCell>
 
         <TableCell>
-          {satisfy}
+        {satisfyMapping[satisfy] || satisfy}
         </TableCell>
         <TableCell>{new Date(createdAt).toLocaleDateString()}</TableCell>
         <TableCell>{new Date(updatedAt).toLocaleDateString()}</TableCell>
