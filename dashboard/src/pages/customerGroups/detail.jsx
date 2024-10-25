@@ -1,16 +1,16 @@
 import { Helmet } from 'react-helmet-async';
-import {DetailBlogView }  from 'src/sections/blog/detail';
+import {DetailCustormerGroupView }  from 'src/sections/customerGroups/detail';
 
 // ----------------------------------------------------------------------
 
-export default function DetailBlogPage() {
+export default function DetailCustormerGroupPage() {
   return (
     <>
       <Helmet>
-        <title>Chỉnh sửa bài viết</title>
+        <title>Chỉnh sửa nhóm khách hàng</title>
       </Helmet>
 
-      <DetailBlogView />
+      <DetailCustormerGroupView />
     </>
   );
 }

@@ -74,37 +74,33 @@ export const custormerGroupSchema = Yup.object().shape({
   manual: Yup.boolean().required('Manual là bắt buộc'),
   satisfy: Yup.string().when('manual', {
     is: false,
-    then: Yup.string().required('Satisfy là bắt buộc'),
+    then: (schema) => schema.required('Satisfy là bắt buộc'),
   }),
   auto: Yup.lazy((value) => {
     if (value && value.manual === false) {
-      return Yup.array()
-        .of(
-          Yup.object().shape({
-            id: Yup.string().trim(),
-            field: Yup.string().required('Trường là bắt buộc'),
-            query: Yup.string().required('Điều kiện là bắt buộc'),
-            status: Yup.string().required('Giá trị là bắt buộc'),
-          })
-        )
-        .default([
-          {
-            id: '',
-            field: 'Trạng thái',
-            query: 'Là',
-            status: 'Vui lòng chọn',
-          },
-        ]);
-    }
-    return Yup.array()
-      .of(
+      return Yup.array().of(
         Yup.object().shape({
           id: Yup.string().trim(),
-          field: Yup.string().trim(),
-          query: Yup.string().trim(),
-          status: Yup.string().trim(),
+          field: Yup.string().required('Trường là bắt buộc'),
+          query: Yup.string().required('Điều kiện là bắt buộc'),
+          status: Yup.string().required('Giá trị là bắt buộc'),
         })
-      )
-      .default([]);
+      ).default([
+        {
+          id: '',
+          field: 'Trạng thái',
+          query: 'Là',
+          status: 'Vui lòng chọn',
+        }
+      ]);
+    }
+    return Yup.array().of(
+      Yup.object().shape({
+        id: Yup.string().trim(),
+        field: Yup.string().trim(),
+        query: Yup.string().trim(),
+        status: Yup.string().trim(),
+      })
+    ).default([]);
   }),
 });

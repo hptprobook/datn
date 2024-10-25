@@ -54,16 +54,20 @@ const createCG = async (req, res) => {
             }));
             const dataCG = { ...req.body, auto: newAuto };
             const result = await customerGroupModel.createCG(dataCG);
+            if (result.acknowledged) {
+                return res
+                    .status(StatusCodes.CREATED)
+                    .json({ message: 'Tạo nhóm khách hàng thành công', result });
+            }
             return res.status(StatusCodes.BAD_REQUEST).json(result);
         }
 
         const dataCG = req.body;
         const result = await customerGroupModel.createCG(dataCG);
-        console.log(result);
         if (result.acknowledged) {
             return res
-                .status(StatusCodes.OK)
-                .json({ message: 'Tạo nhóm khách hàng thành công' });
+                .status(StatusCodes.CREATED)
+                .json({ message: 'Tạo nhóm khách hàng thành công', result });
         }
         return res.status(StatusCodes.BAD_REQUEST).json(result);
     } catch (error) {
@@ -72,7 +76,7 @@ const createCG = async (req, res) => {
                 messages: error.details[0].message,
             });
         }
-        return res.status(StatusCodes.BAD_REQUEST).json(error);
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
     }
 };
 

@@ -20,10 +20,9 @@ import {
   FormControlLabel,
 } from '@mui/material';
 import { useFormik } from 'formik';
-import * as Yup from 'yup';
 import './styles.css';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import Iconify from 'src/components/iconify/iconify';
@@ -31,7 +30,7 @@ import { handleToast } from 'src/hooks/toast';
 import { setStatus, createCustormerGroup } from 'src/redux/slices/CustormerGroupSlice';
 import LoadingFull from 'src/components/loading/loading-full';
 // import { AutoSelect } from '../auto-select';
-import {custormerGroupSchema} from '../utils';
+import { custormerGroupSchema } from '../utils';
 
 
 // ----------------------------------------------------------------------
@@ -42,23 +41,52 @@ export default function CreateCustormerGroupPage() {
 
   const status = useSelector((state) => state.CustormerGroups.statusCreate);
   const error = useSelector((state) => state.CustormerGroups.error);
+
+  const [manual, setManual] = useState(true);
+
   const formik = useFormik({
     initialValues: {
       name: '',
       note: '',
       manual: true,
       satisfy: 'all',
-      auto: [
-        {
-          field: '',
-          query: '',
-          status: '',
-        }
-      ],
+      ...(manual === false && {
+        auto: [
+          {
+            field: '',
+            query: '',
+            status: '',
+          }
+        ],
+      }),
       listCustomer: [],
     },
     validationSchema: custormerGroupSchema,
     onSubmit: (values) => {
+      if (values.manual === false) {
+        if (!values.auto || values.auto.length === 0) {
+          handleToast('error', 'Vui lòng chọn ít nhất một điều kiện');
+          return;
+        }
+
+        const auto = values.auto[0];
+        if (!auto.field) {
+          handleToast('error', 'Trường là bắt buộc');
+          return;
+        }
+        if (!auto.query) {
+          handleToast('error', 'Điều kiện là bắt buộc');
+          return;
+        }
+        if (!auto.status) {
+          handleToast('error', 'Giá trị là bắt buộc');
+          return;
+        }
+      }
+
+      if (values.manual) {
+        delete values.auto;
+      }
       console.log(values);
       dispatch(createCustormerGroup({ data: values }));
     },
@@ -113,7 +141,6 @@ export default function CreateCustormerGroupPage() {
                   </Grid2>
                 </Grid2>
               </Card>
-
             </Stack>
           </Grid2>
           <Grid2 xs={4}>
@@ -137,7 +164,6 @@ export default function CreateCustormerGroupPage() {
                   multiline
                 />
               </Stack>
-
             </Card>
           </Grid2>
           <Grid2 xs={12}>
@@ -152,7 +178,9 @@ export default function CreateCustormerGroupPage() {
                   name="manual"
                   value={formik.values.manual.toString()} // Convert boolean to string
                   onChange={(event) => {
-                    formik.setFieldValue('manual', event.target.value === 'true'); // Convert string back to boolean
+                    const isManual = event.target.value === 'true';
+                    setManual(isManual);
+                    formik.setFieldValue('manual', isManual); // Convert string back to boolean
                   }}
                 >
                   <FormControlLabel value="true" control={<Radio />} label="Thủ công" />
@@ -188,11 +216,12 @@ export default function CreateCustormerGroupPage() {
                         labelId="field-select-label"
                         id="field-select"
                         name="auto[0].field"
-                        value={formik.values.auto[0].field}
+                        value={formik.values.auto?.[0]?.field || ''}
                         label="Field"
                         onChange={formik.handleChange}
                         error={formik.touched.auto && formik.errors.auto && formik.errors.auto[0] && formik.errors.auto[0].field}
                       >
+                        <MenuItem value="">Vui lòng chọn</MenuItem>
                         <MenuItem value="Trạng thái">Trạng thái</MenuItem>
                       </Select>
                       <FormHelperText>
@@ -204,11 +233,12 @@ export default function CreateCustormerGroupPage() {
                         labelId="query-select-label"
                         id="query-select"
                         name="auto[0].query"
-                        value={formik.values.auto[0].query}
+                        value={formik.values.auto?.[0]?.query || ''}
                         label="Query"
                         onChange={formik.handleChange}
                         error={formik.touched.auto && formik.errors.auto && formik.errors.auto[0] && formik.errors.auto[0].query}
                       >
+                        <MenuItem value="">Vui lòng chọn</MenuItem>
                         <MenuItem value="Là">Là</MenuItem>
                       </Select>
                       <FormHelperText>
@@ -220,12 +250,12 @@ export default function CreateCustormerGroupPage() {
                         labelId="status-select-label"
                         id="status-select"
                         name="auto[0].status"
-                        value={formik.values.auto[0].status}
+                        value={formik.values.auto?.[0]?.status || ''}
                         label="Status"
                         onChange={formik.handleChange}
                         error={formik.touched.auto && formik.errors.auto && formik.errors.auto[0] && formik.errors.auto[0].status}
                       >
-                        <MenuItem value="Vui lòng chọn">Vui lòng chọn</MenuItem>
+                        <MenuItem value="">Vui lòng chọn</MenuItem>
                         <MenuItem value="Có tài khoản">Có tài khoản</MenuItem>
                         <MenuItem value="Chưa có tài khoản">Chưa có tài khoản</MenuItem>
                         <MenuItem value="Đã gửi lời mời đăng ký">Đã gửi lời mời đăng ký</MenuItem>
@@ -238,7 +268,6 @@ export default function CreateCustormerGroupPage() {
                 </Box>
               )}
             </Card>
-
           </Grid2>
           <Grid2 xs={12}>
             <Stack spacing={3} direction="row" mt={2} justifyContent="flex-end">
@@ -247,7 +276,6 @@ export default function CreateCustormerGroupPage() {
               </Button>
             </Stack>
           </Grid2>
-
         </Grid2>
       </form>
     </Container>

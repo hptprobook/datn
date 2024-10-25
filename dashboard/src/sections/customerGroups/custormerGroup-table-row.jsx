@@ -87,8 +87,8 @@ export default function CustormerGroupTableRow({
           'default'
         }
       >
-        {(manual === true && 'Có') ||
-          (manual === false && 'Không') ||
+        {(manual === true && 'thủ công') ||
+          (manual === false && 'tự động') ||
           manual}
       </Label>
     </TableCell>
