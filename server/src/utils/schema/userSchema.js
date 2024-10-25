@@ -27,6 +27,10 @@ export const SAVE_USER_SCHEMA = Joi.object({
     'string.empty': 'Mật khẩu không được để trống',
     'any.required': 'Mật khẩu là bắt buộc',
   }),
+  favorites: Joi.array().default([]),
+  views: Joi.array().default([]),
+  notifies: Joi.array().default([]),
+  carts: Joi.array().default([]),
   otp: Joi.string(),
   addresses: Joi.array().items(
     Joi.object({
@@ -121,7 +125,7 @@ export const SEND_NOTIFIES = Joi.array().items(
   })
 );
 export const UPDATE_USER = Joi.object({
-  name: Joi.string().trim().min(1).max(30).required().messages({
+  name: Joi.string().trim().min(1).max(30).messages({
     'string.empty': 'Tên không được để trống',
     'string.min': 'Tên phải có ít nhất 1 ký tự',
     'string.max': 'Tên không được vượt quá 30 ký tự',
@@ -151,6 +155,7 @@ export const UPDATE_USER = Joi.object({
       note: Joi.string(),
     })
   ),
+  carts: Joi.array(),
   phone: Joi.string()
     .pattern(/^[0-9]+$/)
     .min(10)
