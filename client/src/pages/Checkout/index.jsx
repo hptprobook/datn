@@ -145,7 +145,7 @@ const CheckoutUI = () => {
             />
           </div>
         ) : (
-          <LoggedOrder />
+          <LoggedOrder selectedProducts={selectedProducts} />
         )}
       </form>
     </section>

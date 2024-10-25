@@ -72,7 +72,7 @@ const NavBar = () => {
               </p>
             </NavLink>
             {hoveredMenu === item.id && (
-              <div className="fixed top-32 w-container left-1/2 -translate-x-1/2 bg-slate-50 shadow-lg z-10 p-4 border-t-df grid grid-cols-4 gap-5 menu-hovered">
+              <div className="fixed top-36 w-container left-1/2 -translate-x-1/2 bg-slate-50 shadow-lg z-10 p-4 border-t-df grid grid-cols-4 gap-5 menu-hovered">
                 {item.list?.map((subItem) => (
                   <div key={subItem.id} className="mb-4">
                     <NavLink to={`/danh-muc-san-pham/${subItem.slug}`} end>

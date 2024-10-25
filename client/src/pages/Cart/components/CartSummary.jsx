@@ -6,12 +6,25 @@ import { useSwal } from '~/customHooks/useSwal';
 import { checkStockProducts } from '~/APIs';
 import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
+import { useUser } from '~/context/UserContext';
+import useCheckAuth from '~/customHooks/useCheckAuth';
 
 const CartSummary = () => {
   const { items } = useCart();
   const navigate = useNavigate();
   const [isDebouncing, setIsDebouncing] = useState(false);
-  const { selectedItems, selectedTotal, setStockErrors } = useCartContext();
+  const {
+    selectedItems,
+    selectedTotal,
+    setStockErrors,
+    isDebouncing: quantityDeboucing,
+  } = useCartContext();
+  const { isAuthenticated } = useCheckAuth();
+  const { user } = useUser();
+
+  const cartItems = isAuthenticated
+    ? user?.carts.map((item) => ({ ...item, id: item._id }))
+    : items;
 
   const { mutate: checkStock } = useMutation({
     mutationFn: checkStockProducts,
@@ -29,7 +42,7 @@ const CartSummary = () => {
       } else {
         navigate('/thanh-toan', {
           state: {
-            selectedProducts: items.filter((item) =>
+            selectedProducts: cartItems.filter((item) =>
               selectedItems.includes(item.id)
             ),
           },
@@ -50,7 +63,7 @@ const CartSummary = () => {
     if (isDebouncing) return;
     setIsDebouncing(true);
 
-    const selectedProducts = items.filter((item) =>
+    const selectedProducts = cartItems.filter((item) =>
       selectedItems.includes(item.id)
     );
     if (selectedProducts.length > 0) {
@@ -90,7 +103,7 @@ const CartSummary = () => {
             isDebouncing ? 'disabled' : ''
           }`}
           onClick={handleCheckout}
-          disabled={isDebouncing}
+          disabled={isDebouncing || quantityDeboucing}
         >
           Thanh toán
         </button>

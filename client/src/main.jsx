@@ -31,7 +31,7 @@ import '~/config/firebaseConfig';
 import { UserProvider } from './context/UserContext';
 import { HelmetProvider } from 'react-helmet-async';
 import { Helmet } from 'react-helmet-async';
-import WebIcon from '~/assets/logo-icon.png';
+import WebIcon from '~/assets/logo4.png';
 
 const queryClient = new QueryClient({
   defaultOptions: {
