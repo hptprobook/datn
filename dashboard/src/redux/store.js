@@ -14,6 +14,7 @@ import blogsReducer from "./slices/blogSlice";
 import staffsReducer from "./slices/staffSlices";
 import webBannerReducer from "./slices/webBannerSlice";
 import staticPageReducer from "./slices/staticPageSlices";
+import variantsReducer from "./slices/variantSlices";
 import CustormerGroupReducer from "./slices/CustormerGroupSlice";
 
 export const store = configureStore({
@@ -32,6 +33,7 @@ export const store = configureStore({
         webBanners : webBannerReducer,
         staffs: staffsReducer,
         staticPages: staticPageReducer,
+        variants: variantsReducer,
         CustormerGroups: CustormerGroupReducer,
     },
 });
