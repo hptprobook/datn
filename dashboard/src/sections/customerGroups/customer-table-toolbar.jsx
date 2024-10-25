@@ -11,7 +11,7 @@ import Iconify from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export default function CustormerGroupTableToolbar({ numSelected, filterName, onFilterName }) {
+export default function CustomerGroupTableToolbar({ numSelected, filterName, onFilterName }) {
   return (
     <Toolbar
       sx={{
@@ -62,7 +62,7 @@ export default function CustormerGroupTableToolbar({ numSelected, filterName, on
   );
 }
 
-CustormerGroupTableToolbar.propTypes = {
+CustomerGroupTableToolbar.propTypes = {
   numSelected: PropTypes.number,
   filterName: PropTypes.string,
   onFilterName: PropTypes.func,
