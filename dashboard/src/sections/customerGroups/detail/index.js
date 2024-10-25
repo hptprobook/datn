@@ -1,1 +1,1 @@
-export { default as DetailCustormerGroupView } from './view';
+export { default as DetailCustomerGroupView } from './view';

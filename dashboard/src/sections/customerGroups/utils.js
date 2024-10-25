@@ -17,6 +17,8 @@ export function emptyRows(page, rowsPerPage, arrayLength) {
   return page ? Math.max(0, (1 + page) * rowsPerPage - arrayLength) : 0;
 }
 
+
+
 function descendingComparator(a, b, orderBy) {
   if (a[orderBy] === null) {
     return 1;
@@ -62,7 +64,7 @@ export function applyFilter({ inputData, comparator, filterName }) {
   return inputData;
 }
 
-export const custormerGroupSchema = Yup.object().shape({
+export const customerGroupSchema = Yup.object().shape({
   name: Yup.string()
     .required('Tên bài viết là bắt buộc')
     .min(5, 'Tên bài viết phải ít nhất 5 ký tự')
@@ -104,3 +106,22 @@ export const custormerGroupSchema = Yup.object().shape({
     ).default([]);
   }),
 });
+
+export const FIELD_OPTIONS = [
+  { value: 'Trạng thái', label: 'Trạng thái' },
+  { value: 'Tổng đơn hàng', label: 'Tổng đơn hàng' },
+];
+
+export const QUERY_OPTIONS_TONG_DON_HANG = [
+  { value: '=', label: 'bằng (=)' },
+  { value: '!=', label: 'không bằng (≠)' },
+  { value: '<', label: 'nhỏ hơn (<)' },
+  { value: '<=', label: 'nhỏ hơn hoặc bằng (≤)' },
+  { value: '>', label: 'lớn hơn (>)' },
+  { value: '>=', label: 'lớn hơn hoặc bằng (≥)' },
+];
+
+
+export const QUERY_OPTIONS_TRANG_THAI = [
+  { value: 'là', label: 'là' },
+];

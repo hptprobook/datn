@@ -12,7 +12,7 @@ import TablePagination from '@mui/material/TablePagination';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
-import { setStatus, fetchAllCG, deleteOneCG } from 'src/redux/slices/CustormerGroupSlice';
+import { setStatus, fetchAllCustomerGroup, deleteOneCustomerGroup } from 'src/redux/slices/CustomerGroupSlice';
 import { handleToast } from 'src/hooks/toast';
 
 import Iconify from 'src/components/iconify';
@@ -22,16 +22,16 @@ import ConfirmDelete from 'src/components/modal/confirm-delete';
 import LoadingFull from 'src/components/loading/loading-full';
 import { IconButton } from '@mui/material';
 import TableNoData from '../table-no-data';
-import CustormerGroupTableRow from '../custormerGroup-table-row';
-import CustormerGroupTableHead from '../custormerGroup-table-head';
+import CustomerGroupTableRow from '../customerGroup-table-row';
+import CustomerGroupTableHead from '../customerGroup-table-head';
 import TableEmptyRows from '../table-empty-rows';
-import CustormerGroupTableToolbar from '../custormerGroup-table-toolbar';
+import CustomerGroupTableToolbar from '../customerGroup-table-toolbar';
 
 import { emptyRows, applyFilter, getComparator } from '../utils';
 
 // ----------------------------------------------------------------------
 
-export default function CustormerGroupView() {
+export default function CustomerGroupView() {
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
   const [selected, setSelected] = useState([]);
@@ -40,14 +40,14 @@ export default function CustormerGroupView() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
   const dispatch = useDispatch();
-  const CustormerGroups = useSelector((state) => state.CustormerGroups.CustormerGroups);
-  const status = useSelector((state) => state.CustormerGroups.status);
-  const statusDelete = useSelector((state) => state.CustormerGroups.statusDelete);
-  const error = useSelector((state) => state.CustormerGroups.error);
+  const CustomerGroups = useSelector((state) => state.CustomerGroups.CustomerGroups);
+  const status = useSelector((state) => state.CustomerGroups.status);
+  const statusDelete = useSelector((state) => state.CustomerGroups.statusDelete);
+  const error = useSelector((state) => state.CustomerGroups.error);
   const [CGList, setCGList] = React.useState([]);
 
   useEffect(() => {
-    dispatch(fetchAllCG());
+    dispatch(fetchAllCustomerGroup());
   }, [dispatch]);
 
 
@@ -55,7 +55,7 @@ export default function CustormerGroupView() {
     if (statusDelete === 'successful') {
       dispatch(setStatus({ key: 'statusDelete', value: '' }));
       handleToast('success', 'Xóa bài viết thành công!');
-      dispatch(fetchAllCG());
+      dispatch(fetchAllCustomerGroup());
     }
     if (statusDelete === 'failed') {
       handleToast('error', error?.message || 'Có lỗi xảy ra vui lòng thử lại!');
@@ -66,9 +66,9 @@ export default function CustormerGroupView() {
     if (status === 'failed') {
       handleToast('error', 'Có lỗi xảy ra vui lòng thử lại!');
     } else if (status === 'successful') {
-      setCGList(CustormerGroups);
+      setCGList(CustomerGroups);
     }
-  }, [CustormerGroups, status]);
+  }, [CustomerGroups, status]);
 
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === 'asc';
@@ -134,7 +134,7 @@ export default function CustormerGroupView() {
   };
   const dispatchDelete = () => {
     console.log(confirm);
-    dispatch(deleteOneCG(confirm));
+    dispatch(deleteOneCustomerGroup(confirm));
   };
   const handleMultiDelete = () => {
     console.log(selected);
@@ -166,7 +166,7 @@ export default function CustormerGroupView() {
             aria-label="load"
             variant="contained"
             color="inherit"
-            onClick={() => dispatch(fetchAllCG())}
+            onClick={() => dispatch(fetchAllCustomerGroup())}
           >
             <Iconify icon="mdi:reload" />
           </IconButton>
@@ -181,7 +181,7 @@ export default function CustormerGroupView() {
       </Stack>
 
       <Card>
-        <CustormerGroupTableToolbar
+        <CustomerGroupTableToolbar
           numSelected={selected.length}
           filterName={filterName}
           onFilterName={handleFilterByName}
@@ -192,7 +192,7 @@ export default function CustormerGroupView() {
         <Scrollbar>
           <TableContainer sx={{ overflow: 'unset' }}>
             <Table sx={{ minWidth: 800 }}>
-              <CustormerGroupTableHead
+              <CustomerGroupTableHead
                 order={order}
                 orderBy={orderBy}
                 rowCount={CGList.length}
@@ -213,7 +213,7 @@ export default function CustormerGroupView() {
                 {dataFiltered
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
-                    <CustormerGroupTableRow
+                    <CustomerGroupTableRow
                       id={row._id}
                       key={row._id}
                       name={row.name}

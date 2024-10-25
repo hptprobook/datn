@@ -10,18 +10,14 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import Iconify from 'src/components/iconify';
 import { Box } from '@mui/material';
-import Label from 'src/components/label';
 
 
-export default function CustormerGroupTableRow({
+export default function CustomerGroupTableRow({
   id,
   selected,
   name,
-  note,
-  manual,
-  satisfy,
-  createdAt,
-  updatedAt,
+  phone,
+  email,
   onDelete,
   handleClick,
   handleNavigate
@@ -39,11 +35,6 @@ export default function CustormerGroupTableRow({
   const handleDelete = (idDelete) => {
     onDelete(idDelete);
     handleCloseMenu();
-  };
-  const satisfyMapping = {
-    all: 'Tất cả',
-    once: 'Một lần',
-    manual: 'Thủ công',
   };
   return (
     <>
@@ -75,29 +66,16 @@ export default function CustormerGroupTableRow({
         <TableCell>
           <Box sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             <Typography variant="subtitle2" noWrap>
-              {note}
+              {phone}
             </Typography>
           </Box>
         </TableCell>
-        <TableCell align="center">
-      <Label
-        color={
-          (manual === true && 'success') ||
-          (manual === false && 'error') ||
-          'default'
-        }
-      >
-        {(manual === true && 'thủ công') ||
-          (manual === false && 'tự động') ||
-          manual}
-      </Label>
-    </TableCell>
+      
 
         <TableCell>
-        {satisfyMapping[satisfy] || satisfy}
+        {email}
         </TableCell>
-        <TableCell>{new Date(createdAt).toLocaleDateString()}</TableCell>
-        <TableCell>{new Date(updatedAt).toLocaleDateString()}</TableCell>
+       
 
 
         <TableCell align="right">
@@ -131,16 +109,13 @@ export default function CustormerGroupTableRow({
   );
 }
 
-CustormerGroupTableRow.propTypes = {
+CustomerGroupTableRow.propTypes = {
   id: PropTypes.any,
   handleClick: PropTypes.func,
   handleNavigate: PropTypes.func,
   selected: PropTypes.any,
   name: PropTypes.any,
-  note: PropTypes.any,
-  manual: PropTypes.any,
-  satisfy: PropTypes.any,
-  createdAt: PropTypes.any,
-  updatedAt: PropTypes.any,
+  phone: PropTypes.any,
+  email: PropTypes.any,
   onDelete: PropTypes.func
 };

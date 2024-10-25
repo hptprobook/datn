@@ -22,25 +22,25 @@ import {
 import { useFormik } from 'formik';
 import './styles.css';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import Iconify from 'src/components/iconify/iconify';
 import { handleToast } from 'src/hooks/toast';
-import { setStatus, createCustormerGroup } from 'src/redux/slices/CustormerGroupSlice';
+import { setStatus, createCustomerGroup } from 'src/redux/slices/CustomerGroupSlice';
 import LoadingFull from 'src/components/loading/loading-full';
 // import { AutoSelect } from '../auto-select';
-import { custormerGroupSchema } from '../utils';
+import { customerGroupSchema } from '../utils';
 
 
 // ----------------------------------------------------------------------
 
-export default function CreateCustormerGroupPage() {
+export default function CreateCustomerGroupPage() {
 
   const dispatch = useDispatch();
 
-  const status = useSelector((state) => state.CustormerGroups.statusCreate);
-  const error = useSelector((state) => state.CustormerGroups.error);
+  const status = useSelector((state) => state.CustomerGroups.statusCreate);
+  const error = useSelector((state) => state.CustomerGroups.error);
 
   const [manual, setManual] = useState(true);
 
@@ -61,7 +61,7 @@ export default function CreateCustormerGroupPage() {
       }),
       listCustomer: [],
     },
-    validationSchema: custormerGroupSchema,
+    validationSchema: customerGroupSchema,
     onSubmit: (values) => {
       if (values.manual === false) {
         if (!values.auto || values.auto.length === 0) {
@@ -88,7 +88,7 @@ export default function CreateCustormerGroupPage() {
         delete values.auto;
       }
       console.log(values);
-      dispatch(createCustormerGroup({ data: values }));
+      dispatch(createCustomerGroup({ data: values }));
     },
   });
 

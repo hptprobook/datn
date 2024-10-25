@@ -91,12 +91,12 @@ const updateCG = async (req, res) => {
             }));
             const dataCG = { ...req.body, auto: newAuto };
             const result = await customerGroupModel.updateCG(idCG, dataCG);
-            return res.status(StatusCodes.BAD_REQUEST).json(result);
+            return res.status(StatusCodes.OK).json(result); // Changed to OK
         }
 
         const dataCG = req.body;
         const result = await customerGroupModel.updateCG(idCG, dataCG);
-        return res.status(StatusCodes.BAD_REQUEST).json(result);
+        return res.status(StatusCodes.OK).json(result);
     } catch (error) {
         if (error.details) {
             return res.status(StatusCodes.BAD_REQUEST).json({
