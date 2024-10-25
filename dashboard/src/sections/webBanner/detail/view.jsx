@@ -168,7 +168,7 @@ export default function DetailBlogView() {
               >
                 <Stack spacing={3}>
                   <Typography variant="h6" sx={{ mb: 3 }}>
-                    Mô tả Banner quảng cáo
+                    Mô tả Banner
                   </Typography>
                   <TextField
                     fullWidth

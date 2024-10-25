@@ -59,6 +59,7 @@ const createCG = async (req, res) => {
 
         const dataCG = req.body;
         const result = await customerGroupModel.createCG(dataCG);
+        console.log(result);
         if (result.acknowledged) {
             return res
                 .status(StatusCodes.OK)

@@ -115,6 +115,66 @@ const deleteManyVariant = async (req, res) => {
   }
 };
 
+const createManyVariants = async (req, res) => {
+  try {
+    const variants = req.body;
+    const errors = [];
+    const successfulVariants = [];
+
+    for (const variantData of variants) {
+      try {
+        // Format lại tên của từng biến thể
+        const formattedName = variantData.name
+          .toLowerCase()
+          .replace(/\s+/g, '_');
+        variantData.name = formattedName;
+
+        // Kiểm tra biến thể đã tồn tại chưa
+        const existingVariant = await variantsModel.getVariantByName(
+          variantData.name
+        );
+        if (existingVariant) {
+          errors.push({
+            name: variantData.name,
+            message: 'Biến thể đã tồn tại',
+          });
+          continue; // Bỏ qua biến thể này và tiếp tục với biến thể tiếp theo
+        }
+
+        // Tạo mới biến thể
+        const result = await variantsModel.create(variantData);
+        successfulVariants.push(result); // Lưu lại biến thể thành công
+      } catch (error) {
+        // Lưu lại lỗi nếu có lỗi xảy ra với biến thể hiện tại
+        errors.push({
+          name: variantData.name,
+          message: error.details
+            ? error.details[0].message
+            : 'Có lỗi xảy ra khi thêm biến thể',
+        });
+      }
+    }
+
+    // Trả về kết quả
+    if (errors.length) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: 'Một số biến thể không thể thêm được',
+        errors,
+        successfulVariants,
+      });
+    }
+
+    return res.status(StatusCodes.OK).json({
+      message: 'Tất cả biến thể đã được thêm thành công',
+      successfulVariants,
+    });
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: 'Có lỗi xảy ra, xin thử lại sau',
+    });
+  }
+};
+
 export const variantsController = {
   getAllVariants,
   createVariant,
@@ -122,4 +182,5 @@ export const variantsController = {
   deleteVariant,
   deleteAllVariant,
   deleteManyVariant,
+  createManyVariants,
 };
