@@ -6,17 +6,22 @@ import { isAdmin, verifyToken } from '~/middlewares/verifyRole';
 const Router = express.Router();
 
 Router.get('/', variantsController.getAllVariants);
-
-Router.post('/', verifyToken, isAdmin, variantsController.createVariant);
-
-Router.put('/:id', verifyToken, isAdmin, variantsController.update);
-
-Router.delete('/:id', verifyToken, isAdmin, variantsController.deleteVariant);
-
-// Delete all
-Router.post('/all', verifyToken, isAdmin, variantsController.deleteAllVariant);
-
-Router.post('/many', verifyToken, isAdmin, variantsController.deleteManyVariant);
-
+Router.post('/', isAdmin, verifyToken, variantsController.createVariant);
+Router.post(
+  '/many',
+  isAdmin,
+  verifyToken,
+  variantsController.createManyVariants
+);
+Router.put('/:id', isAdmin, verifyToken, variantsController.update);
+Router.delete('/:id', isAdmin, verifyToken, variantsController.deleteVariant);
+//Delete all
+Router.post('/all', isAdmin, verifyToken, variantsController.deleteAllVariant);
+Router.post(
+  '/many',
+  isAdmin,
+  verifyToken,
+  variantsController.deleteManyVariant
+);
 
 export const variantsApi = Router;
