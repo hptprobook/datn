@@ -205,7 +205,6 @@ const createProduct = async (req, res) => {
     imageVariantsC.forEach((file, index) => {
       parsedVars[index].image = file;
     });
-
     const data = {
       cat_id,
       name,
@@ -304,7 +303,6 @@ const updateProduct = async (req, res) => {
 
     let thumbnail;
     let imagesProduct = [];
-    let imageVariantsC = [];
 
     if (req.files['thumbnail']) {
       thumbnail = path.join(
@@ -323,21 +321,21 @@ const updateProduct = async (req, res) => {
       });
     }
 
-    if (req.files['imageVariants']) {
-      imageVariantsC = req.files['imageVariants'].map((file) => {
+    const imageVariantsC =
+      req.files['imageVariants'] &&
+      req.files['imageVariants'].map((file) => {
         if (file && file.filename) {
           return path.join('uploads/products', file.filename);
         } else {
           throw new Error('File image không hợp lệ');
         }
       });
-    }
 
     const product = await productModel.getProductById(id);
-    const oldVariant = product.variants;
+    const oldVariants = product.variants;
     const parsedVariants = variants.map((variant) => JSON.parse(variant));
     // ảnh cũ
-    const oldImageVariants = oldVariant.map((v) => v.image);
+    const oldImageVariants = oldVariants.map((v) => v.image);
     // những ảnh k cần xóa
     const imageNoDelete = parsedVariants
       .map((v) => (!v.imageAdd ? v.image : null))
@@ -455,13 +453,11 @@ const updateProduct = async (req, res) => {
       if (deleteImgs && deleteImgs.length > 0) {
         uploadModel.deleteImgs(deleteImgs);
       }
+
       if (imageDelete && imageDelete.length > 0) {
         uploadModel.deleteImgs(imageDelete);
       }
 
-      if (oldImageVariants && oldImageVariants.length > 0) {
-        uploadModel.deleteImgs(oldImageVariants);
-      }
       const result = dataProduct.result;
       if (!result) {
         return res
