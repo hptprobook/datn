@@ -8,7 +8,7 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 import InputAdornment from '@mui/material/InputAdornment';
 
 import Iconify from 'src/components/iconify';
-import { FormControl, InputLabel, MenuItem, Select, Stack } from '@mui/material';
+import { Stack, Select, MenuItem, InputLabel, FormControl } from '@mui/material';
 import { useState } from 'react';
 
 // ----------------------------------------------------------------------
