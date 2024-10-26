@@ -10,37 +10,44 @@ import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { deleteUser, resetDelete, fetchAllUsers } from 'src/redux/slices/userSlice';
-
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 import { useRouter } from 'src/routes/hooks';
 import { handleToast } from 'src/hooks/toast';
-
+import { SketchPicker } from 'react-color';
 import {
+  Box,
+  Modal,
   Button,
-  FormControl,
+  Select,
+  MenuItem,
+  TextField,
   IconButton,
   InputLabel,
-  MenuItem,
-  Select,
-  TextField,
+  FormControl,
 } from '@mui/material';
 import LoadingFull from 'src/components/loading/loading-full';
 import ConfirmDelete from 'src/components/modal/confirm-delete';
 import TableNoData from 'src/components/table/table-no-data';
 import { emptyRows, applyFilter, getComparator } from 'src/components/table/utils';
 import TableEmptyRows from 'src/components/table/table-empty-rows';
-import { fetchAllVariants } from 'src/redux/slices/variantSlices';
+import {
+  setStatus,
+  createVariant,
+  deleteVariant,
+  fetchAllVariants,
+  manyDeleteVariant,
+  updateVariantById,
+} from 'src/redux/slices/variantSlices';
 import Grid2 from '@mui/material/Unstable_Grid2';
 import * as Yup from 'yup';
+import { useFormik } from 'formik';
+import FormHelpTextError from 'src/components/errors/form-error';
 import VariantsTableToolbar from '../variants-table-toolbar';
 import VariantsTableHead from '../variants-table-head';
 import VariantsTableRow from '../variants-table-row';
-import { useFormik } from 'formik';
-import FormHelpTextError from 'src/components/errors/form-error';
 
- const variantsSchema = Yup.object().shape({
+const variantsSchema = Yup.object().shape({
   name: Yup.string().trim().required('Tên là bắt buộc').min(1, 'Tên không được để trống'),
   type: Yup.string()
     .oneOf(['size', 'color'], 'Loại phải là một trong các giá trị sau: color, size.')
@@ -52,33 +59,97 @@ import FormHelpTextError from 'src/components/errors/form-error';
     .min(1, 'Giá trị không được để trống.')
     .max(10, 'Giá trị không được quá 10 ký tự'),
 });
-
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  boxShadow: 24,
+  borderRadius: 2,
+  p: 2,
+};
 // ----------------------------------------------------------------------
 
 export default function VariantsPage() {
   const dispatch = useDispatch();
   const [variants, setVariants] = useState([]);
-
+  const [open, setOpen] = useState(false);
+  const [variant, setVariant] = useState(null);
   const data = useSelector((state) => state.variants.variants);
   const status = useSelector((state) => state.variants.status);
   const error = useSelector((state) => state.variants.error);
   const statusDelete = useSelector((state) => state.variants.statusDelete);
+  const statusCreate = useSelector((state) => state.variants.statusCreate);
+  const statusUpdate = useSelector((state) => state.variants.statusUpdate);
 
   useEffect(() => {
     if (status === 'idle') {
       dispatch(fetchAllVariants());
     } else if (status === 'failed') {
-      console.error(error);
+      handleToast('error', error?.message || 'Lấy dữ liệu biến thể thất bại');
     } else if (status === 'successful') {
       setVariants(data);
     }
   }, [status, dispatch, error, data]);
   useEffect(() => {
     if (statusDelete === 'successful') {
-      handleToast('success', 'Xóa người dùng thành công');
-      dispatch(resetDelete());
+      handleToast('success', 'Xóa biến thể thành công');
+      dispatch(fetchAllVariants());
+      setSelected([]);
+      dispatch(
+        setStatus({
+          key: 'statusDelete',
+          value: 'idle',
+        })
+      );
+    } else if (statusDelete === 'failed') {
+      handleToast('error', error?.message || 'Xóa biến thể thất bại');
+      dispatch(setStatus({ key: 'statusDelete', value: 'idle' }));
     }
-  }, [statusDelete, dispatch]);
+  }, [statusDelete, dispatch, error]);
+  useEffect(() => {
+    if (statusUpdate === 'successful') {
+      handleToast('success', 'Cập nhật biến thể thành công');
+      dispatch(fetchAllVariants());
+      dispatch(
+        setStatus({
+          key: 'statusUpdate',
+          value: 'idle',
+        })
+      );
+    } else if (statusUpdate === 'failed') {
+      handleToast('error', error?.message || 'Cập nhật biến thể thất bại');
+      dispatch(
+        setStatus({
+          key: 'statusUpdate',
+          value: 'idle',
+        })
+      );
+    }
+  }, [statusUpdate, dispatch, error]);
+
+  useEffect(() => {
+    if (statusCreate === 'successful') {
+      handleToast('success', 'Tạo biến thể thành công');
+      dispatch(fetchAllVariants());
+      dispatch(
+        setStatus({
+          key: 'statusCreate',
+          value: 'idle',
+        })
+      );
+    } else if (statusCreate === 'failed') {
+      handleToast('error', error?.message || 'Tạo biến thể thất bại');
+      dispatch(
+        setStatus({
+          key: 'statusCreate',
+          value: 'idle',
+        })
+      );
+    }
+  }, [statusCreate, dispatch, error]);
 
   const [page, setPage] = useState(0);
 
@@ -92,19 +163,48 @@ export default function VariantsPage() {
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
+  const [color, setColor] = useState('#fff');
+
   const route = useRouter();
 
   const formik = useFormik({
     initialValues: {
       name: '',
-      type: '',
+      type: 'color',
       value: '',
     },
     validationSchema: variantsSchema,
     onSubmit: (values) => {
-      console.log(values);
+      dispatch(createVariant(values));
     },
   });
+  const formikUpdate = useFormik({
+    initialValues: {
+      name: variant?.name || '',
+      type: variant?.type || 'color',
+      value: variant?.value || '',
+    },
+    enableReinitialize: true,
+    validationSchema: variantsSchema,
+    onSubmit: (values) => {
+      dispatch(
+        updateVariantById({
+          id: variant._id,
+          data: values,
+        })
+      );
+      setOpen(false);
+      setVariant(null);
+    },
+  });
+
+  const handleChangeColor = (c, e) => {
+    setColor(c.hex);
+    if (variant) {
+      formikUpdate.setFieldValue('value', c.hex);
+    }
+    formik.setFieldValue('value', c.hex);
+  };
 
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === 'asc';
@@ -116,7 +216,7 @@ export default function VariantsPage() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = variants.map((n) => n.name);
+      const newSelecteds = variants.map((n) => n._id);
       setSelected(newSelecteds);
       return;
     }
@@ -162,18 +262,97 @@ export default function VariantsPage() {
     fillerQuery: 'name',
   });
   const [confirm, setConfirm] = useState(false);
-  const dispatchDelete = () => {
-    dispatch(deleteUser(confirm));
+  const handleDelete = () => {
+    if (typeof confirm === 'string') {
+      dispatch(deleteVariant(confirm));
+    } else {
+      dispatch(
+        manyDeleteVariant({
+          ids: selected,
+        })
+      );
+    }
   };
   const notFound = !dataFiltered.length && !!filterName;
-
+  const handleOpenModal = (id) => {
+    setOpen(true);
+    const v = variants.find((item) => item._id === id);
+    if (v.type === 'color') {
+      setColor(v.value);
+    }
+    setVariant(v);
+  };
+  const handleCloseModal = () => {
+    setOpen(false);
+    setVariant(null);
+  };
   return (
     <Container>
       {status === 'loading' && <LoadingFull />}
       {statusDelete === 'loading' && <LoadingFull />}
+      <Modal
+        open={open}
+        onClose={handleCloseModal}
+        aria-labelledby="modal-detail-title"
+        aria-describedby="modal-detail-description"
+        sx={{ backgroundColor: 'rgba(0, 0, 0, 0.1)' }}
+      >
+        <Box sx={style}>
+          <form onSubmit={formikUpdate.handleSubmit}>
+            <Stack spacing={2}>
+              <Typography variant="h6">Tạo biến thể</Typography>
+
+              <TextField
+                fullWidth
+                label="Tên"
+                variant="outlined"
+                name="name"
+                value={formikUpdate.values.name}
+                onChange={formikUpdate.handleChange}
+                error={formikUpdate.touched.name && Boolean(formikUpdate.errors.name)}
+                helperText={formikUpdate.touched.name && formikUpdate.errors.name}
+              />
+              <FormControl fullWidth>
+                <InputLabel id="type-variants-select-label">Loại</InputLabel>
+                <Select
+                  labelId="type-variants-select-label"
+                  id="type-variants-select"
+                  value={formikUpdate.values.type}
+                  error={formikUpdate.touched.type && Boolean(formikUpdate.errors.type)}
+                  name="type"
+                  label="Loại"
+                  onChange={formikUpdate.handleChange}
+                >
+                  <MenuItem value="color">Màu</MenuItem>
+                  <MenuItem value="size">Kích thước</MenuItem>
+                </Select>
+                <FormHelpTextError label={formikUpdate.touched.type && formikUpdate.errors.type} />
+              </FormControl>
+              {formikUpdate.values.type === 'color' ? (
+                <SketchPicker color={color} onChange={handleChangeColor} />
+              ) : (
+                <TextField
+                  fullWidth
+                  label="Giá trị"
+                  variant="outlined"
+                  name="value"
+                  value={formikUpdate.values.value}
+                  onChange={formikUpdate.handleChange}
+                  error={formikUpdate.touched.value && Boolean(formikUpdate.errors.value)}
+                  helperText={formikUpdate.touched.value && formikUpdate.errors.value}
+                />
+              )}
+              <Button type="submit" variant="contained" color="inherit">
+                Lưu
+              </Button>
+            </Stack>
+          </form>
+        </Box>
+      </Modal>
+
       <ConfirmDelete
         openConfirm={!!confirm}
-        onAgree={dispatchDelete}
+        onAgree={handleDelete}
         onClose={() => setConfirm(false)}
         label="biến thể đã chọn"
       />
@@ -184,11 +363,18 @@ export default function VariantsPage() {
             aria-label="load"
             variant="contained"
             color="inherit"
-            onClick={() => dispatch(fetchAllUsers())}
+            onClick={() => dispatch(fetchAllVariants())}
           >
             <Iconify icon="mdi:reload" />
           </IconButton>
         </Stack>
+        <Button
+          variant="contained"
+          color="inherit"
+          onClick={() => handleToast('info', 'Tính năng đang phát triển!')}
+        >
+          Nhập từ file
+        </Button>
       </Stack>
 
       <Grid2 container spacing={2}>
@@ -228,17 +414,21 @@ export default function VariantsPage() {
                   </Select>
                   <FormHelpTextError label={formik.touched.type && formik.errors.type} />
                 </FormControl>
-                <TextField
-                  fullWidth
-                  label="Giá trị"
-                  variant="outlined"
-                  name="value"
-                  value={formik.values.value}
-                  onChange={formik.handleChange}
-                  error={formik.touched.value && Boolean(formik.errors.value)}
-                  helperText={formik.touched.value && formik.errors.value}
-                />
-                <Button type="submit" variant="contained" color="primary">
+                {formik.values.type === 'color' ? (
+                  <SketchPicker color={color} onChange={handleChangeColor} />
+                ) : (
+                  <TextField
+                    fullWidth
+                    label="Giá trị"
+                    variant="outlined"
+                    name="value"
+                    value={formik.values.value}
+                    onChange={formik.handleChange}
+                    error={formik.touched.value && Boolean(formik.errors.value)}
+                    helperText={formik.touched.value && formik.errors.value}
+                  />
+                )}
+                <Button type="submit" variant="contained" color="inherit">
                   Tạo
                 </Button>
               </Stack>
@@ -251,6 +441,7 @@ export default function VariantsPage() {
               numSelected={selected.length}
               filterName={filterName}
               onFilterName={handleFilterByName}
+              onDeleteMany={() => setConfirm(true)}
             />
 
             <Scrollbar>
@@ -280,10 +471,11 @@ export default function VariantsPage() {
                           name={row.name}
                           type={row.type}
                           value={row.value}
-                          selected={selected.indexOf(row.name) !== -1}
-                          handleClick={(event) => handleClick(event, row.name)}
+                          selected={selected.indexOf(row._id) !== -1}
+                          handleClick={(event) => handleClick(event, row._id)}
                           onDelete={() => setConfirm(row._id)}
                           handleNavigate={() => route.push(row._id)}
+                          onClickRow={() => handleOpenModal(row._id)}
                         />
                       ))}
 
