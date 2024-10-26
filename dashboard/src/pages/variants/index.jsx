@@ -1,17 +1,17 @@
 import { Helmet } from 'react-helmet-async';
 
-import { CustomerGroupView } from 'src/sections/customerGroups/view';
+import { VariantsView } from 'src/sections/variants/view';
 
 // ----------------------------------------------------------------------
 
-export default function BlogPage() {
+export default function VariantsPage() {
   return (
     <>
       <Helmet>
-        <title>  Nhóm khách hàng </title>
+        <title> Biến thể  </title>
       </Helmet>
 
-      <CustomerGroupView />
+      <VariantsView />
     </>
   );
 }

@@ -11,9 +11,9 @@ import { configPath } from './utils';
 export const IndexPage = lazy(() => import('src/pages/app'));
 export const IndexAdminPage = lazy(() => import('src/pages/admin'));
 // user page
-export const UserPage = lazy(() => import('src/pages/user/user'));
-export const CreateUserPage = lazy(() => import('src/pages/user/createUser'));
-export const DetailUserPage = lazy(() => import('src/pages/user/detail'));
+export const UserPage = lazy(() => import('src/pages/users'));
+export const CreateUserPage = lazy(() => import('src/pages/users/create'));
+export const DetailUserPage = lazy(() => import('src/pages/users/detail'));
 // login page
 export const LoginPage = lazy(() => import('src/pages/login'));
 // product page
@@ -46,6 +46,8 @@ export const WarehouseEditPage = lazy(() => import('src/pages/warehouse/edit'));
 export const CouponsPage = lazy(() => import('src/pages/coupons/coupons'));
 export const CreateCouponPage = lazy(() => import('src/pages/coupons/create'));
 export const CouponDetailPage = lazy(() => import('src/pages/coupons/detail'));
+// variants page
+export const VariantsPage = lazy(() => import('src/pages/variants'));
 // supplier page
 export const SuppliersPage = lazy(() => import('src/pages/suppliers/suppliers'));
 export const SupplierCreatePage = lazy(() => import('src/pages/suppliers/create'));
@@ -211,6 +213,10 @@ export default function Router() {
         {
           path: 'brands/:id',
           element: <BrandDetailPage />,
+        },
+        {
+          path: 'variants',
+          element: <VariantsPage />,
         },
         {
           path: 'settings',
