@@ -1,15 +1,24 @@
 import { useState, useEffect } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import Footer from '~/components/Home/Footer/Footer';
 import Header from '~/components/Home/Header/Header';
 import NavBar from '~/components/Home/NavBar/NavBar';
 
 export default function MainLayout() {
+  const location = useLocation();
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [scrollPosition, setScrollPosition] = useState(0);
 
+  const isSpecialRoute = [
+    '/gio-hang',
+    '/thanh-toan',
+    '/thanh-toan/xac-nhan',
+  ].includes(location.pathname);
+
   useEffect(() => {
+    if (isSpecialRoute) return;
+
     const handlePreviewOpen = (event) => {
       setIsPreviewOpen(event.detail);
     };
@@ -32,7 +41,7 @@ export default function MainLayout() {
       window.removeEventListener('previewOpen', handlePreviewOpen);
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [isHeaderVisible]);
+  }, [isHeaderVisible, isSpecialRoute]);
 
   const toggleHeaderVisibility = () => {
     if (scrollPosition > 0) {
@@ -44,13 +53,17 @@ export default function MainLayout() {
     <main className="bg-white">
       <div
         className={`top-0 z-[1000] transition-transform duration-300 ${
-          !isPreviewOpen ? 'sticky' : ''
-        } ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'}`}
+          !isPreviewOpen && !isSpecialRoute ? 'sticky' : ''
+        } ${
+          isHeaderVisible || isSpecialRoute
+            ? 'translate-y-0'
+            : '-translate-y-full'
+        }`}
       >
         <Header />
         <NavBar />
       </div>
-      {scrollPosition > 0 && (
+      {!isSpecialRoute && scrollPosition > 0 && (
         <div className="fixed top-4 right-12 z-[1001]">
           <button
             onClick={toggleHeaderVisibility}
