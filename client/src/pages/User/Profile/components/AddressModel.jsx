@@ -36,7 +36,13 @@ const validationSchema = Yup.object({
     .max(100, 'Địa chỉ không được vượt quá 100 ký tự'),
 });
 
-const AddressModel = ({ onClose, isOpen, address, refetchUser }) => {
+const AddressModel = ({
+  onClose,
+  isOpen,
+  address,
+  refetchUser,
+  onBack = null,
+}) => {
   const [isClosing, setIsClosing] = useState(false);
   const { user, setUserInfo } = useUser();
 
@@ -90,7 +96,7 @@ const AddressModel = ({ onClose, isOpen, address, refetchUser }) => {
   const mutation = useMutation({
     mutationFn: updateCurrentUser,
     onSuccess: () => {
-      onClose();
+      onBack ? onBack() : onClose();
       refetchUser();
       useSwal.fire({
         title: 'Thành công!',
@@ -109,7 +115,7 @@ const AddressModel = ({ onClose, isOpen, address, refetchUser }) => {
     setIsClosing(true);
     setTimeout(() => {
       setIsClosing(false);
-      onClose();
+      onBack ? onBack() : onClose();
     }, 300);
   };
 
@@ -161,7 +167,7 @@ const AddressModel = ({ onClose, isOpen, address, refetchUser }) => {
     >
       <div
         className="absolute inset-0 bg-black opacity-50"
-        onClick={handleClose}
+        onClick={!onBack ? handleClose : onBack}
       ></div>
 
       <div
@@ -169,12 +175,14 @@ const AddressModel = ({ onClose, isOpen, address, refetchUser }) => {
           isOpen && !isClosing ? 'animate-slideDown' : 'animate-slideUp'
         }`}
       >
-        <button
-          className="absolute top-4 right-4 text-gray-500 hover:text-black"
-          onClick={handleClose}
-        >
-          <FaTimes size={20} />
-        </button>
+        {!onBack && (
+          <button
+            className="absolute top-4 right-4 text-gray-500 hover:text-black"
+            onClick={handleClose}
+          >
+            <FaTimes size={20} />
+          </button>
+        )}
         <h2 className="font-bold text-black mb-4">
           {address ? 'CHỈNH SỬA ĐỊA CHỈ' : 'THÊM ĐỊA CHỈ MỚI'}
         </h2>
@@ -290,12 +298,25 @@ const AddressModel = ({ onClose, isOpen, address, refetchUser }) => {
               </label>
             </div>
 
-            <button
-              type="submit"
-              className="btn bg-red-600 rounded-md mt-4 px-12"
-            >
-              {address ? 'Cập nhật địa chỉ' : 'Lưu địa chỉ'}
-            </button>
+            <div className="flex gap-3">
+              {onBack && (
+                <button
+                  type="button"
+                  className="btn bg-red-600 rounded-md mt-4 px-12"
+                  onClick={onBack}
+                >
+                  Quay lại
+                </button>
+              )}
+
+              <button
+                type="submit"
+                onClick={formik.handleSubmit}
+                className="btn bg-red-600 rounded-md mt-4 px-12"
+              >
+                {address ? 'Cập nhật địa chỉ' : 'Lưu địa chỉ'}
+              </button>
+            </div>
           </div>
         </form>
       </div>
@@ -307,6 +328,7 @@ AddressModel.propTypes = {
   onClose: PropTypes.func.isRequired,
   isOpen: PropTypes.bool.isRequired,
   address: PropTypes.object,
+  onBack: PropTypes.func,
 };
 
 export default AddressModel;

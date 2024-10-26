@@ -10,11 +10,7 @@ const QuantityButton = ({
   const [localQuantity, setLocalQuantity] = useState(quantity);
 
   useEffect(() => {
-    if (localQuantity > stockLimit) {
-      setHasStockError(true);
-    } else {
-      setHasStockError(false);
-    }
+    setHasStockError(localQuantity > stockLimit);
   }, [localQuantity, stockLimit]);
 
   // Xử lý khi người dùng nhập trực tiếp vào input
