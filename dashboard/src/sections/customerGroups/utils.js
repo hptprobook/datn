@@ -17,6 +17,8 @@ export function emptyRows(page, rowsPerPage, arrayLength) {
   return page ? Math.max(0, (1 + page) * rowsPerPage - arrayLength) : 0;
 }
 
+
+
 function descendingComparator(a, b, orderBy) {
   if (a[orderBy] === null) {
     return 1;
@@ -62,7 +64,7 @@ export function applyFilter({ inputData, comparator, filterName }) {
   return inputData;
 }
 
-export const custormerGroupSchema = Yup.object().shape({
+export const customerGroupSchema = Yup.object().shape({
   name: Yup.string()
     .required('Tên bài viết là bắt buộc')
     .min(5, 'Tên bài viết phải ít nhất 5 ký tự')
@@ -74,37 +76,52 @@ export const custormerGroupSchema = Yup.object().shape({
   manual: Yup.boolean().required('Manual là bắt buộc'),
   satisfy: Yup.string().when('manual', {
     is: false,
-    then: Yup.string().required('Satisfy là bắt buộc'),
+    then: (schema) => schema.required('Satisfy là bắt buộc'),
   }),
   auto: Yup.lazy((value) => {
     if (value && value.manual === false) {
-      return Yup.array()
-        .of(
-          Yup.object().shape({
-            id: Yup.string().trim(),
-            field: Yup.string().required('Trường là bắt buộc'),
-            query: Yup.string().required('Điều kiện là bắt buộc'),
-            status: Yup.string().required('Giá trị là bắt buộc'),
-          })
-        )
-        .default([
-          {
-            id: '',
-            field: 'Trạng thái',
-            query: 'Là',
-            status: 'Vui lòng chọn',
-          },
-        ]);
-    }
-    return Yup.array()
-      .of(
+      return Yup.array().of(
         Yup.object().shape({
           id: Yup.string().trim(),
-          field: Yup.string().trim(),
-          query: Yup.string().trim(),
-          status: Yup.string().trim(),
+          field: Yup.string().required('Trường là bắt buộc'),
+          query: Yup.string().required('Điều kiện là bắt buộc'),
+          status: Yup.string().required('Giá trị là bắt buộc'),
         })
-      )
-      .default([]);
+      ).default([
+        {
+          id: '',
+          field: 'Trạng thái',
+          query: 'Là',
+          status: 'Vui lòng chọn',
+        }
+      ]);
+    }
+    return Yup.array().of(
+      Yup.object().shape({
+        id: Yup.string().trim(),
+        field: Yup.string().trim(),
+        query: Yup.string().trim(),
+        status: Yup.string().trim(),
+      })
+    ).default([]);
   }),
 });
+
+export const FIELD_OPTIONS = [
+  { value: 'Trạng thái', label: 'Trạng thái' },
+  { value: 'Tổng đơn hàng', label: 'Tổng đơn hàng' },
+];
+
+export const QUERY_OPTIONS_TONG_DON_HANG = [
+  { value: '=', label: 'bằng (=)' },
+  { value: '!=', label: 'không bằng (≠)' },
+  { value: '<', label: 'nhỏ hơn (<)' },
+  { value: '<=', label: 'nhỏ hơn hoặc bằng (≤)' },
+  { value: '>', label: 'lớn hơn (>)' },
+  { value: '>=', label: 'lớn hơn hoặc bằng (≥)' },
+];
+
+
+export const QUERY_OPTIONS_TRANG_THAI = [
+  { value: 'là', label: 'là' },
+];

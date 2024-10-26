@@ -1,8 +1,8 @@
 
 import { get, del, put , post} from "src/utils/request";
 /* eslint-disable */
-const CustormerGroupsService = {
-  getAllCG: async () => {
+const CustomerGroupsService = {
+  getAllCustomerGroup: async () => {
     try {
       const res = await get('customer-group');
       return res;
@@ -10,14 +10,14 @@ const CustormerGroupsService = {
       throw err;
     }
   },
-  getOneCG: async (id) => {
+  getOneCustomerGroup: async (id) => {
     try {
       return await get(`customer-group/${id}`);
     } catch (err) {
       throw err;
     }
   },
-  deleteOneCG: async (id) => {
+  deleteOneCustomerGroup: async (id) => {
     try {
       const res = await del(`customer-group/${id}`);
       return res.data;
@@ -25,7 +25,7 @@ const CustormerGroupsService = {
       throw err;
     }
   },
-  createCustormerGroup: async (data) => {
+  createCustomerGroup: async (data) => {
     try {
       const res = await post('customer-group', data); 
       return res.data;
@@ -34,7 +34,7 @@ const CustormerGroupsService = {
       throw err;
     }
   },
-  updateCustormerGroup: async (id, data) => {
+  updateCustomerGroup: async (id, data) => {
     try {
       const res = await put(`customer-group/${id}`, data); 
       return res.data; 
@@ -45,4 +45,4 @@ const CustormerGroupsService = {
   },
 };
 
-export default CustormerGroupsService;
+export default CustomerGroupsService;

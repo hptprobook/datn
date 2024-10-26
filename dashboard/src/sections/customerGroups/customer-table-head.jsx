@@ -11,7 +11,7 @@ import { visuallyHidden } from './utils';
 
 // ----------------------------------------------------------------------
 
-export default function CustormerGroupTableHead({
+export default function CustomerGroupTableHead({
   order,
   orderBy,
   rowCount,
@@ -62,7 +62,7 @@ export default function CustormerGroupTableHead({
   );
 }
 
-CustormerGroupTableHead.propTypes = {
+CustomerGroupTableHead.propTypes = {
   order: PropTypes.oneOf(['asc', 'desc']),
   orderBy: PropTypes.string,
   rowCount: PropTypes.number,

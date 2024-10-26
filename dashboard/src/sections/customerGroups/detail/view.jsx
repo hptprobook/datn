@@ -1,70 +1,69 @@
+/* eslint-disable react/jsx-boolean-value */
 /* eslint-disable react/prop-types */
 
 import Stack from '@mui/material/Stack';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import {
-  Box,
-  Tab,
   Card,
-  Chip,
-  Tabs,
-  Select,
+  Radio,
+  Table,
   Button,
+  Select,
   MenuItem,
   TextField,
-  SpeedDial,
-  InputLabel,
+  FormLabel,
+  TableBody,
+  RadioGroup,
   IconButton,
   FormControl,
   FormHelperText,
+  TableContainer,
+  TablePagination,
+  FormControlLabel,
 } from '@mui/material';
-import { useFormik } from 'formik';
-import * as Yup from 'yup';
+import { Form, Formik, FieldArray } from 'formik';
 import './styles.css';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import { slugify } from 'src/utils/format-text';
-import TinyEditor from 'src/components/editor/tinyEditor';
-import { useState, useEffect, useCallback } from 'react';
-import ImageDropZone from 'src/components/drop-zone-upload/upload-img';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import PropTypes from 'prop-types';
+
 import Iconify from 'src/components/iconify/iconify';
 import { handleToast } from 'src/hooks/toast';
-import { setStatus, updateBlog , fetchBlogById } from 'src/redux/slices/blogSlice';
+import { setStatus, getOneCustomerGroup, updateCustomerGroup } from 'src/redux/slices/CustomerGroupSlice';
 import LoadingFull from 'src/components/loading/loading-full';
 // import { AutoSelect } from '../auto-select';
-
-import { isValidObjectId } from 'src/utils/check';
-import { fetchAllUsers } from 'src/redux/slices/userSlice';
-
 import { useParams } from 'react-router-dom';
 import { useRouter } from 'src/routes/hooks';
+import { isValidObjectId } from 'src/utils/check';
+import Scrollbar from 'src/components/scrollbar';
+import ConfirmDelete from 'src/components/modal/confirm-delete';
+import {
+  emptyRows,
+  applyFilter,
+  getComparator,
+  FIELD_OPTIONS,
+  customerGroupSchema,
+  QUERY_OPTIONS_TRANG_THAI,
+  QUERY_OPTIONS_TONG_DON_HANG
+} from '../utils';
+import TableNoData from '../table-no-data';
+import TableEmptyRows from '../table-empty-rows';
+import CustomerTableRow from '../customer-table-row';
+import CustomerTableHead from '../customer-table-head';
+import CustomerTableToolbar from '../customer-table-toolbar';
 
 // ----------------------------------------------------------------------
-const blogSchema = Yup.object().shape({
-  title: Yup.string()
-    .required('Tên bài viết là bắt buộc')
-    .min(5, 'Tên bài viết phải ít nhất 5 ký tự')
-    .max(255, 'Tên bài viết không được quá 255 ký tự'),
-  slug: Yup.string().min(5, 'Slug phải ít nhất 5 ký tự').max(255, 'Slug không được quá 255 ký tự'),
-  content: Yup.string()
-    // .required('Nội dung là bắt buộc')
-    .min(5, 'Nội dung  phải ít nhất 5 ký tự')
-    .max(10000, 'Nội dung  không được quá 10000 ký tự'),
-  authID: Yup.string().required('Tác giả là bắt buộc'),
-  metaDescription: Yup.string().max(255, 'Meta Description không được quá 255 ký tự'),
-  metaKeywords: Yup.string().max(255, 'Meta Keywords không được quá 255 ký tự'),
-});
-const backendUrl = import.meta.env.VITE_BACKEND_APP_URL;
 
-export default function DetailBlogView() {
+export default function DetailCustomerGroupPage() {
   const { id } = useParams();
   const route = useRouter();
+  const dispatch = useDispatch();
+
   useEffect(() => {
     if (id) {
       if (isValidObjectId(id)) {
-        dispatch(fetchBlogById({ id }));
+        dispatch(getOneCustomerGroup({ id }));
       } else {
         handleToast('error', 'Id không hợp lệ');
         route.push('/blogs');
@@ -72,350 +71,552 @@ export default function DetailBlogView() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
-  const [thumbnail, setThumbnail] = useState(null);
-  const [errorThumbnail, setErrorThumbnail] = useState(null);
-  const [tags, setTags] = useState([]);
-  const [inputValue, setInputValue] = useState('');
-  const [value, setValue] = useState(0);
-  const [users, setUsers] = useState([]);
-  const statusUser = useSelector((state) => state.users.status);
-  const errorUser = useSelector((state) => state.users.error);
 
-  const dataUser = useSelector((state) => state.users.users);
-  const dispatch = useDispatch();
+  const [page, setPage] = useState(0);
+  const [order, setOrder] = useState('asc');
+  const [selected, setSelected] = useState([]);
+  const [orderBy, setOrderBy] = useState('name');
+  const [filterName, setFilterName] = useState('');
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const status = useSelector((state) => state.blogs.statusUpdate);
-  const blog = useSelector((state) => state.blogs.blog);
-  const error = useSelector((state) => state.blogs.error);
-  const statusGetBlog = useSelector((state) => state.blogs.status);
-  useEffect(() => {
-    if (statusUser === 'idle') {
-      dispatch(fetchAllUsers());
-    } else if (statusUser === 'failed') {
-      console.error(errorUser);
-    } else if (statusUser === 'successful') {
-      setUsers(dataUser.users);
-    }
-  }, [statusUser, dispatch, errorUser, dataUser]);
+  const status = useSelector((state) => state.CustomerGroups.statusUpdate);
+  const error = useSelector((state) => state.CustomerGroups.error);
+  const customerGroup = useSelector((state) => state.CustomerGroups.CustomerGroup);
+  const [manual, setManual] = useState(customerGroup.manual);
 
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
-  };
-  const handleKeyDown = (event) => {
-    if (event.key === 'Enter' && inputValue.trim()) {
-      setTags([...tags, inputValue.trim()]);
-      setInputValue('');
-    }
+  const initialValues = {
+    name: customerGroup.name || '',
+    note: customerGroup.note || '',
+    manual: customerGroup.manual || manual,
+    satisfy: customerGroup.satisfy || 'all',
+    ...(manual === false && {
+      auto: customerGroup.auto || [
+        {
+          field: '',
+          query: '',
+          status: '',
+        }
+      ],
+    }),
+    listCustomer: customerGroup.listCustomer || [],
   };
 
-  const handleDelete = (tagToDelete) => {
-    setTags(tags.filter((tag) => tag !== tagToDelete));
-  };
-  const formik = useFormik({
-    initialValues: {
-      title: blog?.title || '',
-      authID: blog?.authID  ||'',
-      authName: blog?.authName || '',
-      content: blog?.content || '',
-      slug: blog?.slug || '',
-      tags: blog?.tags || [],
-      status: blog?.status || 'public',
-      metaDescription: blog?.metaDescription || '',
-      metaKeywords: blog?.metaKeywords || '',
-    },
-    enableReinitialize: true,
-
-    validationSchema: blogSchema,
-    onSubmit: (values) => {
-      if (thumbnail !== null) {
-        values.thumbnail = thumbnail;
-      }
-      if (status === "" || status === null) {
-        handleToast('error', 'Vui lòng chọn trạng thái')
-      }
-    
-      values.tags = tags;
-      console.log(values);
-
-      dispatch(updateBlog({ id , data: values }));
-    },
-  });
-
-  const handleCreateSlug = (e) => {
-    formik.setFieldValue('title', e.target.value);
-    const slug = slugify(e.target.value);
-    formik.setFieldValue('slug', slug);
-  };
-  const handleChangeUploadThumbnail = useCallback((files) => {
-    if (files) {
-      setErrorThumbnail('');
-      setThumbnail(files);
-    } else {
-      setThumbnail(null);
-    }
-  }, []);
 
   useEffect(() => {
-    if (status === 'successful') {
-      handleToast('success', 'Cập nhật bài viết thành công');
+    if (customerGroup && customerGroup.manual !== undefined) {
+      setManual(customerGroup.manual);
     }
     if (status === 'failed') {
-      handleToast('error', error?.message || 'Có lỗi xảy ra');
+      console.log('error', error);
+      handleToast('error', error.message);
     }
-
+    if (status === 'successful') {
+      handleToast('success', 'Cập nhật nhóm khách hàng thành công');
+    }
     dispatch(setStatus({ key: 'statusUpdate', value: 'idle' }));
-    dispatch(setStatus({ key: 'error', value: 'idle' }));
-  }, [status, error, dispatch]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [customerGroup, status, error, dispatch]);
+
+  const handleSort = (event, sortId) => {
+    const isAsc = orderBy === sortId && order === 'asc';
+    if (sortId !== '') {
+      setOrder(isAsc ? 'desc' : 'asc');
+      setOrderBy(sortId);
+    }
+  };
+
+  const handleClick = (event, clickId) => {
+    const selectedIndex = selected.indexOf(clickId);
+    let newSelected = [];
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(selected, clickId);
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(selected.slice(1));
+    } else if (selectedIndex === selected.length - 1) {
+      newSelected = newSelected.concat(selected.slice(0, -1));
+    } else if (selectedIndex > 0) {
+      newSelected = newSelected.concat(
+        selected.slice(0, selectedIndex),
+        selected.slice(selectedIndex + 1)
+      );
+    }
+    setSelected(newSelected);
+  };
+  const handleSelectAllClick = (event) => {
+    if (event.target.checked) {
+      const newSelecteds = (customerGroup?.listCustomer || []).map((n) => n._id);
+      setSelected(newSelecteds);
+      return;
+    }
+    setSelected([]);
+  };
+  const handleDelete = (delID) => {
+    setConfirm(delID);
+  };
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setPage(0);
+    setRowsPerPage(parseInt(event.target.value, 10));
+  };
+
+  const handleFilterByName = (event) => {
+    setPage(0);
+    setFilterName(event.target.value);
+  };
+
+  const dispatchDelete = () => {
+    console.log(confirm);
+  };
+  const dataFiltered = applyFilter({
+    inputData: customerGroup.listCustomer,
+    comparator: getComparator(order, orderBy),
+    filterName,
+  });
+
+  const notFound = !dataFiltered.length && !!filterName;
+  const [confirm, setConfirm] = useState(false);
+
   return (
     <Container>
       {status === 'loading' && <LoadingFull />}
-      {statusGetBlog === 'loading' && <LoadingFull />}
-
-      <SpeedDial
-        ariaLabel="Lưu bài viết"
-        sx={{ position: 'fixed', bottom: 16, right: 16 }}
-        onClick={() => formik.handleSubmit()}
-        icon={<Iconify icon="eva:save-fill" />}
-      />
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Stack direction="row" alignItems="center">
-          <Typography variant="h4">Chỉnh sửa bài viết</Typography>
-          <IconButton
-            aria-label="load"
-            variant="contained"
-            color="inherit"
-            onClick={() => dispatch(fetchBlogById({ id }))}
-          >
-            <Iconify icon="mdi:reload" />
-          </IconButton>
-        </Stack>
+        <Typography variant="h4">Cập nhật nhóm khách hàng</Typography>
       </Stack>
-      <form onSubmit={formik.handleSubmit}>
-        <Grid2 container spacing={3}>
-          <Grid2 xs={8}>
-            <Stack spacing={3}>
-              <Card
-                sx={{
-                  padding: 3,
-                }}
-              >
-                <Typography variant="h6" sx={{ mb: 3 }}>
-                  Thông tin cơ bản
-                </Typography>
-                <Grid2 container spacing={3}>
-                  <Grid2 xs={12}>
-                    <TextField
-                      fullWidth
-                      label="Tên bài viết"
-                      variant="outlined"
-                      name="title"
-                      value={formik.values.title}
-                        onChange={(e) => handleCreateSlug(e)}
-                        error={formik.touched.title && Boolean(formik.errors.title)}
-                        helperText={formik.touched.title && formik.errors.title}
-                    />
-                  </Grid2>
-                  <Grid2 xs={12}>
-                    <TextField
-                      fullWidth
-                      label="Slug"
-                      variant="outlined"
-                      name="slug"
-                      value={formik.values.slug}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      error={formik.touched.slug && Boolean(formik.errors.slug)}
-                      helperText={formik.touched.slug && formik.errors.slug}
-                    />
-                  </Grid2>
-                </Grid2>
-              </Card>
+      <Formik
+        initialValues={initialValues}
+        enableReinitialize={true}
+        validationSchema={customerGroupSchema}
+        onSubmit={(values) => {
+          if (values.manual === false) {
+            if (!values.auto || values.auto.length === 0) {
+              handleToast('error', 'Vui lòng chọn ít nhất một điều kiện');
+              return;
+            }
+            const hasAutoError = values.auto.some((auto) => {
+              if (!auto.field) {
+                handleToast('error', 'Trường là bắt buộc');
+                return true;
+              }
+              if (!auto.query) {
+                handleToast('error', 'Điều kiện là bắt buộc');
+                return true;
+              }
+              if (!auto.status) {
+                handleToast('error', 'Giá trị là bắt buộc');
+                return true;
+              }
+              return false;
+            });
+
+            if (hasAutoError) {
+              return;
+            }
+          }
+
+          if (values.manual === true) {
+            if (values.listCustomer && values.listCustomer.length > 0) {
+              const hasError = values.listCustomer.some((customer) => {
+                if (!customer.name) {
+                  handleToast('error', 'Tên khách hàng là bắt buộc');
+                  return true;
+                }
+                if (!customer.email) {
+                  handleToast('error', 'Email khách hàng là bắt buộc');
+                  return true;
+                }
+                if (!customer.phone) {
+                  handleToast('error', 'Số điện thoại khách hàng là bắt buộc');
+                  return true;
+                }
+                return false;
+              });
+
+              if (hasError) {
+                return;
+              }
+            } else {
+              handleToast('error', 'Vui lòng thêm ít nhất một khách hàng');
+              return;
+            }
+          }
 
 
-              <Card sx={{ flexGrow: 1, bgcolor: 'background.paper', display: 'flex', padding: 3 }}>
-                <Tabs
-                  orientation="vertical"
-                  variant="scrollable"
-                  value={value}
-                  onChange={handleChange}
-                  aria-label="Vertical tabs example"
-                  sx={{ borderRight: 1, borderColor: 'divider' }}
-                >
-                  <Tab label="Trạng thái và người dùng" {...a11yProps(0)} />
-                  <Tab label="SEO" {...a11yProps(1)} />
-                </Tabs>
-                <TabPanel value={value} index={0}>
-                  <Stack spacing={3} sx={{ width: '100%' }}>
-                    <FormControl fullWidth>
-                      <InputLabel id="status-select-label">Trạng thái bài viết</InputLabel>
-                      <Select
-                        labelId="status-select-label"
-                        id="status-select"
-                        name="status"
-                        value={formik.values.status}
-                        label="Trạng thái bài viết"
-                        onChange={formik.handleChange}
-                      >
-                        <MenuItem value="public">Công khai</MenuItem>
-                        <MenuItem value="private">Riêng tư</MenuItem>
-                        <MenuItem value="waiting">Chờ duyệt</MenuItem>
-                        <MenuItem value="reject">Từ chối</MenuItem>
-                      </Select>
-                    </FormControl>
-                    <FormControl fullWidth>
-                      <InputLabel id="author-select-label">Tác giả</InputLabel>
-                      <Select
-                        labelId="author-select-label"
-                        id="author-select"
-                        value={formik.values.authID}
-                        label="Tác giả"
-                        name="authID"
-                        onChange={(e) => {
-                          const selectedUser = users.find((user) => user._id === e.target.value);
-                          formik.setFieldValue('authID', e.target.value);
-                          formik.setFieldValue('authName', selectedUser ? selectedUser.name : '');
-                        }
-                        }
-                        error={formik.touched.authID && Boolean(formik.errors.authID)}
-                      >
-                        {users.map((user) => (
-                          <MenuItem key={user._id} value={user._id}>
-                            {user.name}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                      <FormHelperText
-                        sx={{
-                          color: formik.touched.authID && formik.errors.authID ? 'red' : 'inherit',
-                        }}
-                      >
-                        {formik.touched.authID && formik.errors.authID ? formik.errors.authID : ''}
-                      </FormHelperText>
-                    </FormControl>
-                  </Stack>
-                </TabPanel>
-                <TabPanel value={value} index={1}>
-                  <TextField
-                    fullWidth
-                    id="metaDescription"
-                    name="metaDescription"
-                    label="Meta Description"
-                    value={formik.values.metaDescription}
-                    onChange={formik.handleChange}
-                    error={formik.touched.metaDescription && Boolean(formik.errors.metaDescription)}
-                    helperText={formik.touched.metaDescription && formik.errors.metaDescription}
-                    margin="normal"
-                  />
-                  <TextField
-                    fullWidth
-                    id="metaKeywords"
-                    name="metaKeywords"
-                    label="Meta Keywords"
-                    value={formik.values.metaKeywords}
-                    onChange={formik.handleChange}
-                    error={formik.touched.metaKeywords && Boolean(formik.errors.metaKeywords)}
-                    helperText={formik.touched.metaKeywords && formik.errors.metaKeywords}
-                    margin="normal"
-                  />
-                </TabPanel>
-              </Card>
-              <Card
-                sx={{
-                  padding: 3,
-                }}
-              >
+          if (values.manual) {
+            delete values.auto;
+          }
+          console.log(values);
+          dispatch(updateCustomerGroup({ id, data: values }));
+        }}
+      >
+        {({ values, touched, errors, handleChange, handleBlur, handleSubmit }) => (
+          <Form onSubmit={handleSubmit}>
+            <Grid2 container spacing={3}>
+              <Grid2 xs={8}>
                 <Stack spacing={3}>
-                  <Typography variant="h6" sx={{ mb: 3 }}>
-                    Nội dung bài viết
-                  </Typography>
-                  <TinyEditor
-                    error={formik.touched.content && Boolean(formik.errors.content)}
-                    initialValue={blog?.content}
-                    onChange={(content) => formik.setFieldValue('content', content)}
-                    height={200}
-                  />
-                  <FormHelperText sx={{ color: 'red' }}>
-                    {formik.touched.content && formik.errors.content ? formik.errors.content : ''}
-                  </FormHelperText>
+                  <Card sx={{ padding: 3 }}>
+                    <Typography variant="h6" sx={{ mb: 3 }}>
+                      Thông tin cơ bản
+                    </Typography>
+                    <Grid2 container spacing={3}>
+                      <Grid2 xs={12}>
+                        <TextField
+                          fullWidth
+                          label="Tên nhóm khách hàng"
+                          variant="outlined"
+                          name="name"
+                          value={values.name}
+                          onChange={handleChange}
+                          error={touched.name && Boolean(errors.name)}
+                          helperText={touched.name && errors.name}
+                          rows={2} // Adjust the number of rows as needed
+                          multiline
+                        />
+                      </Grid2>
+                    </Grid2>
+                  </Card>
                 </Stack>
-                <Stack spacing={3} direction="row" mt={2} justifyContent="flex-end">
-                <Button type="button" onClick={() => formik.handleSubmit()} variant="contained" color="inherit">
-                    Lưu
-                  </Button>
+              </Grid2>
+              <Grid2 xs={4}>
+                <Card sx={{ padding: 3 }}>
+                  <Stack spacing={3}>
+                    <Typography variant="h6" sx={{ mb: 3 }}>
+                      Ghi chú
+                    </Typography>
+                    <TextField
+                      fullWidth
+                      label="Ghi chú"
+                      variant="outlined"
+                      name="note"
+                      placeholder='VD: Nhóm khách hàng mua hàng thường xuyên'
+                      value={values.note}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      error={touched.note && Boolean(errors.note)}
+                      helperText={touched.note && errors.note}
+                      rows={2} // Adjust the number of rows as needed
+                      multiline
+                    />
                   </Stack>
-              </Card>
-            </Stack>
-          </Grid2>
-          <Grid2 xs={4}>
-            <Card
-              sx={{
-                padding: 3,
-              }}
-            >
-              <Stack spacing={3}>
-                <Typography variant="h6" sx={{ mb: 3 }}>
-                  Hình ảnh đại diện bài viết
-                </Typography>
-                <ImageDropZone
-                   error={errorThumbnail}
-                   singleFile
-                   defaultImg={`${backendUrl}${blog?.thumbnail}`}
-                   handleUpload={handleChangeUploadThumbnail}
-                />
-                <Box>
-                  <TextField
-                    label="Nhập nhãn bài viết"
-                    variant="outlined"
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    fullWidth
-                  />
-                  <Box mt={2}>
-                    {tags.map((tag, index) => (
-                      <Chip
-                        key={index}
-                        label={tag}
-                        onDelete={() => handleDelete(tag)}
-                        style={{ marginRight: 5, marginBottom: 5 }}
+                </Card>
+              </Grid2>
+              <Grid2 xs={12}>
+                {values.manual && (
+                  <Grid2 sx={{ mt: 3 }}>
+                    <Card sx={{ padding: 3 }}>
+                      <Typography variant="h6" sx={{ mb: 3 }}>
+                        Danh sách khách hàng
+                      </Typography>
+                      <FieldArray
+                        name="listCustomer"
+                        render={(arrayHelpers) => (
+                          <div>
+                            {values.listCustomer && values.listCustomer.length > 0 ? (
+                              values.listCustomer.map((customer, index) => (
+                                <Stack direction="row" spacing={2} sx={{ mt: 3 }} key={customer.id || index}>
+                                  <TextField
+                                    fullWidth
+                                    label="Tên khách hàng"
+                                    variant="outlined"
+                                    name={`listCustomer[${index}].name`}
+                                    value={values.listCustomer[index].name || ''}
+                                    onChange={handleChange}
+                                    error={touched.listCustomer && errors.listCustomer && errors.listCustomer[index] && errors.listCustomer[index].name}
+                                    helperText={touched.listCustomer && errors.listCustomer && errors.listCustomer[index] && errors.listCustomer[index].name}
+                                  />
+                                  <TextField
+                                    fullWidth
+                                    label="Email khách hàng"
+                                    variant="outlined"
+                                    name={`listCustomer[${index}].email`}
+                                    value={values.listCustomer[index].email || ''}
+                                    onChange={handleChange}
+                                    error={touched.listCustomer && errors.listCustomer && errors.listCustomer[index] && errors.listCustomer[index].email}
+                                    helperText={touched.listCustomer && errors.listCustomer && errors.listCustomer[index] && errors.listCustomer[index].email}
+                                  />
+                                  <TextField
+                                    fullWidth
+                                    label="Số điện thoại khách hàng"
+                                    variant="outlined"
+                                    name={`listCustomer[${index}].phone`}
+                                    value={values.listCustomer[index].phone || ''}
+                                    onChange={handleChange}
+                                    error={touched.listCustomer && errors.listCustomer && errors.listCustomer[index] && errors.listCustomer[index].phone}
+                                    helperText={touched.listCustomer && errors.listCustomer && errors.listCustomer[index] && errors.listCustomer[index].phone}
+                                  />
+                                  <IconButton
+                                    onClick={() => arrayHelpers.remove(index)}
+                                    color="error"
+                                    aria-label="remove"
+                                  >
+                                    <Iconify icon="eva:trash-2-outline" />
+                                  </IconButton>
+                                </Stack>
+                              ))
+                            ) : null}
+                            <Button
+                              type="button"
+                              onClick={() => arrayHelpers.push({ id: Math.random(), name: '', email: '', phone: '' })}
+                              variant="contained"
+                              color="primary"
+                              sx={{ mt: 3 }}
+                            >
+                              Thêm khách hàng
+                            </Button>
+                          </div>
+                        )}
                       />
-                    ))}
-                  </Box>
-                </Box>
-              </Stack>
-            </Card>
-          </Grid2>
-        </Grid2>
-      </form>
+                    </Card>
+
+                  </Grid2>
+                )}
+                {!values.manual && (
+                  <Grid2 sx={{ mt: 3 }}>
+                    <Card sx={{ padding: 3 }}>
+                      <Typography variant="h6" sx={{ mb: 3 }}>
+                        Tự động
+                      </Typography>
+                      <Stack direction="row" spacing={2} alignItems="center">
+                        <FormControl component="fieldset">
+                          <FormLabel component="legend">Khách hàng phải thỏa mãn:</FormLabel>
+                          <RadioGroup
+                            row
+                            aria-label="satisfy"
+                            name="satisfy"
+                            value={values.satisfy}
+                            onChange={handleChange}
+                          >
+                            <FormControlLabel value="all" control={<Radio />} label="Tất cả các điều kiện" />
+                            <FormControlLabel value="once" control={<Radio />} label="Một trong các điều kiện" />
+                          </RadioGroup>
+                          <FormHelperText>
+                            {touched.satisfy && errors.satisfy ? errors.satisfy : ''}
+                          </FormHelperText>
+                        </FormControl>
+                      </Stack>
+                      <FieldArray
+                        name="auto"
+                        render={(arrayHelpers) => (
+                          <div>
+                            {values.auto && values.auto.length > 0 ? (
+                              values.auto.map((auto, index) => (
+                                <Stack direction="row" spacing={2} sx={{ mt: 3 }} key={index}>
+                                  <FormControl fullWidth>
+                                    <Select
+                                      labelId={`field-select-label-${index}`}
+                                      id={`field-select-${index}`}
+                                      name={`auto[${index}].field`}
+                                      value={values.auto[index].field || ''}
+                                      label="Field"
+                                      onChange={handleChange}
+                                      error={
+                                        touched.auto &&
+                                        errors.auto &&
+                                        errors.auto[index] &&
+                                        errors.auto[index].field
+                                      }
+                                    >
+                                      <MenuItem value="">Vui lòng chọn</MenuItem>
+                                      {FIELD_OPTIONS.map((option) => (
+                                        <MenuItem key={option.value} value={option.value}>
+                                          {option.label}
+                                        </MenuItem>
+                                      ))}
+                                    </Select>
+                                    <FormHelperText>
+                                      {touched.auto &&
+                                        errors.auto &&
+                                        errors.auto[index] &&
+                                        errors.auto[index].field
+                                        ? errors.auto[index].field
+                                        : ''}
+                                    </FormHelperText>
+                                  </FormControl>
+                                  <FormControl fullWidth>
+                                    <Select
+                                      labelId={`query-select-label-${index}`}
+                                      id={`query-select-${index}`}
+                                      name={`auto[${index}].query`}
+                                      value={values.auto[index].query || ''}
+                                      label="Query"
+                                      onChange={handleChange}
+                                      error={
+                                        touched.auto &&
+                                        errors.auto &&
+                                        errors.auto[index] &&
+                                        errors.auto[index].query
+                                      }
+                                    >
+                                      <MenuItem value="">Vui lòng chọn</MenuItem>
+                                      {(values.auto[index].field === 'Tổng đơn hàng' ? QUERY_OPTIONS_TONG_DON_HANG : QUERY_OPTIONS_TRANG_THAI).map((option) => (
+                                        <MenuItem key={option.value} value={option.value}>
+                                          {option.label}
+                                        </MenuItem>
+                                      ))}
+                                    </Select>
+                                    <FormHelperText>
+                                      {touched.auto &&
+                                        errors.auto &&
+                                        errors.auto[index] &&
+                                        errors.auto[index].query
+                                        ? errors.auto[index].query
+                                        : ''}
+                                    </FormHelperText>
+                                  </FormControl>
+                                  <FormControl fullWidth>
+                                    {values.auto[index].field === 'Tổng đơn hàng' ? (
+                                      <TextField
+                                        id={`status-input-${index}`}
+                                        name={`auto[${index}].status`}
+                                        value={values.auto[index].status || ''}
+                                        onChange={handleChange}
+                                        error={
+                                          touched.auto &&
+                                          errors.auto &&
+                                          errors.auto[index] &&
+                                          errors.auto[index].status
+                                        }
+
+                                      />
+                                    ) : (
+                                      <Select
+                                        labelId={`status-select-label-${index}`}
+                                        id={`status-select-${index}`}
+                                        name={`auto[${index}].status`}
+                                        value={values.auto[index].status || ''}
+                                        label="Status"
+                                        onChange={handleChange}
+                                        error={
+                                          touched.auto &&
+                                          errors.auto &&
+                                          errors.auto[index] &&
+                                          errors.auto[index].status
+                                        }
+                                      >
+                                        <MenuItem value="">Vui lòng chọn</MenuItem>
+                                        <MenuItem value="Có tài khoản">Có tài khoản</MenuItem>
+                                        <MenuItem value="Chưa có tài khoản">Chưa có tài khoản</MenuItem>
+                                        <MenuItem value="Đã gửi lời mời đăng ký">Đã gửi lời mời đăng ký</MenuItem>
+                                      </Select>
+                                    )}
+                                    <FormHelperText>
+                                      {touched.auto &&
+                                        errors.auto &&
+                                        errors.auto[index] &&
+                                        errors.auto[index].status
+                                        ? errors.auto[index].status
+                                        : ''}
+                                    </FormHelperText>
+                                  </FormControl>
+                                  <IconButton
+                                    onClick={() => arrayHelpers.remove(index)}
+                                    color="error"
+                                    aria-label="remove"
+                                  >
+                                    <Iconify icon="eva:trash-2-outline" />
+                                  </IconButton>
+                                </Stack>
+                              ))
+                            ) : null}
+                            <Button
+                              type="button"
+                              onClick={() => arrayHelpers.push({ field: '', query: '', status: '' })}
+                              variant="contained"
+                              color="primary"
+                              sx={{ mt: 3 }}
+                            >
+                              Thêm điều kiện
+                            </Button>
+                          </div>
+                        )}
+                      />
+                    </Card>
+
+                    <Card sx={{ padding: 3, mt: 3 }}>
+                      <Typography variant="h6" sx={{ mb: 3 }}>
+                        Danh sách khách hàng
+                      </Typography>
+                      <ConfirmDelete
+                        openConfirm={!!confirm}
+                        onAgree={dispatchDelete}
+                        onClose={() => setConfirm(false)}
+                      />
+                      <CustomerTableToolbar
+                        numSelected={selected.length}
+                        filterName={filterName}
+                        onFilterName={handleFilterByName}
+                      />
+
+                      <Scrollbar>
+                        <TableContainer sx={{ overflow: 'unset' }}>
+                          <Table sx={{ minWidth: 800 }}>
+                            <CustomerTableHead
+                              order={order}
+                              orderBy={orderBy}
+                              rowCount={customerGroup?.listCustomer?.length || 0}
+                              numSelected={selected.length}
+                              onRequestSort={handleSort}
+                              onSelectAllClick={handleSelectAllClick}
+                              headLabel={[
+                                { id: 'name', label: 'Tên' },
+                                { id: 'phone', label: 'Số điện thoại' },
+                                { id: 'email', label: 'Email' },
+                                { id: '' },
+                              ]}
+                            />
+                            <TableBody>
+                              {dataFiltered
+                                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                .map((row, index) => (
+                                  <CustomerTableRow
+                                    id={row._id}
+                                    key={`${row._id}-${index}`}
+                                    name={row.name}
+                                    phone={row.phone}
+                                    email={row.email}
+                                    selected={selected.indexOf(row._id) !== -1}
+                                    handleClick={(event) => handleClick(event, row._id)}
+                                    onDelete={handleDelete}
+                                  />
+                                ))}
+
+                              <TableEmptyRows
+                                height={77}
+                                emptyRows={emptyRows(page, rowsPerPage, customerGroup?.listCustomer?.length || 0)}
+                              />
+
+                              {notFound && <TableNoData query={filterName} />}
+                            </TableBody>
+                          </Table>
+                        </TableContainer>
+                      </Scrollbar>
+
+                      <TablePagination
+                        page={page}
+                        component="div"
+                        count={customerGroup?.listCustomer?.length || 0}
+                        rowsPerPage={rowsPerPage}
+                        onPageChange={handleChangePage}
+                        rowsPerPageOptions={[5, 10, 25]}
+                        onRowsPerPageChange={handleChangeRowsPerPage}
+                      />
+                    </Card>
+                  </Grid2>
+                )}
+              </Grid2>
+              <Grid2 xs={12}>
+                <Stack spacing={3} direction="row" mt={2} justifyContent="flex-end">
+                  <Button type="submit" variant="contained" color="inherit">
+                    Cập nhật nhóm
+                  </Button>
+                </Stack>
+              </Grid2>
+            </Grid2>
+          </Form>
+        )}
+      </Formik>
     </Container>
   );
-}
-function TabPanel(props) {
-  const { children, value, index, ...other } = props;
-
-  return (
-    <Box
-      role="tabpanel"
-      hidden={value !== index}
-      id={`vertical-tabpanel-${index}`}
-      aria-labelledby={`vertical-tab-${index}`}
-      {...other}
-      sx={{ p: 3, width: '100%' }}
-    >
-      {value === index && children}
-    </Box>
-  );
-}
-
-TabPanel.propTypes = {
-  children: PropTypes.node,
-  index: PropTypes.number.isRequired,
-  value: PropTypes.number.isRequired,
-};
-
-function a11yProps(index) {
-  return {
-    id: `vertical-tab-${index}`,
-    'aria-controls': `vertical-tabpanel-${index}`,
-  };
 }

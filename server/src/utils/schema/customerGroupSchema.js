@@ -88,7 +88,7 @@ export const UPDATE_CUSTOMER_GROUP = Joi.object({
             }),
         })
     ),
-    // listCustomer: Joi.array().default([]),
+    listCustomer: Joi.array().default([]),
     updatedAt: Joi.date().timestamp('javascript').default(Date.now),
 });
 
