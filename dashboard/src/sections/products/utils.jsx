@@ -93,6 +93,14 @@ export const sizeSchema = Yup.object().shape({
     .min(0, 'Giá không được âm')
     .max(1000000000, 'Giá không được quá 1 tỷ')
     .typeError('Giá phải là số'),
+  sale: Yup.number()
+    .min(1, 'Số lượng có thể bán không được âm')
+    .max(1000000000, 'Số lượng có thể bán không được quá 1 tỷ')
+    .typeError('Số lượng có thể bán phải là số'),
+  trading: Yup.number()
+    .min(0, 'Số lượng đang giao dịch không được âm')
+    .max(1000000000, 'Số lượng đang giao dịch không được quá 1 tỷ')
+    .typeError('Số lượng đang giao dịch phải là số'),
 });
 
 export const colorsWithHex = [
