@@ -9,13 +9,13 @@ import {
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { orderNotLoginApi } from '~/APIs/Orders/notLoginOrder';
 import { useSwal } from '~/customHooks/useSwal';
 import { v4 as uuidv4 } from 'uuid';
 import MainLoading from '~/components/common/Loading/MainLoading';
 import { useCart } from 'react-use-cart';
 import LoggedOrder from './components/LoggedOrder';
 import { Helmet } from 'react-helmet-async';
+import { orderNotLoginApi } from '~/APIs';
 
 const CheckoutPage = () => {
   return (
@@ -76,12 +76,13 @@ const CheckoutUI = () => {
       const productsList = selectedProducts.map((product) => ({
         _id: product.productId,
         quantity: product.quantity,
-        thumbnail: product.image,
+        image: product.image,
         name: product.name,
+        slug: product.slug,
         price: product.price,
-        color: product.variantColor,
-        size: product.variantSize,
-        totalPrice: product.price * product.quantity,
+        variantColor: product.variantColor,
+        variantSize: product.variantSize,
+        itemTotal: product.price * product.quantity,
       }));
 
       const shippingInfo = {
@@ -125,7 +126,7 @@ const CheckoutUI = () => {
   }
 
   return (
-    <section className="max-w-container mx-auto mt-16 relative z-10">
+    <section className="max-w-container mx-auto mt-8 relative z-10">
       <form onSubmit={formik.handleSubmit} className="mx-auto px-4 2xl:px-0">
         <div className="flex justify-center mb-1 md:mb-12 pl-24">
           <CheckoutStepper currentStep={2} />

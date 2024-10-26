@@ -1,13 +1,15 @@
 import { useEffect } from 'react';
-import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import MainLoading from '~/components/common/Loading/MainLoading';
 import CheckoutStepper from '~/components/common/Stepper/CheckoutStepper';
+import useCheckAuth from '~/customHooks/useCheckAuth';
 import { formatCurrencyVND } from '~/utils/formatters';
 
 const CheckoutConfirm = () => {
   const location = useLocation();
   const orderData = location.state?.orderData.data;
   const navigate = useNavigate();
+  const { isAuthenticated } = useCheckAuth();
 
   useEffect(() => {
     if (!orderData) {
@@ -33,17 +35,27 @@ const CheckoutConfirm = () => {
           Đơn đặt hàng của bạn đã được hoàn thành và sẽ được giao chỉ từ 2 - 3
           ngày.
         </p>
-        <p className="font-normal text-lg leading-8 text-gray-500 mb-8">
-          Bạn có thể theo dõi đơn hàng tại{' '}
-          <NavLink to={'#'} className={'text-red-500'}>
-            Trang cá nhân
-          </NavLink>{' '}
-          hoặc{' '}
-          <NavLink to={'#'} className={'text-red-500'}>
-            Tra cứu đơn hàng
-          </NavLink>{' '}
-          dựa trên mã đơn hàng
-        </p>
+        {isAuthenticated ? (
+          <p className="font-normal text-lg leading-8 text-gray-500 mb-8">
+            Bạn có thể theo dõi đơn hàng tại{' '}
+            <NavLink to={'/nguoi-dung'} className={'text-red-500'}>
+              Trang cá nhân
+            </NavLink>{' '}
+            hoặc{' '}
+            <NavLink to={'/theo-doi-don-hang'} className={'text-red-500'}>
+              Tra cứu đơn hàng
+            </NavLink>{' '}
+            dựa trên mã đơn hàng
+          </p>
+        ) : (
+          <p className="font-normal text-lg leading-8 text-gray-500 mb-8">
+            Bạn có thể theo dõi đơn hàng tại{' '}
+            <NavLink to={'/theo-doi-don-hang'} className={'text-red-500'}>
+              Tra cứu đơn hàng
+            </NavLink>{' '}
+            dựa trên mã đơn hàng
+          </p>
+        )}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-8 py-6 border-y border-gray-100 mb-6">
           <div className="box group">
             <p className="font-normal text-base leading-7 text-gray-500 mb-3 transition-all duration-500 group-hover:text-gray-700">
@@ -106,22 +118,24 @@ const CheckoutConfirm = () => {
             className="flex flex-col min-[500px]:flex-row min-[500px]:items-center gap-5 py-6  border-b border-gray-200 group"
           >
             <div className="w-full md:max-w-[126px]">
-              <img
-                src={product?.thumbnail}
-                alt="product image"
-                className="mx-auto"
-              />
+              <Link to={`/san-pham/${product?.slug}`}>
+                <img
+                  src={product?.image}
+                  alt={product?.name}
+                  className="mx-auto object-cover"
+                />
+              </Link>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-12 w-full">
               <div className="md:col-span-5">
                 <div className="flex flex-col max-[500px]:items-center gap-3">
-                  <NavLink to={'/'}>
+                  <NavLink to={`/san-pham/${product?.slug}`}>
                     <h6 className="font-semibold text-base leading-7 text-black hover:text-red-600 cursor-pointer">
                       {product?.name}
                     </h6>
                   </NavLink>
                   <h6 className="font-normal text-base leading-7 text-gray-500">
-                    {product?.color} - {product?.size}
+                    {product?.variantColor} - {product?.variantSize}
                   </h6>
                   <h6 className="font-medium text-base leading-7 text-gray-600 transition-all duration-300 group-hover:text-amber-600">
                     {formatCurrencyVND(product?.price)}

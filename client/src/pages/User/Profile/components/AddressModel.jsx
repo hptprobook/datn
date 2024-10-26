@@ -96,7 +96,7 @@ const AddressModel = ({
   const mutation = useMutation({
     mutationFn: updateCurrentUser,
     onSuccess: () => {
-      onClose();
+      onBack ? onBack() : onClose();
       refetchUser();
       useSwal.fire({
         title: 'Thành công!',
@@ -115,7 +115,7 @@ const AddressModel = ({
     setIsClosing(true);
     setTimeout(() => {
       setIsClosing(false);
-      onClose();
+      onBack ? onBack() : onClose();
     }, 300);
   };
 
@@ -167,7 +167,7 @@ const AddressModel = ({
     >
       <div
         className="absolute inset-0 bg-black opacity-50"
-        onClick={handleClose}
+        onClick={!onBack ? handleClose : onBack}
       ></div>
 
       <div
@@ -311,6 +311,7 @@ const AddressModel = ({
 
               <button
                 type="submit"
+                onClick={formik.handleSubmit}
                 className="btn bg-red-600 rounded-md mt-4 px-12"
               >
                 {address ? 'Cập nhật địa chỉ' : 'Lưu địa chỉ'}

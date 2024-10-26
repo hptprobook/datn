@@ -10,7 +10,10 @@ const LoggedOrder = ({ selectedProducts }) => {
     <div>
       <UserAddress userAddress={userAddress} setUserAddress={setUserAddress} />
       <CheckoutProduct selectedProducts={selectedProducts} />
-      <CheckoutFinal />
+      <CheckoutFinal
+        userAddress={userAddress}
+        selectedProducts={selectedProducts}
+      />
     </div>
   );
 };

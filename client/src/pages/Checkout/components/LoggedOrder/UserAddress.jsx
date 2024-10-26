@@ -6,20 +6,33 @@ import { useUser } from '~/context/UserContext';
 import AddressModel from '~/pages/User/Profile/components/AddressModel';
 
 const UserAddress = ({ userAddress, setUserAddress }) => {
-  const { user } = useUser();
+  const { user, refetchUser } = useUser();
   const [openModal, setOpenModal] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [isAddressModelOpen, setIsAddressModelOpen] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState(null);
+  const [tempAddress, setTempAddress] = useState(userAddress);
 
   const handleClose = () => {
     setIsClosing(true);
+    setTempAddress(userAddress);
+
     setTimeout(() => {
       setIsClosing(false);
       setOpenModal(false);
       setIsAddressModelOpen(false);
       setSelectedAddress(null);
     }, 300);
+  };
+
+  const handleConfirmAddress = () => {
+    setUserAddress(tempAddress);
+    setIsClosing(false);
+    setOpenModal(false);
+  };
+
+  const handleAddressChange = (address) => {
+    setTempAddress(address);
   };
 
   const handleBackToUserAddress = () => {
@@ -40,7 +53,10 @@ const UserAddress = ({ userAddress, setUserAddress }) => {
   useEffect(() => {
     if (user) {
       const nonDefaultAddress = user.addresses.find((addr) => addr.isDefault);
-      if (nonDefaultAddress) setUserAddress(nonDefaultAddress);
+      if (nonDefaultAddress) {
+        setUserAddress(nonDefaultAddress);
+        setTempAddress(nonDefaultAddress);
+      }
     }
   }, [user]);
 
@@ -83,7 +99,7 @@ const UserAddress = ({ userAddress, setUserAddress }) => {
             className="absolute inset-0 bg-black opacity-50"
             onClick={handleClose}
           ></div>
-          <div className="bg-white p-6 rounded-lg relative z-10 min-w-[520px] max-w-[800px]">
+          <div className="bg-white p-6 rounded-lg relative z-10 min-w-[520px] max-w-[800px] max-h-[90vh] overflow-y-auto hide-scrollbar">
             <button
               className="absolute top-4 right-4 text-gray-500 hover:text-black"
               onClick={handleClose}
@@ -100,7 +116,8 @@ const UserAddress = ({ userAddress, setUserAddress }) => {
                       type="radio"
                       className="radio mt-1"
                       name="address"
-                      checked={userAddress?._id === addr._id}
+                      checked={tempAddress?._id === addr._id}
+                      onChange={() => handleAddressChange(addr)}
                     />
                     <div className="w-full">
                       <div className="flex justify-between">
@@ -167,7 +184,11 @@ const UserAddress = ({ userAddress, setUserAddress }) => {
               >
                 Huỷ
               </button>
-              <button type="submit" className="btn bg-red-600 rounded-md mt-4">
+              <button
+                type="submit"
+                className="btn bg-red-600 rounded-md mt-4"
+                onClick={handleConfirmAddress}
+              >
                 Xác nhận
               </button>
             </div>
@@ -180,7 +201,7 @@ const UserAddress = ({ userAddress, setUserAddress }) => {
           onClose={handleClose}
           onBack={handleBackToUserAddress}
           address={selectedAddress}
-          refetchUser={() => {}}
+          refetchUser={refetchUser}
         />
       )}
     </div>
