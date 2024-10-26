@@ -71,7 +71,9 @@ Router.put(
     { name: 'thumbnail' },
     { name: 'imageVariants' },
   ]),
-  productController.updateProduct
+  // productController.updateProduct
+  productController.updateTest
+
 );
 Router.put('/rating/:id', upload.none(), productController.updateRatingProduct);
 Router.delete('/:id', verifyStaff, isAdmin, productController.deleteProduct);

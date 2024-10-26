@@ -12,19 +12,24 @@ import Iconify from 'src/components/iconify';
 export default function VariantsTableRow({
   selected,
   name,
-  handleNavigate,
+  onClickRow,
   onDelete,
   id,
   value,
-  createdAt,
   type,
-  updatedAt,
   handleClick,
 }) {
   return (
-    <TableRow hover tabIndex={-1} createdAt="checkbox" selected={selected}>
+    <TableRow hover tabIndex={-1} type="checkbox" selected={selected} onClick={onClickRow}>
       <TableCell padding="checkbox">
-        <Checkbox disableRipple checked={selected} onChange={handleClick} />
+        <Checkbox
+          disableRipple
+          checked={selected}
+          onChange={(e) => {
+            e.stopPropagation();
+            handleClick(id);
+          }}
+        />
       </TableCell>
 
       <TableCell component="th" scope="row" padding="none">
@@ -32,14 +37,15 @@ export default function VariantsTableRow({
           {name}
         </Typography>
       </TableCell>
-
       <TableCell>{value}</TableCell>
-
-      <TableCell>{type}</TableCell>
-      <TableCell>{createdAt}</TableCell>
-      <TableCell>{updatedAt}</TableCell>
+      <TableCell>{type === 'color' ? 'Màu sắc' : 'Kích thước'}</TableCell>
       <TableCell align="right">
-        <IconButton onClick={() => onDelete(id)}>
+        <IconButton
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(id);
+          }}
+        >
           <Iconify icon="eva:trash-2-fill" />
         </IconButton>
       </TableCell>
@@ -48,14 +54,12 @@ export default function VariantsTableRow({
 }
 
 VariantsTableRow.propTypes = {
-  handleNavigate: PropTypes.any,
+  onClickRow: PropTypes.any,
   value: PropTypes.any,
   handleClick: PropTypes.func,
   type: PropTypes.any,
   name: PropTypes.any,
-  createdAt: PropTypes.any,
   selected: PropTypes.any,
-  updatedAt: PropTypes.string,
   onDelete: PropTypes.func,
   id: PropTypes.any,
 };

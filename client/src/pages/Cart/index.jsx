@@ -10,7 +10,7 @@ const CartPage = () => {
       <Helmet>
         <title>BMT Life | Giỏ hàng </title>
       </Helmet>
-      <section className="max-w-container mx-auto mt-16 relative z-10">
+      <section className="max-w-container mx-auto mt-8 relative z-10">
         <div className="w-full relative z-10">
           <div className="flex justify-center mb-2 lg:mb-12">
             <CheckoutStepper currentStep={1} />

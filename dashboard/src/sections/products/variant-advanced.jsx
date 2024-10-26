@@ -126,6 +126,8 @@ export default function AdvancedVariant({
       stock: '',
       price: '',
       index: '',
+      sale: 1,
+      trading: 0,
       sku: '',
     },
     validationSchema: sizeSchema,
@@ -662,11 +664,10 @@ export default function AdvancedVariant({
       >
         <Box sx={style}>
           <form onSubmit={formikSize.handleSubmit}>
-            <Typography fontWeight={600}>Thêm kích thước</Typography>
-            <Stack spacing={2} direction="row" mt={2} justifyContent="flex-end">
-              <FormControl sx={{
-                flexGrow: 1,
-              }}>
+            <Stack spacing={2} direction="column">
+              <Typography fontWeight={600}>Thêm kích thước</Typography>
+
+              <FormControl fullWidth>
                 <InputLabel id="size-select-label">Kích thước</InputLabel>
                 <Select
                   labelId="size-select-label"
@@ -708,6 +709,22 @@ export default function AdvancedVariant({
                 onChange={formikSize.handleChange}
                 error={formikSize.touched.price && Boolean(formikSize.errors.price)}
                 helperText={formikSize.touched.price && formikSize.errors.price}
+              />
+              <TextField
+                name="sale"
+                label="Có thể bán"
+                value={formikSize.values.sale}
+                onChange={formikSize.handleChange}
+                error={formikSize.touched.sale && Boolean(formikSize.errors.sale)}
+                helperText={formikSize.touched.sale && formikSize.errors.sale}
+              />
+              <TextField
+                name="trading"
+                label="Đang giao dịch"
+                value={formikSize.values.trading}
+                onChange={formikSize.handleChange}
+                error={formikSize.touched.trading && Boolean(formikSize.errors.trading)}
+                helperText={formikSize.touched.trading && formikSize.errors.trading}
               />
               <Button type="submit" variant="contained" color="inherit">
                 Thêm
