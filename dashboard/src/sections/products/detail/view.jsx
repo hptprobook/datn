@@ -183,12 +183,11 @@ export default function DetailProductPage() {
       height: product?.height || 1,
       weight: product?.weight || 1,
       variants: [],
-      seoOption:
-        {
-          title: '',
-          description: '',
-          alias: '',
-        } || product?.seoOption,
+      seoOption: {
+        title: product?.seoOption?.title || '',
+        description: product?.seoOption?.description || '',
+        alias: product?.seoOption?.alias || '',
+      },
     },
     enableReinitialize: true,
     validationSchema: productSchema,
@@ -566,7 +565,12 @@ export default function DetailProductPage() {
                     </FormHelperText>
                   </Stack>
                   <Stack spacing={3} direction="row" mt={2} justifyContent="flex-end">
-                    <Button type="submit" variant="contained" color="inherit">
+                    <Button
+                      type="button"
+                      onClick={() => formik.handleSubmit()}
+                      variant="contained"
+                      color="inherit"
+                    >
                       Lưu
                     </Button>
                   </Stack>
