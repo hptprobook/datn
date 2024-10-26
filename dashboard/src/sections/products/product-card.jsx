@@ -108,7 +108,7 @@ const ProductCard = ({ status, product, brand }) => {
               <Typography gutterBottom variant="h5" component="div">
                 Giá: {formatCurrency(product?.price)}
               </Typography>
-              <Stack direction="row" justifyItems="center" spacing={1} mb={2}>
+              <Stack direction="row" flexWrap='wrap' spacing={1} mb={2}>
                 {product?.variants.map((variant, i) => (
                   <Box
                     key={i}
