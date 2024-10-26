@@ -1,1 +1,1 @@
-export { default as CustormerGroupView } from './custormerGroups-view';
+export { default as CustomerGroupView } from './customerGroups-view';

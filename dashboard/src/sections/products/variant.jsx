@@ -92,7 +92,6 @@ export default function CreateVariant({ onUpdate, colorsData, sizesData, wareHou
     },
     validationSchema: sizeSchema,
     onSubmit: (values) => {
-      console.log(variants[openSize].sizes);
       if (Number(values.price) < Number(variants[openSize].capitalPrice)) {
         formikSize.setFieldError('price', 'Giá phải lớn hơn giá vốn');
         return;

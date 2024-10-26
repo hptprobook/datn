@@ -2,9 +2,9 @@ import { PiShoppingCartBold } from 'react-icons/pi';
 import { MdOutlineContentPasteSearch } from 'react-icons/md';
 import { FaBars } from 'react-icons/fa';
 import { IoIosSearch } from 'react-icons/io';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import Logo from '~/assets/logo2.png';
+import Logo from '~/assets/logoend-light.png';
 import UserBar from '~/components/Home/Header/UserBar';
 import SideNavMenu from './Responsive/SideNavMenu';
 import SearchBar from './Search/SearchBar';
@@ -30,7 +30,7 @@ const Header = () => {
   const [currentTitle, setCurrentTitle] = useState('Danh mục');
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const { wishlistItems, removeFromWishlist } = useWishlist();
-  const { setUserInfo } = useUser();
+  const { user } = useUser();
 
   const { items } = useCart();
 
@@ -39,12 +39,6 @@ const Header = () => {
     queryFn: getCurrentUser,
     enabled: isAuthenticated,
   });
-
-  useEffect(() => {
-    if (data) {
-      setUserInfo(data);
-    }
-  }, [data, setUserInfo]);
 
   const currentUserInfor = data ? data : null;
 
@@ -57,7 +51,7 @@ const Header = () => {
         wishlistItems={wishlistItems}
         removeFromWishlist={removeFromWishlist}
       />
-      <header className="w-full h-16 bg-amber-600 hidden lg:block text-black">
+      <header className="w-full h-20 bg-amber-600 hidden lg:block text-black">
         <div className="max-w-container h-full mx-auto flex justify-between items-center">
           <NavLink to="/">
             <div>
@@ -79,7 +73,7 @@ const Header = () => {
             >
               <PiShoppingCartBold />
               <div className="absolute -top-2 -right-3 bg-red-700 text-white rounded-md w-6 h-4 flex items-center justify-center text-xs">
-                {items.length}
+                {isAuthenticated ? user?.carts.length : items.length}
               </div>
             </div>
             <CartFixed open={openCart} setOpen={setOpenCart} />

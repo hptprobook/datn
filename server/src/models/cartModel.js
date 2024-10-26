@@ -51,13 +51,7 @@ const addCart = async (userId, dataProduct) => {
   // const validData = await validateBeforeCreate(dataProduct);
   const data = {
     userId: new ObjectId(userId),
-    products: [
-      {
-        _id: new ObjectId(dataProduct._id),
-        quantity: dataProduct.quantity,
-        vars: { color: dataProduct.color, size: dataProduct.size },
-      },
-    ],
+    products: dataProduct,
     createdAt: Date.now(),
     updatedAt: Date.now(),
   };

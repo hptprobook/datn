@@ -101,7 +101,7 @@ export const updateProduct = async ({ id, data }) => {
       data[key].forEach((file) => {
         formData.append(key, file);
       });
-    } else if (key === 'productType' || key === 'tags' || key === 'variantsDelete') {
+    } else if (key === 'productType' || key === 'tags' || key === 'variantsDelete' || key === 'seoOption') {
       formData.append(key, JSON.stringify(data[key]));
     } else if (key === 'variants') {
       data[key].forEach((variant, i) => {
@@ -112,7 +112,7 @@ export const updateProduct = async ({ id, data }) => {
         }
         if (Array.isArray(variant.sizes)) {
           variant.sizes.forEach((size, j) => {
-            formData.append(`variants[${i}].sizes[${j}]`, JSON.stringify(size)); // Hoặc bạn có thể thêm từng thuộc tính của size
+            formData.append(`variants[${i}].sizes[${j}]`, JSON.stringify(size));
           });
         }
       });

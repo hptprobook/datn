@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Dialog,
   DialogBackdrop,
@@ -11,14 +11,58 @@ import { useCart } from 'react-use-cart';
 import { formatCurrencyVND } from '~/utils/formatters';
 import EmptyCart from './EmptyCart';
 import PropTypes from 'prop-types';
+import useCheckAuth from '~/customHooks/useCheckAuth';
+import { useUser } from '~/context/UserContext';
+import { useMutation } from '@tanstack/react-query';
+import { removeCartToCurrent } from '~/APIs';
+import { useSwal } from '~/customHooks/useSwal';
 
 const CartFixed = ({ open, setOpen }) => {
-  const { items, removeItem, cartTotal } = useCart();
+  const {
+    items: guestItems,
+    removeItem,
+    cartTotal: guestCartTotal,
+  } = useCart();
   const [showTooltip, setShowTooltip] = useState(null);
+  const { isAuthenticated } = useCheckAuth();
+  const { user, refetchUser } = useUser();
+  const [userCartItems, setUserCartItems] = useState([]);
+  const [userCartTotal, setUserCartTotal] = useState(0);
 
-  const handleDeleteProduct = (productId) => {
-    removeItem(productId);
-    setShowTooltip(null);
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const updatedCartItems = user?.carts.map((item) => ({
+        ...item,
+        id: item._id,
+      }));
+      setUserCartItems(updatedCartItems);
+      setUserCartTotal(
+        user.carts.reduce((total, item) => total + item.itemTotal, 0)
+      );
+    }
+  }, [isAuthenticated, user]);
+
+  const mutation = useMutation({
+    mutationFn: removeCartToCurrent,
+    onSuccess: () => {
+      refetchUser();
+    },
+    onError: () => {
+      useSwal.fire({
+        icon: 'error',
+        title: 'Lỗi!',
+        text: 'Xảy ra lỗi khi xoá sản phẩm khỏi giỏ hàng, vui lòng thử lại!',
+      });
+    },
+  });
+
+  const handleDeleteProduct = (cartId) => {
+    if (isAuthenticated) {
+      mutation.mutate({ _id: cartId });
+    } else {
+      removeItem(cartId);
+      setShowTooltip(null);
+    }
   };
 
   const toggleTooltip = (productId) => {
@@ -28,6 +72,9 @@ const CartFixed = ({ open, setOpen }) => {
       setShowTooltip(productId);
     }
   };
+
+  const items = isAuthenticated ? userCartItems : guestItems;
+  const cartTotal = isAuthenticated ? userCartTotal : guestCartTotal;
 
   return (
     <Dialog
@@ -147,10 +194,7 @@ const CartFixed = ({ open, setOpen }) => {
                                           <button
                                             className="text-xs font-medium text-red-600 hover:text-red-800"
                                             onClick={() =>
-                                              handleDeleteProduct(
-                                                product.id,
-                                                product.name
-                                              )
+                                              handleDeleteProduct(product.id)
                                             }
                                           >
                                             Đồng ý

@@ -12,15 +12,12 @@ import Iconify from 'src/components/iconify';
 import { Box } from '@mui/material';
 
 
-export default function CustormerGroupTableRow({
+export default function CustomerGroupTableRow({
   id,
   selected,
   name,
-  note,
-  manual,
-  satisfy,
-  createdAt,
-  updatedAt,
+  phone,
+  email,
   onDelete,
   handleClick,
   handleNavigate
@@ -39,7 +36,6 @@ export default function CustormerGroupTableRow({
     onDelete(idDelete);
     handleCloseMenu();
   };
-
   return (
     <>
       <TableRow
@@ -70,17 +66,16 @@ export default function CustormerGroupTableRow({
         <TableCell>
           <Box sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             <Typography variant="subtitle2" noWrap>
-              {note}
+              {phone}
             </Typography>
           </Box>
         </TableCell>
-        <TableCell>{manual}</TableCell>
+      
 
         <TableCell>
-          {satisfy}
+        {email}
         </TableCell>
-        <TableCell>{new Date(createdAt).toLocaleDateString()}</TableCell>
-        <TableCell>{new Date(updatedAt).toLocaleDateString()}</TableCell>
+       
 
 
         <TableCell align="right">
@@ -114,16 +109,13 @@ export default function CustormerGroupTableRow({
   );
 }
 
-CustormerGroupTableRow.propTypes = {
+CustomerGroupTableRow.propTypes = {
   id: PropTypes.any,
   handleClick: PropTypes.func,
   handleNavigate: PropTypes.func,
   selected: PropTypes.any,
   name: PropTypes.any,
-  note: PropTypes.any,
-  manual: PropTypes.any,
-  satisfy: PropTypes.any,
-  createdAt: PropTypes.any,
-  updatedAt: PropTypes.any,
+  phone: PropTypes.any,
+  email: PropTypes.any,
   onDelete: PropTypes.func
 };

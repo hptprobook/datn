@@ -8,12 +8,15 @@ export const CartProvider = ({ children }) => {
   const [selectedItems, setSelectedItems] = useState([]);
   const [selectedTotal, setSelectedTotal] = useState(0);
   const [stockErrors, setStockErrors] = useState([]);
+  const [isDebouncing, setDebouncing] = useState(false);
 
   const updateSelectedTotal = (items, selectedItems) => {
-    const total = items
-      .filter((item) => selectedItems.includes(item.id))
-      .reduce((acc, item) => acc + item.itemTotal, 0);
-    setSelectedTotal(total);
+    if (items && selectedItems) {
+      const total = items
+        .filter((item) => selectedItems.includes(item.id))
+        .reduce((acc, item) => acc + item.itemTotal, 0);
+      setSelectedTotal(total);
+    }
   };
 
   const value = {
@@ -23,6 +26,8 @@ export const CartProvider = ({ children }) => {
     updateSelectedTotal,
     stockErrors,
     setStockErrors,
+    isDebouncing,
+    setDebouncing,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

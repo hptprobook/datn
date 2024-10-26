@@ -31,8 +31,8 @@ const getCurentCart = async (req, res) => {
 const addCart = async (req, res) => {
   try {
     const { user_id } = req.user;
-    const { _id, color, size, quantity } = req.body;
-    if (!_id || !color || !size || !quantity) {
+    const { id, variantColor, variantSize, quantity } = req.body;
+    if (!id || !variantColor || !variantSize || !quantity) {
       return res
         .status(StatusCodes.BAD_REQUEST)
         .json({ message: 'Thiếu thông tin của sản phẩm' });
@@ -41,26 +41,32 @@ const addCart = async (req, res) => {
     const check1 = await cartModel.findCartById(user_id);
     if (check1) {
       // kiểm tra thuộc tính sản phẩm
-      const check2 = await cartModel.findCart(user_id, color, size);
+      const check2 = await cartModel.findCart(
+        user_id,
+        variantColor,
+        variantSize
+      );
       if (check2) {
         // Thêm số lượng
         const dataAddQtt = {
-          _id: req.body._id,
+          _id: req.body.id,
           quantity: req.body.quantity,
-          vars: { color: req.body.color, size: req.body.size },
+          variantColor: req.body.variantColor,
+          variantSize: req.body.variantSize,
         };
         await cartModel.addQuantityCart(user_id, dataAddQtt);
         return res
           .status(StatusCodes.OK)
           .json({ message: 'Thêm số lượng vô giỏ hàng thành công' });
       }
+
       // Thêm thuộc tính mới
-      const dataPust = {
-        _id: req.body._id,
-        quantity: req.body.quantity,
-        vars: { color: req.body.color, size: req.body.size },
+      const dataPush = {
+        _id: req.body.id,
+        ...req.body,
       };
-      await cartModel.addNewCart(user_id, dataPust);
+      delete dataPush.id;
+      await cartModel.addNewCart(user_id, dataPush);
       return res
         .status(StatusCodes.OK)
         .json({ message: 'Thêm sản phẩm vào giỏ hàng thành công' });
@@ -74,6 +80,71 @@ const addCart = async (req, res) => {
     return res
       .status(StatusCodes.BAD_REQUEST)
       .json({ message: 'Có lỗi xảy ra xin thử lại sau', error });
+  }
+};
+
+const addMultipleCarts = async (req, res) => {
+  try {
+    const { user_id } = req.user;
+    const carts = req.body.carts; // Lấy mảng carts từ body của request
+
+    console.log(carts);
+
+    if (!Array.isArray(carts) || carts.length === 0) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Thiếu thông tin giỏ hàng hoặc giỏ hàng trống' });
+    }
+
+    // Duyệt từng cart trong mảng và thêm vào database
+    for (const cart of carts) {
+      const { id, variantColor, variantSize, quantity } = cart;
+      if (!id || !variantColor || !variantSize || !quantity) {
+        return res
+          .status(StatusCodes.BAD_REQUEST)
+          .json({ message: 'Thiếu thông tin sản phẩm trong giỏ hàng' });
+      }
+
+      // Kiểm tra user có sản phẩm trong giỏ hàng chưa
+      const check1 = await cartModel.findCartById(user_id);
+      if (check1) {
+        // kiểm tra thuộc tính sản phẩm
+        const check2 = await cartModel.findCart(
+          user_id,
+          variantColor,
+          variantSize
+        );
+        if (check2) {
+          // Thêm số lượng nếu đã tồn tại
+          const dataAddQtt = {
+            _id: id,
+            quantity: quantity,
+            variantColor: variantColor,
+            variantSize: variantSize,
+          };
+          await cartModel.addQuantityCart(user_id, dataAddQtt);
+        } else {
+          // Thêm thuộc tính mới
+          const dataPush = {
+            _id: id,
+            ...cart,
+          };
+          delete dataPush.id;
+          await cartModel.addNewCart(user_id, dataPush);
+        }
+      } else {
+        // Nếu user chưa có giỏ hàng, tạo mới
+        await cartModel.addCart(user_id, cart);
+      }
+    }
+
+    return res
+      .status(StatusCodes.OK)
+      .json({ message: 'Thêm nhiều sản phẩm vào giỏ hàng thành công' });
+  } catch (error) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ message: 'Có lỗi xảy ra, xin thử lại sau', error });
   }
 };
 
@@ -177,6 +248,7 @@ export const cartsController = {
   // getAllCarts,
   // deleteCart,
   addNewCart,
+  addMultipleCarts,
   // updateCurentCart,
   removeCart,
 };

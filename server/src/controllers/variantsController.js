@@ -103,7 +103,6 @@ const deleteAllVariant = async (req, res) => {
 const deleteManyVariant = async (req, res) => {
   try {
     const { ids } = req.body;
-
     const result = await variantsModel.deleteManyVariants(ids);
     if (result) {
       return res.status(StatusCodes.OK).json({ message: 'Xóa thành công' });

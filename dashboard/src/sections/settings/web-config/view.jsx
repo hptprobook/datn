@@ -131,13 +131,13 @@ export default function WebConfigPage() {
   const formikRef = useRef(formik);
 
   useEffect(() => {
-    if (status === 'succeeded' && data) {
+    if (status === 'successful' && data) {
       setConfig(data);
       formikRef.current.setValues(data);
     }
   }, [status, data]);
   useEffect(() => {
-    if (statusUpdate === 'succeeded' && data) {
+    if (statusUpdate === 'successful' && data) {
       handleToast('success', 'Cập nhật thành công');
       setInputSelect('');
       dispatch(setStatus({ key: 'statusUpdateWeb', value: 'idle' }));
@@ -199,7 +199,7 @@ export default function WebConfigPage() {
           </IconButton>
         </Stack>
       </Stack>
-      {status === 'succeeded' && formik.initialValues && (
+      {status === 'successful' && formik.initialValues && (
         <form onSubmit={formik.handleSubmit}>
           <Card sx={{ p: 3 }}>
             <Box
