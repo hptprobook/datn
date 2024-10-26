@@ -16,9 +16,7 @@ export default function VariantsTableRow({
   onDelete,
   id,
   value,
-  createdAt,
   type,
-  updatedAt,
   handleClick,
 }) {
   return (
@@ -36,8 +34,6 @@ export default function VariantsTableRow({
       <TableCell>{value}</TableCell>
 
       <TableCell>{type}</TableCell>
-      <TableCell>{createdAt}</TableCell>
-      <TableCell>{updatedAt}</TableCell>
       <TableCell align="right">
         <IconButton onClick={() => onDelete(id)}>
           <Iconify icon="eva:trash-2-fill" />
@@ -53,9 +49,7 @@ VariantsTableRow.propTypes = {
   handleClick: PropTypes.func,
   type: PropTypes.any,
   name: PropTypes.any,
-  createdAt: PropTypes.any,
   selected: PropTypes.any,
-  updatedAt: PropTypes.string,
   onDelete: PropTypes.func,
   id: PropTypes.any,
 };

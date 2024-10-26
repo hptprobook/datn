@@ -33,7 +33,7 @@ export default function VariantsTableToolbar({ numSelected, filterName, onFilter
         <OutlinedInput
           value={filterName}
           onChange={onFilterName}
-          placeholder="Tìm kiếm người dùng..."
+          placeholder="Tìm kiếm biến thể..."
           startAdornment={
             <InputAdornment position="start">
               <Iconify
