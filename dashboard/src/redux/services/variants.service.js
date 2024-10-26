@@ -26,9 +26,9 @@ const VariantService = {
         }
     },
 
-    getStaffBy: async ({ type, value }) => {
+    manyDelete: async (data) => {
         try {
-            return await get(`variants/${value}?by=${type}`);
+            return await post(`variants/many-delete`, data);
         } catch (err) {
             console.error("Error: ", err);
             throw err;

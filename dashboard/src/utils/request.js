@@ -112,7 +112,7 @@ export const updateProduct = async ({ id, data }) => {
         }
         if (Array.isArray(variant.sizes)) {
           variant.sizes.forEach((size, j) => {
-            formData.append(`variants[${i}].sizes[${j}]`, JSON.stringify(size)); 
+            formData.append(`variants[${i}].sizes[${j}]`, JSON.stringify(size));
           });
         }
       });
