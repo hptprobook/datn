@@ -119,6 +119,22 @@ const deleteManyCoupon = async (req, res) => {
   }
 };
 
+export const getCouponsByType = async (req, res) => {
+  try {
+    const { type } = req.query; // Extract type from query parameters
+    if (!type) {
+      return res.status(400).json({ message: 'Loại là bắt buộc' });
+    }
+
+    const coupons = await couponModel.getCouponsByType(type);
+    return res.status(StatusCodes.OK).json(coupons);
+  } catch (error) {
+    return res
+    .status(StatusCodes.BAD_REQUEST)
+    .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
+  }
+};
+
 export const couponController = {
   createCoupon,
   getCoupons,
@@ -126,5 +142,6 @@ export const couponController = {
   findOneCoupons,
   deleteCoupon,
   deleteManyCoupon,
-  getCouponsById
+  getCouponsById,
+  getCouponsByType
 };
