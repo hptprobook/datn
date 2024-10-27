@@ -22,12 +22,12 @@ import ImageDropZone from 'src/components/drop-zone-upload/upload-img';
 import Grid2 from '@mui/material/Unstable_Grid2';
 import PropTypes from 'prop-types';
 import { renderUrl } from 'src/utils/check';
+import FormHelpTextError from 'src/components/errors/form-error';
 import {
   style,
   Accordion,
   sizeSchema,
   clothingSizes,
-  colorsWithHex,
   variantSchema,
   AccordionDetails,
   AccordionSummary,
@@ -35,7 +35,13 @@ import {
 
 const backendUrl = import.meta.env.VITE_BACKEND_APP_URL;
 
-export default function AdvancedVariant({ onUpdate, defaultVariants }) {
+export default function AdvancedVariant({
+  onUpdate,
+  dataWareHouse,
+  defaultVariants,
+  colors,
+  sizes,
+}) {
   const [expanded, setExpanded] = React.useState('panel1');
   const [variants, setVariants] = React.useState([...defaultVariants]);
   const [errorUpload, setErrorUpload] = React.useState('');
@@ -60,6 +66,8 @@ export default function AdvancedVariant({ onUpdate, defaultVariants }) {
       color: '',
       image: null,
       sizes: [],
+      warehouseId: '',
+      imageAdd: null,
     },
     validationSchema: variantSchema,
     onSubmit: (values) => {
@@ -79,6 +87,8 @@ export default function AdvancedVariant({ onUpdate, defaultVariants }) {
         color: values.color,
         image: values.image,
         sizes: [],
+        imageAdd: values.imageAdd,
+        warehouseId: values.warehouseId,
       };
       setVariants([...variants, newVariant]);
       formik.resetForm();
@@ -97,6 +107,8 @@ export default function AdvancedVariant({ onUpdate, defaultVariants }) {
       color: '',
       image: null,
       sizes: [],
+      warehouseId: '',
+      imageAdd: null,
     },
     enableReinitialize: true,
     validationSchema: variantSchema,
@@ -114,9 +126,21 @@ export default function AdvancedVariant({ onUpdate, defaultVariants }) {
       stock: '',
       price: '',
       index: '',
+      sale: 1,
+      trading: 0,
+      sku: '',
     },
     validationSchema: sizeSchema,
     onSubmit: (values) => {
+      if (Number(values.price) < Number(variants[openSize].capitalPrice)) {
+        formikSize.setFieldError('price', 'Giá phải lớn hơn giá vốn');
+        return;
+      }
+      const exitingSize = variants[openSize].sizes.find((size) => size.size === values.size);
+      if (exitingSize) {
+        formikSize.setFieldError('size', 'Kích thước đã tồn tại');
+        return;
+      }
       const newVariant = structuredClone(variants); // Deep clone
       const newSize = [...newVariant[openSize].sizes];
 
@@ -124,8 +148,10 @@ export default function AdvancedVariant({ onUpdate, defaultVariants }) {
         size: values.size,
         stock: values.stock,
         price: values.price,
+        sku: newVariant[openSize].sku + values.size,
       });
-
+      const newStock = newSize.reduce((acc, cur) => Number(acc) + Number(cur.stock), 0);
+      newVariant[openSize].stock = newStock;
       newVariant[openSize].sizes = newSize;
 
       setVariants(newVariant);
@@ -142,6 +168,7 @@ export default function AdvancedVariant({ onUpdate, defaultVariants }) {
   const handleChangeUpload = React.useCallback((files) => {
     if (files) {
       formik.setFieldValue('image', files);
+      formik.setFieldValue('imageAdd', files);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -151,9 +178,13 @@ export default function AdvancedVariant({ onUpdate, defaultVariants }) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const handleDeleteSize = (indexParent, index) => {
-    const newVariants = [...variants];
-    newVariants[indexParent].sizes.splice(index, 1);
+  const handleDeleteSize = (i, index) => {
+    const newVariants = JSON.parse(JSON.stringify(variants));
+    newVariants[i].sizes.splice(index, 1);
+    const newStock = newVariants[i].sizes.reduce((acc, cur) => Number(acc) + Number(cur.stock), 0);
+
+    newVariants[i].stock = newStock || 1;
+
     setVariants(newVariants);
   };
   const handleSelectVariant = (index) => {
@@ -169,6 +200,8 @@ export default function AdvancedVariant({ onUpdate, defaultVariants }) {
       sku: variant.sku,
       color: variant.color,
       image: variant.image,
+      imageAdd: variant.image,
+      warehouseId: variant.warehouseId,
     });
   };
   return (
@@ -290,6 +323,32 @@ export default function AdvancedVariant({ onUpdate, defaultVariants }) {
                       {formik.touched.saleOff && formik.errors.saleOff ? formik.errors.saleOff : ''}
                     </FormHelperText>
                   </FormControl>
+                  <FormControl fullWidth>
+                    <InputLabel id="warehouseId-select-label">Kho</InputLabel>
+                    <Select
+                      labelId="warehouseId-select-label"
+                      id="warehouseId-select"
+                      value={formik.values.warehouseId}
+                      error={formik.touched.warehouseId && Boolean(formik.errors.warehouseId)}
+                      label="Kho"
+                      name="warehouseId"
+                      onChange={formik.handleChange}
+                    >
+                      {dataWareHouse.map((item, i) => (
+                        <MenuItem
+                          key={i}
+                          value={item._id}
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                          }}
+                        >
+                          {item.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    <FormHelpTextError label={formik.errors.touched && formik.errors.warehouseId} />
+                  </FormControl>
                 </Stack>
               </Grid2>
               <Grid2 xs={6}>
@@ -307,10 +366,10 @@ export default function AdvancedVariant({ onUpdate, defaultVariants }) {
                       name="color"
                       onChange={formik.handleChange}
                     >
-                      {colorsWithHex.map((color, index) => (
+                      {colors.map((color, i) => (
                         <MenuItem
-                          key={index}
-                          value={color.name}
+                          key={i}
+                          value={color.value}
                           sx={{
                             display: 'flex',
                             alignItems: 'center',
@@ -330,13 +389,7 @@ export default function AdvancedVariant({ onUpdate, defaultVariants }) {
                         </MenuItem>
                       ))}
                     </Select>
-                    <FormHelperText
-                      sx={{
-                        color: formik.touched.color && formik.errors.color ? 'red' : 'inherit',
-                      }}
-                    >
-                      {formik.touched.color && formik.errors.color ? formik.errors.color : ''}
-                    </FormHelperText>
+                    <FormHelpTextError label={formik.errors.touched && formik.errors.color} />
                   </FormControl>
                   <TextField
                     id="sku"
@@ -380,7 +433,7 @@ export default function AdvancedVariant({ onUpdate, defaultVariants }) {
           <form onSubmit={formikUpdate.handleSubmit}>
             <Stack spacing={2} direction="row" justifyContent="space-between" mb={5}>
               <Typography variant="h6" id="modal-modal-title" align="left" gutterBottom>
-                Thêm biến thể
+                Sửa biến thể
               </Typography>
               <IconButton onClick={() => setOpenDetail(null)}>
                 <Iconify icon="eva:close-fill" />
@@ -497,6 +550,32 @@ export default function AdvancedVariant({ onUpdate, defaultVariants }) {
                         : ''}
                     </FormHelperText>
                   </FormControl>
+                  <FormControl fullWidth>
+                    <InputLabel id="warehouseId-select-label">Kho</InputLabel>
+                    <Select
+                      labelId="warehouseId-select-label"
+                      id="warehouseId-select"
+                      value={formik.values.warehouseId}
+                      error={formik.touched.warehouseId && Boolean(formik.errors.warehouseId)}
+                      label="Kho"
+                      name="warehouseId"
+                      onChange={formik.handleChange}
+                    >
+                      {dataWareHouse.map((item, i) => (
+                        <MenuItem
+                          key={i}
+                          value={item._id}
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                          }}
+                        >
+                          {item.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    <FormHelpTextError label={formik.errors.touched && formik.errors.warehouseId} />
+                  </FormControl>
                 </Stack>
               </Grid2>
               <Grid2 xs={6}>
@@ -518,10 +597,10 @@ export default function AdvancedVariant({ onUpdate, defaultVariants }) {
                       name="color"
                       onChange={formikUpdate.handleChange}
                     >
-                      {colorsWithHex.map((color, index) => (
+                      {colors.map((color, index) => (
                         <MenuItem
                           key={index}
-                          value={color.name}
+                          value={color.value}
                           sx={{
                             display: 'flex',
                             alignItems: 'center',
@@ -541,18 +620,9 @@ export default function AdvancedVariant({ onUpdate, defaultVariants }) {
                         </MenuItem>
                       ))}
                     </Select>
-                    <FormHelperText
-                      sx={{
-                        color:
-                          formikUpdate.touched.color && formikUpdate.errors.color
-                            ? 'red'
-                            : 'inherit',
-                      }}
-                    >
-                      {formikUpdate.touched.color && formikUpdate.errors.color
-                        ? formikUpdate.errors.color
-                        : ''}
-                    </FormHelperText>
+                    <FormHelpTextError
+                      label={formikUpdate.errors.touched && formikUpdate.errors.color}
+                    />
                   </FormControl>
                   <TextField
                     id="sku"
@@ -594,8 +664,9 @@ export default function AdvancedVariant({ onUpdate, defaultVariants }) {
       >
         <Box sx={style}>
           <form onSubmit={formikSize.handleSubmit}>
-            <Typography fontWeight={600}>Thêm kích thước</Typography>
-            <Stack spacing={2} direction="row" mt={2} justifyContent="flex-end">
+            <Stack spacing={2} direction="column">
+              <Typography fontWeight={600}>Thêm kích thước</Typography>
+
               <FormControl fullWidth>
                 <InputLabel id="size-select-label">Kích thước</InputLabel>
                 <Select
@@ -639,6 +710,22 @@ export default function AdvancedVariant({ onUpdate, defaultVariants }) {
                 error={formikSize.touched.price && Boolean(formikSize.errors.price)}
                 helperText={formikSize.touched.price && formikSize.errors.price}
               />
+              <TextField
+                name="sale"
+                label="Có thể bán"
+                value={formikSize.values.sale}
+                onChange={formikSize.handleChange}
+                error={formikSize.touched.sale && Boolean(formikSize.errors.sale)}
+                helperText={formikSize.touched.sale && formikSize.errors.sale}
+              />
+              <TextField
+                name="trading"
+                label="Đang giao dịch"
+                value={formikSize.values.trading}
+                onChange={formikSize.handleChange}
+                error={formikSize.touched.trading && Boolean(formikSize.errors.trading)}
+                helperText={formikSize.touched.trading && formikSize.errors.trading}
+              />
               <Button type="submit" variant="contained" color="inherit">
                 Thêm
               </Button>
@@ -668,9 +755,6 @@ export default function AdvancedVariant({ onUpdate, defaultVariants }) {
                   <Typography>
                     Mã SKU: {variant.sku} - Màu sắc: {variant.color}
                   </Typography>
-                  <Typography>
-                    Số lượng: {variant.stock} - Giá: {formatCurrency(variant.price)}
-                  </Typography>
                 </Stack>
                 {variant.image instanceof File ? (
                   <img
@@ -696,16 +780,27 @@ export default function AdvancedVariant({ onUpdate, defaultVariants }) {
             <AccordionDetails>
               <Stack spacing={2}>
                 <Typography>
+                  Số lượng: {variant.stock} - Giá: {formatCurrency(variant.price)} - Kho:{' '}
+                  {variant.warehouseId}
+                </Typography>
+                <Typography>
                   Giá cửa hàng: {formatCurrency(variant.marketPrice)} - Giá online:{' '}
                   {formatCurrency(variant.onlinePrice)} - Giá vốn:{' '}
                   {formatCurrency(variant.capitalPrice)}
                 </Typography>
                 {variant.sizes.length > 0 &&
                   variant.sizes.map((size, i) => (
-                    <Stack key={i} direction="row" justifyContent="space-between">
+                    <Stack
+                      key={i}
+                      direction="row"
+                      justifyContent="space-between"
+                      sx={{
+                        borderTop: '1px solid #e0e0e0',
+                      }}
+                    >
                       <Typography>
                         Kích thước: {size.size} - Số lượng: {size.stock} - Giá:{' '}
-                        {formatCurrency(size.price)}
+                        {formatCurrency(size.price)} - SKU: {size.sku}
                       </Typography>
                       <IconButton onClick={() => handleDeleteSize(index, i)}>
                         <Iconify icon="eva:close-fill" />
@@ -744,4 +839,7 @@ export default function AdvancedVariant({ onUpdate, defaultVariants }) {
 AdvancedVariant.propTypes = {
   onUpdate: PropTypes.func.isRequired,
   defaultVariants: PropTypes.array,
+  colors: PropTypes.array,
+  sizes: PropTypes.array,
+  dataWareHouse: PropTypes.array,
 };

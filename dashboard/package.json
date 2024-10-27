@@ -20,6 +20,7 @@
     "vite:build": "vite build"
   },
   "dependencies": {
+    "@ckeditor/ckeditor5-react": "^9.3.1",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@faker-js/faker": "^8.1.0",
@@ -32,6 +33,7 @@
     "@tinymce/tinymce-react": "^5.1.1",
     "apexcharts": "^3.43.0",
     "axios": "^1.7.2",
+    "ckeditor5": "^43.2.0",
     "dayjs": "^1.11.13",
     "formik": "^2.4.6",
     "history": "^5.3.0",
@@ -42,6 +44,7 @@
     "prop-types": "^15.8.1",
     "react": "^18.2.0",
     "react-apexcharts": "^1.4.1",
+    "react-color": "^2.19.3",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^18.2.0",

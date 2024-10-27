@@ -50,12 +50,18 @@ const getOrderById = async (id) => {
   return result;
 };
 
+const getOrderByCode = async (orderCode, userId) => {
+  const db = await GET_DB().collection('orders');
+  const result = await db.findOne({
+    orderCode: orderCode,
+    userId: new ObjectId(userId),
+  });
+  return result;
+};
+
 const getCurrentOrder = async (user_id) => {
   const db = await GET_DB().collection('orders');
-  const result = await db
-    .find({ userId: new ObjectId(user_id) })
-    .project({ productsList: 0, note: 0 })
-    .toArray();
+  const result = await db.find({ userId: new ObjectId(user_id) }).toArray();
   return result;
 };
 
@@ -196,6 +202,7 @@ export const orderModel = {
   updateOrder,
   deleteOrder,
   getCurrentOrder,
+  getOrderByCode,
   findCartById,
   checkStockProducts,
   updateSingleProductStock,

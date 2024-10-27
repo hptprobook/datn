@@ -9,6 +9,7 @@ const Router = express.Router();
 Router.post('/send-sms', authController.sendSMS);
 Router.post('/register', authController.register);
 Router.post('/login', authController.login);
+Router.post('/loginSocial', authController.loginSocial);
 Router.post('/logout', verifyToken, authController.logout);
 Router.post('/changePassword', verifyToken, authController.changePassword);
 Router.post('/otps', authController.getOtp);

@@ -24,8 +24,8 @@ const NavBar = () => {
 
   if (location.pathname === '/gio-hang') {
     return (
-      <div className="shadow-lg hidden lg:block bg-white text-red-600">
-        <div className="max-w-container mx-auto h-24 flex gap-6 items-center text-2xl">
+      <div className="hidden lg:block bg-white text-red-600">
+        <div className="max-w-container mx-auto h-16 flex gap-6 items-center text-xl">
           <span>BMT Life</span> <span>|</span> <span>Giỏ hàng</span>
         </div>
       </div>
@@ -34,8 +34,8 @@ const NavBar = () => {
 
   if (location.pathname === '/thanh-toan') {
     return (
-      <div className="shadow-lg hidden lg:block bg-white text-red-600">
-        <div className="max-w-container mx-auto h-24 flex gap-6 items-center text-2xl">
+      <div className="hidden lg:block bg-white text-red-600">
+        <div className="max-w-container mx-auto h-16 flex gap-6 items-center text-xl">
           <span>BMT Life</span> <span>|</span> <span>Thanh toán</span>
         </div>
       </div>
@@ -44,8 +44,8 @@ const NavBar = () => {
 
   if (location.pathname === '/thanh-toan/xac-nhan') {
     return (
-      <div className="shadow-lg hidden lg:block bg-white text-red-600">
-        <div className="max-w-container mx-auto h-24 flex gap-6 items-center text-2xl">
+      <div className="hidden lg:block bg-white text-red-600">
+        <div className="max-w-container mx-auto h-16 flex gap-6 items-center text-xl">
           <span>BMT Life</span> <span>|</span> <span>Đặt hàng thành công</span>
         </div>
       </div>
@@ -72,7 +72,7 @@ const NavBar = () => {
               </p>
             </NavLink>
             {hoveredMenu === item.id && (
-              <div className="fixed top-32 w-container left-1/2 -translate-x-1/2 bg-slate-50 shadow-lg z-10 p-4 border-t-df grid grid-cols-4 gap-5 menu-hovered">
+              <div className="fixed top-36 w-container left-1/2 -translate-x-1/2 bg-slate-50 shadow-lg z-10 p-4 border-t-df grid grid-cols-4 gap-5 menu-hovered">
                 {item.list?.map((subItem) => (
                   <div key={subItem.id} className="mb-4">
                     <NavLink to={`/danh-muc-san-pham/${subItem.slug}`} end>

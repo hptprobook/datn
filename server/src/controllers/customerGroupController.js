@@ -1,7 +1,7 @@
 /* eslint-disable comma-dangle */
 /* eslint-disable semi */
 import { StatusCodes } from 'http-status-codes';
-import { customerGroupModel } from '~/models/CustomerGroupModel';
+import { customerGroupModel } from '~/models/customerGroupModel';
 import { v4 as uuidv4 } from 'uuid';
 const getAllCG = async (req, res) => {
     try {
@@ -54,6 +54,11 @@ const createCG = async (req, res) => {
             }));
             const dataCG = { ...req.body, auto: newAuto };
             const result = await customerGroupModel.createCG(dataCG);
+            if (result.acknowledged) {
+                return res
+                    .status(StatusCodes.CREATED)
+                    .json({ message: 'Tạo nhóm khách hàng thành công', result });
+            }
             return res.status(StatusCodes.BAD_REQUEST).json(result);
         }
 
@@ -61,8 +66,8 @@ const createCG = async (req, res) => {
         const result = await customerGroupModel.createCG(dataCG);
         if (result.acknowledged) {
             return res
-                .status(StatusCodes.OK)
-                .json({ message: 'Tạo nhóm khách hàng thành công' });
+                .status(StatusCodes.CREATED)
+                .json({ message: 'Tạo nhóm khách hàng thành công', result });
         }
         return res.status(StatusCodes.BAD_REQUEST).json(result);
     } catch (error) {
@@ -71,7 +76,7 @@ const createCG = async (req, res) => {
                 messages: error.details[0].message,
             });
         }
-        return res.status(StatusCodes.BAD_REQUEST).json(error);
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
     }
 };
 
@@ -86,12 +91,12 @@ const updateCG = async (req, res) => {
             }));
             const dataCG = { ...req.body, auto: newAuto };
             const result = await customerGroupModel.updateCG(idCG, dataCG);
-            return res.status(StatusCodes.BAD_REQUEST).json(result);
+            return res.status(StatusCodes.OK).json(result); // Changed to OK
         }
 
         const dataCG = req.body;
         const result = await customerGroupModel.updateCG(idCG, dataCG);
-        return res.status(StatusCodes.BAD_REQUEST).json(result);
+        return res.status(StatusCodes.OK).json(result);
     } catch (error) {
         if (error.details) {
             return res.status(StatusCodes.BAD_REQUEST).json({

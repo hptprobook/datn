@@ -76,6 +76,11 @@ const DetailCategoryView = () => {
       parentId: category?.parentId || '',
       status: category?.status || true,
       description: category?.description || '',
+      seoOption: {
+        title: category?.seoOption?.title || '',
+        description: category?.seoOption?.description || '',
+        alias: category?.seoOption?.alias || '',
+      },
     },
     enableReinitialize: true,
     validationSchema,
@@ -103,6 +108,11 @@ const DetailCategoryView = () => {
         dispatch(updateCategory({ id, data }));
         return;
       }
+
+      data.seoOption.title = data.seoOption.title || data.name;
+      data.seoOption.description = data.seoOption.description || data.description;
+      data.seoOption.alias = data.seoOption.alias || data.slug;
+
       dispatch(updateWithImage({ file: uploadedImageUrl, data, id }));
     },
   });
@@ -228,6 +238,36 @@ const DetailCategoryView = () => {
                     label="Trạng thái"
                   />
                 </FormGroup>
+              </Grid2>
+              <Grid2 xs={6}>
+                <TextField
+                  fullWidth
+                  id="seoOption.title"
+                  name="seoOption.title"
+                  value={formik.values.seoOption.title}
+                  onChange={formik.handleChange}
+                  label="Tiêu đề SEO"
+                />
+              </Grid2>
+              <Grid2 xs={6}>
+                <TextField
+                  fullWidth
+                  id="seoOption.description"
+                  name="seoOption.description"
+                  value={formik.values.seoOption.description}
+                  onChange={formik.handleChange}
+                  label="Mô tả SEO"
+                />
+              </Grid2>
+              <Grid2 xs={6}>
+                <TextField
+                  fullWidth
+                  id="seoOption.alias"
+                  name="seoOption.alias"
+                  value={formik.values.seoOption.alias}
+                  onChange={formik.handleChange}
+                  label="Đường dẫn SEO"
+                />
               </Grid2>
               <Grid2 xs={12}>
                 <TinyEditor onChange={handleEditorChange} initialValue={category?.description} />

@@ -113,7 +113,7 @@ const deleteAllBrands = async () => {
   const result = await GET_DB().collection('brands').deleteMany({});
 
   if (!result || result.deletedCount === 0) {
-    throw new Error('Không có nhà cung cấp nào để xóa.');
+    throw new Error('Không có thương hiệu nào để xóa.');
   }
   return brands;
 };
@@ -133,7 +133,7 @@ const deleteManyBrands = async (ids) => {
   });
 
   if (result.deletedCount === 0) {
-    throw new Error('Xóa  không thành công');
+    throw new Error('Xóa không thành công');
   }
 
   const images = brands.map((brand) => brand.image);

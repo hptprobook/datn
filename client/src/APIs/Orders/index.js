@@ -10,3 +10,23 @@ export const checkStockProducts = async (data) => {
     throw error;
   }
 };
+
+export const getCurrentOrders = async () => {
+  try {
+    const response = await request.get('/orders/me/current');
+    return response.data;
+  } catch (error) {
+    console.log('Lỗi khi lấy danh sách đơn hàng người dùng', error);
+    throw error;
+  }
+};
+
+export const getOrderByCodeAPI = async (code) => {
+  try {
+    const response = await request.get(`/orders/me/${code}`);
+    return response.data;
+  } catch (error) {
+    console.log('Lỗi khi tìm kiếm đơn hàng bằng code', error);
+    throw error.response.data;
+  }
+};

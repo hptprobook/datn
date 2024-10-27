@@ -40,14 +40,35 @@ const getOrderById = async (req, res) => {
     });
   }
 };
+
+const getOrderByCode = async (req, res) => {
+  try {
+    const { user_id } = req.user;
+    const { orderCode } = req.params;
+
+    const currentOrder = await orderModel.getOrderByCode(orderCode, user_id);
+
+    if (!currentOrder) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        message: 'Đơn hàng không tồn tại hoặc bạn không có quyền truy cập',
+      });
+    }
+    return res.status(StatusCodes.OK).json(currentOrder);
+  } catch (error) {
+    return res.status(StatusCodes.OK).json(error);
+  }
+};
+
 const addOrder = async (req, res) => {
   try {
     const { user_id } = req.user;
     const dataOrder = { userId: user_id, ...req.body };
-    await orderModel.addOrder(dataOrder);
-    return res
-      .status(StatusCodes.OK)
-      .json({ message: 'Bạn đã đặt hàng thành công' });
+    const result = await orderModel.addOrder(dataOrder);
+    const orderData = await orderModel.getOrderById(result.insertedId);
+    return res.status(StatusCodes.OK).json({
+      message: 'Bạn đã đặt hàng thành công',
+      data: orderData,
+    });
   } catch (error) {
     return res
       .status(StatusCodes.BAD_REQUEST)
@@ -133,6 +154,12 @@ const updateOrder = async (req, res) => {
     const data = req.body;
     if (data.status) {
       const oldStatus = await orderModel.getStatusOrder(id);
+      const check = oldStatus.some((i) => data.status.status === i.status);
+      if (check) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          message: 'Trạng thái đơn hàng bị trùng lặp vui lòng kiểm tra lại',
+        });
+      }
       const newStatus = [...oldStatus, data.status];
       data.status = newStatus;
     }
@@ -141,6 +168,32 @@ const updateOrder = async (req, res) => {
     if (dataOrder) {
       await userModel.sendNotifies(dataOrder);
     }
+    return res.status(StatusCodes.OK).json(dataOrder);
+  } catch (error) {
+    console.log(error);
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      message: 'Có lỗi xảy ra xin thử lại sau',
+      error: error,
+    });
+  }
+};
+
+const updateOrderNotLogin = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = req.body;
+    if (data.status) {
+      const oldStatus = await orderModel.getStatusOrder(id);
+      const check = oldStatus.some((i) => data.status.status === i.status);
+      if (check) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          message: 'Trạng thái đơn hàng bị trùng lặp vui lòng kiểm tra lại',
+        });
+      }
+      const newStatus = [...oldStatus, data.status];
+      data.status = newStatus;
+    }
+    const dataOrder = await orderModel.updateOrder(id, data);
     return res.status(StatusCodes.OK).json(dataOrder);
   } catch (error) {
     console.log(error);
@@ -282,10 +335,12 @@ export const orderController = {
   addOrder,
   addOrderNot,
   getCurrentOrder,
+  getOrderByCode,
   updateOrder,
   removeOrder,
   getAllOrder,
   updateStockProducts,
   getOrderById,
   findOrderByCode,
+  updateOrderNotLogin,
 };

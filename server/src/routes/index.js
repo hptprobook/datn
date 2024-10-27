@@ -14,21 +14,22 @@ import { paysApi } from './payRouter';
 
 import { paymentApi } from './paymentRouter';
 
-import { navDashboardApi } from './routeConfigs/navDashboardRoute';
-import { webApi } from './routeConfigs/webRouter';
+import { navDashboardApi } from './routeForAdmin/navDashboardRoute';
+import { webApi } from './routeForAdmin/webRouter';
 // seo
 
-import { seoConfigApi } from './routeConfigs/seoConfigRouter';
+import { seoConfigApi } from './routeForAdmin/seoConfigRouter';
 import { brandsApi } from './brandRouter';
-
 import { couponApi } from './couponRouter';
-// ad
+// admin
 import { addressApi } from './addressRouter';
-import { webBannerApi } from './routeConfigs/webBannerRouter';
+import { webBannerApi } from './routeForAdmin/webBannerRouter';
 import { blogApi } from './blogRouter';
 import { hotSearchApi } from './hotSearchRouter';
 import { staffsApi } from './staffsRouter';
 import { customerGroupApi } from './customerGroupRouter';
+import { staticPageApi } from './routeForAdmin/staticPagesRoute';
+import { variantsApi } from './variantsRouter';
 const Router = express.Router();
 
 Router.use('/auth', authApi);
@@ -46,6 +47,7 @@ Router.use('/reviews', reviewsApi);
 Router.use('/suppliers', suppliersApi);
 Router.use('/warehouses', warehousesApi);
 Router.use('/products', productsApi);
+Router.use('/variants', variantsApi);
 Router.use('/brands', brandsApi);
 
 Router.use('/pays', paysApi);
@@ -58,12 +60,13 @@ Router.use('/web-banner', webBannerApi);
 
 Router.use('/navDashboard', navDashboardApi);
 Router.use('/address', addressApi);
+Router.use('/static-pages', staticPageApi);
+Router.use('/customer-group', customerGroupApi);
 
 Router.use('/blogs', blogApi);
-Router.use('/customerGroup', customerGroupApi);
 
 Router.get('/', (req, res) => {
-    res.send('Hello from API!');
+  res.send('Hello from API!');
 });
 
 export const APIs = Router;

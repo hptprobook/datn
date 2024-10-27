@@ -68,6 +68,7 @@ export default function CreateCouponPage() {
     }
   }, [errorEnd]);
   const dispatch = useDispatch();
+  const products_applied = useSelector((state) => state.products.products);
 
   useEffect(() => {
     if (status === 'successful') {
@@ -350,7 +351,10 @@ export default function CreateCouponPage() {
                 <Typography variant="h5">Sản phẩm áp dụng</Typography>
               </Grid2>
               <Grid2 xs={12}>
-                <ProductAcceptSelect />
+              <ProductAcceptSelect
+            value={formik.values.applicableProducts.map((_id) => products_applied.find((product) => product._id === _id))}
+            onChange={(event, newValue) => formik.setFieldValue('applicableProducts', newValue.map((product) => product._id))}
+          />
               </Grid2>
             </Card>
           </Grid2>

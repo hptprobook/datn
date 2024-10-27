@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import PropTypes from 'prop-types';
 
 import TableRow from '@mui/material/TableRow';
@@ -26,17 +25,8 @@ export default function WebBannerTableRow({
   handleClick,
   handleNavigate,
 }) {
-  const [open, setOpen] = useState(null);
-
-
-
-  const handleCloseMenu = () => {
-    setOpen(null);
-  };
-
   const handleDelete = (idDelete) => {
     onDelete(idDelete);
-    handleCloseMenu();
   }
   return (
     <TableRow hover

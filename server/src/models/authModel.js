@@ -1,13 +1,26 @@
 import { GET_DB } from '~/config/mongodb';
 import { ObjectId } from 'mongodb';
-import { SAVE_USER_SCHEMA, UPDATE_USER } from '~/utils/schema/authSchema';
+import {
+    SAVE_USER_SCHEMA,
+    UPDATE_USER,
+    SAVE_USER_SOCIAL,
+} from '~/utils/schema/authSchema';
 
 const validateBeforeCreate = async (data) => {
     return await SAVE_USER_SCHEMA.validateAsync(data, { abortEarly: false });
 };
+const validateBeforeCreateSocial = async (data) => {
+    return await SAVE_USER_SOCIAL.validateAsync(data, { abortEarly: false });
+};
 
 const register = async (dataUser) => {
     const validData = await validateBeforeCreate(dataUser);
+    const db = await GET_DB().collection('users');
+    const result = await db.insertOne(validData);
+    return db.findOne({ _id: result.insertedId });
+};
+const registerSocial = async (dataSocial) => {
+    const validData = await validateBeforeCreateSocial(dataSocial);
     const db = await GET_DB().collection('users');
     const result = await db.insertOne(validData);
     return db.findOne({ _id: result.insertedId });
@@ -64,5 +77,6 @@ export const authModel = {
     deleteUser,
     updateByEmail,
     findUserID,
+    registerSocial,
     // getUserRT,
 };

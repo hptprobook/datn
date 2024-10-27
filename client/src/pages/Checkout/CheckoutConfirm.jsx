@@ -1,13 +1,15 @@
 import { useEffect } from 'react';
-import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import MainLoading from '~/components/common/Loading/MainLoading';
 import CheckoutStepper from '~/components/common/Stepper/CheckoutStepper';
-import { formatCurrencyVND } from '~/utils/formatters';
+import useCheckAuth from '~/customHooks/useCheckAuth';
+import { formatCurrencyVND, formatDateToDDMMYYYY } from '~/utils/formatters';
 
 const CheckoutConfirm = () => {
   const location = useLocation();
   const orderData = location.state?.orderData.data;
   const navigate = useNavigate();
+  const { isAuthenticated } = useCheckAuth();
 
   useEffect(() => {
     if (!orderData) {
@@ -18,7 +20,7 @@ const CheckoutConfirm = () => {
   if (!orderData) return <MainLoading />;
 
   return (
-    <section className="py-24 relative max-w-container mx-auto">
+    <section className="py-8 relative max-w-container mx-auto">
       <div className="flex justify-center mb-12 pl-24">
         <CheckoutStepper currentStep={3} />
       </div>
@@ -33,24 +35,34 @@ const CheckoutConfirm = () => {
           Đơn đặt hàng của bạn đã được hoàn thành và sẽ được giao chỉ từ 2 - 3
           ngày.
         </p>
-        <p className="font-normal text-lg leading-8 text-gray-500 mb-8">
-          Bạn có thể theo dõi đơn hàng tại{' '}
-          <NavLink to={'#'} className={'text-red-500'}>
-            Trang cá nhân
-          </NavLink>{' '}
-          hoặc{' '}
-          <NavLink to={'#'} className={'text-red-500'}>
-            Tra cứu đơn hàng
-          </NavLink>{' '}
-          dựa trên mã đơn hàng
-        </p>
+        {isAuthenticated ? (
+          <p className="font-normal text-lg leading-8 text-gray-500 mb-8">
+            Bạn có thể theo dõi đơn hàng tại{' '}
+            <NavLink to={'/nguoi-dung'} className={'text-red-500'}>
+              Trang cá nhân
+            </NavLink>{' '}
+            hoặc{' '}
+            <NavLink to={'/theo-doi-don-hang'} className={'text-red-500'}>
+              Tra cứu đơn hàng
+            </NavLink>{' '}
+            dựa trên mã đơn hàng
+          </p>
+        ) : (
+          <p className="font-normal text-lg leading-8 text-gray-500 mb-8">
+            Bạn có thể theo dõi đơn hàng tại{' '}
+            <NavLink to={'/theo-doi-don-hang'} className={'text-red-500'}>
+              Tra cứu đơn hàng
+            </NavLink>{' '}
+            dựa trên mã đơn hàng
+          </p>
+        )}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-8 py-6 border-y border-gray-100 mb-6">
           <div className="box group">
             <p className="font-normal text-base leading-7 text-gray-500 mb-3 transition-all duration-500 group-hover:text-gray-700">
               Ngày giao hàng dự kiến
             </p>
             <h6 className="font-semibold font-manrope text-2xl leading-9 text-black">
-              {orderData?.shipping?.estimatedDeliveryDate}
+              {formatDateToDDMMYYYY(orderData?.shipping?.estimatedDeliveryDate)}
             </h6>
           </div>
           <div className="box group">
@@ -106,24 +118,26 @@ const CheckoutConfirm = () => {
             className="flex flex-col min-[500px]:flex-row min-[500px]:items-center gap-5 py-6  border-b border-gray-200 group"
           >
             <div className="w-full md:max-w-[126px]">
-              <img
-                src={product?.thumbnail}
-                alt="product image"
-                className="mx-auto"
-              />
+              <Link to={`/san-pham/${product?.slug}`}>
+                <img
+                  src={product?.image}
+                  alt={product?.name}
+                  className="mx-auto object-cover"
+                />
+              </Link>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-12 w-full">
               <div className="md:col-span-5">
                 <div className="flex flex-col max-[500px]:items-center gap-3">
-                  <NavLink to={'/'}>
+                  <NavLink to={`/san-pham/${product?.slug}`}>
                     <h6 className="font-semibold text-base leading-7 text-black hover:text-red-600 cursor-pointer">
                       {product?.name}
                     </h6>
                   </NavLink>
                   <h6 className="font-normal text-base leading-7 text-gray-500">
-                    {product?.color} - {product?.size}
+                    {product?.variantColor} - {product?.variantSize}
                   </h6>
-                  <h6 className="font-medium text-base leading-7 text-gray-600 transition-all duration-300 group-hover:text-amber-600">
+                  <h6 className="font-medium text-base leading-7 text-gray-600">
                     {formatCurrencyVND(product?.price)}
                   </h6>
                 </div>
@@ -133,7 +147,7 @@ const CheckoutConfirm = () => {
               </div>
               <div className="flex items-center justify-center md:justify-end max-md:mt-3 h-full md:col-span-4">
                 <div className="flex items-center flex-col">
-                  <p className="font-bold text-md leading-8 text-gray-600 text-center transition-all duration-300 group-hover:text-amber-600">
+                  <p className="font-bold text-md leading-8 text-gray-600 text-center">
                     {formatCurrencyVND(product?.price * product?.quantity)}
                   </p>
                 </div>
@@ -162,7 +176,7 @@ const CheckoutConfirm = () => {
               <p className="font-normal text-lg leading-8 text-gray-500">
                 Phí giao hàng
               </p>
-              <p className="font-semibold text-lg leading-8 text-green-600">
+              <p className="font-semibold text-lg leading-8 text-red-400">
                 + {formatCurrencyVND(orderData?.shipping?.fee)}
               </p>
             </div>
@@ -178,7 +192,7 @@ const CheckoutConfirm = () => {
               <p className="font-manrope font-semibold text-2xl leading-9 text-gray-900">
                 Tổng tiền
               </p>
-              <p className="font-manrope font-bold text-2xl leading-9 text-indigo-600">
+              <p className="font-manrope font-bold text-2xl leading-9 text-red-600">
                 {formatCurrencyVND(orderData?.totalPrice)}
               </p>
             </div>
@@ -190,10 +204,10 @@ const CheckoutConfirm = () => {
             chuyển thành công.
           </p>
           <h6 className="font-manrope font-bold text-2xl leading-9 text-black mb-3">
-            Cảm ơn bạn đã mua sắm ở w0wStore <br className="md:hidden" />
+            Cảm ơn bạn đã mua sắm ở BMT LIFE - <br className="md:hidden" />
             <NavLink
               type="button"
-              className="font-medium text-indigo-600 hover:text-indigo-500"
+              className="font-medium text-red-600 hover:text-red-500"
               to={'/'}
             >
               Tiếp tục mua sắm

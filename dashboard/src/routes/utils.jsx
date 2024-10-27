@@ -1,4 +1,4 @@
-import { includes } from "lodash";
+import { includes } from 'lodash';
 
 export const configPath = {
   dashboard: '/',
@@ -13,5 +13,8 @@ export const configPath = {
   webBanner: 'webBanners',
   webBannerCreate: 'webBanners/create',
   webBannerDetail: 'webBanners/:id',
+  customerGroups: 'customerGroups',
+  customerGroupsCreate: 'customerGroups/create',
+  customerGroupsDetail: 'customerGroups/:id',
 };
 export const arrPath = Object.values(configPath).filter((item) => !includes(item, ':'));

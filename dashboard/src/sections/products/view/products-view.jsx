@@ -165,7 +165,14 @@ export default function ProductsPage() {
     <Container>
       {status === 'loading' && <LoadingFull />}
       {statusDelete === 'loading' && <LoadingFull />}
-      <Drawer anchor="right" open={open} onClose={toggleDrawer()}>
+      <Drawer
+        sx={{
+          zIndex: 9999,
+        }}
+        anchor="right"
+        open={open}
+        onClose={toggleDrawer()}
+      >
         <ProductCard
           product={product}
           status={statusGet}

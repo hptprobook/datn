@@ -1,3 +1,4 @@
+/* eslint-disable func-names */
 import * as Yup from 'yup';
 import Iconify from 'src/components/iconify';
 import { styled } from '@mui/material';
@@ -23,25 +24,45 @@ export const variantSchema = Yup.object().shape({
     .min(0, 'Giá không được âm')
     .max(1000000000, 'Giá không được quá 1 tỷ')
     .typeError('Giá phải là số'),
+
   marketPrice: Yup.number()
     .required('Giá cửa hàng không được để trống')
     .min(0, 'Giá cửa hàng không được âm')
     .max(1000000000, 'Giá cửa hàng không được quá 1 tỷ')
     .typeError('Giá cửa hàng phải là số'),
+  warehouseId: Yup.string().required('Nhà kho không được để trống'),
   capitalPrice: Yup.number()
     .required('Giá vốn không được để trống')
     .min(0, 'Giá vốn không được âm')
     .max(1000000000, 'Giá vốn không được quá 1 tỷ')
-    .typeError('Giá vốn phải là số'),
+    .typeError('Giá vốn phải là số')
+    .test(
+      'capitalPrice-less-than-prices',
+      'Giá vốn phải nhỏ hơn hoặc bằng các giá còn lại',
+      function (value) {
+        const { price, marketPrice, onlinePrice } = this.parent;
+        return value <= price && value <= marketPrice && value <= onlinePrice;
+      }
+    ),
+
   onlinePrice: Yup.number()
     .required('Giá online không được để trống')
     .min(0, 'Giá online không được âm')
     .max(1000000000, 'Giá online không được quá 1 tỷ')
     .typeError('Giá online phải là số'),
+
   saleOff: Yup.number()
     .min(0, 'Giá giảm không được âm')
     .max(1000000000, 'Giá giảm không được quá 1 tỷ')
-    .typeError('Giá giảm phải là số'),
+    .typeError('Giá giảm phải là số')
+    .test(
+      'saleOff-less-than-prices',
+      'Giá giảm không được lớn hơn các giá còn lại',
+      function (value) {
+        const { price, marketPrice, onlinePrice } = this.parent;
+        return !value || (value <= price && value <= marketPrice && value <= onlinePrice);
+      }
+    ),
   stock: Yup.number()
     .required('Số lượng không được để trống')
     .min(0, 'Số lượng không được âm')
@@ -72,6 +93,14 @@ export const sizeSchema = Yup.object().shape({
     .min(0, 'Giá không được âm')
     .max(1000000000, 'Giá không được quá 1 tỷ')
     .typeError('Giá phải là số'),
+  sale: Yup.number()
+    .min(1, 'Số lượng có thể bán không được âm')
+    .max(1000000000, 'Số lượng có thể bán không được quá 1 tỷ')
+    .typeError('Số lượng có thể bán phải là số'),
+  trading: Yup.number()
+    .min(0, 'Số lượng đang giao dịch không được âm')
+    .max(1000000000, 'Số lượng đang giao dịch không được quá 1 tỷ')
+    .typeError('Số lượng đang giao dịch phải là số'),
 });
 
 export const colorsWithHex = [

@@ -21,6 +21,26 @@ export const updateCurrentUser = async (data) => {
   }
 };
 
+export const addCartToCurrent = async (data) => {
+  try {
+    const response = await request.put('/users/me/addCart', data);
+    return response.data;
+  } catch (error) {
+    console.error('Xảy ra lỗi khi thêm sản phẩm vào giỏ hàng:', error);
+    throw error;
+  }
+};
+
+export const removeCartToCurrent = async (_id) => {
+  try {
+    const response = await request.put('/users/me/removeCart', _id);
+    return response.data;
+  } catch (error) {
+    console.error('Xảy ra lỗi khi xoá sản phẩm khỏi giỏ hàng:', error);
+    throw error;
+  }
+};
+
 export const changePassWord = async (data) => {
   try {
     const response = await request.put('/users/me/password', data);

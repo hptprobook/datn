@@ -4,9 +4,7 @@ import { productModel } from '~/models/productModel';
 import { StatusCodes } from 'http-status-codes';
 import { ERROR_MESSAGES } from '~/utils/errorMessage';
 import { uploadModel } from '~/models/uploadModel';
-import { createSlug } from '~/utils/createSlug';
 import path from 'path';
-import { hotSearchController } from './hotSearchController';
 import { hotSearchModel } from '~/models/hotSearchModel';
 
 const getAllProducts = async (req, res) => {
@@ -157,6 +155,7 @@ const createProduct = async (req, res) => {
       variants,
       price,
       slug,
+      seoOption,
     } = req.body;
 
     if (!req.files['thumbnail'] || !req.files['thumbnail'][0]) {
@@ -199,16 +198,16 @@ const createProduct = async (req, res) => {
     });
 
     const newTags = JSON.parse(tags);
+    const newSeoOption = JSON.parse(seoOption);
     const newProductType = JSON.parse(productType);
 
     const parsedVars = JSON.parse(variants);
     imageVariantsC.forEach((file, index) => {
       parsedVars[index].image = file;
     });
-
     const data = {
       cat_id,
-      name: name,
+      name,
       slug,
       price,
       description,
@@ -223,6 +222,7 @@ const createProduct = async (req, res) => {
       height,
       statusStock,
       productType: newProductType,
+      seoOption: newSeoOption,
     };
 
     const dataProduct = await productModel.createProduct(data);
@@ -267,6 +267,7 @@ const createProduct = async (req, res) => {
         uploadModel.deleteImgs(imageVariantsC);
       }
     }
+
     if (error.details) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         message: error.details[0].message,
@@ -296,13 +297,12 @@ const updateProduct = async (req, res) => {
       statusStock,
       variants,
       imagesDelete,
-      indexVariants,
-      variantsDelete,
+      // indexVariants,
+      // variantsDelete,
     } = req.body;
 
     let thumbnail;
     let imagesProduct = [];
-    let imageVariantsC = [];
 
     if (req.files['thumbnail']) {
       thumbnail = path.join(
@@ -321,67 +321,90 @@ const updateProduct = async (req, res) => {
       });
     }
 
-    if (req.files['imageVariants']) {
-      imageVariantsC = req.files['imageVariants'].map((file) => {
+    const imageVariantsC =
+      req.files['imageVariants'] &&
+      req.files['imageVariants'].map((file) => {
         if (file && file.filename) {
           return path.join('uploads/products', file.filename);
         } else {
           throw new Error('File image không hợp lệ');
         }
       });
-    }
+
     const product = await productModel.getProductById(id);
+    const oldVariants = product.variants;
+    const parsedVariants = variants.map((variant) => JSON.parse(variant));
+    // ảnh cũ
+    const oldImageVariants = oldVariants.map((v) => v.image);
+    // những ảnh k cần xóa
+    const imageNoDelete = parsedVariants
+      .map((v) => (!v.imageAdd ? v.image : null))
+      .filter(Boolean);
+    // ảnh cần xóa
+    const imageDelete = oldImageVariants.filter(
+      (v) => !imageNoDelete.includes(v)
+    );
+    for (const variant of parsedVariants) {
+      if (variant.imageAdd) {
+        variant.image = imageVariantsC[0];
+        imageVariantsC.shift();
+        delete variant.imageAdd;
+      }
 
-    let parsedVariants = [];
-    let oldImageVariants = [];
-    if (Array.isArray(variants)) {
-      parsedVariants = variants.map((variant, index) => {
-        let parsedVariant = JSON.parse(variant);
-        if ('imageAdd' in parsedVariant) {
-          if ('image' in parsedVariant) {
-            if (product.variants[index].image === parsedVariant.image) {
-              oldImageVariants.push(parsedVariant.image);
-            }
-          }
-          delete parsedVariant.imageAdd;
-        }
-        return parsedVariant;
-      });
-    } else {
-      parsedVariants = JSON.parse(variants);
-      if ('imageAdd' in parsedVariants) {
-        if ('image' in parsedVariants) {
-          const indexVar = indexVariants[0];
-          if (product.variants[indexVar].image === parsedVariants.image) {
-            oldImageVariants.push(parsedVariants.image);
-          }
-        }
-        delete parsedVariants.imageAdd;
+      if (imageVariantsC.length === 0) {
+        break;
       }
     }
+    // let parsedVariants = [];
+    // let oldImageVariants = [];
+    // if (Array.isArray(variants)) {
+    //   parsedVariants = variants.map((variant, index) => {
+    //     let parsedVariant = JSON.parse(variant);
+    //     if ('imageAdd' in parsedVariant) {
+    //       if ('image' in parsedVariant) {
+    //         if (product.variants[index].image === parsedVariant.image) {
+    //           oldImageVariants.push(parsedVariant.image);
+    //         }
+    //       }
+    //       delete parsedVariant.imageAdd;
+    //     }
+    //     return parsedVariant;
+    //   });
+    // } else {
+    //   parsedVariants = JSON.parse(variants);
+    //   if ('imageAdd' in parsedVariants) {
+    //     if ('image' in parsedVariants) {
+    //       const indexVar = indexVariants[0];
+    //       if (product.variants[indexVar].image === parsedVariants.image) {
+    //         oldImageVariants.push(parsedVariants.image);
+    //       }
+    //     }
+    //     delete parsedVariants.imageAdd;
+    //   }
+    // }
 
-    let parsedImageDelete = [];
+    // let parsedImageDelete = [];
 
-    if (Array.isArray(variantsDelete) && variantsDelete.length > 0) {
-      parsedImageDelete = variantsDelete.map((variant) => JSON.parse(variant));
-    } else if (
-      typeof variantsDelete === 'string' &&
-      variantsDelete.trim() !== ''
-    ) {
-      parsedImageDelete.push(JSON.parse(variantsDelete));
-    }
+    // if (Array.isArray(variantsDelete) && variantsDelete.length > 0) {
+    //   parsedImageDelete = variantsDelete.map((variant) => JSON.parse(variant));
+    // } else if (
+    //   typeof variantsDelete === 'string' &&
+    //   variantsDelete.trim() !== ''
+    // ) {
+    //   parsedImageDelete.push(JSON.parse(variantsDelete));
+    // }
 
-    let deleteImgsVars = [];
-    const variantsArray = Array.isArray(product.variants)
-      ? product.variants
-      : [product.variants];
+    // let deleteImgsVars = [];
+    // const variantsArray = Array.isArray(product.variants)
+    //   ? product.variants
+    //   : [product.variants];
 
-    variantsArray.forEach((v, index) => {
-      const parsedVar = parsedImageDelete[index];
-      if (parsedVar && parsedVar.image !== v.image) {
-        deleteImgsVars.push(parsedVar.image);
-      }
-    });
+    // variantsArray.forEach((v, index) => {
+    //   const parsedVar = parsedImageDelete[index];
+    //   if (parsedVar && parsedVar.image !== v.image) {
+    //     deleteImgsVars.push(parsedVar.image);
+    //   }
+    // });
 
     let validImgs = [];
     let deleteImgs = [];
@@ -397,19 +420,19 @@ const updateProduct = async (req, res) => {
       validImgs = product.images;
     }
 
-    if (imageVariantsC) {
-      imageVariantsC.forEach((file, index) => {
-        const indexVar = indexVariants[index];
-        parsedVariants[indexVar].image = file;
-      });
-    }
+    // if (imageVariantsC) {
+    //   imageVariantsC.forEach((file, index) => {
+    //     const indexVar = indexVariants[index];
+    //     parsedVariants[indexVar].image = file;
+    //   });
+    // }
 
     const newimgURLs = [...validImgs, ...imagesProduct];
 
     const newThumbnail = thumbnail ? thumbnail : product.thumbnail;
     const data = {
       cat_id,
-      name: name,
+      name,
       slug,
       description,
       content,
@@ -425,20 +448,16 @@ const updateProduct = async (req, res) => {
       productType: JSON.parse(productType),
     };
 
-    // return res.status(StatusCodes.OK).json({ parsedVariants });
     const dataProduct = await productModel.update(id, data);
     if (dataProduct) {
       if (deleteImgs && deleteImgs.length > 0) {
         uploadModel.deleteImgs(deleteImgs);
       }
 
-      if (deleteImgsVars && deleteImgsVars.length > 0) {
-        uploadModel.deleteImgs(deleteImgsVars);
+      if (imageDelete && imageDelete.length > 0) {
+        uploadModel.deleteImgs(imageDelete);
       }
 
-      if (oldImageVariants && oldImageVariants.length > 0) {
-        uploadModel.deleteImgs(oldImageVariants);
-      }
       const result = dataProduct.result;
       if (!result) {
         return res
@@ -491,7 +510,53 @@ const updateProduct = async (req, res) => {
     });
   }
 };
+// const updateTest = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const { variants } = req.body;
+//     const product = await productModel.getProductById(id);
+//     const oldVariant = product.variants;
+//     const parsedVariants = variants.map((variant) => JSON.parse(variant));
+//     // ảnh cũ
+//     const oldImageVariants = oldVariant.map((v) => v.image);
+//     // những ảnh k cần xóa
+//     const imageNoDelete = parsedVariants
+//       .map((v) => (!v.imageAdd ? v.image : null))
+//       .filter(Boolean);
+//     // ảnh cần xóa
+//     const imageDelete = oldImageVariants.filter(
+//       (v) => !imageNoDelete.includes(v)
+//     );
+//     // danh sách ảnh up lên
+//     const imageVariantsC =
+//       req.files['imageVariants'] &&
+//       req.files['imageVariants'].map((file) => {
+//         if (file && file.filename) {
+//           return path.join('uploads/products', file.filename);
+//         } else {
+//           throw new Error('File image không hợp lệ');
+//         }
+//       });
+//     for (const variant of parsedVariants) {
+//       if (variant.imageAdd) {
+//         variant.image = imageVariantsC[0];
+//         imageVariantsC.shift();
+//         delete variant.imageAdd;
+//       }
 
+//       if (imageVariantsC.length === 0) {
+//         break; // Exit the loop when imageVariantsC is empty
+//       }
+//     }
+
+//     console.log('variants', parsedVariants);
+//     console.log('ảnh không cần xóa ', imageNoDelete);
+//     console.log('ảnh cũ', oldImageVariants);
+//     console.log('ảnh cần xóa', imageDelete);
+//   } catch (error) {
+//     console.log('error', error);
+//   }
+// };
 const deleteProduct = async (req, res) => {
   const { id } = req.params;
   const dataProduct = await productModel.deleteProduct(id);

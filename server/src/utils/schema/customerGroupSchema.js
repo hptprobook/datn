@@ -20,8 +20,9 @@ export const SAVE_CUSTOMER_GROUP = Joi.object({
                 'Thỏa mãn điều kiện chỉ có thể là "tất cả", "một trong các điều kiện", "thủ công"',
         })
         .default('manual'),
-    auto: Joi.array()
-        .items(
+    auto: Joi.when('manual', {
+        is: false,
+        then: Joi.array().items(
             Joi.object({
                 id: Joi.string().trim(),
                 field: Joi.string().required().messages({
@@ -40,8 +41,9 @@ export const SAVE_CUSTOMER_GROUP = Joi.object({
                     'any.required': 'Giá trị là bắt buộc.',
                 }),
             })
-        )
-        .default([]),
+        ).default([]),
+        otherwise: Joi.array().default([]),
+    }),
     // Khách hàng phải thỏa mãn điều kiện của tự động (auto)
 
     listCustomer: Joi.array().default([]),
@@ -86,7 +88,7 @@ export const UPDATE_CUSTOMER_GROUP = Joi.object({
             }),
         })
     ),
-    // listCustomer: Joi.array().default([]),
+    listCustomer: Joi.array().default([]),
     updatedAt: Joi.date().timestamp('javascript').default(Date.now),
 });
 
