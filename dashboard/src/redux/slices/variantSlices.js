@@ -12,7 +12,7 @@ export const fetchAllVariants = createAsyncThunk(
         }
     }
 );
-export const createStaticPage = createAsyncThunk(
+export const createVariant = createAsyncThunk(
     "variants/create",
     async (data, { rejectWithValue }) => {
         try {
@@ -22,22 +22,18 @@ export const createStaticPage = createAsyncThunk(
         }
     }
 );
-export const getPageBy = createAsyncThunk(
-    "variants/findOne",
-    async ({ type, value }, { rejectWithValue }) => {
+export const manyDeleteVariant = createAsyncThunk(
+    "variants/deleteMany",
+    async (data, { rejectWithValue }) => {
         try {
-            const response = await VariantService.findOne({
-                type,
-                value,
-            });
-            return response;
+            return await VariantService.manyDelete(data);
         } catch (err) {
             return rejectWithValue(err.response.data);
         }
     }
 );
-export const deleteStaticPage = createAsyncThunk(
-    "variants/deleteStaticPage",
+export const deleteVariant = createAsyncThunk(
+    "variants/deleteVariant",
     async (id, { rejectWithValue }) => {
         try {
             return await VariantService.delete(id);
@@ -46,8 +42,8 @@ export const deleteStaticPage = createAsyncThunk(
         }
     }
 );
-export const updatePageById = createAsyncThunk(
-    "variants/updatePageById",
+export const updateVariantById = createAsyncThunk(
+    "variants/updateVariantById",
     async ({ id, data }, { rejectWithValue }) => {
         try {
             const response = await VariantService.update(id, data);
@@ -88,46 +84,43 @@ const staticPageSlices = createSlice({
                 state.status = "failed";
                 state.error = action.payload;
             })
-            .addCase(createStaticPage.pending, (state) => {
+            .addCase(createVariant.pending, (state) => {
                 state.statusCreate = "loading";
             })
-            .addCase(createStaticPage.fulfilled, (state, action) => {
+            .addCase(createVariant.fulfilled, (state, action) => {
                 state.statusCreate = "successful";
             })
-            .addCase(createStaticPage.rejected, (state, action) => {
+            .addCase(createVariant.rejected, (state, action) => {
                 state.statusCreate = "failed";
                 state.error = action.payload;
             })
-            .addCase(getPageBy.pending, (state) => {
-                state.statusGet = "loading";
-            })
-            .addCase(getPageBy.fulfilled, (state, action) => {
-                state.statusGet = "successful";
-                state.page = action.payload;
-            })
-            .addCase(getPageBy.rejected, (state, action) => {
-                state.statusGet = "failed";
-                state.error = action.payload;
-            })
-            .addCase(deleteStaticPage.pending, (state) => {
+            .addCase(manyDeleteVariant.pending, (state) => {
                 state.statusDelete = "loading";
             })
-            .addCase(deleteStaticPage.fulfilled, (state, action) => {
+            .addCase(manyDeleteVariant.fulfilled, (state, action) => {
                 state.statusDelete = "successful";
-                state.delete = action.payload;
             })
-            .addCase(deleteStaticPage.rejected, (state, action) => {
+            .addCase(manyDeleteVariant.rejected, (state, action) => {
                 state.statusDelete = "failed";
                 state.error = action.payload;
             })
-            .addCase(updatePageById.pending, (state) => {
+            .addCase(deleteVariant.pending, (state) => {
+                state.statusDelete = "loading";
+            })
+            .addCase(deleteVariant.fulfilled, (state, action) => {
+                state.statusDelete = "successful";
+            })
+            .addCase(deleteVariant.rejected, (state, action) => {
+                state.statusDelete = "failed";
+                state.error = action.payload;
+            })
+            .addCase(updateVariantById.pending, (state) => {
                 state.statusUpdate = "loading";
             })
-            .addCase(updatePageById.fulfilled, (state, action) => {
+            .addCase(updateVariantById.fulfilled, (state, action) => {
                 state.statusUpdate = "successful";
-                state.staff = action.payload;
             })
-            .addCase(updatePageById.rejected, (state, action) => {
+            .addCase(updateVariantById.rejected, (state, action) => {
                 state.statusUpdate = "failed";
                 state.error = action.payload;
             })

@@ -101,18 +101,24 @@ export const updateProduct = async ({ id, data }) => {
       data[key].forEach((file) => {
         formData.append(key, file);
       });
-    } else if (key === 'productType' || key === 'tags' || key === 'variantsDelete' || key === 'seoOption') {
+    } else if (key === 'productType' || key === 'tags' || key === 'seoOption') {
       formData.append(key, JSON.stringify(data[key]));
+    } else if (key === 'variantsDelete') {
+      data[key].forEach((item) => {
+        formData.append('variantsDelete', item);
+      });
     } else if (key === 'variants') {
       data[key].forEach((variant, i) => {
         formData.append('variants', JSON.stringify(variant));
-        if (variant.image instanceof File) {
-          formData.append('imageVariants', variant.imageAdd);
-          formData.append('indexVariants', i);
-        }
+        // if (variant.image instanceof File) {
+        //   formData.append('imageVariants', variant.imageAdd);
+        //   formData.append('indexVariants', i);
+        // }
+        formData.append('imageVariants', variant.imageAdd);
+        formData.append('indexVariants', i);
         if (Array.isArray(variant.sizes)) {
           variant.sizes.forEach((size, j) => {
-            formData.append(`variants[${i}].sizes[${j}]`, JSON.stringify(size)); 
+            formData.append(`variants[${i}].sizes[${j}]`, JSON.stringify(size));
           });
         }
       });

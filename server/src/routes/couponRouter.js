@@ -13,4 +13,7 @@ Router.put('/:id', verifyStaff, couponController.updateCoupon);
 Router.delete('/:id', verifyStaff, couponController.deleteCoupon);
 Router.post('/many', verifyStaff, isAdmin, couponController.deleteManyCoupon);
 
+Router.get('/filter', couponController.getCouponsByType);
+
+
 export const couponApi = Router;
