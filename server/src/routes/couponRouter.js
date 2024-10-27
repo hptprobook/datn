@@ -11,12 +11,7 @@ Router.get('/code', couponController.findOneCoupons);
 Router.post('/', verifyStaff, couponController.createCoupon);
 Router.put('/:id', verifyStaff, couponController.updateCoupon);
 Router.delete('/:id', verifyStaff, couponController.deleteCoupon);
-Router.post(
-  '/many',
-  verifyStaff,
-  isAdmin,
-  couponController.deleteManyCoupon
-);
+Router.post('/many', verifyStaff, isAdmin, couponController.deleteManyCoupon);
 
 Router.get('/filter', couponController.getCouponsByType);
 

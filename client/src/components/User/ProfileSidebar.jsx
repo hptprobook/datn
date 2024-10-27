@@ -5,9 +5,21 @@ import { MdDiscount } from 'react-icons/md';
 import { FaRegEye } from 'react-icons/fa';
 import { NavLink } from 'react-router-dom';
 import { GrClose } from 'react-icons/gr';
+import { useUser } from '~/context/UserContext';
 
 const ProfileSidebar = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const { user } = useUser();
+
+  let fullAvatarUrl = '';
+
+  if (user && user?.avatar) {
+    const avatar = user.avatar;
+    fullAvatarUrl =
+      avatar.startsWith('http://') || avatar.startsWith('https://')
+        ? avatar
+        : `${import.meta.env.VITE_SERVER_URL}/${avatar}`;
+  }
 
   const toggleSidebar = () => {
     setSidebarOpen(!isSidebarOpen);
@@ -39,14 +51,14 @@ const ProfileSidebar = () => {
           <div className="flex gap-5 items-center">
             <div className="avatar avatar-xl">
               <img
-                src="https://i.pravatar.cc/150?u=a042581f4e29026024d"
-                alt="avatar"
-                className="rounded-full"
+                src={fullAvatarUrl}
+                alt={user?.name}
+                className="rounded-full object-cover"
               />
             </div>
             <p className="text-md font-semibold">
               Xin chào, <br />
-              Nguyen Van A
+              {user?.name}
             </p>
           </div>
         </section>
