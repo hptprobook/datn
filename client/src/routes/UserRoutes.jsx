@@ -9,6 +9,7 @@ import Notifies from '~/pages/User/Profile/Notifies';
 import VoucherList from '~/pages/User/VoucherList';
 import PrivateRoute from './PrivateRoutes';
 import { Helmet } from 'react-helmet-async';
+import OrderDetail from '~/pages/User/OrderDetail';
 
 const UserRoutes = {
   path: '/nguoi-dung',
@@ -24,6 +25,10 @@ const UserRoutes = {
     {
       path: '',
       element: <MyOrder />,
+    },
+    {
+      path: 'don-hang/:orderCode',
+      element: <OrderDetail />,
     },
     {
       path: 'tai-khoan',

@@ -3,7 +3,7 @@ import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import MainLoading from '~/components/common/Loading/MainLoading';
 import CheckoutStepper from '~/components/common/Stepper/CheckoutStepper';
 import useCheckAuth from '~/customHooks/useCheckAuth';
-import { formatCurrencyVND } from '~/utils/formatters';
+import { formatCurrencyVND, formatDateToDDMMYYYY } from '~/utils/formatters';
 
 const CheckoutConfirm = () => {
   const location = useLocation();
@@ -20,7 +20,7 @@ const CheckoutConfirm = () => {
   if (!orderData) return <MainLoading />;
 
   return (
-    <section className="py-24 relative max-w-container mx-auto">
+    <section className="py-8 relative max-w-container mx-auto">
       <div className="flex justify-center mb-12 pl-24">
         <CheckoutStepper currentStep={3} />
       </div>
@@ -62,7 +62,7 @@ const CheckoutConfirm = () => {
               Ngày giao hàng dự kiến
             </p>
             <h6 className="font-semibold font-manrope text-2xl leading-9 text-black">
-              {orderData?.shipping?.estimatedDeliveryDate}
+              {formatDateToDDMMYYYY(orderData?.shipping?.estimatedDeliveryDate)}
             </h6>
           </div>
           <div className="box group">
@@ -137,7 +137,7 @@ const CheckoutConfirm = () => {
                   <h6 className="font-normal text-base leading-7 text-gray-500">
                     {product?.variantColor} - {product?.variantSize}
                   </h6>
-                  <h6 className="font-medium text-base leading-7 text-gray-600 transition-all duration-300 group-hover:text-amber-600">
+                  <h6 className="font-medium text-base leading-7 text-gray-600">
                     {formatCurrencyVND(product?.price)}
                   </h6>
                 </div>
@@ -147,7 +147,7 @@ const CheckoutConfirm = () => {
               </div>
               <div className="flex items-center justify-center md:justify-end max-md:mt-3 h-full md:col-span-4">
                 <div className="flex items-center flex-col">
-                  <p className="font-bold text-md leading-8 text-gray-600 text-center transition-all duration-300 group-hover:text-amber-600">
+                  <p className="font-bold text-md leading-8 text-gray-600 text-center">
                     {formatCurrencyVND(product?.price * product?.quantity)}
                   </p>
                 </div>
@@ -176,7 +176,7 @@ const CheckoutConfirm = () => {
               <p className="font-normal text-lg leading-8 text-gray-500">
                 Phí giao hàng
               </p>
-              <p className="font-semibold text-lg leading-8 text-green-600">
+              <p className="font-semibold text-lg leading-8 text-red-400">
                 + {formatCurrencyVND(orderData?.shipping?.fee)}
               </p>
             </div>
@@ -192,7 +192,7 @@ const CheckoutConfirm = () => {
               <p className="font-manrope font-semibold text-2xl leading-9 text-gray-900">
                 Tổng tiền
               </p>
-              <p className="font-manrope font-bold text-2xl leading-9 text-indigo-600">
+              <p className="font-manrope font-bold text-2xl leading-9 text-red-600">
                 {formatCurrencyVND(orderData?.totalPrice)}
               </p>
             </div>
@@ -204,10 +204,10 @@ const CheckoutConfirm = () => {
             chuyển thành công.
           </p>
           <h6 className="font-manrope font-bold text-2xl leading-9 text-black mb-3">
-            Cảm ơn bạn đã mua sắm ở w0wStore <br className="md:hidden" />
+            Cảm ơn bạn đã mua sắm ở BMT LIFE - <br className="md:hidden" />
             <NavLink
               type="button"
-              className="font-medium text-indigo-600 hover:text-indigo-500"
+              className="font-medium text-red-600 hover:text-red-500"
               to={'/'}
             >
               Tiếp tục mua sắm
