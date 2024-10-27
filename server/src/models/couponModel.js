@@ -95,6 +95,11 @@ const deleteManyCoupons = async (ids) => {
     result,
   };
 };
+const getCouponsByType = async (type) => {
+  const db = GET_DB().collection('coupons');
+  const result = await db.find({ type }).toArray();
+  return result;
+};
 
 export const couponModel = {
   createCoupon,
@@ -103,5 +108,6 @@ export const couponModel = {
   findOneCoupons,
   deleteCoupon,
   deleteManyCoupons,
-  getCouponsById
+  getCouponsById,
+  getCouponsByType
 };

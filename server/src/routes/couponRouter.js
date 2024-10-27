@@ -6,7 +6,7 @@ import { verifyToken as verifyStaff, isAdmin } from '~/middlewares/verifyRole';
 const Router = express.Router();
 // Payments
 Router.get('/', verifyStaff, couponController.getCoupons);
-Router.get('/:id',verifyStaff, couponController.getCouponsById);
+Router.get('/:id', verifyStaff, couponController.getCouponsById);
 Router.get('/code', couponController.findOneCoupons);
 Router.post('/', verifyStaff, couponController.createCoupon);
 Router.put('/:id', verifyStaff, couponController.updateCoupon);
@@ -17,5 +17,8 @@ Router.post(
   isAdmin,
   couponController.deleteManyCoupon
 );
+
+Router.get('/filter', couponController.getCouponsByType);
+
 
 export const couponApi = Router;
