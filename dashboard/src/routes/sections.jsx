@@ -42,6 +42,8 @@ export const StaticWebEditPage = lazy(() => import('src/pages/settings/static-pa
 export const WarehousePage = lazy(() => import('src/pages/warehouse/warehouse'));
 export const WarehouseCreatePage = lazy(() => import('src/pages/warehouse/create'));
 export const WarehouseEditPage = lazy(() => import('src/pages/warehouse/edit'));
+// lịch làm việc
+export const TimetablePage = lazy(() => import('src/pages/timetables'));
 // coupon page
 export const CouponsPage = lazy(() => import('src/pages/coupons/coupons'));
 export const CreateCouponPage = lazy(() => import('src/pages/coupons/create'));
@@ -217,6 +219,10 @@ export default function Router() {
         {
           path: 'variants',
           element: <VariantsPage />,
+        },
+        {
+          path: 'timetables',
+          element: <TimetablePage />,
         },
         {
           path: 'settings',

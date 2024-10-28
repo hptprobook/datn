@@ -1,11 +1,11 @@
 import { createSlice, createAction, createAsyncThunk } from '@reduxjs/toolkit';
-import CustomerGroupsService from '../services/customerGroup.service';
+import customerGroupsService from '../services/customerGroup.service';
 
 export const fetchAllCustomerGroup = createAsyncThunk(
-  'CustomerGroups/fetchCG',
+  'customerGroups/fetchCG',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await CustomerGroupsService.getAllCustomerGroup();
+      const response = await customerGroupsService.getAllCustomerGroup();
       return response;
     } catch (err) {
       return rejectWithValue(err.response.data);
@@ -13,10 +13,10 @@ export const fetchAllCustomerGroup = createAsyncThunk(
   }
 );
 export const getOneCustomerGroup = createAsyncThunk(
-  'CustomerGroups/getOneCustomerGroup',
+  'customerGroups/getOneCustomerGroup',
   async ({ id }, { rejectWithValue }) => {
     try {
-      const response = await CustomerGroupsService.getOneCustomerGroup(id);
+      const response = await customerGroupsService.getOneCustomerGroup(id);
       return response;
     } catch (err) {
       return rejectWithValue(err.response.data);
@@ -24,10 +24,10 @@ export const getOneCustomerGroup = createAsyncThunk(
   }
 );
 export const deleteOneCustomerGroup = createAsyncThunk(
-  'CustomerGroups/deleteOneCustomerGroup',
+  'customerGroups/deleteOneCustomerGroup',
   async (id, { rejectWithValue }) => {
     try {
-      const response = await CustomerGroupsService.deleteOneCustomerGroup(id);
+      const response = await customerGroupsService.deleteOneCustomerGroup(id);
       return response;
     } catch (err) {
       return rejectWithValue(err.response.data);
@@ -35,10 +35,10 @@ export const deleteOneCustomerGroup = createAsyncThunk(
   }
 );
 export const createCustomerGroup = createAsyncThunk(
-  'CustomerGroups/createCustomerGroup',
+  'customerGroups/createCustomerGroup',
   async ({ data }, { rejectWithValue }) => {
     try {
-      const response = await CustomerGroupsService.createCustomerGroup(data);
+      const response = await customerGroupsService.createCustomerGroup(data);
       return response;
     } catch (err) {
       return rejectWithValue(err.response.data);
@@ -46,10 +46,32 @@ export const createCustomerGroup = createAsyncThunk(
   }
 );
 export const updateCustomerGroup = createAsyncThunk(
-  'CustomerGroups/updateCustomerGroup',
+  'customerGroups/updateCustomerGroup',
   async ({ id, data }, { rejectWithValue }) => {
     try {
-      const response = await CustomerGroupsService.updateCustomerGroup(id, data);
+      const response = await customerGroupsService.updateCustomerGroup(id, data);
+      return response;
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
+export const addCustomerToGroup = createAsyncThunk(
+  'customerGroups/addCustomerToGroup',
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      const response = await customerGroupsService.addCustomerToGroup(id, data);
+      return response;
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
+export const removeCustomerFromGroup = createAsyncThunk(
+  'customerGroups/removeCustomerFromGroup',
+  async ({ id, userId }, { rejectWithValue }) => {
+    try {
+      const response = await customerGroupsService.removeCustomerFromGroup(id, userId);
       return response;
     } catch (err) {
       return rejectWithValue(err.response.data);
@@ -57,15 +79,17 @@ export const updateCustomerGroup = createAsyncThunk(
   }
 );
 
-export const resetState = createAction('CustomerGroups/resetState');
-export const setStatus = createAction('CustomerGroups/setStatus');
-const CustomerGroupSlice = createSlice({
-  name: 'CustomerGroups',
+export const resetState = createAction('customerGroups/resetState');
+export const setStatus = createAction('customerGroups/setStatus');
+const customerGroupSlice = createSlice({
+  name: 'customerGroups',
   initialState: {
-    CustomerGroups: [],
-    CustomerGroup: {},
+    customerGroups: [],
+    customerGroup: {},
     status: 'idle',
     statusUpdate: 'idle',
+    statusAdd: 'idle',
+    statusRemove: 'idle',
     error: null
   },
   extraReducers: (builder) => {
@@ -75,7 +99,7 @@ const CustomerGroupSlice = createSlice({
       })
       .addCase(fetchAllCustomerGroup.fulfilled, (state, action) => {
         state.status = 'successful';
-        state.CustomerGroups = action.payload;
+        state.customerGroups = action.payload;
       })
       .addCase(fetchAllCustomerGroup.rejected, (state, action) => {
         state.status = 'failed';
@@ -86,7 +110,7 @@ const CustomerGroupSlice = createSlice({
       })
       .addCase(getOneCustomerGroup.fulfilled, (state, action) => {
         state.status = 'successful';
-        state.CustomerGroup = action.payload;
+        state.customerGroup = action.payload;
       })
       .addCase(getOneCustomerGroup.rejected, (state, action) => {
         state.status = 'failed';
@@ -125,6 +149,28 @@ const CustomerGroupSlice = createSlice({
         state.statusUpdate = 'failed';
         state.error = action.payload;
       })
+      .addCase(addCustomerToGroup.pending, (state) => {
+        state.statusAdd = 'loading';
+      })
+      .addCase(addCustomerToGroup.fulfilled, (state, action) => {
+        state.statusAdd = 'successful';
+        state.add = action.payload;
+      })
+      .addCase(addCustomerToGroup.rejected, (state, action) => {
+        state.statusAdd = 'failed';
+        state.error = action.payload;
+      })
+      .addCase(removeCustomerFromGroup.pending, (state) => {
+        state.statusRemove = 'loading';
+      })
+      .addCase(removeCustomerFromGroup.fulfilled, (state, action) => {
+        state.statusRemove = 'successful';
+        state.remove = action.payload;
+      })
+      .addCase(removeCustomerFromGroup.rejected, (state, action) => {
+        state.statusRemove = 'failed';
+        state.error = action.payload;
+      })
       .addCase(setStatus, (state, action) => {
         const { key, value } = action.payload; // Destructure key and value from payload
         if (state[key] !== undefined) {
@@ -133,5 +179,5 @@ const CustomerGroupSlice = createSlice({
       });
   },
 });
-export const { resetState: resetStateAction } = CustomerGroupSlice.actions;
-export default CustomerGroupSlice.reducer;
+export const { resetState: resetStateAction } = customerGroupSlice.actions;
+export default customerGroupSlice.reducer;

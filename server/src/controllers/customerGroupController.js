@@ -115,7 +115,11 @@ const adCustomerCG = async (req, res) => {
             idCG,
             dataCustomerCG
         );
-        return res.status(StatusCodes.BAD_REQUEST).json(result);
+        if (result) {
+            return res
+                .status(StatusCodes.OK)
+                .json({ message: 'Thêm khách hàng thành công' });
+        }
     } catch (error) {
         if (error.details) {
             return res.status(StatusCodes.BAD_REQUEST).json({
@@ -153,7 +157,6 @@ const removeOneUserCG = async (req, res) => {
     try {
         const { idCG } = req.params;
         const { idUser } = req.body;
-
         const result = await customerGroupModel.delOnceCustomer(idCG, idUser);
         if (result.acknowledged) {
             return res

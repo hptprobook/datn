@@ -48,6 +48,10 @@ Router.put('/:id', verifyStaff, usersController.updateUser);
 Router.delete('/:id', verifyStaff, usersController.deleteUser);
 Router.post('/', verifyStaff, usersController.createUser);
 
+// favorite + views
+// Router.put('/me/favorites', usersController.addProductToFavorites);
+// Router.get('/me/views', usersController.addProductToViews);
+
 // cart
 Router.put('/me/addCart', verifyToken, usersController.addCartToCurrent);
 Router.put('/me/removeCart', verifyToken, usersController.removeCartToCurrent);
