@@ -56,6 +56,28 @@ export const updateCustomerGroup = createAsyncThunk(
     }
   }
 );
+export const addCustomerToGroup = createAsyncThunk(
+  'CustomerGroups/addCustomerToGroup',
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      const response = await CustomerGroupsService.addCustomerToGroup(id, data);
+      return response;
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
+export const removeCustomerFromGroup = createAsyncThunk(
+  'CustomerGroups/removeCustomerFromGroup',
+  async ({ id, userId }, { rejectWithValue }) => {
+    try {
+      const response = await CustomerGroupsService.removeCustomerFromGroup(id, userId);
+      return response;
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
 
 export const resetState = createAction('CustomerGroups/resetState');
 export const setStatus = createAction('CustomerGroups/setStatus');
@@ -66,6 +88,8 @@ const CustomerGroupSlice = createSlice({
     CustomerGroup: {},
     status: 'idle',
     statusUpdate: 'idle',
+    statusAdd: 'idle',
+    statusRemove: 'idle',
     error: null
   },
   extraReducers: (builder) => {
@@ -123,6 +147,28 @@ const CustomerGroupSlice = createSlice({
       })
       .addCase(updateCustomerGroup.rejected, (state, action) => {
         state.statusUpdate = 'failed';
+        state.error = action.payload;
+      })
+      .addCase(addCustomerToGroup.pending, (state) => {
+        state.statusAdd = 'loading';
+      })
+      .addCase(addCustomerToGroup.fulfilled, (state, action) => {
+        state.statusAdd = 'successful';
+        state.add = action.payload;
+      })
+      .addCase(addCustomerToGroup.rejected, (state, action) => {
+        state.statusAdd = 'failed';
+        state.error = action.payload;
+      })
+      .addCase(removeCustomerFromGroup.pending, (state) => {
+        state.statusRemove = 'loading';
+      })
+      .addCase(removeCustomerFromGroup.fulfilled, (state, action) => {
+        state.statusRemove = 'successful';
+        state.remove = action.payload;
+      })
+      .addCase(removeCustomerFromGroup.rejected, (state, action) => {
+        state.statusRemove = 'failed';
         state.error = action.payload;
       })
       .addCase(setStatus, (state, action) => {

@@ -1,5 +1,5 @@
 
-import { get, del, put , post} from "src/utils/request";
+import { get, del, put , post , delWithBody} from "src/utils/request";
 /* eslint-disable */
 const CustomerGroupsService = {
   getAllCustomerGroup: async () => {
@@ -40,6 +40,24 @@ const CustomerGroupsService = {
       return res.data; 
     } catch (err) {
       console.log(err);
+      throw err;
+    }
+  },
+  addCustomerToGroup: async (id, data) => {
+    try {
+      const res = await post(`customer-group/addCustomer/${id}`, data);
+      return res.data;
+    } catch (err) {
+      throw err;
+    }
+  },
+  removeCustomerFromGroup: async (id, idUser) => {
+    try {
+      console.log('Sending idCG:', id);
+      console.log('Sending idUser:', idUser);
+      const res = await delWithBody(`customer-group/delOnceCustomer/${id}`, { idUser });
+      return res.data;
+    } catch (err) {
       throw err;
     }
   },

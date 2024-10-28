@@ -64,18 +64,18 @@ const validateBeforeAddCustomer = async (data) => {
 const addUsersCG = async (id, listUser) => {
     const data = await validateBeforeAddCustomer(listUser);
     const newData = data.map((user) => ({
-        ...user,
-        id: new ObjectId(user.id),
+      ...user,
+      id: new ObjectId(user.id),
     }));
     const db = await GET_DB();
     const collection = db.collection('customerGroup');
     const result = await collection.findOneAndUpdate(
-        { _id: new ObjectId(id) },
-        { $push: { listCustomer: { $each: newData } } },
-        { returnDocument: 'after' }
+      { _id: new ObjectId(id) },
+      { $push: { listCustomer: { $each: newData } } },
+      { returnDocument: 'after' }
     );
     return result;
-};
+  };
 
 const delCustomers = async (id, listUser) => {
     const db = await GET_DB();
@@ -98,12 +98,12 @@ const delOnceCustomer = async (id, idUser) => {
     const collection = db.collection('customerGroup');
     const newId = new ObjectId(idUser);
     const result = await collection.updateOne(
-        { _id: new ObjectId(id) },
-        { $pull: { listCustomer: { id: newId } } },
-        { returnDocument: 'after' }
+      { _id: new ObjectId(id) },
+      { $pull: { listCustomer: { id: newId } } },
+      { returnDocument: 'after' }
     );
     return result;
-};
+  };
 const deleteCG = async (idCG) => {
     const db = GET_DB().collection('customerGroup');
     const result = await db.deleteOne({ _id: new ObjectId(idCG) });

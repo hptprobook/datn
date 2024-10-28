@@ -30,7 +30,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import Iconify from 'src/components/iconify/iconify';
 import { handleToast } from 'src/hooks/toast';
-import { setStatus, getOneCustomerGroup, updateCustomerGroup } from 'src/redux/slices/CustomerGroupSlice';
+import { setStatus, addCustomerToGroup, getOneCustomerGroup, updateCustomerGroup, removeCustomerFromGroup } from 'src/redux/slices/CustomerGroupSlice';
 import LoadingFull from 'src/components/loading/loading-full';
 // import { AutoSelect } from '../auto-select';
 import { useParams } from 'react-router-dom';
@@ -83,7 +83,10 @@ export default function DetailCustomerGroupPage() {
   const error = useSelector((state) => state.CustomerGroups.error);
   const customerGroup = useSelector((state) => state.CustomerGroups.CustomerGroup);
   const [manual, setManual] = useState(customerGroup.manual);
-
+  const [customer, setCustomer] = useState([]);
+  const statusAddCustomer = useSelector((state) => state.CustomerGroups.statusAdd);
+  const statusRemoveCustomer = useSelector((state) => state.CustomerGroups.statusRemove);
+  console.log(status);
   const initialValues = {
     name: customerGroup.name || '',
     note: customerGroup.note || '',
@@ -101,6 +104,22 @@ export default function DetailCustomerGroupPage() {
     listCustomer: customerGroup.listCustomer || [],
   };
 
+  useEffect(() => {
+    if (statusAddCustomer === 'successful') {
+      handleToast('success', 'Thêm khách hàng vào nhóm thành công');
+      dispatch(setStatus({ key: 'statusAdd', value: 'idle' }));
+    }
+    if (statusAddCustomer === 'failed') {
+      handleToast('error', error.message);
+    }
+    if (statusRemoveCustomer === 'successful') {
+      handleToast('success', 'Xóa khách hàng khỏi nhóm thành công');
+      dispatch(setStatus({ key: 'statusRemove', value: 'idle' }));
+    }
+    if (statusRemoveCustomer === 'failed') {
+      handleToast('error', error.message);
+    }
+  })
 
   useEffect(() => {
     if (customerGroup && customerGroup.manual !== undefined) {
@@ -156,7 +175,6 @@ export default function DetailCustomerGroupPage() {
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
-
   const handleChangeRowsPerPage = (event) => {
     setPage(0);
     setRowsPerPage(parseInt(event.target.value, 10));
@@ -166,9 +184,14 @@ export default function DetailCustomerGroupPage() {
     setPage(0);
     setFilterName(event.target.value);
   };
+  const handleAddCustomerGroup = (customeData) => {
+    setCustomer([...customer, customeData]);
+    dispatch(addCustomerToGroup({ id, data: customeData }));
+  };
 
   const dispatchDelete = () => {
-    console.log(confirm);
+    const delCutomerGroupId = id;
+      dispatch(removeCustomerFromGroup({ id: delCutomerGroupId , userId: confirm }));
   };
   const dataFiltered = applyFilter({
     inputData: customerGroup.listCustomer,
@@ -182,8 +205,20 @@ export default function DetailCustomerGroupPage() {
   return (
     <Container>
       {status === 'loading' && <LoadingFull />}
+      {statusAddCustomer === 'loading' && <LoadingFull />}
+      {statusRemoveCustomer === 'loading' && <LoadingFull />}
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Cập nhật nhóm khách hàng</Typography>
+        <Stack direction="row" alignItems="center">
+          <Typography variant="h4">Cập nhật nhóm khách hàng</Typography>
+          <IconButton
+            aria-label="load"
+            variant="contained"
+            color="inherit"
+            onClick={() => dispatch(getOneCustomerGroup({ id }))}
+          >
+            <Iconify icon="mdi:reload" />
+          </IconButton>
+        </Stack>
       </Stack>
       <Formik
         initialValues={initialValues}
@@ -218,16 +253,16 @@ export default function DetailCustomerGroupPage() {
 
           if (values.manual === true) {
             if (values.listCustomer && values.listCustomer.length > 0) {
-              const hasError = values.listCustomer.some((customer) => {
-                if (!customer.name) {
+              const hasError = values.listCustomer.some((customerCheck) => {
+                if (!customerCheck.name) {
                   handleToast('error', 'Tên khách hàng là bắt buộc');
                   return true;
                 }
-                if (!customer.email) {
+                if (!customerCheck.email) {
                   handleToast('error', 'Email khách hàng là bắt buộc');
                   return true;
                 }
-                if (!customer.phone) {
+                if (!customerCheck.phone) {
                   handleToast('error', 'Số điện thoại khách hàng là bắt buộc');
                   return true;
                 }
@@ -303,75 +338,6 @@ export default function DetailCustomerGroupPage() {
                 </Card>
               </Grid2>
               <Grid2 xs={12}>
-                {values.manual && (
-                  <Grid2 sx={{ mt: 3 }}>
-                    <Card sx={{ padding: 3 }}>
-                      <Typography variant="h6" sx={{ mb: 3 }}>
-                        Danh sách khách hàng
-                      </Typography>
-                      <FieldArray
-                        name="listCustomer"
-                        render={(arrayHelpers) => (
-                          <div>
-                            {values.listCustomer && values.listCustomer.length > 0 ? (
-                              values.listCustomer.map((customer, index) => (
-                                <Stack direction="row" spacing={2} sx={{ mt: 3 }} key={customer.id || index}>
-                                  <TextField
-                                    fullWidth
-                                    label="Tên khách hàng"
-                                    variant="outlined"
-                                    name={`listCustomer[${index}].name`}
-                                    value={values.listCustomer[index].name || ''}
-                                    onChange={handleChange}
-                                    error={touched.listCustomer && errors.listCustomer && errors.listCustomer[index] && errors.listCustomer[index].name}
-                                    helperText={touched.listCustomer && errors.listCustomer && errors.listCustomer[index] && errors.listCustomer[index].name}
-                                  />
-                                  <TextField
-                                    fullWidth
-                                    label="Email khách hàng"
-                                    variant="outlined"
-                                    name={`listCustomer[${index}].email`}
-                                    value={values.listCustomer[index].email || ''}
-                                    onChange={handleChange}
-                                    error={touched.listCustomer && errors.listCustomer && errors.listCustomer[index] && errors.listCustomer[index].email}
-                                    helperText={touched.listCustomer && errors.listCustomer && errors.listCustomer[index] && errors.listCustomer[index].email}
-                                  />
-                                  <TextField
-                                    fullWidth
-                                    label="Số điện thoại khách hàng"
-                                    variant="outlined"
-                                    name={`listCustomer[${index}].phone`}
-                                    value={values.listCustomer[index].phone || ''}
-                                    onChange={handleChange}
-                                    error={touched.listCustomer && errors.listCustomer && errors.listCustomer[index] && errors.listCustomer[index].phone}
-                                    helperText={touched.listCustomer && errors.listCustomer && errors.listCustomer[index] && errors.listCustomer[index].phone}
-                                  />
-                                  <IconButton
-                                    onClick={() => arrayHelpers.remove(index)}
-                                    color="error"
-                                    aria-label="remove"
-                                  >
-                                    <Iconify icon="eva:trash-2-outline" />
-                                  </IconButton>
-                                </Stack>
-                              ))
-                            ) : null}
-                            <Button
-                              type="button"
-                              onClick={() => arrayHelpers.push({ id: Math.random(), name: '', email: '', phone: '' })}
-                              variant="contained"
-                              color="primary"
-                              sx={{ mt: 3 }}
-                            >
-                              Thêm khách hàng
-                            </Button>
-                          </div>
-                        )}
-                      />
-                    </Card>
-
-                  </Grid2>
-                )}
                 {!values.manual && (
                   <Grid2 sx={{ mt: 3 }}>
                     <Card sx={{ padding: 3 }}>
@@ -534,7 +500,10 @@ export default function DetailCustomerGroupPage() {
                       />
                     </Card>
 
-                    <Card sx={{ padding: 3, mt: 3 }}>
+                   
+                  </Grid2>
+                )}
+                 <Card sx={{ padding: 3, mt: 3 }}>
                       <Typography variant="h6" sx={{ mb: 3 }}>
                         Danh sách khách hàng
                       </Typography>
@@ -547,7 +516,8 @@ export default function DetailCustomerGroupPage() {
                         numSelected={selected.length}
                         filterName={filterName}
                         onFilterName={handleFilterByName}
-                      />
+                        onAddCustomerGroup={handleAddCustomerGroup}
+                        />
 
                       <Scrollbar>
                         <TableContainer sx={{ overflow: 'unset' }}>
@@ -571,7 +541,7 @@ export default function DetailCustomerGroupPage() {
                                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                 .map((row, index) => (
                                   <CustomerTableRow
-                                    id={row._id}
+                                    id={row.id}
                                     key={`${row._id}-${index}`}
                                     name={row.name}
                                     phone={row.phone}
@@ -603,8 +573,6 @@ export default function DetailCustomerGroupPage() {
                         onRowsPerPageChange={handleChangeRowsPerPage}
                       />
                     </Card>
-                  </Grid2>
-                )}
               </Grid2>
               <Grid2 xs={12}>
                 <Stack spacing={3} direction="row" mt={2} justifyContent="flex-end">
