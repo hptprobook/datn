@@ -7,7 +7,7 @@ const Router = express.Router();
 Router.post('/', verifyToken, isAdmin, timetableController.create);
 Router.get('/:id', timetableController.findOneBy);
 Router.get('/:by/:value', timetableController.findsBy);
-Router.get('/', timetableController.getAll);
+Router.get('/', verifyToken, isAdmin, timetableController.getAll);
 // Router.put('/:id', timetableController.update);
 // Router.delete('/:id', timetableController.remove);
 

@@ -15,6 +15,7 @@ import staffsReducer from "./slices/staffSlices";
 import webBannerReducer from "./slices/webBannerSlice";
 import staticPageReducer from "./slices/staticPageSlices";
 import variantsReducer from "./slices/variantSlices";
+import timetableReducer from "./slices/timetableSlices";
 import CustomerGroupReducer from "./slices/CustomerGroupSlice";
 
 export const store = configureStore({
@@ -35,5 +36,6 @@ export const store = configureStore({
         staticPages: staticPageReducer,
         variants: variantsReducer,
         CustomerGroups: CustomerGroupReducer,
+        timetables: timetableReducer,
     },
 });

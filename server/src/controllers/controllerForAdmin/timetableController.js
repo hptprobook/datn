@@ -115,13 +115,23 @@ const findsBy = async (req, res) => {
 const getAll = async (req, res) => {
     try {
         const { grBy } = req.query;
-        const result = await timetableModel.findsBy({});
+        const admin = req.user;
+        let result;
+        if (admin.role === 'admin') {
+            result = await timetableModel.findsBy({
+                by: 'branchId',
+                value: admin.branchId,
+            });
+        }
+        else {
+            result = await timetableModel.findsBy({});
+        }
         if (grBy === 'date') {
             const groupedByDate = result.reduce((acc, entry) => {
                 const dateKey = new Date(entry.date).toISOString().split('T')[0]; // Get the date in YYYY-MM-DD format
 
                 if (!acc[dateKey]) {
-                    acc[dateKey] = []; // Create an array for this date if it doesn't exist
+                    acc[dateKey] = [];
                 }
 
                 acc[dateKey].push(entry); // Push the current entry into the appropriate date group
@@ -133,6 +143,7 @@ const getAll = async (req, res) => {
                 date,
                 timetables: groupedByDate[date],
                 numberOfTimetables: groupedByDate[date].length,
+                brandId: admin.role === 'admin' ? admin.branchId : null,
             }));
             return res.status(StatusCodes.OK).json(groupedByDateArray);
         }

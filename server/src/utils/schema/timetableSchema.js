@@ -26,7 +26,7 @@ export const TIMETABLE_SCHEMA = Joi.object({
         .messages({
             'string.pattern.base': 'ID chi nhánh không hợp lệ'
         }),
-    note: Joi.string().max(500)
+    note: Joi.string().max(500).allow(null, '').default('')
         .messages({
             'string.max': 'Ghi chú không được vượt quá 500 ký tự',
         }),
