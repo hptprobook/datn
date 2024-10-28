@@ -6,7 +6,7 @@ import { FaTimes } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import { createOrderAPI, getShippingFee, updateCurrentUser } from '~/APIs';
 import MainLoading from '~/components/common/Loading/MainLoading';
-import { useSwal } from '~/customHooks/useSwal';
+import { useSwal, useSwalWithConfirm } from '~/customHooks/useSwal';
 import { formatCurrencyVND } from '~/utils/formatters';
 import { v4 as uuidv4 } from 'uuid';
 import { useUser } from '~/context/UserContext';
@@ -32,6 +32,12 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
   const [isVoucherClosing, setIsVoucherClosing] = useState(false);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!selectedProducts || selectedProducts.length === 0) {
+      navigate('/gio-hang');
+    }
+  }, [selectedProducts, navigate]);
 
   const handlePaymentClose = () => {
     setIsPaymentClosing(true);
@@ -148,6 +154,15 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
   });
 
   const handleCheckout = () => {
+    if (!userAddress) {
+      useSwal.fire({
+        title: 'Lỗi!',
+        text: 'Vui lòng chọn địa chỉ giao hàng',
+        icon: 'error',
+        confirmButtonText: 'Xác nhận',
+      });
+    }
+
     const productsList = selectedProducts.map((product) => ({
       _id: product.productId,
       quantity: product.quantity,
@@ -186,7 +201,26 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
         name: userAddress.name,
       },
     };
-    mutate(data);
+
+    if (userAddress) {
+      useSwalWithConfirm
+        .fire({
+          title: 'Xác nhận đặt hàng?',
+          icon: 'question',
+          confirmButtonText: 'Xác nhận',
+          cancelButtonText: 'Hủy',
+        })
+        .then(() => {
+          mutate(data);
+        });
+    } else {
+      useSwal.fire({
+        title: 'Lỗi!',
+        text: 'Vui lòng chọn địa chỉ giao hàng',
+        icon: 'error',
+        confirmButtonText: 'Xác nhận',
+      });
+    }
   };
 
   if (isLoading || isRemovingCart) return <MainLoading />;

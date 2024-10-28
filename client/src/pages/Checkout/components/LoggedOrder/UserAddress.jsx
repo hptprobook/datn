@@ -56,6 +56,9 @@ const UserAddress = ({ userAddress, setUserAddress }) => {
       if (nonDefaultAddress) {
         setUserAddress(nonDefaultAddress);
         setTempAddress(nonDefaultAddress);
+      } else {
+        setUserAddress(user.addresses[0]);
+        setTempAddress(user.addresses[0]);
       }
     }
   }, [user]);
@@ -66,28 +69,39 @@ const UserAddress = ({ userAddress, setUserAddress }) => {
         <Icon icon="basil:location-solid" />
         <h3 className="ml-2 font-semibold">Địa Chỉ Nhận Hàng</h3>
       </div>
-      <div className="mt-4">
-        <div className="block md:flex gap-3 items-center ">
-          <p className="font-bold transform uppercase">{userAddress?.name}</p>
-          <p className="font-bold text-gray-500">(+84) {userAddress?.phone}</p>
-        </div>
-        <div className="block md:flex justify-between items-center">
-          <div className="md:flex gap-2 md:items-center">
-            <p className="text-sm">{userAddress?.fullAddress}</p>
-            {userAddress?.isDefault && (
-              <div className="badge badge-success rounded-md mt-2 md:mt-0">
-                Mặc định
-              </div>
-            )}
+      {user?.addresses.length == 0 ? (
+        <button
+          onClick={handleAddNewAddress}
+          className="flex items-center gap-3 border border-gray-400 py-2 px-6 rounded-md my-3 hover:bg-gray-50"
+        >
+          <Icon icon="ic:twotone-plus" className="text-2xl" /> Thêm địa chỉ mới
+        </button>
+      ) : (
+        <div className="mt-4">
+          <div className="block md:flex gap-3 items-center ">
+            <p className="font-bold transform uppercase">{userAddress?.name}</p>
+            <p className="font-bold text-gray-500">
+              (+84) {userAddress?.phone}
+            </p>
           </div>
-          <button
-            className="text-blue-500 hover:underline hover:text-red-600 mt-2 md:mt-0"
-            onClick={() => setOpenModal(true)}
-          >
-            Thay Đổi
-          </button>
+          <div className="block md:flex justify-between items-center">
+            <div className="md:flex gap-2 md:items-center">
+              <p className="text-sm">{userAddress?.fullAddress}</p>
+              {userAddress?.isDefault && (
+                <div className="badge badge-success rounded-md mt-2 md:mt-0">
+                  Mặc định
+                </div>
+              )}
+            </div>
+            <button
+              className="text-blue-500 hover:underline hover:text-red-600 mt-2 md:mt-0"
+              onClick={() => setOpenModal(true)}
+            >
+              Thay Đổi
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {openModal && !isAddressModelOpen && (
         <div

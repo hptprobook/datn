@@ -14,6 +14,7 @@ const CheckoutStepper = ({ currentStep }) => {
   ];
 
   const handleStepClick = (stepNumber, path) => {
+    if (currentStep === 3) return;
     if (stepNumber < currentStep) {
       if (stepNumber === 2) {
         const searchParams = new URLSearchParams(location.search);

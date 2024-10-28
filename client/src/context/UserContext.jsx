@@ -10,7 +10,7 @@ const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const { isAuthenticated } = useCheckAuth();
+  const { isAuthenticated, logout } = useCheckAuth();
 
   const {
     data,

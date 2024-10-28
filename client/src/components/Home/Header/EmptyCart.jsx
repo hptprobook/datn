@@ -1,4 +1,4 @@
-const EmptyCart = () => {
+const EmptyCart = ({ usedBy = 'cart' }) => {
   return (
     <div>
       <div className="w-full flex items-center flex-wrap justify-center gap-10 mt-20">
@@ -82,7 +82,7 @@ const EmptyCart = () => {
           </svg>
           <div>
             <h2 className="text-center text-black text-xl font-semibold leading-loose pb-2">
-              Giỏ hàng trống
+              {usedBy === 'cart' ? 'Giỏ hàng trống' : 'Đơn hàng trống'}
             </h2>
           </div>
         </div>
