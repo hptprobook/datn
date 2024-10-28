@@ -6,9 +6,8 @@ import { verifyToken as verifyStaff, isAdmin } from '~/middlewares/verifyRole';
 const Router = express.Router();
 // Payments
 Router.get('/', verifyStaff, couponController.getCoupons);
-Router.get('/:id', couponController.getCouponsById);
-Router.get('/filter', couponController.getCouponsByType);
 Router.get('/code', couponController.findOneCoupons);
+Router.get('/filter', couponController.getCouponsByType);
 Router.post('/', verifyStaff, couponController.createCoupon);
 Router.put('/:id', verifyStaff, couponController.updateCoupon);
 Router.delete('/:id', verifyStaff, couponController.deleteCoupon);
@@ -18,6 +17,6 @@ Router.post(
   isAdmin,
   couponController.deleteManyCoupon
 );
-
+Router.get('/:id', couponController.getCouponsById);
 
 export const couponApi = Router;
