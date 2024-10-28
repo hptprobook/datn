@@ -108,6 +108,8 @@ export default function CreateVariant({ onUpdate, colorsData, sizesData, wareHou
         size: values.size,
         stock: values.stock,
         price: values.price,
+        sale: values.sale,
+        trading: values.trading,
         sku: variants[openSize].sku + values.size,
       });
       const newStock = newVariant[openSize].sizes.reduce(
