@@ -11,7 +11,7 @@ import { visuallyHidden } from './utils';
 
 // ----------------------------------------------------------------------
 
-export default function CustomerGroupTableHead({
+export default function CustomerTableHead({
   order,
   orderBy,
   rowCount,
@@ -62,7 +62,7 @@ export default function CustomerGroupTableHead({
   );
 }
 
-CustomerGroupTableHead.propTypes = {
+CustomerTableHead.propTypes = {
   order: PropTypes.oneOf(['asc', 'desc']),
   orderBy: PropTypes.string,
   rowCount: PropTypes.number,
