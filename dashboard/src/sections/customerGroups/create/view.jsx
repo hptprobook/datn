@@ -39,8 +39,8 @@ export default function CreateCustomerGroupPage() {
 
   const dispatch = useDispatch();
 
-  const status = useSelector((state) => state.CustomerGroups.statusCreate);
-  const error = useSelector((state) => state.CustomerGroups.error);
+  const status = useSelector((state) => state.customerGroups.statusCreate);
+  const error = useSelector((state) => state.customerGroups.error);
 
   const [manual, setManual] = useState(true);
 

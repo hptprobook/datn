@@ -12,7 +12,11 @@ import TablePagination from '@mui/material/TablePagination';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
-import { setStatus, fetchAllCustomerGroup, deleteOneCustomerGroup } from 'src/redux/slices/CustomerGroupSlice';
+import {
+  setStatus,
+  fetchAllCustomerGroup,
+  deleteOneCustomerGroup
+} from 'src/redux/slices/CustomerGroupSlice';
 import { handleToast } from 'src/hooks/toast';
 
 import Iconify from 'src/components/iconify';
@@ -40,10 +44,10 @@ export default function CustomerGroupView() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
   const dispatch = useDispatch();
-  const CustomerGroups = useSelector((state) => state.CustomerGroups.CustomerGroups);
-  const status = useSelector((state) => state.CustomerGroups.status);
-  const statusDelete = useSelector((state) => state.CustomerGroups.statusDelete);
-  const error = useSelector((state) => state.CustomerGroups.error);
+  const customerGroups = useSelector((state) => state.customerGroups.customerGroups);
+  const status = useSelector((state) => state.customerGroups.status);
+  const statusDelete = useSelector((state) => state.customerGroups.statusDelete);
+  const error = useSelector((state) => state.customerGroups.error);
   const [CGList, setCGList] = React.useState([]);
 
   useEffect(() => {
@@ -66,9 +70,9 @@ export default function CustomerGroupView() {
     if (status === 'failed') {
       handleToast('error', 'Có lỗi xảy ra vui lòng thử lại!');
     } else if (status === 'successful') {
-      setCGList(CustomerGroups);
+      setCGList(customerGroups);
     }
-  }, [CustomerGroups, status]);
+  }, [customerGroups, status]);
 
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === 'asc';
