@@ -40,6 +40,25 @@ const getOrderById = async (req, res) => {
     });
   }
 };
+
+const getOrderByCode = async (req, res) => {
+  try {
+    const { user_id } = req.user;
+    const { orderCode } = req.params;
+
+    const currentOrder = await orderModel.getOrderByCode(orderCode, user_id);
+
+    if (!currentOrder) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        message: 'Đơn hàng không tồn tại hoặc bạn không có quyền truy cập',
+      });
+    }
+    return res.status(StatusCodes.OK).json(currentOrder);
+  } catch (error) {
+    return res.status(StatusCodes.OK).json(error);
+  }
+};
+
 const addOrder = async (req, res) => {
   try {
     const { user_id } = req.user;
@@ -316,6 +335,7 @@ export const orderController = {
   addOrder,
   addOrderNot,
   getCurrentOrder,
+  getOrderByCode,
   updateOrder,
   removeOrder,
   getAllOrder,
