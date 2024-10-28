@@ -10,3 +10,13 @@ export const createOrderAPI = async (data) => {
     throw error;
   }
 };
+
+export const updateOrderAPI = async (data) => {
+  try {
+    const response = await request.put(`/orders/${data.id}`, data.data);
+    return response.data;
+  } catch (error) {
+    console.log('Lỗi khi huỷ đơn hàng', error);
+    throw error.response.data;
+  }
+};

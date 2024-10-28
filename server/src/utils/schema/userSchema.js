@@ -160,20 +160,36 @@ export const UPDATE_USER = Joi.object({
     .pattern(/^[0-9]+$/)
     .min(10)
     .max(15)
-    .default(null)
     .messages({
       'string.pattern.base': 'Số điện thoại chỉ được chứa số',
       'string.min': 'Số điện thoại phải có ít nhất 10 ký tự',
       'string.max': 'Số điện thoại không được vượt quá 15 ký tự',
     }),
-  role: Joi.string()
-    .valid('root', 'admin', 'staff', 'user', 'ban')
-    .default('user')
-    .messages({
-      'any.only': 'Vai trò không hợp lệ',
-    }),
-  allowNotifies: Joi.boolean().default(false),
+  role: Joi.string().valid('root', 'admin', 'staff', 'user', 'ban').messages({
+    'any.only': 'Vai trò không hợp lệ',
+  }),
+  allowNotifies: Joi.boolean(),
   updatedAt: Joi.date().timestamp('javascript').default(Date.now),
+  favorites: Joi.array().items({
+    _id: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
+    productId: Joi.string()
+      .pattern(OBJECT_ID_RULE)
+      .message(OBJECT_ID_RULE_MESSAGE),
+    image: Joi.string().trim().min(1),
+    name: Joi.string().trim().min(1),
+    price: Joi.number(),
+    reviews: Joi.array(),
+  }),
+  views: Joi.array().items({
+    _id: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
+    productId: Joi.string()
+      .pattern(OBJECT_ID_RULE)
+      .message(OBJECT_ID_RULE_MESSAGE),
+    image: Joi.string().trim().min(1),
+    name: Joi.string().trim().min(1),
+    price: Joi.number(),
+    reviews: Joi.array(),
+  }),
 }).messages({
   'object.unknown': 'Trường không xác định',
 });
