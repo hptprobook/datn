@@ -30,6 +30,7 @@ import { staffsApi } from './staffsRouter';
 import { customerGroupApi } from './customerGroupRouter';
 import { staticPageApi } from './routeForAdmin/staticPagesRoute';
 import { variantsApi } from './variantsRouter';
+import { timetableApi } from './routeForAdmin/timetableRouter';
 const Router = express.Router();
 
 Router.use('/auth', authApi);
@@ -62,7 +63,7 @@ Router.use('/navDashboard', navDashboardApi);
 Router.use('/address', addressApi);
 Router.use('/static-pages', staticPageApi);
 Router.use('/customer-group', customerGroupApi);
-
+Router.use('/timetables', timetableApi);
 Router.use('/blogs', blogApi);
 
 Router.get('/', (req, res) => {

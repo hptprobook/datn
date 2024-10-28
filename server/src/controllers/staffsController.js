@@ -4,6 +4,7 @@ import { staffsModel } from '../models/staffsModel';
 import { StatusCodes } from 'http-status-codes';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { timetableModel } from '~/models/timetableModel';
 
 const createStaff = async (req, res) => {
     try {
@@ -232,6 +233,18 @@ const logoutStaff = async (req, res) => {
         });
     }
 }
+const getTimetables = async (req, res) => {
+    try {
+        const { user_id } = req.user;
+        const timetables = await timetableModel.findsBy({ value: user_id });
+        res.status(StatusCodes.OK).json(timetables);
+    }
+    catch (error) {
+        res.status(StatusCodes.BAD_REQUEST).json({
+            message: error.message,
+        });
+    }
+}
 export const staffsController = {
     createStaff,
     getStaffBy,
@@ -240,5 +253,6 @@ export const staffsController = {
     getMe,
     logoutStaff,
     updateStaff,
-    deleteStaff
+    deleteStaff,
+    getTimetables
 }

@@ -122,7 +122,7 @@ const productsSlice = createSlice({
       })
       .addCase(updateProduct.fulfilled, (state, action) => {
         state.statusUpdate = 'successful';
-        // state.product = action.payload;
+        state.product = action.payload;
       })
       .addCase(updateProduct.rejected, (state, action) => {
         state.statusUpdate = 'failed';

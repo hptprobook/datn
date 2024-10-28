@@ -6,6 +6,12 @@ const navConfig = [
     child: undefined,
   },
   {
+    title: 'Lịch làm việc',
+    path: '/admin/timetables',
+    icon: 'mdi:table',
+    child: undefined,
+  },
+  {
     title: 'Khách hàng',
     path: '/admin/users',
     icon: 'ion:person',
