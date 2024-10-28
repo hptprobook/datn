@@ -46,7 +46,7 @@ const OrderDetailStatus = ({ status }) => {
   };
 
   return (
-    <div className="w-full px-24 py-4">
+    <div className="w-full px-24 pt-4 pb-20">
       <div className="relative flex items-center justify-between w-full">
         <div className="absolute left-0 top-2/4 h-0.5 w-full -translate-y-2/4 bg-gray-300"></div>
         {steps.map((step, index) => {
