@@ -188,5 +188,16 @@ export const del = async (path, options = {}) => {
   const response = await request.delete(path, options);
   return response.data;
 };
+export const delWithBody = async (path, data, options = {}) => {
+  const response = await request.delete(path, {
+    ...options,
+    headers: {
+      ...options.headers,
+      'Content-Type': 'application/json',
+    },
+    data: JSON.stringify(data),
+  });
+  return response.data;
+};
 
 export default request;
