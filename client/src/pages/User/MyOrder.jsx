@@ -1,44 +1,49 @@
 import { Icon } from '@iconify/react';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { getCurrentOrders } from '~/APIs';
+import { getCurrentOrders, updateOrderAPI } from '~/APIs';
 import MainLoading from '~/components/common/Loading/MainLoading';
 import EmptyCart from '~/components/Home/Header/EmptyCart';
 import { formatCurrencyVND, formatDateToDDMMYYYY } from '~/utils/formatters';
-
-const tabs = [
-  { name: 'Tất cả đơn hàng', key: 'all', color: 'text-black' },
-  { name: 'Chờ xác nhận', key: 'pending', color: 'text-blue-500' },
-  { name: 'Đã xác nhận', key: 'confirmed', color: 'text-green-500' },
-  { name: 'Đã giao cho ĐVVC', key: 'shipping', color: 'text-orange-500' },
-  { name: 'Đã nhận hàng', key: 'delivered', color: 'text-purple-500' },
-  { name: 'Hoàn trả hàng', key: 'returned', color: 'text-green-700' },
-  { name: 'Đã hủy', key: 'cancelled', color: 'text-red-500' },
-];
-
-const getStatusColor = (statusKey) => {
-  const tab = tabs.find((tab) => tab.key === statusKey);
-  return tab ? tab.color : 'text-gray-500';
-};
-
-const getStatusName = (statusKey) => {
-  const tab = tabs.find((tab) => tab.key === statusKey);
-  return tab ? tab.name : 'Không xác định';
-};
+import { getStatusColor, getStatusName, tabs } from './Profile/utils/tabs';
+import { useSwal, useSwalWithConfirm } from '~/customHooks/useSwal';
 
 const MyOrder = () => {
   const [selectedTab, setSelectedTab] = useState('all');
   const tabsRef = useRef(null);
 
-  const { data: orderData, isLoading } = useQuery({
+  const {
+    data: orderData,
+    refetch: refetchOrderData,
+    isLoading,
+  } = useQuery({
     queryKey: ['orders'],
     queryFn: getCurrentOrders,
-    staleTime: 0,
-    cacheTime: 0,
+    staleTime: 30000,
+    cacheTime: 30000,
   });
 
-  if (isLoading) return <MainLoading />;
+  const { mutate: cancelOrder, isLoading: cancelOrderLoading } = useMutation({
+    mutationFn: updateOrderAPI,
+    onSuccess: () => {
+      useSwal.fire({
+        icon: 'success',
+        title: 'Thành công!',
+        text: 'Đơn hàng đã được hủy thành công.',
+        confirmButtonText: 'Xác nhận',
+      });
+      refetchOrderData();
+    },
+    onError: () => {
+      useSwal.fire({
+        icon: 'error',
+        title: 'Thất bại!',
+        text: 'Không thể hủy đơn hàng, vui lòng thử lại.',
+        confirmButtonText: 'Xác nhận',
+      });
+    },
+  });
 
   const filteredOrders =
     selectedTab === 'all'
@@ -61,6 +66,32 @@ const MyOrder = () => {
   const handleScrollRight = () => {
     tabsRef.current.scrollBy({ left: 150, behavior: 'smooth' });
   };
+
+  const handleCancelOrder = (orderId) => {
+    useSwalWithConfirm
+      .fire({
+        icon: 'warning',
+        title: 'Xác nhận hủy đơn hàng?',
+        text: 'Bạn có chắc muốn hủy đơn hàng này không? Hành động này không thể hoàn tác.',
+        confirmButtonText: 'Xác nhận hủy',
+        cancelButtonText: 'Không',
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          cancelOrder({
+            id: orderId,
+            data: {
+              status: {
+                status: 'cancelled',
+                note: 'Khách hàng huỷ đơn',
+              },
+            },
+          });
+        }
+      });
+  };
+
+  if (isLoading || cancelOrderLoading) return <MainLoading />;
 
   return (
     <div className="container mx-auto p-4 sm:p-6 lg:p-8 bg-white text-black">
@@ -121,9 +152,9 @@ const MyOrder = () => {
                 </div>
                 <div>
                   <span
-                    className={getStatusColor(
+                    className={`uppercase font-bold ${getStatusColor(
                       order.status[order.status.length - 1].status
-                    )}
+                    )}`}
                   >
                     {getStatusName(
                       order.status[order.status.length - 1].status
@@ -155,7 +186,7 @@ const MyOrder = () => {
                         <span>x {product?.quantity}</span>
                       </div>
                     </div>
-                    <div className="flex flex-col gap-1 items-end justify-center text-red-600 ml-10">
+                    <div className="flex flex-col gap-1 items-end justify-center text-orange-600 ml-10">
                       <span>{formatCurrencyVND(product?.price)}</span>
                     </div>
                   </div>
@@ -170,9 +201,12 @@ const MyOrder = () => {
                 </span>
               </div>
               <div className="flex justify-end gap-3 mt-6">
-                <button className="bg-red-500 text-white px-4 py-2 rounded-md">
+                <Link
+                  to={`/nguoi-dung/don-hang/${order.orderCode}`}
+                  className="bg-red-500 text-white px-4 py-2 rounded-md"
+                >
                   Chi tiết
-                </button>
+                </Link>
                 {order.status[order.status.length - 1].status ===
                   'Đã hoàn thành' && (
                   <>
@@ -190,7 +224,10 @@ const MyOrder = () => {
                   order.status[order.status.length - 1].status !== 'received' &&
                   order.status[order.status.length - 1].status !==
                     'delivered' && (
-                    <button className="bg-red-500 text-white px-4 py-2 rounded-md">
+                    <button
+                      onClick={() => handleCancelOrder(order._id)}
+                      className="bg-red-500 text-white px-4 py-2 rounded-md"
+                    >
                       Hủy đơn
                     </button>
                   )}

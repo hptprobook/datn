@@ -16,26 +16,26 @@ import webBannerReducer from "./slices/webBannerSlice";
 import staticPageReducer from "./slices/staticPageSlices";
 import variantsReducer from "./slices/variantSlices";
 import timetableReducer from "./slices/timetableSlices";
-import CustomerGroupReducer from "./slices/CustomerGroupSlice";
+import customerGroupReducer from "./slices/CustomerGroupSlice";
 
 export const store = configureStore({
-    reducer: {
-        users: userReducer,
-        auth: authReducer,
-        products: productsReducer,
-        categories: categoriesReducer,
-        orders: ordersReducer,
-        settings: settingsReducer,
-        coupons: couponsReducer,
-        suppliers: suppliersReducer,
-        brands: brandsReducer,
-        warehouses: warehousesReducer,
-        blogs: blogsReducer,
-        webBanners : webBannerReducer,
-        staffs: staffsReducer,
-        staticPages: staticPageReducer,
-        variants: variantsReducer,
-        CustomerGroups: CustomerGroupReducer,
-        timetables: timetableReducer,
-    },
+        reducer: {
+                users: userReducer,
+                auth: authReducer,
+                products: productsReducer,
+                categories: categoriesReducer,
+                orders: ordersReducer,
+                settings: settingsReducer,
+                coupons: couponsReducer,
+                suppliers: suppliersReducer,
+                brands: brandsReducer,
+                warehouses: warehousesReducer,
+                blogs: blogsReducer,
+                webBanners: webBannerReducer,
+                staffs: staffsReducer,
+                staticPages: staticPageReducer,
+                variants: variantsReducer,
+                timetables: timetableReducer,
+                customerGroups: customerGroupReducer,
+        },
 });

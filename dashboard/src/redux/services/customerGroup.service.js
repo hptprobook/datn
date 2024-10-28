@@ -1,7 +1,7 @@
 
 import { get, del, put , post , delWithBody} from "src/utils/request";
 /* eslint-disable */
-const CustomerGroupsService = {
+const customerGroupsService = {
   getAllCustomerGroup: async () => {
     try {
       const res = await get('customer-group');
@@ -63,4 +63,4 @@ const CustomerGroupsService = {
   },
 };
 
-export default CustomerGroupsService;
+export default customerGroupsService;

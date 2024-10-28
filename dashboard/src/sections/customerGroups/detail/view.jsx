@@ -30,7 +30,13 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import Iconify from 'src/components/iconify/iconify';
 import { handleToast } from 'src/hooks/toast';
-import { setStatus, addCustomerToGroup, getOneCustomerGroup, updateCustomerGroup, removeCustomerFromGroup } from 'src/redux/slices/CustomerGroupSlice';
+import {
+  setStatus,
+  addCustomerToGroup,
+  getOneCustomerGroup,
+  updateCustomerGroup,
+  removeCustomerFromGroup
+} from 'src/redux/slices/CustomerGroupSlice';
 import LoadingFull from 'src/components/loading/loading-full';
 // import { AutoSelect } from '../auto-select';
 import { useParams } from 'react-router-dom';
@@ -79,14 +85,14 @@ export default function DetailCustomerGroupPage() {
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const status = useSelector((state) => state.CustomerGroups.statusUpdate);
-  const error = useSelector((state) => state.CustomerGroups.error);
-  const customerGroup = useSelector((state) => state.CustomerGroups.CustomerGroup);
+  const status = useSelector((state) => state.customerGroups.statusUpdate);
+  const error = useSelector((state) => state.customerGroups.error);
+  const customerGroup = useSelector((state) => state.customerGroups.customerGroup);
   const [manual, setManual] = useState(customerGroup.manual);
   const [customer, setCustomer] = useState([]);
-  const statusAddCustomer = useSelector((state) => state.CustomerGroups.statusAdd);
-  const statusRemoveCustomer = useSelector((state) => state.CustomerGroups.statusRemove);
-  console.log(status);
+  const statusAddCustomer = useSelector((state) => state.customerGroups.statusAdd);
+  const statusRemoveCustomer = useSelector((state) => state.customerGroups.statusRemove);
+
   const initialValues = {
     name: customerGroup.name || '',
     note: customerGroup.note || '',
@@ -191,7 +197,7 @@ export default function DetailCustomerGroupPage() {
 
   const dispatchDelete = () => {
     const delCutomerGroupId = id;
-      dispatch(removeCustomerFromGroup({ id: delCutomerGroupId , userId: confirm }));
+    dispatch(removeCustomerFromGroup({ id: delCutomerGroupId, userId: confirm }));
   };
   const dataFiltered = applyFilter({
     inputData: customerGroup.listCustomer,
@@ -500,79 +506,79 @@ export default function DetailCustomerGroupPage() {
                       />
                     </Card>
 
-                   
+
                   </Grid2>
                 )}
-                 <Card sx={{ padding: 3, mt: 3 }}>
-                      <Typography variant="h6" sx={{ mb: 3 }}>
-                        Danh sách khách hàng
-                      </Typography>
-                      <ConfirmDelete
-                        openConfirm={!!confirm}
-                        onAgree={dispatchDelete}
-                        onClose={() => setConfirm(false)}
-                      />
-                      <CustomerTableToolbar
-                        numSelected={selected.length}
-                        filterName={filterName}
-                        onFilterName={handleFilterByName}
-                        onAddCustomerGroup={handleAddCustomerGroup}
+                <Card sx={{ padding: 3, mt: 3 }}>
+                  <Typography variant="h6" sx={{ mb: 3 }}>
+                    Danh sách khách hàng
+                  </Typography>
+                  <ConfirmDelete
+                    openConfirm={!!confirm}
+                    onAgree={dispatchDelete}
+                    onClose={() => setConfirm(false)}
+                  />
+                  <CustomerTableToolbar
+                    numSelected={selected.length}
+                    filterName={filterName}
+                    onFilterName={handleFilterByName}
+                    onAddCustomerGroup={handleAddCustomerGroup}
+                  />
+
+                  <Scrollbar>
+                    <TableContainer sx={{ overflow: 'unset' }}>
+                      <Table sx={{ minWidth: 800 }}>
+                        <CustomerTableHead
+                          order={order}
+                          orderBy={orderBy}
+                          rowCount={customerGroup?.listCustomer?.length || 0}
+                          numSelected={selected.length}
+                          onRequestSort={handleSort}
+                          onSelectAllClick={handleSelectAllClick}
+                          headLabel={[
+                            { id: 'name', label: 'Tên' },
+                            { id: 'phone', label: 'Số điện thoại' },
+                            { id: 'email', label: 'Email' },
+                            { id: '' },
+                          ]}
                         />
-
-                      <Scrollbar>
-                        <TableContainer sx={{ overflow: 'unset' }}>
-                          <Table sx={{ minWidth: 800 }}>
-                            <CustomerTableHead
-                              order={order}
-                              orderBy={orderBy}
-                              rowCount={customerGroup?.listCustomer?.length || 0}
-                              numSelected={selected.length}
-                              onRequestSort={handleSort}
-                              onSelectAllClick={handleSelectAllClick}
-                              headLabel={[
-                                { id: 'name', label: 'Tên' },
-                                { id: 'phone', label: 'Số điện thoại' },
-                                { id: 'email', label: 'Email' },
-                                { id: '' },
-                              ]}
-                            />
-                            <TableBody>
-                              {dataFiltered
-                                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                                .map((row, index) => (
-                                  <CustomerTableRow
-                                    id={row.id}
-                                    key={`${row._id}-${index}`}
-                                    name={row.name}
-                                    phone={row.phone}
-                                    email={row.email}
-                                    selected={selected.indexOf(row._id) !== -1}
-                                    handleClick={(event) => handleClick(event, row._id)}
-                                    onDelete={handleDelete}
-                                  />
-                                ))}
-
-                              <TableEmptyRows
-                                height={77}
-                                emptyRows={emptyRows(page, rowsPerPage, customerGroup?.listCustomer?.length || 0)}
+                        <TableBody>
+                          {dataFiltered
+                            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                            .map((row, index) => (
+                              <CustomerTableRow
+                                id={row.id}
+                                key={`${row._id}-${index}`}
+                                name={row.name}
+                                phone={row.phone}
+                                email={row.email}
+                                selected={selected.indexOf(row._id) !== -1}
+                                handleClick={(event) => handleClick(event, row._id)}
+                                onDelete={handleDelete}
                               />
+                            ))}
 
-                              {notFound && <TableNoData query={filterName} />}
-                            </TableBody>
-                          </Table>
-                        </TableContainer>
-                      </Scrollbar>
+                          <TableEmptyRows
+                            height={77}
+                            emptyRows={emptyRows(page, rowsPerPage, customerGroup?.listCustomer?.length || 0)}
+                          />
 
-                      <TablePagination
-                        page={page}
-                        component="div"
-                        count={customerGroup?.listCustomer?.length || 0}
-                        rowsPerPage={rowsPerPage}
-                        onPageChange={handleChangePage}
-                        rowsPerPageOptions={[5, 10, 25]}
-                        onRowsPerPageChange={handleChangeRowsPerPage}
-                      />
-                    </Card>
+                          {notFound && <TableNoData query={filterName} />}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  </Scrollbar>
+
+                  <TablePagination
+                    page={page}
+                    component="div"
+                    count={customerGroup?.listCustomer?.length || 0}
+                    rowsPerPage={rowsPerPage}
+                    onPageChange={handleChangePage}
+                    rowsPerPageOptions={[5, 10, 25]}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                  />
+                </Card>
               </Grid2>
               <Grid2 xs={12}>
                 <Stack spacing={3} direction="row" mt={2} justifyContent="flex-end">

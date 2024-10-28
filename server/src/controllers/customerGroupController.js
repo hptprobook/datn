@@ -157,8 +157,6 @@ const removeOneUserCG = async (req, res) => {
     try {
         const { idCG } = req.params;
         const { idUser } = req.body;
-        console.log('Received idCG:', idCG);
-        console.log('Received idUser:', idUser);
         const result = await customerGroupModel.delOnceCustomer(idCG, idUser);
         if (result.acknowledged) {
             return res
