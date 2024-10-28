@@ -1,19 +1,48 @@
 import { Icon } from '@iconify/react';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getOrderByCodeAPI } from '~/APIs';
+import { getOrderByCodeAPI, updateOrderAPI } from '~/APIs';
 import MainLoading from '~/components/common/Loading/MainLoading';
-import { useSwal } from '~/customHooks/useSwal';
+import { useSwal, useSwalWithConfirm } from '~/customHooks/useSwal';
 import OrderDetailStatus from './Profile/components/OrderDetailStatus';
+import { getStatusName } from './Profile/utils/tabs';
+import { formatCurrencyVND } from '~/utils/formatters';
 
 const OrderDetail = () => {
   const { orderCode } = useParams();
   const navigate = useNavigate();
 
-  const { data, error, isLoading } = useQuery({
+  const { data, refetch, error, isLoading } = useQuery({
     queryKey: ['getOrderDetail', orderCode],
     queryFn: () => getOrderByCodeAPI(orderCode),
   });
+
+  const { mutate: cancelOrder, isLoading: cancelOrderLoading } = useMutation({
+    mutationFn: updateOrderAPI,
+    onSuccess: () => {
+      useSwal.fire({
+        icon: 'success',
+        title: 'Thành công!',
+        text: 'Đơn hàng đã được hủy thành công.',
+        confirmButtonText: 'Xác nhận',
+      });
+      refetch();
+    },
+    onError: () => {
+      useSwal.fire({
+        icon: 'error',
+        title: 'Thất bại!',
+        text: 'Không thể hủy đơn hàng, vui lòng thử lại.',
+        confirmButtonText: 'Xác nhận',
+      });
+    },
+  });
+
+  const currentStatus = data?.status[data?.status.length - 1]?.status;
+  const totalPrice = data?.productsList?.reduce(
+    (acc, product) => acc + product.price * product.quantity,
+    0
+  );
 
   if (error) {
     useSwal
@@ -28,7 +57,31 @@ const OrderDetail = () => {
       });
   }
 
-  if (isLoading) return <MainLoading />;
+  const handleCancelOrder = () => {
+    useSwalWithConfirm
+      .fire({
+        icon: 'warning',
+        title: 'Xác nhận hủy đơn hàng?',
+        text: 'Bạn có chắc muốn hủy đơn hàng này không? Hành động này không thể hoàn tác.',
+        confirmButtonText: 'Xác nhận hủy',
+        cancelButtonText: 'Không',
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          cancelOrder({
+            id: data?._id,
+            data: {
+              status: {
+                status: 'cancelled',
+                note: 'Khách hàng huỷ đơn',
+              },
+            },
+          });
+        }
+      });
+  };
+
+  if (isLoading || cancelOrderLoading) return <MainLoading />;
 
   return (
     <>
@@ -46,13 +99,188 @@ const OrderDetail = () => {
           <span className="text-xs">|</span>
           <div>
             <b className="text-red-500 uppercase">
-              {data?.status[data?.status?.length - 1]?.status}
+              {getStatusName(data?.status[data?.status?.length - 1]?.status)}
             </b>
           </div>
         </div>
       </div>
-      <div className="container mx-auto p-4 bg-white text-black rounded-sm mt-[1px] h-96">
+      <div className="container mx-auto p-6 bg-white text-black rounded-sm mt-[1px]">
         <OrderDetailStatus status={data?.status} />
+        <div className="flex justify-end gap-3 px-12 mt-12">
+          {currentStatus !== 'completed' &&
+            currentStatus !== 'cancelled' &&
+            currentStatus !== 'delivered' && (
+              <button
+                onClick={handleCancelOrder}
+                className="btn bg-red-500 rounded-md hover:bg-red-600 hover:shadow-md text-white min-w-48"
+              >
+                Huỷ đơn
+              </button>
+            )}
+          {currentStatus === 'completed' && (
+            <>
+              <button className="btn bg-red-500 rounded-md hover:bg-red-600 hover:shadow-md text-white min-w-48">
+                Mua lại
+              </button>
+              <button className="btn bg-red-500 rounded-md hover:bg-red-600 hover:shadow-md text-white min-w-48">
+                Đánh giá
+              </button>
+            </>
+          )}
+          {currentStatus === 'delivered' && (
+            <button className="btn bg-red-500 rounded-md hover:bg-red-600 hover:shadow-md text-white min-w-48">
+              Yêu cầu trả hàng
+            </button>
+          )}
+        </div>
+      </div>
+      <div className="container mx-auto p-6 bg-white text-black rounded-sm mt-[1px]">
+        <div className="grid grid-cols-12 gap-6">
+          <div className="col-span-4">
+            <div className="p-6 bg-white">
+              <h3 className="text-lg font-semibold mb-4 text-gray-900">
+                Địa chỉ nhận hàng
+              </h3>
+              <div>
+                <div>
+                  <p className="text-md font-bold text-gray-700 uppercase">
+                    {data?.shipping?.name}
+                  </p>
+                  <p className="text-sm text-gray-600 mt-3">
+                    (+84) {data?.shipping?.phone}
+                  </p>
+                  <p className="text-sm text-gray-600 mt-3">
+                    {data?.shipping?.detailAddress}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="col-span-7">
+            <div className="space-y-6 bg-white p-6 border-l border-gray-200">
+              <h3 className="text-xl font-semibold text-gray-900">
+                Trạng thái giao hàng
+              </h3>
+
+              <ol className="relative ms-3 border-s border-gray-200">
+                {data?.status
+                  ?.slice()
+                  .reverse()
+                  .map((status, index) => {
+                    const isMostRecent = index === 0;
+                    const isCancelled = status.status === 'cancelled';
+
+                    return (
+                      <li
+                        key={index}
+                        className={`mb-10 ms-6 ${
+                          isMostRecent ? 'text-blue-600' : 'text-green-600'
+                        }`}
+                      >
+                        <span
+                          className={`absolute -start-3 flex h-6 w-6 items-center justify-center rounded-full ${
+                            isMostRecent ? 'bg-blue-100' : 'bg-green-100'
+                          } ring-8 ring-white`}
+                        >
+                          {isMostRecent ? (
+                            <Icon
+                              icon="mdi:clock-outline"
+                              className="h-4 w-4 text-blue-600"
+                            />
+                          ) : (
+                            <Icon
+                              icon="mdi:checkbox-marked-circle-outline"
+                              className="h-4 w-4 text-green-600"
+                            />
+                          )}
+                        </span>
+                        <h4 className="mb-0.5 text-base font-semibold">
+                          {new Date(status.createdAt).toLocaleString()}
+                        </h4>
+                        <p className="text-sm">{status.note}</p>
+                      </li>
+                    );
+                  })}
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="container mx-auto p-6 bg-white text-black rounded-sm mt-[1px]">
+        <div>
+          {data?.productsList?.map((product) => (
+            <div
+              key={product?._id}
+              className="grid grid-cols-12 items-center mt-4 gap-4"
+            >
+              <div className="col-span-12 sm:col-span-6 flex">
+                <img
+                  src={product?.image}
+                  alt={product?.name}
+                  className="w-12 h-12 object-cover"
+                />
+                <div className="ml-4">
+                  <p className="font-medium text-sm sm:text-md text-clamp-1">
+                    {product?.name}
+                  </p>
+                  <span className="text-red-500 text-xs sm:text-sm text-clamp-1">
+                    {product?.variantColor} - {product?.variantSize}
+                  </span>
+                </div>
+              </div>
+
+              <div className="col-span-4 sm:col-span-2 text-center text-xs sm:text-sm font-normal">
+                <p>{formatCurrencyVND(product?.price)}</p>
+              </div>
+
+              <div className="col-span-4 sm:col-span-2 text-center text-xs sm:text-sm font-normal">
+                <p>x{product?.quantity}</p>
+              </div>
+
+              <div className="col-span-4 sm:col-span-2 text-right text-xs sm:text-sm font-normal">
+                <p>{formatCurrencyVND(product?.price * product?.quantity)}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="container mx-auto p-6 bg-white text-black rounded-sm mt-[1px]">
+        <div className="grid grid-cols-12 gap-4 mt-6 pb-8">
+          <div className="col-span-6"></div>
+
+          <div className="col-span-12 lg:col-span-6">
+            <div className="mt-4">
+              <div className="flex justify-between">
+                <p>Tổng tiền hàng</p>
+                <p className="text-gray-800">{formatCurrencyVND(totalPrice)}</p>
+              </div>
+              <div className="flex justify-between mt-2">
+                <p>Tổng tiền phí vận chuyển</p>
+                <p className="text-red-500">
+                  + {formatCurrencyVND(data?.shipping?.fee)}
+                </p>
+              </div>
+              {/* <div className="flex justify-between mt-2">
+                <p>Voucher giảm giá</p>
+                <p className="text-green-500">
+                  - {formatCurrencyVND(voucherDiscount)}
+                </p>
+              </div> */}
+              <div className="flex justify-between mt-4 pt-2">
+                <p className="font-semibold text-lg">Tổng thanh toán</p>
+                <p className="font-bold text-red-500 text-xl">
+                  {formatCurrencyVND(totalPrice + data?.shipping?.fee)}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="container mx-auto p-6 bg-white text-black rounded-sm mt-[1px]">
+        <div className="text-right text-gray-500 text-sm">
+          Phương thức thanh toán: {data?.paymentMethod}
+        </div>
       </div>
     </>
   );
