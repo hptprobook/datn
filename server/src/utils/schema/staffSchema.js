@@ -215,16 +215,10 @@ export const UPDATE_ME_SCHEMA = Joi.object({
             'string.min': 'Tên phải có ít nhất 1 ký tự',
             'string.max': 'Tên không được vượt quá 30 ký tự',
         }),
-    avatar: Joi.string().max(255)
+    avatar: Joi.string().max(255).allow(null)
         .messages({
             'string.max': 'Đường dẫn ảnh không được vượt quá 255 ký tự',
             'string.base': 'Đường dẫn ảnh không hợp lệ'
-        }),
-    email: Joi.string()
-        .email()
-        .messages({
-            'string.empty': 'Email không được để trống',
-            'string.email': 'Email không hợp lệ',
         }),
     password: Joi.string()
         .trim()
