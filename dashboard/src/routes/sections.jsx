@@ -50,6 +50,7 @@ export const CreateCouponPage = lazy(() => import('src/pages/coupons/create'));
 export const CouponDetailPage = lazy(() => import('src/pages/coupons/detail'));
 // variants page
 export const VariantsPage = lazy(() => import('src/pages/variants'));
+export const VariantsImportPage = lazy(() => import('src/pages/variants/creates'));
 // supplier page
 export const SuppliersPage = lazy(() => import('src/pages/suppliers/suppliers'));
 export const SupplierCreatePage = lazy(() => import('src/pages/suppliers/create'));
@@ -219,6 +220,10 @@ export default function Router() {
         {
           path: 'variants',
           element: <VariantsPage />,
+        },
+        {
+          path: 'variants/excel',
+          element: <VariantsImportPage />,
         },
         {
           path: 'timetables',
