@@ -17,6 +17,7 @@ export const verifyToken = async (req, res, next) => {
         return res.status(401).send({ message: 'Lỗi bảo mật' });
     }
 };
+
 export const verifyTokenNoTime = async (req, res, next) => {
     const data = req.headers.authorization;
     if (!data) {
@@ -24,13 +25,14 @@ export const verifyTokenNoTime = async (req, res, next) => {
     }
     try {
         const token = req.headers.authorization.split(' ')[1];
-        const decodedToken = jwt.verify(token, process.env.SECRET_STAFF);
+        const decodedToken = jwt.verify(token, process.env.SECRET_STAFF, { ignoreExpiration: true });
         req.user = decodedToken;
         next();
     } catch (error) {
         return res.status(401).send({ message: 'Lỗi bảo mật' });
     }
 };
+
 const checkRole = (requiredRoles) => (req, res, next) => {
     try {
         const { role } = req.user;
