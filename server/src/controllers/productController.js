@@ -303,6 +303,7 @@ const updateProduct = async (req, res) => {
 
     let thumbnail;
     let imagesProduct = [];
+    let imageVariantsC = [];
 
     if (req.files['thumbnail']) {
       thumbnail = path.join(
@@ -320,14 +321,10 @@ const updateProduct = async (req, res) => {
         }
       });
     }
-
-    const imageVariantsC =
-      req.files['imageVariants'] &&
+    req.files['imageVariants'] &&
       req.files['imageVariants'].map((file) => {
         if (file && file.filename) {
-          return path.join('uploads/products', file.filename);
-        } else {
-          throw new Error('File image không hợp lệ');
+          imageVariantsC.push(path.join('uploads/products', file.filename));
         }
       });
 
@@ -344,15 +341,17 @@ const updateProduct = async (req, res) => {
     const imageDelete = oldImageVariants.filter(
       (v) => !imageNoDelete.includes(v)
     );
-    for (const variant of parsedVariants) {
-      if (variant.imageAdd) {
-        variant.image = imageVariantsC[0];
-        imageVariantsC.shift();
-        delete variant.imageAdd;
-      }
+    if (parsedVariants.length > 0) {
+      for (const variant of parsedVariants) {
+        if (variant.imageAdd) {
+          variant.image = imageVariantsC[0];
+          imageVariantsC.shift();
+          delete variant.imageAdd;
+        }
 
-      if (imageVariantsC.length === 0) {
-        break;
+        if (imageVariantsC.length === 0) {
+          break;
+        }
       }
     }
     // let parsedVariants = [];
@@ -467,6 +466,8 @@ const updateProduct = async (req, res) => {
       return res.status(StatusCodes.OK).json(result);
     }
   } catch (error) {
+    console.log(error);
+
     if (req.files) {
       const thumbnailPath = req.files['thumbnail']?.[0]?.filename;
 
