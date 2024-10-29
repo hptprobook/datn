@@ -155,6 +155,7 @@ export default function LoginView() {
           position: 'fixed',
           top: { xs: 16, md: 24 },
           left: { xs: 16, md: 24 },
+          height: { xs: 32, md: 40 },
         }}
       />
 
