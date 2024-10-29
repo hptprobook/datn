@@ -55,7 +55,7 @@ export default function WarehouseEditPage() {
       name: warehouse?.name || '',
       location: warehouse?.location || '',
       capacity: warehouse?.capacity || 0,
-      currentInventory: warehouse?.currentInventory || 0,
+      currentQuantity: warehouse?.currentQuantity || 0,
       status: warehouse?.status || true,
     },
     enableReinitialize: true,
@@ -132,12 +132,12 @@ export default function WarehouseEditPage() {
               <TextField
                 fullWidth
                 label="Hàng hiện tại"
-                name="currentInventory"
-                value={formik.values.currentInventory}
+                name="currentQuantity"
+                value={formik.values.currentQuantity}
                 onBlur={formik.handleBlur}
                 onChange={formik.handleChange}
-                error={formik.touched.currentInventory && Boolean(formik.errors.currentInventory)}
-                helperText={formik.touched.currentInventory && formik.errors.currentInventory}
+                error={formik.touched.currentQuantity && Boolean(formik.errors.currentQuantity)}
+                helperText={formik.touched.currentQuantity && formik.errors.currentQuantity}
               />
             </Grid2>
             <Grid2 xs={4}>

@@ -18,5 +18,6 @@ Router.post(
   couponController.deleteManyCoupon
 );
 
+Router.get('/:id', verifyStaff, couponController.getCouponsById);
 
 export const couponApi = Router;
