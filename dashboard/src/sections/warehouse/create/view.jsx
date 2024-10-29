@@ -52,7 +52,7 @@ export default function WarehouseCreatePage() {
 
       values.province_id = selectedProvince.ProvinceID;
       values.district_id = selectedDistrict.DistrictID;
-      values.ward_id = selectedWard.WardID;
+      values.ward_id = selectedWard.WardCode;
       dispatch(createWarehouse(values));
     },
   });
