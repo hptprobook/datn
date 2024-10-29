@@ -20,7 +20,6 @@
     "vite:build": "vite build"
   },
   "dependencies": {
-    "@ckeditor/ckeditor5-react": "^9.3.1",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@faker-js/faker": "^8.1.0",
@@ -33,7 +32,6 @@
     "@tinymce/tinymce-react": "^5.1.1",
     "apexcharts": "^3.43.0",
     "axios": "^1.7.2",
-    "ckeditor5": "^43.2.0",
     "dayjs": "^1.11.13",
     "formik": "^2.4.6",
     "history": "^5.3.0",
@@ -65,7 +63,7 @@
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-prettier": "^9.0.0",
     "eslint-import-resolver-alias": "^1.1.2",
-    "eslint-plugin-import": "^2.28.1",
+    "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-jsx-a11y": "^6.7.1",
     "eslint-plugin-perfectionist": "^2.1.0",
     "eslint-plugin-prettier": "^5.0.0",
