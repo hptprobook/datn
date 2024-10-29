@@ -39,11 +39,15 @@ export const upload = async ({ path, file, type = 'post', additionalData = {} })
   const formData = new FormData();
   formData.append(file.name, file.file);
 
-  if (Object.keys(additionalData).length) {
-    Object.keys(additionalData).forEach((key) => {
-      formData.append(key, additionalData[key]);
-    });
-  }
+  // Serialize additionalData if necessary
+  Object.keys(additionalData).forEach((key) => {
+    const value = additionalData[key];
+    if (typeof value === 'object' && value !== null) {
+      formData.append(key, JSON.stringify(value));
+    } else {
+      formData.append(key, value);
+    }
+  });
 
   // Kiểm tra xem phương thức HTTP có hợp lệ không
   if (!['get', 'post', 'put', 'patch', 'delete'].includes(type)) {
@@ -73,6 +77,9 @@ export const uploadProduct = async ({ path, data, type = 'post' }) => {
       data[key].forEach((variant) => {
         formData.append('imageVariants', variant.image);
       });
+    } else if (key === 'productType' || key === 'tags') {
+      const convert = JSON.stringify(data[key]);
+      formData.append(key, convert);
     } else {
       formData.append(key, data[key]);
     }
@@ -94,18 +101,24 @@ export const updateProduct = async ({ id, data }) => {
       data[key].forEach((file) => {
         formData.append(key, file);
       });
-    } else if (key === 'productType' || key === 'tags' || key === 'variantsDelete') {
+    } else if (key === 'productType' || key === 'tags' || key === 'seoOption') {
       formData.append(key, JSON.stringify(data[key]));
+    } else if (key === 'variantsDelete') {
+      data[key].forEach((item) => {
+        formData.append('variantsDelete', item);
+      });
     } else if (key === 'variants') {
       data[key].forEach((variant, i) => {
         formData.append('variants', JSON.stringify(variant));
-        if (variant.image instanceof File) {
-          formData.append('imageVariants', variant.imageAdd);
-          formData.append('indexVariants', i);
-        }
+        // if (variant.image instanceof File) {
+        //   formData.append('imageVariants', variant.imageAdd);
+        //   formData.append('indexVariants', i);
+        // }
+        formData.append('imageVariants', variant.imageAdd);
+        formData.append('indexVariants', i);
         if (Array.isArray(variant.sizes)) {
           variant.sizes.forEach((size, j) => {
-            formData.append(`variants[${i}].sizes[${j}]`, JSON.stringify(size)); // Hoặc bạn có thể thêm từng thuộc tính của size
+            formData.append(`variants[${i}].sizes[${j}]`, JSON.stringify(size));
           });
         }
       });
@@ -173,6 +186,17 @@ export const patch = async (path, options = {}) => {
 };
 export const del = async (path, options = {}) => {
   const response = await request.delete(path, options);
+  return response.data;
+};
+export const delWithBody = async (path, data, options = {}) => {
+  const response = await request.delete(path, {
+    ...options,
+    headers: {
+      ...options.headers,
+      'Content-Type': 'application/json',
+    },
+    data: JSON.stringify(data),
+  });
   return response.data;
 };
 

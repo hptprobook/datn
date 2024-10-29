@@ -6,6 +6,12 @@ const navConfig = [
     child: undefined,
   },
   {
+    title: 'Lịch làm việc',
+    path: '/admin/timetables',
+    icon: 'mdi:table',
+    child: undefined,
+  },
+  {
     title: 'Khách hàng',
     path: '/admin/users',
     icon: 'ion:person',
@@ -16,6 +22,7 @@ const navConfig = [
     path: '/admin/orders',
     icon: 'ion:cart',
   },
+
   {
     title: 'Sản phẩm',
     path: '/admin/products',
@@ -28,6 +35,10 @@ const navConfig = [
       {
         title: 'Danh mục',
         path: '/admin/categories',
+      },
+      {
+        title: 'Biến thể',
+        path: '/admin/variants',
       },
     ],
   },

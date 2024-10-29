@@ -11,14 +11,14 @@ import { configPath } from './utils';
 export const IndexPage = lazy(() => import('src/pages/app'));
 export const IndexAdminPage = lazy(() => import('src/pages/admin'));
 // user page
-export const UserPage = lazy(() => import('src/pages/user/user'));
-export const CreateUserPage = lazy(() => import('src/pages/user/createUser'));
-export const DetailUserPage = lazy(() => import('src/pages/user/detail'));
+export const UserPage = lazy(() => import('src/pages/users'));
+export const CreateUserPage = lazy(() => import('src/pages/users/create'));
+export const DetailUserPage = lazy(() => import('src/pages/users/detail'));
 // login page
 export const LoginPage = lazy(() => import('src/pages/login'));
 // product page
 export const ProductsPage = lazy(() => import('src/pages/products/products'));
-export const CreateProductPage = lazy(() => import('src/pages/products/createProduct'));
+export const CreateProductPage = lazy(() => import('src/pages/products/create'));
 export const DetailProductPage = lazy(() => import('src/pages/products/detail'));
 export const Page404 = lazy(() => import('src/pages/page-not-found'));
 // category page
@@ -35,15 +35,21 @@ export const StaffsSettingPage = lazy(() => import('src/pages/settings/staffs'))
 export const StaffCreatePage = lazy(() => import('src/pages/settings/staffs/create'));
 export const StaffEditPage = lazy(() => import('src/pages/settings/staffs/edit'));
 export const StoreView = lazy(() => import('src/pages/settings/store'));
-export const StaticWebSettingPage = lazy(() => import('src/pages/settings/static-page'));
+export const StaticWebSettingPage = lazy(() => import('src/pages/settings/static-pages'));
+export const StaticWebCreatePage = lazy(() => import('src/pages/settings/static-pages/create'));
+export const StaticWebEditPage = lazy(() => import('src/pages/settings/static-pages/edit'));
 // warehouse page
 export const WarehousePage = lazy(() => import('src/pages/warehouse/warehouse'));
 export const WarehouseCreatePage = lazy(() => import('src/pages/warehouse/create'));
 export const WarehouseEditPage = lazy(() => import('src/pages/warehouse/edit'));
+// lịch làm việc
+export const TimetablePage = lazy(() => import('src/pages/timetables'));
 // coupon page
 export const CouponsPage = lazy(() => import('src/pages/coupons/coupons'));
 export const CreateCouponPage = lazy(() => import('src/pages/coupons/create'));
 export const CouponDetailPage = lazy(() => import('src/pages/coupons/detail'));
+// variants page
+export const VariantsPage = lazy(() => import('src/pages/variants'));
 // supplier page
 export const SuppliersPage = lazy(() => import('src/pages/suppliers/suppliers'));
 export const SupplierCreatePage = lazy(() => import('src/pages/suppliers/create'));
@@ -63,6 +69,10 @@ export const DetailBlogPage = lazy(() => import('src/pages/blog/detail'));
 export const WebBannerPage = lazy(() => import('src/pages/webBanner/webanners'));
 export const CreateWebBannerPage = lazy(() => import('src/pages/webBanner/create'));
 export const DetailWebBannerPage = lazy(() => import('src/pages/webBanner/detail'));
+// Customer Group page
+export const CustomerGroupPage = lazy(() => import('src/pages/customerGroups/customerGroups'));
+export const CreateCustomerGroupPage = lazy(() => import('src/pages/customerGroups/create'));
+export const DetailCustomerGroupPage = lazy(() => import('src/pages/customerGroups/detail'));
 // ----------------------------------------------------------------------
 
 const childRoutes = [
@@ -78,6 +88,9 @@ const childRoutes = [
   { path: configPath.webBanner, element: <WebBannerPage /> },
   { path: configPath.webBannerCreate, element: <CreateWebBannerPage /> },
   { path: configPath.webBannerDetail, element: <DetailWebBannerPage /> },
+  { path: configPath.customerGroups, element: <CustomerGroupPage /> },
+  { path: configPath.customerGroupsCreate, element: <CreateCustomerGroupPage /> },
+  { path: configPath.customerGroupsDetail, element: <DetailCustomerGroupPage /> },
 ];
 
 const renderFallback = (
@@ -204,6 +217,14 @@ export default function Router() {
           element: <BrandDetailPage />,
         },
         {
+          path: 'variants',
+          element: <VariantsPage />,
+        },
+        {
+          path: 'timetables',
+          element: <TimetablePage />,
+        },
+        {
           path: 'settings',
           element: (
             <SettingLayout>
@@ -238,6 +259,14 @@ export default function Router() {
             {
               path: 'static-pages',
               element: <StaticWebSettingPage />,
+            },
+            {
+              path: 'static-pages/create',
+              element: <StaticWebCreatePage />,
+            },
+            {
+              path: 'static-pages/:id',
+              element: <StaticWebEditPage />,
             },
             {
               path: 'notifications',

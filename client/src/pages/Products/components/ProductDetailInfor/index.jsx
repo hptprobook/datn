@@ -6,12 +6,17 @@ import SelectColor from './SelectColor';
 import SelectSize from './SelectSize';
 import ChangeQuantity from '~/components/common/ButtonGroup/ChangeQuantity';
 import AddToCartBtn from '~/components/common/Button/AddToCart';
-import { formatCurrencyVND, generateMongoObjectId } from '~/utils/formatters';
+import { formatCurrencyVND } from '~/utils/formatters';
 import { useCart } from 'react-use-cart';
-import { handleToast } from '~/customHooks/useToast';
 import CartFixed from '~/components/Home/Header/CartFixed';
 import PropTypes from 'prop-types';
 import { useWishlist } from '~/context/WishListContext';
+import { useUser } from '~/context/UserContext';
+import useCheckAuth from '~/customHooks/useCheckAuth';
+import { useMutation } from '@tanstack/react-query';
+import { addCartToCurrent } from '~/APIs';
+import ObjectID from 'bson-objectid';
+import { useSwal } from '~/customHooks/useSwal';
 
 const ProductDetailInfor = ({
   product,
@@ -26,6 +31,8 @@ const ProductDetailInfor = ({
   const [selectedSize, setSelectedSize] = useState(null);
   const [selectedPrice, setSelectedPrice] = useState(product.price);
   const [totalPrice, setTotalPrice] = useState(product.price);
+  const { isAuthenticated } = useCheckAuth();
+  const { refetchUser } = useUser();
 
   // State quản lý lỗi không chọn variant trước khi mua
   const [error, setError] = useState('');
@@ -85,7 +92,7 @@ const ProductDetailInfor = ({
     }
   };
 
-  const handleAddToCart = () => {
+  const handleAddProductToCart = (onSuccessCallback) => {
     if (!selectedColor || !selectedSize) {
       setError('Vui lòng chọn đầy đủ màu sắc và kích thước.');
     } else {
@@ -95,37 +102,85 @@ const ProductDetailInfor = ({
         (variant) => variant.color === selectedColor
       );
 
-      const existingItem = items.find(
-        (item) =>
-          item.slug === product.slug &&
-          item.variantColor === selectedColor &&
-          item.variantSize === selectedSize
-      );
+      const cartItem = {
+        productId: product._id,
+        name: product.name,
+        weight: product.weight,
+        price: selectedPrice,
+        slug: product.slug,
+        image: selectedVariant.image,
+        variantColor: selectedColor,
+        variantSize: selectedSize,
+        quantity,
+      };
 
-      if (existingItem) {
-        addItem(existingItem, quantity);
-      } else {
-        const cartId = generateMongoObjectId();
-
-        addItem(
-          {
-            id: cartId,
-            productId: product._id,
-            name: product.name,
-            weight: product.weight,
-            price: selectedPrice,
-            slug: product.slug,
-            image: selectedVariant.image,
-            variantColor: selectedColor,
-            variantSize: selectedSize,
+      if (isAuthenticated) {
+        mutation.mutate(cartItem, {
+          onSuccess: () => {
+            if (onSuccessCallback) onSuccessCallback();
+            refetchUser();
+            setOpenCartFixed(true);
           },
-          quantity
+        });
+      } else {
+        const existingItem = items.find(
+          (item) =>
+            item.slug === product.slug &&
+            item.variantColor === selectedColor &&
+            item.variantSize === selectedSize
         );
-      }
 
-      handleToast('success', 'Sản phẩm đã được thêm vào giỏ hàng');
-      setOpenCartFixed(true);
+        if (existingItem) {
+          addItem(existingItem, quantity);
+        } else {
+          const cartId = ObjectID(Date.now()).toString();
+
+          addItem(
+            {
+              id: cartId,
+              productId: product._id,
+              name: product.name,
+              weight: product.weight,
+              price: selectedPrice,
+              slug: product.slug,
+              image: selectedVariant.image,
+              variantColor: selectedColor,
+              variantSize: selectedSize,
+            },
+            quantity
+          );
+        }
+
+        setOpenCartFixed(true);
+
+        if (onSuccessCallback) onSuccessCallback();
+      }
     }
+  };
+
+  const mutation = useMutation({
+    mutationFn: addCartToCurrent,
+    onSuccess: () => {
+      refetchUser();
+      setOpenCartFixed(true);
+    },
+    onError: () => {
+      useSwal.fire({
+        icon: 'error',
+        title: 'Lỗi!',
+        text: 'Xảy ra lỗi khi thêm sản phẩm vào giỏ hàng, vui lòng thử lại!',
+      });
+    },
+  });
+
+  const handleAddToCart = () => {
+    handleAddProductToCart();
+  };
+
+  const handleBuyNow = () => {
+    handleAddProductToCart(() => {
+      navigate('/gio-hang');
+    });
   };
 
   const { isInWishlist } = useWishlist();
@@ -216,9 +271,7 @@ const ProductDetailInfor = ({
         </div>
         <button
           className="text-center w-full px-5 py-4 rounded-md bg-red-600 flex items-center justify-center font-semibold text-lg text-white shadow-sm shadow-transparent transition-all duration-500 hover:bg-red-700 hover:shadow-red-300"
-          onClick={() => {
-            navigate('/gio-hang');
-          }}
+          onClick={handleBuyNow}
           disabled={
             !selectedSize ||
             sizes.find((size) => size.name === selectedSize)?.stock === 0

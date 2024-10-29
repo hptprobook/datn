@@ -45,6 +45,11 @@ export default function CouponTableRow({
     onDelete(idDelete);
     handleCloseMenu();
   }
+  const statusMapping = {
+    active: 'Hoạt động',
+    inactive: 'Không hoạt động',
+    expired: 'Hết hạn',
+  };
   return (
     <>
       <TableRow hover tabIndex={-1} role="checkbox" selected={selected}>
@@ -60,10 +65,10 @@ export default function CouponTableRow({
 
         <TableCell>
 
-        {(type === 'percent' && 'Phần trăm') ||
-           (type === 'price' && 'Giá tiền') ||
-           (type === 'shipping' && 'Phí ship') ||
-           type}
+          {(type === 'percent' && 'Phần trăm') ||
+            (type === 'price' && 'Giá tiền') ||
+            (type === 'shipping' && 'Phí ship') ||
+            type}
 
         </TableCell>
 
@@ -81,7 +86,7 @@ export default function CouponTableRow({
               (status === 'expired' && 'error') || (status === 'inactive' && 'warning') || 'success'
             }
           >
-            {status}
+            {statusMapping[status] || status}
           </Label>
         </TableCell>
 

@@ -68,7 +68,7 @@ const DeliveryDetail = ({ selectedProducts, setShippingFee }) => {
           from_district_id: 1552,
           to_district_id: formik.values.district_id,
           to_ward_code: formik.values.ward_id,
-          weight: totalWeight,
+          weight: totalWeight || 1,
           items: selectedProducts.map((product) => ({
             name: product.name,
             quantity: product.quantity,

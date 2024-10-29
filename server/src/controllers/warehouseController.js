@@ -26,8 +26,7 @@ const createWarehouse = async (req, res) => {
 
 const getAllWarehouses = async (req, res) => {
     try {
-        const { page, limit } = req.query;
-        const warehouses = await warehouseModel.getWarehousesAll(page, limit);
+        const warehouses = await warehouseModel.getWarehousesAll();
         return res.status(StatusCodes.OK).json(warehouses);
     } catch (error) {
         return res

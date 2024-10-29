@@ -1,0 +1,1 @@
+export { default as DetailCustomerGroupView } from './view';

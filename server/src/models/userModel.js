@@ -84,6 +84,16 @@ const update = async (id, data) => {
   return result;
 };
 
+const removeCart = async (id, data) => {
+  const result = await GET_DB()
+    .collection('users')
+    .findOneAndUpdate({ _id: new ObjectId(id) }, data, {
+      returnDocument: 'after',
+    });
+  delete result.password;
+  return result;
+};
+
 const updateByEmail = async (email, otp) => {
   const result = await GET_DB()
     .collection('users')
@@ -283,6 +293,7 @@ export const userModel = {
   countUserAll,
   deleteUser,
   updateByEmail,
+  removeCart,
   favoriteProduct,
   getFavorite,
   removeFavoriteProduct,

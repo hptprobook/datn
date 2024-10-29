@@ -7,6 +7,7 @@ const Router = express.Router();
 // Carts
 Router.get('/', verifyToken, cartsController.getCurentCart);
 Router.post('/', verifyToken, cartsController.addCart);
+Router.post('/combine', verifyToken, cartsController.addMultipleCarts);
 Router.put('/', verifyToken, cartsController.updateCart);
 Router.delete('/', verifyToken, cartsController.removeCart);
 

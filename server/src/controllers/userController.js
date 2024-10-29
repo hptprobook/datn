@@ -183,6 +183,91 @@ const updateCurrentUser = async (req, res) => {
     });
   }
 };
+
+const addCartToCurrent = async (req, res) => {
+  try {
+    const { user_id } = req.user;
+    const { _id, productId, variantColor, variantSize, quantity, price } =
+      req.body;
+
+    const user = await userModel.getUserID(user_id);
+    if (!user) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Không tồn tại người dùng' });
+    }
+
+    let cart = user.carts || [];
+
+    const existingItemIndex = cart.findIndex(
+      (item) =>
+        item.productId.toString() === productId &&
+        item.variantColor === variantColor &&
+        item.variantSize === variantSize
+    );
+
+    if (existingItemIndex !== -1) {
+      cart[existingItemIndex].quantity += quantity;
+      cart[existingItemIndex].itemTotal =
+        cart[existingItemIndex].price * cart[existingItemIndex].quantity;
+    } else {
+      const newItem = {
+        _id: new ObjectId(_id),
+        productId: new ObjectId(productId),
+        ...req.body,
+        itemTotal: price * quantity,
+      };
+      cart.push(newItem);
+    }
+
+    const updatedUser = await userModel.update(user_id, { carts: cart });
+
+    return res.status(StatusCodes.OK).json({
+      message: 'Thêm sản phẩm vào giỏ hàng thành công',
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error('Lỗi khi thêm sản phẩm vào giỏ hàng:', error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: 'Có lỗi xảy ra xin thử lại sau',
+      error: error.message,
+    });
+  }
+};
+
+const removeCartToCurrent = async (req, res) => {
+  try {
+    const { user_id } = req.user;
+    const { _id } = req.body;
+
+    const user = await userModel.getUserID(user_id);
+    if (!user) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Không tồn tại người dùng' });
+    }
+
+    const updatedUser = await userModel.removeCart(user_id, {
+      $pull: { carts: { _id: new ObjectId(_id) } },
+    });
+
+    if (!updatedUser) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Sản phẩm không tồn tại trong giỏ hàng' });
+    }
+
+    return res.status(StatusCodes.OK).json({
+      message: 'Xóa sản phẩm khỏi giỏ hàng thành công',
+      user: updatedUser,
+    });
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: ERROR_MESSAGES.ERR_AGAIN,
+      error: error,
+    });
+  }
+};
 // admin
 
 const getAllUsers = async (req, res) => {
@@ -383,6 +468,8 @@ export const usersController = {
   getUserByEmail,
   updateCurrentUser,
   updateUser,
+  addCartToCurrent,
+  removeCartToCurrent,
   changePassWord,
   getAllUsers,
   deleteUser,

@@ -2,7 +2,8 @@ import { useMutation } from '@tanstack/react-query';
 import { useFormik } from 'formik';
 import { Helmet } from 'react-helmet-async';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { loginAuth } from '~/APIs';
+import { useCart } from 'react-use-cart';
+import { loginAuth, updateCurrentUser } from '~/APIs';
 import AuthBanner from '~/components/Auth/AuthBanner';
 import AuthButton from '~/components/common/Button/AuthButton';
 import BackToHome from '~/components/common/Route/BackToHome';
@@ -26,10 +27,33 @@ const LoginPage = () => {
 const LoginPageUI = () => {
   const navigate = useNavigate();
   const { login } = useCheckAuth();
+  const { items, emptyCart } = useCart();
 
   const initialValues = {
     email: '',
     password: '',
+  };
+
+  const handleCartAfterLogin = async (data) => {
+    items.forEach((cartItem) => {
+      const existingItemIndex = data.carts.findIndex(
+        (item) =>
+          item.productId === cartItem.productId &&
+          item.variantColor === cartItem.variantColor &&
+          item.variantSize === cartItem.variantSize
+      );
+
+      if (existingItemIndex !== -1) {
+        data.carts[existingItemIndex].quantity += cartItem.quantity;
+        data.carts[existingItemIndex].itemTotal +=
+          cartItem.price * cartItem.quantity;
+      } else {
+        data.carts.push(cartItem);
+      }
+    });
+
+    await updateCurrentUser({ carts: data.carts });
+    emptyCart();
   };
 
   const mutation = useMutation({
@@ -37,6 +61,8 @@ const LoginPageUI = () => {
     onSuccess: (data) => {
       handleToast('success', 'Đăng nhập thành công!');
       login(data.token);
+
+      handleCartAfterLogin(data);
 
       setTimeout(() => {
         const referrer = document.referrer;

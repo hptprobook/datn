@@ -190,7 +190,7 @@ const CategoryPage = () => {
   return (
     <section className="max-w-container mx-auto mt-16">
       <Helmet>
-        <title>BMT Life | Danh mục sản phẩm - {categoryData?.name}</title>
+        <title>BMT Life | {categoryData?.name || 'Danh mục sản phẩm'}</title>
       </Helmet>
       <HeaderBC title={'Danh mục sản phẩm'} name={categoryData?.name} />
       <div className="divider"></div>

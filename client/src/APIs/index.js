@@ -8,3 +8,5 @@ export * from './ProductList/filter';
 export * from './ProductList/search';
 export * from './Shipping';
 export * from './Orders';
+export * from './Orders/loggedOrder';
+export * from './Orders/notLoginOrder';
