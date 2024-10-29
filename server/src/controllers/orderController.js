@@ -6,6 +6,7 @@ import { ERROR_MESSAGES } from '~/utils/errorMessage';
 import { orderModel } from '~/models/orderModel';
 import { sendMail } from '~/utils/mail';
 import { userModel } from '~/models/userModel';
+import { recieptModel } from '~/models/receiptModel';
 const getAllOrder = async (req, res) => {
   try {
     const { page, limit } = req.query;
@@ -34,7 +35,7 @@ const getOrderById = async (req, res) => {
     const order = await orderModel.getOrderById(id);
     return res.status(StatusCodes.OK).json(order);
   } catch (error) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+    return res.status(StatusCodes.BAD_REQUEST).json({
       message: ERROR_MESSAGES.ERR_AGAIN,
       error,
     });
@@ -120,6 +121,54 @@ const addOrderNot = async (req, res) => {
   }
 };
 
+function code(length) {
+  let result = '';
+  const characters =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const charactersLength = characters.length;
+  let counter = 0;
+  while (counter < length) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    counter += 1;
+  }
+  return result;
+}
+const addOrderAtStore = async (req, res) => {
+  try {
+    const { user_id } = req.user;
+    const dataOrder = { ...req.body, staffId: user_id };
+    const result = await orderModel.addOrderAtStore(dataOrder);
+    const orderData = await orderModel.getOrderById(result.insertedId);
+    if (orderData) {
+      const dataReciep = {
+        orderId: orderData._id.toString(),
+        recieptCode: code(6).toLocaleUpperCase(),
+        name: orderData.name,
+        phone: orderData.phone,
+        total: orderData.needPay,
+        amount_paid_by: orderData.amount_paid_by,
+        amount_paid_to: orderData.amount_paid_to,
+        discount: orderData.discountPrice,
+        paymentMethod: orderData.paymentMethod,
+        note: orderData.note,
+      };
+      await recieptModel.addReceipt(dataReciep);
+      return res.status(StatusCodes.OK).json({
+        message: 'Tạo hóa đơn thành công',
+        data: orderData,
+      });
+    }
+    return res.status(StatusCodes.BAD_REQUEST).json(orderData);
+  } catch (error) {
+    if (error.details) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        messages: error.details[0].message,
+      });
+    }
+    return res.status(StatusCodes.BAD_REQUEST).json(error);
+  }
+};
+
 const findOrderByCode = async (req, res) => {
   try {
     const { orderCode } = req.params;
@@ -169,6 +218,70 @@ const updateOrder = async (req, res) => {
       await userModel.sendNotifies(dataOrder);
     }
     return res.status(StatusCodes.OK).json(dataOrder);
+  } catch (error) {
+    console.log(error);
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      message: 'Có lỗi xảy ra xin thử lại sau',
+      error: error,
+    });
+  }
+};
+
+const updateOrderAtStore = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = req.body;
+    if (data.status) {
+      const oldStatus = await orderModel.getStatusOrder(id);
+      const check = oldStatus.some((i) => data.status.status === i.status);
+      if (check) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          message: 'Trạng thái đơn hàng bị trùng lặp vui lòng kiểm tra lại',
+        });
+      }
+      const newStatus = [...oldStatus, data.status];
+      data.status = newStatus;
+    }
+    const orderData = await orderModel.updateOrderAtStore(id, data);
+    if (orderData) {
+      if (data.status) {
+        const newStatus = data.status.at(-1).status;
+        const dataReciep = {
+          name: orderData.name,
+          phone: orderData.phone,
+          total: orderData.needPay,
+          amount_paid_by: orderData.amount_paid_by,
+          status: newStatus,
+          amount_paid_to: orderData.amount_paid_to,
+          discount: orderData.discountPrice,
+          paymentMethod: orderData.paymentMethod,
+          type: orderData.type,
+          note: orderData.note,
+        };
+        await recieptModel.updateReceipt(orderData._id.toString(), dataReciep);
+        return res.status(StatusCodes.OK).json({
+          message: 'Tạo hóa đơn thành công',
+          data: orderData,
+        });
+      }
+      // không có status
+      const dataReciep = {
+        name: orderData.name,
+        phone: orderData.phone,
+        total: orderData.needPay,
+        amount_paid_by: orderData.amount_paid_by,
+        amount_paid_to: orderData.amount_paid_to,
+        discount: orderData.discountPrice,
+        paymentMethod: orderData.paymentMethod,
+        type: orderData.type,
+        note: orderData.note,
+      };
+      await recieptModel.updateReceipt(orderData._id.toString(), dataReciep);
+      return res.status(StatusCodes.OK).json({
+        message: 'Tạo hóa đơn thành công',
+        data: orderData,
+      });
+    }
   } catch (error) {
     console.log(error);
     return res.status(StatusCodes.BAD_REQUEST).json({
@@ -343,4 +456,6 @@ export const orderController = {
   getOrderById,
   findOrderByCode,
   updateOrderNotLogin,
+  addOrderAtStore,
+  updateOrderAtStore,
 };

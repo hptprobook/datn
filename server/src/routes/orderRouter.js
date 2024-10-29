@@ -25,5 +25,8 @@ Router.get('/not/:orderCode', orderController.findOrderByCode);
 Router.post('/not', orderController.addOrderNot);
 Router.put('/not/:id', orderController.updateOrderNotLogin);
 Router.delete('/not/:idOrder', orderController.removeOrder);
+// at store
+Router.post('/store', verifyToken, orderController.addOrderAtStore);
+Router.put('/store/:id', orderController.updateOrderAtStore);
 
 export const ordersApi = Router;

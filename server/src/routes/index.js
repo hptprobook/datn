@@ -31,6 +31,8 @@ import { customerGroupApi } from './customerGroupRouter';
 import { staticPageApi } from './routeForAdmin/staticPagesRoute';
 import { variantsApi } from './variantsRouter';
 import { timetableApi } from './routeForAdmin/timetableRouter';
+
+import { receiptsApi } from './receiptRouter';
 const Router = express.Router();
 
 Router.use('/auth', authApi);
@@ -65,6 +67,8 @@ Router.use('/static-pages', staticPageApi);
 Router.use('/customer-group', customerGroupApi);
 Router.use('/timetables', timetableApi);
 Router.use('/blogs', blogApi);
+
+Router.use('/receipt', receiptsApi);
 
 Router.get('/', (req, res) => {
   res.send('Hello from API!');
