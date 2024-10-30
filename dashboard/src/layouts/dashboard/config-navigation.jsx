@@ -1,6 +1,6 @@
 const navConfig = [
   {
-    title: 'dashboard',
+    title: 'Thống kê',
     path: '/',
     icon: 'ion:home',
     child: undefined,
@@ -19,16 +19,22 @@ const navConfig = [
     child: undefined,
   },
   {
-    title: 'Cài đặt',
+    title: 'Nhóm khách hàng',
+    path: '/customerGroups',
+    icon: 'ion:people',
+    child: undefined,
+  },
+  {
+    title: 'Banner',
+    path: '/webBanners',
+    icon: 'ion:image',
+    child: undefined,
+  },
+  {
+    title: 'Cài đặt website',
     path: '/settings',
     icon: 'ion:settings',
-    child: [
-      {
-        title: 'Thông tin website',
-        path: '/settings/web-config',
-        icon: 'ion:list-circle',
-      },
-    ],
+    child: undefined,
   },
 ];
 

@@ -11,35 +11,52 @@ import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { deleteUser, resetDelete } from 'src/redux/slices/userSlice';
-
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
-import { useRouter } from 'src/routes/hooks';
 import { handleToast } from 'src/hooks/toast';
 
-import { FormControl, IconButton, InputLabel, MenuItem, Select, TextField } from '@mui/material';
+import {
+  Box,
+  Modal,
+  Select,
+  MenuItem,
+  TableRow,
+  TextField,
+  TableHead,
+  TableCell,
+  IconButton,
+  InputLabel,
+  FormControl,
+} from '@mui/material';
 import LoadingFull from 'src/components/loading/loading-full';
 import ConfirmDelete from 'src/components/modal/confirm-delete';
 import { emptyRows } from 'src/components/table/utils';
 import TableEmptyRows from 'src/components/table/table-empty-rows';
-import { createTimetable, fetchAllTimetables, setStatus } from 'src/redux/slices/timetableSlices';
+import {
+  setStatus,
+  createTimetable,
+  deleteTimetable,
+  updateTimetable,
+  fetchAllTimetables,
+} from 'src/redux/slices/timetableSlices';
 import Grid2 from '@mui/material/Unstable_Grid2';
 import { fetchAll } from 'src/redux/slices/warehouseSlices';
 import * as Yup from 'yup';
 import { fetchAllStaffs } from 'src/redux/slices/staffSlices';
 import { useFormik } from 'formik';
-import { DatePicker, DateTimePicker, LocalizationProvider, TimePicker } from '@mui/x-date-pickers';
+import { DatePicker, TimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-import TimetableTableToolbar from '../time-table-toolbar';
-import TimetableTableRow from '../timetable-table-row';
-import TimetableTableHead from '../timetable-table-head';
 import dayjs from 'dayjs';
 import FormHelpTextError from 'src/components/errors/form-error';
 import LoadingHeader from 'src/components/loading/loading-header';
+import { formatDateTime } from 'src/utils/format-time';
+import PropTypes from 'prop-types';
+import TimetableTableToolbar from '../time-table-toolbar';
+import TimetableTableHead from '../timetable-table-head';
+import TimetableTableRow from '../timetable-table-row';
 // ----------------------------------------------------------------------
-export const TIMETABLE_SCHEMA = Yup.object().shape({
+export const timetableSchema = Yup.object().shape({
   type: Yup.string()
     .oneOf(['morning', 'afternoon', 'evening', 'night', 'all'], 'Ca làm không hợp lệ')
     .default('morning'),
@@ -59,9 +76,37 @@ export const TIMETABLE_SCHEMA = Yup.object().shape({
     .required('ID chi nhánh không được để trống'),
   note: Yup.string().max(500, 'Ghi chú không được vượt quá 500 ký tự'),
 });
+
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  bgcolor: 'background.paper',
+  boxShadow: 24,
+  p: 4,
+  borderRadius: 1,
+};
 export default function TimetablePage() {
   const dispatch = useDispatch();
+
   const [timetables, setTimetables] = useState([]);
+
+  const [page, setPage] = useState(0);
+
+  const [order, setOrder] = useState('asc');
+
+  const [selected, setSelected] = useState([]);
+
+  const [orderBy, setOrderBy] = useState('name');
+
+  const [open, setOpen] = useState(false);
+
+  const [openChild, setOpenChild] = useState(false);
+
+  const [timetable, setTimetable] = useState(null);
+
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
   const data = useSelector((state) => state.timetables.timetables);
   const status = useSelector((state) => state.timetables.status);
@@ -70,6 +115,7 @@ export default function TimetablePage() {
   const error = useSelector((state) => state.timetables.error);
   const statusCreate = useSelector((state) => state.timetables.statusCreate);
   const statusDelete = useSelector((state) => state.timetables.statusDelete);
+  const statusUpdate = useSelector((state) => state.timetables.statusUpdate);
 
   useEffect(() => {
     if (status === 'idle') {
@@ -84,8 +130,22 @@ export default function TimetablePage() {
   }, [status, dispatch, error, data]);
   useEffect(() => {
     if (statusDelete === 'successful') {
-      handleToast('success', 'Xóa người dùng thành công');
-      dispatch(resetDelete());
+      handleToast('success', 'Xóa lịch làm việc thành công');
+      dispatch(
+        setStatus({
+          key: 'statusDelete',
+          value: 'idle',
+        })
+      );
+      dispatch(fetchAllTimetables());
+    } else if (statusDelete === 'failed') {
+      handleToast('error', 'Xóa lịch làm việc thất bại');
+      dispatch(
+        setStatus({
+          key: 'statusDelete',
+          value: 'idle',
+        })
+      );
     }
   }, [statusDelete, dispatch]);
   useEffect(() => {
@@ -108,18 +168,28 @@ export default function TimetablePage() {
       );
     }
   }, [statusCreate, dispatch]);
-
-  const [page, setPage] = useState(0);
-
-  const [order, setOrder] = useState('asc');
-
-  const [selected, setSelected] = useState([]);
-
-  const [orderBy, setOrderBy] = useState('name');
-
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-
-  const route = useRouter();
+  useEffect(() => {
+    if (statusUpdate === 'successful') {
+      handleToast('success', 'Cập nhật lịch làm việc thành công');
+      dispatch(fetchAllTimetables());
+      setOpenChild(false);
+      setTimetable(data.find((v) => v.date === timetable.date));
+      dispatch(
+        setStatus({
+          key: 'statusUpdate',
+          value: 'idle',
+        })
+      );
+    } else if (statusUpdate === 'failed') {
+      handleToast('error', 'Cập nhật lịch làm việc thất bại');
+      dispatch(
+        setStatus({
+          key: 'statusUpdate',
+          value: 'idle',
+        })
+      );
+    }
+  }, [statusUpdate, dispatch, data, timetable]);
 
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === 'asc';
@@ -167,7 +237,7 @@ export default function TimetablePage() {
 
   const [confirm, setConfirm] = useState(false);
   const dispatchDelete = () => {
-    dispatch(deleteUser(confirm));
+    dispatch(deleteTimetable(confirm));
   };
   const formik = useFormik({
     initialValues: {
@@ -180,7 +250,7 @@ export default function TimetablePage() {
       branchId: '',
       note: '',
     },
-    validationSchema: TIMETABLE_SCHEMA,
+    validationSchema: timetableSchema,
     onSubmit: (values) => {
       const newValues = JSON.parse(JSON.stringify(values));
 
@@ -205,21 +275,119 @@ export default function TimetablePage() {
         return;
       }
 
-      console.log(newValues);
       dispatch(createTimetable(newValues));
     },
   });
+  const renderNameOfData = (d, id, label) => {
+    const s = d.find((v) => v._id === id);
+    return s ? s[label] : 'Dữ liệu không rõ';
+  };
+  const handleOpen = (i) => {
+    const s = timetables.find((v) => v.date === i);
+    setTimetable(s);
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+    setTimetable(null);
+  };
+  const handleOpenChild = (i) => {
+    const d = timetable.timetables.find((v) => v._id === i);
+    setOpenChild(d);
+  };
   return (
     <Container>
       {status === 'loading' && <LoadingFull />}
       {statusDelete === 'loading' && <LoadingFull />}
       {statusCreate === 'loading' && <LoadingHeader />}
+      {statusUpdate === 'loading' && <LoadingHeader />}
       <ConfirmDelete
         openConfirm={!!confirm}
         onAgree={dispatchDelete}
         onClose={() => setConfirm(false)}
         label="người dùng đã chọn"
       />
+      <Modal
+        open={open && true}
+        onClose={handleClose}
+        aria-labelledby="timetable-modal-title"
+        aria-describedby="timetable-modal-description"
+      >
+        <Box sx={style}>
+          <Typography id="timetable-modal-title" variant="h6" component="h2">
+            Chi tiết lịch làm việc - {timetable?.article}
+          </Typography>
+          <TableContainer
+            sx={{
+              overflow: 'auto',
+              height: 400,
+              '&::-webkit-scrollbar': {
+                width: '8px',      
+                height: '8px',      
+              },
+              '&::-webkit-scrollbar-thumb': {
+                backgroundColor: '#b3b3b3', 
+                borderRadius: '4px',        
+              },
+              '&::-webkit-scrollbar-track': {
+                backgroundColor: '#f0f0f0', 
+              },
+            }}
+          >
+            <Table sx={{ minWidth: 650 }} aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Tên nhân viên</TableCell>
+                  <TableCell align="right">Ngày làm</TableCell>
+                  <TableCell align="right">Giờ bắt đầu</TableCell>
+                  <TableCell align="right">Giờ kết thúc</TableCell>
+                  <TableCell align="right">Chi nhánh</TableCell>
+                  <TableCell align="right"> </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {timetable?.timetables.map((row) => (
+                  <TableRow
+                    key={row._id}
+                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                  >
+                    <TableCell component="th" scope="row">
+                      {renderNameOfData(staffs, row.staffId, 'name')}
+                    </TableCell>
+                    <TableCell align="right">{formatDateTime(row.date, 'date')}</TableCell>
+                    <TableCell align="right">{formatDateTime(row.startTime, 'time')}</TableCell>
+                    <TableCell align="right">{formatDateTime(row.endTime, 'time')}</TableCell>
+                    <TableCell align="right">
+                      {renderNameOfData(branches, row.branchId, 'name')}
+                    </TableCell>
+                    <TableCell align="right">
+                      <IconButton aria-label="Sửa" onClick={() => handleOpenChild(row._id)}>
+                        <Iconify icon="eva:edit-2-fill" />
+                      </IconButton>
+                      <IconButton
+                        aria-label="Xóa"
+                        onClick={() => {
+                          setConfirm(row._id);
+                        }}
+                      >
+                        <Iconify icon="mdi:delete" />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <ChildModal
+            open={openChild && true}
+            handleClose={() => setOpenChild(false)}
+            data={openChild}
+            dispatch={dispatch}
+            branches={branches}
+            staffs={staffs}
+          />
+        </Box>
+      </Modal>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Stack direction="row" alignItems="center">
           <Typography variant="h4">Lịch làm việc</Typography>
@@ -237,9 +405,9 @@ export default function TimetablePage() {
           variant="contained"
           color="inherit"
           startIcon={<Iconify icon="eva:plus-fill" />}
-          onClick={() => route.push('create')}
+          onClick={() => handleToast('info', 'Chức năng này đang được phát triển')}
         >
-          Thêm lịch làm việc
+          Nhập Excel
         </Button>
       </Stack>
 
@@ -396,7 +564,7 @@ export default function TimetablePage() {
                           key={row.date}
                           name={row.article}
                           date={row.date}
-                          onClickRow={() => route.push(`detail/${row.date}`)}
+                          onClickRow={() => handleOpen(row.date)}
                           number={row.numberOfTimetables}
                           selected={selected.indexOf(row.date) !== -1}
                           handleClick={(event) => handleClick(event, row.date)}
@@ -429,3 +597,179 @@ export default function TimetablePage() {
     </Container>
   );
 }
+const ChildModal = ({ open, handleClose, data, dispatch, branches, staffs }) => {
+  const formik = useFormik({
+    initialValues: {
+      type: data.type || 'morning',
+      status: data.status || 'pending',
+      date: dayjs(data.date),
+      startTime: dayjs(data.startTime),
+      endTime: dayjs(data.endTime),
+      staffId: data.staffId || '',
+      branchId: data.branchId || '',
+      note: data.note || '',
+    },
+    validationSchema: timetableSchema,
+    enableReinitialize: true,
+    onSubmit: (values) => {
+      const newValues = JSON.parse(JSON.stringify(values));
+
+      newValues.date = dayjs(newValues.date).startOf('day').valueOf();
+      newValues.startTime = dayjs(newValues.date)
+        .hour(dayjs(newValues.startTime).hour())
+        .minute(dayjs(newValues.startTime).minute())
+        .valueOf();
+
+      // Update endTime to match `date` but keep the time component
+      newValues.endTime = dayjs(newValues.date)
+        .hour(dayjs(newValues.endTime).hour())
+        .minute(dayjs(newValues.endTime).minute())
+        .valueOf();
+      // Validate times
+      const isStartTimeBeforeEndTime = dayjs(newValues.startTime).isBefore(
+        dayjs(newValues.endTime)
+      );
+
+      if (!isStartTimeBeforeEndTime) {
+        handleToast('error', 'Thời gian bắt đầu phải nhỏ hơn thời gian kết thúc');
+        return;
+      }
+      dispatch(
+        updateTimetable({
+          id: data._id,
+          data: newValues,
+        })
+      );
+    },
+  });
+  return (
+    <Modal
+      open={open}
+      onClose={handleClose}
+      aria-labelledby="child-modal-title"
+      aria-describedby="child-modal-description"
+    >
+      <Box sx={{ ...style, minWidth: 500 }}>
+        <form onSubmit={formik.handleSubmit}>
+          <Stack spacing={2} flexWrap="wrap">
+            <Stack direction="row" alignItems="center" justifyContent="space-between">
+              <Typography variant="h6">Chỉnh sửa</Typography>
+              <Button
+                variant="contained"
+                color="inherit"
+                type="submit"
+                startIcon={<Iconify icon="eva:save-fill" />}
+              >
+                Lưu
+              </Button>
+            </Stack>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DemoContainer components={['DatePicker, TimePicker']}>
+                <Stack width="100%" spacing={2}>
+                  <DatePicker
+                    sx={{
+                      width: '100%',
+                    }}
+                    label="Ngày làm việc"
+                    value={formik.values.date}
+                    onChange={(date) => formik.setFieldValue('date', date)}
+                  />
+                  <TimePicker
+                    sx={{
+                      width: '100%',
+                    }}
+                    label="Thời gian bắt đầu"
+                    value={formik.values.startTime}
+                    onChange={(s) => formik.setFieldValue('startTime', s)}
+                  />
+                  <TimePicker
+                    sx={{
+                      width: '100%',
+                    }}
+                    label="Thời gian kết thúc"
+                    value={formik.values.endTime}
+                    onChange={(t) => formik.setFieldValue('endTime', t)}
+                  />
+                  <FormControl fullWidth>
+                    <InputLabel id="type-select-label">Ca</InputLabel>
+                    <Select
+                      labelId="type-select-label"
+                      id="type-select"
+                      value={formik.values.type}
+                      name="type"
+                      label="Ca"
+                      onChange={formik.handleChange}
+                      error={formik.touched.type && Boolean(formik.errors.type)}
+                    >
+                      <MenuItem value="morning">Ca sáng</MenuItem>
+                      <MenuItem value="afternoon">Ca chiều</MenuItem>
+                      <MenuItem value="evening">Ca tối</MenuItem>
+                      <MenuItem value="night">Ca đêm</MenuItem>
+                      <MenuItem value="all">Cả ngày</MenuItem>
+                    </Select>
+                    <FormHelpTextError label={formik.touched.type && formik.errors.type} />
+                  </FormControl>
+                  <FormControl fullWidth>
+                    <InputLabel id="staffId-select-label">Nhân viên</InputLabel>
+                    <Select
+                      labelId="staffId-select-label"
+                      id="staffId-select"
+                      value={formik.values.staffId}
+                      name="staffId"
+                      label="Nhân viên"
+                      onChange={formik.handleChange}
+                      error={formik.touched.staffId && Boolean(formik.errors.staffId)}
+                    >
+                      {staffs?.map((staff) => (
+                        <MenuItem key={staff._id} value={staff._id}>
+                          {staff.name} - {staff.staffCode}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    <FormHelpTextError label={formik.touched.staffId && formik.errors.staffId} />
+                  </FormControl>
+                  <FormControl fullWidth>
+                    <InputLabel id="branchId-select-label">Chi nhánh</InputLabel>
+                    <Select
+                      labelId="branchId-select-label"
+                      id="branchId-select"
+                      value={formik.values.branchId}
+                      name="branchId"
+                      label="Chi nhánh"
+                      error={formik.touched.branchId && Boolean(formik.errors.branchId)}
+                      onChange={formik.handleChange}
+                    >
+                      {branches?.map((v) => (
+                        <MenuItem key={v._id} value={v._id}>
+                          {v.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    <FormHelpTextError label={formik.touched.branchId && formik.errors.branchId} />
+                  </FormControl>
+                  <TextField
+                    fullWidth
+                    label="Ghi chú"
+                    multiline
+                    rows={4}
+                    value={formik.values.note}
+                    name="note"
+                    onChange={formik.handleChange}
+                  />
+                </Stack>
+              </DemoContainer>
+            </LocalizationProvider>
+          </Stack>
+        </form>
+      </Box>
+    </Modal>
+  );
+};
+ChildModal.propTypes = {
+  open: PropTypes.bool,
+  handleClose: PropTypes.func,
+  data: PropTypes.object,
+  dispatch: PropTypes.func,
+  branches: PropTypes.array,
+  staffs: PropTypes.array,
+};

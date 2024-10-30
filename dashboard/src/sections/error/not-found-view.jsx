@@ -22,7 +22,11 @@ export default function NotFoundView() {
         p: (theme) => ({ xs: theme.spacing(3, 3, 0), sm: theme.spacing(5, 5, 0) }),
       }}
     >
-      <Logo />
+      <Logo 
+        sx={{
+          height: { xs: 32, md: 40 },
+        }}
+      />
     </Box>
   );
 
@@ -45,12 +49,12 @@ export default function NotFoundView() {
           }}
         >
           <Typography variant="h3" sx={{ mb: 3 }}>
-            Sorry, page not found!
+            Không tìm thấy trang!
           </Typography>
 
           <Typography sx={{ color: 'text.secondary' }}>
-            Sorry, we couldn’t find the page you’re looking for. Perhaps you’ve mistyped the URL? Be
-            sure to check your spelling.
+            Xin lỗi, chúng tôi không thể tìm thấy trang bạn đang tìm kiếm. Có thể bạn đã gõ sai URL?
+            Hãy chắc chắn kiểm tra chính tả của bạn.
           </Typography>
 
           <Box
@@ -64,7 +68,7 @@ export default function NotFoundView() {
           />
 
           <Button href="/" size="large" variant="contained" component={RouterLink}>
-            Go to Home
+            Về trang chủ
           </Button>
         </Box>
       </Container>

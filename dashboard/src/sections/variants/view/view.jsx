@@ -43,6 +43,7 @@ import Grid2 from '@mui/material/Unstable_Grid2';
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
 import FormHelpTextError from 'src/components/errors/form-error';
+import * as XLSX from 'xlsx';
 import VariantsTableToolbar from '../variants-table-toolbar';
 import VariantsTableHead from '../variants-table-head';
 import VariantsTableRow from '../variants-table-row';
@@ -286,6 +287,16 @@ export default function VariantsPage() {
     setOpen(false);
     setVariant(null);
   };
+  const handleExportExcel = () => {
+    const cleanedData = data.map(({ createdAt, updatedAt, ...rest }) => rest);
+    const worksheet = XLSX.utils.json_to_sheet(cleanedData);
+    // Tạo workbook và thêm worksheet vào workbook
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+
+    // Xuất file Excel
+    XLSX.writeFile(workbook, "variant.xlsx");
+  };
   return (
     <Container>
       {status === 'loading' && <LoadingFull />}
@@ -368,13 +379,19 @@ export default function VariantsPage() {
             <Iconify icon="mdi:reload" />
           </IconButton>
         </Stack>
-        <Button
-          variant="contained"
-          color="inherit"
-          onClick={() => handleToast('info', 'Tính năng đang phát triển!')}
-        >
-          Nhập từ file
-        </Button>
+        <Stack direction="row" alignItems="center" spacing={2}>
+          <Button variant="contained" color="inherit" onClick={() => route.push('excel')}>
+            Nhập từ file
+          </Button>
+          <Button
+            variant="contained"
+            color="inherit"
+            onClick={handleExportExcel}
+            startIcon={<Iconify icon="vscode-icons:file-type-excel" />}
+          >
+            Xuất excel
+          </Button>
+        </Stack>
       </Stack>
 
       <Grid2 container spacing={2}>

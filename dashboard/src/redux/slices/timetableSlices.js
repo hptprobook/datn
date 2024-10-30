@@ -23,6 +23,29 @@ export const createTimetable = createAsyncThunk(
         }
     }
 );
+export const deleteTimetable = createAsyncThunk(
+    "timetables/deleteTimetable",
+    async (id, { rejectWithValue }) => {
+        try {
+            const response = await TimetablesService.delete(id);
+            return response;
+        } catch (err) {
+            return rejectWithValue(err.response);
+        }
+    }
+);
+export const updateTimetable = createAsyncThunk(
+    "timetables/updateTimetable",
+    async ({ id, data }, { rejectWithValue }) => {
+        try {
+            const response = await TimetablesService.update(id, data);
+            return response;
+        } catch (err) {
+            return rejectWithValue(err.response);
+        }
+    }
+);
+
 const initialState = {
     timetables: [],
     timetable: null,
@@ -63,7 +86,26 @@ const timetableSlices = createSlice({
                 state.statusCreate = "failed";
                 state.error = action.payload;
             })
-
+            .addCase(deleteTimetable.pending, (state) => {
+                state.statusDelete = "loading";
+            })
+            .addCase(deleteTimetable.fulfilled, (state, action) => {
+                state.statusDelete = "successful";
+            })
+            .addCase(deleteTimetable.rejected, (state, action) => {
+                state.statusDelete = "failed";
+                state.error = action.payload;
+            })
+            .addCase(updateTimetable.pending, (state) => {
+                state.statusUpdate = "loading";
+            })
+            .addCase(updateTimetable.fulfilled, (state, action) => {
+                state.statusUpdate = "successful";
+            })
+            .addCase(updateTimetable.rejected, (state, action) => {
+                state.statusUpdate = "failed";
+                state.error = action.payload;
+            })
             .addCase(setStatus, (state, action) => {
                 const { key, value } = action.payload; // Destructure key and value from payload
                 if (state[key] !== undefined) {

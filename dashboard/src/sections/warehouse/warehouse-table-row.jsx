@@ -17,7 +17,7 @@ export default function WarehouseTableRow({
   location,
   createdAt,
   updatedAt,
-  currentInventory,
+  currentQuantity,
   capacity,
   status,
   handleClick,
@@ -40,7 +40,7 @@ export default function WarehouseTableRow({
         </Typography>
       </TableCell>
       <TableCell>{capacity}</TableCell>
-      <TableCell>{currentInventory}</TableCell>
+      <TableCell>{currentQuantity}</TableCell>
 
       <TableCell>{location}</TableCell>
       <TableCell>{status ? 'Hoạt động' : 'Không'}</TableCell>
@@ -63,7 +63,7 @@ WarehouseTableRow.propTypes = {
   location: PropTypes.string,
   createdAt: PropTypes.any,
   updatedAt: PropTypes.any,
-  currentInventory: PropTypes.any,
+  currentQuantity: PropTypes.any,
   status: PropTypes.bool,
   selected: PropTypes.bool,
   handleClick: PropTypes.func,
