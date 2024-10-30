@@ -15,7 +15,6 @@ import { useCart } from 'react-use-cart';
 import { Icon } from '@iconify/react';
 import PropTypes from 'prop-types';
 import UserLoggedBar from './UserLoggedBar';
-import { useWishlist } from '~/context/WishListContext';
 import WishList from '~/components/common/Product/WishList';
 import { useQuery } from '@tanstack/react-query';
 import { getCurrentUser } from '~/APIs';
@@ -29,7 +28,6 @@ const Header = () => {
   const [openSearch, setOpenSearch] = useState(false);
   const [currentTitle, setCurrentTitle] = useState('Danh mục');
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
-  const { wishlistItems, removeFromWishlist } = useWishlist();
   const { user } = useUser();
 
   const { items } = useCart();
@@ -48,8 +46,6 @@ const Header = () => {
       <WishList
         isOpen={isWishlistOpen}
         onClose={() => setIsWishlistOpen(false)}
-        wishlistItems={wishlistItems}
-        removeFromWishlist={removeFromWishlist}
       />
       <header className="w-full h-20 bg-amber-600 hidden lg:block text-black">
         <div className="max-w-container h-full mx-auto flex justify-between items-center">
@@ -60,13 +56,24 @@ const Header = () => {
           </NavLink>
           <SearchBar />
           <div className="flex gap-4">
-            <div
-              className="text-2xl text-gray-50 cursor-pointer relative hover:text-red-600"
-              title="Danh sách yêu thích"
-              onClick={() => setIsWishlistOpen(true)}
-            >
-              <Icon icon="iconamoon:heart-fill" />
-            </div>
+            {isAuthenticated && (
+              <>
+                <div
+                  className="text-2xl text-gray-50 cursor-pointer relative hover:text-red-600"
+                  title="Danh sách yêu thích"
+                  onClick={() => setIsWishlistOpen(true)}
+                >
+                  <Icon icon="iconamoon:heart" />
+                </div>
+                <div
+                  className="text-2xl text-gray-50 cursor-pointer relative hover:text-red-600"
+                  title="Danh sách yêu thích"
+                  onClick={() => setIsWishlistOpen(true)}
+                >
+                  <Icon icon="line-md:bell" />
+                </div>
+              </>
+            )}
             <div
               className="text-2xl text-gray-50 cursor-pointer relative"
               onClick={() => setOpenCart(true)}

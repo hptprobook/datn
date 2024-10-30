@@ -8,7 +8,12 @@ import QuickViewModal from './QuickViewModal';
 import { FaEye, FaHeart, FaShoppingCart } from 'react-icons/fa';
 import { useWishlist } from '~/context/WishListContext';
 
-const ProductItem = ({ product, height = false, isLoading = false }) => {
+const ProductItem = ({
+  product,
+  height = false,
+  isLoading = false,
+  isWishList = false,
+}) => {
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
   const [isHeartAnimating, setIsHeartAnimating] = useState(false);
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
@@ -64,41 +69,43 @@ const ProductItem = ({ product, height = false, isLoading = false }) => {
             className="w-full h-full object-cover rounded-md"
           />
         </Link>
-        <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button
-            className="bg-gray-800 text-white p-2 rounded-full hover:bg-gray-700 transition-colors"
-            onClick={() => setIsQuickViewOpen(true)}
-            title="Quick View"
-          >
-            <FaEye className="w-4 h-4" />
-          </button>
-          <button
-            className={`${
-              isInWishlist(product._id) ? 'bg-red-600' : 'bg-red-500'
-            } text-white p-2 rounded-full hover:bg-red-600 transition-colors ${
-              isHeartAnimating ? 'scale-125' : ''
-            }`}
-            onClick={handleWishlistToggle}
-            title={
-              isInWishlist(product._id)
-                ? 'Remove from Wishlist'
-                : 'Add to Wishlist'
-            }
-          >
-            <FaHeart
-              className={`w-4 h-4 transition-transform duration-300 ${
+        {!isWishList && (
+          <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button
+              className="bg-gray-800 text-white p-2 rounded-full hover:bg-gray-700 transition-colors"
+              onClick={() => setIsQuickViewOpen(true)}
+              title="Quick View"
+            >
+              <FaEye className="w-4 h-4" />
+            </button>
+            <button
+              className={`${
+                isInWishlist(product._id) ? 'bg-red-600' : 'bg-red-500'
+              } text-white p-2 rounded-full hover:bg-red-600 transition-colors ${
                 isHeartAnimating ? 'scale-125' : ''
               }`}
-            />
-          </button>
-          <button
-            className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition-colors"
-            onClick={() => setIsQuickViewOpen(true)}
-            title="Add to Cart"
-          >
-            <FaShoppingCart className="w-4 h-4" />
-          </button>
-        </div>
+              onClick={handleWishlistToggle}
+              title={
+                isInWishlist(product._id)
+                  ? 'Remove from Wishlist'
+                  : 'Add to Wishlist'
+              }
+            >
+              <FaHeart
+                className={`w-4 h-4 transition-transform duration-300 ${
+                  isHeartAnimating ? 'scale-125' : ''
+                }`}
+              />
+            </button>
+            <button
+              className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition-colors"
+              onClick={() => setIsQuickViewOpen(true)}
+              title="Add to Cart"
+            >
+              <FaShoppingCart className="w-4 h-4" />
+            </button>
+          </div>
+        )}
       </div>
       <NavLink to={`/san-pham/${product?.slug}`}>
         <div

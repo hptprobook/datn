@@ -124,6 +124,7 @@ export const SEND_NOTIFIES = Joi.array().items(
     updatedAt: Joi.date().timestamp('javascript').default(Date.now),
   })
 );
+
 export const UPDATE_USER = Joi.object({
   name: Joi.string().trim().min(1).max(30).messages({
     'string.empty': 'Tên không được để trống',
@@ -172,20 +173,16 @@ export const UPDATE_USER = Joi.object({
   updatedAt: Joi.date().timestamp('javascript').default(Date.now),
   favorites: Joi.array().items({
     _id: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
-    productId: Joi.string()
-      .pattern(OBJECT_ID_RULE)
-      .message(OBJECT_ID_RULE_MESSAGE),
-    image: Joi.string().trim().min(1),
+    thumbnail: Joi.string().trim().min(1),
+    slug: Joi.string().trim().min(1),
     name: Joi.string().trim().min(1),
     price: Joi.number(),
     reviews: Joi.array(),
   }),
   views: Joi.array().items({
     _id: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
-    productId: Joi.string()
-      .pattern(OBJECT_ID_RULE)
-      .message(OBJECT_ID_RULE_MESSAGE),
-    image: Joi.string().trim().min(1),
+    thumbnail: Joi.string().trim().min(1),
+    slug: Joi.string().trim().min(1),
     name: Joi.string().trim().min(1),
     price: Joi.number(),
     reviews: Joi.array(),

@@ -82,7 +82,9 @@ const EmptyCart = ({ usedBy = 'cart' }) => {
           </svg>
           <div>
             <h2 className="text-center text-black text-xl font-semibold leading-loose pb-2">
-              {usedBy === 'cart' ? 'Giỏ hàng trống' : 'Đơn hàng trống'}
+              {usedBy === 'cart' && 'Giỏ hàng trống'}
+              {usedBy === 'order' && 'Đơn hàng trống'}
+              {usedBy === 'wishList' && 'Sản phẩm yêu thích trống'}
             </h2>
           </div>
         </div>
