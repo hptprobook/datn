@@ -31,6 +31,12 @@ import { customerGroupApi } from './customerGroupRouter';
 import { staticPageApi } from './routeForAdmin/staticPagesRoute';
 import { variantsApi } from './variantsRouter';
 import { timetableApi } from './routeForAdmin/timetableRouter';
+
+
+import { receiptsApi } from './receiptRouter';
+
+import { goodsOrdersApi } from './goodsOrdersRouter';
+
 const Router = express.Router();
 
 Router.use('/auth', authApi);
@@ -43,6 +49,7 @@ Router.use('/staffs', staffsApi);
 
 Router.use('/carts', cartsApi);
 Router.use('/orders', ordersApi);
+Router.use('/goodsOrders', goodsOrdersApi);
 Router.use('/reviews', reviewsApi);
 
 Router.use('/suppliers', suppliersApi);
@@ -65,6 +72,8 @@ Router.use('/static-pages', staticPageApi);
 Router.use('/customer-group', customerGroupApi);
 Router.use('/timetables', timetableApi);
 Router.use('/blogs', blogApi);
+
+Router.use('/receipts', receiptsApi);
 
 Router.get('/', (req, res) => {
   res.send('Hello from API!');
