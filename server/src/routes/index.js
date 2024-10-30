@@ -68,7 +68,7 @@ Router.use('/customer-group', customerGroupApi);
 Router.use('/timetables', timetableApi);
 Router.use('/blogs', blogApi);
 
-Router.use('/receipt', receiptsApi);
+Router.use('/receipts', receiptsApi);
 
 Router.get('/', (req, res) => {
   res.send('Hello from API!');

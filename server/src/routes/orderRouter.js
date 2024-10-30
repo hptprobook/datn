@@ -28,5 +28,6 @@ Router.delete('/not/:idOrder', orderController.removeOrder);
 // at store
 Router.post('/store', verifyToken, orderController.addOrderAtStore);
 Router.put('/store/:id', orderController.updateOrderAtStore);
+Router.delete('/store/:idOrder', orderController.removeOrderAtStore);
 
 export const ordersApi = Router;

@@ -3,7 +3,7 @@ export const SAVE_RECEIPT_SCHEMA = Joi.object({
   orderId: Joi.string().trim().allow(null).messages({
     'string.base': 'orderID hàng bắt buộc phải là chuỗi',
   }),
-  recieptCode: Joi.string().trim().messages({
+  receiptCode: Joi.string().trim().messages({
     'string.base': 'Mã hóa đơn bắt buộc phải là chuỗi',
   }),
   name: Joi.string().trim().default('Người mua hàng').messages({

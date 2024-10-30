@@ -47,13 +47,13 @@ const addReceipt = async (dataReciept) => {
   return result;
 };
 
-// const findOrderByCode = async (orderCode) => {
-//   const db = await GET_DB().collection('orders');
-//   const result = await db.findOne({
-//     orderCode: orderCode,
-//   });
-//   return result;
-// };
+const getReceiptByCode = async (receiptCode) => {
+  const db = await GET_DB().collection('receipt');
+  const result = await db.findOne({
+    receiptCode: receiptCode,
+  });
+  return result;
+};
 
 const updateReceipt = async (orderId, data) => {
   const validatedData = await validateBeforeUpdate(data);
@@ -69,33 +69,20 @@ const updateReceipt = async (orderId, data) => {
   return result;
 };
 
-// const deleteOrder = async (id) => {
-//   const result = await GET_DB()
-//     .collection('orders')
-//     .deleteOne({
-//       _id: new ObjectId(id),
-//     });
-//   return result;
-// };
+const deleteReceipt = async (orderId) => {
+  const result = await GET_DB()
+    .collection('receipt')
+    .deleteOne({
+      orderId: new ObjectId(orderId),
+    });
+  return result;
+};
 
 export const recieptModel = {
   addReceipt,
   getAllReciept,
   getReceiptById,
+  getReceiptByCode,
   updateReceipt,
-  //   addOrderAtStore,
-  //   getAllOrders,
-  //   addOrder,
-  //   updateOrder,
-  //   deleteOrder,
-  //   getCurrentOrder,
-  //   getOrderByCode,
-  //   findCartById,
-  //   checkStockProducts,
-  //   updateSingleProductStock,
-  //   // updateStockProducts,
-  //   addOrderNotLogin,
-  //   getOrderById,
-  //   getStatusOrder,
-  //   findOrderByCode,
+  deleteReceipt,
 };

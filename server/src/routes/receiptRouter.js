@@ -8,5 +8,6 @@ const Router = express.Router();
 // reciept
 Router.get('/', receiptController.getRecieptAll);
 Router.get('/:id', receiptController.getReceiptById);
+Router.get('/code/:receiptCode', receiptController.getRecieptByCode);
 
 export const receiptsApi = Router;
