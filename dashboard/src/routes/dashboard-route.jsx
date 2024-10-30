@@ -24,6 +24,8 @@ export const NavDashboardCreatePage = lazy(() => import('src/pages/settings/crea
 export const NavUpdatePage = lazy(() => import('src/pages/settings/update-nav'));
 export const WebConfigPage = lazy(() => import('src/pages/settings/config/web-config'));
 export const SeoConfigPage = lazy(() => import('src/pages/settings/config/seo-config'));
+// profile page
+export const ProfilePage = lazy(() => import('src/pages/profile/profile'));  // profile page
 
 export const dashboardRoute = [
   { element: <IndexPage />, index: true },
@@ -42,4 +44,5 @@ export const dashboardRoute = [
   { path: 'customerGroups/:id', element: <DetailCustomerGroupPage /> },
   { path: 'settings', element: <WebConfigPage /> },
   { path: 'settings/seo-config', element: <SeoConfigPage /> },
+  { path: 'profile', element: <ProfilePage /> },
 ];

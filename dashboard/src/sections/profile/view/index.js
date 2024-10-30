@@ -1,1 +1,1 @@
-export { default as BlogView } from './blogs-view';
+export { default as ProfileView } from './profile-view';
