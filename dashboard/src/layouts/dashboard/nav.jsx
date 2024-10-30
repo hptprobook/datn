@@ -23,38 +23,14 @@ import ListItemText from '@mui/material/ListItemText';
 import Collapse from '@mui/material/Collapse';
 import Iconify from 'src/components/iconify/iconify';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchNav } from 'src/redux/slices/settingSlices';
-import { IconButton } from '@mui/material';
-import navConfig from './config-navigation';
+import { useSelector } from 'react-redux';
 import { NAV } from './config-layout';
+import navConfig from './config-navigation';
 
 export default function Nav({ openNav, onCloseNav }) {
   const pathname = usePathname();
-  const [navs, setNavs] = useState([]);
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(fetchNav());
-  }, [dispatch]);
-
-  const status = useSelector((state) => state.settings.status);
-  const data = useSelector((state) => state.settings.navs);
   const staff = useSelector((state) => state.auth.auth);
-  useEffect(() => {
-    setNavs(navConfig); // Set initial navConfig
-
-    if (status === 'succeeded' && data.length > 0) {
-      const updatedData = data.map((item) => ({
-        ...item,
-        child: item.child || undefined,
-      }));
-
-      setNavs(updatedData); 
-    }
-  }, [status, data]);
-
   // Remove the unused handleClick function
   const upLg = useResponsive('up', 'lg');
 
@@ -87,20 +63,13 @@ export default function Nav({ openNav, onCloseNav }) {
           {staff?.role}
         </Typography>
       </Box>
-      <IconButton
-        aria-label="load"
-        variant="contained"
-        color="inherit"
-        onClick={() => dispatch(fetchNav())}
-      >
-        <Iconify icon="mdi:reload" />
-      </IconButton>
+  
     </Box>
   );
 
   const renderMenu = (
     <Stack component="nav" spacing={0.5} sx={{ px: 2 }}>
-      {navs.map((item) =>
+      {navConfig.map((item) =>
         item.child ? (
           <NavItems key={item.title} item={item} pathname={pathname} navigate={navigate} />
         ) : (
