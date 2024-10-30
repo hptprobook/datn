@@ -4,9 +4,11 @@ import { Outlet, Navigate, useRoutes } from 'react-router-dom';
 import { Box, LinearProgress, linearProgressClasses } from '@mui/material';
 import DashboardLayout from 'src/layouts/dashboard';
 import AdminLayout from 'src/layouts/admin';
+import PosLayout from 'src/layouts/pos';
 import { ProtectedRoute } from './components/dashboard-protected';
 import { adminRoute } from './admin-route';
 import { dashboardRoute } from './dashboard-route';
+import { posRoute } from './pos-route';
 // ----------------------------------------------------------------------
 // login page
 export const LoginPage = lazy(() => import('src/pages/login'));
@@ -52,6 +54,19 @@ export default function Router() {
         </ProtectedRoute>
       ),
       children: adminRoute,
+    },
+    {
+      path: 'pos',
+      element: (
+        <ProtectedRoute>
+          <PosLayout>
+            <Suspense fallback={renderFallback}>
+              <Outlet />
+            </Suspense>
+          </PosLayout>
+        </ProtectedRoute>
+      ),
+      children: posRoute,
     },
     {
       path: 'login',
