@@ -17,7 +17,7 @@ export function renderNameProduct(product) {
     return `${product.name} x ${product.quantity}`;
 }
 export function renderTotalPrice(product) {
-    const totalPrice = product.totalPrice * product.quantity;
+    const totalPrice = product.itemTotal * product.quantity;
     return `Tổng tiền: ${formatCurrency(totalPrice.toFixed(2))}`;
 }
 export const slugify = (string) => {
