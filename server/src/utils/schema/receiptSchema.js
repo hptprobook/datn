@@ -1,4 +1,5 @@
 import Joi from 'joi';
+
 export const SAVE_RECEIPT_SCHEMA = Joi.object({
   orderId: Joi.string().trim().allow(null).messages({
     'string.base': 'orderID hàng bắt buộc phải là chuỗi',
@@ -6,29 +7,38 @@ export const SAVE_RECEIPT_SCHEMA = Joi.object({
   receiptCode: Joi.string().trim().messages({
     'string.base': 'Mã hóa đơn bắt buộc phải là chuỗi',
   }),
-  name: Joi.string().trim().default('Người mua hàng').messages({
+  name: Joi.string().trim().min(1).default('Người mua hàng').messages({
     'string.empty': 'Tên không được để trống',
   }),
-  phone: Joi.string().trim().default(null),
+  phone: Joi.string().trim().min(1),
   status: Joi.string().trim().valid('success', 'returned').default('success'),
   total: Joi.number().required().messages({
     'number.base': 'Tổng tiền bắt buộc phải là số',
   }),
-  amount_paid_by: Joi.number().required().default(0).messages({
+  productsList: Joi.array().items(
+    Joi.object({
+      productId: Joi.string().trim().allow(null),
+      name: Joi.string().trim().required(),
+      quantity: Joi.number().required(),
+      price: Joi.number().required(),
+    })
+  ),
+  amountPaidBy: Joi.number().required().default(0).messages({
     'number.base': 'Số tiền khách trả bắt buộc phải là số',
   }),
-  amount_paid_to: Joi.number().default(0).messages({
+  amountPaidTo: Joi.number().default(0).messages({
     'number.base': 'Số tiền trả khách bắt buộc phải là số',
   }),
   discount: Joi.number().default(0).messages({
     'number.base': 'Giảm giá bắt buộc phải là số',
   }),
+  discountCode: Joi.string().trim().allow(null),
   paymentMethod: Joi.valid('Tiền mặt', 'Chuyển khoản', 'VNPAY').default(
     'Tiền mặt'
   ),
   type: Joi.string()
     .trim()
-    .valid('online', 'store', 'tiktok', 'facebook', 'zalo')
+    .valid('online', 'store', 'tiktok', 'facebook', 'zalo', 'return')
     .default('store')
     .messages({
       'string.base': 'Loại hóa đơn bắt buộc phải là chuỗi',
@@ -36,29 +46,46 @@ export const SAVE_RECEIPT_SCHEMA = Joi.object({
   note: Joi.string().trim().default('Mua sản phẩm tại cửa hàng'),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
 });
-
 export const UPDATE_RECEIPT_SCHEMA = Joi.object({
-  name: Joi.string().trim().min(1).messages({
+  orderId: Joi.string().trim().allow(null).messages({
+    'string.base': 'orderID hàng bắt buộc phải là chuỗi',
+  }),
+  receiptCode: Joi.string().trim().messages({
+    'string.base': 'Mã hóa đơn bắt buộc phải là chuỗi',
+  }),
+  name: Joi.string().trim().min(1).default('Người mua hàng').messages({
     'string.empty': 'Tên không được để trống',
   }),
   phone: Joi.string().trim().min(1),
-  status: Joi.string().trim().valid('success', 'returned'),
-  total: Joi.number().messages({
+  status: Joi.string().trim().valid('success', 'returned').default('success'),
+  total: Joi.number().required().messages({
     'number.base': 'Tổng tiền bắt buộc phải là số',
   }),
-  amount_paid_by: Joi.number().messages({
+  productsList: Joi.array().items(
+    Joi.object({
+      productId: Joi.string().trim().allow(null),
+      name: Joi.string().trim().required(),
+      quantity: Joi.number().required(),
+      price: Joi.number().required(),
+    })
+  ),
+  amountPaidBy: Joi.number().required().default(0).messages({
     'number.base': 'Số tiền khách trả bắt buộc phải là số',
   }),
-  amount_paid_to: Joi.number().messages({
+  amountPaidTo: Joi.number().default(0).messages({
     'number.base': 'Số tiền trả khách bắt buộc phải là số',
   }),
-  discount: Joi.number().messages({
+  discount: Joi.number().default(0).messages({
     'number.base': 'Giảm giá bắt buộc phải là số',
   }),
-  paymentMethod: Joi.valid('Tiền mặt', 'Chuyển khoản', 'VNPAY'),
+  discountCode: Joi.string().trim().allow(null),
+  paymentMethod: Joi.valid('Tiền mặt', 'Chuyển khoản', 'VNPAY').default(
+    'Tiền mặt'
+  ),
   type: Joi.string()
     .trim()
-    .valid('online', 'store', 'tiktok', 'facebook', 'zalo')
+    .valid('online', 'store', 'tiktok', 'facebook', 'zalo', 'return')
+    .default('store')
     .messages({
       'string.base': 'Loại hóa đơn bắt buộc phải là chuỗi',
     }),
