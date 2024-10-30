@@ -28,9 +28,15 @@ export function fToNow(date) {
   return date ? dayjs(date).fromNow() : '';
 }
 
-export function formatDateTime(timestamp) {
+export function formatDateTime(timestamp, type = 'datetime') {
   if (!dayjs(timestamp).isValid()) {
     return 'Không rõ';
+  }
+  if (type === 'date') {
+    return dayjs(timestamp).format('DD/MM/YYYY');
+  }
+  if (type === 'time') {
+    return dayjs(timestamp).format('HH:mm:ss');
   }
   return dayjs(timestamp).format('DD/MM/YYYY HH:mm:ss');
 }

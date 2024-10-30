@@ -63,55 +63,6 @@ const findOneBy = async (req, res) => {
         });
     }
 }
-const findsBy = async (req, res) => {
-    try {
-        const { by, value } = req.params;
-        const { grBy } = req.query;
-
-        if (by === 'staffId' || by === 'branchId' || by === 'date' || by === 'status' || by === 'type') {
-            if (!value) {
-                return res.status(StatusCodes.BAD_REQUEST).json({
-                    message: 'Thiếu thông tin tìm kiếm',
-                });
-            }
-        }
-        else {
-            return res.status(StatusCodes.BAD_REQUEST).json({
-                message: 'Không thể tìm kiếm theo thông tin này',
-            });
-        }
-        const result = await timetableModel.findsBy({
-            by,
-            value,
-        });
-        if (grBy === 'date') {
-            const groupedByDate = result.reduce((acc, entry) => {
-                const dateKey = new Date(entry.date).toISOString().split('T')[0]; // Get the date in YYYY-MM-DD format
-
-                if (!acc[dateKey]) {
-                    acc[dateKey] = []; // Create an array for this date if it doesn't exist
-                }
-
-                acc[dateKey].push(entry); // Push the current entry into the appropriate date group
-                return acc;
-            }, {});
-
-            const groupedByDateArray = Object.keys(groupedByDate).map((date) => ({
-                article: getDayName(date),
-                date,
-                timetables: groupedByDate[date],
-                numberOfTimetables: groupedByDate[date].length,
-            }));
-            return res.status(StatusCodes.OK).json(groupedByDateArray);
-        }
-        res.status(StatusCodes.OK).json(result);
-    }
-    catch (error) {
-        res.status(StatusCodes.BAD_REQUEST).json({
-            message: error.message,
-        });
-    }
-}
 const getAll = async (req, res) => {
     try {
         const { grBy } = req.query;
@@ -155,9 +106,65 @@ const getAll = async (req, res) => {
         });
     }
 }
+const remove = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const admin = req.user;
+        const timetable = await timetableModel.findOneBy('_id', id);
+        if (!timetable) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: 'Lịch làm việc không tồn tại',
+            });
+        }
+        if (admin.branchId !== timetable.branchId && admin.role === 'admin') {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: 'Bạn không thể xóa lịch làm việc của chi nhánh khác',
+            });
+        }
+
+        const result = await timetableModel.remove(id);
+        res.status(StatusCodes.OK).json(result);
+    }
+    catch (error) {
+        res.status(StatusCodes.BAD_REQUEST).json({
+            message: error.message,
+        });
+    }
+}
+const update = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const data = req.body;
+        const admin = req.user;
+        const timetable = await timetableModel.findOneBy('_id', id);
+        if (!timetable) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: 'Lịch làm việc không tồn tại',
+            });
+        }
+        if (admin.branchId !== timetable.branchId && admin.role === 'admin') {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: 'Bạn không thể sửa lịch làm việc của chi nhánh khác',
+            });
+        }
+        if (data.endTime < data.startTime) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: 'Thời gian kết thúc không thể nhỏ hơn thời gian bắt đầu',
+            });
+        }
+        const result = await timetableModel.update(id, data);
+        res.status(StatusCodes.OK).json(result);
+    }
+    catch (error) {
+        res.status(StatusCodes.BAD_REQUEST).json({
+            message: error.message,
+        });
+    }
+}
 export const timetableController = {
     create,
     findOneBy,
-    findsBy,
-    getAll
+    getAll,
+    remove,
+    update
 }

@@ -13,7 +13,6 @@ import { usePathname } from 'src/routes/hooks';
 
 import { useResponsive } from 'src/hooks/use-responsive';
 
-import { account } from 'src/_mock/account';
 
 import Logo from 'src/components/logo';
 import Scrollbar from 'src/components/scrollbar';
@@ -42,7 +41,7 @@ export default function Nav({ openNav, onCloseNav }) {
 
   const status = useSelector((state) => state.settings.status);
   const data = useSelector((state) => state.settings.navs);
-
+  const staff = useSelector((state) => state.auth.auth);
   useEffect(() => {
     setNavs(navConfig); // Set initial navConfig
 
@@ -79,13 +78,13 @@ export default function Nav({ openNav, onCloseNav }) {
         bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
       }}
     >
-      <Avatar src={account.photoURL} alt="photoURL" />
+      <Avatar src={staff?.avatar} alt="photoURL" />
 
       <Box sx={{ ml: 2 }}>
-        <Typography variant="subtitle2">{account.displayName}</Typography>
+        <Typography variant="subtitle2">{staff?.name}</Typography>
 
         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-          {account.role}
+          {staff?.role}
         </Typography>
       </Box>
       <IconButton
@@ -99,14 +98,6 @@ export default function Nav({ openNav, onCloseNav }) {
     </Box>
   );
 
-  // const renderMenu = (
-  //   <Stack component="nav" spacing={0.5} sx={{ px: 2 }}>
-  //     {navConfig.map((item) => (
-  //       <NavItem key={item.title} item={item} />
-  //     ))}
-  //     {/* <NavItem key={item.title} item={item} /> */}
-  //   </Stack>
-  // );
   const renderMenu = (
     <Stack component="nav" spacing={0.5} sx={{ px: 2 }}>
       {navs.map((item) =>
@@ -129,7 +120,7 @@ export default function Nav({ openNav, onCloseNav }) {
         },
       }}
     >
-      <Logo sx={{ mt: 3, ml: 4 }} />
+      <Logo sx={{ mt: 3,}} />
 
       {renderAccount}
 

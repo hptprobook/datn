@@ -42,6 +42,14 @@ const VariantService = {
             throw err;
         }
     },
+    many: async (data) => {
+        try {
+            return await post(`variants/many`, data);
+        } catch (err) {
+            console.error("Error: ", err);
+            throw err;
+        }
+    }
 };
 
 export default VariantService;

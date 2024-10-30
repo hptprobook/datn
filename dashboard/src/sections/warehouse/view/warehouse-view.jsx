@@ -194,7 +194,7 @@ export default function WareHousePage() {
                 headLabel={[
                   { id: 'name', label: 'Tên' },
                   { id: 'capacity', label: 'Sức chứa' },
-                  { id: 'currentInventory', label: 'Hàng hiện tại' },
+                  { id: 'currentQuantity', label: 'Hàng hiện tại' },
                   { id: 'status', label: 'Trạng thái' },
                   { id: 'location', label: 'Vị trí' },
                   { id: 'createdAt', label: 'Ngày tạo' },
@@ -213,7 +213,7 @@ export default function WareHousePage() {
                       createdAt={row.createdAt}
                       location={row.location}
                       updatedAt={row.updatedAt}
-                      currentInventory={row.currentInventory}
+                      currentQuantity={row.currentQuantity}
                       capacity={row.capacity}
                       selected={selected.indexOf(row.name) !== -1} // Assuming the company name is used for selection
                       handleClick={(event) => handleClick(event, row._id)}

@@ -53,6 +53,17 @@ export const updateVariantById = createAsyncThunk(
         }
     }
 );
+export const createManyVariants = createAsyncThunk(
+    "variants/createManyVariants",
+    async (data, { rejectWithValue }) => {
+        try {
+            return await VariantService.many(data);
+        } catch (err) {
+            return rejectWithValue(err.response.data);
+        }
+    }
+);
+
 const initialState = {
     variants: [],
     page: null,
@@ -61,6 +72,8 @@ const initialState = {
     statusDelete: "idle",
     statusUpdate: "idle",
     statusCreate: "idle",
+    statusCreateMany: "idle",
+    dataCreateMany: null,
     statusGet: "idle",
     error: null,
 };
@@ -93,6 +106,17 @@ const staticPageSlices = createSlice({
             .addCase(createVariant.rejected, (state, action) => {
                 state.statusCreate = "failed";
                 state.error = action.payload;
+            })
+            .addCase(createManyVariants.pending, (state) => {
+                state.statusCreateMany = "loading";
+            })
+            .addCase(createManyVariants.fulfilled, (state, action) => {
+                state.statusCreateMany = "successful";
+                state.dataCreateMany = action.payload;
+            })
+            .addCase(createManyVariants.rejected, (state, action) => {
+                state.statusCreateMany = "failed";
+                state.dataCreateMany = action.payload;
             })
             .addCase(manyDeleteVariant.pending, (state) => {
                 state.statusDelete = "loading";
