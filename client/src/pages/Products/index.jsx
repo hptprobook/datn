@@ -7,9 +7,11 @@ import { useQuery } from '@tanstack/react-query';
 import { getProductBySlug } from '~/APIs';
 import { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { convertHTMLToText } from '~/utils/formatters';
 
 const ProductPage = () => {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [isContentExpanded, setIsContentExpanded] = useState(false);
   const { slug } = useParams();
 
   const { data, isLoading } = useQuery({
@@ -41,6 +43,10 @@ const ProductPage = () => {
     }
   };
 
+  const handleToggleContent = () => {
+    setIsContentExpanded(!isContentExpanded);
+  };
+
   return (
     <section className="max-w-container mx-auto mt-16">
       <Helmet>
@@ -70,13 +76,21 @@ const ProductPage = () => {
           MÔ TẢ SẢN PHẨM
         </div>
         <div className="divider"></div>
-        <div>{productInfo?.content}</div>
+        <div>
+          {isContentExpanded
+            ? convertHTMLToText(productInfo?.content)
+            : convertHTMLToText(productInfo?.description)}
+        </div>
+        <button
+          className="btn bg-red-600 hover:bg-red-700 rounded-md text-white mt-4"
+          onClick={handleToggleContent}
+        >
+          {isContentExpanded ? 'Thu gọn' : 'Xem thêm'}
+        </button>
       </div>
       <ProductDetailReview reviews={productInfo.reviews} />
     </section>
   );
 };
-
-ProductPage.propTypes = {};
 
 export default ProductPage;

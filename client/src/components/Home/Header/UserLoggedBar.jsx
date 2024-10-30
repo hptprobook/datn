@@ -17,7 +17,7 @@ const UserLoggedBar = ({ currentUserInfor }) => {
   }
 
   return (
-    <div className="relative text-2xl text-gray-50 cursor-pointer group z-30">
+    <div className="relative text-2xl text-gray-50 cursor-pointer group z-[50000000]">
       {currentUserInfor?.avatar ? (
         <NavLink to={'/nguoi-dung/tai-khoan'}>
           <div className="">
