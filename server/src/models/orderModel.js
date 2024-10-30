@@ -4,6 +4,8 @@ import {
   SAVE_ORDER,
   UPDATE_ORDER,
   SAVE_ORDER_NOT_LOGIN,
+  SAVE_ORDER_AT_STORE,
+  UPDATE_ORDER_AT_STORE,
 } from '~/utils/schema/orderSchema';
 
 const validateBeforeCreate = async (data) => {
@@ -14,8 +16,16 @@ const validateBeforeCreateNot = async (data) => {
     abortEarly: false,
   });
 };
+const validateBeforeCreateAtStore = async (data) => {
+  return await SAVE_ORDER_AT_STORE.validateAsync(data, {
+    abortEarly: false,
+  });
+};
 const validateBeforeUpdate = async (data) => {
   return await UPDATE_ORDER.validateAsync(data, { abortEarly: false });
+};
+const validateBeforeUpdateStore = async (data) => {
+  return await UPDATE_ORDER_AT_STORE.validateAsync(data, { abortEarly: false });
 };
 // const countUserAll = async () => {
 //   const db = await GET_DB().collection('carts');
@@ -44,9 +54,6 @@ const getOrderById = async (id) => {
   const result = await db.findOne({
     _id: new ObjectId(id),
   });
-  if (!result) {
-    throw new Error('Đơn hàng không tồn tại');
-  }
   return result;
 };
 
@@ -100,6 +107,24 @@ const addOrderNotLogin = async (dataOrder) => {
   return result;
 };
 
+const addOrderAtStore = async (dataOrder) => {
+  const validData = await validateBeforeCreateAtStore(dataOrder);
+  const db = await GET_DB();
+  const collection = db.collection('orders');
+  const data = {
+    ...validData,
+    staffId: new ObjectId(dataOrder.staffId),
+    productsList: validData.productsList.map((item) => {
+      return {
+        ...item,
+        _id: new ObjectId(item._id),
+      };
+    }),
+  };
+  const result = await collection.insertOne(data);
+  return result;
+};
+
 const findOrderByCode = async (orderCode) => {
   const db = await GET_DB().collection('orders');
   const result = await db.findOne({
@@ -129,6 +154,21 @@ const updateOrder = async (id, data) => {
     );
   return result;
 };
+
+const updateOrderAtStore = async (id, data) => {
+  const validatedData = await validateBeforeUpdateStore(data);
+  const result = await GET_DB()
+    .collection('orders')
+    .findOneAndUpdate(
+      {
+        _id: new ObjectId(id),
+      },
+      { $set: validatedData },
+      { returnDocument: 'after' }
+    );
+  return result;
+};
+
 const getStatusOrder = async (id) => {
   const db = await GET_DB().collection('orders');
   const result = await db.findOne(
@@ -197,6 +237,10 @@ const updateSingleProductStock = async (data) => {
 };
 
 export const orderModel = {
+  // store
+  addOrderAtStore,
+  updateOrderAtStore,
+  //
   getAllOrders,
   addOrder,
   updateOrder,

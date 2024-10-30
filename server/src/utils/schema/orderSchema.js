@@ -169,6 +169,120 @@ export const SAVE_ORDER_NOT_LOGIN = Joi.object({
   type: Joi.string().trim().min(1).default('notLoginOrder'),
 });
 
+export const SAVE_ORDER_AT_STORE = Joi.object({
+  staffId: Joi.string().trim().min(1).required(),
+  name: Joi.string().trim().default('Người mua hàng').messages({
+    'string.empty': 'Tên khách hàng không được để trống',
+  }),
+  phone: Joi.string().trim().default(null),
+  productsList: Joi.array()
+    .items(
+      Joi.object({
+        _id: Joi.string().trim().min(1).required(),
+        slug: Joi.string().trim().min(1).required(),
+        quantity: Joi.number().integer().min(1).required(),
+        image: Joi.string().trim().min(1).required(),
+        name: Joi.string().trim().min(1).required(),
+        price: Joi.number().min(1).required(),
+        variantColor: Joi.string().trim().min(1).required(),
+        variantSize: Joi.string().trim().min(1).required(),
+        itemTotal: Joi.number().precision(2).required(),
+      })
+    )
+    .required(),
+  status: Joi.array()
+    .items(
+      Joi.object({
+        status: Joi.string().trim().min(1).valid('success', 'returned'),
+        note: Joi.string().trim().min(1).default('Đơn hàng bán tại quầy'),
+        createdAt: Joi.date().timestamp('javascript').default(Date.now),
+      })
+    )
+    .default([
+      {
+        status: 'success',
+        note: 'Đơn hàng bán tại quầy',
+        createdAt: Date.now(),
+      },
+    ]),
+  couponId: Joi.array().items(Joi.string().trim()),
+  totalPrice: Joi.number().min(1).required(),
+  discountPercentage: Joi.boolean().default(false),
+  discountPrice: Joi.number().min(0),
+  totalCapitalPrice: Joi.number().min(0),
+  totalProfit: Joi.number().min(0),
+  needPay: Joi.number().min(0),
+  paymentMethod: Joi.valid('Tiền mặt', 'Chuyển khoản', 'VNPAY').default(
+    'Tiền mặt'
+  ),
+  amount_paid_by: Joi.number().default(0).messages({
+    'number.base': 'Số tiền khách trả bắt buộc phải là số',
+  }),
+  amount_paid_to: Joi.number().default(0).messages({
+    'number.base': 'Số tiền trả khách bắt buộc phải là số',
+  }),
+  type: Joi.string()
+    .trim()
+    .valid('online', 'store', 'tiktok', 'facebook', 'zalo')
+    .default('store')
+    .messages({
+      'string.base': 'Loại hóa đơn bắt buộc phải là chuỗi',
+    }),
+  note: Joi.string().trim().default('Mua sản phẩm tại cửa hàng'),
+  createdAt: Joi.date().timestamp('javascript').default(Date.now),
+});
+
+export const UPDATE_ORDER_AT_STORE = Joi.object({
+  name: Joi.string().trim().min(1).messages({
+    'string.empty': 'Tên khách hàng không được để trống',
+  }),
+  phone: Joi.string().trim().default(null),
+  productsList: Joi.array()
+    .items(
+      Joi.object({
+        _id: Joi.string().trim().min(1).required(),
+        slug: Joi.string().trim().min(1).required(),
+        quantity: Joi.number().integer().min(1).required(),
+        image: Joi.string().trim().min(1).required(),
+        name: Joi.string().trim().min(1).required(),
+        price: Joi.number().min(1).required(),
+        variantColor: Joi.string().trim().min(1).required(),
+        variantSize: Joi.string().trim().min(1).required(),
+        itemTotal: Joi.number().precision(2).required(),
+      })
+    )
+    .required(),
+  status: Joi.array().items(
+    Joi.object({
+      status: Joi.string().trim().min(1).valid('success', 'returned'),
+      note: Joi.string().trim().min(1),
+      createdAt: Joi.date().timestamp('javascript').default(Date.now),
+    })
+  ),
+  couponId: Joi.array().items(Joi.string().trim()),
+  totalPrice: Joi.number().min(0),
+  discountPercentage: Joi.boolean().default(false),
+  discountPrice: Joi.number().min(0),
+  totalCapitalPrice: Joi.number().min(0),
+  totalProfit: Joi.number().min(0),
+  needPay: Joi.number().min(0),
+  paymentMethod: Joi.valid('Tiền mặt', 'Chuyển khoản', 'VNPAY'),
+  amount_paid_by: Joi.number().min(0).messages({
+    'number.base': 'Số tiền khách trả bắt buộc phải là số',
+  }),
+  amount_paid_to: Joi.number().min(0).messages({
+    'number.base': 'Số tiền trả khách bắt buộc phải là số',
+  }),
+  type: Joi.string()
+    .trim()
+    .valid('online', 'store', 'tiktok', 'facebook', 'zalo')
+    .messages({
+      'string.base': 'Loại hóa đơn bắt buộc phải là chuỗi',
+    }),
+  note: Joi.string().trim().min(0),
+  updatedAt: Joi.date().timestamp('javascript').default(Date.now),
+});
+
 export const UPDATE_ORDER = Joi.object({
   productsList: Joi.array().items(
     Joi.object({
