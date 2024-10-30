@@ -17,10 +17,15 @@ export const SAVE_RECEIPT_SCHEMA = Joi.object({
   }),
   productsList: Joi.array().items(
     Joi.object({
-      productId: Joi.string().trim().allow(null),
-      name: Joi.string().trim().required(),
-      quantity: Joi.number().required(),
-      price: Joi.number().required(),
+      _id: Joi.string().trim().min(1).allow(null),
+      quantity: Joi.number().integer().min(1).required(),
+      image: Joi.string().trim().min(1).allow(null),
+      name: Joi.string().trim().min(1).required(),
+      price: Joi.number().min(1).required(),
+      variantColor: Joi.string().trim().min(1).allow(null),
+      variantSize: Joi.string().trim().min(1).allow(null),
+      sku: Joi.string().trim().min(1).allow(null),
+      weight: Joi.number().min(1).allow(null),
     })
   ),
   amountPaidBy: Joi.number().required().default(0).messages({
@@ -63,10 +68,15 @@ export const UPDATE_RECEIPT_SCHEMA = Joi.object({
   }),
   productsList: Joi.array().items(
     Joi.object({
-      productId: Joi.string().trim().allow(null),
-      name: Joi.string().trim().required(),
-      quantity: Joi.number().required(),
-      price: Joi.number().required(),
+      _id: Joi.string().trim().min(1).allow(null),
+      quantity: Joi.number().integer().min(1).required(),
+      image: Joi.string().trim().min(1).allow(null),
+      name: Joi.string().trim().min(1).required(),
+      price: Joi.number().min(1).required(),
+      variantColor: Joi.string().trim().min(1).allow(null),
+      variantSize: Joi.string().trim().min(1).allow(null),
+      sku: Joi.string().trim().min(1).allow(null),
+      weight: Joi.number().min(1).allow(null),
     })
   ),
   amountPaidBy: Joi.number().required().default(0).messages({
