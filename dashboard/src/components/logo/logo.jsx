@@ -13,7 +13,6 @@ import Iconify from '../iconify';
 const Logo = forwardRef(({ sx, ...other }, ref) => {
   const theme = useTheme();
   const clientUrl = import.meta.env.VITE_REACT_CLIENT_URL;
-  console.log(clientUrl);
 
   const url = theme.palette.primary.light
     ? '/assets/images/logo/dark.png'

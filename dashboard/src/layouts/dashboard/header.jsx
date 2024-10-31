@@ -44,6 +44,9 @@ export default function Header({ onOpenNav }) {
         <Button color="inherit" onClick={() => route.push('/admin')} variant='contained'>
           Kho
         </Button>
+        <Button color="inherit" onClick={() => route.push('/pos')} variant='contained'>
+          Bán hàng
+        </Button>
         <NotificationsPopover />
         <AccountPopover />
       </Stack>
