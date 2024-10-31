@@ -18,6 +18,7 @@ const getAllReciept = async (page, limit) => {
   const db = await GET_DB().collection('receipt');
   const result = await db
     .find()
+    .sort({ createdAt: -1 })
     .skip((page - 1) * limit)
     .limit(limit)
     // .project({
@@ -39,9 +40,31 @@ const addReceipt = async (dataReciept) => {
   const validData = await validateBeforeCreate(dataReciept);
   const db = await GET_DB();
   const collection = db.collection('receipt');
+  //   Đơn hàng thành công
+  if (validData.orderId) {
+    const data = {
+      ...validData,
+      orderId: new ObjectId(validData.orderId),
+      productsList: validData.productsList.map((item) => {
+        return {
+          ...item,
+          _id: new ObjectId(item._id),
+        };
+      }),
+    };
+    const result = await collection.insertOne(data);
+    return result;
+  }
+  //   Mua ở cửa hàng
   const data = {
     ...validData,
-    orderId: new ObjectId(validData.orderId),
+    staffId: new ObjectId(validData.staffId),
+    productsList: validData.productsList.map((item) => {
+      return {
+        ...item,
+        _id: new ObjectId(item._id),
+      };
+    }),
   };
   const result = await collection.insertOne(data);
   return result;
@@ -55,13 +78,13 @@ const getReceiptByCode = async (receiptCode) => {
   return result;
 };
 
-const updateReceipt = async (orderId, data) => {
+const updateReceipt = async (id, data) => {
   const validatedData = await validateBeforeUpdate(data);
   const result = await GET_DB()
     .collection('receipt')
     .findOneAndUpdate(
       {
-        orderId: new ObjectId(orderId),
+        _id: new ObjectId(id),
       },
       { $set: validatedData },
       { returnDocument: 'after' }
@@ -69,11 +92,24 @@ const updateReceipt = async (orderId, data) => {
   return result;
 };
 
-const deleteReceipt = async (orderId) => {
+const updateReturnedReceipt = async (orderId) => {
+  const result = await GET_DB()
+    .collection('receipt')
+    .findOneAndUpdate(
+      {
+        orderId: new ObjectId(orderId),
+      },
+      { $set: { status: 'returned' } },
+      { returnDocument: 'after' }
+    );
+  return result;
+};
+
+const deleteReceipt = async (id) => {
   const result = await GET_DB()
     .collection('receipt')
     .deleteOne({
-      orderId: new ObjectId(orderId),
+      _id: new ObjectId(id),
     });
   return result;
 };
@@ -85,4 +121,5 @@ export const recieptModel = {
   getReceiptByCode,
   updateReceipt,
   deleteReceipt,
+  updateReturnedReceipt,
 };
