@@ -39,7 +39,6 @@ export default function ProfileView() {
       setAccount(data);
     }
   }, [data]);
-  console.log(account);
 
   // const handleChangeUploadImg = useCallback((files) => {
   //   if (files) {
@@ -53,14 +52,10 @@ export default function ProfileView() {
     enableReinitialize: true,
     initialValues: {
       name: account.name || '',
-      staffCode: account.staffCode || '',
       address: account.address || '',
-      email: account.email || '',
       phone: account.phone || '',
       cccd: account.cccd || '',
       bankAccount: account.bankAccount || '',
-      salaryType: account.salaryType || '',
-      salary: account.salary || '',
       avatar: account.avatar || '',
       bankHolder: account.bankHolder || '',
       bankName: account.bankName || '',
@@ -119,6 +114,7 @@ export default function ProfileView() {
     const values = {
       [name]: formik.values[name],
     };
+    console.log(values);
     dispatch(updateStaffById({ id : account._id, data: values }));
   };
   // const handleUpload = () => {
@@ -165,36 +161,6 @@ export default function ProfileView() {
                       onBlur={formik.handleBlur}
                       error={formik.touched.name && Boolean(formik.errors.name)}
                       helperText={formik.touched.name && formik.errors.name}
-                      inputSelect={inputSelect}
-                      setInputSelect={setInputSelect}
-                      handleUpdate={handleUpdate}
-                      handleCancel={handleCancel}
-                    />
-                  </Grid2>
-                  <Grid2 item xs={6}>
-                  <EditableField
-                      name="email"
-                      label="email"
-                      value={formik.values.email}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      error={formik.touched.email && Boolean(formik.errors.email)}
-                      helperText={formik.touched.email && formik.errors.email}
-                      inputSelect={inputSelect}
-                      setInputSelect={setInputSelect}
-                      handleUpdate={handleUpdate}
-                      handleCancel={handleCancel}
-                    />
-                  </Grid2>
-                  <Grid2 item xs={6}>
-                  <EditableField
-                      name="staffCode"
-                      label="Mã nhân viên"
-                      value={formik.values.staffCode}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      error={formik.touched.staffCode && Boolean(formik.errors.staffCode)}
-                      helperText={formik.touched.staffCode && formik.errors.staffCode}
                       inputSelect={inputSelect}
                       setInputSelect={setInputSelect}
                       handleUpdate={handleUpdate}
@@ -255,36 +221,6 @@ export default function ProfileView() {
                       onBlur={formik.handleBlur}
                       error={formik.touched.bankAccount && Boolean(formik.errors.bankAccount)}
                       helperText={formik.touched.bankAccount && formik.errors.bankAccount}
-                      inputSelect={inputSelect}
-                      setInputSelect={setInputSelect}
-                      handleUpdate={handleUpdate}
-                      handleCancel={handleCancel}
-                    />
-                  </Grid2>
-                  <Grid2 item xs={6}>
-                    <EditableField
-                      name="salaryType"
-                      label="Loại lương"
-                      value={formik.values.salaryType}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      error={formik.touched.salaryType && Boolean(formik.errors.salaryType)}
-                      helperText={formik.touched.salaryType && formik.errors.salaryType}
-                      inputSelect={inputSelect}
-                      setInputSelect={setInputSelect}
-                      handleUpdate={handleUpdate}
-                      handleCancel={handleCancel}
-                    />
-                  </Grid2>
-                  <Grid2 item xs={6}>
-                    <EditableField
-                      name="salary"
-                      label="Lương"
-                      value={formik.values.salary}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      error={formik.touched.salary && Boolean(formik.errors.salary)}
-                      helperText={formik.touched.salary && formik.errors.salary}
                       inputSelect={inputSelect}
                       setInputSelect={setInputSelect}
                       handleUpdate={handleUpdate}

@@ -101,6 +101,58 @@ const getCouponsByType = async (type) => {
   return result;
 };
 
+const checkCouponApplicability = async (userId, couponId) => {
+  const db = await GET_DB().collection('coupons');
+  const userDb = await GET_DB().collection('users');
+
+  const user = await userDb.findOne({ _id: new ObjectId(userId) });
+  const coupon = await db.findOne({ _id: new ObjectId(couponId) });
+
+  if (!user || !coupon) {
+    throw new Error('Không tìm thấy người dùng hoặc phiếu giảm giá');
+  }
+
+  // Ensure applicableProducts and eligibleUsers are defined
+  const applicableProducts = coupon.applicableProducts || [];
+  const eligibleUsers = coupon.eligibleUsers || [];
+
+
+  // Check if the coupon is applicable to all products
+  const isApplicableToAllProducts = applicableProducts.length === 0;
+
+  // Check if the user is eligible for the coupon
+  const isUserEligible = eligibleUsers.length === 0 || eligibleUsers.includes(userId);
+
+
+  // Check coupon status
+  if (coupon.status !== 'active') {
+    return { applicable: false, message: 'Phiếu giảm giá không hoạt động' };
+  }
+
+  // Check coupon validity period
+  const currentDate = new Date();
+  if ( currentDate > new Date(coupon.dateEnd)) {
+    return { applicable: false, message: 'Phiếu giảm giá đã hết hạn hoặc chưa có hiệu lực' };
+  }
+
+  // Check usage limit
+  if (coupon.usageLimit && coupon.usageCount >= coupon.usageLimit) {
+    return { applicable: false, message: 'Phiếu giảm giá đã sử dụng hết số lần cho phép' };
+  }
+
+  // Check if the user is eligible for the coupon
+  if (coupon.limitOnUser && !isUserEligible) {
+    return { applicable: false, message: 'Người dùng không đủ điều kiện để sử dụng phiếu giảm giá này' };
+  }
+
+  if (isApplicableToAllProducts) {
+    return { applicable: true, message: 'Phiếu giảm giá được áp dụng cho tất cả' };
+  }
+  else {
+    return { applicable: false, message: 'Phiếu giảm giá được áp dụng cho một số sản phẩm' };
+  }
+};
+
 export const couponModel = {
   createCoupon,
   getCoupons,
@@ -109,5 +161,6 @@ export const couponModel = {
   deleteCoupon,
   deleteManyCoupons,
   getCouponsById,
-  getCouponsByType
+  getCouponsByType,
+  checkCouponApplicability
 };
