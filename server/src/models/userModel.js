@@ -122,11 +122,34 @@ const favoriteProduct = async (id, userId) => {
 
   const product = await dbProducts.findOne(
     { _id: new ObjectId(id) },
-    { projection: { _id: 1, name: 1, thumbnail: 1, price: 1, reviews: 1 } }
+    {
+      projection: {
+        _id: 1,
+        name: 1,
+        thumbnail: 1,
+        price: 1,
+        reviews: 1,
+        slug: 1,
+      },
+    }
   );
 
   if (!product) {
     throw new Error('Sản phẩm không tồn tại');
+  }
+
+  if (product.reviews && product.reviews.length > 0) {
+    const total = product.reviews.reduce(
+      (acc, review) => acc + review.rating,
+      0
+    );
+    product.averageRating = parseFloat(
+      (total / product.reviews.length).toFixed(1)
+    );
+    product.totalComment = product.reviews.length;
+  } else {
+    product.averageRating = 0;
+    product.totalComment = 0;
   }
 
   const result = await dbUsers.findOneAndUpdate(
@@ -136,9 +159,12 @@ const favoriteProduct = async (id, userId) => {
         favorites: {
           _id: product._id,
           name: product.name,
-          image: product.thumbnail,
+          slug: product.slug,
+          thumbnail: product.thumbnail,
           price: product.price,
           reviews: product.reviews,
+          totalComment: product.totalComment,
+          averageRating: product.averageRating,
         },
       },
     },
@@ -158,11 +184,34 @@ const viewProduct = async (id, userId) => {
 
   const product = await dbProducts.findOne(
     { _id: new ObjectId(id) },
-    { projection: { _id: 1, name: 1, thumbnail: 1, price: 1, reviews: 1 } }
+    {
+      projection: {
+        _id: 1,
+        name: 1,
+        thumbnail: 1,
+        price: 1,
+        reviews: 1,
+        slug: 1,
+      },
+    }
   );
 
   if (!product) {
     throw new Error('Sản phẩm không tồn tại');
+  }
+
+  if (product.reviews && product.reviews.length > 0) {
+    const total = product.reviews.reduce(
+      (acc, review) => acc + review.rating,
+      0
+    );
+    product.averageRating = parseFloat(
+      (total / product.reviews.length).toFixed(1)
+    );
+    product.totalComment = product.reviews.length;
+  } else {
+    product.averageRating = 0;
+    product.totalComment = 0;
   }
 
   const result = await db.findOneAndUpdate(
@@ -172,9 +221,12 @@ const viewProduct = async (id, userId) => {
         views: {
           _id: product._id,
           name: product.name,
-          image: product.thumbnail,
+          slug: product.slug,
+          thumbnail: product.thumbnail,
           price: product.price,
           reviews: product.reviews,
+          totalComment: product.totalComment,
+          averageRating: product.averageRating,
         },
       },
     },

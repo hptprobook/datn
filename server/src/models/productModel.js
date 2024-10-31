@@ -40,7 +40,7 @@ const getProductsAll = async (page, limit) => {
   const db = await GET_DB().collection('products');
   const result = await db
     .find()
-    .sort({ createdAt: 1 })
+    .sort({ createdAt: -1 })
     .project({
       _id: 1,
       name: 1,
@@ -904,6 +904,7 @@ const getProductsByEvent = async (slug, pages, limit) => {
   const products = await db
     .collection('products')
     .find({ cat_id: { $in: categoryIds } })
+    .sort({ createdAt: -1 })
     .project({
       _id: 1,
       name: 1,
