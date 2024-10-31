@@ -177,7 +177,9 @@ export const UPDATE_USER = Joi.object({
     slug: Joi.string().trim().min(1),
     name: Joi.string().trim().min(1),
     price: Joi.number(),
-    reviews: Joi.array(),
+    // reviews: Joi.array(),
+    totalComment: Joi.number(),
+    averageRating: Joi.number(),
   }),
   views: Joi.array().items({
     _id: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
@@ -185,7 +187,9 @@ export const UPDATE_USER = Joi.object({
     slug: Joi.string().trim().min(1),
     name: Joi.string().trim().min(1),
     price: Joi.number(),
-    reviews: Joi.array(),
+    // reviews: Joi.array(),
+    totalComment: Joi.number(),
+    averageRating: Joi.number(),
   }),
 }).messages({
   'object.unknown': 'Trường không xác định',

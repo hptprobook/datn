@@ -1,3 +1,6 @@
+import { Icon } from '@iconify/react';
+import { Link } from 'react-router-dom';
+
 const EmptyCart = ({ usedBy = 'cart' }) => {
   return (
     <div>
@@ -85,6 +88,13 @@ const EmptyCart = ({ usedBy = 'cart' }) => {
               {usedBy === 'cart' && 'Giỏ hàng trống'}
               {usedBy === 'order' && 'Đơn hàng trống'}
               {usedBy === 'wishList' && 'Sản phẩm yêu thích trống'}
+              <br />
+              <Link
+                to={'/'}
+                className="text-blue-600 flex items-center gap-3 justify-center"
+              >
+                Mua sắm <Icon icon="flowbite:arrow-right-outline" />
+              </Link>
             </h2>
           </div>
         </div>

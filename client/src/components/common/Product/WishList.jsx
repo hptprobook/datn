@@ -29,18 +29,15 @@ const WishList = ({ isOpen, onClose }) => {
         icon: 'error',
         title: 'Thất bại!',
         description:
-          'Lỗi khi xóa sản phẩm ra khỏi dánh sách yêu thích, vui lòng thử lại!',
+          'Lỗi khi xóa sản phẩm khỏi danh sách yêu thích, vui lòng thử lại!',
         confirmButtonText: 'Xác nhận',
       });
     },
   });
 
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
+    if (isOpen) document.body.style.overflow = 'hidden';
+    else document.body.style.overflow = 'unset';
 
     return () => {
       document.body.style.overflow = 'unset';
@@ -49,13 +46,32 @@ const WishList = ({ isOpen, onClose }) => {
 
   const handleSortChange = (e) => {
     setSortOption(e.target.value);
-    // Implement sorting logic here
+  };
+
+  const sortedFavorites = [...userFavorites].sort((a, b) => {
+    switch (sortOption) {
+      case 'name-asc':
+        return a.name.localeCompare(b.name);
+      case 'name-desc':
+        return b.name.localeCompare(a.name);
+      case 'price-asc':
+        return a.price - b.price;
+      case 'price-desc':
+        return b.price - a.price;
+      default:
+        return 0;
+    }
+  });
+
+  const handleRemoveFromWishlist = (productId) => {
+    const updatedFavorites = userFavorites.filter(
+      (item) => item._id !== productId
+    );
+    mutate({ favorites: updatedFavorites });
   };
 
   const handleOverlayClick = (e) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
+    if (e.target === e.currentTarget) onClose();
   };
 
   if (!isOpen) return null;
@@ -67,7 +83,7 @@ const WishList = ({ isOpen, onClose }) => {
         onClick={handleOverlayClick}
       >
         <div
-          className="bg-white p-6 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto relative z-10"
+          className="bg-white p-6 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto relative z-20"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex justify-between items-center mb-4">
@@ -107,17 +123,24 @@ const WishList = ({ isOpen, onClose }) => {
 
           {/* Wishlist Items Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {userFavorites?.map((item) => (
+            {sortedFavorites.map((item) => (
               <div key={item._id} className="relative">
-                <ProductItem product={item} isWishList={true} />
-                <button className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600 transition-colors">
+                <ProductItem
+                  product={item}
+                  isWishList={true}
+                  handleLinkClickInWishList={onClose}
+                />
+                <button
+                  onClick={() => handleRemoveFromWishlist(item._id)}
+                  className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600 transition-colors"
+                >
                   <Icon icon="mdi:close" className="w-4 h-4" />
                 </button>
               </div>
             ))}
           </div>
 
-          {userFavorites?.length === 0 && <EmptyCart usedBy="wishList" />}
+          {userFavorites.length === 0 && <EmptyCart usedBy="wishList" />}
         </div>
       </div>
     </div>
@@ -127,8 +150,6 @@ const WishList = ({ isOpen, onClose }) => {
 WishList.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
-  wishlistItems: PropTypes.array.isRequired,
-  onRemoveFromWishlist: PropTypes.func.isRequired,
 };
 
 export default WishList;

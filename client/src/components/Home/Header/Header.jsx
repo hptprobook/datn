@@ -19,6 +19,7 @@ import WishList from '~/components/common/Product/WishList';
 import { useQuery } from '@tanstack/react-query';
 import { getCurrentUser } from '~/APIs';
 import { useUser } from '~/context/UserContext';
+import { useWebConfig } from '~/context/WebsiteConfig';
 
 const Header = () => {
   const { isAuthenticated } = useCheckAuth();
@@ -29,6 +30,7 @@ const Header = () => {
   const [currentTitle, setCurrentTitle] = useState('Danh mục');
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const { user } = useUser();
+  const { config } = useWebConfig();
 
   const { items } = useCart();
 
@@ -63,12 +65,11 @@ const Header = () => {
                   title="Danh sách yêu thích"
                   onClick={() => setIsWishlistOpen(true)}
                 >
-                  <Icon icon="iconamoon:heart" />
+                  <Icon icon="line-md:heart" />
                 </div>
                 <div
                   className="text-2xl text-gray-50 cursor-pointer relative hover:text-red-600"
-                  title="Danh sách yêu thích"
-                  onClick={() => setIsWishlistOpen(true)}
+                  title="Thông báo"
                 >
                   <Icon icon="line-md:bell" />
                 </div>

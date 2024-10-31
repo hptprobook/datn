@@ -1,6 +1,13 @@
+import { useQuery } from '@tanstack/react-query';
 import { NavLink } from 'react-router-dom';
+import { getAllBlogAPI } from '~/APIs';
 
 const PostPage = () => {
+  const { data: blogs, isLoading } = useQuery({
+    queryKey: ['getAllBlogs'],
+    queryFn: getAllBlogAPI,
+  });
+
   const posts = [
     {
       id: 1,
@@ -64,10 +71,12 @@ const PostPage = () => {
   ];
 
   return (
-    <div className="max-w-container mx-auto p-4">
+    <div className="max-w-container mx-auto">
       <div className="flex flex-wrap -mx-4">
         <div className="w-full lg:w-9/12 px-4">
-          <h2 className="text-xl font-bold mb-8">Tin hot nhất</h2>
+          <h2 className="text-xl font-bold mb-8 text-gray-900 uppercase">
+            Tin hot nhất
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {posts.map((post) => (
               <div key={post.id} className="bg-white p-4 rounded shadow border">
@@ -87,11 +96,13 @@ const PostPage = () => {
                     ))}
                   </div>
                   <NavLink to={`/tin-tuc/${post.title}`}>
-                    <h2 className="text-xl font-bold mt-2 text-clamp-2 h-18 hover:text-red-600">
+                    <h2 className="text-xl font-bold mt-2 text-clamp-2 h-18 hover:text-red-600 text-gray-800">
                       {post.title}
                     </h2>
                   </NavLink>
-                  <p className="h-18 text-clamp-3">{post.description}</p>
+                  <p className="h-18 text-clamp-3 text-gray-600">
+                    {post.description}
+                  </p>
                   <div className="text-sm text-gray-500">
                     <p>Ngày đăng: {post.date}</p>
                     <p>Người đăng: {post.author}</p>
@@ -110,7 +121,9 @@ const PostPage = () => {
         </div>
 
         <div className="w-full lg:w-3/12 px-4 mt-4 lg:mt-0">
-          <h2 className="text-xl font-bold mb-8">Đáng xem</h2>
+          <h2 className="text-xl font-bold mb-8 text-gray-900 uppercase">
+            Đáng xem
+          </h2>
           {suggestedPosts.map((post) => (
             <div
               key={post.id}
@@ -124,11 +137,11 @@ const PostPage = () => {
                 />
               </NavLink>
               <NavLink to={`/tin-tuc/${post.title}`}>
-                <h2 className="text-xl font-bold mb-2 hover:text-red-600">
+                <h2 className="text-xl font-bold mb-2 hover:text-red-600 text-gray-800">
                   {post.title}
                 </h2>
               </NavLink>
-              <p>{post.description}</p>
+              <p className="text-gray-600">{post.description}</p>
               <button className="mt-2 text-blue-500 hover:text-red-600">
                 Xem ngay
               </button>
