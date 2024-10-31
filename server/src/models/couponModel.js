@@ -35,10 +35,7 @@ const createCoupon = async (dataCoupon) => {
   const db = await GET_DB();
   const collection = db.collection('coupons');
   const data = {
-    ...validData,
-    applicableProducts: validData.applicableProducts.map((item) => {
-      return new ObjectId(item.applicableProducts);
-    }),
+    ...validData
   };
   const result = await collection.insertOne(data);
   return result;
