@@ -9,6 +9,7 @@ import { ERROR_MESSAGES } from '~/utils/errorMessage';
 import { ObjectId } from 'mongodb';
 import path from 'path';
 import { uploadModel } from '~/models/uploadModel';
+
 const getCurrentUser = async (req, res) => {
   try {
     const { user_id } = req.user;
@@ -27,6 +28,7 @@ const getCurrentUser = async (req, res) => {
     });
   }
 };
+
 const createUser = async (req, res) => {
   try {
     const data = req.body;
