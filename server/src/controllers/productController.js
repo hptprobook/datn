@@ -640,20 +640,20 @@ const ratingProduct = async (req, res) => {
 const ratingShopProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { content, userId } = req.body;
+    const { user_id } = req.user;
+
+    const { content } = req.body;
 
     const data = {
       content,
-      userId,
+      user_id,
     };
 
     const dataProduct = await productModel.ratingShopResponse(id, data);
     if (!dataProduct) {
       return res.status(StatusCodes.BAD_REQUEST).json(dataProduct.detail);
     }
-    return res
-      .status(StatusCodes.OK)
-      .json({ dataProduct, message: 'Đánh giá thành công' });
+    return res.status(StatusCodes.OK).json({ message: 'Đánh giá thành công' });
   } catch (error) {
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
