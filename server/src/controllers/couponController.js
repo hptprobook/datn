@@ -2,6 +2,7 @@
 /* eslint-disable semi */
 import { couponModel } from '~/models/couponModel';
 import { StatusCodes } from 'http-status-codes';
+
 // import { ERROR_MESSAGES } from '~/utils/errorMessage';
 const getCoupons = async (req, res) => {
   try {
@@ -119,7 +120,7 @@ const deleteManyCoupon = async (req, res) => {
   }
 };
 
-export const getCouponsByType = async (req, res) => {
+ const getCouponsByType = async (req, res) => {
   try {
     const { type } = req.query; // Extract type from query parameters
     if (!type) {
@@ -135,6 +136,28 @@ export const getCouponsByType = async (req, res) => {
   }
 };
 
+const checkCouponApplicability = async (req, res) => {
+  const { userId, couponId } = req.body;
+
+  try {
+    const result = await couponModel.checkCouponApplicability(userId, couponId);
+    if (result.applicable) {
+      return res.status(StatusCodes.OK).json({
+        message: 'Phiếu giảm giá được áp dụng',
+      });
+    } else {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: result.message || 'Phiếu giảm giá không được áp dụng',
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: 'Có lỗi xảy ra, xin thử lại sau',
+    });
+  }
+};
+
 export const couponController = {
   createCoupon,
   getCoupons,
@@ -143,5 +166,6 @@ export const couponController = {
   deleteCoupon,
   deleteManyCoupon,
   getCouponsById,
-  getCouponsByType
+  getCouponsByType,
+  checkCouponApplicability
 };

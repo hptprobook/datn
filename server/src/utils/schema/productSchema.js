@@ -406,6 +406,21 @@ export const REVIEW_PRODUCT = Joi.object({
     'number.max': 'Đánh giá phải từ 1 đến 5',
     'any.required': 'Đánh giá là bắt buộc',
   }),
+  images: Joi.array()
+    .items(
+      Joi.string().trim().min(1).messages({
+        'string.empty': 'Ảnh không được để trống',
+      })
+    )
+    .default([]),
+  shopResponse: Joi.object({
+    content: Joi.string().trim().min(1).required().messages({
+      'string.empty': 'Nội dung phản hồi của shop không được để trống',
+      'any.required': 'Nội dung là bắt buộc',
+    }),
+    createdAt: Joi.date().timestamp('javascript').default(Date.now),
+    updatedAt: Joi.date().timestamp('javascript').default(Date.now),
+  }).default({}),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(Date.now),
 })
@@ -432,5 +447,35 @@ export const UPDATE_REVIEW_PRODUCT = Joi.object({
     'number.min': 'Đánh giá phải từ 1 đến 5',
     'number.max': 'Đánh giá phải từ 1 đến 5',
   }),
+  images: Joi.array().items(
+    Joi.string().trim().min(1).messages({
+      'string.empty': 'Ảnh không được để trống',
+    })
+  ),
+  shopResponse: Joi.object({
+    content: Joi.string().trim().min(1).messages({
+      'string.empty': 'Nội dung phản hồi của shop không được để trống',
+    }),
+    updatedAt: Joi.date().timestamp('javascript').default(Date.now),
+  }).default({}),
   updatedAt: Joi.date().timestamp('javascript').default(Date.now),
+});
+
+export const RATING_SHOP = Joi.object({
+  shopResponse: Joi.object({
+    userId: Joi.string().trim().min(1).required().messages({
+      'string.empty': 'Người dùng không được để trống',
+      'any.required': 'Người dùng là bắt buộc',
+    }),
+    content: Joi.string().trim().min(1).required().messages({
+      'string.empty': 'Nội dung phản hồi của shop không được để trống',
+      'any.required': 'Nội dung phản hồi của shop là bắt buộc',
+    }),
+    createdAt: Joi.date().timestamp('javascript').default(Date.now),
+    updatedAt: Joi.date().timestamp('javascript').default(Date.now),
+  })
+    .required()
+    .messages({
+      'any.required': 'Phản hồi là bắt buộc',
+    }),
 });
