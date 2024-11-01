@@ -400,6 +400,14 @@ export const REVIEW_PRODUCT = Joi.object({
     'string.empty': 'Nội dung không được để trống',
     'any.required': 'Nội dung là bắt buộc',
   }),
+  variantColor: Joi.string().trim().min(1).required().messages({
+    'string.empty': 'Màu sắc biến thể không được để trống',
+    'any.required': 'Màu sắc biến thể là bắt buộc',
+  }),
+  variantSize: Joi.string().trim().min(1).required().messages({
+    'string.empty': 'Kích thước biến thể không được để trống',
+    'any.required': 'Kích thước biến thể là bắt buộc',
+  }),
   rating: Joi.number().integer().min(1).max(5).required().messages({
     'number.base': 'Đánh giá phải là số',
     'number.min': 'Đánh giá phải từ 1 đến 5',
@@ -441,6 +449,12 @@ export const UPDATE_REVIEW_PRODUCT = Joi.object({
   }),
   content: Joi.string().trim().min(1).messages({
     'string.empty': 'Nội dung không được để trống',
+  }),
+  variantColor: Joi.string().trim().min(1).messages({
+    'string.empty': 'Màu sắc biến thể không được để trống',
+  }),
+  variantSize: Joi.string().trim().min(1).messages({
+    'string.empty': 'Kích thước biến thể không được để trống',
   }),
   rating: Joi.number().integer().min(1).max(5).messages({
     'number.base': 'Đánh giá phải là số',

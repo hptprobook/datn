@@ -86,6 +86,11 @@ Router.put(
   productController.updateRatingProduct
 );
 Router.delete('/:id', verifyStaff, isAdmin, productController.deleteProduct);
-Router.delete('/rating/:id', productController.deleteRating);
+Router.delete(
+  '/rating/:id',
+  verifyStaff,
+  isAdmin,
+  productController.deleteRating
+);
 
 export const productsApi = Router;
