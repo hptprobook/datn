@@ -6,6 +6,7 @@ import { ERROR_MESSAGES } from '~/utils/errorMessage';
 import { uploadModel } from '~/models/uploadModel';
 import path from 'path';
 import { hotSearchModel } from '~/models/hotSearchModel';
+import { ObjectId } from 'mongodb';
 
 const getAllProducts = async (req, res) => {
   try {
@@ -597,12 +598,6 @@ const ratingProduct = async (req, res) => {
   try {
     const { userId, content, orderId, productId, rating } = req.body;
 
-    if (!userId || !content || !orderId || !productId || !rating) {
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        message: ERROR_MESSAGES.REQUIRED,
-      });
-    }
-
     const data = {
       userId,
       content,
@@ -611,8 +606,49 @@ const ratingProduct = async (req, res) => {
       rating,
     };
 
+    let images = [];
+
+    if (req.files) {
+      images = req.files.map((file) =>
+        path.join('uploads/products', file.filename)
+      );
+      data.images = images;
+    }
+
     const dataProduct = await productModel.ratingProduct(data);
-    if (dataProduct.error) {
+    if (!dataProduct) {
+      if (req.files) {
+        uploadModel.deleteImgs(images);
+      }
+      return res.status(StatusCodes.BAD_REQUEST).json(dataProduct.detail);
+    }
+    return res
+      .status(StatusCodes.OK)
+      .json({ dataProduct, message: 'Đánh giá thành công' });
+  } catch (error) {
+    if (req.files) {
+      req.files.map((file) => {
+        uploadModel.deleteImg(file.path);
+      });
+    }
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
+  }
+};
+
+const ratingShopProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { content, userId } = req.body;
+
+    const data = {
+      content,
+      userId,
+    };
+
+    const dataProduct = await productModel.ratingShopResponse(id, data);
+    if (!dataProduct) {
       return res.status(StatusCodes.BAD_REQUEST).json(dataProduct.detail);
     }
     return res
@@ -628,13 +664,8 @@ const ratingProduct = async (req, res) => {
 const updateRatingProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { userId, content, orderId, productId, rating } = req.body;
-
-    if (!userId || !content || !orderId || !productId || !rating) {
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        message: ERROR_MESSAGES.REQUIRED,
-      });
-    }
+    const { userId, content, orderId, productId, rating, imagesDelete } =
+      req.body;
 
     const data = {
       userId,
@@ -643,16 +674,55 @@ const updateRatingProduct = async (req, res) => {
       productId,
       rating,
     };
+    let images = [];
 
+    if (req.files) {
+      images = req.files.map((file) =>
+        path.join('uploads/products', file.filename)
+      );
+    }
+    const product = await productModel.getProductById(productId);
+
+    if (!product) {
+      if (req.files) {
+        uploadModel.deleteImgs(images);
+      }
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Sản phẩm không tồn tại' });
+    }
+    const review = product.reviews.find((review) =>
+      review._id.equals(new ObjectId(id))
+    );
+
+    const combinedImages = [...review.images, ...images];
+
+    data.images = combinedImages;
     const dataProduct = await productModel.updateRatingProduct(id, data);
 
-    if (dataProduct.error) {
+    if (!dataProduct) {
+      if (req.files) {
+        uploadModel.deleteImgs(images);
+      }
       return res.status(StatusCodes.BAD_REQUEST).json(dataProduct.detail);
     }
+    if (imagesDelete && imagesDelete.length > 0) {
+      if (Array.isArray(imagesDelete)) {
+        uploadModel.deleteImgs(imagesDelete);
+      } else {
+        uploadModel.deleteImg(imagesDelete);
+      }
+    }
+
     return res
       .status(StatusCodes.OK)
       .json({ dataProduct, message: 'Cập nhật đánh giá thành công' });
   } catch (error) {
+    if (req.files) {
+      req.files.map((file) => {
+        uploadModel.deleteImg(file.path);
+      });
+    }
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ message: error.message });
@@ -667,7 +737,15 @@ const deleteRating = async (req, res) => {
         .status(StatusCodes.BAD_REQUEST)
         .json({ message: 'Thiếu thông tin' });
     }
-    await productModel.deleteRating(id);
+    const result = await productModel.deleteRating(id);
+    if (!result) {
+      return res
+        .status(StatusCodes.OK)
+        .json({ message: 'Xóa đánh giá không thành công' });
+    }
+    if (result.images && result.images.length > 0) {
+      uploadModel.deleteImgs(result.images);
+    }
     return res
       .status(StatusCodes.OK)
       .json({ message: 'Xóa đánh giá thành công' });
@@ -936,4 +1014,5 @@ export const productController = {
   getProductsBySlugAndPriceRange,
   getProductsBySearchAndFilter,
   getMinMaxPrices,
+  ratingShopProduct,
 };
