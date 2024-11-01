@@ -596,7 +596,15 @@ const deleteProduct = async (req, res) => {
 
 const ratingProduct = async (req, res) => {
   try {
-    const { userId, content, orderId, productId, rating } = req.body;
+    const {
+      userId,
+      content,
+      orderId,
+      productId,
+      rating,
+      variantColor,
+      variantSize,
+    } = req.body;
 
     const data = {
       userId,
@@ -604,6 +612,8 @@ const ratingProduct = async (req, res) => {
       orderId,
       productId,
       rating,
+      variantColor,
+      variantSize,
     };
 
     let images = [];
@@ -664,8 +674,16 @@ const ratingShopProduct = async (req, res) => {
 const updateRatingProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { userId, content, orderId, productId, rating, imagesDelete } =
-      req.body;
+    const {
+      userId,
+      content,
+      orderId,
+      productId,
+      rating,
+      imagesDelete,
+      variantColor,
+      variantSize,
+    } = req.body;
 
     const data = {
       userId,
@@ -673,6 +691,8 @@ const updateRatingProduct = async (req, res) => {
       orderId,
       productId,
       rating,
+      variantColor,
+      variantSize,
     };
     let images = [];
 
