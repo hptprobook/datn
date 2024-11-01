@@ -189,7 +189,6 @@ const updateOrder = async (req, res) => {
       data.status = newStatus;
     }
     const dataOrder = await orderModel.updateOrder(id, data);
-    // test
     if (dataOrder) {
       const endStatus = dataOrder.status.at(-1).status;
       //  trạng thái xác nhận trừ số lượng
@@ -200,12 +199,12 @@ const updateOrder = async (req, res) => {
             name: item.name,
             variantColor: item.variantColor,
             variantSize: item.variantSize,
-            quantity: -item.quantity,
+            quantity: item.quantity,
           };
         });
         await Promise.all(
           newProducts.map(async (item) => {
-            await orderModel.updateSingleProductStock(item);
+            await orderModel.updateConfirmedStock(item);
           })
         );
       }
@@ -218,17 +217,33 @@ const updateOrder = async (req, res) => {
             name: item.name,
             variantColor: item.variantColor,
             variantSize: item.variantSize,
-            quantity: item.quantity,
+            quantity: -item.quantity,
           };
         });
         await Promise.all(
           newProducts.map(async (item) => {
-            await orderModel.updateSingleProductStock(item);
+            await orderModel.updateConfirmedStock(item);
           })
         );
       }
       //  trạng thái hoàn thành tạo hóa đơn
       if (endStatus == 'completed') {
+        // cập nhật số lượng kho
+        const newProducts = dataOrder.productsList.map((item) => {
+          return {
+            productId: item._id.toString(),
+            name: item.name,
+            variantColor: item.variantColor,
+            variantSize: item.variantSize,
+            quantity: item.quantity,
+          };
+        });
+        await Promise.all(
+          newProducts.map(async (item) => {
+            await orderModel.updateCompletedStock(item);
+          })
+        );
+
         const dataReceipt = {
           orderId: dataOrder._id.toString(),
           receiptCode: code(6).toUpperCase(),
@@ -310,12 +325,12 @@ const updateOrderNotLogin = async (req, res) => {
             name: item.name,
             variantColor: item.variantColor,
             variantSize: item.variantSize,
-            quantity: -item.quantity,
+            quantity: item.quantity,
           };
         });
         await Promise.all(
           newProducts.map(async (item) => {
-            await orderModel.updateSingleProductStock(item);
+            await orderModel.updateConfirmedStock(item);
           })
         );
       }
@@ -328,17 +343,33 @@ const updateOrderNotLogin = async (req, res) => {
             name: item.name,
             variantColor: item.variantColor,
             variantSize: item.variantSize,
-            quantity: item.quantity,
+            quantity: -item.quantity,
           };
         });
         await Promise.all(
           newProducts.map(async (item) => {
-            await orderModel.updateSingleProductStock(item);
+            await orderModel.updateConfirmedStock(item);
           })
         );
       }
       //  trạng thái hoàn thành tạo hóa đơn
       if (endStatus == 'completed') {
+        // cập nhật số lượng kho
+        const newProducts = dataOrder.productsList.map((item) => {
+          return {
+            productId: item._id.toString(),
+            name: item.name,
+            variantColor: item.variantColor,
+            variantSize: item.variantSize,
+            quantity: item.quantity,
+          };
+        });
+        await Promise.all(
+          newProducts.map(async (item) => {
+            await orderModel.updateCompletedStock(item);
+          })
+        );
+
         const dataReceipt = {
           orderId: dataOrder._id.toString(),
           receiptCode: code(6).toUpperCase(),
