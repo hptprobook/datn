@@ -500,7 +500,7 @@ const ratingShopResponse = async (reviewId, data) => {
     {
       $set: {
         'reviews.$.shopResponse': {
-          userId: new ObjectId(data.userId),
+          userId: new ObjectId(data.user_id),
           content: data.content,
           createdAt: new Date().getTime(),
           updatedAt: new Date().getTime(),
