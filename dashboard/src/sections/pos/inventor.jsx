@@ -63,7 +63,6 @@ export default function TrackingInventorPage() {
   );
   const handleSelectProduct = (id) => {
     const product = products.products.find((p) => p._id === id);
-    console.log(product);
     setSelectedColor(0);
     setColors(product.variants);
     setSizes(product.variants[0].sizes);
