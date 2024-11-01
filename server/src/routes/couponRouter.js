@@ -8,6 +8,7 @@ const Router = express.Router();
 Router.get('/', verifyStaff, couponController.getCoupons);
 Router.get('/code', couponController.findOneCoupons);
 Router.get('/filter', couponController.getCouponsByType);
+Router.post('/check-applicability', couponController.checkCouponApplicability);
 Router.post('/', verifyStaff, couponController.createCoupon);
 Router.put('/:id', verifyStaff, couponController.updateCoupon);
 Router.delete('/:id', verifyStaff, couponController.deleteCoupon);
@@ -19,5 +20,7 @@ Router.post(
 );
 
 Router.get('/:id', verifyStaff, couponController.getCouponsById);
+
+
 
 export const couponApi = Router;

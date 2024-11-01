@@ -21,9 +21,9 @@ const PosService = {
             throw err;
         }
     },
-    getMe: async () => {
+    searchUser: async (search) => {
         try {
-            return await get("/staffs/auth/me");
+            return await get(`/users?search=${search}&page=1&limit=10`);
         } catch (err) {
             console.error("Error: ", err);
             throw err;
