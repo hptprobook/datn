@@ -37,6 +37,8 @@ import Label from 'src/components/label';
 import { fetchAll } from 'src/redux/slices/warehouseSlices';
 import { handleToast } from 'src/hooks/toast';
 import Grid2 from '@mui/material/Unstable_Grid2';
+import { useFormik } from 'formik';
+import { productSchema } from './common/util';
 
 // ----------------------------------------------------------------------
 const backendUrl = import.meta.env.VITE_BACKEND_APP_URL;
@@ -91,6 +93,13 @@ export default function PosPage() {
   const [selectedSize, setSelectedSize] = useState(null);
   const [thumbnail, setThumbnail] = useState(null);
   const [productSelected, setProductSelected] = useState(null);
+  const [addCustom, setAddCustom] = useState(false);
+
+  const dispatch = useDispatch();
+  const status = useSelector((state) => state.pos.statusSearch);
+  const products = useSelector((state) => state.pos.products);
+  const staff = useSelector((state) => state.auth.auth);
+  const warehouses = useSelector((state) => state.warehouses.warehouses);
   useEffect(() => {
     if (receipts.length === 0) {
       setReceipts([
@@ -111,18 +120,41 @@ export default function PosPage() {
         },
       ]);
     }
-  }, [receipts]);
-
-  const dispatch = useDispatch();
-  const status = useSelector((state) => state.pos.statusSearch);
-  const products = useSelector((state) => state.pos.products);
-  const staff = useSelector((state) => state.auth.auth);
-  const warehouses = useSelector((state) => state.warehouses.warehouses);
+    if (receipts.length === 1) {
+      setReceipt(receipts[0]);
+    }
+  }, [receipts, dispatch, value]);
   useEffect(() => {
     if (staff) {
       dispatch(fetchAll());
     }
   }, [dispatch, staff]);
+
+  const formik = useFormik({
+    initialValues: {
+      name: '',
+      price: '',
+      quantity: '',
+      variantColor: 'Không',
+      variantSize: 'Không',
+      productId: null,
+      image: 'https://letsenhance.io/static/8f5e523ee6b2479e26ecc91b9c25261e/1015f/MainAfter.jpg',
+      sku: '',
+      weight: 0,
+    },
+    validationSchema: productSchema,
+    onSubmit: async (values) => {
+      const r = receipts[value];
+
+      r.productsList.push({
+        ...values,
+      });
+      r.total += values.price * values.quantity;
+      setReceipts([...receipts]);
+      formik.resetForm();
+      setAddCustom(false);
+    },
+  });
   const handleSearch = useCallback(
     (e) => {
       const keyword = e.target.value;
@@ -142,7 +174,6 @@ export default function PosPage() {
   const handleChange = (event, i) => {
     setValue(i);
     setReceipt(receipts[i]);
-    console.log(receipts[i]);
   };
   const handleChangeWarehouse = (event) => {
     if (staff.role !== 'root' && staff.brandId !== event.target.value) {
@@ -202,6 +233,9 @@ export default function PosPage() {
     setProductSelected(product);
   };
   const handleAddCart = () => {
+    // if (value === 0) {
+    //   setReceipt(receipts[0]);
+    // }
     const product = productSelected;
     const color = colors[selectedColor];
     if (staff.role !== 'root' && staff.branchId !== color.warehouseId) {
@@ -236,7 +270,17 @@ export default function PosPage() {
     r.total += quantity * size.price;
     setReceipts([...receipts]);
     setQuantity(1);
-    console.log(receipts);
+  };
+  const handleRemoveProduct = (i) => {
+    const r = receipts[value];
+    r.total -= r.productsList[i].quantity * r.productsList[i].price;
+    r.productsList.splice(i, 1);
+    setReceipts([...receipts]);
+  };
+  const handleNote = (e) => {
+    const r = receipts[value];
+    r.note = e.target.value;
+    setReceipts([...receipts]);
   };
   return (
     <Box>
@@ -445,6 +489,7 @@ export default function PosPage() {
           </Stack>
         </Box>
       </Modal>
+
       <Stack direction="row" alignItems="center" spacing={4} mb={5}>
         <IconButton onClick={handleOpen} variant="contained" color="primary">
           <Iconify icon="eva:search-fill" />
@@ -485,7 +530,7 @@ export default function PosPage() {
             scrollButtons="auto"
             aria-label="scrollable auto tabs example"
           >
-            {receipts.map((receipt, index) => (
+            {receipts.map((r, index) => (
               <Tab key={index} label={`Hóa đơn ${index + 1}`} />
             ))}
           </Tabs>
@@ -498,61 +543,144 @@ export default function PosPage() {
               p: 2,
               borderRadius: 1,
               height: 'calc(100vh - 220px)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2,
             }}
           >
-            <TableContainer>
-              <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Tên sản phẩm</TableCell>
-                    <TableCell align="right">Giá</TableCell>
-                    <TableCell align="right">Số lượng</TableCell>
-                    <TableCell align="right">Màu</TableCell>
-                    <TableCell align="right">Kích thước</TableCell>
-                    <TableCell align="right"> </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {receipt?.productsList.length > 0 &&
-                    receipt?.productsList.map((row) => (
-                      <TableRow
-                        key={row.name}
-                        sx={{
-                          '&:last-child td, &:last-child th': { border: 0 },
-                        }}
-                      >
-                        <TableCell
-                          component="th"
-                          scope="row"
+            <form
+              onSubmit={formik.handleSubmit}
+              style={{
+                flexGrow: 1,
+                ...styleOverFlow,
+              }}
+            >
+              <TableContainer>
+                <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Tên sản phẩm</TableCell>
+                      <TableCell align="right">Giá</TableCell>
+                      <TableCell align="right">Số lượng</TableCell>
+                      <TableCell align="right">Màu</TableCell>
+                      <TableCell align="right">Kích thước</TableCell>
+                      <TableCell align="right"> </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {addCustom && (
+                      <TableRow>
+                        <TableCell>
+                          <TextField
+                            label="Tên sản phẩm"
+                            name="name"
+                            value={formik.values.name}
+                            onChange={formik.handleChange}
+                            error={formik.touched.name && Boolean(formik.errors.name)}
+                            helperText={formik.touched.name && formik.errors.name}
+                          />
+                        </TableCell>
+                        <TableCell align="right">
+                          <TextField
+                            label="Giá"
+                            name="price"
+                            value={formik.values.price}
+                            onChange={formik.handleChange}
+                            error={formik.touched.price && Boolean(formik.errors.price)}
+                            helperText={formik.touched.price && formik.errors.price}
+                          />
+                        </TableCell>
+                        <TableCell align="right">
+                          <TextField
+                            label="Số lượng"
+                            name="quantity"
+                            value={formik.values.quantity}
+                            onChange={formik.handleChange}
+                            error={formik.touched.quantity && Boolean(formik.errors.quantity)}
+                            helperText={formik.touched.quantity && formik.errors.quantity}
+                          />
+                        </TableCell>
+                        <TableCell align="right">
+                          <TextField
+                            label="Màu"
+                            name="variantColor"
+                            value={formik.values.variantColor}
+                            onChange={formik.handleChange}
+                            error={
+                              formik.touched.variantColor && Boolean(formik.errors.variantColor)
+                            }
+                            helperText={formik.touched.variantColor && formik.errors.variantColor}
+                          />
+                        </TableCell>
+                        <TableCell align="right">
+                          <TextField
+                            label="Kích thước"
+                            name="variantSize"
+                            value={formik.values.variantSize}
+                            onChange={formik.handleChange}
+                            error={formik.touched.variantSize && Boolean(formik.errors.variantSize)}
+                            helperText={formik.touched.variantSize && formik.errors.variantSize}
+                          />
+                        </TableCell>
+                        <TableCell align="right">
+                          <IconButton onClick={formik.handleSubmit}>
+                            <Iconify icon="eva:save-fill" />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                    {receipt?.productsList.length > 0 &&
+                      receipt?.productsList.map((row, i) => (
+                        <TableRow
+                          key={i}
                           sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 2,
+                            '&:last-child td, &:last-child th': { border: 0 },
                           }}
                         >
-                          <img
-                            src={renderUrl(row.image, backendUrl)}
-                            alt=""
-                            height={50}
-                            width={50}
-                            style={{
-                              borderRadius: 1,
-                              objectFit: 'cover',
+                          <TableCell
+                            component="th"
+                            scope="row"
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 2,
                             }}
-                          />
-                          <Typography variant="body1" color="textPrimary">
-                            {row.name}
-                          </Typography>
-                        </TableCell>
-                        <TableCell align="right">{formatCurrency(row.price)}</TableCell>
-                        <TableCell align="right">{row.quantity}</TableCell>
-                        <TableCell align="right">{row.variantColor}</TableCell>
-                        <TableCell align="right">{row.variantSize}</TableCell>
-                      </TableRow>
-                    ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                          >
+                            <img
+                              src={renderUrl(row.image, backendUrl)}
+                              alt=""
+                              height={50}
+                              width={50}
+                              style={{
+                                borderRadius: 1,
+                                objectFit: 'cover',
+                              }}
+                            />
+                            <Typography variant="body1" color="textPrimary">
+                              {row.name}
+                            </Typography>
+                          </TableCell>
+                          <TableCell align="right">{formatCurrency(row.price)}</TableCell>
+                          <TableCell align="right">{row.quantity}</TableCell>
+                          <TableCell align="right">{row.variantColor}</TableCell>
+                          <TableCell align="right">{row.variantSize}</TableCell>
+                          <TableCell align="right">
+                            <IconButton onClick={() => handleRemoveProduct(i)}>
+                              <Iconify icon="eva:trash-2-fill" />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </form>
+            <Stack direction="row" alignItems="center" justifyContent="center" spacing={2}>
+              <TextField label="Ghi chú" value={receipt?.note} onChange={handleNote} />
+              <Button variant="contained" color="inherit" onClick={() => setAddCustom(!addCustom)}>
+                Thêm sản phẩm tùy chỉnh
+              </Button>
+            </Stack>
           </Card>
         </Grid2>
         <Grid2 xs={12} md={4}>
