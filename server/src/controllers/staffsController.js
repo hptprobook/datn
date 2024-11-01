@@ -169,7 +169,6 @@ const getMe = async (req, res) => {
 }
 const updateMe = async (req, res) => {
     try {
-        console.log(req.body);
         const { user_id } = req.user;
         const data = req.body;
         const existStaff = await staffsModel.getStaffBy('_id', user_id);

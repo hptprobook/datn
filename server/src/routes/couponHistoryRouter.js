@@ -4,7 +4,8 @@ import { couponUsageController } from '~/controllers/couponHistoryController';
 
 Router.get('/', couponUsageController.getCouponHistory);
 Router.post('/add', couponUsageController.addCouponHistory);
-Router.get('/history/:userId', couponUsageController.getCouponHistorybyUserId);
+Router.post('/history', couponUsageController.getCouponHistoryByParams);
+
 
 export const couponHistoryApi = Router;
 

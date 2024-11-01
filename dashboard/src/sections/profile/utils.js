@@ -1,79 +1,20 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
-import parse from 'html-react-parser';
-import React from 'react';
-
-export const visuallyHidden = {
-  border: 0,
-  margin: -1,
-  padding: 0,
-  width: '1px',
-  height: '1px',
-  overflow: 'hidden',
-  position: 'absolute',
-  whiteSpace: 'nowrap',
-  clip: 'rect(0 0 0 0)',
-};
-
-export function emptyRows(page, rowsPerPage, arrayLength) {
-  return page ? Math.max(0, (1 + page) * rowsPerPage - arrayLength) : 0;
-}
-
-function descendingComparator(a, b, orderBy) {
-  if (a[orderBy] === null) {
-    return 1;
-  }
-  if (b[orderBy] === null) {
-    return -1;
-  }
-  if (b[orderBy] < a[orderBy]) {
-    return -1;
-  }
-  if (b[orderBy] > a[orderBy]) {
-    return 1;
-  }
-  return 0;
-}
-export function getComparator(order, orderBy) {
-  return order === 'desc'
-    ? (a, b) => descendingComparator(a, b, orderBy)
-    : (a, b) => -descendingComparator(a, b, orderBy);
-}
-
-export function applyFilter({ inputData, comparator, filterName }) {
-  if (!Array.isArray(inputData)) {
-    inputData = []; // Ensure inputData is an array
-  }
-
-  const stabilizedThis = inputData.map((el, index) => [el, index]);
-
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-
-  inputData = stabilizedThis.map((el) => el[0]);
-
-  if (filterName) {
-    inputData = inputData.filter(
-      (user) => user.title && user.title.toLowerCase().indexOf(filterName.toLowerCase()) !== -1
-    );
-  }
-
-  return inputData;
-}
-
-export const parseContent = (content) => parse(content, {
-  replace: domNode => {
-    if (domNode.name === 'img') {
-      return React.createElement('img', {
-        src: domNode.attribs.src,
-        alt: domNode.attribs.alt || ''
-      });
-    }
-    if (domNode.type === 'text') {
-      return domNode.data;
-    }
-    return null;
-  }
+ import * as Yup from 'yup';
+ 
+ export const profileSchema = Yup.object().shape({
+  name: Yup.string()
+    .required('Tên không được để trống')
+    .min(2, 'Tên quá ngắn')
+    .max(60, 'Tên quá dài'),
+  address: Yup.string()
+    .required('Địa chỉ không được để trống')
+    .min(2, 'Địa chỉ quá ngắn')
+    .max(255, 'Địa chỉ quá dài'),
+  phone: Yup.string().matches(/^[0-9]+$/, 'Số điện thoại không hợp lệ'),
+  bankAccount: Yup.string().matches(/^[0-9]+$/, 'Số tài khoản không hợp lệ'),
+  bankHolder: Yup.string()
+    .min(2, 'Tên chủ tài khoản quá ngắn')
+    .max(255, 'Tên chủ tài khoản quá dài'),
+  bankName: Yup.string()
+    .min(2, 'Tên ngân hàng quá ngắn')
+    .max(255, 'Tên ngân hàng quá dài'),
 });

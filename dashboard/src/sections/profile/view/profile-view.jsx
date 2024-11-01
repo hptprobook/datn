@@ -5,18 +5,21 @@ import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
+import { PropTypes } from 'prop-types';
 
 
 
-import { Avatar } from '@mui/material';
+import { Avatar, IconButton } from '@mui/material';
 
 import Grid2 from '@mui/material/Unstable_Grid2';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFormik } from 'formik';
 import { handleToast } from 'src/hooks/toast';
-import { setStatus } from 'src/redux/slices/userSlice';
-import { updateStaffById } from 'src/redux/slices/staffSlices';
+import { updateMe ,setStatus } from 'src/redux/slices/staffSlices';
+import { getMe } from 'src/redux/slices/authSlice';
+import Iconify from 'src/components/iconify';
 import EditableField from '../edit-field';
+import { profileSchema } from '../utils';
 
 // ----------------------------------------------------------------------
 
@@ -27,9 +30,11 @@ export default function ProfileView() {
   // const [uploadedImageUrl, setUploadedImageUrl] = useState(null);
 
   const data = useSelector((state) => state.auth.auth);
-  const status = useSelector((state) => state.settings.statusWeb);
-  const statusUpdate = useSelector((state) => state.settings.statusUpdateWeb);
-  const error = useSelector((state) => state.settings.error);
+  const status = useSelector((state) => state.staffs.status);
+  const statusUpdate = useSelector((state) => state.staffs.statusUpdateMe);
+  const error = useSelector((state) => state.staffs.error);
+
+  
 
   const [account, setAccount] = useState({});
 
@@ -44,7 +49,7 @@ export default function ProfileView() {
   //   if (files) {
   //     setUploadedImageUrl({
   //       file: files,
-  //       name: 'logo',
+  //       name: 'avatar',
   //     });
   //   }
   // }, []);
@@ -60,10 +65,9 @@ export default function ProfileView() {
       bankHolder: account.bankHolder || '',
       bankName: account.bankName || '',
     },
+    validationSchema: profileSchema,
   });
-  // useEffect(() => {
-  //   dispatch(getConfigWebsite());
-  // }, [dispatch]);
+
   const formikRef = useRef(formik);
 
   useEffect(() => {
@@ -76,27 +80,25 @@ export default function ProfileView() {
     if (statusUpdate === 'successful' && data) {
       handleToast('success', 'Cập nhật thành công');
       setInputSelect('');
-      dispatch(setStatus({ key: 'statusUpdateWeb', value: 'idle' }));
+      dispatch(setStatus({ key: 'statusUpdateMe', value: 'idle' }));
     }
     if (statusUpdate === 'failed') {
       handleToast('error', error);
     }
   }, [statusUpdate, data, error, dispatch]);
-  // const handleChange = (event, newValue) => {
-  //   setValue(newValue);
-  // };
-  // const handleSubmit = () => {
-  //   if (formik.errors && Object.keys(formik.errors).length > 0) {
-  //     Object.keys(formik.errors).forEach((key) => {
-  //       handleToast('error', formik.errors[key]);
-  //     });
-  //     return;
-  //   }
-  //   const newValues = { ...formik.values }; // Create a shallow copy of formik.values
-  //   delete newValues.logo; // Delete the 'logo' property
-  //   delete newValues._id; // Delete the '_id' property
-  //   // dispatch(updateConfigWebsite({ values: newValues }));
-  // };
+
+  const handleSubmit = () => {
+    if (formik.errors && Object.keys(formik.errors).length > 0) {
+      Object.keys(formik.errors).forEach((key) => {
+        handleToast('error', formik.errors[key]);
+      });
+      return;
+    }
+    const newValues = { ...formik.values }; // Create a shallow copy of formik.values
+    delete newValues.avatar; // Delete the 'logo' property
+    delete newValues._id; // Delete the '_id' property
+    dispatch(updateMe(newValues ));
+  };
   const handleCancel = () => {
     formik.resetForm();
     setInputSelect('');
@@ -114,8 +116,7 @@ export default function ProfileView() {
     const values = {
       [name]: formik.values[name],
     };
-    console.log(values);
-    dispatch(updateStaffById({ id : account._id, data: values }));
+    dispatch(updateMe(values));
   };
   // const handleUpload = () => {
   //   if (uploadedImageUrl) {
@@ -129,10 +130,15 @@ export default function ProfileView() {
   return (
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Tài khoản</Typography>
+        <Stack direction="row" alignItems="center" mb={5} spacing={1}>
+          <Typography variant="h4">Tài khoản</Typography>
+          <IconButton onClick={() => dispatch(getMe())}>
+            <Iconify icon="mdi:reload" />
+          </IconButton>
+        </Stack>
       </Stack>
-      <form>
-        <Grid2 container spacing={3}>
+      <form onSubmit={formik.handleSubmit}>
+      <Grid2 container spacing={3}>
           <Grid2 xs={12} md={4}>
             <Card sx={{ padding: 3, textAlign: 'center' }}>
               <Avatar
@@ -148,9 +154,13 @@ export default function ProfileView() {
           <Grid2 xs={12} md={8}>
             <Stack spacing={3}>
               <Card sx={{ padding: 3 }}>
-                <Typography variant="h6" sx={{ mb: 3 }}>
-                  Thông tin cá nhân
-                </Typography>
+              <TitleMeCard
+                  handleSubmit={handleSubmit}
+                  setInputSelect={setInputSelect}
+                  label="Thông tin cá nhân"
+                  inputSelect={inputSelect}
+                  selectLabel="Thông tin cá nhân"
+                />
                 <Grid2 container spacing={3}>
                   <Grid2 item xs={6}>
                     <EditableField
@@ -259,11 +269,6 @@ export default function ProfileView() {
                   </Grid2>
                 </Grid2>
               </Card>
-                <Stack spacing={3} direction="row" mt={2} justifyContent="flex-end">
-                  <Button type="submit" variant="contained" color="inherit">
-                    Lưu
-                  </Button>
-                </Stack>
             </Stack>
           </Grid2>
         </Grid2>
@@ -271,3 +276,47 @@ export default function ProfileView() {
     </Container>
   );
 }
+
+
+const TitleMeCard = ({ handleSubmit, setInputSelect, inputSelect, selectLabel, label }) => (
+  <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+    <Typography variant="h6">{label}</Typography>
+
+    {/* Button to enable edit mode */}
+    <Button
+      variant="contained"
+      color="inherit"
+      sx={{
+        display: inputSelect === selectLabel ? 'none' : 'flex',
+      }}
+      onClick={() => setInputSelect(selectLabel)}
+    >
+      Chỉnh sửa
+    </Button>
+
+    {/* Stack for save/cancel buttons in edit mode */}
+    <Stack
+      sx={{
+        display: inputSelect === selectLabel ? 'flex' : 'none',
+      }}
+      direction="row"
+      alignItems="center"
+      justifyContent="flex-end"
+      spacing={2}
+    >
+      <Button color="error" onClick={() => setInputSelect('')}>
+        Hủy
+      </Button>
+      <Button variant="contained" color="inherit" onClick={handleSubmit}>
+        Lưu
+      </Button>
+    </Stack>
+  </Stack>
+);
+TitleMeCard.propTypes = {
+  handleSubmit: PropTypes.func.isRequired,
+  setInputSelect: PropTypes.func.isRequired,
+  inputSelect: PropTypes.string.isRequired,
+  selectLabel: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
+};
