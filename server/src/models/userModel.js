@@ -339,14 +339,14 @@ const findUsers = async (data, page = 1, limit = 10) => {
   const db = await GET_DB().collection('users');
   const users = await db.find({
     $or: [
-      { email: data },
-      { phone: data },
-      { name: data }
+      { email: { $regex: data, $options: 'i' } },
+      { phone: { $regex: data, $options: 'i' } },
+      { name: { $regex: data, $options: 'i' } }
     ]
   })
-  .skip((page - 1) * limit)
-  .limit(limit)
-  .toArray();
+    .skip((page - 1) * limit)
+    .limit(limit)
+    .toArray();
   return users;
 };
 

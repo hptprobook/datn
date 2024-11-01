@@ -13,6 +13,7 @@ import {
   Avatar,
   Select,
   Button,
+  Popper,
   ListItem,
   MenuItem,
   TableRow,
@@ -27,10 +28,13 @@ import {
   ListItemText,
   ListItemAvatar,
   TableContainer,
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
 } from '@mui/material';
 import { useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { searchProduct } from 'src/redux/slices/posSlices';
+import { setStatus, searchUser, searchProduct } from 'src/redux/slices/posSlices';
 import { renderUrl } from 'src/utils/check';
 import { formatCurrency } from 'src/utils/format-number';
 import Label from 'src/components/label';
@@ -75,12 +79,7 @@ const styleOverFlow = {
 export default function PosPage() {
   const route = useRouter();
   const [open, setOpen] = useState(false);
-  const handleOpen = () => {
-    setOpen(true);
-  };
-  const handleClose = () => {
-    setOpen(false);
-  };
+  const [anchorEl, setAnchorEl] = useState(null);
   const [value, setValue] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [receipts, setReceipts] = useState([]);
@@ -94,10 +93,14 @@ export default function PosPage() {
   const [thumbnail, setThumbnail] = useState(null);
   const [productSelected, setProductSelected] = useState(null);
   const [addCustom, setAddCustom] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [showSuggest, setShowSuggest] = useState(false);
 
   const dispatch = useDispatch();
   const status = useSelector((state) => state.pos.statusSearch);
   const products = useSelector((state) => state.pos.products);
+  const users = useSelector((state) => state.pos.users);
+  const statusSearchUser = useSelector((state) => state.pos.statusSearchUser);
   const staff = useSelector((state) => state.auth.auth);
   const warehouses = useSelector((state) => state.warehouses.warehouses);
   useEffect(() => {
@@ -155,6 +158,12 @@ export default function PosPage() {
       setAddCustom(false);
     },
   });
+  const handleOpen = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
   const handleSearch = useCallback(
     (e) => {
       const keyword = e.target.value;
@@ -166,6 +175,21 @@ export default function PosPage() {
           dispatch(searchProduct({ keyword, page: 1, limit: 10 }));
         }, 500);
 
+        setSearchTimeout(timeout);
+      }
+    },
+    [dispatch, status, searchTimeout]
+  );
+  const handleSearchUser = useCallback(
+    (e) => {
+      const keyword = e.target.value;
+
+      if (status !== 'loading' && keyword.length > 1) {
+        if (searchTimeout) clearTimeout(searchTimeout);
+
+        const timeout = setTimeout(() => {
+          dispatch(searchUser(keyword));
+        }, 500);
         setSearchTimeout(timeout);
       }
     },
@@ -233,9 +257,6 @@ export default function PosPage() {
     setProductSelected(product);
   };
   const handleAddCart = () => {
-    // if (value === 0) {
-    //   setReceipt(receipts[0]);
-    // }
     const product = productSelected;
     const color = colors[selectedColor];
     if (staff.role !== 'root' && staff.branchId !== color.warehouseId) {
@@ -271,6 +292,11 @@ export default function PosPage() {
     setReceipts([...receipts]);
     setQuantity(1);
   };
+  const handleSelectUser = (id) => {
+    const user = users.find((u) => u._id === id);
+    setAnchorEl(null);
+    setSelectedUser(user);
+  };
   const handleRemoveProduct = (i) => {
     const r = receipts[value];
     r.total -= r.productsList[i].quantity * r.productsList[i].price;
@@ -282,6 +308,38 @@ export default function PosPage() {
     r.note = e.target.value;
     setReceipts([...receipts]);
   };
+
+  const handleOpenSearch = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleCloseSearch = () => {
+    setAnchorEl(null);
+    dispatch(setStatus({ key: 'statusSearchUser', value: 'idle' }));
+    dispatch(setStatus({ key: 'users', value: null }));
+  };
+
+  const openSearch = Boolean(anchorEl);
+  const id = openSearch ? 'simple-popper' : undefined;
+  const handleCalculate = (t, d) => t - d;
+  const handleChangePaymentMethod = (p) => {
+    const r = receipts[value];
+    r.paymentMethod = p;
+    setReceipts([...receipts]);
+  };
+  const roundingUnits = [10000, 20000, 50000, 100000, 200000, 500000];
+
+  const handleChangeAmountPaidBy = (e) => {
+    const r = receipts[value];
+    const calculatedTotal = handleCalculate(r.total, r.discount);
+    if (e?.target) {
+      r.amountPaidBy = e.target.value;
+    } else {
+      r.amountPaidBy = e;
+    }
+    r.amountPaidTo = r.amountPaidBy - calculatedTotal;
+    setReceipts([...receipts]);
+  };
+
   return (
     <Box>
       <Modal
@@ -538,24 +596,23 @@ export default function PosPage() {
       </Stack>
       <Grid2 container spacing={2}>
         <Grid2 xs={12} md={8}>
-          <Card
-            sx={{
-              p: 2,
-              borderRadius: 1,
-              height: 'calc(100vh - 220px)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 2,
-            }}
-          >
-            <form
-              onSubmit={formik.handleSubmit}
-              style={{
-                flexGrow: 1,
-                ...styleOverFlow,
+          <form onSubmit={formik.handleSubmit}>
+            <Card
+              sx={{
+                p: 2,
+                borderRadius: 1,
+                height: 'calc(100vh - 220px)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 2,
               }}
             >
-              <TableContainer>
+              <TableContainer
+                sx={{
+                  flexGrow: 1,
+                  ...styleOverFlow,
+                }}
+              >
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
                   <TableHead>
                     <TableRow>
@@ -674,17 +731,226 @@ export default function PosPage() {
                   </TableBody>
                 </Table>
               </TableContainer>
-            </form>
-            <Stack direction="row" alignItems="center" justifyContent="center" spacing={2}>
-              <TextField label="Ghi chú" value={receipt?.note} onChange={handleNote} />
-              <Button variant="contained" color="inherit" onClick={() => setAddCustom(!addCustom)}>
-                Thêm sản phẩm tùy chỉnh
+              <Stack direction="row" alignItems="center" justifyContent="center" spacing={2}>
+                <TextField label="Ghi chú" value={receipt?.note || ''} onChange={handleNote} />
+                <Button
+                  variant="contained"
+                  color="inherit"
+                  onClick={() => setAddCustom(!addCustom)}
+                >
+                  Thêm sản phẩm tùy chỉnh
+                </Button>
+              </Stack>
+            </Card>
+          </form>
+        </Grid2>
+        <Grid2 xs={12} md={4}>
+          <Card
+            sx={{
+              borderRadius: 1,
+              height: 'calc(100vh - 220px)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2,
+            }}
+          >
+            <Stack
+              direction="row"
+              alignItems="center"
+              justifyContent="space-between"
+              spacing={2}
+              sx={{
+                p: 2,
+                borderBottom: 1,
+              }}
+            >
+              <Iconify icon="mdi:person" />
+              {selectedUser ? (
+                <Stack direction="row" alignItems="center" spacing={1}>
+                  <Stack>
+                    <Typography variant="body1">{selectedUser.name}</Typography>
+                    <Typography variant="body2">{selectedUser.email}</Typography>
+                  </Stack>
+                  <IconButton onClick={() => setSelectedUser(null)}>
+                    <Iconify icon="mdi:close" />
+                  </IconButton>
+                </Stack>
+              ) : (
+                <TextField
+                  aria-describedby={id}
+                  label="Tìm kiếm khách hàng"
+                  fullWidth
+                  variant="standard"
+                  onClick={handleOpenSearch}
+                  onChange={handleSearchUser}
+                  autoComplete="off"
+                />
+              )}
+              <Popper id={id} open={openSearch} anchorEl={anchorEl}>
+                <Box
+                  sx={{
+                    border: 1,
+                    p: 1,
+                    width: anchorEl && anchorEl.clientWidth,
+                    bgcolor: 'background.paper',
+                  }}
+                >
+                  <Stack direction="column">
+                    <Stack
+                      direction="row"
+                      spacing={2}
+                      justifyContent="space-between"
+                      alignItems="center"
+                    >
+                      <Typography variant="body1">Thông tin khách hàng</Typography>
+                      <IconButton onClick={handleCloseSearch}>
+                        <Iconify icon="mdi:close" />
+                      </IconButton>
+                    </Stack>
+                    <List
+                      sx={{
+                        maxHeight: '400px',
+                        ...styleOverFlow,
+                      }}
+                    >
+                      {statusSearchUser === 'successful' &&
+                        users.map((user) => (
+                          <ListItem
+                            key={user._id}
+                            onClick={() => handleSelectUser(user._id)}
+                            sx={{
+                              cursor: 'pointer',
+                              '&:hover': {
+                                backgroundColor: '#f0f0f0',
+                              },
+                            }}
+                          >
+                            <ListItemAvatar>
+                              <Avatar
+                                alt={user.name}
+                                src={renderUrl(user.avatar || '', backendUrl)}
+                              />
+                            </ListItemAvatar>
+                            <ListItemText
+                              primary={user.name}
+                              secondary={
+                                <Typography variant="body2" color="textSecondary">
+                                  {user.phone}
+                                </Typography>
+                              }
+                            />
+                          </ListItem>
+                        ))}
+                    </List>
+                  </Stack>
+                </Box>
+              </Popper>
+              <IconButton>
+                <Iconify icon="mdi:plus" />
+              </IconButton>
+            </Stack>
+            <Stack
+              sx={{
+                flexGrow: 1,
+                p: 2,
+                ...styleOverFlow,
+              }}
+              spacing={2}
+            >
+              <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
+                <Typography variant="body1">Tổng tiền</Typography>
+                <Typography variant="body1">{formatCurrency(receipt?.total)}</Typography>
+              </Stack>
+              <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
+                <Typography variant="body1">Giảm giá</Typography>
+                <Typography variant="body1">{formatCurrency(receipt?.discount)}</Typography>
+              </Stack>
+              <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
+                <Typography variant="body1">Khách phải trả</Typography>
+                <Typography variant="body1">
+                  {formatCurrency(handleCalculate(receipt?.total, receipt?.discount))}
+                </Typography>
+              </Stack>
+              <Stack direction="row" flexWrap="wrap" gap={2}>
+                <Typography sx={{ width: '100%' }} variant="body1">
+                  Phương thức thanh toán
+                </Typography>
+                <Button
+                  variant={receipt?.paymentMethod === 'Tiền mặt' ? 'contained' : 'outlined'}
+                  color="inherit"
+                  onClick={() => handleChangePaymentMethod('Tiền mặt')}
+                  endIcon={<Iconify icon="mdi:cash" />}
+                >
+                  Tiền mặt
+                </Button>
+                <Button
+                  variant={receipt?.paymentMethod === 'Chuyển khoản' ? 'contained' : 'outlined'}
+                  color="inherit"
+                  onClick={() => handleChangePaymentMethod('Chuyển khoản')}
+                  endIcon={<Iconify icon="mdi:bank" />}
+                >
+                  Chuyển khoản
+                </Button>
+                <Button
+                  variant={receipt?.paymentMethod === 'VNPAY' ? 'contained' : 'outlined'}
+                  color="inherit"
+                  onClick={() => handleChangePaymentMethod('VNPAY')}
+                  endIcon={<Iconify icon="solar:card-bold" />}
+                >
+                  Thẻ
+                </Button>
+              </Stack>
+              <Stack direction="row" flexWrap="wrap" gap={2}>
+                <Typography sx={{ width: '100%' }} variant="body1">
+                  Tiền khách đưa
+                  <IconButton onClick={() => setShowSuggest(!showSuggest)}>
+                    <Iconify icon={showSuggest ? 'mdi:eye' : 'mdi:eye-off'} />
+                  </IconButton>
+                </Typography>
+                {showSuggest &&
+                  roundingUnits.map(
+                    (unit) =>
+                      unit >= handleCalculate(receipt?.total, receipt?.discount) && (
+                        <Button
+                          key={unit}
+                          variant={receipt?.amountPaidBy === unit ? 'contained' : 'outlined'}
+                          color="inherit"
+                          onClick={() => handleChangeAmountPaidBy(unit)}
+                        >
+                          {formatCurrency(unit)}
+                        </Button>
+                      )
+                  )}
+                <TextField
+                  label="Số tiền khác"
+                  type="number"
+                  size="small"
+                  variant="standard"
+                  value={receipt?.amountPaidBy ? Number(receipt?.amountPaidBy) : Number(0)}
+                  onChange={handleChangeAmountPaidBy}
+                />
+              </Stack>
+              <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
+                <Typography variant="body1">Tiền thừa</Typography>
+                <Typography variant="body1">{formatCurrency(receipt?.amountPaidTo)}</Typography>
+              </Stack>
+            </Stack>
+            <Stack
+              sx={{ p: 2 }}
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+              spacing={2}
+            >
+              <FormControlLabel control={<Checkbox defaultChecked />} label="In hóa đơn" />
+              <Button variant="contained" color="inherit">
+                Mã giảm giá
+              </Button>
+              <Button variant="contained" color="inherit">
+                Thanh toán
               </Button>
             </Stack>
           </Card>
-        </Grid2>
-        <Grid2 xs={12} md={4}>
-          <Card>hell</Card>
         </Grid2>
       </Grid2>
     </Box>
