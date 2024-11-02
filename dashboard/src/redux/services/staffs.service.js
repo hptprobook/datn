@@ -42,6 +42,14 @@ const StaffsService = {
             throw err;
         }
     },
+    updateMe: async (data) => {
+        try {
+            return await post("staffs/auth/me", data);
+        } catch (err) {
+            console.error("Error: ", err);
+            throw err;
+        }
+    },
 };
 
 export default StaffsService;

@@ -6,6 +6,7 @@ import { ERROR_MESSAGES } from '~/utils/errorMessage';
 import { orderModel } from '~/models/orderModel';
 import { sendMail } from '~/utils/mail';
 import { userModel } from '~/models/userModel';
+import { recieptModel } from '~/models/receiptModel';
 const getAllOrder = async (req, res) => {
   try {
     const { page, limit } = req.query;
@@ -25,7 +26,9 @@ const getCurrentOrder = async (req, res) => {
     const currentOrder = await orderModel.getCurrentOrder(user_id);
     return res.status(StatusCodes.OK).json(currentOrder);
   } catch (error) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
+    console.log(error);
+
+    return res.status(StatusCodes.BAD_REQUEST).json(error);
   }
 };
 const getOrderById = async (req, res) => {
@@ -34,7 +37,7 @@ const getOrderById = async (req, res) => {
     const order = await orderModel.getOrderById(id);
     return res.status(StatusCodes.OK).json(order);
   } catch (error) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+    return res.status(StatusCodes.BAD_REQUEST).json({
       message: ERROR_MESSAGES.ERR_AGAIN,
       error,
     });
@@ -70,16 +73,20 @@ const addOrder = async (req, res) => {
       data: orderData,
     });
   } catch (error) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Có lỗi xảy ra xin thử lại sau', error });
+    console.log(error);
+    if (error.details) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        messages: error.details[0].message,
+      });
+    }
+    return res.status(StatusCodes.BAD_REQUEST).json(error);
   }
 };
 
 const addOrderNot = async (req, res) => {
   try {
     const dataOrder = req.body;
-    const { orderCode, email, shipping, totalPrice } = dataOrder;
+    const { orderCode, email, shippingInfo, totalPrice } = dataOrder;
     const currentOrder = await orderModel.findOrderByCode(orderCode);
     if (currentOrder) {
       return res.status(StatusCodes.BAD_REQUEST).json({
@@ -95,10 +102,10 @@ const addOrderNot = async (req, res) => {
             <p>Bạn có thể theo dõi trạng thái đơn hàng qua email này hoặc đăng nhập vào tài khoản của bạn tại website của chúng tôi.</p>
             <h3>Thông tin đơn hàng:</h3>
             <ul>
-                <li><strong>Tên khách hàng:</strong> ${shipping.name}</li>
+                <li><strong>Tên khách hàng:</strong> ${shippingInfo.name}</li>
                 <li><strong>Email:</strong> ${email}</li>
-                <li><strong>Số điện thoại:</strong> ${shipping.phone}</li>
-                <li><strong>Địa chỉ giao hàng:</strong> ${shipping.detailAddress}</li>
+                <li><strong>Số điện thoại:</strong> ${shippingInfo.phone}</li>
+                <li><strong>Địa chỉ giao hàng:</strong> ${shippingInfo.detailAddress}</li>
                 <li><strong>Tổng tiền:</strong> ${totalPrice} VND</li>
             </ul>
             <p>Chúng tôi sẽ gửi thông báo khi đơn hàng được vận chuyển. Cảm ơn bạn đã lựa chọn Wow store, và chúng tôi hy vọng bạn sẽ hài lòng với sản phẩm của mình!</p>
@@ -114,11 +121,28 @@ const addOrderNot = async (req, res) => {
       data: orderData,
     });
   } catch (error) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Có lỗi xảy ra xin thử lại sau', error });
+    console.log(error);
+    if (error.details) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        messages: error.details[0].message,
+      });
+    }
+    return res.status(StatusCodes.BAD_REQUEST).json(error);
   }
 };
+
+function code(length) {
+  let result = '';
+  const characters =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const charactersLength = characters.length;
+  let counter = 0;
+  while (counter < length) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    counter += 1;
+  }
+  return result;
+}
 
 const findOrderByCode = async (req, res) => {
   try {
@@ -129,6 +153,7 @@ const findOrderByCode = async (req, res) => {
     return res.status(StatusCodes.OK).json(error);
   }
 };
+
 const removeOrder = async (req, res) => {
   try {
     const { idOrder } = req.params;
@@ -154,16 +179,110 @@ const updateOrder = async (req, res) => {
     const data = req.body;
     if (data.status) {
       const oldStatus = await orderModel.getStatusOrder(id);
-      const check = oldStatus.some((i) => data.status.status === i.status);
-      if (check) {
-        return res.status(StatusCodes.BAD_REQUEST).json({
-          message: 'Trạng thái đơn hàng bị trùng lặp vui lòng kiểm tra lại',
-        });
-      }
+      //   const check = oldStatus.some((i) => data.status.status === i.status);
+      //   if (check) {
+      //     return res.status(StatusCodes.BAD_REQUEST).json({
+      //       message: 'Trạng thái đơn hàng bị trùng lặp vui lòng kiểm tra lại',
+      //     });
+      //   }
       const newStatus = [...oldStatus, data.status];
       data.status = newStatus;
     }
     const dataOrder = await orderModel.updateOrder(id, data);
+    if (dataOrder) {
+      const endStatus = dataOrder.status.at(-1).status;
+      //  trạng thái xác nhận trừ số lượng
+      if (endStatus == 'confirmed') {
+        const newProducts = dataOrder.productsList.map((item) => {
+          return {
+            productId: item._id.toString(),
+            name: item.name,
+            variantColor: item.variantColor,
+            variantSize: item.variantSize,
+            quantity: item.quantity,
+          };
+        });
+        await Promise.all(
+          newProducts.map(async (item) => {
+            await orderModel.updateConfirmedStock(item);
+          })
+        );
+      }
+      //   trạng thái trả hàng, hủy cộng số lượng
+      if (endStatus == 'returned' || endStatus == 'cancelled') {
+        await recieptModel.updateReturnedReceipt(dataOrder._id.toString());
+        const newProducts = dataOrder.productsList.map((item) => {
+          return {
+            productId: item._id.toString(),
+            name: item.name,
+            variantColor: item.variantColor,
+            variantSize: item.variantSize,
+            quantity: -item.quantity,
+          };
+        });
+        await Promise.all(
+          newProducts.map(async (item) => {
+            await orderModel.updateConfirmedStock(item);
+          })
+        );
+      }
+      //  trạng thái hoàn thành tạo hóa đơn
+      if (endStatus == 'completed') {
+        // cập nhật số lượng kho
+        const newProducts = dataOrder.productsList.map((item) => {
+          return {
+            productId: item._id.toString(),
+            name: item.name,
+            variantColor: item.variantColor,
+            variantSize: item.variantSize,
+            quantity: item.quantity,
+          };
+        });
+        await Promise.all(
+          newProducts.map(async (item) => {
+            await orderModel.updateCompletedStock(item);
+          })
+        );
+
+        const dataReceipt = {
+          orderId: dataOrder._id.toString(),
+          receiptCode: code(6).toUpperCase(),
+          name: dataOrder.shippingInfo.name,
+          phone: dataOrder.shippingInfo.phone,
+          status: 'success',
+          total: dataOrder.totalPrice,
+          productsList: dataOrder.productsList.map((item) => {
+            return {
+              _id: item._id.toString(),
+              quantity: item.quantity,
+              image: item.image,
+              name: item.name,
+              price: item.price,
+              variantColor: item.variantColor,
+              variantSize: item.variantSize,
+              sku: item.sku,
+              weight: item.weight,
+            };
+          }),
+          amountPaidBy: dataOrder.totalPrice,
+          amountPaidTo: 0,
+          discount: dataOrder.discountPrice,
+          paymentMethod: dataOrder.paymentMethod,
+          type: 'online',
+          note: 'Đơn hàng được giao thành công',
+        };
+        const dataEnd = {
+          ...dataReceipt,
+          productsList: dataReceipt.productsList.map((item) => {
+            return {
+              ...item,
+              _id: item._id.toString(),
+            };
+          }),
+        };
+        await recieptModel.addReceipt(dataEnd);
+      }
+    }
     dataOrder.type = 'order';
     if (dataOrder) {
       await userModel.sendNotifies(dataOrder);
@@ -171,10 +290,12 @@ const updateOrder = async (req, res) => {
     return res.status(StatusCodes.OK).json(dataOrder);
   } catch (error) {
     console.log(error);
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      message: 'Có lỗi xảy ra xin thử lại sau',
-      error: error,
-    });
+    if (error.details) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        messages: error.details[0].message,
+      });
+    }
+    return res.status(StatusCodes.BAD_REQUEST).json(error);
   }
 };
 
@@ -194,13 +315,109 @@ const updateOrderNotLogin = async (req, res) => {
       data.status = newStatus;
     }
     const dataOrder = await orderModel.updateOrder(id, data);
+    if (dataOrder) {
+      const endStatus = dataOrder.status.at(-1).status;
+      //  trạng thái xác nhận trừ số lượng
+      if (endStatus == 'confirmed') {
+        const newProducts = dataOrder.productsList.map((item) => {
+          return {
+            productId: item._id.toString(),
+            name: item.name,
+            variantColor: item.variantColor,
+            variantSize: item.variantSize,
+            quantity: item.quantity,
+          };
+        });
+        await Promise.all(
+          newProducts.map(async (item) => {
+            await orderModel.updateConfirmedStock(item);
+          })
+        );
+      }
+      //   trạng thái trả hàng, hủy cộng số lượng
+      if (endStatus == 'returned' || endStatus == 'cancelled') {
+        await recieptModel.updateReturnedReceipt(dataOrder._id.toString());
+        const newProducts = dataOrder.productsList.map((item) => {
+          return {
+            productId: item._id.toString(),
+            name: item.name,
+            variantColor: item.variantColor,
+            variantSize: item.variantSize,
+            quantity: -item.quantity,
+          };
+        });
+        await Promise.all(
+          newProducts.map(async (item) => {
+            await orderModel.updateConfirmedStock(item);
+          })
+        );
+      }
+      //  trạng thái hoàn thành tạo hóa đơn
+      if (endStatus == 'completed') {
+        // cập nhật số lượng kho
+        const newProducts = dataOrder.productsList.map((item) => {
+          return {
+            productId: item._id.toString(),
+            name: item.name,
+            variantColor: item.variantColor,
+            variantSize: item.variantSize,
+            quantity: item.quantity,
+          };
+        });
+        await Promise.all(
+          newProducts.map(async (item) => {
+            await orderModel.updateCompletedStock(item);
+          })
+        );
+
+        const dataReceipt = {
+          orderId: dataOrder._id.toString(),
+          receiptCode: code(6).toUpperCase(),
+          name: dataOrder.shippingInfo.name,
+          phone: dataOrder.shippingInfo.phone,
+          status: 'success',
+          total: dataOrder.totalPrice,
+          productsList: dataOrder.productsList.map((item) => {
+            return {
+              _id: item._id.toString(),
+              quantity: item.quantity,
+              image: item.image,
+              name: item.name,
+              price: item.price,
+              variantColor: item.variantColor,
+              variantSize: item.variantSize,
+              sku: item.sku,
+              weight: item.weight,
+            };
+          }),
+          amountPaidBy: dataOrder.totalPrice,
+          amountPaidTo: 0,
+          discount: dataOrder.discountPrice,
+          paymentMethod: dataOrder.paymentMethod,
+          type: 'online',
+          note: 'Đơn hàng được giao thành công',
+        };
+        const dataEnd = {
+          ...dataReceipt,
+          productsList: dataReceipt.productsList.map((item) => {
+            return {
+              ...item,
+              _id: item._id.toString(),
+            };
+          }),
+        };
+        await recieptModel.addReceipt(dataEnd);
+      }
+    }
     return res.status(StatusCodes.OK).json(dataOrder);
   } catch (error) {
     console.log(error);
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      message: 'Có lỗi xảy ra xin thử lại sau',
-      error: error,
-    });
+    if (error.details) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        messages: error.details[0].message,
+      });
+    }
+    return res.status(StatusCodes.BAD_REQUEST).json(error);
   }
 };
 
@@ -215,7 +432,7 @@ const checkStockProducts = async (req, res) => {
     }
 
     for (const {
-      id,
+      //   id,
       productId,
       variantColor,
       variantSize,

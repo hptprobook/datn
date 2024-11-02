@@ -68,7 +68,7 @@ const initialState = {
 };
 
 const warehouseSlices = createSlice({
-  name: 'brands',
+  name: 'warehouses',
   initialState,
   reducers: {},
   extraReducers: (builder) => {

@@ -51,9 +51,15 @@ const updateMe = async (id, dataStaff) => {
   if (validData.lastLogin) {
     validData.lastLogin = new Date(validData.lastLogin).getTime();
   }
+  console.log(validData);
   const db = await GET_DB();
   const collection = db.collection('staffs');
-  const result = await collection.updateOne({ _id: new ObjectId(id) }, { $set: validData });
+  const result = await collection.findOneAndUpdate(
+    { _id: new ObjectId(id) },
+    { $set: validData },
+    { returnDocument: 'after' } // Trả về tài liệu sau khi cập nhật
+);
+
   return result;
 }
 const getStaffs = async () => {

@@ -51,9 +51,7 @@ const update = async (id, data) => {
   if (!result) {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
-  return {
-    data: result,
-  };
+  return result
 };
 
 const getVariantByName = async (name) => {

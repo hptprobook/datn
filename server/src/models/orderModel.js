@@ -14,9 +14,11 @@ const validateBeforeCreateNot = async (data) => {
     abortEarly: false,
   });
 };
+
 const validateBeforeUpdate = async (data) => {
   return await UPDATE_ORDER.validateAsync(data, { abortEarly: false });
 };
+
 // const countUserAll = async () => {
 //   const db = await GET_DB().collection('carts');
 //   const totail = await db.countDocuments();
@@ -29,6 +31,7 @@ const getAllOrders = async (page, limit) => {
   const db = await GET_DB().collection('orders');
   const result = await db
     .find()
+    .sort({ createdAt: -1 })
     .skip((page - 1) * limit)
     .limit(limit)
     .project({
@@ -44,9 +47,6 @@ const getOrderById = async (id) => {
   const result = await db.findOne({
     _id: new ObjectId(id),
   });
-  if (!result) {
-    throw new Error('Đơn hàng không tồn tại');
-  }
   return result;
 };
 
@@ -61,7 +61,10 @@ const getOrderByCode = async (orderCode, userId) => {
 
 const getCurrentOrder = async (user_id) => {
   const db = await GET_DB().collection('orders');
-  const result = await db.find({ userId: new ObjectId(user_id) }).toArray();
+  const result = await db
+    .find({ userId: new ObjectId(user_id) })
+    .sort({ createdAt: -1 })
+    .toArray();
   return result;
 };
 
@@ -129,6 +132,7 @@ const updateOrder = async (id, data) => {
     );
   return result;
 };
+
 const getStatusOrder = async (id) => {
   const db = await GET_DB().collection('orders');
   const result = await db.findOne(
@@ -187,6 +191,50 @@ const updateSingleProductStock = async (data) => {
       $inc: {
         'variants.$.stock': data.quantity,
         'variants.$.sizes.$[size].stock': data.quantity,
+        'variants.$.sizes.$[size].sale': data.quantity,
+      },
+    },
+    {
+      arrayFilters: [{ 'size.size': data.variantSize }],
+    }
+  );
+  return result;
+};
+
+const updateConfirmedStock = async (data) => {
+  const db = await GET_DB().collection('products');
+  const result = await db.updateOne(
+    {
+      _id: new ObjectId(data.productId),
+      'variants.color': data.variantColor,
+      'variants.sizes.size': data.variantSize,
+    },
+    {
+      $inc: {
+        'variants.$.sizes.$[size].sale': -data.quantity,
+        'variants.$.sizes.$[size].trading': data.quantity,
+      },
+    },
+    {
+      arrayFilters: [{ 'size.size': data.variantSize }],
+    }
+  );
+  return result;
+};
+
+const updateCompletedStock = async (data) => {
+  const db = await GET_DB().collection('products');
+  const result = await db.updateOne(
+    {
+      _id: new ObjectId(data.productId),
+      'variants.color': data.variantColor,
+      'variants.sizes.size': data.variantSize,
+    },
+    {
+      $inc: {
+        'variants.$.stock': -data.quantity,
+        'variants.$.sizes.$[size].stock': -data.quantity,
+        'variants.$.sizes.$[size].trading': -data.quantity,
       },
     },
     {
@@ -211,4 +259,7 @@ export const orderModel = {
   getOrderById,
   getStatusOrder,
   findOrderByCode,
+  //   update stock
+  updateConfirmedStock,
+  updateCompletedStock,
 };

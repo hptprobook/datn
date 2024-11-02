@@ -4,11 +4,15 @@ import { timetableController } from '~/controllers/controllerForAdmin/timetableC
 import { isAdmin, verifyToken } from '~/middlewares/verifyRole';
 const Router = express.Router();
 
-Router.post('/', verifyToken, isAdmin, timetableController.create);
-Router.get('/:id', timetableController.findOneBy);
-Router.get('/:by/:value', timetableController.findsBy);
-Router.get('/', verifyToken, isAdmin, timetableController.getAll);
-// Router.put('/:id', timetableController.update);
-// Router.delete('/:id', timetableController.remove);
+Router.use(verifyToken); // áp dụng verifyToken cho tất cả các tuyến đường
+
+Router.route('/')
+    .post(isAdmin, timetableController.create)
+    .get(isAdmin, timetableController.getAll);
+
+Router.route('/:id')
+    .get(timetableController.findOneBy)
+    .put(isAdmin, timetableController.update)
+    .delete(isAdmin, timetableController.remove);
 
 export const timetableApi = Router;

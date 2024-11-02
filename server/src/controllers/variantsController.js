@@ -122,27 +122,50 @@ const createManyVariants = async (req, res) => {
 
     for (const variantData of variants) {
       try {
-        // Format lại tên của từng biến thể
         const formattedName = variantData.name
           .toLowerCase()
           .replace(/\s+/g, '_');
         variantData.name = formattedName;
 
-        // Kiểm tra biến thể đã tồn tại chưa
         const existingVariant = await variantsModel.getVariantByName(
           variantData.name
         );
-        if (existingVariant) {
-          errors.push({
-            name: variantData.name,
-            message: 'Biến thể đã tồn tại',
+        if (variantData._id) {
+          if (existingVariant && existingVariant._id.toString() !== variantData._id) {
+            errors.push({
+              name: variantData.name,
+              message: 'Biến thể đã tồn tại',
+            });
+            continue;
+          }
+          const id = variantData._id;
+          delete variantData._id;
+          const updatedVariant = await variantsModel.update(
+            id,
+            variantData
+          );
+          successfulVariants.push({
+            message: 'Cập nhật thành công biến thể: ' + updatedVariant.name,
+            data: updatedVariant,
           });
-          continue; // Bỏ qua biến thể này và tiếp tục với biến thể tiếp theo
+        }
+        else {
+          if (existingVariant) {
+            errors.push({
+              name: variantData.name,
+              message: 'Biến thể đã tồn tại',
+            });
+            continue;
+          }
+
+          // Tạo mới biến thể
+          const result = await variantsModel.create(variantData);
+          successfulVariants.push({
+            message: 'Tạo mới thành công biến thể: ' + result.name,
+            data: result,
+          }); // Lưu lại biến thể thành công
         }
 
-        // Tạo mới biến thể
-        const result = await variantsModel.create(variantData);
-        successfulVariants.push(result); // Lưu lại biến thể thành công
       } catch (error) {
         // Lưu lại lỗi nếu có lỗi xảy ra với biến thể hiện tại
         errors.push({
