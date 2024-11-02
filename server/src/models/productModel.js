@@ -1214,6 +1214,17 @@ const getMinMaxProductPrices = async () => {
   };
 };
 
+const isComment = async (userId, productId) => {
+  const db = GET_DB().collection('products');
+
+  const product = await db.findOne({
+    _id: new ObjectId(productId),
+    'reviews.userId': new ObjectId(userId),
+  });
+
+  return !!product;
+};
+
 export const productModel = {
   countProductAll,
   getProductsAll,
@@ -1243,4 +1254,5 @@ export const productModel = {
   getProductsBySearchAndFilter,
   getMinMaxProductPrices,
   ratingShopResponse,
+  isComment,
 };
