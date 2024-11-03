@@ -1,4 +1,4 @@
-import { get, post } from "src/utils/request";
+import { get, del, post } from "src/utils/request";
 
 const DashboardService = {
     create: async (path, c) => {
@@ -9,26 +9,22 @@ const DashboardService = {
             throw err;
         }
     },
-    searchProduct: async ({
-        keyword,
-        page,
-        limit,
-    }) => {
+    gets: async (path) => {
         try {
-            return await get(`/products/search?search=${keyword}&page=${page}&limit=${limit}`);
+            return await get(path);
         } catch (err) {
             console.error("Error: ", err);
             throw err;
         }
     },
-    searchUser: async (search) => {
+    delete: async (path) => {
         try {
-            return await get(`/users?search=${search}&page=1&limit=10`);
+            return await del(path);
         } catch (err) {
             console.error("Error: ", err);
             throw err;
         }
-    }
+    },
 };
 
 export default DashboardService;
