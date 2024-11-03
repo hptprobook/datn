@@ -400,12 +400,35 @@ export const REVIEW_PRODUCT = Joi.object({
     'string.empty': 'Nội dung không được để trống',
     'any.required': 'Nội dung là bắt buộc',
   }),
+  variantColor: Joi.string().trim().min(1).required().messages({
+    'string.empty': 'Màu sắc biến thể không được để trống',
+    'any.required': 'Màu sắc biến thể là bắt buộc',
+  }),
+  variantSize: Joi.string().trim().min(1).required().messages({
+    'string.empty': 'Kích thước biến thể không được để trống',
+    'any.required': 'Kích thước biến thể là bắt buộc',
+  }),
   rating: Joi.number().integer().min(1).max(5).required().messages({
     'number.base': 'Đánh giá phải là số',
     'number.min': 'Đánh giá phải từ 1 đến 5',
     'number.max': 'Đánh giá phải từ 1 đến 5',
     'any.required': 'Đánh giá là bắt buộc',
   }),
+  images: Joi.array()
+    .items(
+      Joi.string().trim().min(1).messages({
+        'string.empty': 'Ảnh không được để trống',
+      })
+    )
+    .default([]),
+  shopResponse: Joi.object({
+    content: Joi.string().trim().min(1).required().messages({
+      'string.empty': 'Nội dung phản hồi của shop không được để trống',
+      'any.required': 'Nội dung là bắt buộc',
+    }),
+    createdAt: Joi.date().timestamp('javascript').default(Date.now),
+    updatedAt: Joi.date().timestamp('javascript').default(Date.now),
+  }).default({}),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(Date.now),
 })
@@ -427,10 +450,46 @@ export const UPDATE_REVIEW_PRODUCT = Joi.object({
   content: Joi.string().trim().min(1).messages({
     'string.empty': 'Nội dung không được để trống',
   }),
+  variantColor: Joi.string().trim().min(1).messages({
+    'string.empty': 'Màu sắc biến thể không được để trống',
+  }),
+  variantSize: Joi.string().trim().min(1).messages({
+    'string.empty': 'Kích thước biến thể không được để trống',
+  }),
   rating: Joi.number().integer().min(1).max(5).messages({
     'number.base': 'Đánh giá phải là số',
     'number.min': 'Đánh giá phải từ 1 đến 5',
     'number.max': 'Đánh giá phải từ 1 đến 5',
   }),
+  images: Joi.array().items(
+    Joi.string().trim().min(1).messages({
+      'string.empty': 'Ảnh không được để trống',
+    })
+  ),
+  shopResponse: Joi.object({
+    content: Joi.string().trim().min(1).messages({
+      'string.empty': 'Nội dung phản hồi của shop không được để trống',
+    }),
+    updatedAt: Joi.date().timestamp('javascript').default(Date.now),
+  }).default({}),
   updatedAt: Joi.date().timestamp('javascript').default(Date.now),
+});
+
+export const RATING_SHOP = Joi.object({
+  shopResponse: Joi.object({
+    userId: Joi.string().trim().min(1).required().messages({
+      'string.empty': 'Người dùng không được để trống',
+      'any.required': 'Người dùng là bắt buộc',
+    }),
+    content: Joi.string().trim().min(1).required().messages({
+      'string.empty': 'Nội dung phản hồi của shop không được để trống',
+      'any.required': 'Nội dung phản hồi của shop là bắt buộc',
+    }),
+    createdAt: Joi.date().timestamp('javascript').default(Date.now),
+    updatedAt: Joi.date().timestamp('javascript').default(Date.now),
+  })
+    .required()
+    .messages({
+      'any.required': 'Phản hồi là bắt buộc',
+    }),
 });

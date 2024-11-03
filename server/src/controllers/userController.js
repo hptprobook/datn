@@ -274,8 +274,13 @@ const removeCartToCurrent = async (req, res) => {
 
 const getAllUsers = async (req, res) => {
   try {
-    let { pages, limit } = req.query;
+    let { pages, limit, search } = req.query;
     const { user_id } = req.user;
+    if (search) {
+      search = search.trim();
+      const u = await userModel.findUsers(search);
+      return res.status(StatusCodes.OK).json(u);
+    }
     const users = await userModel.getUserAll(pages, limit, user_id);
     const countUsers = await userModel.countUserAll();
     return res.status(StatusCodes.OK).json({

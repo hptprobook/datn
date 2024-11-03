@@ -23,6 +23,18 @@ export const searchProduct = createAsyncThunk(
         }
     }
 );
+export const searchUser = createAsyncThunk(
+    'pos/searchUser',
+    async (data, { rejectWithValue }) => {
+        try {
+            const response = await PosService.searchUser(data);
+            return response;
+        } catch (err) {
+            return rejectWithValue(err.response.data);
+        }
+    }
+);
+
 
 const initialState = {
     orders: null,
@@ -30,12 +42,14 @@ const initialState = {
     statusLogout: "idle",
     statusMe: "idle",
     statusSearch: "idle",
+    statusSearchUser: "idle",
+    users: null,
     products: null,
     error: null,
 };
-export const setStatus = createAction('auth/setStatus');
+export const setStatus = createAction('pos/setStatus');
 const posSlices = createSlice({
-    name: "auth",
+    name: "pos",
     initialState,
     reducers: {},
     extraReducers: (builder) => {
@@ -62,6 +76,18 @@ const posSlices = createSlice({
             })
             .addCase(searchProduct.rejected, (state, action) => {
                 state.statusSearch = "failed";
+                state.error = action.payload;
+            })
+            .addCase(searchUser.pending, (state) => {
+                state.statusSearchUser = "loading";
+            })
+            .addCase(searchUser.fulfilled, (state, action) => {
+                state.statusSearchUser = "successful";
+                state.users = action.payload;
+                state.error = null;
+            })
+            .addCase(searchUser.rejected, (state, action) => {
+                state.statusSearchUser = "failed";
                 state.error = action.payload;
             })
             .addCase(setStatus, (state, action) => {

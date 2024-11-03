@@ -6,6 +6,7 @@ import { ERROR_MESSAGES } from '~/utils/errorMessage';
 import { uploadModel } from '~/models/uploadModel';
 import path from 'path';
 import { hotSearchModel } from '~/models/hotSearchModel';
+import { ObjectId } from 'mongodb';
 
 const getAllProducts = async (req, res) => {
   try {
@@ -595,13 +596,15 @@ const deleteProduct = async (req, res) => {
 
 const ratingProduct = async (req, res) => {
   try {
-    const { userId, content, orderId, productId, rating } = req.body;
-
-    if (!userId || !content || !orderId || !productId || !rating) {
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        message: ERROR_MESSAGES.REQUIRED,
-      });
-    }
+    const {
+      userId,
+      content,
+      orderId,
+      productId,
+      rating,
+      variantColor,
+      variantSize,
+    } = req.body;
 
     const data = {
       userId,
@@ -609,15 +612,154 @@ const ratingProduct = async (req, res) => {
       orderId,
       productId,
       rating,
+      variantColor,
+      variantSize,
     };
 
+    let images = [];
+
+    if (req.files) {
+      images = req.files.map((file) =>
+        path.join('uploads/products', file.filename)
+      );
+      data.images = images;
+    }
+
+    const isComment = await productModel.isComment(userId, productId);
+
+    if (isComment) {
+      if (req.files) {
+        uploadModel.deleteImgs(images);
+      }
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Đã đánh giá sản phẩm này' });
+    }
+
     const dataProduct = await productModel.ratingProduct(data);
-    if (dataProduct.error) {
+    if (!dataProduct) {
+      if (req.files) {
+        uploadModel.deleteImgs(images);
+      }
       return res.status(StatusCodes.BAD_REQUEST).json(dataProduct.detail);
     }
     return res
       .status(StatusCodes.OK)
       .json({ dataProduct, message: 'Đánh giá thành công' });
+  } catch (error) {
+    if (req.files) {
+      req.files.map((file) => {
+        uploadModel.deleteImg(file.path);
+      });
+    }
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
+  }
+};
+
+const ratingManyProduct = async (req, res) => {
+  try {
+    const { userId, orderId, productList } = req.body;
+    /*  const data = {
+      userId: '672332bb3eb63a6c62287dc6',
+      orderId: '672326529e88fc77313144d1',
+      productList: [
+        {
+          content: '123',
+          rating: 5,
+          productId: '671f8472af7fc5c9ad0485a9',
+          name: '123123',
+          variantColor: 'Xám',
+          variantSize: 'S',
+        },
+        {
+          content: '1234',
+          rating: 5,
+          productId: '6717bd72e87fcbd1937bbef2',
+          name: 'Áo Sơ Mi Kiểu 10609955',
+          variantColor: 'Tím',
+          variantSize: 'S',
+        },
+        {
+          content: '12345',
+          rating: 5,
+          productId: '6717bd71e87fcbd1937bbef1',
+          name: 'Áo Sơ Mi Croptop 10610046',
+          variantColor: 'Xám',
+          variantSize: 'S',
+        },
+      ],
+    }; */
+
+    const successfulProducts = [];
+    const failedProducts = [];
+
+    for (const product of productList) {
+      const { productId, content, rating, variantColor, variantSize, name } =
+        product;
+
+      const isComment = await productModel.isComment(userId, productId);
+
+      if (isComment) {
+        failedProducts.push({ name, reason: 'Đã đánh giá sản phẩm này' });
+        continue;
+      }
+
+      try {
+        const reviewData = {
+          userId: userId,
+          orderId: orderId,
+          productId,
+          content,
+          rating,
+          variantColor,
+          variantSize,
+        };
+
+        await productModel.ratingProduct(reviewData);
+        successfulProducts.push({ name });
+      } catch (error) {
+        failedProducts.push({ name, reason: error.message });
+      }
+    }
+
+    if (failedProducts.length > 0) {
+      return res.status(StatusCodes.OK).json({
+        message: 'Quá trình đánh giá hoàn tất với một số sản phẩm bị lỗi.',
+        successfulProducts,
+        failedProducts,
+      });
+    }
+
+    return res.status(StatusCodes.OK).json({
+      message: 'Đánh giá thành công tất cả sản phẩm',
+      successfulProducts,
+    });
+  } catch (error) {
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
+  }
+};
+
+const ratingShopProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { user_id } = req.user;
+
+    const { content } = req.body;
+
+    const data = {
+      content,
+      user_id,
+    };
+
+    const dataProduct = await productModel.ratingShopResponse(id, data);
+    if (!dataProduct) {
+      return res.status(StatusCodes.BAD_REQUEST).json(dataProduct.detail);
+    }
+    return res.status(StatusCodes.OK).json({ message: 'Đánh giá thành công' });
   } catch (error) {
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
@@ -628,13 +770,16 @@ const ratingProduct = async (req, res) => {
 const updateRatingProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { userId, content, orderId, productId, rating } = req.body;
-
-    if (!userId || !content || !orderId || !productId || !rating) {
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        message: ERROR_MESSAGES.REQUIRED,
-      });
-    }
+    const {
+      userId,
+      content,
+      orderId,
+      productId,
+      rating,
+      imagesDelete,
+      variantColor,
+      variantSize,
+    } = req.body;
 
     const data = {
       userId,
@@ -642,17 +787,58 @@ const updateRatingProduct = async (req, res) => {
       orderId,
       productId,
       rating,
+      variantColor,
+      variantSize,
     };
+    let images = [];
 
+    if (req.files) {
+      images = req.files.map((file) =>
+        path.join('uploads/products', file.filename)
+      );
+    }
+    const product = await productModel.getProductById(productId);
+
+    if (!product) {
+      if (req.files) {
+        uploadModel.deleteImgs(images);
+      }
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Sản phẩm không tồn tại' });
+    }
+    const review = product.reviews.find((review) =>
+      review._id.equals(new ObjectId(id))
+    );
+
+    const combinedImages = [...review.images, ...images];
+
+    data.images = combinedImages;
     const dataProduct = await productModel.updateRatingProduct(id, data);
 
-    if (dataProduct.error) {
+    if (!dataProduct) {
+      if (req.files) {
+        uploadModel.deleteImgs(images);
+      }
       return res.status(StatusCodes.BAD_REQUEST).json(dataProduct.detail);
     }
+    if (imagesDelete && imagesDelete.length > 0) {
+      if (Array.isArray(imagesDelete)) {
+        uploadModel.deleteImgs(imagesDelete);
+      } else {
+        uploadModel.deleteImg(imagesDelete);
+      }
+    }
+
     return res
       .status(StatusCodes.OK)
       .json({ dataProduct, message: 'Cập nhật đánh giá thành công' });
   } catch (error) {
+    if (req.files) {
+      req.files.map((file) => {
+        uploadModel.deleteImg(file.path);
+      });
+    }
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ message: error.message });
@@ -667,7 +853,15 @@ const deleteRating = async (req, res) => {
         .status(StatusCodes.BAD_REQUEST)
         .json({ message: 'Thiếu thông tin' });
     }
-    await productModel.deleteRating(id);
+    const result = await productModel.deleteRating(id);
+    if (!result) {
+      return res
+        .status(StatusCodes.OK)
+        .json({ message: 'Xóa đánh giá không thành công' });
+    }
+    if (result.images && result.images.length > 0) {
+      uploadModel.deleteImgs(result.images);
+    }
     return res
       .status(StatusCodes.OK)
       .json({ message: 'Xóa đánh giá thành công' });
@@ -936,4 +1130,6 @@ export const productController = {
   getProductsBySlugAndPriceRange,
   getProductsBySearchAndFilter,
   getMinMaxPrices,
+  ratingShopProduct,
+  ratingManyProduct,
 };
