@@ -44,6 +44,19 @@ export const CREATE_WEB = Joi.object({
         'string.empty': 'Logo không được để trống.',
         'any.required': 'Logo là bắt buộc.',
     }),
+    darkLogo: Joi.string().messages({ // Giả sử 'media' là một đường dẫn hoặc tên tệp
+        'string.base': 'Logo tối phải là một chuỗi văn bản.',
+    }),
+    loginScreen: Joi.string().messages({ // Giả sử 'media' là một đường dẫn hoặc tên tệp
+        'string.base': 'Màn hình đăng nhập tối phải là một chuỗi văn bản.',
+    }),
+    eventBanner: Joi.string().messages({ // Giả sử 'media' là một đường dẫn hoặc tên tệp
+        'string.base': 'Banner sự kiện phải là một chuỗi văn bản.',
+    }),
+    eventUrl : Joi.string().uri().messages({
+        'string.base': 'Liên kết sự kiện phải là một chuỗi văn bản.',
+        'string.uri': 'Liên kết sự kiện phải là một địa chỉ web hợp lệ.',
+    }),
     nameBank: Joi.string().messages({
         'string.base': 'Tên ngân hàng phải là một chuỗi văn bản.',
     }),
@@ -128,6 +141,19 @@ export const UPDATE_WEB = Joi.object({
     logo: Joi.string().messages({ // Giả sử 'media' là một đường dẫn hoặc tên tệp
         'string.base': 'Logo phải là một chuỗi văn bản.',
         'string.empty': 'Logo không được để trống.',
+    }),
+    darkLogo: Joi.string().messages({ // Giả sử 'media' là một đường dẫn hoặc tên tệp
+        'string.base': 'Logo tối phải là một chuỗi văn bản.',
+    }),
+    loginScreen: Joi.string().messages({ // Giả sử 'media' là một đường dẫn hoặc tên tệp
+        'string.base': 'Màn hình đăng nhập tối phải là một chuỗi văn bản.',
+    }),
+    eventBanner: Joi.string().messages({ // Giả sử 'media' là một đường dẫn hoặc tên tệp
+        'string.base': 'Banner sự kiện phải là một chuỗi văn bản.',
+    }),
+    eventUrl : Joi.string().uri().messages({
+        'string.base': 'Liên kết sự kiện phải là một chuỗi văn bản.',
+        'string.uri': 'Liên kết sự kiện phải là một địa chỉ web hợp lệ.',
     }),
     nameBank: Joi.string().messages({
         'string.base': 'Tên ngân hàng phải là một chuỗi văn bản.',

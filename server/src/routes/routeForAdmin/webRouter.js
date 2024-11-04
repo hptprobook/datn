@@ -26,7 +26,12 @@ const upload = multer({
 Router.get('/', webController.getWeb);
 
 Router.post('/', upload.single('logo'), webController.createWeb);
-Router.put('/', upload.single('logo'), webController.updateWeb);
+Router.put('/', upload.fields([
+    { name: 'logo', maxCount: 1 },
+    { name: 'darkLogo', maxCount: 1 },
+    { name: 'eventBanner', maxCount: 1 },
+    { name: 'loginScreen', maxCount: 1 }
+]), webController.updateWeb);
 // Router.delete('/:id', webController.deleteSeoConfig);
 
 export const webApi = Router;
