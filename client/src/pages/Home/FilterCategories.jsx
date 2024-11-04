@@ -24,7 +24,7 @@ const FilterCategories = ({ slug }) => {
   return (
     <div className="mt-12">
       <h2 className="text-2xl text-center font-bold text-red-600 uppercase">
-        {slug}
+        {data?.title}
       </h2>
       <div className="flex justify-center mt-6">
         <div className="flex space-x-6">

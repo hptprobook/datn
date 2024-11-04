@@ -7,8 +7,15 @@ import { getProductById } from '~/APIs/product';
 import QuickViewModal from './QuickViewModal';
 import { FaEye, FaHeart, FaShoppingCart } from 'react-icons/fa';
 import { useWishlist } from '~/context/WishListContext';
+import { formatCurrencyVND } from '~/utils/formatters';
 
-const ProductItem = ({ product, height = false, isLoading = false }) => {
+const ProductItem = ({
+  product,
+  height = false,
+  isLoading = false,
+  isWishList = false,
+  handleLinkClickInWishList = () => {},
+}) => {
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
   const [isHeartAnimating, setIsHeartAnimating] = useState(false);
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
@@ -51,7 +58,10 @@ const ProductItem = ({ product, height = false, isLoading = false }) => {
 
   return (
     <div className="h-[480px] rounded-md relative group">
-      <div className={`w-full relative ${!height ? 'h-80' : 'h-96'}`}>
+      <div
+        className={`w-full relative ${!height ? 'h-80' : 'h-96'}`}
+        onClick={handleLinkClickInWishList}
+      >
         <Link to={`/san-pham/${product?.slug}`}>
           <div className="flex gap-2 absolute top-2 left-2 z-10">
             {product?.tags?.slice(0, 2).map((label, index) => (
@@ -64,45 +74,47 @@ const ProductItem = ({ product, height = false, isLoading = false }) => {
             className="w-full h-full object-cover rounded-md"
           />
         </Link>
-        <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button
-            className="bg-gray-800 text-white p-2 rounded-full hover:bg-gray-700 transition-colors"
-            onClick={() => setIsQuickViewOpen(true)}
-            title="Quick View"
-          >
-            <FaEye className="w-4 h-4" />
-          </button>
-          <button
-            className={`${
-              isInWishlist(product._id) ? 'bg-red-600' : 'bg-red-500'
-            } text-white p-2 rounded-full hover:bg-red-600 transition-colors ${
-              isHeartAnimating ? 'scale-125' : ''
-            }`}
-            onClick={handleWishlistToggle}
-            title={
-              isInWishlist(product._id)
-                ? 'Remove from Wishlist'
-                : 'Add to Wishlist'
-            }
-          >
-            <FaHeart
-              className={`w-4 h-4 transition-transform duration-300 ${
+        {!isWishList && (
+          <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button
+              className="bg-gray-800 text-white p-2 rounded-full hover:bg-gray-700 transition-colors"
+              onClick={() => setIsQuickViewOpen(true)}
+              title="Quick View"
+            >
+              <FaEye className="w-4 h-4" />
+            </button>
+            <button
+              className={`${
+                isInWishlist(product._id) ? 'bg-red-600' : 'bg-red-500'
+              } text-white p-2 rounded-full hover:bg-red-600 transition-colors ${
                 isHeartAnimating ? 'scale-125' : ''
               }`}
-            />
-          </button>
-          <button
-            className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition-colors"
-            onClick={() => setIsQuickViewOpen(true)}
-            title="Add to Cart"
-          >
-            <FaShoppingCart className="w-4 h-4" />
-          </button>
-        </div>
+              onClick={handleWishlistToggle}
+              title={
+                isInWishlist(product._id)
+                  ? 'Remove from Wishlist'
+                  : 'Add to Wishlist'
+              }
+            >
+              <FaHeart
+                className={`w-4 h-4 transition-transform duration-300 ${
+                  isHeartAnimating ? 'scale-125' : ''
+                }`}
+              />
+            </button>
+            <button
+              className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition-colors"
+              onClick={() => setIsQuickViewOpen(true)}
+              title="Add to Cart"
+            >
+              <FaShoppingCart className="w-4 h-4" />
+            </button>
+          </div>
+        )}
       </div>
       <NavLink to={`/san-pham/${product?.slug}`}>
         <div
-          className="mt-3 text-clamp-2 hover:text-red-500 h-12 overflow-hidden"
+          className="mt-3 text-clamp-2 text-gray-900 hover:text-red-500 h-12 overflow-hidden"
           title={product?.name}
         >
           {product?.name}
@@ -119,14 +131,11 @@ const ProductItem = ({ product, height = false, isLoading = false }) => {
               filled={i < product?.averageRating}
             />
           ))}
-          <p className="text-sm">({product?.totalComment})</p>
+          <p className="text-sm text-gray-800">({product?.totalComment})</p>
         </Rating>
       )}
-      <div className="mt-3 font-bold text-sm">
-        {new Intl.NumberFormat('de-DE', {
-          style: 'currency',
-          currency: 'VND',
-        }).format(product?.price)}
+      <div className="mt-3 font-bold text-sm text-red-600">
+        {formatCurrencyVND(product?.price)}
       </div>
       <QuickViewModal
         isOpen={isQuickViewOpen}

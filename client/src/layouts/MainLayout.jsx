@@ -53,7 +53,7 @@ export default function MainLayout() {
     <main className="bg-white">
       <div
         className={`top-0 z-[1000] transition-transform duration-300 ${
-          !isPreviewOpen && !isSpecialRoute ? 'sticky' : ''
+          !isPreviewOpen && !isSpecialRoute ? 'sticky' : 'relative'
         } ${
           isHeaderVisible || isSpecialRoute
             ? 'translate-y-0'
@@ -91,7 +91,7 @@ export default function MainLayout() {
       <div className="mt-8">
         <Outlet />
       </div>
-      <Footer />
+      {!isSpecialRoute && <Footer />}
     </main>
   );
 }

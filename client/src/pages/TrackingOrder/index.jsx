@@ -146,7 +146,7 @@ const TrackingOrderPage = () => {
                         >
                           <img
                             className="h-full w-full"
-                            src={product?.thumbnail}
+                            src={product?.image}
                             alt={product?.name}
                           />
                         </Link>
