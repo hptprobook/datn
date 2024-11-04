@@ -4,7 +4,6 @@ import { FaBars } from 'react-icons/fa';
 import { IoIosSearch } from 'react-icons/io';
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import Logo from '~/assets/logoend-light.png';
 import UserBar from '~/components/Home/Header/UserBar';
 import SideNavMenu from './Responsive/SideNavMenu';
 import SearchBar from './Search/SearchBar';
@@ -31,7 +30,6 @@ const Header = () => {
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const { user } = useUser();
   const { config } = useWebConfig();
-
   const { items } = useCart();
 
   const { data } = useQuery({
@@ -53,7 +51,11 @@ const Header = () => {
         <div className="max-w-container h-full mx-auto flex justify-between items-center">
           <NavLink to="/">
             <div>
-              <img src={Logo} alt="Logo" className="h-full w-48" />
+              <img
+                src={`${import.meta.env.VITE_SERVER_URL}/${config?.logo}`}
+                alt="Logo"
+                className="h-full w-48"
+              />
             </div>
           </NavLink>
           <SearchBar />
@@ -109,7 +111,11 @@ const Header = () => {
           <FaBars />
         </div>
         <NavLink to="/" className="flex-grow text-center">
-          <img src={Logo} alt="Logo" className="h-full w-52 mx-auto" />
+          <img
+            src={`${import.meta.env.VITE_SERVER_URL}/${config?.logo}`}
+            alt="Logo"
+            className="h-full w-52 mx-auto"
+          />
         </NavLink>
         <div className="flex gap-4">
           <div

@@ -99,7 +99,7 @@ const WishList = ({ isOpen, onClose }) => {
           </div>
 
           {/* Sorting Form */}
-          <div className="mb-8 sticky top-0 bg-white z-20 py-4 shadow-sm">
+          <div className="mb-8 bg-white z-20 py-4 shadow-sm">
             <form className="flex space-x-4 items-center">
               <label
                 htmlFor="sort"

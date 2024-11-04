@@ -22,7 +22,7 @@ const CartPage = () => {
             <CheckoutStepper currentStep={1} />
           </div>
           <div className="bg-white antialiased">
-            <div className="mx-auto max-w-screen-xl px-4 2xl:px-0">
+            <div className="mx-auto max-w-screen-xl px-4 2xl:px-0 min-h-screen">
               <div className="mt-6 sm:mt-8 lg:flex lg:gap-8">
                 <div className="lg:w-2/3">
                   <CartListProduct />
@@ -33,26 +33,34 @@ const CartPage = () => {
               </div>
             </div>
           </div>
-          <div className="text-gray-900 mt-8 border-t border-gray-200 pt-8">
-            <h2 className="text-2xl font-bold uppercase">Sản phẩm đã xem</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mt-8">
-              {productsViewed.map((item) => (
-                <div key={item._id} className="relative">
-                  <ProductItem product={item} />
+          {user && (
+            <>
+              <div className="text-gray-900 mt-8 border-t border-gray-200 pt-8">
+                <h2 className="text-2xl font-bold uppercase">
+                  Sản phẩm đã xem
+                </h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mt-8">
+                  {productsViewed.map((item) => (
+                    <div key={item._id} className="relative">
+                      <ProductItem product={item} />
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </div>
-          <div className="text-gray-900 mt-8 border-t border-gray-200 pt-8">
-            <h2 className="text-2xl font-bold uppercase">Sản phẩm yêu thích</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mt-8">
-              {favoriteProducts.map((item) => (
-                <div key={item._id} className="relative">
-                  <ProductItem product={item} isWishList={true} />
+              </div>
+              <div className="text-gray-900 mt-8 border-t border-gray-200 pt-8">
+                <h2 className="text-2xl font-bold uppercase">
+                  Sản phẩm yêu thích
+                </h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mt-8">
+                  {favoriteProducts.map((item) => (
+                    <div key={item._id} className="relative">
+                      <ProductItem product={item} isWishList={true} />
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </div>
+              </div>
+            </>
+          )}
         </div>
       </section>
     </CartProvider>

@@ -45,6 +45,7 @@ def crawl_blog_detail(blog_url, thumbnail_url):
             'tags': random.sample(tags_list, random.randint(1, 3)),
             'thumbnail': thumbnail_url,
             'authID': ObjectId('66e7ef1a32c291eec36d52d0'),
+            'author': 'Phan Thanh Hoá',
             'status': random.choice(['public', 'private', 'waiting', 'reject']),
             'views': random.randint(0, 200),
             'createdAt': 1728577736517,
@@ -61,7 +62,7 @@ def crawl_blog_detail(blog_url, thumbnail_url):
     else:
         print(f"Không thể truy cập bài viết: {blog_url}")
 
-for page in range(12, maxPage + 1):
+for page in range(11, maxPage + 1):
     page_url = f"{base_url}-p{page}"
     response = requests.get(page_url, headers=headers)
 

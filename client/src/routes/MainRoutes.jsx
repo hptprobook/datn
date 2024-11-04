@@ -9,6 +9,7 @@ import PostPage from '~/pages/Post';
 import PostDetail from '~/pages/Post/PostDetail';
 import ProductPage from '~/pages/Products';
 import SearchPage from '~/pages/Search';
+import StaticPage from '~/pages/Static/StaticPage';
 import TrackingOrderPage from '~/pages/TrackingOrder';
 
 const MainRoutes = {
@@ -103,6 +104,15 @@ const MainRoutes = {
         {
           path: ':slug',
           element: <PostDetail />,
+        },
+      ],
+    },
+    {
+      path: 'static',
+      children: [
+        {
+          path: ':slug',
+          element: <StaticPage />,
         },
       ],
     },
