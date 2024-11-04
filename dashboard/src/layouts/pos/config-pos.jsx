@@ -6,6 +6,12 @@ const navConfig = [
     child: undefined,
   },
   {
+    title: 'Hóa đơn',
+    path: '/pos/receipts',
+    icon: 'mdi:receipt-text',
+    child: undefined,
+  },
+  {
     title: 'Tra cứu đơn hàng',
     path: '/pos/orders',
     icon: 'mdi:file-find',

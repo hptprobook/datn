@@ -17,6 +17,7 @@ import {
   ListItem,
   MenuItem,
   TableRow,
+  Checkbox,
   TextField,
   TableHead,
   TableCell,
@@ -28,9 +29,7 @@ import {
   ListItemText,
   ListItemAvatar,
   TableContainer,
-  Checkbox,
   FormControlLabel,
-  FormGroup,
 } from '@mui/material';
 import { useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -42,6 +41,7 @@ import { fetchAll } from 'src/redux/slices/warehouseSlices';
 import { handleToast } from 'src/hooks/toast';
 import Grid2 from '@mui/material/Unstable_Grid2';
 import { useFormik } from 'formik';
+import { createReceipt, setStatus as setStatusCreate } from 'src/redux/slices/receiptSlices';
 import { productSchema } from './common/util';
 
 // ----------------------------------------------------------------------
@@ -103,6 +103,9 @@ export default function PosPage() {
   const statusSearchUser = useSelector((state) => state.pos.statusSearchUser);
   const staff = useSelector((state) => state.auth.auth);
   const warehouses = useSelector((state) => state.warehouses.warehouses);
+  const statusCreate = useSelector((state) => state.receipts.statusCreate);
+  const error = useSelector((state) => state.receipts.error);
+
   useEffect(() => {
     if (receipts.length === 0) {
       setReceipts([
@@ -132,6 +135,20 @@ export default function PosPage() {
       dispatch(fetchAll());
     }
   }, [dispatch, staff]);
+  useEffect(() => {
+    if (statusCreate === 'successful') {
+      handleToast('success', 'Tạo hóa đơn thành công');
+      const newArray = receipts.filter((_, index) => index !== value);
+      setReceipts(newArray);
+      dispatch(setStatusCreate({ key: 'statusCreate', value: 'idle' }));
+      setValue(0);
+      setReceipt(receipts[0]);
+    }
+
+    if (statusCreate === 'failed') {
+      handleToast('error', error);
+    }
+  }, [statusCreate, error, dispatch, receipts, value]);
 
   const formik = useFormik({
     initialValues: {
@@ -339,7 +356,35 @@ export default function PosPage() {
     r.amountPaidTo = r.amountPaidBy - calculatedTotal;
     setReceipts([...receipts]);
   };
-
+  const handlePay = () => {
+    const r = receipts[value];
+    const calculatedTotal = handleCalculate(r.total, r.discount);
+    if (r.amountPaidBy < calculatedTotal) {
+      handleToast('error', 'Số tiền khách đưa không đủ');
+      return;
+    }
+    if (r.productsList.length === 0) {
+      handleToast('error', 'Hóa đơn không có sản phẩm');
+      return;
+    }
+    r.amountPaidTo = r.amountPaidBy - calculatedTotal;
+    r.total = calculatedTotal;
+    r.status = 'success';
+    r.staffId = staff._id;
+    r.receiptCode = `HD${new Date().getTime()}`;
+    if (selectedUser) {
+      r.phone = selectedUser.phone;
+      r.name = selectedUser.name;
+    }
+    dispatch(createReceipt(r));
+    setReceipts([...receipts]);
+  };
+  const handleCloseReceipt = () => {
+    const newArray = receipts.filter((_, index) => index !== value);
+    setReceipts(newArray);
+    setValue(0);
+    setReceipt(receipts[0]);
+  };
   return (
     <Box>
       <Modal
@@ -593,6 +638,13 @@ export default function PosPage() {
             ))}
           </Tabs>
         </Box>
+        <IconButton
+          onClick={handleCloseReceipt}
+          disabled={receipts.length === 1 && true}
+          variant="contained"
+        >
+          <Iconify icon="mdi:close" />
+        </IconButton>
       </Stack>
       <Grid2 container spacing={2}>
         <Grid2 xs={12} md={8}>
@@ -943,10 +995,14 @@ export default function PosPage() {
               spacing={2}
             >
               <FormControlLabel control={<Checkbox defaultChecked />} label="In hóa đơn" />
-              <Button variant="contained" color="inherit">
+              <Button
+                variant="contained"
+                color="inherit"
+                onClick={() => handleToast('info', 'Tính năng đang phát triển!')}
+              >
                 Mã giảm giá
               </Button>
-              <Button variant="contained" color="inherit">
+              <Button variant="contained" color="inherit" onClick={handlePay}>
                 Thanh toán
               </Button>
             </Stack>
