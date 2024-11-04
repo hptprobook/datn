@@ -6,26 +6,12 @@ import { ERROR_MESSAGES } from '~/utils/errorMessage';
 import { recieptModel } from '~/models/receiptModel';
 import { orderModel } from '~/models/orderModel';
 
-function code(length) {
-  let result = '';
-  const characters =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  const charactersLength = characters.length;
-  let counter = 0;
-  while (counter < length) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    counter += 1;
-  }
-  return result;
-}
 
 const addReceipt = async (req, res) => {
-  // trực tiếp tại cửa hàng
   try {
     const { user_id } = req.user;
     const dataReceipt = {
       ...req.body,
-      receiptCode: code(6).toUpperCase(),
       staffId: user_id,
     };
     const result = await recieptModel.addReceipt(dataReceipt);

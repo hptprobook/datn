@@ -41,8 +41,8 @@ import { fetchAll } from 'src/redux/slices/warehouseSlices';
 import { handleToast } from 'src/hooks/toast';
 import Grid2 from '@mui/material/Unstable_Grid2';
 import { useFormik } from 'formik';
-import { productSchema } from './common/util';
 import { createReceipt, setStatus as setStatusCreate } from 'src/redux/slices/receiptSlices';
+import { productSchema } from './common/util';
 
 // ----------------------------------------------------------------------
 const backendUrl = import.meta.env.VITE_BACKEND_APP_URL;
