@@ -16,47 +16,12 @@ const getWeb = async (req, res) => {
     }
 };
 
-const createWeb = async (req, res) => {
-    try {
-        const Web = await webModel.getWeb();
-        if (Web) {
-            await uploadModel.deleteImg(req.file.filename);
-            return res
-                .status(StatusCodes.BAD_REQUEST)
-                .json({ mgs: 'Dữ liệu Web đã được tạo' });
-        }
-        if (!req.file) {
-            return res
-                .status(StatusCodes.BAD_REQUEST)
-                .json({ mgs: 'Logo là bắt buộc' });
-        }
-        const dataWeb = {
-            ...req.body,
-            logo: req.file.filename,
-        };
-        const result = await webModel.createWeb(dataWeb);
-        if (result.acknowledged) {
-            return res
-                .status(StatusCodes.OK)
-                .json({ mgs: 'Tạo dữ liệu Web thành công' });
-        }
-        await uploadModel.deleteImg(req.file.filename);
-        return res.status(StatusCodes.BAD_REQUEST).json(result);
-    } catch (error) {
-        if (error.details) {
-            return res.status(StatusCodes.BAD_REQUEST).json({
-                messages: error.details[0].message,
-            });
-        }
-        return res.status(StatusCodes.BAD_REQUEST).json(error);
-    }
-};
-
 const updateWeb = async (req, res) => {
     try {
         const staff = req.user;
         const data = req.body;
         const logo = req.files?.logo ? req.files.logo[0] : null;
+        const icon = req.files?.icon ? req.files.icon[0] : null;
         const darkLogo = req.files?.darkLogo ? req.files.darkLogo[0] : null;
         const eventBanner = req.files?.eventBanner ? req.files.eventBanner[0] : null;
         const loginScreen = req.files?.loginScreen ? req.files.loginScreen[0] : null;
@@ -64,6 +29,11 @@ const updateWeb = async (req, res) => {
             const fileName = logo.filename;
             const filePath = path.join('uploads/web', fileName);
             data.logo = filePath;
+        }
+        if (icon) {
+            const fileName = icon.filename;
+            const filePath = path.join('uploads/web', fileName);
+            data.icon = filePath;
         }
         if (darkLogo) {
             const fileName = darkLogo.filename;
@@ -86,6 +56,9 @@ const updateWeb = async (req, res) => {
             }
             if (darkLogo) {
                 await uploadModel.deleteImg(darkLogo.filename);
+            }
+            if (icon) {
+                await uploadModel.deleteImg(icon.filename);
             }
             if (eventBanner) {
                 await uploadModel.deleteImg(eventBanner.filename);
@@ -123,6 +96,9 @@ const updateWeb = async (req, res) => {
             if (loginScreen) {
                 await uploadModel.deleteImg(web.loginScreen);
             }
+            if (icon) {
+                await uploadModel.deleteImg(icon.filename);
+            }
         }
 
         return res.status(StatusCodes.OK).json(result);
@@ -131,7 +107,10 @@ const updateWeb = async (req, res) => {
         const darkLogo = req.files?.darkLogo ? req.files.darkLogo[0] : null;
         const eventBanner = req.files?.eventBanner ? req.files.eventBanner[0] : null;
         const loginScreen = req.files?.loginScreen ? req.files.loginScreen[0] : null;
-
+        const icon = req.files?.icon ? req.files.icon[0] : null;
+        if (icon) {
+            await uploadModel.deleteImg(icon.filename);
+        }
         if (loginScreen) {
             await uploadModel.deleteImg(loginScreen.filename);
         }
@@ -154,7 +133,6 @@ const updateWeb = async (req, res) => {
 };
 
 export const webController = {
-    createWeb,
     getWeb,
     updateWeb,
 };

@@ -31,10 +31,21 @@ const navConfig = [
     child: undefined,
   },
   {
-    title: 'Cài đặt website',
+    title: 'Cài đặt',
     path: '/settings',
     icon: 'ion:settings',
-    child: undefined,
+    child: [
+      {
+        title: 'Cài đặt trang web',
+        path: '/settings',
+        icon: 'mdi:web',
+      },
+      {
+        title: 'Cài đặt SEO',
+        path: '/settings/seo-config',
+        icon: 'tabler:seo',
+      },
+    ],
   },
 ];
 
