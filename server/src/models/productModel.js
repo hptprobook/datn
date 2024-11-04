@@ -426,6 +426,8 @@ const ratingProduct = async (data) => {
           orderId: new ObjectId(validData.orderId),
           productId: new ObjectId(validData.productId),
           content: validData.content,
+          variantColor: validData.variantColor,
+          variantSize: validData.variantSize,
           images: validData.images,
           rating: validData.rating,
           createdAt: new Date().getTime(),
@@ -456,6 +458,8 @@ const updateRatingProduct = async (reviewId, data) => {
         'reviews.$.orderId': new ObjectId(validData.orderId),
         'reviews.$.productId': new ObjectId(validData.productId),
         'reviews.$.rating': validData.rating,
+        'reviews.$.variantColor': validData.variantColor,
+        'reviews.$.variantSize': validData.variantSize,
         'reviews.$.images': validData.images,
         'reviews.$.updatedAt': new Date().getTime(),
       },
@@ -1210,6 +1214,17 @@ const getMinMaxProductPrices = async () => {
   };
 };
 
+const isComment = async (userId, productId) => {
+  const db = GET_DB().collection('products');
+
+  const product = await db.findOne({
+    _id: new ObjectId(productId),
+    'reviews.userId': new ObjectId(userId),
+  });
+
+  return !!product;
+};
+
 export const productModel = {
   countProductAll,
   getProductsAll,
@@ -1239,4 +1254,5 @@ export const productModel = {
   getProductsBySearchAndFilter,
   getMinMaxProductPrices,
   ratingShopResponse,
+  isComment,
 };

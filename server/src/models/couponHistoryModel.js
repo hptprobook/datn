@@ -1,3 +1,4 @@
+import { ObjectId } from 'mongodb';
 import { GET_DB } from '~/config/mongodb';
 import { CREATE_COUPON_USAGE_HISTORY } from '~/utils/schema/CouponHistorySchema';
 // Hàm để thêm một lịch sử sử dụng coupon
@@ -29,21 +30,27 @@ const addCouponHistory = async (usageData) => {
 };
 
 // Hàm để lấy lịch sử sử dụng coupon của một người dùng
-const getCouponHistorybyUserId = async (userId) => { 
+const getCouponHistoryByParams = async ({ userId, orderId, couponId }) => {
   const db = await GET_DB();
   const couponUsageCollection = db.collection('couponUsageHistory');
 
+  const query = {};
+  if (userId) query.userId ;
+  if (orderId) query.orderId ;
+  if (couponId) query.couponId ;
+
+
   const history = await couponUsageCollection
-    .find({ userId })
+    .find(query)
     .sort({ usageDate: -1 })
     .toArray();
+
 
   return history;
 };
 
-
 export const couponHistoryModel = {
     addCouponHistory,
-    getCouponHistorybyUserId,
+    getCouponHistoryByParams,
     getCouponHistory
 }

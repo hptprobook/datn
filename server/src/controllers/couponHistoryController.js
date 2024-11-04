@@ -29,11 +29,12 @@ const addCouponHistory = async (req, res) => {
   }
 };
 
-const getCouponHistorybyUserId = async (req, res) => {
-
+const getCouponHistoryByParams = async (req, res) => {
   try {
-  const { userId } = req.body;
-    const history = await couponHistoryModel.getCouponHistorybyUserId(userId);
+    const { userId, orderId, couponId } = req.body;
+
+    const history = await couponHistoryModel.getCouponHistoryByParams({ userId, orderId, couponId });
+
     res.status(StatusCodes.OK).json({
       message: 'Lấy lịch sử sử dụng coupon thành công',
       data: history,
@@ -44,9 +45,8 @@ const getCouponHistorybyUserId = async (req, res) => {
     });
   }
 };
-
 export const couponUsageController = {
     addCouponHistory,
-    getCouponHistorybyUserId,
+    getCouponHistoryByParams,
     getCouponHistory
 }

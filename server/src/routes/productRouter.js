@@ -62,6 +62,7 @@ Router.post(
   productController.createProduct
 );
 Router.post('/rating', upload.array('images'), productController.ratingProduct);
+Router.post('/ratingMany', productController.ratingManyProduct);
 Router.post(
   '/ratingShop/:id',
   verifyStaff,
@@ -86,6 +87,11 @@ Router.put(
   productController.updateRatingProduct
 );
 Router.delete('/:id', verifyStaff, isAdmin, productController.deleteProduct);
-Router.delete('/rating/:id', productController.deleteRating);
+Router.delete(
+  '/rating/:id',
+  verifyStaff,
+  isAdmin,
+  productController.deleteRating
+);
 
 export const productsApi = Router;

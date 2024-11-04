@@ -191,6 +191,50 @@ const updateSingleProductStock = async (data) => {
       $inc: {
         'variants.$.stock': data.quantity,
         'variants.$.sizes.$[size].stock': data.quantity,
+        'variants.$.sizes.$[size].sale': data.quantity,
+      },
+    },
+    {
+      arrayFilters: [{ 'size.size': data.variantSize }],
+    }
+  );
+  return result;
+};
+
+const updateConfirmedStock = async (data) => {
+  const db = await GET_DB().collection('products');
+  const result = await db.updateOne(
+    {
+      _id: new ObjectId(data.productId),
+      'variants.color': data.variantColor,
+      'variants.sizes.size': data.variantSize,
+    },
+    {
+      $inc: {
+        'variants.$.sizes.$[size].sale': -data.quantity,
+        'variants.$.sizes.$[size].trading': data.quantity,
+      },
+    },
+    {
+      arrayFilters: [{ 'size.size': data.variantSize }],
+    }
+  );
+  return result;
+};
+
+const updateCompletedStock = async (data) => {
+  const db = await GET_DB().collection('products');
+  const result = await db.updateOne(
+    {
+      _id: new ObjectId(data.productId),
+      'variants.color': data.variantColor,
+      'variants.sizes.size': data.variantSize,
+    },
+    {
+      $inc: {
+        'variants.$.stock': -data.quantity,
+        'variants.$.sizes.$[size].stock': -data.quantity,
+        'variants.$.sizes.$[size].trading': -data.quantity,
       },
     },
     {
@@ -215,4 +259,7 @@ export const orderModel = {
   getOrderById,
   getStatusOrder,
   findOrderByCode,
+  //   update stock
+  updateConfirmedStock,
+  updateCompletedStock,
 };

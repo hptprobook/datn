@@ -596,7 +596,15 @@ const deleteProduct = async (req, res) => {
 
 const ratingProduct = async (req, res) => {
   try {
-    const { userId, content, orderId, productId, rating } = req.body;
+    const {
+      userId,
+      content,
+      orderId,
+      productId,
+      rating,
+      variantColor,
+      variantSize,
+    } = req.body;
 
     const data = {
       userId,
@@ -604,6 +612,8 @@ const ratingProduct = async (req, res) => {
       orderId,
       productId,
       rating,
+      variantColor,
+      variantSize,
     };
 
     let images = [];
@@ -613,6 +623,17 @@ const ratingProduct = async (req, res) => {
         path.join('uploads/products', file.filename)
       );
       data.images = images;
+    }
+
+    const isComment = await productModel.isComment(userId, productId);
+
+    if (isComment) {
+      if (req.files) {
+        uploadModel.deleteImgs(images);
+      }
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Đã đánh giá sản phẩm này' });
     }
 
     const dataProduct = await productModel.ratingProduct(data);
@@ -631,6 +652,91 @@ const ratingProduct = async (req, res) => {
         uploadModel.deleteImg(file.path);
       });
     }
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
+  }
+};
+
+const ratingManyProduct = async (req, res) => {
+  try {
+    const { userId, orderId, productList } = req.body;
+    /*  const data = {
+      userId: '672332bb3eb63a6c62287dc6',
+      orderId: '672326529e88fc77313144d1',
+      productList: [
+        {
+          content: '123',
+          rating: 5,
+          productId: '671f8472af7fc5c9ad0485a9',
+          name: '123123',
+          variantColor: 'Xám',
+          variantSize: 'S',
+        },
+        {
+          content: '1234',
+          rating: 5,
+          productId: '6717bd72e87fcbd1937bbef2',
+          name: 'Áo Sơ Mi Kiểu 10609955',
+          variantColor: 'Tím',
+          variantSize: 'S',
+        },
+        {
+          content: '12345',
+          rating: 5,
+          productId: '6717bd71e87fcbd1937bbef1',
+          name: 'Áo Sơ Mi Croptop 10610046',
+          variantColor: 'Xám',
+          variantSize: 'S',
+        },
+      ],
+    }; */
+
+    const successfulProducts = [];
+    const failedProducts = [];
+
+    for (const product of productList) {
+      const { productId, content, rating, variantColor, variantSize, name } =
+        product;
+
+      const isComment = await productModel.isComment(userId, productId);
+
+      if (isComment) {
+        failedProducts.push({ name, reason: 'Đã đánh giá sản phẩm này' });
+        continue;
+      }
+
+      try {
+        const reviewData = {
+          userId: userId,
+          orderId: orderId,
+          productId,
+          content,
+          rating,
+          variantColor,
+          variantSize,
+        };
+
+        await productModel.ratingProduct(reviewData);
+        successfulProducts.push({ name });
+      } catch (error) {
+        failedProducts.push({ name, reason: error.message });
+      }
+    }
+
+    if (failedProducts.length > 0) {
+      return res.status(StatusCodes.OK).json({
+        message: 'Quá trình đánh giá hoàn tất với một số sản phẩm bị lỗi.',
+        successfulProducts,
+        failedProducts,
+      });
+    }
+
+    return res.status(StatusCodes.OK).json({
+      message: 'Đánh giá thành công tất cả sản phẩm',
+      successfulProducts,
+    });
+  } catch (error) {
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ message: error.message });
@@ -664,8 +770,16 @@ const ratingShopProduct = async (req, res) => {
 const updateRatingProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { userId, content, orderId, productId, rating, imagesDelete } =
-      req.body;
+    const {
+      userId,
+      content,
+      orderId,
+      productId,
+      rating,
+      imagesDelete,
+      variantColor,
+      variantSize,
+    } = req.body;
 
     const data = {
       userId,
@@ -673,6 +787,8 @@ const updateRatingProduct = async (req, res) => {
       orderId,
       productId,
       rating,
+      variantColor,
+      variantSize,
     };
     let images = [];
 
@@ -1015,4 +1131,5 @@ export const productController = {
   getProductsBySearchAndFilter,
   getMinMaxPrices,
   ratingShopProduct,
+  ratingManyProduct,
 };

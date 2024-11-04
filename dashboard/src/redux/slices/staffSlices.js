@@ -57,6 +57,17 @@ export const updateStaffById = createAsyncThunk(
         }
     }
 );
+export const updateMe = createAsyncThunk(
+    "staffs/updateMe",
+    async (data, { rejectWithValue }) => {
+        try {
+            const response = await StaffsService.updateMe(data);
+            return response;
+        } catch (err) {
+            return rejectWithValue(err.response.data);
+        }
+    }
+);
 const initialState = {
     staffs: [],
     staff: null,
@@ -66,6 +77,7 @@ const initialState = {
     statusUpdate: "idle",
     statusCreate: "idle",
     statusGet: "idle",
+    statusUpdateMe: "idle",
     error: null,
 };
 
@@ -129,6 +141,17 @@ const staffSlices = createSlice({
             })
             .addCase(updateStaffById.rejected, (state, action) => {
                 state.statusUpdate = "failed";
+                state.error = action.payload;
+            })
+            .addCase(updateMe.pending, (state) => {
+                state.statusUpdateMe = "loading";
+            })
+            .addCase(updateMe.fulfilled, (state, action) => {
+                state.statusUpdateMe = "successful";
+                state.updateMe = action.payload;
+            })
+            .addCase(updateMe.rejected, (state, action) => {
+                state.statusUpdateMe = "failed";
                 state.error = action.payload;
             })
             .addCase(setStatus, (state, action) => {
