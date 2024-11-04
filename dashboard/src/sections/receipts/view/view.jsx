@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -25,10 +25,10 @@ import { Box, List, Modal, IconButton, ListItemText } from '@mui/material';
 import { setStatus, deleteReceipt, fetchAllReceipts } from 'src/redux/slices/receiptSlices';
 import { formatCurrency } from 'src/utils/format-number';
 import { formatDateTime } from 'src/utils/format-time';
+import { useReactToPrint } from 'react-to-print';
 import ReceiptTableToolbar from '../table-toolbar';
 import ReceiptTableHead from '../table-head';
 import ReceiptTableRow from '../table-row';
-import { useReactToPrint } from 'react-to-print';
 
 // ----------------------------------------------------------------------
 const style = {

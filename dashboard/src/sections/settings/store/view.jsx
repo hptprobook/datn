@@ -57,7 +57,11 @@ const configSchema = Yup.object().shape({
   Youtube: Yup.string().url('URL không hợp lệ'),
   Tiktok: Yup.string().url('URL không hợp lệ'),
   LinkWebConnect: Yup.string().url('URL không hợp lệ'),
-  footerThanks: Yup.string().min(50, 'Lời cảm ơn quá ngắn').max(1000, 'Lời cảm ơn quá dài').required('Lời cảm ơn không được để trống'),
+  eventUrl: Yup.string().url('URL không hợp lệ'),
+  footerThanks: Yup.string()
+    .min(50, 'Lời cảm ơn quá ngắn')
+    .max(1000, 'Lời cảm ơn quá dài')
+    .required('Lời cảm ơn không được để trống'),
 });
 
 export default function StorePage() {
@@ -77,6 +81,30 @@ export default function StorePage() {
       });
     }
   }, []);
+  const handleChangeUpDarkLogo = useCallback((files) => {
+    if (files) {
+      setUploadedImageUrl({
+        file: files,
+        name: 'darkLogo',
+      });
+    }
+  }, []);
+  const handleChangeUpEventBanner = useCallback((files) => {
+    if (files) {
+      setUploadedImageUrl({
+        file: files,
+        name: 'eventBanner',
+      });
+    }
+  }, []);
+  const handleChangeUpLoginScreen = useCallback((files) => {
+    if (files) {
+      setUploadedImageUrl({
+        file: files,
+        name: 'loginScreen',
+      });
+    }
+  }, []);
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
@@ -85,6 +113,7 @@ export default function StorePage() {
       address: config.address || '',
       email: config.email || '',
       phone: config.phone || '',
+      eventUrl: config.eventUrl || '',
       hotline: config.hotline || '',
       zalo: config.zalo || '',
       nameBank: config.nameBank || '',
@@ -123,7 +152,6 @@ export default function StorePage() {
     }
   }, [statusUpdate, data, error, dispatch]);
   const handleSubmit = () => {
-
     if (formik.errors && Object.keys(formik.errors).length > 0) {
       Object.keys(formik.errors).forEach((key) => {
         handleToast('error', formik.errors[key]);
@@ -300,6 +328,104 @@ export default function StorePage() {
                       >
                         Chọn ảnh từ thư viện
                       </Button>
+                      <Button
+                        sx={{ display: uploadedImageUrl === null ? 'none' : 'block' }}
+                        variant="contained"
+                        color="inherit"
+                        onClick={handleUpload}
+                      >
+                        Lưu
+                      </Button>
+                    </Stack>
+                  </Grid2>
+                </Grid2>
+              </Card>
+              <Card sx={{ p: 3 }}>
+                <TitleStoreCard
+                  handleSubmit={handleSubmit}
+                  setInputSelect={setInputSelect}
+                  label="Media"
+                  inputSelect={inputSelect}
+                  selectLabel="media"
+                />
+                <Grid2 spacing={2} container>
+                  <Grid2 xs={4}>
+                    <Typography variant="h6">Event Banner</Typography>
+                    <EditableField
+                      name="eventUrl"
+                      label="Đường dẫn sự kiện"
+                      value={formik.values.eventUrl}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      selectLabel="media"
+                      error={formik.touched.eventUrl && Boolean(formik.errors.eventUrl)}
+                      helperText={formik.touched.eventUrl && formik.errors.eventUrl}
+                      inputSelect={inputSelect}
+                      setInputSelect={setInputSelect}
+                      handleUpdate={handleUpdate}
+                      handleCancel={handleCancel}
+                    />
+                    <ImageDropZone
+                      handleUpload={handleChangeUpEventBanner}
+                      singleFile
+                      defaultImg={config.loginScreen}
+                    />
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      justifyContent="flex-end"
+                      mt={2}
+                      spacing={2}
+                    >
+                      <Button
+                        sx={{ display: uploadedImageUrl === null ? 'none' : 'block' }}
+                        variant="contained"
+                        color="inherit"
+                        onClick={handleUpload}
+                      >
+                        Lưu
+                      </Button>
+                    </Stack>
+                  </Grid2>
+                  <Grid2 xs={4}>
+                    <Typography variant="h6">Logo nền tối</Typography>
+                    <ImageDropZone
+                      handleUpload={handleChangeUpDarkLogo}
+                      singleFile
+                      defaultImg={config.darkLogo}
+                    />
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      justifyContent="flex-end"
+                      mt={2}
+                      spacing={2}
+                    >
+                      <Button
+                        sx={{ display: uploadedImageUrl === null ? 'none' : 'block' }}
+                        variant="contained"
+                        color="inherit"
+                        onClick={handleUpload}
+                      >
+                        Lưu
+                      </Button>
+                    </Stack>
+                  </Grid2>
+                  <Grid2 xs={4}>
+                    <Typography variant="h6">Màn hình đăng nhập</Typography>
+                    <ImageDropZone
+                      handleUpload={handleChangeUpLoginScreen}
+                      singleFile
+                      defaultImg={config.loginScreen}
+                    />
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      justifyContent="flex-end"
+                      mt={2}
+                      spacing={2}
+                    >
+                      
                       <Button
                         sx={{ display: uploadedImageUrl === null ? 'none' : 'block' }}
                         variant="contained"
