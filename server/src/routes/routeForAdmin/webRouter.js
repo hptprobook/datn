@@ -4,6 +4,7 @@ import { webController } from '~/controllers/webController';
 import multer from 'multer';
 import path from 'path';
 import { uploadModel } from '~/models/uploadModel';
+import { verifyToken } from '~/middlewares/verifyRole';
 const Router = express.Router();
 
 const storage = multer.diskStorage({
@@ -25,12 +26,12 @@ const upload = multer({
 //admin
 Router.get('/', webController.getWeb);
 
-Router.post('/', upload.single('logo'), webController.createWeb);
-Router.put('/', upload.fields([
+Router.put('/', verifyToken, upload.fields([
     { name: 'logo', maxCount: 1 },
     { name: 'darkLogo', maxCount: 1 },
     { name: 'eventBanner', maxCount: 1 },
-    { name: 'loginScreen', maxCount: 1 }
+    { name: 'loginScreen', maxCount: 1 },
+    { name: 'icon', maxCount: 1 },
 ]), webController.updateWeb);
 // Router.delete('/:id', webController.deleteSeoConfig);
 
