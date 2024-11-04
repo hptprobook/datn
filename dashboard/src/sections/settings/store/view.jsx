@@ -350,33 +350,30 @@ export default function StorePage() {
                 />
                 <Grid2 spacing={2} container>
                   <Grid2 xs={4}>
-                    <Typography variant="h6">Event Banner</Typography>
-                    <EditableField
-                      name="eventUrl"
-                      label="Đường dẫn sự kiện"
-                      value={formik.values.eventUrl}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      selectLabel="media"
-                      error={formik.touched.eventUrl && Boolean(formik.errors.eventUrl)}
-                      helperText={formik.touched.eventUrl && formik.errors.eventUrl}
-                      inputSelect={inputSelect}
-                      setInputSelect={setInputSelect}
-                      handleUpdate={handleUpdate}
-                      handleCancel={handleCancel}
-                    />
-                    <ImageDropZone
-                      handleUpload={handleChangeUpEventBanner}
-                      singleFile
-                      defaultImg={config.loginScreen}
-                    />
                     <Stack
-                      direction="row"
-                      alignItems="center"
-                      justifyContent="flex-end"
-                      mt={2}
+                      direction="column"
                       spacing={2}
                     >
+                      <Typography variant="h6">Event Banner</Typography>
+                      <ImageDropZone
+                        handleUpload={handleChangeUpEventBanner}
+                        singleFile
+                        defaultImg={config.loginScreen}
+                      />
+                      <EditableField
+                        name="eventUrl"
+                        label="Đường dẫn sự kiện"
+                        value={formik.values.eventUrl}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        selectLabel="media"
+                        error={formik.touched.eventUrl && Boolean(formik.errors.eventUrl)}
+                        helperText={formik.touched.eventUrl && formik.errors.eventUrl}
+                        inputSelect={inputSelect}
+                        setInputSelect={setInputSelect}
+                        handleUpdate={handleUpdate}
+                        handleCancel={handleCancel}
+                      />
                       <Button
                         sx={{ display: uploadedImageUrl === null ? 'none' : 'block' }}
                         variant="contained"
@@ -425,7 +422,6 @@ export default function StorePage() {
                       mt={2}
                       spacing={2}
                     >
-                      
                       <Button
                         sx={{ display: uploadedImageUrl === null ? 'none' : 'block' }}
                         variant="contained"

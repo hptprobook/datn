@@ -54,6 +54,7 @@ const createWeb = async (req, res) => {
 
 const updateWeb = async (req, res) => {
     try {
+        const staff = req.user;
         const data = req.body;
         const logo = req.files?.logo ? req.files.logo[0] : null;
         const darkLogo = req.files?.darkLogo ? req.files.darkLogo[0] : null;
@@ -78,6 +79,23 @@ const updateWeb = async (req, res) => {
             const fileName = loginScreen.filename;
             const filePath = path.join('uploads/web', fileName);
             data.loginScreen = filePath;
+        }
+        if (staff.role !== 'root' && (data.nameBank || data.numberBank || data.nameholderBank)) {
+            if (logo) {
+                await uploadModel.deleteImg(logo.filename);
+            }
+            if (darkLogo) {
+                await uploadModel.deleteImg(darkLogo.filename);
+            }
+            if (eventBanner) {
+                await uploadModel.deleteImg(eventBanner.filename);
+            }
+            if (loginScreen) {
+                await uploadModel.deleteImg(loginScreen.filename);
+            }
+            return res.status(StatusCodes.FORBIDDEN).json({
+                messages: 'Bạn không có quyền thực hiện chức năng này',
+            });
         }
         const web = await webModel.getWeb();
         if (!web) {
