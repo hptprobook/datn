@@ -51,7 +51,6 @@ const updateMe = async (id, dataStaff) => {
   if (validData.lastLogin) {
     validData.lastLogin = new Date(validData.lastLogin).getTime();
   }
-  console.log(validData);
   const db = await GET_DB();
   const collection = db.collection('staffs');
   const result = await collection.findOneAndUpdate(
