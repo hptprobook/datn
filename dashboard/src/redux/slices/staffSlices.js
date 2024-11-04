@@ -68,6 +68,19 @@ export const updateMe = createAsyncThunk(
         }
     }
 );
+export const uploadMe = createAsyncThunk(
+    "staffs/uploadMe",
+    async (file, { rejectWithValue }) => {
+      try {
+        console.log(file);
+        const response = await StaffsService.uploadMe(file);
+        return response;
+      } catch (err) {
+        return rejectWithValue(err.response.data);
+      }
+    }
+  );
+  
 const initialState = {
     staffs: [],
     staff: null,
@@ -154,6 +167,17 @@ const staffSlices = createSlice({
                 state.statusUpdateMe = "failed";
                 state.error = action.payload;
             })
+            .addCase(uploadMe.pending, (state) => {
+                state.statusUpdateMe = 'loading';
+              })
+              .addCase(uploadMe.fulfilled, (state, action) => {
+                state.statusUpdateMe = 'successful';
+                state.staff.avatar = action.payload.avatar; // Update the avatar in the staff object
+              })
+              .addCase(uploadMe.rejected, (state, action) => {
+                state.statusUpdateMe = 'failed';
+                state.error = action.payload;
+              })
             .addCase(setStatus, (state, action) => {
                 const { key, value } = action.payload; // Destructure key and value from payload
                 if (state[key] !== undefined) {
