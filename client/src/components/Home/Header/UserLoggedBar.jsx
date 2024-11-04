@@ -17,7 +17,7 @@ const UserLoggedBar = ({ currentUserInfor }) => {
   }
 
   return (
-    <div className="relative text-2xl text-gray-50 cursor-pointer group z-30">
+    <div className="relative text-2xl text-gray-50 cursor-pointer group z-50">
       {currentUserInfor?.avatar ? (
         <NavLink to={'/nguoi-dung/tai-khoan'}>
           <div className="">
@@ -57,10 +57,19 @@ const UserLoggedBar = ({ currentUserInfor }) => {
         <div className="mt-3">
           <div className="hover:bg-gray-200 hover:text-red-600">
             <NavLink
+              to={'/nguoi-dung/tai-khoan'}
+              className="flex items-center py-3 text-sm  px-8"
+            >
+              <Icon icon="solar:user-linear" className="text-xl" />
+              <span className="pl-3">Hồ sơ</span>
+            </NavLink>
+          </div>
+          <div className="hover:bg-gray-200 hover:text-red-600">
+            <NavLink
               to={'/nguoi-dung'}
               className="flex items-center py-3 text-sm  px-8"
             >
-              <Icon icon="lets-icons:order-fill" className="text-xl" />
+              <Icon icon="circum:view-list" className="text-xl" />
               <span className="pl-3">Đơn hàng</span>
             </NavLink>
           </div>
@@ -71,15 +80,6 @@ const UserLoggedBar = ({ currentUserInfor }) => {
             >
               <Icon icon="pepicons-pop:eye" className="text-xl" />
               <span className="pl-3">Sản phẩm đã xem</span>
-            </NavLink>
-          </div>
-          <div className="hover:bg-gray-200 hover:text-red-600">
-            <NavLink
-              to={'/nguoi-dung/san-pham-yeu-thich'}
-              className="flex items-center py-3 text-sm  px-8"
-            >
-              <Icon icon="mingcute:love-line" className="text-xl" />
-              <span className="pl-3">Sản phẩm yêu thích</span>
             </NavLink>
           </div>
           <div
