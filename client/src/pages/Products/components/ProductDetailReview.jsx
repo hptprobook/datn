@@ -8,15 +8,13 @@ const ProductDetailReview = ({ reviews }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const reviewsPerPage = 6;
 
-  const repeatedReviews = Array(3).fill(reviews).flat();
-
   const averageRating = reviews.length
     ? (
         reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
       ).toFixed(1)
     : 0;
 
-  const filteredReviews = repeatedReviews
+  const filteredReviews = reviews
     .filter((review) =>
       selectedRating ? review.rating === selectedRating : true
     )
