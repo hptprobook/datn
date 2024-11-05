@@ -5,12 +5,15 @@ import { useState } from 'react';
 const ProductDetailReview = ({ reviews }) => {
   const [selectedRating, setSelectedRating] = useState(null);
   const [sortByNewest, setSortByNewest] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const reviewsPerPage = 6;
 
   const averageRating = reviews.length
     ? (
         reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
       ).toFixed(1)
     : 0;
+
   const filteredReviews = reviews
     .filter((review) =>
       selectedRating ? review.rating === selectedRating : true
@@ -18,6 +21,24 @@ const ProductDetailReview = ({ reviews }) => {
     .sort((a, b) =>
       sortByNewest ? b.createdAt - a.createdAt : a.createdAt - b.createdAt
     );
+
+  const indexOfLastReview = currentPage * reviewsPerPage;
+  const indexOfFirstReview = indexOfLastReview - reviewsPerPage;
+  const currentReviews = filteredReviews.slice(
+    indexOfFirstReview,
+    indexOfLastReview
+  );
+
+  const handleFilterStars = (star) => {
+    setCurrentPage(1);
+    setSelectedRating(star);
+  };
+
+  const totalPages = Math.ceil(filteredReviews.length / reviewsPerPage);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
 
   return (
     <section className='py-24 relative'>
@@ -28,43 +49,23 @@ const ProductDetailReview = ({ reviews }) => {
           </h2>
           <div className='pb-11 border-b border-gray-100 max-xl:max-w-2xl max-xl:mx-auto '>
             <div className='p-8 bg-amber-50 rounded-3xl flex items-center justify-center flex-col'>
-              {/*  <h2 className='font-manrope font-bold text-3xl text-amber-400 mb-6'>
+              <h2 className='font-manrope font-bold text-3xl text-amber-400 mb-6'>
                 {averageRating}
               </h2>
-              {reviews.length > 0 && (
-                <Rating className='mt-1 text-xl'>
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Rating.Star
-                      key={i}
-                      className={
-                        i < averageRating ? 'text-yellow-600' : 'text-gray-300'
-                      }
-                      filled={i < averageRating}
-                    />
-                  ))}
-                </Rating>
-              )} */}
-              {/* <p className='font-medium text-md leading-8 text-gray-900 text-center'> */}
-              <div className='pb-11 border-b border-gray-100 max-xl:max-w-2xl max-xl:mx-auto'>
-                <div className='p-8 bg-amber-50 rounded-3xl flex items-center justify-center flex-col'>
-                  <h2 className='font-manrope font-bold text-3xl text-amber-400 mb-6'>
-                    {averageRating}
-                  </h2>
-                  {reviews.length > 0 && <div>Rating</div>}
-                  <p className='font-medium text-md leading-8 text-gray-900 text-center'>
-                    {reviews.length} Đánh giá
-                  </p>
-                </div>
-              </div>
+              {reviews.length > 0 && <div>Rating</div>}
+              <p className='font-medium text-md leading-8 text-gray-900 text-center'>
+                {reviews.length} Đánh giá
+              </p>
             </div>
           </div>
+
           {/* Bộ lọc */}
           <div className='flex justify-between items-center mt-8 mb-4'>
             <div className='flex gap-4'>
               {[5, 4, 3, 2, 1].map((star) => (
                 <button
                   key={star}
-                  onClick={() => setSelectedRating(star)}
+                  onClick={() => handleFilterStars(star)}
                   className={`px-3 py-1 rounded-lg ${
                     selectedRating === star
                       ? 'bg-blue-500 text-white'
@@ -90,7 +91,7 @@ const ProductDetailReview = ({ reviews }) => {
           </div>
 
           {/* Danh sách review */}
-          {filteredReviews.map((review) => (
+          {currentReviews.map((review) => (
             <div
               key={review.orderId}
               className='pt-11 pb-8 border-b border-gray-100 max-xl:max-w-2xl max-xl:mx-auto'
@@ -165,13 +166,23 @@ const ProductDetailReview = ({ reviews }) => {
               )}
             </div>
           ))}
-          <div className='pagination flex justify-center pt-11'>
-            <button className='btn bg-white text-black'>0</button>
-            <button className='btn bg-white text-black btn-active'>1</button>
-            <button className='btn bg-white text-black'>2</button>
-            <button className='btn bg-white text-black'>3</button>
-            <button className='btn bg-white text-black'>4</button>
-          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className='pagination flex justify-center pt-11'>
+              {Array.from({ length: totalPages }).map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => handlePageChange(index + 1)}
+                  className={`btn bg-white text-black ${
+                    currentPage === index + 1 ? 'btn-active' : ''
+                  }`}
+                >
+                  {index + 1}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </section>
