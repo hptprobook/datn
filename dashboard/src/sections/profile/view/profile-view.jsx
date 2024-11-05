@@ -1,11 +1,10 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
-import { PropTypes } from 'prop-types';
 
 
 
@@ -15,26 +14,26 @@ import Grid2 from '@mui/material/Unstable_Grid2';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFormik } from 'formik';
 import { handleToast } from 'src/hooks/toast';
-import { updateMe ,setStatus } from 'src/redux/slices/staffSlices';
+import { updateMe, uploadMe, setStatus } from 'src/redux/slices/staffSlices';
 import { getMe } from 'src/redux/slices/authSlice';
 import Iconify from 'src/components/iconify';
+import ImageDropZone from 'src/components/drop-zone-upload/upload-img';
 import EditableField from '../edit-field';
 import { profileSchema } from '../utils';
 
 // ----------------------------------------------------------------------
 
 export default function ProfileView() {
-  
-  // const [value, setValue] = useState(0);
+
   const dispatch = useDispatch();
-  // const [uploadedImageUrl, setUploadedImageUrl] = useState(null);
+  const [uploadedImageUrl, setUploadedImageUrl] = useState(null);
 
   const data = useSelector((state) => state.auth.auth);
   const status = useSelector((state) => state.staffs.status);
   const statusUpdate = useSelector((state) => state.staffs.statusUpdateMe);
   const error = useSelector((state) => state.staffs.error);
 
-  
+
 
   const [account, setAccount] = useState({});
 
@@ -45,14 +44,15 @@ export default function ProfileView() {
     }
   }, [data]);
 
-  // const handleChangeUploadImg = useCallback((files) => {
-  //   if (files) {
-  //     setUploadedImageUrl({
-  //       file: files,
-  //       name: 'avatar',
-  //     });
-  //   }
-  // }, []);
+  const handleChangeUploadImg = useCallback((files) => {
+    if (files) {
+      console.log(files);
+      setUploadedImageUrl({
+        file: files,
+        name: 'avatar',
+      });
+    }
+  }, []);
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
@@ -67,7 +67,6 @@ export default function ProfileView() {
     },
     validationSchema: profileSchema,
   });
-
   const formikRef = useRef(formik);
 
   useEffect(() => {
@@ -88,6 +87,7 @@ export default function ProfileView() {
   }, [statusUpdate, data, error, dispatch]);
 
   const handleSubmit = () => {
+    console.log(formik.errors);
     if (formik.errors && Object.keys(formik.errors).length > 0) {
       Object.keys(formik.errors).forEach((key) => {
         handleToast('error', formik.errors[key]);
@@ -95,9 +95,9 @@ export default function ProfileView() {
       return;
     }
     const newValues = { ...formik.values }; // Create a shallow copy of formik.values
-    delete newValues.avatar; // Delete the 'logo' property
+    delete newValues.avatar; // Delete the 'avatar' property
     delete newValues._id; // Delete the '_id' property
-    dispatch(updateMe(newValues ));
+    dispatch(updateMe(newValues));
   };
   const handleCancel = () => {
     formik.resetForm();
@@ -118,14 +118,14 @@ export default function ProfileView() {
     };
     dispatch(updateMe(values));
   };
-  // const handleUpload = () => {
-  //   if (uploadedImageUrl) {
-  //     // dispatch(uploadConfigWebsite(uploadedImageUrl));
-  //     setUploadedImageUrl(null);
-  //   } else {
-  //     handleToast('error', 'Chưa chọn ảnh');
-  //   }
-  // };
+  const handleUpload = () => {
+    if (uploadedImageUrl) {
+      dispatch(uploadMe(uploadedImageUrl));
+      setUploadedImageUrl(null);
+    } else {
+      handleToast('error', 'Chưa chọn ảnh');
+    }
+  };
   const [inputSelect, setInputSelect] = useState('');
   return (
     <Container>
@@ -138,14 +138,34 @@ export default function ProfileView() {
         </Stack>
       </Stack>
       <form onSubmit={formik.handleSubmit}>
-      <Grid2 container spacing={3}>
+        <Grid2 container spacing={3}>
           <Grid2 xs={12} md={4}>
             <Card sx={{ padding: 3, textAlign: 'center' }}>
-              <Avatar
-                alt="Remy Sharp"
-                src="/static/mock-images/avatars/avatar_default.jpg"
-                sx={{ width: 100, height: 100, margin: 'auto' }}
-              />
+              {account?.avatar ? (
+                <Avatar
+                  alt="Ảnh đại diện"
+                  src={account.avatar}
+                  sx={{ width: 100, height: 100, margin: 'auto' }}
+                />
+              ) : (
+                <>
+                  <ImageDropZone
+                    handleUpload={handleChangeUploadImg}
+                    singleFile
+                    defaultImg={account?.avatar || ''} // Ensure defaultImg is a valid string
+                  /><Stack
+                    direction="row"
+                    alignItems="center"
+                    justifyContent="flex-end"
+                    mt={2}
+                    spacing={2}
+                  >
+                    <Button variant="contained" color="inherit" onClick={handleUpload}>
+                      Lưu
+                    </Button>
+                  </Stack>
+                </>
+              )}
               <Typography variant="h6" sx={{ mt: 2 }}>
                 {account?.name}
               </Typography>
@@ -154,13 +174,37 @@ export default function ProfileView() {
           <Grid2 xs={12} md={8}>
             <Stack spacing={3}>
               <Card sx={{ padding: 3 }}>
-              <TitleMeCard
-                  handleSubmit={handleSubmit}
-                  setInputSelect={setInputSelect}
-                  label="Thông tin cá nhân"
-                  inputSelect={inputSelect}
-                  selectLabel="Thông tin cá nhân"
-                />
+                <Stack
+                  sx={{
+                    display: inputSelect === 'all' ? 'none' : 'flex',
+                  }}
+                  direction="row"
+                  alignItems="center"
+                  justifyContent="flex-end"
+                  mt={2}
+                  spacing={2}
+                >
+                  <Button variant="contained" color="inherit" onClick={() => setInputSelect('all')}>
+                    Chỉnh sửa
+                  </Button>
+                </Stack>
+                <Stack
+                  sx={{
+                    display: inputSelect === 'all' ? 'flex' : 'none',
+                  }}
+                  direction="row"
+                  alignItems="center"
+                  justifyContent="flex-end"
+                  mt={2}
+                  spacing={2}
+                >
+                  <Button variant="outlined" color="inherit" onClick={() => setInputSelect('')}>
+                    Hủy
+                  </Button>
+                  <Button variant="contained" color="inherit" onClick={handleSubmit}>
+                    Lưu
+                  </Button>
+                </Stack>
                 <Grid2 container spacing={3}>
                   <Grid2 item xs={6}>
                     <EditableField
@@ -178,7 +222,7 @@ export default function ProfileView() {
                     />
                   </Grid2>
                   <Grid2 item xs={6}>
-                  <EditableField
+                    <EditableField
                       name="address"
                       label="Địa chỉ"
                       value={formik.values.address}
@@ -193,7 +237,7 @@ export default function ProfileView() {
                     />
                   </Grid2>
                   <Grid2 item xs={6}>
-                  <EditableField
+                    <EditableField
                       name="phone"
                       label="Số điện thoại"
                       value={formik.values.phone}
@@ -208,7 +252,7 @@ export default function ProfileView() {
                     />
                   </Grid2>
                   <Grid2 item xs={6}>
-                  <EditableField
+                    <EditableField
                       name="cccd"
                       label="CCCD"
                       value={formik.values.cccd}
@@ -276,47 +320,3 @@ export default function ProfileView() {
     </Container>
   );
 }
-
-
-const TitleMeCard = ({ handleSubmit, setInputSelect, inputSelect, selectLabel, label }) => (
-  <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-    <Typography variant="h6">{label}</Typography>
-
-    {/* Button to enable edit mode */}
-    <Button
-      variant="contained"
-      color="inherit"
-      sx={{
-        display: inputSelect === selectLabel ? 'none' : 'flex',
-      }}
-      onClick={() => setInputSelect(selectLabel)}
-    >
-      Chỉnh sửa
-    </Button>
-
-    {/* Stack for save/cancel buttons in edit mode */}
-    <Stack
-      sx={{
-        display: inputSelect === selectLabel ? 'flex' : 'none',
-      }}
-      direction="row"
-      alignItems="center"
-      justifyContent="flex-end"
-      spacing={2}
-    >
-      <Button color="error" onClick={() => setInputSelect('')}>
-        Hủy
-      </Button>
-      <Button variant="contained" color="inherit" onClick={handleSubmit}>
-        Lưu
-      </Button>
-    </Stack>
-  </Stack>
-);
-TitleMeCard.propTypes = {
-  handleSubmit: PropTypes.func.isRequired,
-  setInputSelect: PropTypes.func.isRequired,
-  inputSelect: PropTypes.string.isRequired,
-  selectLabel: PropTypes.string.isRequired,
-  label: PropTypes.string.isRequired,
-};

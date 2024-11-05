@@ -47,7 +47,7 @@ export const CheckoutProvider = ({ children }) => {
     },
     validationSchema,
     onSubmit: (values) => {
-      console.log(values);
+      //
     },
   });
 

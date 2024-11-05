@@ -104,7 +104,7 @@ const CheckoutUI = () => {
         email: formik.values.email,
         totalPrice:
           productsList.reduce(
-            (total, product) => total + product.totalPrice,
+            (total, product) => total + product.itemTotal,
             0
           ) + shippingFee,
         shipping: {

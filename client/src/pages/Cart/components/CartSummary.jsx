@@ -103,7 +103,12 @@ const CartSummary = () => {
             isDebouncing ? 'disabled' : ''
           }`}
           onClick={handleCheckout}
-          disabled={isDebouncing || quantityDeboucing}
+          disabled={
+            isDebouncing ||
+            quantityDeboucing ||
+            cartItems?.length === 0 ||
+            selectedItems?.length === 0
+          }
         >
           Thanh toán
         </button>

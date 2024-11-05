@@ -1,5 +1,6 @@
 import { Helmet } from 'react-helmet-async';
-import { WebConfigView } from 'src/sections/settings/web-config';
+import { StoreView } from 'src/sections/settings/store';
+// import { WebConfigView } from 'src/sections/settings/web-config';
 
 // ----------------------------------------------------------------------
 
@@ -9,7 +10,7 @@ export default function WebConfigPage() {
       <Helmet>
         <title> Cài đặt trang web </title>
       </Helmet>
-      <WebConfigView />
+      <StoreView />
     </>
   );
 }
