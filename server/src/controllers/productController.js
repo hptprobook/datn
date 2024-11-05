@@ -616,6 +616,16 @@ const ratingProduct = async (req, res) => {
       variantSize,
     };
 
+    /*     const data = {
+      userId: '672332bb3eb63a6c62287dc6',
+      content: '123',
+      orderId: '672510f996adbc5a3addec0e',
+      productId: '671f8472af7fc5c9ad0485a9',
+      rating: 5,
+      variantColor: 'Xám',
+      variantSize: 'S',
+    }; */
+
     let images = [];
 
     if (req.files) {
@@ -625,7 +635,7 @@ const ratingProduct = async (req, res) => {
       data.images = images;
     }
 
-    const isComment = await productModel.isComment(userId, productId);
+    const isComment = await productModel.isComment(data.userId, data.productId);
 
     if (isComment) {
       if (req.files) {
@@ -749,6 +759,11 @@ const ratingShopProduct = async (req, res) => {
     const { user_id } = req.user;
 
     const { content } = req.body;
+
+    /*    const data = {
+      content: '123',
+      user_id: '672332bb3eb63a6c62287dc6',
+    }; */
 
     const data = {
       content,

@@ -65,8 +65,7 @@ Router.post('/rating', upload.array('images'), productController.ratingProduct);
 Router.post('/ratingMany', productController.ratingManyProduct);
 Router.post(
   '/ratingShop/:id',
-  verifyStaff,
-  isAdmin,
+
   upload.none(),
   productController.ratingShopProduct
 );
