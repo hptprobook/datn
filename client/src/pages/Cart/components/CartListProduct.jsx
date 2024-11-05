@@ -9,6 +9,7 @@ import { useSwal, useSwalWithConfirm } from '~/customHooks/useSwal';
 import { useUser } from '~/context/UserContext';
 import { useMutation } from '@tanstack/react-query';
 import { removeCartToCurrent, updateCurrentUser } from '~/APIs';
+import EmptyCart from '~/components/Home/Header/EmptyCart';
 
 const CartListProduct = () => {
   const { items, updateItemQuantity, removeItem } = useCart();
@@ -322,9 +323,7 @@ const CartListProduct = () => {
             );
           })
         ) : (
-          <div className="text-center my-4">
-            Không có sản phẩm trong giỏ hàng
-          </div>
+          <EmptyCart />
         )}
       </div>
     </div>

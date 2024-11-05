@@ -4,6 +4,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { getMenu } from '~/APIs';
 import { handleToast } from '~/customHooks/useToast';
 import './style.css';
+import MainLoading from '~/components/common/Loading/MainLoading';
 
 const NavBar = () => {
   const [hoveredMenu, setHoveredMenu] = useState(null);
@@ -12,8 +13,6 @@ const NavBar = () => {
     queryKey: ['categories'],
     queryFn: getMenu,
   });
-
-  if (isLoading) return null;
 
   if (error) {
     handleToast('error', error);
@@ -52,8 +51,8 @@ const NavBar = () => {
     );
   }
 
-  if (menuData.length === 0) {
-    return <p>Không có sẵn danh mục!</p>;
+  if (isLoading || menuData.length === 0) {
+    return <MainLoading />;
   }
 
   return (
@@ -99,6 +98,13 @@ const NavBar = () => {
             )}
           </div>
         ))}
+        <NavLink
+          to={'/tin-tuc'}
+          end
+          className="hover:text-red-500 font-semibold text-sm px-8"
+        >
+          Tin tức
+        </NavLink>
       </div>
     </div>
   );
