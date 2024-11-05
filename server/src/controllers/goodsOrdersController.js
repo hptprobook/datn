@@ -38,8 +38,8 @@ const getOrderById = async (req, res) => {
 
 const addOrder = async (req, res) => {
   try {
-    const { user_id } = req.user;
-    const dataOrder = { userId: user_id, ...req.body };
+    // const { user_id } = req.user;
+    const dataOrder = req.body;
     const totalQuantity = dataOrder.productsList.reduce(
       (acc, product) => acc + product.quantity,
       0
@@ -71,16 +71,15 @@ const addOrder = async (req, res) => {
       data: orderData,
     });
   } catch (error) {
-    console.log(error);
-
     if (error.details) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         message: error.details[0].message,
       });
     }
+    console.log(error.toString());
     return res
       .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Có lỗi xảy ra xin thử lại sau', error });
+      .json({ message: typeof error === 'string' ? error : error.toString() });
   }
 };
 
