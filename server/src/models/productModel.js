@@ -413,6 +413,16 @@ const deleteProduct = async (id) => {
 const ratingProduct = async (data) => {
   const validData = await validateRatingBeforeCreate(data);
   const db = GET_DB().collection('products');
+  const users = GET_DB().collection('users');
+
+  const user = await users.findOne(
+    { _id: new ObjectId(validData.userId) },
+    { projection: { name: 1, avatar: 1 } }
+  );
+
+  if (!user) {
+    throw new Error('User không tồn tại');
+  }
 
   const reviewId = new ObjectId();
 
@@ -423,6 +433,8 @@ const ratingProduct = async (data) => {
         reviews: {
           _id: reviewId,
           userId: new ObjectId(validData.userId),
+          username: user.name,
+          avatar: user.avatar || null,
           orderId: new ObjectId(validData.orderId),
           productId: new ObjectId(validData.productId),
           content: validData.content,
@@ -437,6 +449,7 @@ const ratingProduct = async (data) => {
     },
     { returnDocument: 'after' }
   );
+
   if (!result) {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
@@ -446,6 +459,16 @@ const ratingProduct = async (data) => {
 const updateRatingProduct = async (reviewId, data) => {
   const validData = await validateRatingBeforeUpdate(data);
   const db = GET_DB().collection('products');
+  const users = GET_DB().collection('users');
+
+  const user = await users.findOne(
+    { _id: new ObjectId(validData.userId) },
+    { projection: { name: 1, avatar: 1 } }
+  );
+
+  if (!user) {
+    throw new Error('User không tồn tại');
+  }
 
   const result = await db.findOneAndUpdate(
     {
@@ -454,6 +477,8 @@ const updateRatingProduct = async (reviewId, data) => {
     {
       $set: {
         'reviews.$.userId': new ObjectId(validData.userId),
+        'reviews.$.username': user.name,
+        'reviews.$.avatar': user.avatar || null,
         'reviews.$.content': validData.content,
         'reviews.$.orderId': new ObjectId(validData.orderId),
         'reviews.$.productId': new ObjectId(validData.productId),
@@ -515,11 +540,8 @@ const ratingShopResponse = async (reviewId, data) => {
   );
 
   if (!result) {
-    throw new Error(
-      'Không tìm thấy review hoặc có lỗi xảy ra, xin thử lại sau'
-    );
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
-
   return result;
 };
 

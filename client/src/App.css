@@ -6,6 +6,18 @@
   }
 }
 
+h1 {
+  @apply text-3xl font-bold my-2;
+}
+
+h2 {
+  @apply text-xl font-semibold my-2;
+}
+
+h3 {
+  @apply text-lg font-semibold my-2;
+}
+
 .menu-item.menu-active {
   background-color: rgb(220 38 38 / var(--tw-bg-opacity)) !important;
   color: #fff !important;

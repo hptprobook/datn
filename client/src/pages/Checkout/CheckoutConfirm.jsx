@@ -1,8 +1,10 @@
+import { Icon } from '@iconify/react';
 import { useEffect } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import MainLoading from '~/components/common/Loading/MainLoading';
 import CheckoutStepper from '~/components/common/Stepper/CheckoutStepper';
 import useCheckAuth from '~/customHooks/useCheckAuth';
+import { useSwalWithConfirm } from '~/customHooks/useSwal';
 import { formatCurrencyVND, formatDateToDDMMYYYY } from '~/utils/formatters';
 
 const CheckoutConfirm = () => {
@@ -16,6 +18,23 @@ const CheckoutConfirm = () => {
       navigate('/');
     }
   }, [orderData, navigate]);
+
+  const handleCopyOrderCode = () => {
+    navigator.clipboard.writeText(orderData?.orderCode);
+    useSwalWithConfirm
+      .fire({
+        icon: 'success',
+        title: 'Sao chép thành công',
+        text: 'Đã sao chép mã đơn hàng: ' + orderData?.orderCode,
+        confirmButtonText: 'Xác nhận',
+        cancelButtonText: 'Tra cứu đơn hàng',
+      })
+      .then((result) => {
+        if (result.isDismissed) {
+          navigate('/theo-doi-don-hang');
+        }
+      });
+  };
 
   if (!orderData) return <MainLoading />;
 
@@ -66,12 +85,20 @@ const CheckoutConfirm = () => {
             </h6>
           </div>
           <div className="box group">
-            <p className="font-normal text-base leading-7 text-gray-500 mb-3 transition-all duration-500 group-hover:text-gray-700">
-              Mã đơn hàng
-            </p>
-            <h6 className="font-semibold font-manrope text-2xl leading-9 text-black">
-              {orderData?.orderCode}
-            </h6>
+            <div>
+              <p className="font-normal text-base leading-7 text-gray-500 mb-3 transition-all duration-500 group-hover:text-gray-700">
+                Mã đơn hàng
+              </p>
+              <h6 className="font-semibold flex items-center gap-3 font-manrope text-2xl leading-9 text-black">
+                {orderData?.orderCode}
+                <Icon
+                  className="cursor-pointer hover:text-gray-600"
+                  icon="solar:copy-bold"
+                  title="Sao chép mã đơn hàng"
+                  onClick={handleCopyOrderCode}
+                />
+              </h6>
+            </div>
           </div>
           <div className="box group">
             <p className="font-normal text-base leading-7 text-gray-500 mb-3 transition-all duration-500 group-hover:text-gray-700">

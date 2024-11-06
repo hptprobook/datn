@@ -51,13 +51,11 @@ const configSchema = Yup.object().shape({
     .min(2, 'Tên chủ tài khoản quá ngắn')
     .max(255, 'Tên chủ tài khoản quá dài'),
   logo: Yup.string().min(2, 'Logo quá ngắn').max(255, 'Logo quá dài'),
-  FanpageFb: Yup.string().url('URL không hợp lệ'),
-  ZaloWeb: Yup.string().url('URL không hợp lệ'),
-  Instagram: Yup.string().url('URL không hợp lệ'),
-  Youtube: Yup.string().url('URL không hợp lệ'),
-  Tiktok: Yup.string().url('URL không hợp lệ'),
-  LinkWebConnect: Yup.string().url('URL không hợp lệ'),
-  footerThanks: Yup.string().min(50, 'Lời cảm ơn quá ngắn').max(1000, 'Lời cảm ơn quá dài').required('Lời cảm ơn không được để trống'),
+  eventUrl: Yup.string().url('URL không hợp lệ'),
+  footerThanks: Yup.string()
+    .min(50, 'Lời cảm ơn quá ngắn')
+    .max(1000, 'Lời cảm ơn quá dài')
+    .required('Lời cảm ơn không được để trống'),
 });
 
 export default function StorePage() {
@@ -77,6 +75,38 @@ export default function StorePage() {
       });
     }
   }, []);
+  const handleChangeUpDarkLogo = useCallback((files) => {
+    if (files) {
+      setUploadedImageUrl({
+        file: files,
+        name: 'darkLogo',
+      });
+    }
+  }, []);
+  const handleChangeUpIcon = useCallback((files) => {
+    if (files) {
+      setUploadedImageUrl({
+        file: files,
+        name: 'icon',
+      });
+    }
+  }, []);
+  const handleChangeUpEventBanner = useCallback((files) => {
+    if (files) {
+      setUploadedImageUrl({
+        file: files,
+        name: 'eventBanner',
+      });
+    }
+  }, []);
+  const handleChangeUpLoginScreen = useCallback((files) => {
+    if (files) {
+      setUploadedImageUrl({
+        file: files,
+        name: 'loginScreen',
+      });
+    }
+  }, []);
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
@@ -85,13 +115,21 @@ export default function StorePage() {
       address: config.address || '',
       email: config.email || '',
       phone: config.phone || '',
+      eventUrl: config.eventUrl || '',
       hotline: config.hotline || '',
       zalo: config.zalo || '',
       nameBank: config.nameBank || '',
       numberBank: config.numberBank || '',
       nameholderBank: config.nameholderBank || '',
       logo: config.logo || '',
+      icon: config.icon || '',
       FanpageFb: config.FanpageFb || '',
+      metaTitle: config.metaTitle || '',
+      metaDescription: config.metaDescription || '',
+      metaKeywords: config.metaKeywords || '',
+      metaRobots: config.metaRobots || '',
+      metaOGImg: config.metaOGImg || '',
+      ggSearchConsole: config.ggSearchConsole || '',
       ZaloWeb: config.ZaloWeb || '',
       Instagram: config.Instagram || '',
       Youtube: config.Youtube || '',
@@ -123,7 +161,6 @@ export default function StorePage() {
     }
   }, [statusUpdate, data, error, dispatch]);
   const handleSubmit = () => {
-
     if (formik.errors && Object.keys(formik.errors).length > 0) {
       Object.keys(formik.errors).forEach((key) => {
         handleToast('error', formik.errors[key]);
@@ -316,6 +353,127 @@ export default function StorePage() {
                 <TitleStoreCard
                   handleSubmit={handleSubmit}
                   setInputSelect={setInputSelect}
+                  label="Media"
+                />
+                <Grid2 spacing={2} container>
+                  <Grid2 xs={4}>
+                    <Stack direction="column" spacing={2}>
+                      <Typography variant="h6">Icon</Typography>
+                      <ImageDropZone
+                        handleUpload={handleChangeUpIcon}
+                        singleFile
+                        defaultImg={config.icon}
+                      />
+                      <Button
+                        sx={{ display: uploadedImageUrl?.name === 'icon' ? 'block' : 'none' }}
+                        variant="contained"
+                        color="inherit"
+                        onClick={handleUpload}
+                      >
+                        Lưu
+                      </Button>
+                    </Stack>
+                  </Grid2>
+                  <Grid2 xs={4}>
+                    <Typography variant="h6">Logo nền tối</Typography>
+                    <ImageDropZone
+                      handleUpload={handleChangeUpDarkLogo}
+                      singleFile
+                      defaultImg={config.darkLogo}
+                    />
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      justifyContent="flex-end"
+                      mt={2}
+                      spacing={2}
+                    >
+                      <Button
+                        sx={{ display: uploadedImageUrl?.name === 'darkLogo' ? 'block' : 'none' }}
+                        variant="contained"
+                        color="inherit"
+                        onClick={handleUpload}
+                      >
+                        Lưu
+                      </Button>
+                    </Stack>
+                  </Grid2>
+                  <Grid2 xs={4}>
+                    <Typography variant="h6">Màn hình đăng nhập</Typography>
+                    <ImageDropZone
+                      handleUpload={handleChangeUpLoginScreen}
+                      singleFile
+                      defaultImg={config.loginScreen}
+                    />
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      justifyContent="flex-end"
+                      mt={2}
+                      spacing={2}
+                    >
+                      <Button
+                        sx={{
+                          display: uploadedImageUrl?.name === 'loginScreen' ? 'block' : 'none',
+                        }}
+                        variant="contained"
+                        color="inherit"
+                        onClick={handleUpload}
+                      >
+                        Lưu
+                      </Button>
+                    </Stack>
+                  </Grid2>
+                </Grid2>
+              </Card>
+              <Card sx={{ p: 3 }}>
+                <TitleStoreCard
+                  handleSubmit={handleSubmit}
+                  setInputSelect={setInputSelect}
+                  label="Banner sự kiện"
+                />
+                <Grid2 spacing={2} container>
+                  <Grid2 xs={6}>
+                    <EditableField
+                      name="eventUrl"
+                      label="Đường dẫn sự kiện"
+                      value={formik.values.eventUrl}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      selectLabel="banner"
+                      error={formik.touched.eventUrl && Boolean(formik.errors.eventUrl)}
+                      helperText={formik.touched.eventUrl && formik.errors.eventUrl}
+                      inputSelect={inputSelect}
+                      setInputSelect={setInputSelect}
+                      handleUpdate={handleUpdate}
+                      handleCancel={handleCancel}
+                    />
+                  </Grid2>
+                  <Grid2 xs={4}>
+                    <Stack direction="column" spacing={2}>
+                      <ImageDropZone
+                        handleUpload={handleChangeUpEventBanner}
+                        singleFile
+                        defaultImg={config.eventBanner}
+                      />
+                      <Button
+                        sx={{
+                          display: uploadedImageUrl?.name === 'eventBanner' ? 'block' : 'none',
+                        }}
+                        variant="contained"
+                        color="inherit"
+                        onClick={handleUpload}
+                      >
+                        Lưu
+                      </Button>
+                    </Stack>
+                  </Grid2>
+                </Grid2>
+              </Card>
+              <Card sx={{ p: 3 }}>
+                <TitleStoreCard
+                  handleSubmit={handleSubmit}
+                  setInputSelect={setInputSelect}
                   label="Thông tin ngân hàng"
                   inputSelect={inputSelect}
                   selectLabel="bank"
@@ -371,129 +529,6 @@ export default function StorePage() {
                   </Grid2>
                 </Grid2>
               </Card>
-              <Card sx={{ p: 3 }}>
-                <TitleStoreCard
-                  handleSubmit={handleSubmit}
-                  setInputSelect={setInputSelect}
-                  label="Social"
-                  inputSelect={inputSelect}
-                  selectLabel="social"
-                />
-                <Grid2 container spacing={2}>
-                  <Grid2 xs={12} md={4}>
-                    <EditableField
-                      name="FanpageFb"
-                      label="Fanpage Facebook"
-                      value={formik.values.FanpageFb}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      selectLabel="social"
-                      error={formik.touched.FanpageFb && Boolean(formik.errors.FanpageFb)}
-                      helperText={formik.touched.FanpageFb && formik.errors.FanpageFb}
-                      inputSelect={inputSelect}
-                      setInputSelect={setInputSelect}
-                      handleUpdate={handleUpdate}
-                      handleCancel={handleCancel}
-                    />
-                  </Grid2>
-                  <Grid2 xs={12} md={4}>
-                    <EditableField
-                      name="Instagram"
-                      label="Instagram"
-                      value={formik.values.Instagram}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      selectLabel="social"
-                      error={formik.touched.Instagram && Boolean(formik.errors.Instagram)}
-                      helperText={formik.touched.Instagram && formik.errors.Instagram}
-                      inputSelect={inputSelect}
-                      setInputSelect={setInputSelect}
-                      handleUpdate={handleUpdate}
-                      handleCancel={handleCancel}
-                    />
-                  </Grid2>
-                  <Grid2 xs={12} md={4}>
-                    <EditableField
-                      name="Youtube"
-                      label="Youtube"
-                      value={formik.values.Youtube}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      selectLabel="social"
-                      error={formik.touched.Youtube && Boolean(formik.errors.Youtube)}
-                      helperText={formik.touched.Youtube && formik.errors.Youtube}
-                      inputSelect={inputSelect}
-                      setInputSelect={setInputSelect}
-                      handleUpdate={handleUpdate}
-                      handleCancel={handleCancel}
-                    />
-                  </Grid2>
-                  <Grid2 xs={12} md={4}>
-                    <EditableField
-                      name="ZaloWeb"
-                      label="ZaloWeb"
-                      value={formik.values.ZaloWeb}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      selectLabel="social"
-                      error={formik.touched.ZaloWeb && Boolean(formik.errors.ZaloWeb)}
-                      helperText={formik.touched.ZaloWeb && formik.errors.ZaloWeb}
-                      inputSelect={inputSelect}
-                      setInputSelect={setInputSelect}
-                      handleUpdate={handleUpdate}
-                      handleCancel={handleCancel}
-                    />
-                  </Grid2>
-                  <Grid2 xs={12} md={4}>
-                    <EditableField
-                      name="Tiktok"
-                      label="Tiktok"
-                      value={formik.values.Tiktok}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      selectLabel="social"
-                      error={formik.touched.Tiktok && Boolean(formik.errors.Tiktok)}
-                      helperText={formik.touched.Tiktok && formik.errors.Tiktok}
-                      inputSelect={inputSelect}
-                      setInputSelect={setInputSelect}
-                      handleUpdate={handleUpdate}
-                      handleCancel={handleCancel}
-                    />
-                  </Grid2>
-                  <Grid2 xs={12} md={4}>
-                    <EditableField
-                      name="zalo"
-                      label="Zalo"
-                      value={formik.values.zalo}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      selectLabel="social"
-                      error={formik.touched.zalo && Boolean(formik.errors.zalo)}
-                      helperText={formik.touched.zalo && formik.errors.zalo}
-                      inputSelect={inputSelect}
-                      setInputSelect={setInputSelect}
-                      handleUpdate={handleUpdate}
-                      handleCancel={handleCancel}
-                    />
-                  </Grid2>
-                  <Grid2 xs={12} md={4}>
-                    <EditableField
-                      name="LinkWebConnect"
-                      label="Liên kết website"
-                      value={formik.values.LinkWebConnect}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      selectLabel="social"
-                      error={formik.touched.LinkWebConnect && Boolean(formik.errors.LinkWebConnect)}
-                      helperText={formik.touched.LinkWebConnect && formik.errors.LinkWebConnect}
-                      inputSelect={inputSelect}
-                      setInputSelect={setInputSelect}
-                      handleUpdate={handleUpdate}
-                      handleCancel={handleCancel}
-                    />
-                  </Grid2>
-                </Grid2>
-              </Card>
               <Card
                 sx={{
                   p: 3,
@@ -532,7 +567,7 @@ const TitleStoreCard = ({ handleSubmit, setInputSelect, inputSelect, selectLabel
       variant="contained"
       color="inherit"
       sx={{
-        display: inputSelect === selectLabel ? 'none' : 'flex',
+        display: inputSelect === selectLabel ? 'none' : selectLabel && 'block',
       }}
       onClick={() => setInputSelect(selectLabel)}
     >
@@ -542,7 +577,7 @@ const TitleStoreCard = ({ handleSubmit, setInputSelect, inputSelect, selectLabel
     {/* Stack for save/cancel buttons in edit mode */}
     <Stack
       sx={{
-        display: inputSelect === selectLabel ? 'flex' : 'none',
+        display: inputSelect === selectLabel && selectLabel ? 'flex' : 'none',
       }}
       direction="row"
       alignItems="center"
@@ -561,7 +596,7 @@ const TitleStoreCard = ({ handleSubmit, setInputSelect, inputSelect, selectLabel
 TitleStoreCard.propTypes = {
   handleSubmit: PropTypes.func.isRequired,
   setInputSelect: PropTypes.func.isRequired,
-  inputSelect: PropTypes.string.isRequired,
-  selectLabel: PropTypes.string.isRequired,
+  inputSelect: PropTypes.string,
+  selectLabel: PropTypes.string,
   label: PropTypes.string.isRequired,
 };

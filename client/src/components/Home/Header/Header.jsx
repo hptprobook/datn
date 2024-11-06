@@ -4,7 +4,6 @@ import { FaBars } from 'react-icons/fa';
 import { IoIosSearch } from 'react-icons/io';
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import Logo from '~/assets/logoend-light.png';
 import UserBar from '~/components/Home/Header/UserBar';
 import SideNavMenu from './Responsive/SideNavMenu';
 import SearchBar from './Search/SearchBar';
@@ -15,11 +14,11 @@ import { useCart } from 'react-use-cart';
 import { Icon } from '@iconify/react';
 import PropTypes from 'prop-types';
 import UserLoggedBar from './UserLoggedBar';
-import { useWishlist } from '~/context/WishListContext';
 import WishList from '~/components/common/Product/WishList';
 import { useQuery } from '@tanstack/react-query';
 import { getCurrentUser } from '~/APIs';
 import { useUser } from '~/context/UserContext';
+import { useWebConfig } from '~/context/WebsiteConfig';
 
 const Header = () => {
   const { isAuthenticated } = useCheckAuth();
@@ -29,9 +28,8 @@ const Header = () => {
   const [openSearch, setOpenSearch] = useState(false);
   const [currentTitle, setCurrentTitle] = useState('Danh mục');
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
-  const { wishlistItems, removeFromWishlist } = useWishlist();
   const { user } = useUser();
-
+  const { config } = useWebConfig();
   const { items } = useCart();
 
   const { data } = useQuery({
@@ -48,25 +46,37 @@ const Header = () => {
       <WishList
         isOpen={isWishlistOpen}
         onClose={() => setIsWishlistOpen(false)}
-        wishlistItems={wishlistItems}
-        removeFromWishlist={removeFromWishlist}
       />
       <header className="w-full h-20 bg-amber-600 hidden lg:block text-black">
         <div className="max-w-container h-full mx-auto flex justify-between items-center">
           <NavLink to="/">
             <div>
-              <img src={Logo} alt="Logo" className="h-full w-48" />
+              <img
+                src={`${import.meta.env.VITE_SERVER_URL}/${config?.logo}`}
+                alt="Logo"
+                className="h-full w-48"
+              />
             </div>
           </NavLink>
           <SearchBar />
           <div className="flex gap-4">
-            <div
-              className="text-2xl text-gray-50 cursor-pointer relative hover:text-red-600"
-              title="Danh sách yêu thích"
-              onClick={() => setIsWishlistOpen(true)}
-            >
-              <Icon icon="iconamoon:heart-fill" />
-            </div>
+            {isAuthenticated && (
+              <>
+                <div
+                  className="text-2xl text-gray-50 cursor-pointer relative hover:text-red-600"
+                  title="Danh sách yêu thích"
+                  onClick={() => setIsWishlistOpen(true)}
+                >
+                  <Icon icon="line-md:heart" />
+                </div>
+                <div
+                  className="text-2xl text-gray-50 cursor-pointer relative hover:text-red-600"
+                  title="Thông báo"
+                >
+                  <Icon icon="line-md:bell" />
+                </div>
+              </>
+            )}
             <div
               className="text-2xl text-gray-50 cursor-pointer relative"
               onClick={() => setOpenCart(true)}
@@ -101,7 +111,11 @@ const Header = () => {
           <FaBars />
         </div>
         <NavLink to="/" className="flex-grow text-center">
-          <img src={Logo} alt="Logo" className="h-full w-52 mx-auto" />
+          <img
+            src={`${import.meta.env.VITE_SERVER_URL}/${config?.logo}`}
+            alt="Logo"
+            className="h-full w-52 mx-auto"
+          />
         </NavLink>
         <div className="flex gap-4">
           <div
