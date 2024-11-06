@@ -19,6 +19,7 @@ import timetableReducer from "./slices/timetableSlices";
 import customerGroupReducer from "./slices/customerGroupSlice";
 import posReducer from "./slices/posSlices";
 import receiptReducer from "./slices/receiptSlices";
+import receiptWarehouseReducer from "./slices/receiptWarehouseSlices";
 
 export const store = configureStore({
         reducer: {
@@ -41,5 +42,6 @@ export const store = configureStore({
                 customerGroups: customerGroupReducer,
                 pos: posReducer,
                 receipts: receiptReducer,
+                receiptsWarehouse: receiptWarehouseReducer,
         },
 });

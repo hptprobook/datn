@@ -57,9 +57,13 @@ const ProductItem = ({
   };
 
   return (
-    <div className="h-[480px] rounded-md relative group">
+    <div
+      className={`${
+        !height ? 'h-[480px]' : 'h-[550px]'
+      } rounded-md relative group`}
+    >
       <div
-        className={`w-full relative ${!height ? 'h-80' : 'h-96'}`}
+        className={`w-full relative ${!height ? 'h-80' : 'h-[400px]'}`}
         onClick={handleLinkClickInWishList}
       >
         <Link to={`/san-pham/${product?.slug}`}>

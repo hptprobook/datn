@@ -22,8 +22,9 @@ const getAllOrder = async (req, res) => {
 
 const getCurrentOrder = async (req, res) => {
   try {
+    const { page, limit } = req.query;
     const { user_id } = req.user;
-    const currentOrder = await orderModel.getCurrentOrder(user_id);
+    const currentOrder = await orderModel.getCurrentOrder(user_id, page, limit);
     return res.status(StatusCodes.OK).json(currentOrder);
   } catch (error) {
     console.log(error);

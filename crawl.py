@@ -168,8 +168,17 @@ def generate_reviews(product_id):
     
     for _ in range(num_reviews):
         review = {
-            'userId': ObjectId('66e5522603f241deb3d5fccd'),
-            'orderId': ObjectId('66e2c1d8b885f7a82f6402aa'),
+            'userId': ObjectId('672332bb3eb63a6c62287dc6'),
+            'orderId': ObjectId('672510f996adbc5a3addec0e'),
+            'username': 'Michael Tâm',
+            'avatar': 'uploads/user/1730728223920-701345554.jpg',
+            'variantColor': 'Đen',
+            'variantSize': 'L',
+            'images': [
+                'uploads/products/1730728690319-468295316.jpg',
+                'uploads/products/1730728690319-322429331.jpg',
+                'uploads/products/1730728690319-867288468.jpg'
+            ],
             'productId': ObjectId(product_id),
             'content': random_review_content(),
             'rating': random.randint(1, 5),
@@ -188,7 +197,6 @@ def crawl_product_detail(product_url):
         product_soup = BeautifulSoup(product_response.content, 'html.parser')
 
         product_name_before = product_soup.find('div', class_='pro-content-head').find('h1').get_text(strip=True)
-
         product_name = f"{product_name_before}"
         price_text = product_soup.find('span', class_='price-now').get_text(strip=True)
         product_price = float(re.sub(r'[^\d]', '', price_text))
@@ -202,15 +210,15 @@ def crawl_product_detail(product_url):
             return
 
         thumbnail = imgUrls[0]
-
         selected_colors = random.sample(colors, random.randint(1, len(colors)))
 
         variants = []
         for color in selected_colors:
             imgUrl = random.choice(imgUrls)
             varStock = random.randint(100, 300)
-            sizeStocks = distribute_stock(varStock, 5)
 
+            # Randomly decide if this color variant has sizes or is "FREESIZE"
+            has_sizes = random.choice([True, False])  # Random choice to have sizes or not
             sku_color = create_slug(f"{product_name_before} {color}").replace('-', '').upper()
             warehouse_id = ObjectId('66ed216af9110113ec059bd2')
             
@@ -229,22 +237,35 @@ def crawl_product_detail(product_url):
                 'sizes': []
             }
 
-            for i, size in enumerate(sizes):
-                size_sku = f"{sku_color}{size}"
-                sale_quantity = random.randint(1, sizeStocks[i])
-                trading_quantity = random.randint(0, 199)
-                
+            if has_sizes:
+                sizeStocks = distribute_stock(varStock, len(sizes))
+                for i, size in enumerate(sizes):
+                    size_sku = f"{sku_color}{size}"
+                    sale_quantity = random.randint(1, sizeStocks[i])
+                    trading_quantity = random.randint(0, 199)
+                    
+                    sizeData = {
+                        'size': size,
+                        'price': price + random.randint(5000, 20000),
+                        'stock': sizeStocks[i],
+                        'sale': sale_quantity,
+                        'trading': trading_quantity,
+                        'sku': size_sku
+                    }
+                    
+                    variant['sizes'].append(sizeData)
+            else:
+                # For colors without specific sizes, add a default "FREESIZE"
                 sizeData = {
-                    'size': size,
-                    'price': price + random.randint(5000, 20000),
-                    'stock': sizeStocks[i],
-                    'sale': sale_quantity,
-                    'trading': trading_quantity,
-                    'sku': size_sku
+                    'size': 'FREESIZE',
+                    'price': price,
+                    'stock': varStock,
+                    'sale': random.randint(1, varStock),
+                    'trading': random.randint(0, 199),
+                    'sku': f"{sku_color}FREESIZE"
                 }
-                
                 variant['sizes'].append(sizeData)
-                
+
             variants.append(variant)
 
         cat_id = ObjectId(random.choice(catIds))
@@ -257,7 +278,7 @@ def crawl_product_detail(product_url):
         minInventory = max(0, stock - random.randint(0, 20))
         maxInventory = stock + random.randint(10, 50)
 
-        # Tạo đối tượng seoOptions
+        # SEO Options
         seoOptions = {
             'title': product_name,
             'description': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
@@ -266,8 +287,8 @@ def crawl_product_detail(product_url):
 
         product_data = {
             'name': product_name,
-            'description': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin efficitur justo vitae felis gravida, nec laoreet ligula consequat.',
-            'content': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin efficitur justo vitae felis gravida, nec laoreet ligula consequat.',
+            'description': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+            'content': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             'tags': tags,
             'brand': brand,
             'thumbnail': thumbnail,
@@ -289,7 +310,7 @@ def crawl_product_detail(product_url):
             'createdAt': 1726476852277,
             'updatedAt': 1726476852277
         }
-        
+
         product_id = collection.insert_one(product_data).inserted_id
         reviews = generate_reviews(product_id)
         collection.update_one({'_id': product_id}, {'$set': {'reviews': reviews}})

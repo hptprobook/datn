@@ -190,7 +190,6 @@ const updateMe = async (req, res) => {
             const fileName = file.filename;
             const filePath = path.join('uploads/staffs', fileName);
             data.avatar = filePath;
-            await uploadModel.deleteImg(existStaff.avatar);
         }
 
         if (data.password) {
@@ -198,6 +197,9 @@ const updateMe = async (req, res) => {
             data.password = hash;
         }
         const result = await staffsModel.updateMe(user_id, data);
+        if (result.avatar && req.file) {
+            await uploadModel.deleteImg(existStaff.avatar);
+        }
         res.status(StatusCodes.CREATED).json(result);
     }
     catch (error) {
