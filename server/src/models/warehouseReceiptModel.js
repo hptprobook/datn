@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb';
 import {
   SAVE_GOODS_ORDERS,
   UPDATE_GOODS_ORDERS,
-} from '~/utils/schema/goodsOrdersSchema';
+} from '~/utils/schema/warehouseReceiptSchema';
 
 const validateBeforeCreate = async (data) => {
   return await SAVE_GOODS_ORDERS.validateAsync(data, { abortEarly: false });
@@ -16,7 +16,7 @@ const validateBeforeUpdate = async (data) => {
 const getAllGoodsOrders = async (page, limit) => {
   page = parseInt(page) || 1;
   limit = parseInt(limit) || 12;
-  const db = await GET_DB().collection('goodsOrders');
+  const db = await GET_DB().collection('warehouseReceipt');
   const result = await db
     .find()
     .sort({ createdAt: 1 })
@@ -27,7 +27,7 @@ const getAllGoodsOrders = async (page, limit) => {
 };
 
 const getGoodsOrderById = async (id) => {
-  const db = await GET_DB().collection('goodsOrders');
+  const db = await GET_DB().collection('warehouseReceipt');
   const result = await db.findOne({
     _id: new ObjectId(id),
   });
@@ -35,37 +35,41 @@ const getGoodsOrderById = async (id) => {
   return result;
 };
 
-const addOrder = async (dataGoodsOrder) => {
+const add = async (dataGoodsOrder) => {
   const validData = await validateBeforeCreate(dataGoodsOrder);
   const db = await GET_DB();
-  const collection = db.collection('goodsOrders');
+  const collection = db.collection('warehouseReceipt');
   const data = {
     ...validData,
-    userId: new ObjectId(validData.userId),
+    staffId: new ObjectId(validData.staffId),
     warehouseId: new ObjectId(validData.warehouseId),
     supplierId: new ObjectId(validData.supplierId),
-    productsList: validData.productsList.map((item) => {
-      return {
-        ...item,
-        _id: new ObjectId(item._id),
-      };
-    }),
+    // productsList: validData.productsList.map((item) => {
+    //   return {
+    //     ...item,
+    //     _id: new ObjectId(item._id),
+    //   };
+    // }),
   };
   const result = await collection.insertOne(data);
   return result;
 };
 
-const findOrderByCode = async (goodsOrderCode) => {
-  const db = await GET_DB().collection('goodsOrders');
-  const result = await db.findOne({
-    goodsOrderCode: goodsOrderCode,
-  });
+const findBy = async (by, value) => {
+  const db = await GET_DB().collection('warehouseReceipt');
+  if (by === '_id') {
+    value = new ObjectId(value);
+  }
+  const result
+    = await db.findOne({
+      [by]: value
+    });
   return result;
 };
 
-const updateOrder = async (id, data) => {
+const update = async (id, data) => {
   const validatedData = await validateBeforeUpdate(data);
-  const db = GET_DB().collection('goodsOrders');
+  const db = GET_DB().collection('warehouseReceipt');
   validatedData.productsList = validatedData.productsList.map((item) => ({
     ...item,
     _id: new ObjectId(item._id),
@@ -86,7 +90,7 @@ const updateOrder = async (id, data) => {
 };
 
 const getStatusOrder = async (id) => {
-  const db = await GET_DB().collection('goodsOrders');
+  const db = await GET_DB().collection('warehouseReceipt');
   const result = await db.findOne(
     { _id: new ObjectId(id) },
     { projection: { status: 1 } }
@@ -96,7 +100,7 @@ const getStatusOrder = async (id) => {
 
 const deleteOrder = async (id) => {
   const result = await GET_DB()
-    .collection('goodsOrders')
+    .collection('warehouseReceipt')
     .deleteOne({
       _id: new ObjectId(id),
     });
@@ -154,53 +158,61 @@ const getCurrentStock = async (productId, color, size) => {
   return sizeInfo.stock;
 };
 
-const updateStock = async (productId, color, size, quantity) => {
+const updateStock = async (sku, size, quantity) => {
   const db = await GET_DB().collection('products');
-
   // Lấy sản phẩm và kiểm tra tồn tại của variant
-  const product = await db.findOne({ _id: new ObjectId(productId) });
+  const product = await db.findOne({
+    variants: { $elemMatch: { sku: sku } }
+  });
   if (!product) throw new Error('Sản phẩm không tồn tại');
 
-  const variant = product.variants.find((v) => v.color === color);
-  if (!variant) throw new Error(`Không tìm thấy variant với màu sắc ${color}`);
-
   // Xác định stock mới cho color và size
+  const variant = product.variants.find((v) => v.sku === sku);
   const updatedVariantStock = variant.stock + quantity;
   const sizeInfo = variant.sizes.find((s) => s.size === size);
   if (!sizeInfo)
-    throw new Error(`Không tìm thấy size ${size} cho màu sắc ${color}`);
+    throw new Error(`Không tìm thấy size ${size} cho màu sắc ${variant.color}`);
 
   const updatedSizeStock = sizeInfo.stock + quantity;
 
   // Cập nhật stock của color trong variants
-  await db.updateOne(
-    { _id: new ObjectId(productId), 'variants.color': color },
-    {
-      $set: { 'variants.$.stock': updatedVariantStock },
+  const variantsUpdate = product.variants.map((v) => {
+    if (v.sku === sku) {
+      return {
+        ...v, stock: updatedVariantStock, sizes: v.sizes.map((s) => {
+          if (s.size === size) {
+            return { ...s, stock: updatedSizeStock };
+          }
+          return s;
+        }
+        )
+      };
     }
-  );
+    return v;
+  });
+
 
   // Cập nhật stock của size trong variants.sizes
   await db.updateOne(
-    { _id: new ObjectId(productId), 'variants.color': color },
+    { _id: new ObjectId(product._id) },
     {
-      $set: { 'variants.$.sizes.$[sizeElement].stock': updatedSizeStock },
+      $set: {
+        variants: variantsUpdate
+      }
     },
-    { arrayFilters: [{ 'sizeElement.size': size }] }
   );
-
-  return { colorStock: updatedVariantStock, sizeStock: updatedSizeStock };
+  return product._id;
 };
 
-export const goodsOrdersModel = {
+export const warehouseReceiptModel = {
   getAllGoodsOrders,
-  addOrder,
-  updateOrder,
+  add,
+  update,
   deleteOrder,
   checkAndUpdateCapacity,
   updateStock,
   getGoodsOrderById,
   getStatusOrder,
-  findOrderByCode,
+  findBy,
   getCurrentStock,
 };
