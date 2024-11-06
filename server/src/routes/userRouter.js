@@ -56,6 +56,10 @@ Router.post('/', verifyStaff, usersController.createUser);
 Router.put('/me/addCart', verifyToken, usersController.addCartToCurrent);
 Router.put('/me/removeCart', verifyToken, usersController.removeCartToCurrent);
 
+//read
+Router.post('/notify/:id', usersController.readNotify);
+Router.post('/notifies', usersController.readAllNotifies);
+
 //favorite
 Router.post('/favorite/:id', usersController.favoriteProduct);
 Router.post('/view/:id', usersController.viewProduct);
