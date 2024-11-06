@@ -53,6 +53,10 @@ const navConfig = [
         path: '/admin/warehouse',
       },
       {
+        title: 'Nhập kho',
+        path: '/admin/warehouse/receipts',
+      },
+      {
         title: 'Nhà cung cấp',
         path: '/admin/suppliers',
       },
@@ -62,7 +66,6 @@ const navConfig = [
       },
     ],
   },
-  
 ];
 
 export default navConfig;

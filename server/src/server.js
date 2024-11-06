@@ -22,6 +22,7 @@ const START_SERVER = () => {
       origin: [
         'http://localhost:5173',
         'http://localhost:3030',
+        'http://localhost:3001',
         'https://bmt-life.vercel.app',
         'https://dashboard-bmt-life.vercel.app',
       ],
