@@ -59,11 +59,15 @@ const getOrderByCode = async (orderCode, userId) => {
   return result;
 };
 
-const getCurrentOrder = async (user_id) => {
+const getCurrentOrder = async (user_id, page, limit) => {
+  page = parseInt(page) || 1;
+  limit = parseInt(limit) || 12;
   const db = await GET_DB().collection('orders');
   const result = await db
     .find({ userId: new ObjectId(user_id) })
     .sort({ createdAt: -1 })
+    .skip((page - 1) * limit)
+    .limit(limit)
     .toArray();
   return result;
 };
