@@ -8,7 +8,7 @@ import { useSwal } from '~/customHooks/useSwal';
 
 const MAX_FAVORITES = 20;
 
-const AddToWishListBtn = ({ product }) => {
+const AddToWishListBtn = ({ product, isInProductItem = false }) => {
   const { user, refetchUser } = useUser();
   const [isDebounced, setIsDebounced] = useState(false);
 
@@ -47,11 +47,19 @@ const AddToWishListBtn = ({ product }) => {
     }
 
     const { _id, name, price, thumbnail, slug } = product;
-    const totalComment = product.reviews?.length || 0;
-    const averageRating = totalComment
-      ? product.reviews.reduce((sum, review) => sum + review.rating, 0) /
-        totalComment
-      : 0;
+
+    const totalComment =
+      product.totalComment !== undefined
+        ? product.totalComment
+        : product.reviews?.length || 0;
+
+    const averageRating =
+      product.averageRating !== undefined
+        ? product.averageRating
+        : totalComment
+        ? product.reviews.reduce((sum, review) => sum + review.rating, 0) /
+          totalComment
+        : 0;
 
     const updatedFavorites = isInWishlist
       ? user.favorites.filter((fav) => fav._id !== _id)
@@ -72,9 +80,18 @@ const AddToWishListBtn = ({ product }) => {
         isInWishlist ? 'bg-red-600 text-white' : 'bg-gray-200 text-gray-600'
       } hover:bg-red-600 hover:text-white transition-colors`}
       onClick={handleToggleWishList}
+      title={
+        isInWishlist
+          ? 'Xóa sản phẩm khỏi danh sách yêu thích'
+          : 'Thêm sản phẩm vào danh sách yêu thích'
+      }
       disabled={isDebounced}
     >
-      <FaHeart className="w-6 h-6" />
+      {!isInProductItem ? (
+        <FaHeart className="w-6 h-6" />
+      ) : (
+        <FaHeart className="w-4 h-3" />
+      )}
     </button>
   );
 };

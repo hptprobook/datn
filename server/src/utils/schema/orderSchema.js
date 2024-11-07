@@ -18,7 +18,7 @@ const OrderPayment = {
 
 export const SAVE_ORDER = Joi.object({
   userId: Joi.string().trim().min(1).required(), // ID của người dùng đặt đơn hàng
-  //   orderCode: Joi.string().trim().min(1), // Mã đơn hàng
+  orderCode: Joi.string().trim().min(1), // Mã đơn hàng
   productsList: Joi.array()
     .items(
       Joi.object({
@@ -64,6 +64,7 @@ export const SAVE_ORDER = Joi.object({
     phone: Joi.string().trim().min(1), // Số điện thoại người nhận
     name: Joi.string().trim().min(1), // Tên người nhận hàng
     note: Joi.string().trim().min(1).allow('', null), // Ghi chú giao hàng
+    fullAddress: Joi.string().trim().min(1), // Địa chỉ đầy đủ
   }).required(), // Thông tin giao hàng
   email: Joi.string().trim().min(1).email().required(), // Email người đặt hàng
   totalPrice: Joi.number().min(1).required(), // Tổng giá trị đơn hàng
@@ -135,6 +136,7 @@ export const SAVE_ORDER_NOT_LOGIN = Joi.object({
     phone: Joi.string().trim().min(1),
     name: Joi.string().trim().min(1),
     note: Joi.string().trim().min(1).allow('', null),
+    fullAddress: Joi.string().trim().min(1),
   }).required(),
   email: Joi.string().trim().min(1).email().required(),
   totalPrice: Joi.number().min(1).required(),
@@ -195,6 +197,7 @@ export const UPDATE_ORDER = Joi.object({
     phone: Joi.string().trim().min(1), // Số điện thoại người nhận
     name: Joi.string().trim().min(1), // Tên người nhận hàng
     note: Joi.string().trim().min(1).allow('', null), // Ghi chú giao hàng
+    fullAddress: Joi.string().trim().min(1),
   }), // Thông tin giao hàng
   email: Joi.string().trim().min(1).email(), // Email người đặt hàng
   totalPrice: Joi.number().min(1), // Tổng giá trị đơn hàng
