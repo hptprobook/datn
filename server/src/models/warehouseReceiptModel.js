@@ -98,7 +98,7 @@ const getStatusOrder = async (id) => {
   return result ? result.status : null;
 };
 
-const deleteOrder = async (id) => {
+const remove = async (id) => {
   const result = await GET_DB()
     .collection('warehouseReceipt')
     .deleteOne({
@@ -132,13 +132,13 @@ const checkAndUpdateCapacity = async (quantity, id) => {
   return updatedQuantity;
 };
 
-const getCurrentStock = async (productId, color, size) => {
+const getCurrentStock = async (productId, sku, size) => {
   const db = await GET_DB().collection('products');
 
   const product = await db.findOne(
-    { _id: new ObjectId(productId), 'variants.color': color },
+    { _id: new ObjectId(productId), 'variants.sku': sku },
     {
-      projection: { 'variants.$': 1 },
+      projection: { 'variants': 1 },
     }
   );
 
@@ -147,14 +147,14 @@ const getCurrentStock = async (productId, color, size) => {
       'Không tìm thấy sản phẩm hoặc biến thể với thông tin đã cho'
     );
   }
-
-  const variant = product.variants[0];
-  const sizeInfo = variant.sizes.find((s) => s.size === size);
-
-  if (!sizeInfo) {
-    throw new Error(`Không tìm thấy size ${size} cho màu sắc ${color}`);
+  const variant = product.variants.find((v) => v.sku === sku);
+  if (!variant) {
+    throw new Error(`Không tìm thấy biến thể với sku ${sku}`);
   }
-
+  const sizeInfo = variant.sizes.find((s) => s.size === size);
+  if (!sizeInfo) {
+    throw new Error(`Không tìm thấy size ${size} cho sản phẩm có mã ${sku}`);
+  }
   return sizeInfo.stock;
 };
 
@@ -208,7 +208,7 @@ export const warehouseReceiptModel = {
   getAllGoodsOrders,
   add,
   update,
-  deleteOrder,
+  remove,
   checkAndUpdateCapacity,
   updateStock,
   getGoodsOrderById,

@@ -11,6 +11,6 @@ Router.get('/find/:by/:value', warehouseReceiptController.findBy);
 
 Router.post('/', verifyToken, isAdmin, warehouseReceiptController.add);
 Router.put('/:id', warehouseReceiptController.updateOrder);
-Router.delete('/:idOrder', warehouseReceiptController.removeOrder);
+Router.delete('/:id', verifyToken, isAdmin, warehouseReceiptController.remove);
 
 export const warehouseReceiptAPI = Router;
