@@ -120,6 +120,7 @@ export const SEND_NOTIFIES = Joi.array().items(
       .valid(...Object.values(OrderStatus))
       .default(OrderStatus.pending),
     note: Joi.string().trim().min(1),
+    isReaded: Joi.boolean().default(false),
     createdAt: Joi.date().timestamp('javascript').default(Date.now),
     updatedAt: Joi.date().timestamp('javascript').default(Date.now),
   })

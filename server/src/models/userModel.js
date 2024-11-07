@@ -311,7 +311,6 @@ const sendNotifies = async (data) => {
   const { userId, ...otherData } = data;
 
   const status = otherData.status[otherData.status.length - 1];
-
   const dataValidate = await validateBeforeSendNotifies([status]);
 
   const result = await GET_DB()
@@ -321,9 +320,10 @@ const sendNotifies = async (data) => {
       {
         $push: {
           notifies: {
-            _id: otherData._id,
+            _id: new ObjectId(),
             status: dataValidate[0].status,
             type: otherData.type,
+            isReaded: false,
             note: dataValidate[0].note,
             createdAt: dataValidate[0].createdAt,
             updatedAt: dataValidate[0].updatedAt,
@@ -332,24 +332,42 @@ const sendNotifies = async (data) => {
       },
       { returnDocument: 'after' }
     );
+
   delete result.password;
   return result;
 };
+
+const readNotify = async (id, data) => {
+  const result = await GET_DB()
+    .collection('users')
+    .updateOne(
+      { 'notifies._id': new ObjectId(id) },
+      {
+        $set: {
+          'notifies.$.isReaded': data.isReaded,
+          'notifies.$.updatedAt': new Date(),
+        },
+      }
+    );
+
+  return result;
+};
+
 const findUsers = async (data, page = 1, limit = 10) => {
   const db = await GET_DB().collection('users');
-  const users = await db.find({
-    $or: [
-      { email: { $regex: data, $options: 'i' } },
-      { phone: { $regex: data, $options: 'i' } },
-      { name: { $regex: data, $options: 'i' } }
-    ]
-  })
+  const users = await db
+    .find({
+      $or: [
+        { email: { $regex: data, $options: 'i' } },
+        { phone: { $regex: data, $options: 'i' } },
+        { name: { $regex: data, $options: 'i' } },
+      ],
+    })
     .skip((page - 1) * limit)
     .limit(limit)
     .toArray();
   return users;
 };
-
 
 export const userModel = {
   getUserAll,
@@ -368,5 +386,6 @@ export const userModel = {
   viewProduct,
   updateInfor,
   sendNotifies,
-  findUsers
+  findUsers,
+  readNotify,
 };

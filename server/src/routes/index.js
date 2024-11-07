@@ -1,41 +1,47 @@
 import express from 'express';
-import { usersApi } from './userRouter';
-import { categoriesApi } from './categoryRouter';
 
-import { cartsApi } from './cartRouter';
-import { ordersApi } from './orderRouter';
-import { reviewsApi } from './reviewRouter';
-
-import { suppliersApi } from './supplierRoute';
-import { productsApi } from './productRouter';
-import { warehousesApi } from './warehouseRouter';
+// Authentication
 import { authApi } from './authRouter';
-import { paysApi } from './payRouter';
 
-import { paymentApi } from './paymentRouter';
-
-import { navDashboardApi } from './routeForAdmin/navDashboardRoute';
-import { webApi } from './routeForAdmin/webRouter';
-// seo
-
-import { seoConfigApi } from './routeForAdmin/seoConfigRouter';
-import { brandsApi } from './brandRouter';
-import { couponApi } from './couponRouter';
-// admin
-import { addressApi } from './addressRouter';
-import { webBannerApi } from './routeForAdmin/webBannerRouter';
-import { blogApi } from './blogRouter';
-import { hotSearchApi } from './hotSearchRouter';
+// User Management
+import { usersApi } from './userRouter';
 import { staffsApi } from './staffsRouter';
 import { customerGroupApi } from './customerGroupRouter';
-import { staticPageApi } from './routeForAdmin/staticPagesRoute';
-import { variantsApi } from './variantsRouter';
-import { timetableApi } from './routeForAdmin/timetableRouter';
-import { couponHistoryApi } from './couponHistoryRouter';
+import { addressApi } from './addressRouter';
 
+// Product & Inventory Management
+import { productsApi } from './productRouter';
+import { variantsApi } from './variantsRouter';
+import { categoriesApi } from './categoryRouter';
+import { brandsApi } from './brandRouter';
+import { suppliersApi } from './supplierRoute';
+import { warehousesApi } from './warehouseRouter';
+import { warehouseReceiptAPI } from './routeForAdmin/warehouseReceiptRoute';
+
+// Orders & Payments
+import { ordersApi } from './orderRouter';
+import { cartsApi } from './cartRouter';
+import { paysApi } from './payRouter';
+import { paymentApi } from './paymentRouter';
 import { receiptsApi } from './receiptRouter';
 
-import { goodsOrdersApi } from './goodsOrdersRouter';
+// Promotions & Marketing
+import { couponApi } from './couponRouter';
+import { couponHistoryApi } from './couponHistoryRouter';
+import { webBannerApi } from './routeForAdmin/webBannerRouter';
+import { hotSearchApi } from './hotSearchRouter';
+
+// Content & SEO
+import { reviewsApi } from './reviewRouter';
+import { blogApi } from './blogRouter';
+import { staticPageApi } from './routeForAdmin/staticPagesRoute';
+import { seoConfigApi } from './routeForAdmin/seoConfigRouter';
+
+// Admin Dashboard & Configuration
+import { navDashboardApi } from './routeForAdmin/navDashboardRoute';
+import { webApi } from './routeForAdmin/webRouter';
+import { timetableApi } from './routeForAdmin/timetableRouter';
+
 
 const Router = express.Router();
 
@@ -49,7 +55,7 @@ Router.use('/staffs', staffsApi);
 
 Router.use('/carts', cartsApi);
 Router.use('/orders', ordersApi);
-Router.use('/goodsOrders', goodsOrdersApi);
+Router.use('/warehouse-receipts', warehouseReceiptAPI)
 Router.use('/reviews', reviewsApi);
 
 Router.use('/suppliers', suppliersApi);

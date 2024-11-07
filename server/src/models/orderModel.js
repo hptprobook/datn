@@ -29,6 +29,7 @@ const getAllOrders = async (page, limit) => {
   page = parseInt(page) || 1;
   limit = parseInt(limit) || 12;
   const db = await GET_DB().collection('orders');
+  const total = await db.countDocuments();
   const result = await db
     .find()
     .sort({ createdAt: -1 })
@@ -40,7 +41,7 @@ const getAllOrders = async (page, limit) => {
     })
     // .project({ _id: 0, age:1 })
     .toArray();
-  return result;
+  return { total, result };
 };
 const getOrderById = async (id) => {
   const db = await GET_DB().collection('orders');
@@ -59,13 +60,85 @@ const getOrderByCode = async (orderCode, userId) => {
   return result;
 };
 
-const getCurrentOrder = async (user_id) => {
+const getCurrentOrder = async (user_id, page, limit) => {
+  page = parseInt(page) || 1;
+  limit = parseInt(limit) || 12;
   const db = await GET_DB().collection('orders');
+  const total = await db.countDocuments({ userId: new ObjectId(user_id) });
   const result = await db
     .find({ userId: new ObjectId(user_id) })
     .sort({ createdAt: -1 })
+    .skip((page - 1) * limit)
+    .limit(limit)
     .toArray();
-  return result;
+  return { total, result };
+};
+
+const getCurrentOrderByStatus = async (user_id, status, page, limit) => {
+  page = parseInt(page) || 1;
+  limit = parseInt(limit) || 12;
+  const db = await GET_DB().collection('orders');
+  const countResult = await db
+    .aggregate([
+      { $match: { userId: new ObjectId(user_id) } },
+      {
+        $addFields: {
+          latestStatus: { $arrayElemAt: [{ $slice: ['$status', -1] }, 0] },
+        },
+      },
+      { $match: { 'latestStatus.status': status } },
+      { $count: 'total' },
+    ])
+    .toArray();
+  const total = countResult.length > 0 ? countResult[0].total : 0;
+  const result = await db
+    .aggregate([
+      { $match: { userId: new ObjectId(user_id) } },
+      {
+        $addFields: {
+          latestStatus: { $arrayElemAt: [{ $slice: ['$status', -1] }, 0] },
+        },
+      },
+      { $match: { 'latestStatus.status': status } },
+      { $sort: { createdAt: -1 } },
+      { $skip: (page - 1) * limit },
+      { $limit: limit },
+    ])
+    .project({ latestStatus: 0 })
+    .toArray();
+  return { total, result };
+};
+const getOrderByStatus = async (status, page, limit) => {
+  page = parseInt(page) || 1;
+  limit = parseInt(limit) || 12;
+  const db = await GET_DB().collection('orders');
+  const countResult = await db
+    .aggregate([
+      {
+        $addFields: {
+          latestStatus: { $arrayElemAt: [{ $slice: ['$status', -1] }, 0] },
+        },
+      },
+      { $match: { 'latestStatus.status': status } },
+      { $count: 'total' },
+    ])
+    .toArray();
+  const total = countResult.length > 0 ? countResult[0].total : 0;
+  const result = await db
+    .aggregate([
+      {
+        $addFields: {
+          latestStatus: { $arrayElemAt: [{ $slice: ['$status', -1] }, 0] },
+        },
+      },
+      { $match: { 'latestStatus.status': status } },
+      { $sort: { createdAt: -1 } },
+      { $skip: (page - 1) * limit },
+      { $limit: limit },
+    ])
+    .project({ latestStatus: 0 })
+    .toArray();
+  return { total, result };
 };
 
 const addOrder = async (dataOrder) => {
@@ -254,6 +327,8 @@ export const orderModel = {
   findCartById,
   checkStockProducts,
   updateSingleProductStock,
+  getCurrentOrderByStatus,
+  getOrderByStatus,
   // updateStockProducts,
   addOrderNotLogin,
   getOrderById,

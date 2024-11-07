@@ -468,6 +468,74 @@ const updateInfor = async (req, res) => {
   }
 };
 
+const readNotify = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: ERROR_MESSAGES.REQUIRED,
+      });
+    }
+
+    const readed = await userModel.readNotify(id, req.body);
+
+    if (!readed) {
+      return res.status(StatusCodes.BAD_REQUEST).json(readed.detail);
+    }
+
+    return res.status(StatusCodes.OK).json({
+      readed,
+    });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
+  }
+};
+
+const readAllNotifies = async (req, res) => {
+  try {
+    const { updatedNotifications } = req.body;
+
+    if (!updatedNotifications) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: ERROR_MESSAGES.REQUIRED,
+      });
+    }
+
+    const failedIds = [];
+
+    for (const notify of updatedNotifications) {
+      try {
+        const result = await userModel.readNotify(notify._id, notify);
+        if (!result || !result.modifiedCount) {
+          failedIds.push(notify._id);
+        }
+      } catch (error) {
+        failedIds.push(notify._id);
+      }
+    }
+
+    if (failedIds.length > 0) {
+      return res.status(StatusCodes.PARTIAL_CONTENT).json({
+        message: 'Một số thông báo không thể đánh dấu là đọc.',
+        failedIds,
+      });
+    }
+
+    return res.status(StatusCodes.OK).json({
+      message: 'Đọc toàn bộ thành công.',
+    });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
+  }
+};
+
 export const usersController = {
   getUserById,
   getCurrentUser,
@@ -484,4 +552,6 @@ export const usersController = {
   createUser,
   viewProduct,
   updateInfor,
+  readNotify,
+  readAllNotifies,
 };
