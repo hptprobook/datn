@@ -7,11 +7,13 @@ import { verifyToken as verifyStaff } from '~/middlewares/verifyRole';
 const Router = express.Router();
 
 // Orders
-Router.get('/', verifyStaff, orderController.getAllOrder);
+Router.get('/', orderController.getAllOrder);
+Router.get('/all/status', verifyToken, orderController.getOrderByStatus);
 // Router.get('/', verifyToken, orderController.getAllOrder);
 Router.get('/:id', orderController.getOrderById);
 Router.get('/me/current', verifyToken, orderController.getCurrentOrder);
-Router.get('/me/:orderCode', verifyToken, orderController.getOrderByCode);
+Router.get('/me/code/:orderCode', verifyToken, orderController.getOrderByCode);
+Router.get('/me/status', verifyToken, orderController.getCurrentOrderByStatus);
 
 // Carts
 Router.post('/', verifyToken, orderController.addOrder);

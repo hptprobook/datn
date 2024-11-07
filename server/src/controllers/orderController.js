@@ -13,6 +13,8 @@ const getAllOrder = async (req, res) => {
     const orders = await orderModel.getAllOrders(page, limit);
     return res.status(StatusCodes.OK).json(orders);
   } catch (error) {
+    console.log(error);
+
     return res.status(StatusCodes.BAD_REQUEST).json({
       message: ERROR_MESSAGES.ERR_AGAIN,
       error,
@@ -32,6 +34,37 @@ const getCurrentOrder = async (req, res) => {
     return res.status(StatusCodes.BAD_REQUEST).json(error);
   }
 };
+
+const getCurrentOrderByStatus = async (req, res) => {
+  try {
+    const { status, page, limit } = req.query;
+    const { user_id } = req.user;
+    const currentOrder = await orderModel.getCurrentOrderByStatus(
+      user_id,
+      status,
+      page,
+      limit
+    );
+    return res.status(StatusCodes.OK).json(currentOrder);
+  } catch (error) {
+    console.log(error);
+
+    return res.status(StatusCodes.BAD_REQUEST).json(error);
+  }
+};
+
+const getOrderByStatus = async (req, res) => {
+  try {
+    const { status, page, limit } = req.query;
+    const currentOrder = await orderModel.getOrderByStatus(status, page, limit);
+    return res.status(StatusCodes.OK).json(currentOrder);
+  } catch (error) {
+    console.log(error);
+
+    return res.status(StatusCodes.BAD_REQUEST).json(error);
+  }
+};
+
 const getOrderById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -561,4 +594,6 @@ export const orderController = {
   getOrderById,
   findOrderByCode,
   updateOrderNotLogin,
+  getCurrentOrderByStatus,
+  getOrderByStatus,
 };
