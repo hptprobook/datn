@@ -32,6 +32,7 @@ export const WarehousePage = lazy(() => import('src/pages/warehouse/warehouse'))
 export const WarehouseCreatePage = lazy(() => import('src/pages/warehouse/create'));
 export const WarehouseEditPage = lazy(() => import('src/pages/warehouse/edit'));
 export const ReceiptWareHousePage = lazy(() => import('src/pages/receipts/warehouse'));
+export const ReceiptWareHouseCreatePage = lazy(() => import('src/pages/receipts/warehouse-create'));
 // lịch làm việc
 export const TimetablePage = lazy(() => import('src/pages/timetables'));
 export const VariantsPage = lazy(() => import('src/pages/variants'));
@@ -99,6 +100,10 @@ export const adminRoute = [
   {
     path: 'warehouse/receipts',
     element: <ReceiptWareHousePage />,
+  },
+  {
+    path: 'warehouse/receipts/create',
+    element: <ReceiptWareHouseCreatePage />,
   },
   {
     path: 'warehouse/:id',

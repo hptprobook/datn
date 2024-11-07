@@ -93,57 +93,67 @@ const add = async (req, res) => {
   }
 };
 
-const removeOrder = async (req, res) => {
+const remove = async (req, res) => {
   try {
-    const { idOrder } = req.params;
-
-    if (!idOrder) {
+    const { id } = req.params;
+    const { updateAfter } = req.query;
+    if (!id) {
       return res
         .status(StatusCodes.BAD_REQUEST)
-        .json({ message: 'Thiếu thông tin đơn hàng' });
+        .json({ message: 'Thiếu thông tin hóa đơn' });
     }
 
-    const order = await warehouseReceiptModel.getGoodsOrderById(idOrder);
-    if (!order) {
+    const r = await warehouseReceiptModel.getGoodsOrderById(id);
+    if (!r) {
       return res
         .status(StatusCodes.OK)
-        .json({ message: 'Không tồn tại đơn hàng' });
+        .json({ message: 'Không tồn tại hóa đơn' });
     }
 
-    const result = await warehouseReceiptModel.deleteOrder(idOrder);
-    if (!result) {
-      return res
-        .status(StatusCodes.OK)
-        .json({ message: 'Có lỗi xảy ra. Vui lòng thử lại' });
+    if (updateAfter === 'false') {
+      const result = await warehouseReceiptModel.remove(id);
+      return res.status(StatusCodes.OK).json(result);
     }
-
-    for (const product of order.productsList) {
-      const currentStock = await warehouseReceiptModel.getCurrentStock(
-        product._id,
-        product.variantColor,
-        product.variantSize
-      );
-
-      if (currentStock - product.quantity >= 0) {
-        await warehouseReceiptModel.updateStock(
+    const errors = [];
+    for (const product of r.productsList) {
+      try {
+        const currentStock = await warehouseReceiptModel.getCurrentStock(
           product._id,
-          product.variantColor,
-          product.variantSize,
-          -product.quantity
+          product.sku,
+          product.size
         );
-      } else {
-        console.log(
-          `Không thể giảm stock của sản phẩm ${product._id} - Màu: ${product.variantColor} - Size: ${product.variantSize} vì sẽ dẫn đến stock âm`
-        );
+        const s = currentStock - product.quantity;
+        product.updateStock = s;
+        if (s <= 0) {
+          errors.push({
+            sku: product.sku,
+            errors: 'Không đủ hàng trong kho',
+          });
+        }
+      } catch (e) {
+        errors.push({
+          sku: product.sku,
+          errors: e.toString(),
+        });
       }
     }
-
+    if (errors.length > 0) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ errors });
+    }
+    const result = await warehouseReceiptModel.remove(id);
+    for (const product of r.productsList) {
+      await warehouseReceiptModel.updateStock(
+        product.sku,
+        product.size,
+        product.updateStock
+      );
+    }
     return res
       .status(StatusCodes.OK)
-      .json({ message: 'Xóa đơn hàng thành công và cập nhật stock' });
+      .json(result);
   } catch (error) {
-    console.log(error);
-
     return res
       .status(StatusCodes.BAD_REQUEST)
       .json({ message: 'Có lỗi xảy ra xin thử lại sau', error });
@@ -160,7 +170,7 @@ const updateOrder = async (req, res) => {
       const check = oldStatus.some((i) => data.status[0].status === i.status);
       if (check) {
         return res.status(StatusCodes.BAD_REQUEST).json({
-          message: 'Trạng thái đơn hàng bị trùng lặp vui lòng kiểm tra lại',
+          message: 'Trạng thái hóa đơn bị trùng lặp vui lòng kiểm tra lại',
         });
       }
       const newStatus = [...oldStatus, data.status[0]];
@@ -186,7 +196,7 @@ const updateOrder = async (req, res) => {
 export const warehouseReceiptController = {
   add,
   updateOrder,
-  removeOrder,
+  remove,
   getAllOrder,
   findBy,
 };

@@ -9,7 +9,15 @@ import {
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const ConfirmDelete = ({ onAgree, openConfirm, onClose, label, secondLabel }) => {
+const ConfirmDelete = ({
+  onAgree,
+  openConfirm,
+  onClose,
+  label,
+  secondLabel,
+  onSecondAgree,
+  secondAgree,
+}) => {
   const handleAgree = () => {
     onAgree();
     onClose(); // Close the dialog after agreeing
@@ -35,6 +43,11 @@ const ConfirmDelete = ({ onAgree, openConfirm, onClose, label, secondLabel }) =>
         <Button color="inherit" variant="contained" onClick={handleAgree} autoFocus>
           Đồng ý
         </Button>
+        {secondAgree && (
+          <Button color="inherit" variant="contained" onClick={onSecondAgree} autoFocus>
+            {secondAgree}
+          </Button>
+        )}
       </DialogActions>
     </Dialog>
   );
@@ -46,6 +59,8 @@ ConfirmDelete.propTypes = {
   onClose: PropTypes.func.isRequired, // Add onClose prop to control the closing of the dialog
   label: PropTypes.string,
   secondLabel: PropTypes.string,
+  onSecondAgree: PropTypes.func,
+  secondAgree: PropTypes.string,
 };
 
 export default ConfirmDelete;

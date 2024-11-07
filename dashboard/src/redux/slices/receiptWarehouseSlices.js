@@ -5,10 +5,10 @@ export const createReceipt = createAsyncThunk(
     'receiptsWarehouse/createReceipt',
     async (data, { rejectWithValue }) => {
         try {
-            const response = await DashboardService.create('/goodsOrders', data);
+            const response = await DashboardService.create('/warehouse-receipts', data);
             return response;
         } catch (err) {
-            return rejectWithValue(err.response);
+            return rejectWithValue(err.response.data);
         }
     }
 );
@@ -16,21 +16,23 @@ export const allReceiptWarehouses = createAsyncThunk(
     'receiptsWarehouse/allReceiptWarehouses',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await DashboardService.gets('/goodsOrders?page=1&limit=1000');
+            const response = await DashboardService.gets('/warehouse-receipts?page=1&limit=1000');
             return response;
         } catch (err) {
-            return rejectWithValue(err.response);
+            return rejectWithValue(err.response.data);
         }
     }
 );
-export const deleteReceipt = createAsyncThunk(
-    'receiptsWarehouse/deleteReceipt',
-    async (id, { rejectWithValue }) => {
+export const deleteReceiptWarehouse = createAsyncThunk(
+    'receiptsWarehouse/deleteReceiptWarehouse',
+    async ({
+        id,
+        updateAfter
+    }, { rejectWithValue }) => {
         try {
-            const response = await DashboardService.delete(`/receiptsWarehouse/${id}`);
-            return response;
+            return await DashboardService.delete(`/warehouse-receipts/${id}?updateAfter=${updateAfter}`);
         } catch (err) {
-            return rejectWithValue(err.response);
+            return rejectWithValue(err.response.data);
         }
     }
 );
@@ -71,14 +73,14 @@ const receiptWarehouseSlices = createSlice({
                 state.status = "failed";
                 state.error = action.payload;
             })
-            .addCase(deleteReceipt.pending, (state) => {
+            .addCase(deleteReceiptWarehouse.pending, (state) => {
                 state.statusDelete = "loading";
             })
-            .addCase(deleteReceipt.fulfilled, (state, action) => {
+            .addCase(deleteReceiptWarehouse.fulfilled, (state, action) => {
                 state.statusDelete = "successful";
                 state.error = null;
             })
-            .addCase(deleteReceipt.rejected, (state, action) => {
+            .addCase(deleteReceiptWarehouse.rejected, (state, action) => {
                 state.statusDelete = "failed";
                 state.error = action.payload;
             })
