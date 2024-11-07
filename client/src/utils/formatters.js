@@ -95,3 +95,20 @@ export const getTimeDifference = (createdAt) => {
     return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
   }
 };
+
+// Hàm định dạng số điện thoại Việt Nam
+export const formatVietnamesePhoneNumber = (phoneNumber) => {
+  const cleaned = phoneNumber.replace(/\D/g, '');
+
+  if (cleaned.startsWith('84') && cleaned.length === 11) {
+    return `+84 ${cleaned.slice(2, 5)} ${cleaned.slice(5, 8)} ${cleaned.slice(
+      8
+    )}`;
+  }
+
+  if (cleaned.startsWith('0') && cleaned.length === 10) {
+    return `${cleaned.slice(0, 4)} ${cleaned.slice(4, 7)} ${cleaned.slice(7)}`;
+  }
+
+  return phoneNumber;
+};

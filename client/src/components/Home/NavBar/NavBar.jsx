@@ -4,7 +4,6 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { getMenu } from '~/APIs';
 import { handleToast } from '~/customHooks/useToast';
 import './style.css';
-import MainLoading from '~/components/common/Loading/MainLoading';
 
 const NavBar = () => {
   const [hoveredMenu, setHoveredMenu] = useState(null);
@@ -52,7 +51,7 @@ const NavBar = () => {
   }
 
   if (isLoading || menuData.length === 0) {
-    return <MainLoading />;
+    return null;
   }
 
   return (

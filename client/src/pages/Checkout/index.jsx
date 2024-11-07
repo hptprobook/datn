@@ -74,12 +74,14 @@ const CheckoutUI = () => {
 
     if (formik.isValid && formik.dirty) {
       const productsList = selectedProducts.map((product) => ({
-        _id: product.productId,
+        _id: product.productId || product._id,
         quantity: product.quantity,
         image: product.image,
         name: product.name,
         slug: product.slug,
+        sku: product.sku,
         price: product.price,
+        weight: product.weight,
         variantColor: product.variantColor,
         variantSize: product.variantSize,
         itemTotal: product.price * product.quantity,
@@ -95,6 +97,7 @@ const CheckoutUI = () => {
         phone: formik.values.phone,
         name: formik.values.name,
         note: formik.values.note || '',
+        fullAddress: `${formik.values.address}, ${formik.values.ward_name}, ${formik.values.district_name}, ${formik.values.province_name}`,
       };
 
       const orderData = {
@@ -107,14 +110,8 @@ const CheckoutUI = () => {
             (total, product) => total + product.itemTotal,
             0
           ) + shippingFee,
-        shipping: {
-          name: formik.values.name,
-          shippingType: formik.values.payment,
-          fee: shippingFee,
-          detailAddress: `${formik.values.address}, ${formik.values.ward_name}, ${formik.values.district_name}, ${formik.values.province_name}`,
-          estimatedDeliveryDate: new Date().getTime() + 7 * 24 * 60 * 60 * 1000,
-          phone: formik.values.phone,
-        },
+        shippingType: 'cod',
+        fee: shippingFee,
       };
 
       submitOrder(orderData);

@@ -14,13 +14,14 @@ import PropTypes from 'prop-types';
 import useCheckAuth from '~/customHooks/useCheckAuth';
 import { useUser } from '~/context/UserContext';
 import { useMutation } from '@tanstack/react-query';
-import { removeCartToCurrent } from '~/APIs';
-import { useSwal } from '~/customHooks/useSwal';
+import { removeCartToCurrent, updateCurrentUser } from '~/APIs';
+import { useSwal, useSwalWithConfirm } from '~/customHooks/useSwal';
 
 const CartFixed = ({ open, setOpen }) => {
   const {
     items: guestItems,
     removeItem,
+    emptyCart,
     cartTotal: guestCartTotal,
   } = useCart();
   const [showTooltip, setShowTooltip] = useState(null);
@@ -56,6 +57,20 @@ const CartFixed = ({ open, setOpen }) => {
     },
   });
 
+  const { mutate: emptyCartMutation } = useMutation({
+    mutationFn: updateCurrentUser,
+    onSuccess: () => {
+      refetchUser();
+    },
+    onError: () => {
+      useSwal.fire({
+        icon: 'error',
+        title: 'Lỗi!',
+        text: 'Xảy ra lỗi khi xoá tất cả sản phẩm khỏi giỏ hàng, vui lòng thử lại!',
+      });
+    },
+  });
+
   const handleDeleteProduct = (cartId) => {
     if (isAuthenticated) {
       mutation.mutate({ _id: cartId });
@@ -71,6 +86,15 @@ const CartFixed = ({ open, setOpen }) => {
     } else {
       setShowTooltip(productId);
     }
+  };
+
+  const handleClearCart = () => {
+    if (isAuthenticated) {
+      emptyCartMutation({ carts: [] });
+    } else {
+      emptyCart();
+    }
+    setShowTooltip(null);
   };
 
   const items = isAuthenticated ? userCartItems : guestItems;
@@ -155,8 +179,9 @@ const CartFixed = ({ open, setOpen }) => {
                                   </div>
                                 </div>
                                 <p className="mt-1 text-sm text-gray-500 text-clamp-1">
-                                  {product?.variantColor} -{' '}
-                                  {product?.variantSize}
+                                  {product?.variantColor}
+                                  {product?.variantSize !== 'FREESIZE' &&
+                                    ` - ${product.variantSize}`}
                                 </p>
 
                                 <div className="flex flex-1 items-end justify-between text-sm">
@@ -208,6 +233,37 @@ const CartFixed = ({ open, setOpen }) => {
                             </li>
                           ))}
                         </ul>
+                        {items?.length > 2 && (
+                          <button
+                            className="btn rounded-md bg-red-500 text-white hover:bg-red-600 mt-8"
+                            onClick={() => {
+                              setOpen(false);
+                              useSwalWithConfirm
+                                .fire({
+                                  title: 'Xóa tất cả',
+                                  text: 'Bắn có chắc muốn xóa tất cả sản phẩm khỏi giỏ hàng?',
+                                  icon: 'warning',
+                                  confirmButtonText: 'Xoá tất cả',
+                                  cancelButtonText: 'Hủy',
+                                })
+                                .then((result) => {
+                                  if (result.isConfirmed) {
+                                    handleClearCart();
+                                    useSwal.fire({
+                                      icon: 'success',
+                                      title: 'Thành công',
+                                      text: 'Xóa tất cả sản phẩm thành công',
+                                      timer: 1500,
+                                    });
+                                  } else {
+                                    setOpen(true);
+                                  }
+                                });
+                            }}
+                          >
+                            Xóa tất cả
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>

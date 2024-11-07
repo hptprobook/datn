@@ -14,7 +14,7 @@ import { useUser } from '~/context/UserContext';
 const paymentMethods = [
   { label: 'Thanh toán khi nhận hàng', value: 'Tiền mặt' },
   { label: 'Thanh toán VNPAY', value: 'VNPAY' },
-  { label: 'Chuyển khoản trực tiếp', value: 'BANK' },
+  { label: 'Chuyển khoản trực tiếp', value: 'Chuyển khoản' },
 ];
 
 const CheckoutFinal = ({ selectedProducts, userAddress }) => {
@@ -137,6 +137,7 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
           title: 'Thành công!',
           text: 'Bạn đã đặt hàng thành công, bấm xác nhận để kiểm tra thông tin và liên hệ shop nếu có lỗi',
           icon: 'success',
+          timer: 2000,
           confirmButtonText: 'Xác nhận',
         })
         .then(() => {
@@ -164,11 +165,12 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
     }
 
     const productsList = selectedProducts.map((product) => ({
-      _id: product.productId,
+      _id: product.productId || product._id,
       quantity: product.quantity,
       image: product.image,
       name: product.name,
       slug: product.slug,
+      sku: product.sku,
       weight: product.weight,
       price: product.price,
       variantColor: product.variantColor,
@@ -185,21 +187,16 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
         districtCode: userAddress.district_id,
         wardName: userAddress.ward_name,
         wardCode: userAddress.ward_id,
-        detailAddress: userAddress.fullAddress,
+        detailAddress: userAddress.address,
         phone: userAddress.phone,
         name: userAddress.name,
         note: userAddress.note,
+        fullAddress: userAddress.fullAddress,
       },
       email: userAddress.email,
       totalPrice: totalPrice,
-      shipping: {
-        shippingType: 'COD',
-        fee: shippingFee,
-        status: 'Đang giao hàng',
-        detailAddress: userAddress.fullAddress,
-        phone: userAddress.phone,
-        name: userAddress.name,
-      },
+      shippingType: 'cod',
+      fee: shippingFee,
     };
 
     if (userAddress) {
