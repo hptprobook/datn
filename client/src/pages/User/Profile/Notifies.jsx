@@ -81,13 +81,10 @@ const Notifies = () => {
       ...notify,
       isReaded: true,
     }));
-    const result = await axios.post(
-      'http://localhost:3000/api/users/notifies',
-      {
-        updatedNotifications,
-      }
-    );
-    console.log(result);
+    await axios.post('http://localhost:3000/api/users/notifies', {
+      updatedNotifications,
+    });
+
     setNotifications(updatedNotifications);
   };
 
@@ -98,7 +95,9 @@ const Notifies = () => {
       );
 
       setNotifications(result.data.notifies);
-    } catch (err) {}
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   useEffect(() => {
