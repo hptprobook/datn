@@ -318,6 +318,7 @@ const updateOrder = async (req, res) => {
       }
     }
     dataOrder.type = 'order';
+    dataOrder.title = 'Đơn hàng';
     if (dataOrder) {
       await userModel.sendNotifies(dataOrder);
     }

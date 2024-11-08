@@ -7,6 +7,22 @@ import {
   SEND_NOTIFIES,
 } from '~/utils/schema/userSchema';
 
+const OrderStatus = {
+  pending: 'chờ xác nhận',
+  confirmed: 'đã xác nhận',
+  shipped: 'đã giao cho ĐVVC',
+  shipping: 'shipper đang trên đường tới',
+  delivered: 'đã nhận hàng',
+  returned: 'trả hàng',
+  cancelled: 'huỷ',
+  completed: 'hoàn thành',
+};
+
+const generateDescription = (title, orderCode, status) => {
+  const statusText = OrderStatus[status];
+  return `${title} ${orderCode} ${statusText}`;
+};
+
 const validateBeforeUpdateInfor = async (data) => {
   return await INFOR_USER.validateAsync(data, { abortEarly: false });
 };
@@ -313,6 +329,12 @@ const sendNotifies = async (data) => {
   const status = otherData.status[otherData.status.length - 1];
   const dataValidate = await validateBeforeSendNotifies([status]);
 
+  const description = generateDescription(
+    otherData.title,
+    otherData.orderCode,
+    dataValidate[0].status
+  );
+
   const result = await GET_DB()
     .collection('users')
     .findOneAndUpdate(
@@ -323,6 +345,9 @@ const sendNotifies = async (data) => {
             _id: new ObjectId(),
             status: dataValidate[0].status,
             type: otherData.type,
+            title: otherData.title,
+            orderCode: otherData.orderCode,
+            description: description,
             isReaded: false,
             note: dataValidate[0].note,
             createdAt: dataValidate[0].createdAt,

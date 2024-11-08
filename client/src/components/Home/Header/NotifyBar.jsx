@@ -20,11 +20,7 @@ const NotifyBar = ({ notifies }) => {
                       src='https://cdn-icons-png.flaticon.com/512/6863/6863272.png'
                       className='w-6 h-6 mr-3'
                     />
-                    <span className='text-wrap'>
-                      {notify.type === 'order'
-                        ? `Đơn hàng ${notify._id} đang ${notify.status}`
-                        : notify.type}
-                    </span>
+                    <span className='text-wrap'>{notify.description}</span>
                   </div>
                 </div>
               );

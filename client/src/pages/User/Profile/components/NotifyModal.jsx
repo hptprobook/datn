@@ -38,24 +38,28 @@ const NotifyModal = ({ notify, isOpen, onClose }) => {
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[500]"
+      className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[500]'
       onClick={onClose}
     >
-      <div className="bg-white p-6 rounded-lg shadow-lg w-96 relative">
+      <div className='bg-white p-6 rounded-lg shadow-lg w-96 relative'>
         <button
           onClick={onClose}
-          className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
+          className='absolute top-2 right-2 text-gray-500 hover:text-gray-800'
         >
           &times;
         </button>
-        <div className="inline-flex items-center mb-4">
-          <img src={notify.icon} alt={notify.title} className="w-8 h-8 mr-3" />
-          <h3 className="font-bold text-lg">{notify.title}</h3>
+        <div className='inline-flex items-center mb-4'>
+          <img
+            src='https://cdn-icons-png.flaticon.com/512/6863/6863272.png'
+            alt={notify.title}
+            className='w-8 h-8 mr-3'
+          />
+          <h3 className='font-bold text-lg'>{notify.title}</h3>
         </div>
-        <p className="text-sm text-gray-500">
+        <p className='text-sm text-gray-500'>
           {getTimeDifference(notify.createdAt)}
         </p>
-        <p className="mt-4">{notify.message}</p>
+        <p className='mt-4'>{notify.description}</p>
       </div>
     </div>
   );

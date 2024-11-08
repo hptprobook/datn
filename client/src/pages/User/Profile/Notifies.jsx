@@ -58,14 +58,13 @@ const Notifies = () => {
     setNotifications(updatedNotifications);
 
     setSelectedNotify({ ...notify, isReaded: true });
-    const result = await axios.post(
-      `http://localhost:3000/api/users/notify/${notify._id}`,
-      {
+
+    if (!notify.isReaded) {
+      await axios.post(`http://localhost:3000/api/users/notify/${notify._id}`, {
         ...notify,
         isReaded: true,
-      }
-    );
-    console.log(result);
+      });
+    }
 
     setModalOpen(true);
   };
@@ -93,6 +92,7 @@ const Notifies = () => {
       const result = await axios.get(
         'http://localhost:3000/api/users/672332bb3eb63a6c62287dc6'
       );
+      console.log(result.data.notifies);
 
       setNotifications(result.data.notifies);
     } catch (err) {
@@ -113,32 +113,32 @@ const Notifies = () => {
           </h3>
         </div>
 
-        {notifications.map((notify) => (
-          <div
-            key={notify._id}
-            className={`mt-2 px-6 py-4 cursor-pointer rounded-lg shadow w-full border hover:scale-101 transition-transform duration-300 border-gray-200
+        {notifications && notifications.length > 0
+          ? notifications.map((notify) => (
+              <div
+                key={notify._id}
+                className={`mt-2 px-6 py-4 cursor-pointer rounded-lg shadow w-full border hover:scale-101 transition-transform duration-300 border-gray-200
             ${!notify.isReaded ? 'bg-red-100 ' : 'bg-white '}`}
-            onClick={() => handleNotifyClick(notify)}
-          >
-            <div className='inline-flex items-center justify-between w-full'>
-              <div className='inline-flex items-center'>
-                <img
-                  src='https://cdn-icons-png.flaticon.com/512/6863/6863272.png'
-                  className='w-6 h-6 mr-3'
-                />
-                <h3 className='font-bold text-base text-gray-800'>
-                  {notify.type === 'order'
-                    ? `Đơn hàng ${notify._id} đang ${notify.status}`
-                    : notify.type}
-                </h3>
+                onClick={() => handleNotifyClick(notify)}
+              >
+                <div className='inline-flex items-center justify-between w-full'>
+                  <div className='inline-flex items-center'>
+                    <img
+                      src='https://cdn-icons-png.flaticon.com/512/6863/6863272.png'
+                      className='w-6 h-6 mr-3'
+                    />
+                    <h3 className='font-bold text-base text-gray-800'>
+                      {notify.description}
+                    </h3>
+                  </div>
+                  <p className='text-xs text-gray-500'>
+                    {getTimeDifference(notify.createdAt)}
+                  </p>
+                </div>
+                <p className='mt-1 text-sm'>{notify.note}</p>
               </div>
-              <p className='text-xs text-gray-500'>
-                {getTimeDifference(notify.createdAt)}
-              </p>
-            </div>
-            <p className='mt-1 text-sm'>{notify.note}</p>
-          </div>
-        ))}
+            ))
+          : 'Không có thông báo'}
 
         <button
           onClick={markAllAsRead}
