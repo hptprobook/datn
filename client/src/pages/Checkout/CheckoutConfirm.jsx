@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import MainLoading from '~/components/common/Loading/MainLoading';
 import CheckoutStepper from '~/components/common/Stepper/CheckoutStepper';
+import { useWebConfig } from '~/context/WebsiteConfig';
 import useCheckAuth from '~/customHooks/useCheckAuth';
 import { useSwalWithConfirm } from '~/customHooks/useSwal';
 import { formatCurrencyVND, formatDateToDDMMYYYY } from '~/utils/formatters';
@@ -11,6 +12,7 @@ const CheckoutConfirm = () => {
   const location = useLocation();
   const orderData = location.state?.orderData.data;
   const navigate = useNavigate();
+  const { config } = useWebConfig();
   const { isAuthenticated } = useCheckAuth();
 
   useEffect(() => {
@@ -31,7 +33,11 @@ const CheckoutConfirm = () => {
       })
       .then((result) => {
         if (result.isDismissed) {
-          navigate('/theo-doi-don-hang');
+          if (isAuthenticated) {
+            navigate('/nguoi-dung');
+          } else {
+            navigate('/theo-doi-don-hang');
+          }
         }
       });
   };
@@ -48,7 +54,7 @@ const CheckoutConfirm = () => {
           Bạn đã đặt hàng thành công
         </h2>
         <h6 className="font-medium text-xl leading-8 text-black mb-3">
-          Xin chào, <b>{orderData?.shipping?.name}</b>
+          Xin chào, <b>{orderData?.shippingInfo?.name}</b>
         </h6>
         <p className="font-normal text-lg leading-8 text-gray-500 mb-4">
           Đơn đặt hàng của bạn đã được hoàn thành và sẽ được giao chỉ từ 2 - 3
@@ -81,7 +87,7 @@ const CheckoutConfirm = () => {
               Ngày giao hàng dự kiến
             </p>
             <h6 className="font-semibold font-manrope text-2xl leading-9 text-black">
-              {formatDateToDDMMYYYY(orderData?.shipping?.estimatedDeliveryDate)}
+              {formatDateToDDMMYYYY(orderData?.estimatedDeliveryDate)}
             </h6>
           </div>
           <div className="box group">
@@ -113,7 +119,7 @@ const CheckoutConfirm = () => {
               Địa chỉ giao hàng
             </p>
             <h6 className="font-manrope text-md leading-9 text-black">
-              {orderData?.shipping?.detailAddress}
+              {orderData?.shippingInfo?.fullAddress}
             </h6>
           </div>
         </div>
@@ -162,7 +168,9 @@ const CheckoutConfirm = () => {
                     </h6>
                   </NavLink>
                   <h6 className="font-normal text-base leading-7 text-gray-500">
-                    {product?.variantColor} - {product?.variantSize}
+                    {product?.variantColor}
+                    {product?.variantSize !== 'FREESIZE' &&
+                      ` - ${product.variantSize}`}
                   </h6>
                   <h6 className="font-medium text-base leading-7 text-gray-600">
                     {formatCurrencyVND(product?.price)}
@@ -204,7 +212,7 @@ const CheckoutConfirm = () => {
                 Phí giao hàng
               </p>
               <p className="font-semibold text-lg leading-8 text-red-400">
-                + {formatCurrencyVND(orderData?.shipping?.fee)}
+                + {formatCurrencyVND(orderData?.fee)}
               </p>
             </div>
             {/* <div className="flex items-center justify-between mb-6">
@@ -231,7 +239,8 @@ const CheckoutConfirm = () => {
             chuyển thành công.
           </p>
           <h6 className="font-manrope font-bold text-2xl leading-9 text-black mb-3">
-            Cảm ơn bạn đã mua sắm ở BMT LIFE - <br className="md:hidden" />
+            Cảm ơn bạn đã mua sắm ở {config?.nameCompany} -{' '}
+            <br className="md:hidden" />
             <NavLink
               type="button"
               className="font-medium text-red-600 hover:text-red-500"

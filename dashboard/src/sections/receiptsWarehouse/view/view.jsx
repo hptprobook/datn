@@ -22,14 +22,19 @@ import TableEmptyRows from 'src/components/table/table-empty-rows';
 import TableNoData from 'src/components/table/table-no-data';
 import { emptyRows, applyFilter, getComparator } from 'src/components/table/utils';
 import { Box, List, Modal, IconButton, ListItemText } from '@mui/material';
-import { setStatus, deleteReceipt, fetchAllReceipts } from 'src/redux/slices/receiptSlices';
 import { formatCurrency } from 'src/utils/format-number';
 import { formatDateTime } from 'src/utils/format-time';
 import { useReactToPrint } from 'react-to-print';
+import {
+  setStatus,
+  allReceiptWarehouses,
+  deleteReceiptWarehouse,
+} from 'src/redux/slices/receiptWarehouseSlices';
+import { fetchAll as fetchWarehouses } from 'src/redux/slices/warehouseSlices';
+import { fetchAll as fetchSupplier } from 'src/redux/slices/supplierSlices';
 import ReceiptTableToolbar from '../table-toolbar';
 import ReceiptTableHead from '../table-head';
 import ReceiptTableRow from '../table-row';
-import { allReceiptWarehouses } from 'src/redux/slices/receiptWarehouseSlices';
 
 // ----------------------------------------------------------------------
 const style = {
@@ -70,16 +75,19 @@ export default function ReceiptWarehousePage() {
   const dispatch = useDispatch();
   const route = useRouter();
 
-  const data = useSelector((state) => state.receipts.receipts);
-  const status = useSelector((state) => state.receipts.status);
-  const error = useSelector((state) => state.receipts.error);
-  const statusDelete = useSelector((state) => state.receipts.statusDelete);
+  const data = useSelector((state) => state.receiptsWarehouse.receiptsWarehouse);
+  const status = useSelector((state) => state.receiptsWarehouse.status);
+  const error = useSelector((state) => state.receiptsWarehouse.error);
+  const statusDelete = useSelector((state) => state.receiptsWarehouse.statusDelete);
+  const suppliers = useSelector((state) => state.suppliers.suppliers);
+  const warehouses = useSelector((state) => state.warehouses.warehouses);
 
   const handleClose = () => setOpen(false);
   useEffect(() => {
     dispatch(allReceiptWarehouses());
+    dispatch(fetchSupplier());
+    dispatch(fetchWarehouses());
   }, [dispatch]);
-
   useEffect(() => {
     if (status === 'successful') {
       setReceipts(data);
@@ -88,11 +96,18 @@ export default function ReceiptWarehousePage() {
   useEffect(() => {
     if (statusDelete === 'successful') {
       handleToast('success', 'Xóa hóa đơn thành công!');
+      setConfirm(false);
       dispatch(setStatus({ key: 'statusDelete', value: 'idle' }));
-      dispatch(fetchAllReceipts());
+      dispatch(allReceiptWarehouses());
     }
     if (statusDelete === 'failed') {
-      handleToast('error', error.messages);
+      if (error && error.messages) {
+        handleToast('error', error.messages);
+      } else if (error && error.errors) {
+        error.errors.forEach((e) => {
+          handleToast('error', `${e.sku}: ${e.errors}`);
+        });
+      }
       dispatch(setStatus({ key: 'statusDelete', value: 'idle' }));
     }
   }, [statusDelete, dispatch, error]);
@@ -150,32 +165,47 @@ export default function ReceiptWarehousePage() {
     inputData: receipts,
     comparator: getComparator(order, orderBy),
     filterName,
-    fillerQuery: 'name',
+    fillerQuery: 'code',
   });
   const handleNavigate = (id) => {
     route.push(id);
   };
-  const handleDelete = (id) => {
-    setConfirm(id);
-  };
-  const dispatchDelete = () => {
-    dispatch(deleteReceipt(confirm));
+
+  const handleDelete = (t) => {
+    setConfirm(false);
+    if (t) {
+      dispatch(deleteReceiptWarehouse({ id: confirm, updateAfter: true }));
+    } else
+      dispatch(
+        deleteReceiptWarehouse({
+          id: confirm,
+          updateAfter: false,
+        })
+      );
   };
   const handleSelectedReceipt = (id) => {
     setOpen(true);
     setSelectedReceipt(receipts.find((item) => item._id === id));
   };
   const notFound = !dataFiltered.length && !!filterName;
-
+  const renderName = (id, d, n) => {
+    const item = d.find((i) => i._id === id);
+    if (n) {
+      return item && item[n] ? item[n] : 'Không xác định';
+    }
+    return item && item.name ? item.name : 'Không xác định';
+  };
   return (
     <Container>
       {status === 'loading' && <LoadingFull />}
       <ConfirmDelete
         openConfirm={!!confirm}
-        onAgree={dispatchDelete}
+        onAgree={() => handleDelete(true)}
         onClose={() => setConfirm(false)}
         label="hóa đơn đã chọn"
         secondLabel="Việc xóa hóa đơn sẽ cập nhật lại sản phẩm, bạn có chắc chắn muốn xóa?"
+        secondAgree="Xóa mà không cập nhật lại hóa đơn"
+        onSecondAgree={() => handleDelete(false)}
       />
       <Modal
         open={open}
@@ -183,21 +213,36 @@ export default function ReceiptWarehousePage() {
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
-        <Box sx={style} >
-          <Stack ref={contentRef} direction="column" justifyContent="space-between" spacing={2} sx={{
-            padding: 2,
-          }}>
+        <Box sx={style}>
+          <Stack
+            ref={contentRef}
+            direction="column"
+            justifyContent="space-between"
+            spacing={2}
+            sx={{
+              padding: 2,
+            }}
+          >
             <Typography id="modal-modal-title" variant="h6" component="h2">
-              Hóa đơn - {selectedReceipt && selectedReceipt.receiptCode}
+              Hóa đơn - {selectedReceipt && selectedReceipt.code}
             </Typography>
             <Stack direction="row" justifyContent="space-between">
-              <Typography variant="body1">Tên khách hàng:</Typography>
-              <Typography variant="body2">{selectedReceipt && selectedReceipt.name}</Typography>
+              <Typography variant="body1">Kho:</Typography>
+              <Typography variant="body2">
+                {selectedReceipt && renderName(selectedReceipt.warehouseId, warehouses)}
+              </Typography>
+            </Stack>
+            <Stack direction="row" justifyContent="space-between">
+              <Typography variant="body1">Nhà cung cấp:</Typography>
+              <Typography variant="body2">
+                {selectedReceipt &&
+                  renderName(selectedReceipt.supplierId, suppliers, 'companyName')}
+              </Typography>
             </Stack>
             <Stack direction="row" justifyContent="space-between">
               <Typography variant="body1">Tổng tiền:</Typography>
               <Typography variant="body2">
-                {selectedReceipt && formatCurrency(selectedReceipt.total)}
+                {selectedReceipt && formatCurrency(selectedReceipt.totalPrice)}
               </Typography>
             </Stack>
             <Stack direction="row" justifyContent="space-between">
@@ -207,8 +252,10 @@ export default function ReceiptWarehousePage() {
               </Typography>
             </Stack>
             <Stack direction="row" justifyContent="space-between">
-              <Typography variant="body1">Kiểu mua:</Typography>
-              <Typography variant="body2">{selectedReceipt && selectedReceipt.type}</Typography>
+              <Typography variant="body1">Trạng thái:</Typography>
+              <Typography variant="body2">
+                {selectedReceipt && selectedReceipt.statusPayment}
+              </Typography>
             </Stack>
             <Stack direction="column" spacing={2}>
               <Typography variant="body1">Danh sách sản phẩm:</Typography>
@@ -221,8 +268,11 @@ export default function ReceiptWarehousePage() {
                   selectedReceipt.productsList.map((item, i) => (
                     <ListItemText
                       key={i}
-                      primary={`${item.name} - ${item.variantColor} - ${item.variantSize}`}
-                      secondary={`${item.quantity} - ${formatCurrency(item.price)}`}
+                      sx={{
+                        borderBottom: '1px solid #f0f0f0',
+                      }}
+                      primary={`${item.name} - ${item.sku} - ${item.size}`}
+                      secondary={`${item.quantity} x ${formatCurrency(item.price)} - Giảm giá: ${formatCurrency(item.discount)} `}
                     />
                   ))}
               </List>
@@ -245,12 +295,12 @@ export default function ReceiptWarehousePage() {
             <Button variant="contained" color="error" onClick={handleClose}>
               Đóng
             </Button>
-            <Button variant="contained" color='inherit' onClick={reactToPrintFn}>
+            <Button variant="contained" color="inherit" onClick={reactToPrintFn}>
               In hóa đơn
             </Button>
             <Button
               variant="contained"
-              color='inherit'
+              color="inherit"
               onClick={() => handleToast('info', 'Tính năng đang phát triển!')}
             >
               Chỉnh sửa
@@ -266,18 +316,18 @@ export default function ReceiptWarehousePage() {
             aria-label="load"
             variant="contained"
             color="inherit"
-            onClick={() => dispatch(fetchAllReceipts())}
+            onClick={() => dispatch(allReceiptWarehouses())}
           >
             <Iconify icon="mdi:reload" />
           </IconButton>
         </Stack>
         <Button
           variant="contained"
-          onClick={() => route.push('/pos')}
+          onClick={() => route.push('create')}
           color="inherit"
-          startIcon={<Iconify icon="hugeicons:sale-tag-01" />}
+          startIcon={<Iconify icon="lsicon:warehouse-into-filled" />}
         >
-          Bán hàng
+          Nhập kho
         </Button>
       </Stack>
 
@@ -299,7 +349,8 @@ export default function ReceiptWarehousePage() {
                 onRequestSort={handleSort}
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
-                  { id: 'name', label: 'Tên khách hàng' },
+                  { id: 'warehouse', label: 'Kho' },
+                  { id: 'supplier', label: 'Nhà cung cấp' },
                   { id: 'receiptCode', label: 'Mã hóa đơn' },
                   { id: 'quantity', label: 'Số sản phẩm' },
                   { id: 'paymentMethod', label: 'Kiểu thanh toán' },
@@ -315,10 +366,11 @@ export default function ReceiptWarehousePage() {
                   .map((row) => (
                     <ReceiptTableRow
                       key={row._id}
-                      name={row.name}
-                      total={row.total}
+                      warehouse={renderName(row.warehouseId, warehouses)}
+                      supplier={renderName(row.supplierId, suppliers, 'companyName')}
+                      total={row.totalPrice}
                       createdAt={row.createdAt}
-                      receiptCode={row.receiptCode}
+                      receiptCode={row.code}
                       updatedAt={row.updatedAt}
                       quantity={row.productsList.length}
                       paymentMethod={row.paymentMethod}
@@ -326,7 +378,7 @@ export default function ReceiptWarehousePage() {
                       handleClickRow={(event) => handleSelectedReceipt(row._id)}
                       handleClick={(event) => handleClick(event, row._id)}
                       handleNavigate={() => handleNavigate(row._id)}
-                      onDelete={() => handleDelete(row._id)}
+                      onDelete={() => setConfirm(row._id)}
                     />
                   ))}
 

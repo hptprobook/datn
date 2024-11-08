@@ -167,6 +167,14 @@ const updateCurrentUser = async (req, res) => {
         .status(StatusCodes.BAD_REQUEST)
         .json({ message: 'Lỗi bảo mật' });
     }
+
+    if (data.carts && Array.isArray(data.carts)) {
+      data.carts = data.carts.map((item) => ({
+        ...item,
+        _id: new ObjectId(item._id),
+      }));
+    }
+
     const dataUser = await userModel.update(user_id, data);
     if (dataUser.error) {
       return res

@@ -6,7 +6,7 @@ const useSwal = Swal.mixin({
   customClass: {
     confirmButton: 'px-10',
     cancelButton: 'px-10',
-    zIndex: '99999',
+    zIndex: '99999999',
   },
 });
 
@@ -18,7 +18,7 @@ const useSwalWithConfirm = Swal.mixin({
   customClass: {
     confirmButton: 'px-10',
     cancelButton: 'px-10',
-    zIndex: '99999',
+    zIndex: '999999999',
   },
   reverseButtons: true,
 });

@@ -52,7 +52,7 @@ const CheckoutInfo = ({
       <div className="space-y-3">
         <button
           type="button"
-          className="w-full text-center bg-red-600 rounded-md py-3 px-6 font-semibold text-lg text-white transition-all duration-500 hover:bg-amber-700"
+          className="w-full text-center bg-red-600 rounded-md py-3 px-6 font-semibold text-lg text-white hover:bg-red-700"
           onClick={handleConfirmCheckout}
           disabled={isLoading}
         >

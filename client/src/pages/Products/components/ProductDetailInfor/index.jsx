@@ -45,10 +45,14 @@ const ProductDetailInfor = ({
           ?.sizes
       : [];
 
+  const isFreeSize = sizes.length === 1 && sizes[0].size === 'FREESIZE';
+  if (isFreeSize && selectedSize !== 'FREESIZE') {
+    setSelectedSize('FREESIZE');
+  }
+
   const handleColorChange = (color) => {
     setSelectedColor(color);
-    setSelectedSize(null);
-
+    setSelectedSize(isFreeSize ? 'FREESIZE' : null);
     const selectedVariant = product.variants.find(
       (variant) => variant.color === color
     );
@@ -72,17 +76,20 @@ const ProductDetailInfor = ({
       (s) => s.size === size
     );
 
-    if (selectedSizeObj && selectedSizeObj.price) {
-      setSelectedPrice(selectedSizeObj.price);
-      setTotalPrice(quantity * selectedSizeObj.price);
-    } else {
-      setSelectedPrice(selectedVariant.price);
-      setTotalPrice(quantity * selectedVariant.price);
+    if (selectedSizeObj) {
+      setSelectedPrice(selectedSizeObj.price || selectedVariant.price);
+      setTotalPrice(
+        quantity * (selectedSizeObj.price || selectedVariant.price)
+      );
+
+      selectedVariant.sku = selectedSizeObj.sku
+        ? selectedSizeObj.sku + (size === 'FREESIZE' ? 'FREESIZE' : '')
+        : selectedVariant.sku;
     }
   };
 
   const handleAddProductToCart = (onSuccessCallback) => {
-    if (!selectedColor || (sizes?.length > 0 && !selectedSize)) {
+    if (!selectedColor || (sizes?.length > 0 && !isFreeSize && !selectedSize)) {
       setError('Vui lòng chọn đầy đủ màu sắc và kích thước.');
     } else {
       setError('');
@@ -93,9 +100,12 @@ const ProductDetailInfor = ({
         weight: product.weight,
         price: selectedPrice,
         slug: product.slug,
+        sku: isFreeSize
+          ? selectedVariant.sku + 'FREESIZE'
+          : selectedVariant.sku,
         image: selectedVariant.image,
         variantColor: selectedColor,
-        variantSize: selectedSize,
+        variantSize: isFreeSize ? 'FREESIZE' : selectedSize,
         quantity,
       };
 
@@ -105,6 +115,7 @@ const ProductDetailInfor = ({
             if (onSuccessCallback) onSuccessCallback();
             refetchUser();
             setOpenCartFixed(true);
+            resetSelections(); // Đặt lại màu sắc và kích thước sau khi thêm vào giỏ hàng
           },
         });
       } else {
@@ -112,7 +123,7 @@ const ProductDetailInfor = ({
           (item) =>
             item.slug === product.slug &&
             item.variantColor === selectedColor &&
-            item.variantSize === selectedSize
+            item.variantSize === (isFreeSize ? 'FREESIZE' : selectedSize)
         );
 
         if (existingItem) {
@@ -127,19 +138,31 @@ const ProductDetailInfor = ({
               weight: product.weight,
               price: selectedPrice,
               slug: product.slug,
+              sku: isFreeSize
+                ? selectedVariant.sku + 'FREESIZE'
+                : selectedVariant.sku,
               image: selectedVariant.image,
               variantColor: selectedColor,
-              variantSize: selectedSize,
+              variantSize: isFreeSize ? 'FREESIZE' : selectedSize,
             },
             quantity
           );
         }
 
         setOpenCartFixed(true);
+        resetSelections(); // Đặt lại màu sắc và kích thước sau khi thêm vào giỏ hàng
 
         if (onSuccessCallback) onSuccessCallback();
       }
     }
+  };
+
+  const resetSelections = () => {
+    setSelectedColor(null);
+    setSelectedSize(null);
+    setQuantity(1);
+    setSelectedPrice(product.price);
+    setTotalPrice(product.price);
   };
 
   const mutation = useMutation({
@@ -208,7 +231,7 @@ const ProductDetailInfor = ({
           selectedColor={selectedColor}
         />
 
-        {sizes && sizes.length > 0 && (
+        {!isFreeSize && sizes && sizes.length > 0 && (
           <>
             <p className="font-medium text-lg text-gray-900 mb-2">Kích thước</p>
             <SelectSize
@@ -228,14 +251,20 @@ const ProductDetailInfor = ({
             setQuantity={setQuantity}
           />
           <AddToCartBtn
-            disabled={!selectedColor || (sizes?.length > 0 && !selectedSize)}
+            disabled={
+              !selectedColor ||
+              (sizes?.length > 0 && !isFreeSize && !selectedSize)
+            }
             onClick={handleAddToCart}
           />
         </div>
         <button
           className="text-center w-full px-5 py-4 rounded-md bg-red-600 flex items-center justify-center font-semibold text-lg text-white shadow-sm shadow-transparent transition-all duration-500 hover:bg-red-700 hover:shadow-red-300"
           onClick={handleBuyNow}
-          disabled={!selectedColor || (sizes?.length > 0 && !selectedSize)}
+          disabled={
+            !selectedColor ||
+            (sizes?.length > 0 && !isFreeSize && !selectedSize)
+          }
         >
           Mua ngay
         </button>

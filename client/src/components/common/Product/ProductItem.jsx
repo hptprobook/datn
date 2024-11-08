@@ -5,9 +5,10 @@ import { Link, NavLink } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getProductById } from '~/APIs/product';
 import QuickViewModal from './QuickViewModal';
-import { FaEye, FaHeart, FaShoppingCart } from 'react-icons/fa';
-import { useWishlist } from '~/context/WishListContext';
+import { FaEye, FaShoppingCart } from 'react-icons/fa';
 import { formatCurrencyVND } from '~/utils/formatters';
+import useCheckAuth from '~/customHooks/useCheckAuth';
+import AddToWhistListBtn from '~/components/common/Button/AddToWhistList';
 
 const ProductItem = ({
   product,
@@ -17,8 +18,7 @@ const ProductItem = ({
   handleLinkClickInWishList = () => {},
 }) => {
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
-  const [isHeartAnimating, setIsHeartAnimating] = useState(false);
-  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const { isAuthenticated } = useCheckAuth();
 
   const { data: fullProductData, isLoading: isProductLoading } = useQuery({
     queryKey: ['getProductById', product?._id],
@@ -40,21 +40,11 @@ const ProductItem = ({
   if (!product) return null;
 
   const thumbnailUrl =
-    product.thumbnail.startsWith('https://') ||
-    product.thumbnail.startsWith('http://') ||
-    product.thumbnail.startsWith('//')
-      ? product.thumbnail
-      : `${import.meta.env.VITE_SERVER_URL}/${product.thumbnail}`;
-
-  const handleWishlistToggle = () => {
-    if (isInWishlist(product._id)) {
-      removeFromWishlist(product._id);
-    } else {
-      addToWishlist(product);
-    }
-    setIsHeartAnimating(true);
-    setTimeout(() => setIsHeartAnimating(false), 300);
-  };
+    product?.thumbnail?.startsWith('https://') ||
+    product?.thumbnail?.startsWith('http://') ||
+    product?.thumbnail?.startsWith('//')
+      ? product?.thumbnail
+      : `${import.meta.env.VITE_SERVER_URL}/${product?.thumbnail}`;
 
   return (
     <div
@@ -87,25 +77,9 @@ const ProductItem = ({
             >
               <FaEye className="w-4 h-4" />
             </button>
-            <button
-              className={`${
-                isInWishlist(product._id) ? 'bg-red-600' : 'bg-red-500'
-              } text-white p-2 rounded-full hover:bg-red-600 transition-colors ${
-                isHeartAnimating ? 'scale-125' : ''
-              }`}
-              onClick={handleWishlistToggle}
-              title={
-                isInWishlist(product._id)
-                  ? 'Remove from Wishlist'
-                  : 'Add to Wishlist'
-              }
-            >
-              <FaHeart
-                className={`w-4 h-4 transition-transform duration-300 ${
-                  isHeartAnimating ? 'scale-125' : ''
-                }`}
-              />
-            </button>
+            {isAuthenticated && (
+              <AddToWhistListBtn isInProductItem={true} product={product} />
+            )}
             <button
               className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition-colors"
               onClick={() => setIsQuickViewOpen(true)}

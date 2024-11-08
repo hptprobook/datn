@@ -14,7 +14,7 @@ import { formatCurrency } from 'src/utils/format-number';
 
 export default function ReceiptTableRow({
   selected,
-  name,
+  warehouse,
   receiptCode,
   createdAt,
   updatedAt,
@@ -22,7 +22,7 @@ export default function ReceiptTableRow({
   quantity,
   total,
   handleClick,
-  handleNavigate,
+  supplier,
   handleClickRow,
   onDelete,
 }) {
@@ -53,9 +53,14 @@ export default function ReceiptTableRow({
         />
       </TableCell>
 
-      <TableCell component="th" scope="row" padding="none">
+      <TableCell>
         <Typography variant="subtitle2" noWrap>
-          {name}
+          {warehouse}
+        </Typography>
+      </TableCell>
+      <TableCell>
+        <Typography variant="subtitle2" noWrap>
+          {supplier}
         </Typography>
       </TableCell>
       <TableCell>{receiptCode}</TableCell>
@@ -74,7 +79,7 @@ export default function ReceiptTableRow({
 }
 
 ReceiptTableRow.propTypes = {
-  name: PropTypes.string,
+  warehouse: PropTypes.string,
   receiptCode: PropTypes.string,
   createdAt: PropTypes.any,
   updatedAt: PropTypes.any,
@@ -83,7 +88,7 @@ ReceiptTableRow.propTypes = {
   selected: PropTypes.bool,
   handleClick: PropTypes.func,
   quantity: PropTypes.any,
-  handleNavigate: PropTypes.func,
+  supplier: PropTypes.any,
   handleClickRow: PropTypes.func,
   onDelete: PropTypes.func,
 };
