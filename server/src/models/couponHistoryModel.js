@@ -18,16 +18,16 @@ const getCouponHistory = async () => {
      .toArray();
    return result;
    }
-const addCouponHistory = async (usageData) => {
-  const validData = await validateBeforeCreate(usageData);
-  const db = await GET_DB();
-  const collection = db.collection('couponUsageHistory');
-  const data = {
-    ...validData
+   const addCouponHistory = async (usageData) => {
+    const validData = await validateBeforeCreate(usageData);
+    const db = await GET_DB();
+    const collection = db.collection('couponUsageHistory');
+    const data = {
+      ...validData
+    };
+    const result = await collection.insertOne(data);
+    return result;
   };
-  const result = await collection.insertOne(data);
-  return result;
-};
 
 // Hàm để lấy lịch sử sử dụng coupon của một người dùng
 const getCouponHistoryByParams = async ({ userId, orderId, couponId }) => {
