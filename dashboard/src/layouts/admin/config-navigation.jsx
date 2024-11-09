@@ -1,6 +1,6 @@
 const navConfig = [
   {
-    title: 'dashboard',
+    title: 'Dashboard',
     path: '/admin/',
     icon: 'ion:home',
     child: undefined,

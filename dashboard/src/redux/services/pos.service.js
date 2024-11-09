@@ -21,6 +21,14 @@ const PosService = {
             throw err;
         }
     },
+    searchProducts: async (keyword) => {
+        try {
+            return await get(`/products/search/dashboard?keyword=${keyword}`);
+        } catch (err) {
+            console.error("Error: ", err);
+            throw err;
+        }
+    },
     searchUser: async (search) => {
         try {
             return await get(`/users?search=${search}&page=1&limit=10`);

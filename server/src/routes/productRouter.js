@@ -92,5 +92,6 @@ Router.delete(
   isAdmin,
   productController.deleteRating
 );
+Router.get('/search/dashboard', productController.searchInDashboard);
 
 export const productsApi = Router;
