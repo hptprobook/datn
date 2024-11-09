@@ -4,7 +4,6 @@ import CatSuggest from '~/components/Home/Container/CatSuggest/CatSuggest';
 import HeaderSlider from '~/components/Home/Slider/HeaderSlider';
 import FilterCategories from './FilterCategories';
 import { useWebConfig } from '~/context/WebsiteConfig';
-import { convertHTMLToText } from '~/utils/formatters';
 
 const HomePage = () => {
   const eventCategories = ['ao-polo', 'ao-somi', 'quan-short'];
@@ -41,9 +40,10 @@ const HomePage = () => {
             "Cảm ơn quý khách hàng đã tin tưởng và ủng hộ cho{' '}
             {config?.nameCompany}"
           </p>
-          <p className="mt-2 font-light">
-            {convertHTMLToText(config?.footerThanks)}
-          </p>
+          <div
+            className="text-gray-700 mt-2 font-light"
+            dangerouslySetInnerHTML={{ __html: config?.footerThanks }}
+          />
         </div>
       </div>
     </>

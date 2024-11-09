@@ -312,7 +312,9 @@ const DeliveryDetail = ({ selectedProducts, setShippingFee }) => {
                     </h6>
                   </NavLink>
                   <h6 className="font-normal text-base leading-7 text-gray-500">
-                    {product.variantColor} - {product.variantSize}
+                    {product?.variantColor}
+                    {product?.variantSize !== 'FREESIZE' &&
+                      ` - ${product.variantSize}`}
                   </h6>
                   <h6 className="font-medium text-base leading-7 text-gray-600 transition-all duration-300">
                     {formatCurrencyVND(product.price)}
