@@ -171,20 +171,6 @@ const ProfileSidebar = () => {
                   </li>
                 </NavLink>
                 <NavLink
-                  to={'/nguoi-dung/danh-gia-cua-toi'}
-                  className={({ isActive }) =>
-                    isActive
-                      ? 'menu-item menu-active bg-red-500 text-white'
-                      : 'menu-item bg-white text-black hover:bg-red-500 hover:text-white'
-                  }
-                  onClick={handleMenuItemClick}
-                >
-                  <li className="flex gap-2 items-center">
-                    <CiStar className="text-xl" />
-                    <span className="font-semibold">Đánh giá của tôi</span>
-                  </li>
-                </NavLink>
-                <NavLink
                   to={'/nguoi-dung/san-pham-da-xem'}
                   className={({ isActive }) =>
                     isActive

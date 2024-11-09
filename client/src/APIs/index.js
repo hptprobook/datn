@@ -12,3 +12,4 @@ export * from './Orders/loggedOrder';
 export * from './Orders/notLoginOrder';
 export * from './websiteConfig';
 export * from './blog';
+export * from './coupon';

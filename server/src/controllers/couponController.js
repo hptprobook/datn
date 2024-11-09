@@ -15,6 +15,61 @@ const getCoupons = async (req, res) => {
       .json('Có lỗi xảy ra xin thử lại sau');
   }
 };
+
+const getCouponsForOrder = async (req, res) => {
+  try {
+    let coupons = await couponModel.getCoupons();
+
+    coupons = await Promise.all(
+      coupons.map(async (coupon) => {
+        const usageCount = await couponHistoryModel.countCouponHistory({
+          couponId: coupon._id,
+        });
+
+        if (usageCount >= coupon.usageLimit) {
+          return null;
+        }
+
+        if (coupon.limitOnUser) {
+          const userUsageCount = await couponHistoryModel.countCouponHistory({
+            couponId: coupon._id,
+            userId: req.user,
+          });
+
+          if (userUsageCount >= 1) {
+            return null;
+          }
+        }
+
+        return coupon;
+      })
+    );
+
+    coupons = coupons.filter((coupon) => coupon !== null);
+
+    const categorizedCoupons = {
+      shipping: [],
+      order: [],
+    };
+
+    coupons.forEach((coupon) => {
+      if (coupon.type === 'percent') {
+        categorizedCoupons.order.push(coupon);
+      } else if (coupon.type === 'shipping') {
+        categorizedCoupons.shipping.push(coupon);
+      } else if (coupon.type === 'price') {
+        categorizedCoupons.order.push(coupon);
+      }
+    });
+
+    return res.status(StatusCodes.OK).json(categorizedCoupons);
+  } catch (error) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ message: 'Có lỗi xảy ra, xin thử lại sau' });
+  }
+};
+
 const getCouponsById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -25,7 +80,7 @@ const getCouponsById = async (req, res) => {
       .status(StatusCodes.BAD_REQUEST)
       .json('Có lỗi xảy ra xin thử lại sau');
   }
-}
+};
 const findOneCoupons = async (req, res) => {
   try {
     const { code } = req.body;
@@ -121,7 +176,7 @@ const deleteManyCoupon = async (req, res) => {
   }
 };
 
- const getCouponsByType = async (req, res) => {
+const getCouponsByType = async (req, res) => {
   try {
     const { type } = req.query; // Extract type from query parameters
     if (!type) {
@@ -132,8 +187,8 @@ const deleteManyCoupon = async (req, res) => {
     return res.status(StatusCodes.OK).json(coupons);
   } catch (error) {
     return res
-    .status(StatusCodes.BAD_REQUEST)
-    .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
   }
 };
 
@@ -225,11 +280,12 @@ const checkCouponApplicability = async (req, res) => {
 export const couponController = {
   createCoupon,
   getCoupons,
+  getCouponsForOrder,
   updateCoupon,
   findOneCoupons,
   deleteCoupon,
   deleteManyCoupon,
   getCouponsById,
   getCouponsByType,
-  checkCouponApplicability
+  checkCouponApplicability,
 };
