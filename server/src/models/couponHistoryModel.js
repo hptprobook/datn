@@ -11,25 +11,6 @@ const validateBeforeCreate = async (data) => {
 
 const getCouponHistory = async () => {
   // page = parseInt(page) || 1;
-   // limit = parseInt(limit) || 12;
-   const db = await GET_DB().collection('couponUsageHistory');
-   const result = await db
-     .find()
-     // .skip((page - 1) * limit)
-     // .limit(limit)
-     .toArray();
-   return result;
- }
-
- const addCouponHistory = async (usageData) => {
-    const validData = await validateBeforeCreate(usageData);
-    const db = await GET_DB();
-    const collection = db.collection('couponUsageHistory');
-    const data = {
-      ...validData
-    };
-    const result = await collection.insertOne(data);
-    return result;
   // limit = parseInt(limit) || 12;
   const db = await GET_DB().collection('couponUsageHistory');
   const result = await db
@@ -37,6 +18,17 @@ const getCouponHistory = async () => {
     // .skip((page - 1) * limit)
     // .limit(limit)
     .toArray();
+  return result;
+};
+
+const addCouponHistory = async (usageData) => {
+  const validData = await validateBeforeCreate(usageData);
+  const db = await GET_DB();
+  const collection = db.collection('couponUsageHistory');
+  const data = {
+    ...validData,
+  };
+  const result = await collection.insertOne(data);
   return result;
 };
 

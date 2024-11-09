@@ -1,6 +1,6 @@
 import { Icon } from '@iconify/react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   getCurrentOrders,
@@ -19,13 +19,6 @@ const MyOrder = () => {
   const tabsRef = useRef(null);
   const [limitOrder, setLimitOrder] = useState(10);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const savedTab = localStorage.getItem('selectedTab');
-    if (savedTab) {
-      setSelectedTab(savedTab);
-    }
-  }, [selectedTab]);
 
   const fetchOrders = ({ queryKey }) => {
     const [, limit, status] = queryKey;
@@ -252,7 +245,7 @@ const MyOrder = () => {
                 <span className="text-lg">
                   Tổng cộng:{' '}
                   <span className="font-bold text-red-600 text-xl ml-4">
-                    {formatCurrencyVND(order?.totalPrice)}
+                    {formatCurrencyVND(order?.totalPayment)}
                   </span>
                 </span>
               </div>

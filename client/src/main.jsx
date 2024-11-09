@@ -22,7 +22,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 // Helpers
-import { handleApiError } from './config/helpers.js';
+// import { handleApiError } from './config/helpers.js';
 
 // useCart
 import { CartProvider } from 'react-use-cart';
@@ -40,11 +40,6 @@ const queryClient = new QueryClient({
       retry: false,
       staleTime: 1000 * 60 * 5,
       cacheTime: 1000 * 60 * 10,
-    },
-    mutations: {
-      onError: (error) => {
-        handleApiError(error);
-      },
     },
   },
 });

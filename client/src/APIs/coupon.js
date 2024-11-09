@@ -10,3 +10,16 @@ export const getCouponsForOrder = async () => {
     throw error.response.data.message;
   }
 };
+
+export const checkAbleCoupon = async (couponCode, amount) => {
+  try {
+    const response = await request.post('/coupons/check-applicability', {
+      code: couponCode,
+      purchaseAmount: amount,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Xảy ra lỗi khi lấy má giảm giá:', error);
+    throw error.response.data;
+  }
+};

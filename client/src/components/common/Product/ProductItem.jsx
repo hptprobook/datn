@@ -23,7 +23,7 @@ const ProductItem = ({
   const { data: fullProductData, isLoading: isProductLoading } = useQuery({
     queryKey: ['getProductById', product?._id],
     queryFn: () => getProductById(product?._id),
-    // enabled: isQuickViewOpen,
+    enabled: isQuickViewOpen,
   });
 
   if (isLoading) {

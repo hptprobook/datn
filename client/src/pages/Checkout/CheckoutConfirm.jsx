@@ -198,13 +198,7 @@ const CheckoutConfirm = () => {
                 Tạm tính
               </p>
               <p className="font-semibold text-lg leading-8 text-gray-900">
-                {formatCurrencyVND(
-                  orderData?.productsList?.reduce(
-                    (total, product) =>
-                      total + product?.price * product?.quantity,
-                    0
-                  )
-                )}
+                {formatCurrencyVND(orderData?.totalPrice)}
               </p>
             </div>
             <div className="flex items-center justify-between mb-6">
@@ -215,20 +209,20 @@ const CheckoutConfirm = () => {
                 + {formatCurrencyVND(orderData?.fee)}
               </p>
             </div>
-            {/* <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-6">
               <p className="font-normal text-lg leading-8 text-gray-500">
                 Giảm giá
               </p>
-              <p className="font-semibold text-lg leading-8 text-red-600">
-                - {formatCurrencyVND(orderData?.discount)}
+              <p className="font-semibold text-lg leading-8 text-green-600">
+                - {formatCurrencyVND(orderData?.discountPrice)}
               </p>
-            </div> */}
+            </div>
             <div className="flex items-center justify-between py-6 border-y border-gray-100">
               <p className="font-manrope font-semibold text-2xl leading-9 text-gray-900">
-                Tổng tiền
+                Tổng tiền phải trả
               </p>
               <p className="font-manrope font-bold text-2xl leading-9 text-red-600">
-                {formatCurrencyVND(orderData?.totalPrice)}
+                {formatCurrencyVND(orderData?.totalPayment)}
               </p>
             </div>
           </div>
