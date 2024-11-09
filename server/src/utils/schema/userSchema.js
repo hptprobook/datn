@@ -182,6 +182,7 @@ export const UPDATE_USER = Joi.object({
     totalComment: Joi.number(),
     averageRating: Joi.number(),
   }),
+  notifies: Joi.array(),
   views: Joi.array().items({
     _id: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
     thumbnail: Joi.string().trim().min(1),
