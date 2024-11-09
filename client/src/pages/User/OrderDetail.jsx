@@ -18,6 +18,8 @@ const OrderDetail = () => {
   const { data, refetch, error, isLoading } = useQuery({
     queryKey: ['getOrderDetail', orderCode],
     queryFn: () => getOrderByCodeAPI(orderCode),
+    staleTime: 0,
+    cacheTime: 0,
   });
 
   const { mutate: cancelOrder, isLoading: cancelOrderLoading } = useMutation({
@@ -42,10 +44,6 @@ const OrderDetail = () => {
   });
 
   const currentStatus = data?.status[data?.status.length - 1]?.status;
-  const totalPrice = data?.productsList?.reduce(
-    (acc, product) => acc + product.price * product.quantity,
-    0
-  );
 
   if (error) {
     useSwal
@@ -335,22 +333,24 @@ const OrderDetail = () => {
             <div className="mt-4">
               <div className="flex justify-between">
                 <p>Tổng tiền hàng</p>
-                <p className="text-gray-800">{formatCurrencyVND(totalPrice)}</p>
+                <p className="text-gray-800">
+                  {formatCurrencyVND(data?.totalPrice)}
+                </p>
               </div>
               <div className="flex justify-between mt-2">
                 <p>Tổng tiền phí vận chuyển</p>
                 <p className="text-red-500">+ {formatCurrencyVND(data?.fee)}</p>
               </div>
-              {/* <div className="flex justify-between mt-2">
+              <div className="flex justify-between mt-2">
                 <p>Voucher giảm giá</p>
                 <p className="text-green-500">
-                  - {formatCurrencyVND(voucherDiscount)}
+                  - {formatCurrencyVND(data?.discountPrice)}
                 </p>
-              </div> */}
+              </div>
               <div className="flex justify-between mt-4 pt-2">
                 <p className="font-semibold text-lg">Tổng thanh toán</p>
                 <p className="font-bold text-red-500 text-xl">
-                  {formatCurrencyVND(totalPrice + data?.fee)}
+                  {formatCurrencyVND(data?.totalPayment)}
                 </p>
               </div>
             </div>

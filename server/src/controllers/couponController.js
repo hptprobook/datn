@@ -193,14 +193,17 @@ const getCouponsByType = async (req, res) => {
 };
 
 const checkCouponApplicability = async (req, res) => {
-  const { userId, couponId, purchaseAmount } = req.body;
+  const { code, purchaseAmount } = req.body;
+  const userId = req.user.user_id;
+
+  console.log(code);
 
   try {
-    const { user, coupon } = await couponModel.getCouponAndUser(userId, couponId);
+    const { user, coupon } = await couponModel.getCouponAndUser(userId, code);
 
     if (!user || !coupon) {
       return res.status(StatusCodes.BAD_REQUEST).json({
-        message: 'Không tìm thấy người dùng hoặc phiếu giảm giá',
+        message: 'Không tìm thấy phiếu giảm giá, vui lòng thử lại',
       });
     }
 
@@ -209,13 +212,15 @@ const checkCouponApplicability = async (req, res) => {
     const isApplicableToAllProducts = applicableProducts.includes('all');
 
     // Check if the user is eligible for the coupon
-    const isUserEligible = eligibleUsers.length === 0 || eligibleUsers.includes(userId);
+    const isUserEligible =
+      eligibleUsers.length === 0 || eligibleUsers.includes(userId);
 
     console.log('isApplicableToAllProducts:', isApplicableToAllProducts);
 
     // Check coupon status
     if (coupon.status !== 'active') {
       return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
         message: 'Phiếu giảm giá không hoạt động',
         coupon,
       });
@@ -223,8 +228,12 @@ const checkCouponApplicability = async (req, res) => {
 
     // Check coupon validity period
     const currentDate = new Date();
-    if (currentDate < new Date(coupon.dateStart) || currentDate > new Date(coupon.dateEnd)) {
+    if (
+      currentDate < new Date(coupon.dateStart) ||
+      currentDate > new Date(coupon.dateEnd)
+    ) {
       return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
         message: 'Phiếu giảm giá đã hết hạn hoặc chưa có hiệu lực',
         coupon,
       });
@@ -233,6 +242,7 @@ const checkCouponApplicability = async (req, res) => {
     // Check usage limit
     if (coupon.usageLimit && coupon.usageCount >= coupon.usageLimit) {
       return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
         message: 'Phiếu giảm giá đã sử dụng hết số lần cho phép',
         coupon,
       });
@@ -241,38 +251,45 @@ const checkCouponApplicability = async (req, res) => {
     // Check if the user is eligible for the coupon
     if (coupon.limitOnUser && !isUserEligible) {
       return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
         message: 'Người dùng không đủ điều kiện để sử dụng phiếu giảm giá này',
         coupon,
       });
     }
 
     // Check purchase amount
-    if (purchaseAmount < coupon.minPurchasePrice || purchaseAmount > coupon.maxPurchasePrice) {
+    if (
+      purchaseAmount < coupon.minPurchasePrice ||
+      purchaseAmount > coupon.maxPurchasePrice
+    ) {
       return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
         message: `Số tiền mua hàng phải nằm trong khoảng từ ${coupon.minPurchasePrice} đến ${coupon.maxPurchasePrice}`,
         coupon,
       });
     }
 
-    // Record the coupon usage
-    if (coupon.usageLimit) {
-      await couponModel.updateCouponUsage(couponId, userId);
-    }
-    if (userId && couponId) {
-      await couponHistoryModel.addCouponHistory({
-        userId:  (userId),
-        couponId: (couponId),
-        discountAmount: coupon.discountValue,
-      });
-    }
+    // // Record the coupon usage
+    // if (coupon.usageLimit) {
+    //   await couponModel.updateCouponUsage(code, userId);
+    // }
+    // if (userId && code) {
+    //   await couponHistoryModel.addCouponHistory({
+    //     userId: userId,
+    //     code: code,
+    //     discountAmount: coupon.discountValue,
+    //   });
+    // }
 
     return res.status(StatusCodes.OK).json({
-      message: 'Phiếu giảm giá được áp dụng',
+      success: true,
+      message: 'Phiếu giảm giá có thể sử dụng',
       coupon,
     });
   } catch (error) {
     console.error(error);
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
       message: 'Có lỗi xảy ra khi kiểm tra tính khả dụng của phiếu giảm giá',
     });
   }

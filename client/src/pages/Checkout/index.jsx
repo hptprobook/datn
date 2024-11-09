@@ -110,6 +110,11 @@ const CheckoutUI = () => {
             (total, product) => total + product.itemTotal,
             0
           ) + shippingFee,
+        totalPayment:
+          productsList.reduce(
+            (total, product) => total + product.itemTotal,
+            0
+          ) + shippingFee,
         shippingType: 'cod',
         fee: shippingFee,
       };

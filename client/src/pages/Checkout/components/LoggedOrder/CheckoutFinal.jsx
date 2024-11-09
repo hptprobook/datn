@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { FaTimes } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import {
+  checkAbleCoupon,
   createOrderAPI,
   getCouponsForOrder,
   getShippingFee,
@@ -35,6 +36,8 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
 
   const [openVoucherModal, setOpenVoucherModal] = useState(false);
   const [isVoucherClosing, setIsVoucherClosing] = useState(false);
+
+  const [couponCode, setCouponCode] = useState('');
 
   const navigate = useNavigate();
 
@@ -196,6 +199,12 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
       itemTotal: product.price * product.quantity,
     }));
 
+    const selectedCouponIds = [
+      selectedDiscount.orderPercent?._id,
+      selectedDiscount.orderPrice?._id,
+      selectedDiscount.shipping?._id,
+    ].filter(Boolean);
+
     const data = {
       orderCode: uuidv4().slice(0, 6).toUpperCase(),
       productsList,
@@ -213,8 +222,11 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
       },
       email: userAddress.email,
       totalPrice: totalPrice,
+      totalPayment: totalPrice + shippingFee - voucherDiscount,
       shippingType: 'cod',
       fee: shippingFee,
+      couponId: selectedCouponIds,
+      discountPrice: voucherDiscount,
     };
 
     if (userAddress) {
@@ -237,6 +249,50 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
         icon: 'error',
         confirmButtonText: 'Xác nhận',
       });
+    }
+  };
+
+  // mutate nhập coupon qua form
+  const { mutate: applyCoupon, error: applyCouponError } = useMutation({
+    mutationFn: checkAbleCoupon,
+    onSuccess: (data) => {
+      const coupon = data?.coupon;
+      if (!coupon) return;
+
+      setSelectedDiscount((prev) => {
+        if (coupon.type === 'percent') {
+          return {
+            ...prev,
+            orderPercent: coupon,
+            orderPrice: null,
+          };
+        } else if (coupon.type === 'price') {
+          return {
+            ...prev,
+            orderPrice: coupon,
+            orderPercent: null,
+          };
+        } else if (coupon.type === 'shipping') {
+          return {
+            ...prev,
+            shipping: coupon,
+          };
+        }
+        return prev;
+      });
+      useSwal.fire({
+        title: 'Thành công!',
+        icon: 'success',
+        text: 'Mã giảm giá được áp dụng thành công',
+        confirmButtonText: 'Xác nhận',
+      });
+    },
+  });
+
+  const handleApplyCoupon = (e) => {
+    e.preventDefault();
+    if (couponCode) {
+      applyCoupon(couponCode, totalPrice);
     }
   };
 
@@ -321,19 +377,26 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
               </button>
 
               <h2 className="font-bold text-black mb-4">Nhập mã giảm giá</h2>
-              <form className="w-full" onSubmit={(e) => e.preventDefault()}>
+              <div className="w-full">
                 <input
                   type="text"
                   className="w-[80%] border border-gray-300 h-[40px] px-4 bg-white text-gray-600 rounded-s-md"
                   placeholder="Nhập mã giảm giá"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value)}
                 />
                 <button
-                  type="submit"
+                  onClick={handleApplyCoupon}
                   className="w-[20%] bg-red-500 text-white px-4 h-[40px] rounded-e-md"
                 >
                   Áp dụng
                 </button>
-              </form>
+              </div>
+              {applyCouponError && (
+                <span className="text-red-500 text-sm">
+                  {applyCouponError?.message}
+                </span>
+              )}
               <div>
                 {['shipping', 'order'].map((type) => (
                   <div key={type} className="mb-6">

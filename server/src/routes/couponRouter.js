@@ -10,7 +10,11 @@ Router.get('/', verifyStaff, couponController.getCoupons);
 Router.get('/code', couponController.findOneCoupons);
 Router.get('/filter', couponController.getCouponsByType);
 Router.get('/getForOrder', verifyToken, couponController.getCouponsForOrder);
-Router.post('/check-applicability', couponController.checkCouponApplicability);
+Router.post(
+  '/check-applicability',
+  verifyToken,
+  couponController.checkCouponApplicability
+);
 Router.post('/', verifyStaff, couponController.createCoupon);
 Router.put('/:id', verifyStaff, couponController.updateCoupon);
 Router.delete('/:id', verifyStaff, couponController.deleteCoupon);

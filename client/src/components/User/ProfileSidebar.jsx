@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { IoBagCheckOutline } from 'react-icons/io5';
-import { CiStar, CiUser } from 'react-icons/ci';
+import { CiUser } from 'react-icons/ci';
 import { MdDiscount } from 'react-icons/md';
 import { FaRegEye } from 'react-icons/fa';
 import { NavLink } from 'react-router-dom';
