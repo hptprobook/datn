@@ -101,17 +101,33 @@ const getCouponsByType = async (type) => {
   return result;
 };
 
-const checkCouponApplicability = async (userId, couponId) => {
+const getCouponAndUser = async (userId, couponId) => {
   const db = await GET_DB().collection('coupons');
   const userDb = await GET_DB().collection('users');
 
   const user = await userDb.findOne({ _id: new ObjectId(userId) });
   const coupon = await db.findOne({ _id: new ObjectId(couponId) });
 
-  if (!user || !coupon) {
-    throw new Error('Không tìm thấy người dùng hoặc phiếu giảm giá');
+  if (user) {
+    delete user.password;
+    delete user.refreshToken;
   }
 
+  return { user, coupon };
+};
+
+const updateCouponUsage = async (couponId, userId) => {
+  const db = await GET_DB().collection('coupons');
+
+  await db.findOneAndUpdate(
+    { _id: new ObjectId(couponId) },
+    { $inc: { usageCount: 1 } }
+  );
+
+  await db.findOneAndUpdate(
+    { _id: new ObjectId(couponId) },
+    { $addToSet: { eligibleUsers: userId } }
+  );
   // Ensure applicableProducts and eligibleUsers are defined
   const applicableProducts = coupon.applicableProducts || [];
   const eligibleUsers = coupon.eligibleUsers || [];
@@ -166,6 +182,7 @@ const checkCouponApplicability = async (userId, couponId) => {
   }
 };
 
+
 export const couponModel = {
   createCoupon,
   getCoupons,
@@ -175,5 +192,7 @@ export const couponModel = {
   deleteManyCoupons,
   getCouponsById,
   getCouponsByType,
+  updateCouponUsage,
+  getCouponAndUser,
   checkCouponApplicability,
 };
