@@ -18,7 +18,7 @@ const addCouponHistory = async (req, res) => {
     if (result.acknowledged) {
       return res
         .status(StatusCodes.OK)
-        .json({ messages: 'Thêm lịch sử mã giảm giá thành công thành công' });
+        .json({ messages: 'Thêm lịch sử mã giảm giá thành công' });
     }
     return res.status(StatusCodes.BAD_REQUEST).json(result);
   } catch (error) {

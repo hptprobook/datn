@@ -2,6 +2,7 @@
 /* eslint-disable semi */
 import { couponModel } from '~/models/couponModel';
 import { StatusCodes } from 'http-status-codes';
+import { couponHistoryModel } from '~/models/couponHistoryModel';
 
 // import { ERROR_MESSAGES } from '~/utils/errorMessage';
 const getCoupons = async (req, res) => {
@@ -14,6 +15,61 @@ const getCoupons = async (req, res) => {
       .json('Có lỗi xảy ra xin thử lại sau');
   }
 };
+
+const getCouponsForOrder = async (req, res) => {
+  try {
+    let coupons = await couponModel.getCoupons();
+
+    coupons = await Promise.all(
+      coupons.map(async (coupon) => {
+        const usageCount = await couponHistoryModel.countCouponHistory({
+          couponId: coupon._id,
+        });
+
+        if (usageCount >= coupon.usageLimit) {
+          return null;
+        }
+
+        if (coupon.limitOnUser) {
+          const userUsageCount = await couponHistoryModel.countCouponHistory({
+            couponId: coupon._id,
+            userId: req.user,
+          });
+
+          if (userUsageCount >= 1) {
+            return null;
+          }
+        }
+
+        return coupon;
+      })
+    );
+
+    coupons = coupons.filter((coupon) => coupon !== null);
+
+    const categorizedCoupons = {
+      shipping: [],
+      order: [],
+    };
+
+    coupons.forEach((coupon) => {
+      if (coupon.type === 'percent') {
+        categorizedCoupons.order.push(coupon);
+      } else if (coupon.type === 'shipping') {
+        categorizedCoupons.shipping.push(coupon);
+      } else if (coupon.type === 'price') {
+        categorizedCoupons.order.push(coupon);
+      }
+    });
+
+    return res.status(StatusCodes.OK).json(categorizedCoupons);
+  } catch (error) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ message: 'Có lỗi xảy ra, xin thử lại sau' });
+  }
+};
+
 const getCouponsById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -24,7 +80,7 @@ const getCouponsById = async (req, res) => {
       .status(StatusCodes.BAD_REQUEST)
       .json('Có lỗi xảy ra xin thử lại sau');
   }
-}
+};
 const findOneCoupons = async (req, res) => {
   try {
     const { code } = req.body;
@@ -120,7 +176,7 @@ const deleteManyCoupon = async (req, res) => {
   }
 };
 
- const getCouponsByType = async (req, res) => {
+const getCouponsByType = async (req, res) => {
   try {
     const { type } = req.query; // Extract type from query parameters
     if (!type) {
@@ -131,41 +187,105 @@ const deleteManyCoupon = async (req, res) => {
     return res.status(StatusCodes.OK).json(coupons);
   } catch (error) {
     return res
-    .status(StatusCodes.BAD_REQUEST)
-    .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
   }
 };
 
 const checkCouponApplicability = async (req, res) => {
-  const { userId, couponId } = req.body;
+  const { userId, couponId, purchaseAmount } = req.body;
 
   try {
-    const result = await couponModel.checkCouponApplicability(userId, couponId);
-    if (result.applicable) {
-      return res.status(StatusCodes.OK).json({
-        message: 'Phiếu giảm giá được áp dụng',
-      });
-    } else {
+    const { user, coupon } = await couponModel.getCouponAndUser(userId, couponId);
+
+    if (!user || !coupon) {
       return res.status(StatusCodes.BAD_REQUEST).json({
-        message: result.message || 'Phiếu giảm giá không được áp dụng',
+        message: 'Không tìm thấy người dùng hoặc phiếu giảm giá',
       });
     }
+
+    const applicableProducts = coupon.applicableProducts || [];
+    const eligibleUsers = coupon.eligibleUsers || [];
+    const isApplicableToAllProducts = applicableProducts.includes('all');
+
+    // Check if the user is eligible for the coupon
+    const isUserEligible = eligibleUsers.length === 0 || eligibleUsers.includes(userId);
+
+    console.log('isApplicableToAllProducts:', isApplicableToAllProducts);
+
+    // Check coupon status
+    if (coupon.status !== 'active') {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: 'Phiếu giảm giá không hoạt động',
+        coupon,
+      });
+    }
+
+    // Check coupon validity period
+    const currentDate = new Date();
+    if (currentDate < new Date(coupon.dateStart) || currentDate > new Date(coupon.dateEnd)) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: 'Phiếu giảm giá đã hết hạn hoặc chưa có hiệu lực',
+        coupon,
+      });
+    }
+
+    // Check usage limit
+    if (coupon.usageLimit && coupon.usageCount >= coupon.usageLimit) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: 'Phiếu giảm giá đã sử dụng hết số lần cho phép',
+        coupon,
+      });
+    }
+
+    // Check if the user is eligible for the coupon
+    if (coupon.limitOnUser && !isUserEligible) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: 'Người dùng không đủ điều kiện để sử dụng phiếu giảm giá này',
+        coupon,
+      });
+    }
+
+    // Check purchase amount
+    if (purchaseAmount < coupon.minPurchasePrice || purchaseAmount > coupon.maxPurchasePrice) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: `Số tiền mua hàng phải nằm trong khoảng từ ${coupon.minPurchasePrice} đến ${coupon.maxPurchasePrice}`,
+        coupon,
+      });
+    }
+
+    // Record the coupon usage
+    if (coupon.usageLimit) {
+      await couponModel.updateCouponUsage(couponId, userId);
+    }
+    if (userId && couponId) {
+      await couponHistoryModel.addCouponHistory({
+        userId:  (userId),
+        couponId: (couponId),
+        discountAmount: coupon.discountValue,
+      });
+    }
+
+    return res.status(StatusCodes.OK).json({
+      message: 'Phiếu giảm giá được áp dụng',
+      coupon,
+    });
   } catch (error) {
     console.error(error);
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: 'Có lỗi xảy ra, xin thử lại sau',
+      message: 'Có lỗi xảy ra khi kiểm tra tính khả dụng của phiếu giảm giá',
     });
   }
 };
-
 export const couponController = {
   createCoupon,
   getCoupons,
+  getCouponsForOrder,
   updateCoupon,
   findOneCoupons,
   deleteCoupon,
   deleteManyCoupon,
   getCouponsById,
   getCouponsByType,
-  checkCouponApplicability
+  checkCouponApplicability,
 };
