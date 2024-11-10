@@ -12,6 +12,7 @@ import { handleApiError } from '~/config/helpers';
 import useCheckAuth from '~/customHooks/useCheckAuth';
 import { handleToast } from '~/customHooks/useToast';
 import { loginSchema } from '~/utils/schema';
+import ObjectID from 'bson-objectid';
 
 const LoginPage = () => {
   return (
@@ -48,7 +49,11 @@ const LoginPageUI = () => {
         data.carts[existingItemIndex].itemTotal +=
           cartItem.price * cartItem.quantity;
       } else {
-        data.carts.push(cartItem);
+        const { id, ...rest } = cartItem;
+        data.carts.push({
+          _id: ObjectID(id).toString(),
+          ...rest,
+        });
       }
     });
 

@@ -7,6 +7,8 @@ import { orderModel } from '~/models/orderModel';
 import { sendMail } from '~/utils/mail';
 import { userModel } from '~/models/userModel';
 import { recieptModel } from '~/models/receiptModel';
+import { orderStatus } from '~/utils/format';
+import { ObjectId } from 'mongodb';
 const getAllOrder = async (req, res) => {
   try {
     const { page, limit } = req.query;
@@ -100,8 +102,32 @@ const addOrder = async (req, res) => {
   try {
     const { user_id } = req.user;
     const dataOrder = { userId: user_id, ...req.body };
+
+    console.log(dataOrder);
+
+    // Kiểm tra phương thức thanh toán
+    if (dataOrder.paymentMethod === 'VNPAY') {
+      dataOrder.status = [
+        {
+          status: 'paymentPending',
+          note: 'Chờ khách hàng thanh toán',
+        },
+      ];
+    }
+
     const result = await orderModel.addOrder(dataOrder);
     const orderData = await orderModel.getOrderById(result.insertedId);
+
+    if (dataOrder.paymentMethod !== 'VNPAY') {
+      const notifyData = {
+        userId: new ObjectId(dataOrder.userId),
+        title: 'Cảm ơn bạn đã đặt hàng tại BMT Life',
+        description: `Đơn hàng #${dataOrder.orderCode} của bạn đã được đặt thành công và đang trong trạng thái "Chờ shop xác nhận đơn".`,
+        type: 'order',
+      };
+      await userModel.sendNotifies(notifyData);
+    }
+
     return res.status(StatusCodes.OK).json({
       message: 'Bạn đã đặt hàng thành công',
       data: orderData,
@@ -121,32 +147,51 @@ const addOrderNot = async (req, res) => {
   try {
     const dataOrder = req.body;
     const { orderCode, email, shippingInfo, totalPrice } = dataOrder;
+
+    // Kiểm tra nếu mã đơn hàng đã tồn tại
     const currentOrder = await orderModel.findOrderByCode(orderCode);
     if (currentOrder) {
       return res.status(StatusCodes.BAD_REQUEST).json({
-        message: 'Hệ thống đang bận xin hãy thử lại sau',
+        message: 'Hệ thống đang bận, xin hãy thử lại sau',
       });
     }
+
+    // Xử lý trạng thái khi thanh toán qua VNPAY
+    if (dataOrder.paymentMethod === 'VNPAY') {
+      dataOrder.status = [
+        {
+          status: 'paymentPending',
+          note: 'Chờ khách hàng thanh toán',
+        },
+      ];
+    }
+
+    console.log(dataOrder);
+
+    // Thêm đơn hàng mới vào cơ sở dữ liệu
     const result = await orderModel.addOrderNotLogin(dataOrder);
-    const subject = 'Cảm ơn bạn đã đặt hàng tại Wow store';
+
+    // Gửi email xác nhận đặt hàng
+    const subject = 'Cảm ơn bạn đã đặt hàng tại BMT Life';
     const html = `
-            <h2>Xin chào, bạn!</h2>
-            <p>Cảm ơn bạn đã tin tưởng và đặt hàng tại <strong>BMT Life</strong>! Đơn hàng của bạn đã được tiếp nhận và chúng tôi sẽ xử lý trong thời gian sớm nhất.</p>
-            <p>Mã đơn hàng của bạn là: <strong>${orderCode}</strong></p>
-            <p>Bạn có thể theo dõi trạng thái đơn hàng qua email này hoặc đăng nhập vào tài khoản của bạn tại website của chúng tôi.</p>
-            <h3>Thông tin đơn hàng:</h3>
-            <ul>
-                <li><strong>Tên khách hàng:</strong> ${shippingInfo.name}</li>
-                <li><strong>Email:</strong> ${email}</li>
-                <li><strong>Số điện thoại:</strong> ${shippingInfo.phone}</li>
-                <li><strong>Địa chỉ giao hàng:</strong> ${shippingInfo.detailAddress}</li>
-                <li><strong>Tổng tiền:</strong> ${totalPrice} VND</li>
-            </ul>
-            <p>Chúng tôi sẽ gửi thông báo khi đơn hàng được vận chuyển. Cảm ơn bạn đã lựa chọn Wow store, và chúng tôi hy vọng bạn sẽ hài lòng với sản phẩm của mình!</p>
-            <p>Trân trọng,<br />Đội ngũ Wow store</p>
-        `;
+      <h2>Xin chào, bạn!</h2>
+      <p>Cảm ơn bạn đã tin tưởng và đặt hàng tại <strong>BMT Life</strong>! Đơn hàng của bạn đã được tiếp nhận và chúng tôi sẽ xử lý trong thời gian sớm nhất.</p>
+      <p>Mã đơn hàng của bạn là: <strong>${orderCode}</strong></p>
+      <p>Bạn có thể theo dõi trạng thái đơn hàng qua email này hoặc đăng nhập vào tài khoản của bạn tại website của chúng tôi.</p>
+      <h3>Thông tin đơn hàng:</h3>
+      <ul>
+          <li><strong>Tên khách hàng:</strong> ${shippingInfo.name}</li>
+          <li><strong>Email:</strong> ${email}</li>
+          <li><strong>Số điện thoại:</strong> ${shippingInfo.phone}</li>
+          <li><strong>Địa chỉ giao hàng:</strong> ${shippingInfo.detailAddress}</li>
+          <li><strong>Tổng tiền:</strong> ${totalPrice} VND</li>
+      </ul>
+      <p>Chúng tôi sẽ gửi thông báo khi đơn hàng được vận chuyển. Cảm ơn bạn đã lựa chọn BMT Life, và chúng tôi hy vọng bạn sẽ hài lòng với sản phẩm của mình!</p>
+      <p>Trân trọng,<br />Đội ngũ BMT Life</p>
+    `;
     await sendMail(email, subject, html);
 
+    // Lấy dữ liệu đơn hàng để trả về phản hồi
     const orderData = await orderModel.getOrderById(result.insertedId);
 
     return res.status(StatusCodes.OK).json({
@@ -225,6 +270,15 @@ const updateOrder = async (req, res) => {
     const dataOrder = await orderModel.updateOrder(id, data);
     if (dataOrder) {
       const endStatus = dataOrder.status.at(-1).status;
+      const statusInVietnamese = orderStatus[endStatus] || endStatus;
+      const notifyData = {
+        userId: dataOrder.userId,
+        title: `Cập nhật thông tin cho đơn hàng #${dataOrder.orderCode}`,
+        description: `Đơn hàng #${dataOrder.orderCode} của bạn hiện đã chuyển sang trạng thái "${statusInVietnamese}". Vui lòng kiểm tra thông tin trong chi tiết đơn hàng.`,
+        type: 'order',
+      };
+      await userModel.sendNotifies(notifyData);
+
       //  trạng thái xác nhận trừ số lượng
       if (endStatus == 'confirmed') {
         const newProducts = dataOrder.productsList.map((item) => {
@@ -316,10 +370,6 @@ const updateOrder = async (req, res) => {
         };
         await recieptModel.addReceipt(dataEnd);
       }
-    }
-    dataOrder.type = 'order';
-    if (dataOrder) {
-      await userModel.sendNotifies(dataOrder);
     }
     return res.status(StatusCodes.OK).json(dataOrder);
   } catch (error) {

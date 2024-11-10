@@ -1,28 +1,56 @@
 import { Icon } from '@iconify/react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
-import { getCurrentOrders, updateOrderAPI } from '~/APIs';
+import { useState, useRef, useEffect } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import {
+  getCurrentOrders,
+  getCurrentOrderWithStatus,
+  updateOrderAPI,
+} from '~/APIs';
 import MainLoading from '~/components/common/Loading/MainLoading';
 import EmptyCart from '~/components/Home/Header/EmptyCart';
 import { formatCurrencyVND, formatDateToDDMMYYYY } from '~/utils/formatters';
 import { getStatusColor, getStatusName, tabs } from './Profile/utils/tabs';
 import { useSwal, useSwalWithConfirm } from '~/customHooks/useSwal';
+import OrderLoading from '~/components/common/Loading/OrderLoading';
 
 const MyOrder = () => {
-  const [selectedTab, setSelectedTab] = useState('all');
+  const { tab } = useParams();
+  const [limitOrder, setLimitOrder] = useState(10);
+  const navigate = useNavigate();
+  const [selectedTab, setSelectedTab] = useState(tab || 'all'); // 'all' là mặc định
   const tabsRef = useRef(null);
 
+  useEffect(() => {
+    setSelectedTab(tab || 'all');
+  }, [tab]);
+
+  const handleTabChange = (newTab) => {
+    setSelectedTab(newTab);
+    setLimitOrder(10);
+    navigate(`/nguoi-dung/${newTab}`);
+  };
+
+  const fetchOrders = ({ queryKey }) => {
+    const [, limit, status] = queryKey;
+    return status === 'all'
+      ? getCurrentOrders({ limit })
+      : getCurrentOrderWithStatus({ limit, status });
+  };
+
   const {
-    data: orderData,
+    data,
     refetch: refetchOrderData,
     isLoading,
   } = useQuery({
-    queryKey: ['orders'],
-    queryFn: getCurrentOrders,
+    queryKey: ['orders', limitOrder, selectedTab],
+    queryFn: fetchOrders,
     staleTime: 30000,
+    keepPreviousData: true,
     cacheTime: 30000,
   });
+
+  const orderData = data?.result || [];
 
   const { mutate: cancelOrder, isLoading: cancelOrderLoading } = useMutation({
     mutationFn: updateOrderAPI,
@@ -91,10 +119,35 @@ const MyOrder = () => {
       });
   };
 
-  if (isLoading || cancelOrderLoading) return <MainLoading />;
+  const handleReOrder = (order) => {
+    useSwalWithConfirm
+      .fire({
+        icon: 'question',
+        title: 'Đặt lại đơn hàng',
+        text: 'Xác nhận đặt lại đơn hàng này?',
+        confirmButtonText: 'Xác nhận',
+        cancelButtonText: 'Không',
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          navigate('/thanh-toan', {
+            state: {
+              selectedProducts: order?.productsList,
+            },
+          });
+        }
+      });
+  };
+
+  const handleLoadMore = () => {
+    setLimitOrder((prev) => prev + 10);
+  };
+
+  if (cancelOrderLoading) return <MainLoading />;
 
   return (
-    <div className="container mx-auto p-4 sm:p-6 lg:p-8 bg-white text-black">
+    <div className="container mx-auto p-4 sm:p-6 lg:p-8 bg-white text-black relative">
+      {isLoading && <OrderLoading />}
       <div className="relative">
         <button
           onClick={handleScrollLeft}
@@ -114,7 +167,7 @@ const MyOrder = () => {
                   ? 'border-b-4 border-red-500 text-red-500'
                   : 'text-gray-500 hover:text-red-500'
               }`}
-              onClick={() => setSelectedTab(tab.key)}
+              onClick={() => handleTabChange(tab.key)}
             >
               {tab.name}
             </button>
@@ -175,13 +228,14 @@ const MyOrder = () => {
                       <img
                         src={product?.image}
                         alt={product?.name}
-                        className="w-20 h-20 rounded-md"
+                        className="w-16 h-20 rounded-md"
                       />
                       <div className="flex flex-col gap-1">
                         <span>{product?.name}</span>
-                        <div>
-                          <span>{product?.variantColor}</span> -
-                          <span> {product?.variantSize}</span>
+                        <div className="text-indigo-600">
+                          {product?.variantColor}
+                          {product?.variantSize !== 'FREESIZE' &&
+                            ` - ${product.variantSize}`}
                         </div>
                         <span>x {product?.quantity}</span>
                       </div>
@@ -196,7 +250,7 @@ const MyOrder = () => {
                 <span className="text-lg">
                   Tổng cộng:{' '}
                   <span className="font-bold text-red-600 text-xl ml-4">
-                    {formatCurrencyVND(order?.totalPrice)}
+                    {formatCurrencyVND(order?.totalPayment)}
                   </span>
                 </span>
               </div>
@@ -208,9 +262,12 @@ const MyOrder = () => {
                   Chi tiết
                 </Link>
                 {order.status[order.status.length - 1].status ===
-                  'Đã hoàn thành' && (
+                  'completed' && (
                   <>
-                    <button className="bg-red-500 text-white px-4 py-2 rounded-md">
+                    <button
+                      onClick={() => handleReOrder(order)}
+                      className="bg-red-500 text-white px-4 py-2 rounded-md"
+                    >
                       Mua lại
                     </button>
                     <button className="bg-red-500 text-white px-4 py-2 rounded-md">
@@ -242,6 +299,16 @@ const MyOrder = () => {
           ))
         ) : (
           <EmptyCart usedBy="order" />
+        )}
+        {orderData.length > 0 && (
+          <div className="flex justify-center">
+            <button
+              onClick={handleLoadMore}
+              className="btn btn-primary text-white hover:bg-red-600 rounded-md mt-8"
+            >
+              Xem thêm
+            </button>
+          </div>
         )}
       </div>
     </div>

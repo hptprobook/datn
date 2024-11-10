@@ -42,7 +42,9 @@ const CheckoutProduct = ({ selectedProducts }) => {
                   {product?.name}
                 </p>
                 <span className="text-red-500 text-xs sm:text-sm text-clamp-1">
-                  {product?.variantColor} - {product?.variantSize}
+                  {product?.variantColor}
+                  {product?.variantSize !== 'FREESIZE' &&
+                    ` - ${product.variantSize}`}
                 </span>
               </div>
             </div>

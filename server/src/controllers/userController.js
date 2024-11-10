@@ -167,6 +167,14 @@ const updateCurrentUser = async (req, res) => {
         .status(StatusCodes.BAD_REQUEST)
         .json({ message: 'Lỗi bảo mật' });
     }
+
+    if (data.carts && Array.isArray(data.carts)) {
+      data.carts = data.carts.map((item) => ({
+        ...item,
+        _id: new ObjectId(item._id),
+      }));
+    }
+
     const dataUser = await userModel.update(user_id, data);
     if (dataUser.error) {
       return res
@@ -468,6 +476,65 @@ const updateInfor = async (req, res) => {
   }
 };
 
+const readNotify = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: ERROR_MESSAGES.REQUIRED,
+      });
+    }
+
+    const readed = await userModel.readNotify(id, req.body);
+
+    if (!readed) {
+      return res.status(StatusCodes.BAD_REQUEST).json(readed.detail);
+    }
+
+    return res.status(StatusCodes.OK).json({
+      readed,
+    });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
+  }
+};
+
+const readAllNotifies = async (req, res) => {
+  try {
+    const userId = req.user.user_id;
+
+    if (!userId) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: 'Lỗi bảo mật',
+      });
+    }
+
+    const user = await userModel.getUserID(userId);
+
+    const updateNotifies = {
+      notifies: user.notifies.map((notify) => ({
+        ...notify,
+        isReaded: true,
+      })),
+    };
+
+    await userModel.update(userId, updateNotifies);
+
+    return res.status(StatusCodes.OK).json({
+      message: 'Đọc toàn bộ thông báo thành công.',
+    });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
+  }
+};
+
 export const usersController = {
   getUserById,
   getCurrentUser,
@@ -484,4 +551,6 @@ export const usersController = {
   createUser,
   viewProduct,
   updateInfor,
+  readNotify,
+  readAllNotifies,
 };

@@ -5,8 +5,11 @@ import { getOrderByCodeAPI, updateOrderAPI } from '~/APIs';
 import MainLoading from '~/components/common/Loading/MainLoading';
 import { useSwal, useSwalWithConfirm } from '~/customHooks/useSwal';
 import OrderDetailStatus from './Profile/components/OrderDetailStatus';
-import { getStatusName } from './Profile/utils/tabs';
-import { formatCurrencyVND } from '~/utils/formatters';
+import { getStatusName, tabs } from './Profile/utils/tabs';
+import {
+  formatCurrencyVND,
+  formatVietnamesePhoneNumber,
+} from '~/utils/formatters';
 
 const OrderDetail = () => {
   const { orderCode } = useParams();
@@ -15,6 +18,8 @@ const OrderDetail = () => {
   const { data, refetch, error, isLoading } = useQuery({
     queryKey: ['getOrderDetail', orderCode],
     queryFn: () => getOrderByCodeAPI(orderCode),
+    staleTime: 0,
+    cacheTime: 0,
   });
 
   const { mutate: cancelOrder, isLoading: cancelOrderLoading } = useMutation({
@@ -39,10 +44,6 @@ const OrderDetail = () => {
   });
 
   const currentStatus = data?.status[data?.status.length - 1]?.status;
-  const totalPrice = data?.productsList?.reduce(
-    (acc, product) => acc + product.price * product.quantity,
-    0
-  );
 
   if (error) {
     useSwal
@@ -73,8 +74,28 @@ const OrderDetail = () => {
             data: {
               status: {
                 status: 'cancelled',
-                note: 'Khách hàng huỷ đơn',
+                note: 'Khách hàng huỷ đơn!',
               },
+            },
+          });
+        }
+      });
+  };
+
+  const handleReOrder = () => {
+    useSwalWithConfirm
+      .fire({
+        icon: 'question',
+        title: 'Đặt lại đơn hàng',
+        text: 'Xác nhận đặt lại đơn hàng này?',
+        confirmButtonText: 'Xác nhận',
+        cancelButtonText: 'Không',
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          navigate('/thanh-toan', {
+            state: {
+              selectedProducts: data?.productsList,
             },
           });
         }
@@ -106,7 +127,7 @@ const OrderDetail = () => {
       </div>
       <div className="container mx-auto p-6 bg-white text-black rounded-sm mt-[1px]">
         <OrderDetailStatus status={data?.status} />
-        <div className="flex justify-end gap-3 px-12 mt-12">
+        <div className="flex justify-center gap-3 px-12 mt-0">
           {currentStatus !== 'completed' &&
             currentStatus !== 'cancelled' &&
             currentStatus !== 'delivered' && (
@@ -119,7 +140,10 @@ const OrderDetail = () => {
             )}
           {currentStatus === 'completed' && (
             <>
-              <button className="btn bg-red-500 rounded-md hover:bg-red-600 hover:shadow-md text-white min-w-48">
+              <button
+                onClick={handleReOrder}
+                className="btn bg-red-500 rounded-md hover:bg-red-600 hover:shadow-md text-white min-w-48"
+              >
                 Mua lại
               </button>
               <button className="btn bg-red-500 rounded-md hover:bg-red-600 hover:shadow-md text-white min-w-48">
@@ -144,13 +168,13 @@ const OrderDetail = () => {
               <div>
                 <div>
                   <p className="text-md font-bold text-gray-700 uppercase">
-                    {data?.shipping?.name}
+                    {data?.shippingInfo?.name}
                   </p>
                   <p className="text-sm text-gray-600 mt-3">
-                    (+84) {data?.shipping?.phone}
+                    {formatVietnamesePhoneNumber(data?.shippingInfo?.phone)}
                   </p>
                   <p className="text-sm text-gray-600 mt-3">
-                    {data?.shipping?.detailAddress}
+                    {data?.shippingInfo?.fullAddress}
                   </p>
                 </div>
               </div>
@@ -164,40 +188,94 @@ const OrderDetail = () => {
               </h3>
 
               <ol className="relative ms-3 border-s border-gray-200">
+                {/* Hiển thị trạng thái tiếp theo (màu xám) */}
+                {(() => {
+                  const currentTab = tabs.find(
+                    (tab) => tab.key === currentStatus
+                  );
+                  const nextTab = tabs.find(
+                    (tab) => tab.step === (currentTab?.step || 0) + 1
+                  );
+
+                  if (nextTab && currentTab?.step !== 0) {
+                    return (
+                      <li className="mb-10 ms-6 text-gray-500">
+                        <span className="absolute -start-3 flex h-6 w-6 items-center justify-center rounded-full bg-gray-200 ring-8 ring-white">
+                          <Icon
+                            icon="mdi:clock-outline"
+                            className="h-4 w-4 text-gray-500"
+                          />
+                        </span>
+                        <h4 className="mb-0.5 text-base font-semibold">
+                          Đang chờ ...
+                        </h4>
+                        <p className="text-sm">{nextTab.name}</p>
+                      </li>
+                    );
+                  }
+                  return null;
+                })()}
                 {data?.status
                   ?.slice()
                   .reverse()
                   .map((status, index) => {
                     const isMostRecent = index === 0;
+                    const currentTab = tabs.find(
+                      (tab) => tab.key === status.status
+                    );
                     const isCancelled = status.status === 'cancelled';
 
                     return (
                       <li
                         key={index}
                         className={`mb-10 ms-6 ${
-                          isMostRecent ? 'text-blue-600' : 'text-green-600'
+                          isCancelled
+                            ? 'text-red-600' // Màu đỏ cho trạng thái hủy
+                            : isMostRecent
+                            ? 'text-blue-600 font-semibold' // Font đậm cho trạng thái hiện tại
+                            : 'text-green-600 font-semibold' // Font đậm cho trạng thái đã qua
                         }`}
                       >
                         <span
                           className={`absolute -start-3 flex h-6 w-6 items-center justify-center rounded-full ${
-                            isMostRecent ? 'bg-blue-100' : 'bg-green-100'
+                            isCancelled
+                              ? 'bg-red-100' // Nền đỏ cho trạng thái hủy
+                              : isMostRecent
+                              ? 'bg-blue-100'
+                              : 'bg-green-100'
                           } ring-8 ring-white`}
                         >
-                          {isMostRecent ? (
+                          {isCancelled ? (
                             <Icon
-                              icon="mdi:clock-outline"
+                              icon="mdi:close-circle-outline" // Icon hủy đơn hàng
+                              className="h-4 w-4 text-red-600"
+                            />
+                          ) : isMostRecent ? (
+                            <Icon
+                              icon="mdi:checkbox-marked-circle-outline" // Icon check (✓) cho trạng thái hiện tại
                               className="h-4 w-4 text-blue-600"
                             />
                           ) : (
                             <Icon
-                              icon="mdi:checkbox-marked-circle-outline"
+                              icon={
+                                currentTab?.icon ||
+                                'mdi:checkbox-marked-circle-outline'
+                              } // Icon từ tabs cho các trạng thái cũ
                               className="h-4 w-4 text-green-600"
                             />
                           )}
                         </span>
-                        <h4 className="mb-0.5 text-base font-semibold">
-                          {new Date(status.createdAt).toLocaleString()}
-                        </h4>
+                        <div className="flex items-center">
+                          <h4 className="mb-0.5 text-base font-semibold">
+                            {new Date(status.createdAt).toLocaleString()}
+                          </h4>
+                          {/* Badge "Hiện tại" cho trạng thái hiện tại */}
+                          {isMostRecent && (
+                            <span className="badge badge-success rounded-md ml-5">
+                              Hiện tại
+                            </span>
+                          )}
+                        </div>
                         <p className="text-sm">{status.note}</p>
                       </li>
                     );
@@ -225,7 +303,9 @@ const OrderDetail = () => {
                     {product?.name}
                   </p>
                   <span className="text-red-500 text-xs sm:text-sm text-clamp-1">
-                    {product?.variantColor} - {product?.variantSize}
+                    {product?.variantColor}
+                    {product?.variantSize !== 'FREESIZE' &&
+                      ` - ${product.variantSize}`}
                   </span>
                 </div>
               </div>
@@ -253,24 +333,24 @@ const OrderDetail = () => {
             <div className="mt-4">
               <div className="flex justify-between">
                 <p>Tổng tiền hàng</p>
-                <p className="text-gray-800">{formatCurrencyVND(totalPrice)}</p>
+                <p className="text-gray-800">
+                  {formatCurrencyVND(data?.totalPrice)}
+                </p>
               </div>
               <div className="flex justify-between mt-2">
                 <p>Tổng tiền phí vận chuyển</p>
-                <p className="text-red-500">
-                  + {formatCurrencyVND(data?.shipping?.fee)}
-                </p>
+                <p className="text-red-500">+ {formatCurrencyVND(data?.fee)}</p>
               </div>
-              {/* <div className="flex justify-between mt-2">
+              <div className="flex justify-between mt-2">
                 <p>Voucher giảm giá</p>
                 <p className="text-green-500">
-                  - {formatCurrencyVND(voucherDiscount)}
+                  - {formatCurrencyVND(data?.discountPrice)}
                 </p>
-              </div> */}
+              </div>
               <div className="flex justify-between mt-4 pt-2">
                 <p className="font-semibold text-lg">Tổng thanh toán</p>
                 <p className="font-bold text-red-500 text-xl">
-                  {formatCurrencyVND(totalPrice + data?.shipping?.fee)}
+                  {formatCurrencyVND(data?.totalPayment)}
                 </p>
               </div>
             </div>

@@ -1246,6 +1246,21 @@ const isComment = async (userId, productId) => {
 
   return !!product;
 };
+const searchInDashboard = async (keyword) => {
+  const db = await GET_DB();
+  const result = await db.collection('products').find({
+    $or: [
+      { name: { $regex: keyword, $options: 'i' } },
+      { sku: { $regex: keyword, $options: 'i' } },
+      { variants: { $elemMatch: { sku: { $regex: keyword, $options: 'i' } } } },
+    ]
+  })
+    .project({ name: 1, _id: 1, variants: 1, thumbnail: 1, price: 1})
+    .limit(10)
+    .toArray();
+  return result;
+}
+
 
 export const productModel = {
   countProductAll,
@@ -1277,4 +1292,5 @@ export const productModel = {
   getMinMaxProductPrices,
   ratingShopResponse,
   isComment,
+  searchInDashboard
 };

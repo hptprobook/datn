@@ -22,7 +22,11 @@ const CartPage = () => {
             <CheckoutStepper currentStep={1} />
           </div>
           <div className="bg-white antialiased">
-            <div className="mx-auto max-w-screen-xl px-4 2xl:px-0 min-h-screen">
+            <div
+              className={`mx-auto max-w-screen-xl px-4 2xl:px-0 ${
+                !user ? 'min-h-screen' : ''
+              }`}
+            >
               <div className="mt-6 sm:mt-8 lg:flex lg:gap-8">
                 <div className="lg:w-2/3">
                   <CartListProduct />
@@ -33,6 +37,7 @@ const CartPage = () => {
               </div>
             </div>
           </div>
+
           {user && (
             <>
               <div className="text-gray-900 mt-8 border-t border-gray-200 pt-8">
@@ -42,7 +47,7 @@ const CartPage = () => {
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mt-8">
                   {productsViewed.map((item) => (
                     <div key={item._id} className="relative">
-                      <ProductItem product={item} />
+                      <ProductItem product={item} isWishList={true} />
                     </div>
                   ))}
                 </div>

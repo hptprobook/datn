@@ -1,20 +1,27 @@
 // import PropTypes from 'prop-types';
 import { Icon } from '@iconify/react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { FaTimes } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
-import { createOrderAPI, getShippingFee, updateCurrentUser } from '~/APIs';
+import {
+  checkAbleCoupon,
+  createOrderAPI,
+  getCouponsForOrder,
+  getShippingFee,
+  getVnpayUrlAPI,
+  updateCurrentUser,
+} from '~/APIs';
 import MainLoading from '~/components/common/Loading/MainLoading';
 import { useSwal, useSwalWithConfirm } from '~/customHooks/useSwal';
 import { formatCurrencyVND } from '~/utils/formatters';
 import { v4 as uuidv4 } from 'uuid';
 import { useUser } from '~/context/UserContext';
+import PropTypes from 'prop-types';
 
 const paymentMethods = [
   { label: 'Thanh toán khi nhận hàng', value: 'Tiền mặt' },
   { label: 'Thanh toán VNPAY', value: 'VNPAY' },
-  { label: 'Chuyển khoản trực tiếp', value: 'BANK' },
 ];
 
 const CheckoutFinal = ({ selectedProducts, userAddress }) => {
@@ -31,6 +38,8 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
   const [openVoucherModal, setOpenVoucherModal] = useState(false);
   const [isVoucherClosing, setIsVoucherClosing] = useState(false);
 
+  const [couponCode, setCouponCode] = useState('');
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -39,6 +48,7 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
     }
   }, [selectedProducts, navigate]);
 
+  // Đóng modal chọn phương thức thanh toán
   const handlePaymentClose = () => {
     setIsPaymentClosing(true);
 
@@ -48,6 +58,7 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
     }, 300);
   };
 
+  // Xử lý thay đổi phuogwn thức thanh toán
   const handlePaymentMethodChange = (event) => {
     const selectedMethod = paymentMethods.find(
       (method) => method.value === event.target.value
@@ -55,6 +66,7 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
     setPaymentMethod(selectedMethod);
   };
 
+  // Đóng modal voucher
   const handleVoucherClose = () => {
     setIsVoucherClosing(true);
 
@@ -74,6 +86,12 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
     0
   );
 
+  const { data: coupons, isLoading: isLoadingCoupons } = useQuery({
+    queryKey: ['coupons'],
+    queryFn: getCouponsForOrder,
+  });
+
+  // Lấy phí ship dựa trên Địa chỉ giao hàng
   const fetchShippingFee = async () => {
     if (userAddress) {
       let data = {
@@ -112,6 +130,7 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
     fetchShippingFee();
   }, [userAddress]);
 
+  // mutate xoá sản phẩm khỏi giỏ hàng sau khi đặt thành công
   const { mutate: removeCart, isLoading: isRemovingCart } = useMutation({
     mutationFn: updateCurrentUser,
     onSuccess: () => {
@@ -119,6 +138,7 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
     },
   });
 
+  // Xóa sản phẩm khỏi giỏ hàng sau khi đặt hàng thành công
   const removeProductsFromCart = () => {
     const remainingProducts = user.carts.filter(
       (cartProduct) =>
@@ -128,20 +148,26 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
     removeCart({ carts: remainingProducts });
   };
 
-  const { mutate, isLoading } = useMutation({
+  // mutate đặt hàng
+  const { mutate: createOrder, isLoading } = useMutation({
     mutationFn: createOrderAPI,
     onSuccess: (data) => {
       removeProductsFromCart();
-      useSwal
-        .fire({
-          title: 'Thành công!',
-          text: 'Bạn đã đặt hàng thành công, bấm xác nhận để kiểm tra thông tin và liên hệ shop nếu có lỗi',
-          icon: 'success',
-          confirmButtonText: 'Xác nhận',
-        })
-        .then(() => {
-          navigate('/thanh-toan/xac-nhan', { state: { orderData: data } });
-        });
+      if (data?.data?.paymentMethod !== 'VNPAY') {
+        useSwal
+          .fire({
+            title: 'Thành công!',
+            text: 'Bạn đã đặt hàng thành công, bấm xác nhận để kiểm tra thông tin và liên hệ shop nếu có lỗi',
+            icon: 'success',
+            timer: 2000,
+            confirmButtonText: 'Xác nhận',
+          })
+          .then(() => {
+            navigate('/thanh-toan/xac-nhan', {
+              state: { orderCode: data?.data?.orderCode },
+            });
+          });
+      }
     },
     onError: () => {
       useSwal.fire({
@@ -153,6 +179,23 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
     },
   });
 
+  // mutate lấy url vnpay
+  const { mutate: getVnpayUrl, isLoading: isLoadingVnpayUrl } = useMutation({
+    mutationFn: getVnpayUrlAPI,
+    onSuccess: (data) => {
+      window.location.href = data.url;
+    },
+    onError: () => {
+      useSwal.fire({
+        title: 'Lỗi!',
+        text: 'Có lỗi xảy ra với phương thức thanh toán bằng VNPAY, vui lòng thử lại sau!',
+        icon: 'error',
+        confirmButtonText: 'Xác nhận',
+      });
+    },
+  });
+
+  // Xử lý đặt hàng
   const handleCheckout = () => {
     if (!userAddress) {
       useSwal.fire({
@@ -164,17 +207,24 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
     }
 
     const productsList = selectedProducts.map((product) => ({
-      _id: product.productId,
+      _id: product.productId || product._id,
       quantity: product.quantity,
       image: product.image,
       name: product.name,
       slug: product.slug,
+      sku: product.sku,
       weight: product.weight,
       price: product.price,
       variantColor: product.variantColor,
       variantSize: product.variantSize,
       itemTotal: product.price * product.quantity,
     }));
+
+    const selectedCouponIds = [
+      selectedDiscount.orderPercent?._id,
+      selectedDiscount.orderPrice?._id,
+      selectedDiscount.shipping?._id,
+    ].filter(Boolean);
 
     const data = {
       orderCode: uuidv4().slice(0, 6).toUpperCase(),
@@ -185,21 +235,20 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
         districtCode: userAddress.district_id,
         wardName: userAddress.ward_name,
         wardCode: userAddress.ward_id,
-        detailAddress: userAddress.fullAddress,
+        detailAddress: userAddress.address,
         phone: userAddress.phone,
         name: userAddress.name,
         note: userAddress.note,
+        fullAddress: userAddress.fullAddress,
       },
       email: userAddress.email,
       totalPrice: totalPrice,
-      shipping: {
-        shippingType: 'COD',
-        fee: shippingFee,
-        status: 'Đang giao hàng',
-        detailAddress: userAddress.fullAddress,
-        phone: userAddress.phone,
-        name: userAddress.name,
-      },
+      totalPayment: totalPrice + shippingFee - voucherDiscount,
+      shippingType: 'cod',
+      fee: shippingFee,
+      couponId: selectedCouponIds,
+      discountPrice: voucherDiscount,
+      paymentMethod: paymentMethod.value,
     };
 
     if (userAddress) {
@@ -210,8 +259,19 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
           confirmButtonText: 'Xác nhận',
           cancelButtonText: 'Hủy',
         })
-        .then(() => {
-          mutate(data);
+        .then((result) => {
+          if (result.isConfirmed) {
+            if (paymentMethod.value === 'VNPAY') {
+              createOrder(data);
+              getVnpayUrl({
+                orderId: data.orderCode,
+                amount: data.totalPayment,
+              });
+            } else {
+              // Đặt hàng với phương thức COD
+              createOrder(data);
+            }
+          }
         });
     } else {
       useSwal.fire({
@@ -223,7 +283,109 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
     }
   };
 
-  if (isLoading || isRemovingCart) return <MainLoading />;
+  // mutate nhập coupon qua form
+  const { mutate: applyCoupon, error: applyCouponError } = useMutation({
+    mutationFn: checkAbleCoupon,
+    onSuccess: (data) => {
+      const coupon = data?.coupon;
+      if (!coupon) return;
+
+      setSelectedDiscount((prev) => {
+        if (coupon.type === 'percent') {
+          return {
+            ...prev,
+            orderPercent: coupon,
+            orderPrice: null,
+          };
+        } else if (coupon.type === 'price') {
+          return {
+            ...prev,
+            orderPrice: coupon,
+            orderPercent: null,
+          };
+        } else if (coupon.type === 'shipping') {
+          return {
+            ...prev,
+            shipping: coupon,
+          };
+        }
+        return prev;
+      });
+      useSwal.fire({
+        title: 'Thành công!',
+        icon: 'success',
+        text: 'Mã giảm giá được áp dụng thành công',
+        confirmButtonText: 'Xác nhận',
+      });
+    },
+  });
+
+  const handleApplyCoupon = (e) => {
+    e.preventDefault();
+    if (couponCode) {
+      applyCoupon(couponCode, totalPrice);
+    }
+  };
+
+  const [visibleCounts, setVisibleCounts] = useState({
+    order: 5,
+    shipping: 5,
+  });
+
+  const handleShowMore = (type) => {
+    setVisibleCounts((prev) => ({
+      ...prev,
+      [type]: prev[type] + 5,
+    }));
+  };
+
+  const [selectedDiscount, setSelectedDiscount] = useState({
+    orderPercent: null,
+    orderPrice: null,
+    shipping: null,
+  });
+
+  useEffect(() => {
+    const discount =
+      (selectedDiscount.orderPercent
+        ? (totalPrice * selectedDiscount.orderPercent.discountValue) / 100
+        : 0) +
+      (selectedDiscount.orderPrice
+        ? selectedDiscount.orderPrice.discountValue
+        : 0) +
+      (selectedDiscount.shipping ? shippingFee : 0);
+
+    setVoucherDiscount(discount);
+  }, [selectedDiscount, totalPrice, shippingFee]);
+
+  const handleCouponSelect = (coupon, type) => {
+    setSelectedDiscount((prev) => {
+      if (type === 'order') {
+        if (coupon.type === 'percent') {
+          return {
+            ...prev,
+            orderPercent: prev.orderPercent?._id === coupon._id ? null : coupon,
+            orderPrice: null,
+          };
+        } else if (coupon.type === 'price') {
+          return {
+            ...prev,
+            orderPrice: prev.orderPrice?._id === coupon._id ? null : coupon,
+            orderPercent: null,
+          };
+        }
+      } else if (type === 'shipping') {
+        return {
+          ...prev,
+          shipping: prev.shipping?._id === coupon._id ? null : coupon,
+        };
+      }
+      return prev;
+    });
+  };
+
+  if (isLoading || isRemovingCart || isLoadingCoupons || isLoadingVnpayUrl)
+    return <MainLoading />;
 
   return (
     <>
@@ -238,20 +400,119 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
               className="absolute inset-0 bg-black opacity-50"
               onClick={handleVoucherClose}
             ></div>
-            <div className="bg-white p-6 rounded-lg relative z-10 min-w-[520px] max-w-[800px] max-h-[90vh] overflow-y-auto hide-scrollbar">
+            <div className="bg-white p-6 rounded-lg relative z-10 min-w-[700px] max-w-[800px] max-h-[80vh] overflow-y-auto hide-scrollbar">
               <button
                 className="absolute top-4 right-4 text-gray-500 hover:text-black"
                 onClick={handleVoucherClose}
               >
                 <FaTimes size={20} />
               </button>
-              <h2 className="font-bold text-black mb-4">Chọn mã giảm giá</h2>
-              <div></div>
-              <div className="flex justify-end gap-3">
-                <button className="btn bg-red-600 rounded-md mt-4">Huỷ</button>
+
+              <h2 className="font-bold text-black mb-4">Nhập mã giảm giá</h2>
+              <div className="w-full">
+                <input
+                  type="text"
+                  className="w-[80%] border border-gray-300 h-[40px] px-4 bg-white text-gray-600 rounded-s-md"
+                  placeholder="Nhập mã giảm giá"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value)}
+                />
+                <button
+                  onClick={handleApplyCoupon}
+                  className="w-[20%] bg-red-500 text-white px-4 h-[40px] rounded-e-md"
+                >
+                  Áp dụng
+                </button>
+              </div>
+              {applyCouponError && (
+                <span className="text-red-500 text-sm">
+                  {applyCouponError?.message}
+                </span>
+              )}
+              <div>
+                {['shipping', 'order'].map((type) => (
+                  <div key={type} className="mb-6">
+                    <h3 className="text-lg font-semibold mb-2 capitalize">
+                      {type === 'order'
+                        ? 'Giảm giá cho đơn hàng'
+                        : 'Phí vận chuyển'}
+                    </h3>
+                    <ul className="space-y-3">
+                      {coupons[type]
+                        .slice(0, visibleCounts[type])
+                        .map((coupon) => (
+                          <li
+                            key={coupon._id}
+                            className={`flex items-center justify-between rounded-md cursor-pointer px-8 py-2 border ${
+                              (type === 'order' &&
+                                (selectedDiscount.orderPercent?._id ===
+                                  coupon._id ||
+                                  selectedDiscount.orderPrice?._id ===
+                                    coupon._id)) ||
+                              (type === 'shipping' &&
+                                selectedDiscount.shipping?._id === coupon._id)
+                                ? 'bg-red-50 border-red-400'
+                                : ''
+                            }`}
+                          >
+                            <div
+                              onClick={() => handleCouponSelect(coupon, type)}
+                              className="flex items-center space-x-8"
+                            >
+                              <div>
+                                <Icon
+                                  className="text-5xl text-red-600"
+                                  icon="icon-park-outline:ticket"
+                                />
+                              </div>
+                              <div>
+                                <p className="text-md font-semibold">
+                                  {coupon?.name}
+                                </p>
+                                <p className="text-md">
+                                  Mã giảm giá: <strong>{coupon?.code}</strong>
+                                </p>
+                                <p className="text-gray-600 text-sm mt-2">
+                                  {coupon?.description}
+                                </p>
+                              </div>
+                            </div>
+                            <input
+                              type="checkbox"
+                              checked={
+                                (type === 'order' &&
+                                  (selectedDiscount.orderPercent?._id ===
+                                    coupon._id ||
+                                    selectedDiscount.orderPrice?._id ===
+                                      coupon._id)) ||
+                                (type === 'shipping' &&
+                                  selectedDiscount.shipping?._id === coupon._id)
+                              }
+                              className="checkbox h-5 w-5 text-red-600"
+                              onChange={() => handleCouponSelect(coupon, type)}
+                            />
+                          </li>
+                        ))}
+                    </ul>
+
+                    {/* Nút "Xem thêm" */}
+                    {coupons[type].length > visibleCounts[type] && (
+                      <button
+                        onClick={() => handleShowMore(type)}
+                        className="text-blue-500 hover:underline mt-2"
+                      >
+                        Xem thêm
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <div className="sticky bottom-0 right-8 flex justify-end gap-3">
                 <button
                   type="submit"
                   className="btn bg-red-600 rounded-md mt-4"
+                  onClick={handleVoucherClose}
                 >
                   Xác nhận
                 </button>
@@ -272,14 +533,58 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
           </button>
         </div>
         <div className="container mx-auto mt-8">
-          <div className="mt-4 bg-gradient-to-br from-red-400 to-red-700 text-white text-center py-1 px-20 rounded-lg shadow-md relative">
-            <h3 className="text-xl font-semibold my-4">
-              Giảm giá 20% cho đơn hàng trên 100.000đ
-            </h3>
+          {selectedDiscount.orderPercent ||
+          selectedDiscount.orderPrice ||
+          selectedDiscount.shipping ? (
+            <div className="container mx-auto mt-8">
+              <h4>Bạn đã chọn:</h4>
+              <div className="space-y-4">
+                {selectedDiscount.orderPercent && (
+                  <div className="mt-4 bg-gradient-to-br from-red-400 to-red-700 text-white text-center py-1 px-20 rounded-lg shadow-md relative">
+                    <h3 className="text-xl uppercase font-semibold my-4">
+                      {selectedDiscount.orderPercent.name}
+                    </h3>
+                    <p className="pb-4">
+                      {selectedDiscount.orderPercent.description}
+                    </p>
 
-            <div className="w-10 h-7 bg-gray-50 rounded-full absolute top-1/2 transform -translate-y-1/2 left-0 -ml-6"></div>
-            <div className="w-10 h-7 bg-gray-50 rounded-full absolute top-1/2 transform -translate-y-1/2 right-0 -mr-6"></div>
-          </div>
+                    <div className="w-10 h-7 bg-gray-50 rounded-full absolute top-1/2 transform -translate-y-1/2 left-0 -ml-6"></div>
+                    <div className="w-10 h-7 bg-gray-50 rounded-full absolute top-1/2 transform -translate-y-1/2 right-0 -mr-6"></div>
+                  </div>
+                )}
+
+                {selectedDiscount.orderPrice && (
+                  <div className="mt-4 bg-gradient-to-br from-red-400 to-red-700 text-white text-center py-1 px-20 rounded-lg shadow-md relative">
+                    <h3 className="text-xl uppercase font-semibold my-4">
+                      {selectedDiscount.orderPrice.name}
+                    </h3>
+                    <p className="pb-4">
+                      {selectedDiscount.orderPrice.description}
+                    </p>
+
+                    <div className="w-10 h-7 bg-gray-50 rounded-full absolute top-1/2 transform -translate-y-1/2 left-0 -ml-6"></div>
+                    <div className="w-10 h-7 bg-gray-50 rounded-full absolute top-1/2 transform -translate-y-1/2 right-0 -mr-6"></div>
+                  </div>
+                )}
+
+                {selectedDiscount.shipping && (
+                  <div className="mt-4 bg-gradient-to-br from-red-400 to-red-700 text-white text-center py-1 px-20 rounded-lg shadow-md relative">
+                    <h3 className="text-xl uppercase font-semibold my-4">
+                      {selectedDiscount.shipping.name}
+                    </h3>
+                    <p className="pb-4">
+                      {selectedDiscount.shipping.description}
+                    </p>
+
+                    <div className="w-10 h-7 bg-gray-50 rounded-full absolute top-1/2 transform -translate-y-1/2 left-0 -ml-6"></div>
+                    <div className="w-10 h-7 bg-gray-50 rounded-full absolute top-1/2 transform -translate-y-1/2 right-0 -mr-6"></div>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <p className="text-gray-500">Chưa có mã giảm giá nào được chọn.</p>
+          )}
         </div>
       </div>
 
@@ -397,6 +702,9 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
   );
 };
 
-CheckoutFinal.propTypes = {};
+CheckoutFinal.propTypes = {
+  userAddress: PropTypes.object.isRequired,
+  selectedProducts: PropTypes.array.isRequired,
+};
 
 export default CheckoutFinal;

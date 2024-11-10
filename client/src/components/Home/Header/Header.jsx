@@ -19,6 +19,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getCurrentUser } from '~/APIs';
 import { useUser } from '~/context/UserContext';
 import { useWebConfig } from '~/context/WebsiteConfig';
+import NotifyBar from './NotifyBar';
 
 const Header = () => {
   const { isAuthenticated } = useCheckAuth();
@@ -73,7 +74,7 @@ const Header = () => {
                   className="text-2xl text-gray-50 cursor-pointer relative hover:text-red-600"
                   title="Thông báo"
                 >
-                  <Icon icon="line-md:bell" />
+                  <NotifyBar notifies={currentUserInfor?.notifies} />
                 </div>
               </>
             )}

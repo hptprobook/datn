@@ -1,23 +1,134 @@
 import { Icon } from '@iconify/react';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
-import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
+import {
+  Link,
+  NavLink,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from 'react-router-dom';
+import {
+  deleteOrderAPI,
+  findOrderByCodeAPI,
+  removeOrderNotLoginAPI,
+  updateOrderAPI,
+  updateOrderNotLoginAPI,
+} from '~/APIs';
 import MainLoading from '~/components/common/Loading/MainLoading';
 import CheckoutStepper from '~/components/common/Stepper/CheckoutStepper';
+import { useWebConfig } from '~/context/WebsiteConfig';
 import useCheckAuth from '~/customHooks/useCheckAuth';
-import { useSwalWithConfirm } from '~/customHooks/useSwal';
+import { useSwal, useSwalWithConfirm } from '~/customHooks/useSwal';
 import { formatCurrencyVND, formatDateToDDMMYYYY } from '~/utils/formatters';
 
 const CheckoutConfirm = () => {
   const location = useLocation();
-  const orderData = location.state?.orderData.data;
+  let [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const orderCode = location.state?.orderCode || searchParams.get('vnp_TxnRef');
+  const { config } = useWebConfig();
   const { isAuthenticated } = useCheckAuth();
+  const vnp_ResponseCode = searchParams.get('vnp_ResponseCode');
+
+  const { mutate: updateOrder, isLoading: updateOrderLoading } = useMutation({
+    mutationFn: updateOrderAPI,
+  });
+
+  const { mutate: deleteOrder, isLoading: deleteOrderLoading } = useMutation({
+    mutationFn: deleteOrderAPI,
+  });
+
+  const { mutate: updateOrderNotLogin, isLoading: updateOrderNotLoginLoading } =
+    useMutation({
+      mutationFn: updateOrderNotLoginAPI,
+    });
+
+  const { mutate: deleteOrderNotLogin, isLoading: deleteOrderNotLoginLoading } =
+    useMutation({
+      mutationFn: removeOrderNotLoginAPI,
+    });
+
+  const { data: orderData, isLoading: getOrderByCodeLoading } = useQuery({
+    queryKey: ['getOrderByCode', orderCode],
+    queryFn: () => findOrderByCodeAPI(orderCode),
+    staleTime: 0,
+    cacheTime: 0,
+  });
 
   useEffect(() => {
-    if (!orderData) {
-      navigate('/');
+    if (orderData) {
+      if (orderData?.type === 'userOrder') {
+        if (
+          orderData &&
+          Array.isArray(orderData?.status) &&
+          orderData?.status?.length > 0 &&
+          vnp_ResponseCode
+        ) {
+          const latestStatus =
+            orderData?.status[orderData.status.length - 1]?.status;
+
+          if (vnp_ResponseCode === '00' && latestStatus !== 'pending') {
+            updateOrder({
+              id: orderData?._id,
+              data: {
+                status: {
+                  status: 'pending',
+                  note: 'Đơn hàng chờ xác nhận!',
+                },
+              },
+            });
+          } else if (vnp_ResponseCode !== '00') {
+            useSwal
+              .fire({
+                icon: 'error',
+                title: 'Thất bại!',
+                text: 'Đặt hàng thất bại, vui lòng thử lại!',
+                confirmButtonText: 'Xác nhận',
+              })
+              .then(() => {
+                deleteOrder(orderData._id);
+                navigate('/');
+              });
+          }
+        }
+      } else {
+        const latestStatus =
+          orderData?.status[orderData.status.length - 1]?.status;
+
+        if (vnp_ResponseCode === '00' && latestStatus !== 'pending') {
+          updateOrderNotLogin({
+            id: orderData?._id,
+            data: {
+              status: {
+                status: 'pending',
+                note: 'Đơn hàng chờ xác nhận!',
+              },
+            },
+          });
+        } else if (vnp_ResponseCode !== '00') {
+          useSwal
+            .fire({
+              icon: 'error',
+              title: 'Thất bại!',
+              text: 'Đặt hàng thất bại, vui lòng thử lại!',
+              confirmButtonText: 'Xác nhận',
+            })
+            .then(() => {
+              deleteOrderNotLogin(orderData._id);
+              navigate('/');
+            });
+        }
+      }
     }
-  }, [orderData, navigate]);
+  }, [
+    orderData,
+    vnp_ResponseCode,
+    updateOrder,
+    updateOrderNotLogin,
+    deleteOrder,
+    deleteOrderNotLogin,
+  ]);
 
   const handleCopyOrderCode = () => {
     navigator.clipboard.writeText(orderData?.orderCode);
@@ -31,12 +142,23 @@ const CheckoutConfirm = () => {
       })
       .then((result) => {
         if (result.isDismissed) {
-          navigate('/theo-doi-don-hang');
+          if (isAuthenticated) {
+            navigate('/nguoi-dung');
+          } else {
+            navigate('/theo-doi-don-hang');
+          }
         }
       });
   };
 
-  if (!orderData) return <MainLoading />;
+  if (
+    getOrderByCodeLoading ||
+    updateOrderLoading ||
+    deleteOrderLoading ||
+    updateOrderNotLoginLoading ||
+    deleteOrderNotLoginLoading
+  )
+    return <MainLoading />;
 
   return (
     <section className="py-8 relative max-w-container mx-auto">
@@ -48,7 +170,7 @@ const CheckoutConfirm = () => {
           Bạn đã đặt hàng thành công
         </h2>
         <h6 className="font-medium text-xl leading-8 text-black mb-3">
-          Xin chào, <b>{orderData?.shipping?.name}</b>
+          Xin chào, <b>{orderData?.shippingInfo?.name}</b>
         </h6>
         <p className="font-normal text-lg leading-8 text-gray-500 mb-4">
           Đơn đặt hàng của bạn đã được hoàn thành và sẽ được giao chỉ từ 2 - 3
@@ -81,7 +203,7 @@ const CheckoutConfirm = () => {
               Ngày giao hàng dự kiến
             </p>
             <h6 className="font-semibold font-manrope text-2xl leading-9 text-black">
-              {formatDateToDDMMYYYY(orderData?.shipping?.estimatedDeliveryDate)}
+              {formatDateToDDMMYYYY(orderData?.estimatedDeliveryDate)}
             </h6>
           </div>
           <div className="box group">
@@ -113,7 +235,7 @@ const CheckoutConfirm = () => {
               Địa chỉ giao hàng
             </p>
             <h6 className="font-manrope text-md leading-9 text-black">
-              {orderData?.shipping?.detailAddress}
+              {orderData?.shippingInfo?.fullAddress}
             </h6>
           </div>
         </div>
@@ -162,7 +284,9 @@ const CheckoutConfirm = () => {
                     </h6>
                   </NavLink>
                   <h6 className="font-normal text-base leading-7 text-gray-500">
-                    {product?.variantColor} - {product?.variantSize}
+                    {product?.variantColor}
+                    {product?.variantSize !== 'FREESIZE' &&
+                      ` - ${product.variantSize}`}
                   </h6>
                   <h6 className="font-medium text-base leading-7 text-gray-600">
                     {formatCurrencyVND(product?.price)}
@@ -190,13 +314,7 @@ const CheckoutConfirm = () => {
                 Tạm tính
               </p>
               <p className="font-semibold text-lg leading-8 text-gray-900">
-                {formatCurrencyVND(
-                  orderData?.productsList?.reduce(
-                    (total, product) =>
-                      total + product?.price * product?.quantity,
-                    0
-                  )
-                )}
+                {formatCurrencyVND(orderData?.totalPrice)}
               </p>
             </div>
             <div className="flex items-center justify-between mb-6">
@@ -204,23 +322,23 @@ const CheckoutConfirm = () => {
                 Phí giao hàng
               </p>
               <p className="font-semibold text-lg leading-8 text-red-400">
-                + {formatCurrencyVND(orderData?.shipping?.fee)}
+                + {formatCurrencyVND(orderData?.fee)}
               </p>
             </div>
-            {/* <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-6">
               <p className="font-normal text-lg leading-8 text-gray-500">
                 Giảm giá
               </p>
-              <p className="font-semibold text-lg leading-8 text-red-600">
-                - {formatCurrencyVND(orderData?.discount)}
+              <p className="font-semibold text-lg leading-8 text-green-600">
+                - {formatCurrencyVND(orderData?.discountPrice)}
               </p>
-            </div> */}
+            </div>
             <div className="flex items-center justify-between py-6 border-y border-gray-100">
               <p className="font-manrope font-semibold text-2xl leading-9 text-gray-900">
-                Tổng tiền
+                Tổng tiền phải trả
               </p>
               <p className="font-manrope font-bold text-2xl leading-9 text-red-600">
-                {formatCurrencyVND(orderData?.totalPrice)}
+                {formatCurrencyVND(orderData?.totalPayment)}
               </p>
             </div>
           </div>
@@ -231,7 +349,8 @@ const CheckoutConfirm = () => {
             chuyển thành công.
           </p>
           <h6 className="font-manrope font-bold text-2xl leading-9 text-black mb-3">
-            Cảm ơn bạn đã mua sắm ở BMT LIFE - <br className="md:hidden" />
+            Cảm ơn bạn đã mua sắm ở {config?.nameCompany} -{' '}
+            <br className="md:hidden" />
             <NavLink
               type="button"
               className="font-medium text-red-600 hover:text-red-500"
