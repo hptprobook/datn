@@ -1,7 +1,7 @@
 import { Icon } from '@iconify/react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useState, useRef, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   getCurrentOrders,
   getCurrentOrderWithStatus,
@@ -15,17 +15,21 @@ import { useSwal, useSwalWithConfirm } from '~/customHooks/useSwal';
 import OrderLoading from '~/components/common/Loading/OrderLoading';
 
 const MyOrder = () => {
-  const [selectedTab, setSelectedTab] = useState('all');
-  const tabsRef = useRef(null);
+  const { tab } = useParams();
   const [limitOrder, setLimitOrder] = useState(10);
   const navigate = useNavigate();
+  const [selectedTab, setSelectedTab] = useState(tab || 'all'); // 'all' là mặc định
+  const tabsRef = useRef(null);
 
   useEffect(() => {
-    const savedTab = localStorage.getItem('selectedTab');
-    if (savedTab) {
-      setSelectedTab(savedTab);
-    }
-  }, [selectedTab]);
+    setSelectedTab(tab || 'all');
+  }, [tab]);
+
+  const handleTabChange = (newTab) => {
+    setSelectedTab(newTab);
+    setLimitOrder(10);
+    navigate(`/nguoi-dung/${newTab}`);
+  };
 
   const fetchOrders = ({ queryKey }) => {
     const [, limit, status] = queryKey;
@@ -133,12 +137,6 @@ const MyOrder = () => {
           });
         }
       });
-  };
-
-  const handleTabChange = (tab) => {
-    setSelectedTab(tab);
-    setLimitOrder(10);
-    localStorage.setItem('selectedTab', tab);
   };
 
   const handleLoadMore = () => {
@@ -252,7 +250,7 @@ const MyOrder = () => {
                 <span className="text-lg">
                   Tổng cộng:{' '}
                   <span className="font-bold text-red-600 text-xl ml-4">
-                    {formatCurrencyVND(order?.totalPrice)}
+                    {formatCurrencyVND(order?.totalPayment)}
                   </span>
                 </span>
               </div>

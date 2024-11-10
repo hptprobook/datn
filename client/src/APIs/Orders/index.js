@@ -42,3 +42,14 @@ export const getOrderByCodeAPI = async (code) => {
     throw error.response.data;
   }
 };
+
+export const getVnpayUrlAPI = async (data) => {
+  console.log(data);
+  try {
+    const response = await request.post('/pays/vnpay', data);
+    return response.data;
+  } catch (error) {
+    console.log('Lỗi khi tìm kiếm đơn hàng bằng code', error);
+    throw error.response.data;
+  }
+};

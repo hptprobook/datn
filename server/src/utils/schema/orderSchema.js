@@ -2,6 +2,7 @@ import Joi from 'joi';
 // import { ObjectId } from 'mongodb';
 
 const OrderStatus = {
+  paymentPending: 'paymentPending', // Chờ thanh toán
   pending: 'pending', // Chờ xác nhận
   confirmed: 'confirmed', // Đã xác nhận
   shipped: 'shipped', // Đã giao cho ĐVVC
@@ -80,6 +81,7 @@ export const SAVE_ORDER = Joi.object({
   couponId: Joi.array().items(Joi.string().trim().min(1)).default([]), // Mã giảm giá sử dụng trong đơn hàng
   discountPercentage: Joi.boolean().default(false), // Xác định giảm giá theo phần trăm
   discountPrice: Joi.number().min(0), // Số tiền giảm giá
+  totalPayment: Joi.number().min(0).required(), // Tổng giá trị thanh toán
   totalCapitalPrice: Joi.number().min(0), // Tổng giá vốn của sản phẩm
   totalProfit: Joi.number().min(0), // Tổng lợi nhuận
   paymentMethod: Joi.valid('Tiền mặt', 'Chuyển khoản', 'VNPAY').default(
@@ -152,11 +154,10 @@ export const SAVE_ORDER_NOT_LOGIN = Joi.object({
   couponId: Joi.array().items(Joi.string().trim().min(1)),
   discountPercentage: Joi.boolean().default(false),
   discountPrice: Joi.number().min(0),
+  totalPayment: Joi.number().min(0).required(),
   totalCapitalPrice: Joi.number().min(0),
   totalProfit: Joi.number().min(0),
-  paymentMethod: Joi.valid('Tiền mặt', 'Chuyển khoản', 'VNPAY').default(
-    'Tiền mặt'
-  ),
+  paymentMethod: Joi.valid('Tiền mặt', 'VNPAY'),
   type: Joi.string().trim().min(1).default('notLoginOrder'),
   createdAt: Joi.date().timestamp('javascript').default(Date.now), // Thời gian tạo trạng thái
 });

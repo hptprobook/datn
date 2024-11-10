@@ -60,7 +60,7 @@ Router.put('/me/removeCart', verifyToken, usersController.removeCartToCurrent);
 
 //read
 Router.post('/notify/:id', usersController.readNotify);
-Router.post('/notifies', usersController.readAllNotifies);
+Router.get('/notifies/readAll', verifyToken, usersController.readAllNotifies);
 
 //favorite
 Router.post('/favorite/:id', usersController.favoriteProduct);

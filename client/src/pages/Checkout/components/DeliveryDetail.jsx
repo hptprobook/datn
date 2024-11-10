@@ -241,9 +241,9 @@ const DeliveryDetail = ({ selectedProducts, setShippingFee }) => {
           <input
             type="radio"
             className="radio bg-white"
-            name="payment"
+            name="paymentMethod"
             value="VNPAY"
-            checked={formik.values.payment === 'VNPAY'}
+            checked={formik.values.paymentMethod === 'VNPAY'}
             onChange={formik.handleChange}
           />
           <span>Thanh toán qua VNPAY</span>
@@ -253,16 +253,16 @@ const DeliveryDetail = ({ selectedProducts, setShippingFee }) => {
           <input
             type="radio"
             className="radio bg-white"
-            name="payment"
-            value="COD"
-            checked={formik.values.payment === 'COD'}
+            name="paymentMethod"
+            value="Tiền mặt"
+            checked={formik.values.paymentMethod === 'Tiền mặt'}
             onChange={formik.handleChange}
           />
           <span>Thanh toán khi nhận hàng</span>
         </label>
 
-        {formik.touched.payment && formik.errors.payment && (
-          <p className="text-sm text-red-600">{formik.errors.payment}</p>
+        {formik.touched.paymentMethod && formik.errors.paymentMethod && (
+          <p className="text-sm text-red-600">{formik.errors.paymentMethod}</p>
         )}
       </div>
 

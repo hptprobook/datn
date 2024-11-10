@@ -11,10 +11,11 @@ import IconButton from '@mui/material/IconButton';
 import Iconify from 'src/components/iconify';
 import PropTypes from 'prop-types';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { List } from '@mui/material';
+import { List, Typography } from '@mui/material';
 import Logo from 'src/components/logo';
 import Header from './header';
 import Nav, { NavItem } from './nav';
+import navConfig from './config-navigation';
 
 const drawerWidth = 200;
 
@@ -131,6 +132,17 @@ export default function AdminLayout({ children }) {
           >
             <Iconify icon="eva:menu-2-fill" />
           </IconButton>
+          <Typography
+            variant="h6"
+            noWrap
+            component="div"
+            sx={{
+              display: { xs: 'none', sm: 'block' },
+              color: 'text.primary',
+            }}
+          >
+            {navConfig.find((item) => item.path === pathname)?.title}
+          </Typography>
           <Box sx={{ flexGrow: 1 }} />
           <Header />
         </Toolbar>

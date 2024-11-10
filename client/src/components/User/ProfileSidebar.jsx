@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { IoBagCheckOutline } from 'react-icons/io5';
-import { CiStar, CiUser } from 'react-icons/ci';
+import { CiUser } from 'react-icons/ci';
 import { MdDiscount } from 'react-icons/md';
 import { FaRegEye } from 'react-icons/fa';
 import { NavLink } from 'react-router-dom';
@@ -168,20 +168,6 @@ const ProfileSidebar = () => {
                   <li className="flex gap-2 items-center">
                     <MdDiscount className="text-xl" />
                     <span className="font-semibold">Kho voucher</span>
-                  </li>
-                </NavLink>
-                <NavLink
-                  to={'/nguoi-dung/danh-gia-cua-toi'}
-                  className={({ isActive }) =>
-                    isActive
-                      ? 'menu-item menu-active bg-red-500 text-white'
-                      : 'menu-item bg-white text-black hover:bg-red-500 hover:text-white'
-                  }
-                  onClick={handleMenuItemClick}
-                >
-                  <li className="flex gap-2 items-center">
-                    <CiStar className="text-xl" />
-                    <span className="font-semibold">Đánh giá của tôi</span>
                   </li>
                 </NavLink>
                 <NavLink

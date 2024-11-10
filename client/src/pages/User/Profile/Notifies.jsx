@@ -1,156 +1,140 @@
-import React, { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { getTimeDifference } from '~/utils/formatters';
 import NotifyModal from './components/NotifyModal';
-import axios from 'axios';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { getCurrentUser } from '~/APIs';
+
+import { useUser } from '~/context/UserContext';
+import MainLoading from '~/components/common/Loading/MainLoading';
+import { readAllNotifiesAPI, updateCurrentUser } from '~/APIs';
+import { useMutation } from '@tanstack/react-query';
+import { useSwal, useSwalWithConfirm } from '~/customHooks/useSwal';
 
 const Notifies = () => {
-  const [notifications, setNotifications] = useState([]);
-  // const [notifications, setNotifications] = useState([
-  //   {
-  //     _id: 1,
-  //     title: 'Đơn hàng',
-  //     shortMessage: 'Đơn hàng của bạn đang được giao tới',
-  //     message: 'Đơn hàng của bạn đang được giao tới',
-  //     createdAt: 1726194535066,
-  //     icon: 'https://cdn-icons-png.flaticon.com/128/763/763812.png',
-  //     isReaded: false,
-  //   },
-  //   {
-  //     _id: 2,
-  //     title: 'Tin nhắn',
-  //     shortMessage: 'Bạn có một tin nhắn mới',
-  //     message: 'Bạn có một tin nhắn mới',
-  //     createdAt: 1721663287824,
-  //     icon: 'https://cdn-icons-png.flaticon.com/512/893/893257.png',
-  //     isReaded: true,
-  //   },
-  //   {
-  //     _id: 3,
-  //     title: 'Hệ thống',
-  //     shortMessage:
-  //       'Hãy điền đầy đủ thông tin về bệnh COVID-19 trước khi đến lịch hẹn tới',
-  //     message:
-  //       'Hãy điền đầy đủ thông tin về bệnh COVID-19 trước khi đến lịch hẹn tới',
-  //     createdAt: 1726116897398,
-  //     icon: 'https://cdn-icons-png.flaticon.com/512/6863/6863272.png',
-  //     isReaded: true,
-  //   },
-  //   {
-  //     _id: 4,
-  //     title: 'Hệ thống',
-  //     shortMessage:
-  //       'Chúc mừng bạn đã đăng ký thành công tài khoản tại chúng tôi!',
-  //     message: 'Chúc mừng bạn đã đăng ký thành công tài khoản tại chúng tôi!',
-  //     createdAt: 1726476852277,
-  //     icon: 'https://cdn-icons-png.flaticon.com/128/763/763812.png',
-  //     isReaded: false,
-  //   },
-  // ]);
-
   const [selectedNotify, setSelectedNotify] = useState(null);
   const [isModalOpen, setModalOpen] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(10); // Số lượng thông báo hiển thị
+  const { user, refetchUser } = useUser();
 
-  const { data: user } = useQuery({
-    queryKey: ['getCurrentUser'],
-    queryFn: getCurrentUser,
+
+  const { mutate: markAsRead, isLoading } = useMutation({
+    mutationFn: (notify) => {
+      const updateNotify = user.notifies.map((n) =>
+        n._id === notify._id ? { ...n, isReaded: true } : n
+      );
+      return updateCurrentUser({ notifies: updateNotify });
+    },
+    onSuccess: () => {
+      refetchUser();
+    },
   });
 
-  // Xử lý khi người dùng nhấn vào một thông báo
-  const handleNotifyClick = async (notify) => {
-    const updatedNotifications = notifications.map((n) =>
-      n._id === notify._id ? { ...n, isReaded: true } : n
-    );
-    setNotifications(updatedNotifications);
-
-    setSelectedNotify({ ...notify, isReaded: true });
-
-    if (!notify.isReaded) {
-      await axios.post(`http://localhost:3000/api/users/notify/${notify._id}`, {
-        ...notify,
-        isReaded: true,
+  const { mutate: readAll } = useMutation({
+    mutationFn: readAllNotifiesAPI,
+    onSuccess: () => {
+      useSwal.fire({
+        icon: 'success',
+        title: 'Thành công',
+        text: 'Đánh dấu tất cả thông báo của bạn là "Đã đọc"!',
+        confirmButtonText: 'Xác nhận',
+        timer: 1000,
       });
+      refetchUser();
+    },
+  });
+
+  const handleNotifyClick = (notify) => {
+    if (!notify.isReaded) {
+      markAsRead(notify);
     }
+    setSelectedNotify(notify);
 
     setModalOpen(true);
   };
 
-  // Đóng modal
   const closeModal = () => {
     setModalOpen(false);
   };
 
-  // Đánh dấu tất cả thông báo là đã đọc
-  const markAllAsRead = async () => {
-    const updatedNotifications = notifications.map((notify) => ({
-      ...notify,
-      isReaded: true,
-    }));
-    await axios.post('http://localhost:3000/api/users/notifies', {
-      updatedNotifications,
-    });
-
-    setNotifications(updatedNotifications);
+  // Hàm xử lý khi bấm "Xem thêm"
+  const handleLoadMore = () => {
+    setVisibleCount((prevCount) => prevCount + 10);
   };
 
-  const notifies = async (user) => {
-    try {
-      const result = await axios.get(
-        `http://localhost:3000/api/users/notifies/${user._id}`
-      );
 
-      setNotifications(result.data.notifies);
-    } catch (err) {
-      console.log(err);
-    }
+  const handleReadAll = () => {
+    useSwalWithConfirm
+      .fire({
+        icon: 'question',
+        title: 'Đọc tất cả thông báo',
+        text: 'Bạn có chắc chắn? Hành động này không thể hoàn tác!',
+        confirmButtonText: 'Xác nhận',
+        cancelButtonText: 'Hủy bỏ',
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          readAll();
+        }
+      });
   };
 
-  useEffect(() => {
-    notifies(user);
-  }, [user]);
+  if (!user || isLoading) return <MainLoading />;
+
 
   return (
-    <div className='text-black bg-white rounded-sm p-10'>
-      <div className='w-full rounded-xl mx-auto'>
-        <div className='inline-flex items-center justify-between w-full'>
-          <h3 className='font-bold text-xl sm:text-2xl text-gray-900'>
+    <div className="text-black bg-white rounded-sm p-10">
+      <div className="w-full rounded-xl mx-auto">
+        <div className="inline-flex items-center justify-between w-full">
+          <h3 className="font-bold text-xl sm:text-2xl text-gray-900">
             Thông báo
           </h3>
         </div>
 
-        {notifications && notifications.length > 0
-          ? notifications.map((notify) => (
-              <div
-                key={notify._id}
-                className={`mt-2 px-6 py-4 cursor-pointer rounded-lg shadow w-full border hover:scale-101 transition-transform duration-300 border-gray-200
-            ${!notify.isReaded ? 'bg-red-100 ' : 'bg-white '}`}
-                onClick={() => handleNotifyClick(notify)}
-              >
-                <div className='inline-flex items-center justify-between w-full'>
-                  <div className='inline-flex items-center'>
-                    <img
-                      src='https://cdn-icons-png.flaticon.com/512/6863/6863272.png'
-                      className='w-6 h-6 mr-3'
-                    />
-                    <h3 className='font-bold text-base text-gray-800'>
-                      {notify.description}
-                    </h3>
-                  </div>
-                  <p className='text-xs text-gray-500'>
-                    {getTimeDifference(notify.createdAt)}
-                  </p>
-                </div>
-                <p className='mt-1 text-sm'>{notify.note}</p>
+        {user?.notifies?.length === 0 && (
+          <div className="text-center text-gray-600 mt-8">
+            <p className="text-lg">Không có thông báo nào</p>
+          </div>
+        )}
+
+        {user?.notifies?.slice(0, visibleCount).map((notify) => (
+          <div
+            key={notify?._id}
+            className={`mt-2 px-6 py-4 cursor-pointer rounded-lg shadow w-full border hover:scale-101 transition-transform duration-300 border-gray-200
+            ${!notify?.isReaded ? 'bg-red-100 ' : 'bg-white '}`}
+            onClick={() => handleNotifyClick(notify)}
+          >
+            <div className="inline-flex items-center justify-between w-full">
+              <div className="inline-flex items-center">
+                <img
+                  src="https://cdn-icons-png.flaticon.com/512/6863/6863272.png"
+                  className="w-6 h-6 mr-3"
+                />
+                <h3 className="font-bold text-base text-gray-800">
+                  {notify?.title}
+                </h3>
               </div>
-            ))
-          : 'Không có thông báo'}
+              <p className="text-xs text-gray-500">
+                {getTimeDifference(notify?.createdAt)}
+              </p>
+            </div>
+            <p className="mt-1 text-sm">{notify?.description}</p>
+          </div>
+        ))}
+
+        <div className="text-center">
+          {visibleCount < user?.notifies?.length && (
+            <button
+              onClick={handleLoadMore}
+              className="btn rounded-md btn-primary mt-4"
+            >
+              Xem thêm
+            </button>
+          )}
+        </div>
 
         <button
-          onClick={markAllAsRead}
-          className='inline-flex text-sm bg-white justify-center px-4 py-2 mt-12 w-full text-red-500 items-center rounded font-medium
+          className="inline-flex text-sm bg-white justify-center px-4 py-2 mt-12 w-full text-red-500 items-center rounded font-medium
            shadow border focus:outline-none transform transition-transform duration-700 hover:bg-red-500
-            hover:text-white'
+            hover:text-white"
+          onClick={handleReadAll}
         >
           Đánh dấu tất cả là đã đọc
         </button>
