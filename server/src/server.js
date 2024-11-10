@@ -6,16 +6,16 @@ import exitHook from 'async-exit-hook';
 import { CONNECT_DB, CLOSE_DB } from '~/config/mongodb';
 import { env } from '~/config/environment';
 import { errorHandlingMiddleware } from './middlewares/errorHandlingMiddleware';
-import http from 'http';
 import cookieParser from 'cookie-parser';
 import { APIs } from './routes';
 import swaggerUi from 'swagger-ui-express';
 import swaggerFile from '../swagger_output.json';
 import path from 'path';
+const { app, server } = require('./socket/socket');
 
 const START_SERVER = () => {
-  const app = express();
-  const server = http.createServer(app);
+  // const app = express();
+  // const server = http.createServer(app);
   app.use(cookieParser());
   app.use(
     cors({

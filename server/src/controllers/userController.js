@@ -79,7 +79,24 @@ const getUserById = async (req, res) => {
   try {
     const { id } = req.params;
     const user = await userModel.getUserID(id);
-    console.log(user);
+    if (user) {
+      return res.status(StatusCodes.OK).json(user);
+    }
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ message: 'Không tồn tại người dùng' });
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: ERROR_MESSAGES.ERR_AGAIN,
+      error: error,
+    });
+  }
+};
+
+const getNotifiesUserById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await userModel.getNotifiesUserID(id);
     if (user) {
       return res.status(StatusCodes.OK).json(user);
     }
@@ -562,4 +579,5 @@ export const usersController = {
   updateInfor,
   readNotify,
   readAllNotifies,
+  getNotifiesUserById,
 };

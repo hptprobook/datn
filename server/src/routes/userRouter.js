@@ -37,6 +37,8 @@ Router.get('/admin', verifyToken, verifyAdmin, (req, res) => {
 });
 
 Router.get('/:id', usersController.getUserById);
+//notifies
+Router.get('/notifies/:id', usersController.getNotifiesUserById);
 Router.get('/email/:email', usersController.getUserByEmail);
 
 Router.put('/me', verifyToken, usersController.updateCurrentUser);

@@ -12,10 +12,12 @@ const NotifyBar = ({ notifies }) => {
             notifies.map((notify) => {
               return (
                 <div
-                  className='hover:bg-gray-200 hover:text-red-600'
+                  className={`${
+                    !notify.isReaded && 'bg-gray-200 text-red-600'
+                  }`}
                   key={notify._id}
                 >
-                  <div className='flex items-center py-3 text-sm  px-4'>
+                  <div className='flex items-center py-3 text-sm px-4'>
                     <img
                       src='https://cdn-icons-png.flaticon.com/512/6863/6863272.png'
                       className='w-6 h-6 mr-3'

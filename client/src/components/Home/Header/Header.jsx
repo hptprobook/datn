@@ -21,6 +21,8 @@ import { useUser } from '~/context/UserContext';
 import { useWebConfig } from '~/context/WebsiteConfig';
 import NotifyBar from './NotifyBar';
 import axios from 'axios';
+import { useSocketContext } from '~/context/SocketContext';
+import { io } from 'socket.io-client';
 
 const Header = () => {
   const { isAuthenticated } = useCheckAuth();
@@ -34,6 +36,7 @@ const Header = () => {
   const { user } = useUser();
   const { config } = useWebConfig();
   const { items } = useCart();
+  const { socket, onlineUser, setOnlineUser, setSocket } = useSocketContext();
 
   const { data } = useQuery({
     queryKey: ['getCurrentUser'],
@@ -42,11 +45,24 @@ const Header = () => {
   });
 
   const currentUserInfor = data ? data : null;
-
+  if (data) {
+    io(import.meta.env.VITE_SERVER_URL, {
+      query: {
+        userId: data._id,
+      },
+    });
+  }
+  useEffect(() => {
+    if (socket) {
+      socket.on('receiveNotifies', (notifies) => {
+        console.log(notifies);
+      });
+    }
+  }, [socket]);
   const notifies = async () => {
     try {
       const result = await axios.get(
-        'http://localhost:3000/api/users/672332bb3eb63a6c62287dc6'
+        'http://localhost:3000/api/users/notifies/672332bb3eb63a6c62287dc6'
       );
 
       setNotifications(result.data.notifies);
@@ -92,6 +108,11 @@ const Header = () => {
                   title='Thông báo'
                 >
                   <NotifyBar notifies={notifications} />
+                  {notifications.some(
+                    (notify) => notify.isReaded === false
+                  ) && (
+                    <div className='absolute -top-1 -right-1 bg-red-700 text-white rounded-full w-3 h-3 flex items-center justify-center text-xs'></div>
+                  )}
                 </div>
               </>
             )}

@@ -102,6 +102,16 @@ const addOrder = async (req, res) => {
     const dataOrder = { userId: user_id, ...req.body };
     const result = await orderModel.addOrder(dataOrder);
     const orderData = await orderModel.getOrderById(result.insertedId);
+
+    if (!orderData) {
+      return res.status(StatusCodes.OK).json({
+        message: 'Đặt hàng không thành công',
+      });
+    }
+    orderData.type = 'order';
+    orderData.title = 'Đơn hàng';
+    await userModel.sendNotifies(orderData);
+
     return res.status(StatusCodes.OK).json({
       message: 'Bạn đã đặt hàng thành công',
       data: orderData,

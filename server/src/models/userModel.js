@@ -73,6 +73,16 @@ const getUserID = async (user_id) => {
   const user = await db.findOne({ _id: new ObjectId(user_id) });
   return user;
 };
+const getNotifiesUserID = async (user_id) => {
+  const db = await GET_DB().collection('users');
+  const user = await db.findOne({ _id: new ObjectId(user_id) });
+  if (user && user.notifies) {
+    user.notifies.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  }
+
+  return user;
+};
+
 const validateBeforeUpdate = async (data) => {
   return await UPDATE_USER.validateAsync(data, { abortEarly: false });
 };
@@ -325,6 +335,7 @@ const updateInfor = async (id, data) => {
 
 const sendNotifies = async (data) => {
   const { userId, ...otherData } = data;
+  console.log(data);
 
   const status = otherData.status[otherData.status.length - 1];
   const dataValidate = await validateBeforeSendNotifies([status]);
@@ -413,4 +424,5 @@ export const userModel = {
   sendNotifies,
   findUsers,
   readNotify,
+  getNotifiesUserID,
 };

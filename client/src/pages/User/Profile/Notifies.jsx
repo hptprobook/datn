@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { getTimeDifference } from '~/utils/formatters';
 import NotifyModal from './components/NotifyModal';
 import axios from 'axios';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { getCurrentUser } from '~/APIs';
 
 const Notifies = () => {
   const [notifications, setNotifications] = useState([]);
@@ -50,6 +52,11 @@ const Notifies = () => {
   const [selectedNotify, setSelectedNotify] = useState(null);
   const [isModalOpen, setModalOpen] = useState(false);
 
+  const { data: user } = useQuery({
+    queryKey: ['getCurrentUser'],
+    queryFn: getCurrentUser,
+  });
+
   // Xử lý khi người dùng nhấn vào một thông báo
   const handleNotifyClick = async (notify) => {
     const updatedNotifications = notifications.map((n) =>
@@ -87,12 +94,11 @@ const Notifies = () => {
     setNotifications(updatedNotifications);
   };
 
-  const notifies = async () => {
+  const notifies = async (user) => {
     try {
       const result = await axios.get(
-        'http://localhost:3000/api/users/672332bb3eb63a6c62287dc6'
+        `http://localhost:3000/api/users/notifies/${user._id}`
       );
-      console.log(result.data.notifies);
 
       setNotifications(result.data.notifies);
     } catch (err) {
@@ -101,8 +107,8 @@ const Notifies = () => {
   };
 
   useEffect(() => {
-    notifies();
-  }, []);
+    notifies(user);
+  }, [user]);
 
   return (
     <div className='text-black bg-white rounded-sm p-10'>
