@@ -7,7 +7,7 @@ export const orderNotLoginApi = async (data) => {
     return response.data;
   } catch (error) {
     console.log('Lỗi khi đặt hàng không đăng nhập', error);
-    throw error;
+    throw error.response.data;
   }
 };
 
@@ -17,16 +17,27 @@ export const findOrderByCodeAPI = async (code) => {
     return response.data;
   } catch (error) {
     console.log('Lỗi khi tìm kiếm đơn hàng bằng code', error);
-    throw error;
+    throw error.response.data;
   }
 };
 
 export const updateOrderNotLoginAPI = async (data) => {
+  console.log(data);
   try {
     const response = await request.put(`/orders/not/${data.id}`, data.data);
     return response.data;
   } catch (error) {
     console.log('Lỗi khi đặt đơn hàng', error);
-    throw error;
+    throw error.response.data;
+  }
+};
+
+export const removeOrderNotLoginAPI = async (id) => {
+  try {
+    const response = await request.put(`/orders/not/${id}`);
+    return response.data;
+  } catch (error) {
+    console.log('Lỗi khi xoá đơn hàng', error);
+    throw error.response.data;
   }
 };

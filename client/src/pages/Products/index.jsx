@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useUser } from '~/context/UserContext';
 import ProductItem from '~/components/common/Product/ProductItem';
+import MainLoading from '~/components/common/Loading/MainLoading';
 
 const MAX_VIEWS = 20;
 
@@ -60,7 +61,7 @@ const ProductPage = () => {
     return () => clearTimeout(viewTimeout);
   }, [productInfo, user, updateViews]);
 
-  if (isLoading || !productInfo) return null;
+  if (isLoading || !productInfo) return <MainLoading />;
 
   const variantImages = productInfo.variants
     ?.map((variant) => variant.image)

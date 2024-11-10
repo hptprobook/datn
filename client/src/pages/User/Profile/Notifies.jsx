@@ -3,8 +3,9 @@ import { getTimeDifference } from '~/utils/formatters';
 import NotifyModal from './components/NotifyModal';
 import { useUser } from '~/context/UserContext';
 import MainLoading from '~/components/common/Loading/MainLoading';
-import { updateCurrentUser } from '~/APIs';
+import { readAllNotifiesAPI, updateCurrentUser } from '~/APIs';
 import { useMutation } from '@tanstack/react-query';
+import { useSwal, useSwalWithConfirm } from '~/customHooks/useSwal';
 
 const Notifies = () => {
   const [selectedNotify, setSelectedNotify] = useState(null);
@@ -24,6 +25,20 @@ const Notifies = () => {
     },
   });
 
+  const { mutate: readAll } = useMutation({
+    mutationFn: readAllNotifiesAPI,
+    onSuccess: () => {
+      useSwal.fire({
+        icon: 'success',
+        title: 'Thành công',
+        text: 'Đánh dấu tất cả thông báo của bạn là "Đã đọc"!',
+        confirmButtonText: 'Xác nhận',
+        timer: 1000,
+      });
+      refetchUser();
+    },
+  });
+
   const handleNotifyClick = (notify) => {
     if (!notify.isReaded) {
       markAsRead(notify);
@@ -39,6 +54,22 @@ const Notifies = () => {
   // Hàm xử lý khi bấm "Xem thêm"
   const handleLoadMore = () => {
     setVisibleCount((prevCount) => prevCount + 10);
+  };
+
+  const handleReadAll = () => {
+    useSwalWithConfirm
+      .fire({
+        icon: 'question',
+        title: 'Đọc tất cả thông báo',
+        text: 'Bạn có chắc chắn? Hành động này không thể hoàn tác!',
+        confirmButtonText: 'Xác nhận',
+        cancelButtonText: 'Hủy bỏ',
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          readAll();
+        }
+      });
   };
 
   if (!user || isLoading) return <MainLoading />;
@@ -98,6 +129,7 @@ const Notifies = () => {
           className="inline-flex text-sm bg-white justify-center px-4 py-2 mt-12 w-full text-red-500 items-center rounded font-medium
            shadow border focus:outline-none transform transition-transform duration-700 hover:bg-red-500
             hover:text-white"
+          onClick={handleReadAll}
         >
           Đánh dấu tất cả là đã đọc
         </button>

@@ -8,7 +8,13 @@ import {
   useNavigate,
   useSearchParams,
 } from 'react-router-dom';
-import { deleteOrderAPI, getOrderByCodeAPI, updateOrderAPI } from '~/APIs';
+import {
+  deleteOrderAPI,
+  findOrderByCodeAPI,
+  removeOrderNotLoginAPI,
+  updateOrderAPI,
+  updateOrderNotLoginAPI,
+} from '~/APIs';
 import MainLoading from '~/components/common/Loading/MainLoading';
 import CheckoutStepper from '~/components/common/Stepper/CheckoutStepper';
 import { useWebConfig } from '~/context/WebsiteConfig';
@@ -33,49 +39,96 @@ const CheckoutConfirm = () => {
     mutationFn: deleteOrderAPI,
   });
 
+  const { mutate: updateOrderNotLogin, isLoading: updateOrderNotLoginLoading } =
+    useMutation({
+      mutationFn: updateOrderNotLoginAPI,
+    });
+
+  const { mutate: deleteOrderNotLogin, isLoading: deleteOrderNotLoginLoading } =
+    useMutation({
+      mutationFn: removeOrderNotLoginAPI,
+    });
+
   const { data: orderData, isLoading: getOrderByCodeLoading } = useQuery({
     queryKey: ['getOrderByCode', orderCode],
-    queryFn: () => getOrderByCodeAPI(orderCode),
+    queryFn: () => findOrderByCodeAPI(orderCode),
     staleTime: 0,
     cacheTime: 0,
   });
 
   useEffect(() => {
-    if (
-      orderData &&
-      Array.isArray(orderData?.status) &&
-      orderData?.status?.length > 0 &&
-      vnp_ResponseCode
-    ) {
-      const latestStatus =
-        orderData?.status[orderData.status.length - 1]?.status;
+    if (orderData) {
+      if (orderData?.type === 'userOrder') {
+        if (
+          orderData &&
+          Array.isArray(orderData?.status) &&
+          orderData?.status?.length > 0 &&
+          vnp_ResponseCode
+        ) {
+          const latestStatus =
+            orderData?.status[orderData.status.length - 1]?.status;
 
-      if (vnp_ResponseCode === '00' && latestStatus !== 'pending') {
-        updateOrder({
-          id: orderData?._id,
-          data: {
-            status: {
-              status: 'pending',
-              note: 'Đơn hàng chờ xác nhận!',
+          if (vnp_ResponseCode === '00' && latestStatus !== 'pending') {
+            updateOrder({
+              id: orderData?._id,
+              data: {
+                status: {
+                  status: 'pending',
+                  note: 'Đơn hàng chờ xác nhận!',
+                },
+              },
+            });
+          } else if (vnp_ResponseCode !== '00') {
+            useSwal
+              .fire({
+                icon: 'error',
+                title: 'Thất bại!',
+                text: 'Đặt hàng thất bại, vui lòng thử lại!',
+                confirmButtonText: 'Xác nhận',
+              })
+              .then(() => {
+                deleteOrder(orderData._id);
+                navigate('/');
+              });
+          }
+        }
+      } else {
+        const latestStatus =
+          orderData?.status[orderData.status.length - 1]?.status;
+
+        if (vnp_ResponseCode === '00' && latestStatus !== 'pending') {
+          updateOrderNotLogin({
+            id: orderData?._id,
+            data: {
+              status: {
+                status: 'pending',
+                note: 'Đơn hàng chờ xác nhận!',
+              },
             },
-          },
-        });
-      } else if (vnp_ResponseCode !== '00' && latestStatus !== 'deleted') {
-        useSwal
-          .fire({
-            icon: 'error',
-            title: 'Thất bại!',
-            text: 'Đặt hàng thất bại, vui lòng thử lại!',
-            confirmButtonText: 'Xác nhận',
-            timer: 2000,
-          })
-          .then(() => {
-            deleteOrder(orderData._id);
-            navigate('/');
           });
+        } else if (vnp_ResponseCode !== '00') {
+          useSwal
+            .fire({
+              icon: 'error',
+              title: 'Thất bại!',
+              text: 'Đặt hàng thất bại, vui lòng thử lại!',
+              confirmButtonText: 'Xác nhận',
+            })
+            .then(() => {
+              deleteOrderNotLogin(orderData._id);
+              navigate('/');
+            });
+        }
       }
     }
-  }, [vnp_ResponseCode, orderData, updateOrder, deleteOrder, navigate]);
+  }, [
+    orderData,
+    vnp_ResponseCode,
+    updateOrder,
+    updateOrderNotLogin,
+    deleteOrder,
+    deleteOrderNotLogin,
+  ]);
 
   const handleCopyOrderCode = () => {
     navigator.clipboard.writeText(orderData?.orderCode);
@@ -98,7 +151,13 @@ const CheckoutConfirm = () => {
       });
   };
 
-  if (getOrderByCodeLoading || updateOrderLoading || deleteOrderLoading)
+  if (
+    getOrderByCodeLoading ||
+    updateOrderLoading ||
+    deleteOrderLoading ||
+    updateOrderNotLoginLoading ||
+    deleteOrderNotLoginLoading
+  )
     return <MainLoading />;
 
   return (
