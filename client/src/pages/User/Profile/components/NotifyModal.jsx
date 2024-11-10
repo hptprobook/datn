@@ -39,7 +39,7 @@ const NotifyType = {
   order: 'Thông báo đơn hàng',
   system: 'Thông báo hệ thống',
   messages: 'Thông báo tin nhắn',
-  offer: 'Thông báo khuyen mãi',
+  offer: 'Thông báo khuyến mãi',
 };
 
 const NotifyModal = ({ notify, isOpen, onClose }) => {
@@ -50,29 +50,28 @@ const NotifyModal = ({ notify, isOpen, onClose }) => {
   const notifyTypeLabel = NotifyType[notify.type] || 'Thông báo';
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[500]">
-      <div className="bg-white px-6 py-10 rounded-lg shadow-lg w-96 relative">
+    <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[500]'>
+      <div className='bg-white px-6 py-10 rounded-lg shadow-lg w-96 relative'>
         <button
           onClick={onClose}
           className='absolute top-2 right-2 text-gray-500 hover:text-gray-800'
         >
           <Icon
-            className="w-8 h-8 cursor-pointer"
-            icon="material-symbols:close-small-rounded"
+            className='w-8 h-8 cursor-pointer'
+            icon='material-symbols:close-small-rounded'
           />
         </button>
-        <div className="inline-flex items-center mb-4">
+        <div className='inline-flex items-center mb-4'>
           <Icon icon={icon} className={`${color} mr-4 h-10 w-10`} />
           <div>
-            <p className="font-bold text-lg">{notify.title}</p>
-            <p className="text-sm text-gray-500">{notifyTypeLabel}</p>
+            <p className='font-bold text-lg'>{notify?.title}</p>
+            <p className='text-sm text-gray-500'>{notifyTypeLabel}</p>
           </div>
         </div>
         <p>{notify?.description}</p>
-        <p className="text-sm text-gray-500 mt-4">
-          {getTimeDifference(notify.createdAt)}
+        <p className='text-sm text-gray-500 mt-4'>
+          {getTimeDifference(notify?.createdAt)}
         </p>
-        <p className='mt-4'>{notify.description}</p>
       </div>
     </div>
   );
