@@ -9,6 +9,7 @@ import {
   createOrderAPI,
   getCouponsForOrder,
   getShippingFee,
+  getVnpayUrlAPI,
   updateCurrentUser,
 } from '~/APIs';
 import MainLoading from '~/components/common/Loading/MainLoading';
@@ -16,11 +17,11 @@ import { useSwal, useSwalWithConfirm } from '~/customHooks/useSwal';
 import { formatCurrencyVND } from '~/utils/formatters';
 import { v4 as uuidv4 } from 'uuid';
 import { useUser } from '~/context/UserContext';
+import PropTypes from 'prop-types';
 
 const paymentMethods = [
   { label: 'Thanh toán khi nhận hàng', value: 'Tiền mặt' },
   { label: 'Thanh toán VNPAY', value: 'VNPAY' },
-  { label: 'Chuyển khoản trực tiếp', value: 'Chuyển khoản' },
 ];
 
 const CheckoutFinal = ({ selectedProducts, userAddress }) => {
@@ -148,26 +149,46 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
   };
 
   // mutate đặt hàng
-  const { mutate, isLoading } = useMutation({
+  const { mutate: createOrder, isLoading } = useMutation({
     mutationFn: createOrderAPI,
     onSuccess: (data) => {
       removeProductsFromCart();
-      useSwal
-        .fire({
-          title: 'Thành công!',
-          text: 'Bạn đã đặt hàng thành công, bấm xác nhận để kiểm tra thông tin và liên hệ shop nếu có lỗi',
-          icon: 'success',
-          timer: 2000,
-          confirmButtonText: 'Xác nhận',
-        })
-        .then(() => {
-          navigate('/thanh-toan/xac-nhan', { state: { orderData: data } });
-        });
+      if (data?.data?.paymentMethod !== 'VNPAY') {
+        useSwal
+          .fire({
+            title: 'Thành công!',
+            text: 'Bạn đã đặt hàng thành công, bấm xác nhận để kiểm tra thông tin và liên hệ shop nếu có lỗi',
+            icon: 'success',
+            timer: 2000,
+            confirmButtonText: 'Xác nhận',
+          })
+          .then(() => {
+            navigate('/thanh-toan/xac-nhan', {
+              state: { orderCode: data?.data?.orderCode },
+            });
+          });
+      }
     },
     onError: () => {
       useSwal.fire({
         title: 'Lỗi!',
         text: 'Có lỗi xảy ra trong quá trình đặt hàng, vui lòng thử lại',
+        icon: 'error',
+        confirmButtonText: 'Xác nhận',
+      });
+    },
+  });
+
+  // mutate lấy url vnpay
+  const { mutate: getVnpayUrl, isLoading: isLoadingVnpayUrl } = useMutation({
+    mutationFn: getVnpayUrlAPI,
+    onSuccess: (data) => {
+      window.location.href = data.url;
+    },
+    onError: () => {
+      useSwal.fire({
+        title: 'Lỗi!',
+        text: 'Có lỗi xảy ra với phương thức thanh toán bằng VNPAY, vui lòng thử lại sau!',
         icon: 'error',
         confirmButtonText: 'Xác nhận',
       });
@@ -227,6 +248,7 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
       fee: shippingFee,
       couponId: selectedCouponIds,
       discountPrice: voucherDiscount,
+      paymentMethod: paymentMethod.value,
     };
 
     if (userAddress) {
@@ -239,7 +261,16 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
         })
         .then((result) => {
           if (result.isConfirmed) {
-            mutate(data);
+            if (paymentMethod.value === 'VNPAY') {
+              createOrder(data);
+              getVnpayUrl({
+                orderId: data.orderCode,
+                amount: data.totalPayment,
+              });
+            } else {
+              // Đặt hàng với phương thức COD
+              createOrder(data);
+            }
           }
         });
     } else {
@@ -353,7 +384,8 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
     });
   };
 
-  if (isLoading || isRemovingCart || isLoadingCoupons) return <MainLoading />;
+  if (isLoading || isRemovingCart || isLoadingCoupons || isLoadingVnpayUrl)
+    return <MainLoading />;
 
   return (
     <>
@@ -670,6 +702,9 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
   );
 };
 
-CheckoutFinal.propTypes = {};
+CheckoutFinal.propTypes = {
+  userAddress: PropTypes.object.isRequired,
+  selectedProducts: PropTypes.array.isRequired,
+};
 
 export default CheckoutFinal;

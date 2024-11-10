@@ -2,6 +2,7 @@ import Joi from 'joi';
 // import { ObjectId } from 'mongodb';
 
 const OrderStatus = {
+  paymentPending: 'paymentPending', // Chờ thanh toán
   pending: 'pending', // Chờ xác nhận
   confirmed: 'confirmed', // Đã xác nhận
   shipped: 'shipped', // Đã giao cho ĐVVC

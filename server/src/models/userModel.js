@@ -308,10 +308,8 @@ const updateInfor = async (id, data) => {
 };
 
 const sendNotifies = async (data) => {
-  const { userId, ...otherData } = data;
-
-  const status = otherData.status[otherData.status.length - 1];
-  const dataValidate = await validateBeforeSendNotifies([status]);
+  const { userId, title, description, type } = data;
+  const dataValidate = await validateBeforeSendNotifies(data);
 
   const result = await GET_DB()
     .collection('users')
@@ -321,12 +319,12 @@ const sendNotifies = async (data) => {
         $push: {
           notifies: {
             _id: new ObjectId(),
-            status: dataValidate[0].status,
-            type: otherData.type,
+            title: title,
+            description: description,
+            type: type,
             isReaded: false,
-            note: dataValidate[0].note,
-            createdAt: dataValidate[0].createdAt,
-            updatedAt: dataValidate[0].updatedAt,
+            createdAt: dataValidate.createdAt,
+            updatedAt: dataValidate.updatedAt,
           },
         },
       },
