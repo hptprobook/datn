@@ -7,6 +7,8 @@ import { orderModel } from '~/models/orderModel';
 import { sendMail } from '~/utils/mail';
 import { userModel } from '~/models/userModel';
 import { recieptModel } from '~/models/receiptModel';
+import { orderStatus } from '~/utils/format';
+import { ObjectId } from 'mongodb';
 const getAllOrder = async (req, res) => {
   try {
     const { page, limit } = req.query;
@@ -100,8 +102,32 @@ const addOrder = async (req, res) => {
   try {
     const { user_id } = req.user;
     const dataOrder = { userId: user_id, ...req.body };
+
+    console.log(dataOrder);
+
+    // Kiểm tra phương thức thanh toán
+    if (dataOrder.paymentMethod === 'VNPAY') {
+      dataOrder.status = [
+        {
+          status: 'paymentPending',
+          note: 'Chờ khách hàng thanh toán',
+        },
+      ];
+    }
+
     const result = await orderModel.addOrder(dataOrder);
     const orderData = await orderModel.getOrderById(result.insertedId);
+
+    if (dataOrder.paymentMethod !== 'VNPAY') {
+      const notifyData = {
+        userId: new ObjectId(dataOrder.userId),
+        title: 'Cảm ơn bạn đã đặt hàng tại BMT Life',
+        description: `Đơn hàng #${dataOrder.orderCode} của bạn đã được đặt thành công và đang trong trạng thái "Chờ shop xác nhận đơn".`,
+        type: 'order',
+      };
+      await userModel.sendNotifies(notifyData);
+    }
+
     return res.status(StatusCodes.OK).json({
       message: 'Bạn đã đặt hàng thành công',
       data: orderData,
@@ -225,6 +251,15 @@ const updateOrder = async (req, res) => {
     const dataOrder = await orderModel.updateOrder(id, data);
     if (dataOrder) {
       const endStatus = dataOrder.status.at(-1).status;
+      const statusInVietnamese = orderStatus[endStatus] || endStatus;
+      const notifyData = {
+        userId: dataOrder.userId,
+        title: `Cập nhật thông tin cho đơn hàng #${dataOrder.orderCode}`,
+        description: `Đơn hàng #${dataOrder.orderCode} của bạn hiện đã chuyển sang trạng thái "${statusInVietnamese}". Vui lòng kiểm tra thông tin trong chi tiết đơn hàng.`,
+        type: 'order',
+      };
+      await userModel.sendNotifies(notifyData);
+
       //  trạng thái xác nhận trừ số lượng
       if (endStatus == 'confirmed') {
         const newProducts = dataOrder.productsList.map((item) => {
@@ -316,10 +351,6 @@ const updateOrder = async (req, res) => {
         };
         await recieptModel.addReceipt(dataEnd);
       }
-    }
-    dataOrder.type = 'order';
-    if (dataOrder) {
-      await userModel.sendNotifies(dataOrder);
     }
     return res.status(StatusCodes.OK).json(dataOrder);
   } catch (error) {

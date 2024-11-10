@@ -1,25 +1,81 @@
 import { Icon } from '@iconify/react';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
-import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
+import {
+  Link,
+  NavLink,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from 'react-router-dom';
+import { deleteOrderAPI, getOrderByCodeAPI, updateOrderAPI } from '~/APIs';
 import MainLoading from '~/components/common/Loading/MainLoading';
 import CheckoutStepper from '~/components/common/Stepper/CheckoutStepper';
 import { useWebConfig } from '~/context/WebsiteConfig';
 import useCheckAuth from '~/customHooks/useCheckAuth';
-import { useSwalWithConfirm } from '~/customHooks/useSwal';
+import { useSwal, useSwalWithConfirm } from '~/customHooks/useSwal';
 import { formatCurrencyVND, formatDateToDDMMYYYY } from '~/utils/formatters';
 
 const CheckoutConfirm = () => {
   const location = useLocation();
-  const orderData = location.state?.orderData.data;
+  let [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const orderCode = location.state?.orderCode || searchParams.get('vnp_TxnRef');
   const { config } = useWebConfig();
   const { isAuthenticated } = useCheckAuth();
+  const vnp_ResponseCode = searchParams.get('vnp_ResponseCode');
+
+  const { mutate: updateOrder, isLoading: updateOrderLoading } = useMutation({
+    mutationFn: updateOrderAPI,
+  });
+
+  const { mutate: deleteOrder, isLoading: deleteOrderLoading } = useMutation({
+    mutationFn: deleteOrderAPI,
+  });
+
+  const { data: orderData, isLoading: getOrderByCodeLoading } = useQuery({
+    queryKey: ['getOrderByCode', orderCode],
+    queryFn: () => getOrderByCodeAPI(orderCode),
+    staleTime: 0,
+    cacheTime: 0,
+  });
 
   useEffect(() => {
-    if (!orderData) {
-      navigate('/');
+    if (
+      orderData &&
+      Array.isArray(orderData?.status) &&
+      orderData?.status?.length > 0 &&
+      vnp_ResponseCode
+    ) {
+      const latestStatus =
+        orderData?.status[orderData.status.length - 1]?.status;
+
+      if (vnp_ResponseCode === '00' && latestStatus !== 'pending') {
+        updateOrder({
+          id: orderData?._id,
+          data: {
+            status: {
+              status: 'pending',
+              note: 'Đơn hàng chờ xác nhận!',
+            },
+          },
+        });
+      } else if (vnp_ResponseCode !== '00' && latestStatus !== 'deleted') {
+        useSwal
+          .fire({
+            icon: 'error',
+            title: 'Thất bại!',
+            text: 'Đặt hàng thất bại, vui lòng thử lại!',
+            confirmButtonText: 'Xác nhận',
+            timer: 2000,
+          })
+          .then(() => {
+            deleteOrder(orderData._id);
+            navigate('/');
+          });
+      }
     }
-  }, [orderData, navigate]);
+  }, [vnp_ResponseCode, orderData, updateOrder, deleteOrder, navigate]);
 
   const handleCopyOrderCode = () => {
     navigator.clipboard.writeText(orderData?.orderCode);
@@ -42,7 +98,8 @@ const CheckoutConfirm = () => {
       });
   };
 
-  if (!orderData) return <MainLoading />;
+  if (getOrderByCodeLoading || updateOrderLoading || deleteOrderLoading)
+    return <MainLoading />;
 
   return (
     <section className="py-8 relative max-w-container mx-auto">
