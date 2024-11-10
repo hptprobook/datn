@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { getTimeDifference } from '~/utils/formatters';
 import NotifyModal from './components/NotifyModal';
+
 import { useUser } from '~/context/UserContext';
 import MainLoading from '~/components/common/Loading/MainLoading';
 import { readAllNotifiesAPI, updateCurrentUser } from '~/APIs';
@@ -12,6 +13,7 @@ const Notifies = () => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [visibleCount, setVisibleCount] = useState(10); // Số lượng thông báo hiển thị
   const { user, refetchUser } = useUser();
+
 
   const { mutate: markAsRead, isLoading } = useMutation({
     mutationFn: (notify) => {
@@ -44,6 +46,7 @@ const Notifies = () => {
       markAsRead(notify);
     }
     setSelectedNotify(notify);
+
     setModalOpen(true);
   };
 
@@ -55,6 +58,7 @@ const Notifies = () => {
   const handleLoadMore = () => {
     setVisibleCount((prevCount) => prevCount + 10);
   };
+
 
   const handleReadAll = () => {
     useSwalWithConfirm
@@ -73,6 +77,7 @@ const Notifies = () => {
   };
 
   if (!user || isLoading) return <MainLoading />;
+
 
   return (
     <div className="text-black bg-white rounded-sm p-10">

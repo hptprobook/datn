@@ -118,6 +118,15 @@ const addOrder = async (req, res) => {
     const result = await orderModel.addOrder(dataOrder);
     const orderData = await orderModel.getOrderById(result.insertedId);
 
+//     if (!orderData) {
+//       return res.status(StatusCodes.OK).json({
+//         message: 'Đặt hàng không thành công',
+//       });
+//     }
+//     orderData.type = 'order';
+//     orderData.title = 'Đơn hàng';
+//     await userModel.sendNotifies(orderData);
+    
     if (dataOrder.paymentMethod !== 'VNPAY') {
       const notifyData = {
         userId: new ObjectId(dataOrder.userId),
@@ -371,6 +380,12 @@ const updateOrder = async (req, res) => {
         await recieptModel.addReceipt(dataEnd);
       }
     }
+    dataOrder.type = 'order';
+    dataOrder.title = 'Đơn hàng';
+    if (dataOrder) {
+      await userModel.sendNotifies(dataOrder);
+    }
+
     return res.status(StatusCodes.OK).json(dataOrder);
   } catch (error) {
     console.log(error);

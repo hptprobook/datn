@@ -54,7 +54,7 @@ const NotifyModal = ({ notify, isOpen, onClose }) => {
       <div className="bg-white px-6 py-10 rounded-lg shadow-lg w-96 relative">
         <button
           onClick={onClose}
-          className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
+          className='absolute top-2 right-2 text-gray-500 hover:text-gray-800'
         >
           <Icon
             className="w-8 h-8 cursor-pointer"
@@ -72,7 +72,7 @@ const NotifyModal = ({ notify, isOpen, onClose }) => {
         <p className="text-sm text-gray-500 mt-4">
           {getTimeDifference(notify.createdAt)}
         </p>
-        <p className="mt-4">{notify.message}</p>
+        <p className='mt-4'>{notify.description}</p>
       </div>
     </div>
   );
