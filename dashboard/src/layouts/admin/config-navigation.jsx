@@ -57,6 +57,10 @@ const navConfig = [
         path: '/admin/warehouse/receipts',
       },
       {
+        title: 'Tạo hóa đơn kho',
+        path: '/admin/warehouse/receipts/create',
+      },
+      {
         title: 'Nhà cung cấp',
         path: '/admin/suppliers',
       },

@@ -40,7 +40,7 @@ const findBy = async (req, res) => {
 const add = async (req, res) => {
   try {
     const data = req.body;
-
+    data.code = 'HD' + Date.now();
     const staff = req.user;
     if (staff.role !== 'root' && staff.branchId !== data.warehouseId) {
       return res.status(StatusCodes.BAD_REQUEST).json({
@@ -70,12 +70,13 @@ const add = async (req, res) => {
         product._id = id.toString();
       }
       catch (error) {
-        product.note = error.toString();
+        product.note = error.toString() || 'Lỗi không xác định';
         product.status = 'Lỗi';
       }
     }
     const receiptUpdate = await warehouseReceiptModel.update(receipt.insertedId,
       {
+        ...data,
         productsList: data.productsList,
         createdAt: receipt.createdAt,
       }
