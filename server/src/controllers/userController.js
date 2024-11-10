@@ -505,36 +505,27 @@ const readNotify = async (req, res) => {
 
 const readAllNotifies = async (req, res) => {
   try {
-    const { updatedNotifications } = req.body;
+    const userId = req.user.user_id;
 
-    if (!updatedNotifications) {
+    if (!userId) {
       return res.status(StatusCodes.BAD_REQUEST).json({
-        message: ERROR_MESSAGES.REQUIRED,
+        message: 'Lỗi bảo mật',
       });
     }
 
-    const failedIds = [];
+    const user = await userModel.getUserID(userId);
 
-    for (const notify of updatedNotifications) {
-      try {
-        const result = await userModel.readNotify(notify._id, notify);
-        if (!result || !result.modifiedCount) {
-          failedIds.push(notify._id);
-        }
-      } catch (error) {
-        failedIds.push(notify._id);
-      }
-    }
+    const updateNotifies = {
+      notifies: user.notifies.map((notify) => ({
+        ...notify,
+        isReaded: true,
+      })),
+    };
 
-    if (failedIds.length > 0) {
-      return res.status(StatusCodes.PARTIAL_CONTENT).json({
-        message: 'Một số thông báo không thể đánh dấu là đọc.',
-        failedIds,
-      });
-    }
+    await userModel.update(userId, updateNotifies);
 
     return res.status(StatusCodes.OK).json({
-      message: 'Đọc toàn bộ thành công.',
+      message: 'Đọc toàn bộ thông báo thành công.',
     });
   } catch (error) {
     console.log(error);
