@@ -1,6 +1,6 @@
 const navConfig = [
   {
-    title: 'dashboard',
+    title: 'Dashboard',
     path: '/admin/',
     icon: 'ion:home',
     child: undefined,
@@ -55,6 +55,10 @@ const navConfig = [
       {
         title: 'Nhập kho',
         path: '/admin/warehouse/receipts',
+      },
+      {
+        title: 'Tạo hóa đơn kho',
+        path: '/admin/warehouse/receipts/create',
       },
       {
         title: 'Nhà cung cấp',

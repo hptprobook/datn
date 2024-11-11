@@ -1117,6 +1117,18 @@ const getMinMaxPrices = async (req, res) => {
     });
   }
 };
+const searchInDashboard = async (req, res) => {
+  try {
+    const { keyword } = req.query;
+    const products = await productModel.searchInDashboard(keyword);
+    return res.status(StatusCodes.OK).json(products);
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: 'Có lỗi xảy ra khi tìm kiếm',
+      error: error.message,
+    });
+  }
+}
 
 export const productController = {
   createProduct,
@@ -1147,4 +1159,5 @@ export const productController = {
   getMinMaxPrices,
   ratingShopProduct,
   ratingManyProduct,
+  searchInDashboard
 };
