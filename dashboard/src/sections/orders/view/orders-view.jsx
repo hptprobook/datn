@@ -48,7 +48,8 @@ export default function OrdersPage() {
 
   useEffect(() => {
     if (status === 'successful') {
-      setData(dataOrder);
+      console.log(dataOrder.result);
+      setData(dataOrder.result);
     }
   }, [status, dataOrder]);
 
@@ -147,7 +148,7 @@ export default function OrdersPage() {
                   .map((row) => (
                     <OrderTableRow
                       key={row._id}
-                      name={row.shipping.name}
+                      name={row.shippingInfo.name}
                       userId={row.userId}
                       status={row.status}
                       id={row._id}

@@ -7,6 +7,8 @@ import Typography from '@mui/material/Typography';
 import Iconify from 'src/components/iconify';
 
 import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { userStatistics } from 'src/redux/slices/dashboardSlices';
 import AppTasks from '../app-tasks';
 import AppNewsUpdate from '../app-news-update';
 import AppOrderTimeline from '../app-order-timeline';
@@ -23,7 +25,12 @@ export default function AppView() {
   const now = new Date();
   const currentHour = now.getHours(); // Lấy giờ hiện tại
   const [mess, setMess] = useState(''); // Khởi tạo state cho thông điệp
-
+  const dispatch = useDispatch();
+  const users = useSelector((state) => state.dashboard.userStatistics);
+  console.log(users);
+  useEffect(() => {
+    dispatch(userStatistics());
+  }, [dispatch]);
   useEffect(() => {
     if (currentHour < 12) {
       setMess('Chào buổi sáng');
@@ -51,8 +58,8 @@ export default function AppView() {
 
         <Grid xs={12} sm={6} md={3}>
           <AppWidgetSummary
-            title="New Users"
-            total={1352831}
+            title="Người dùng"
+            total={users?.totalUsers || 0}
             color="info"
             icon={<img alt="icon" src="/assets/icons/glass/ic_glass_users.png" />}
           />
@@ -169,14 +176,8 @@ export default function AppView() {
 
         <Grid xs={12} md={6} lg={8}>
           <AppNewsUpdate
-            title="News Update"
-            list={[...Array(5)].map((_, index) => ({
-              id: faker.string.uuid(),
-              title: faker.person.jobTitle(),
-              description: faker.commerce.productDescription(),
-              image: `/assets/images/covers/cover_${index + 1}.jpg`,
-              postedAt: faker.date.recent(),
-            }))}
+            title="Người dùng mới"
+            list={users?.users || []}
           />
         </Grid>
 
