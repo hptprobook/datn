@@ -3,7 +3,7 @@ import { Outlet } from 'react-router-dom';
 import { Box } from '@mui/material';
 import { lazy } from 'react';
 
-export const IndexAdminPage = lazy(() => import('src/pages/admin'));
+export const AppPage = lazy(() => import('src/pages/app'));
 // product page
 export const ProductsPage = lazy(() => import('src/pages/products/products'));
 export const CreateProductPage = lazy(() => import('src/pages/products/create'));
@@ -51,7 +51,7 @@ export const BrandDetailPage = lazy(() => import('src/pages/brands/detail'));
 export const adminRoute = [
   {
     index: true,
-    element: <IndexAdminPage />,
+    element: <AppPage />,
   },
   {
     path: 'products',

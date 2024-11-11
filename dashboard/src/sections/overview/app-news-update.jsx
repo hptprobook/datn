@@ -13,10 +13,12 @@ import { fToNow } from 'src/utils/format-time';
 
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
+import { useNavigate } from 'react-router-dom';
 
 // ----------------------------------------------------------------------
 
 export default function AppNewsUpdate({ title, subheader, list, ...other }) {
+  const navigate = useNavigate();
   return (
     <Card {...other}>
       <CardHeader title={title} subheader={subheader} />
@@ -35,9 +37,10 @@ export default function AppNewsUpdate({ title, subheader, list, ...other }) {
         <Button
           size="small"
           color="inherit"
+          onClick={() => navigate('/admin/users', { replace: true })}
           endIcon={<Iconify icon="eva:arrow-ios-forward-fill" />}
         >
-          View all
+          Xem tất cả
         </Button>
       </Box>
     </Card>
