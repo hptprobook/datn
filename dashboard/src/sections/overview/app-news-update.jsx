@@ -24,7 +24,7 @@ export default function AppNewsUpdate({ title, subheader, list, ...other }) {
       <Scrollbar>
         <Stack spacing={3} sx={{ p: 3, pr: 0 }}>
           {list.map((news) => (
-            <NewsItem key={news.id} news={news} />
+            <NewsItem key={news._id} news={news} />
           ))}
         </Stack>
       </Scrollbar>
@@ -53,29 +53,23 @@ AppNewsUpdate.propTypes = {
 // ----------------------------------------------------------------------
 
 function NewsItem({ news }) {
-  const { image, title, description, postedAt } = news;
+  const {  name, email, createdAt } = news;
 
   return (
     <Stack direction="row" alignItems="center" spacing={2}>
-      <Box
-        component="img"
-        alt={title}
-        src={image}
-        sx={{ width: 48, height: 48, borderRadius: 1.5, flexShrink: 0 }}
-      />
 
       <Box sx={{ minWidth: 240, flexGrow: 1 }}>
         <Link color="inherit" variant="subtitle2" underline="hover" noWrap>
-          {title}
+          {name}
         </Link>
 
         <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-          {description}
+          {email}
         </Typography>
       </Box>
 
       <Typography variant="caption" sx={{ pr: 3, flexShrink: 0, color: 'text.secondary' }}>
-        {fToNow(postedAt)}
+        {fToNow(createdAt)}
       </Typography>
     </Stack>
   );
@@ -83,9 +77,8 @@ function NewsItem({ news }) {
 
 NewsItem.propTypes = {
   news: PropTypes.shape({
-    image: PropTypes.string,
-    title: PropTypes.string,
-    description: PropTypes.string,
-    postedAt: PropTypes.instanceOf(Date),
+    name: PropTypes.string,
+    email: PropTypes.string,
+    createdAt: PropTypes.instanceOf(Date),
   }),
 };
