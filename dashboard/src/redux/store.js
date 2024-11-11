@@ -20,6 +20,7 @@ import customerGroupReducer from "./slices/customerGroupSlice";
 import posReducer from "./slices/posSlices";
 import receiptReducer from "./slices/receiptSlices";
 import receiptWarehouseReducer from "./slices/receiptWarehouseSlices";
+import dashboardReducer from "./slices/dashboardSlices";
 
 export const store = configureStore({
         reducer: {
@@ -43,5 +44,6 @@ export const store = configureStore({
                 pos: posReducer,
                 receipts: receiptReducer,
                 receiptsWarehouse: receiptWarehouseReducer,
+                dashboard: dashboardReducer,
         },
 });
