@@ -2,7 +2,6 @@ import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 
 import Iconify from 'src/components/iconify';
-import { useRouter } from 'src/routes/hooks';
 import {
   Box,
   Tab,
@@ -77,7 +76,6 @@ const styleOverFlow = {
   },
 };
 export default function PosPage() {
-  const route = useRouter();
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [value, setValue] = useState(0);

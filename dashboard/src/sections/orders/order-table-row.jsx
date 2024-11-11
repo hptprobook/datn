@@ -10,7 +10,7 @@ import IconButton from '@mui/material/IconButton';
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify/iconify';
 import { useRouter } from 'src/routes/hooks';
-import { statusConfig, paymentConfig } from './utils';
+import { statusConfig } from './utils';
 // ----------------------------------------------------------------------
 
 export default function OrderTableRow({
@@ -41,7 +41,7 @@ const router = useRouter();
 
       <TableCell>{userId}</TableCell>
 
-      <TableCell>{paymentConfig[paymentMethod].label}</TableCell>
+      <TableCell>{paymentMethod}</TableCell>
 
       <TableCell align="center">
         {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalAmount)}
