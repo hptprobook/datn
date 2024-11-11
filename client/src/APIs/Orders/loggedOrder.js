@@ -2,6 +2,7 @@
 import request from '~/config/axiosConfig';
 
 export const createOrderAPI = async (data) => {
+  console.log(data);
   try {
     const response = await request.post('/orders', data);
     return response.data;
@@ -17,6 +18,16 @@ export const updateOrderAPI = async (data) => {
     return response.data;
   } catch (error) {
     console.log('Lỗi khi huỷ đơn hàng', error);
+    throw error.response.data;
+  }
+};
+
+export const deleteOrderAPI = async (id) => {
+  try {
+    const response = await request.delete(`/orders/${id}`);
+    return response.data;
+  } catch (error) {
+    console.log('Lỗi khi xóa đơn hàng', error);
     throw error.response.data;
   }
 };

@@ -79,7 +79,24 @@ const getUserById = async (req, res) => {
   try {
     const { id } = req.params;
     const user = await userModel.getUserID(id);
-    console.log(user);
+    if (user) {
+      return res.status(StatusCodes.OK).json(user);
+    }
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ message: 'Không tồn tại người dùng' });
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: ERROR_MESSAGES.ERR_AGAIN,
+      error: error,
+    });
+  }
+};
+
+const getNotifiesUserById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await userModel.getNotifiesUserID(id);
     if (user) {
       return res.status(StatusCodes.OK).json(user);
     }
@@ -505,36 +522,27 @@ const readNotify = async (req, res) => {
 
 const readAllNotifies = async (req, res) => {
   try {
-    const { updatedNotifications } = req.body;
+    const userId = req.user.user_id;
 
-    if (!updatedNotifications) {
+    if (!userId) {
       return res.status(StatusCodes.BAD_REQUEST).json({
-        message: ERROR_MESSAGES.REQUIRED,
+        message: 'Lỗi bảo mật',
       });
     }
 
-    const failedIds = [];
+    const user = await userModel.getUserID(userId);
 
-    for (const notify of updatedNotifications) {
-      try {
-        const result = await userModel.readNotify(notify._id, notify);
-        if (!result || !result.modifiedCount) {
-          failedIds.push(notify._id);
-        }
-      } catch (error) {
-        failedIds.push(notify._id);
-      }
-    }
+    const updateNotifies = {
+      notifies: user.notifies.map((notify) => ({
+        ...notify,
+        isReaded: true,
+      })),
+    };
 
-    if (failedIds.length > 0) {
-      return res.status(StatusCodes.PARTIAL_CONTENT).json({
-        message: 'Một số thông báo không thể đánh dấu là đọc.',
-        failedIds,
-      });
-    }
+    await userModel.update(userId, updateNotifies);
 
     return res.status(StatusCodes.OK).json({
-      message: 'Đọc toàn bộ thành công.',
+      message: 'Đọc toàn bộ thông báo thành công.',
     });
   } catch (error) {
     console.log(error);
@@ -562,4 +570,5 @@ export const usersController = {
   updateInfor,
   readNotify,
   readAllNotifies,
+  getNotifiesUserById,
 };

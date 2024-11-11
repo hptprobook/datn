@@ -1,25 +1,134 @@
 import { Icon } from '@iconify/react';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
-import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
+import {
+  Link,
+  NavLink,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from 'react-router-dom';
+import {
+  deleteOrderAPI,
+  findOrderByCodeAPI,
+  removeOrderNotLoginAPI,
+  updateOrderAPI,
+  updateOrderNotLoginAPI,
+} from '~/APIs';
 import MainLoading from '~/components/common/Loading/MainLoading';
 import CheckoutStepper from '~/components/common/Stepper/CheckoutStepper';
 import { useWebConfig } from '~/context/WebsiteConfig';
 import useCheckAuth from '~/customHooks/useCheckAuth';
-import { useSwalWithConfirm } from '~/customHooks/useSwal';
+import { useSwal, useSwalWithConfirm } from '~/customHooks/useSwal';
 import { formatCurrencyVND, formatDateToDDMMYYYY } from '~/utils/formatters';
 
 const CheckoutConfirm = () => {
   const location = useLocation();
-  const orderData = location.state?.orderData.data;
+  let [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const orderCode = location.state?.orderCode || searchParams.get('vnp_TxnRef');
   const { config } = useWebConfig();
   const { isAuthenticated } = useCheckAuth();
+  const vnp_ResponseCode = searchParams.get('vnp_ResponseCode');
+
+  const { mutate: updateOrder, isLoading: updateOrderLoading } = useMutation({
+    mutationFn: updateOrderAPI,
+  });
+
+  const { mutate: deleteOrder, isLoading: deleteOrderLoading } = useMutation({
+    mutationFn: deleteOrderAPI,
+  });
+
+  const { mutate: updateOrderNotLogin, isLoading: updateOrderNotLoginLoading } =
+    useMutation({
+      mutationFn: updateOrderNotLoginAPI,
+    });
+
+  const { mutate: deleteOrderNotLogin, isLoading: deleteOrderNotLoginLoading } =
+    useMutation({
+      mutationFn: removeOrderNotLoginAPI,
+    });
+
+  const { data: orderData, isLoading: getOrderByCodeLoading } = useQuery({
+    queryKey: ['getOrderByCode', orderCode],
+    queryFn: () => findOrderByCodeAPI(orderCode),
+    staleTime: 0,
+    cacheTime: 0,
+  });
 
   useEffect(() => {
-    if (!orderData) {
-      navigate('/');
+    if (orderData) {
+      if (orderData?.type === 'userOrder') {
+        if (
+          orderData &&
+          Array.isArray(orderData?.status) &&
+          orderData?.status?.length > 0 &&
+          vnp_ResponseCode
+        ) {
+          const latestStatus =
+            orderData?.status[orderData.status.length - 1]?.status;
+
+          if (vnp_ResponseCode === '00' && latestStatus !== 'pending') {
+            updateOrder({
+              id: orderData?._id,
+              data: {
+                status: {
+                  status: 'pending',
+                  note: 'Đơn hàng chờ xác nhận!',
+                },
+              },
+            });
+          } else if (vnp_ResponseCode !== '00') {
+            useSwal
+              .fire({
+                icon: 'error',
+                title: 'Thất bại!',
+                text: 'Đặt hàng thất bại, vui lòng thử lại!',
+                confirmButtonText: 'Xác nhận',
+              })
+              .then(() => {
+                deleteOrder(orderData._id);
+                navigate('/');
+              });
+          }
+        }
+      } else {
+        const latestStatus =
+          orderData?.status[orderData.status.length - 1]?.status;
+
+        if (vnp_ResponseCode === '00' && latestStatus !== 'pending') {
+          updateOrderNotLogin({
+            id: orderData?._id,
+            data: {
+              status: {
+                status: 'pending',
+                note: 'Đơn hàng chờ xác nhận!',
+              },
+            },
+          });
+        } else if (vnp_ResponseCode !== '00') {
+          useSwal
+            .fire({
+              icon: 'error',
+              title: 'Thất bại!',
+              text: 'Đặt hàng thất bại, vui lòng thử lại!',
+              confirmButtonText: 'Xác nhận',
+            })
+            .then(() => {
+              deleteOrderNotLogin(orderData._id);
+              navigate('/');
+            });
+        }
+      }
     }
-  }, [orderData, navigate]);
+  }, [
+    orderData,
+    vnp_ResponseCode,
+    updateOrder,
+    updateOrderNotLogin,
+    deleteOrder,
+    deleteOrderNotLogin,
+  ]);
 
   const handleCopyOrderCode = () => {
     navigator.clipboard.writeText(orderData?.orderCode);
@@ -42,7 +151,14 @@ const CheckoutConfirm = () => {
       });
   };
 
-  if (!orderData) return <MainLoading />;
+  if (
+    getOrderByCodeLoading ||
+    updateOrderLoading ||
+    deleteOrderLoading ||
+    updateOrderNotLoginLoading ||
+    deleteOrderNotLoginLoading
+  )
+    return <MainLoading />;
 
   return (
     <section className="py-8 relative max-w-container mx-auto">
@@ -198,13 +314,7 @@ const CheckoutConfirm = () => {
                 Tạm tính
               </p>
               <p className="font-semibold text-lg leading-8 text-gray-900">
-                {formatCurrencyVND(
-                  orderData?.productsList?.reduce(
-                    (total, product) =>
-                      total + product?.price * product?.quantity,
-                    0
-                  )
-                )}
+                {formatCurrencyVND(orderData?.totalPrice)}
               </p>
             </div>
             <div className="flex items-center justify-between mb-6">
@@ -215,20 +325,20 @@ const CheckoutConfirm = () => {
                 + {formatCurrencyVND(orderData?.fee)}
               </p>
             </div>
-            {/* <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-6">
               <p className="font-normal text-lg leading-8 text-gray-500">
                 Giảm giá
               </p>
-              <p className="font-semibold text-lg leading-8 text-red-600">
-                - {formatCurrencyVND(orderData?.discount)}
+              <p className="font-semibold text-lg leading-8 text-green-600">
+                - {formatCurrencyVND(orderData?.discountPrice)}
               </p>
-            </div> */}
+            </div>
             <div className="flex items-center justify-between py-6 border-y border-gray-100">
               <p className="font-manrope font-semibold text-2xl leading-9 text-gray-900">
-                Tổng tiền
+                Tổng tiền phải trả
               </p>
               <p className="font-manrope font-bold text-2xl leading-9 text-red-600">
-                {formatCurrencyVND(orderData?.totalPrice)}
+                {formatCurrencyVND(orderData?.totalPayment)}
               </p>
             </div>
           </div>

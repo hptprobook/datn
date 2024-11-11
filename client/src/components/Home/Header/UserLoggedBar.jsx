@@ -31,7 +31,7 @@ const UserLoggedBar = ({ currentUserInfor }) => {
       ) : (
         <Icon icon="solar:user-id-outline" />
       )}
-      <div className="absolute min-w-64 top-11 right-0 bg-gray-100 text-black cursor-default py-4 text-xs shadow-md shadow-gray-200 hidden group-hover:block before:absolute before:w-8 before:h-5 before:-top-5 before:right-0 before:bg-transparent">
+      <div className="absolute min-w-64 top-14 right-0 bg-gray-100 text-black cursor-default py-4 text-xs shadow-md shadow-gray-200 hidden group-hover:block before:absolute before:w-12 before:h-10 before:-top-8 before:right-0 before:transparent">
         <NavLink
           to={'/nguoi-dung/tai-khoan'}
           className="flex items-center border-b pb-4 px-8"

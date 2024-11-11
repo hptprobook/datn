@@ -2,12 +2,12 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
-
+import 'dayjs/locale/vi'; // Import ngôn ngữ tiếng Việt
 // Extend dayjs with plugins
 dayjs.extend(relativeTime);
 dayjs.extend(utc);
 dayjs.extend(timezone);
-
+dayjs.locale('vi')
 // ----------------------------------------------------------------------
 
 export function fDate(date, newFormat) {

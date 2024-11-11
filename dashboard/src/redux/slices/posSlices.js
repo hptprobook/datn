@@ -23,6 +23,17 @@ export const searchProduct = createAsyncThunk(
         }
     }
 );
+export const searchProducts = createAsyncThunk(
+    'pos/searchProducts',
+    async (data, { rejectWithValue }) => {
+        try {
+            const response = await PosService.searchProducts(data);
+            return response;
+        } catch (err) {
+            return rejectWithValue(err.response.data);
+        }
+    }
+);
 export const searchUser = createAsyncThunk(
     'pos/searchUser',
     async (data, { rejectWithValue }) => {
@@ -75,6 +86,18 @@ const posSlices = createSlice({
                 state.error = null;
             })
             .addCase(searchProduct.rejected, (state, action) => {
+                state.statusSearch = "failed";
+                state.error = action.payload;
+            })
+            .addCase(searchProducts.pending, (state) => {
+                state.statusSearch = "loading";
+            })
+            .addCase(searchProducts.fulfilled, (state, action) => {
+                state.statusSearch = "successful";
+                state.products = action.payload;
+                state.error = null;
+            })
+            .addCase(searchProducts.rejected, (state, action) => {
                 state.statusSearch = "failed";
                 state.error = action.payload;
             })

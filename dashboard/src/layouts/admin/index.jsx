@@ -11,10 +11,11 @@ import IconButton from '@mui/material/IconButton';
 import Iconify from 'src/components/iconify';
 import PropTypes from 'prop-types';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { List } from '@mui/material';
+import { List, Typography } from '@mui/material';
 import Logo from 'src/components/logo';
 import Header from './header';
 import Nav, { NavItem } from './nav';
+import navConfig from './config-navigation';
 
 const drawerWidth = 200;
 
@@ -96,8 +97,10 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 }));
 
 export default function AdminLayout({ children }) {
+
+
   const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(true);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -113,6 +116,25 @@ export default function AdminLayout({ children }) {
       setOpen(false);
     }
   }, [pathname]);
+  React.useEffect(() => {
+    if (window.innerWidth < 768) {
+      setOpen(false);
+    }
+  }, []);
+  const findTitleByPath = (items, targetPath) => 
+     items
+      .map(item => {
+        // Check if the current item's path matches
+        if (item.path === targetPath) return item.title;
+  
+        // If the item has children, recursively search within `child`
+        if (item.child) return findTitleByPath(item.child, targetPath);
+  
+        return null; // Return null if no match
+      })
+      .find(title => title) // Find the first non-null title
+  ;
+  
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
@@ -131,6 +153,17 @@ export default function AdminLayout({ children }) {
           >
             <Iconify icon="eva:menu-2-fill" />
           </IconButton>
+          <Typography
+            variant="h6"
+            noWrap
+            component="div"
+            sx={{
+              display: { xs: 'none', sm: 'block' },
+              color: 'text.primary',
+            }}
+          >
+            {findTitleByPath(navConfig, pathname)}
+          </Typography>
           <Box sx={{ flexGrow: 1 }} />
           <Header />
         </Toolbar>

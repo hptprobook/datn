@@ -112,19 +112,15 @@ const OrderStatus = {
   shipping: 'shipping',
 };
 
-export const SEND_NOTIFIES = Joi.array().items(
-  Joi.object({
-    status: Joi.string()
-      .trim()
-      .min(1)
-      .valid(...Object.values(OrderStatus))
-      .default(OrderStatus.pending),
-    note: Joi.string().trim().min(1),
-    isReaded: Joi.boolean().default(false),
-    createdAt: Joi.date().timestamp('javascript').default(Date.now),
-    updatedAt: Joi.date().timestamp('javascript').default(Date.now),
-  })
-);
+export const SEND_NOTIFIES = Joi.object({
+  userId: Joi.object(),
+  title: Joi.string().trim().min(1),
+  description: Joi.string().trim().min(1),
+  type: Joi.string().trim().min(1),
+  isReaded: Joi.boolean().default(false),
+  createdAt: Joi.date().timestamp('javascript').default(Date.now),
+  updatedAt: Joi.date().timestamp('javascript').default(Date.now),
+});
 
 export const UPDATE_USER = Joi.object({
   name: Joi.string().trim().min(1).max(30).messages({
@@ -182,6 +178,7 @@ export const UPDATE_USER = Joi.object({
     totalComment: Joi.number(),
     averageRating: Joi.number(),
   }),
+  notifies: Joi.array(),
   views: Joi.array().items({
     _id: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
     thumbnail: Joi.string().trim().min(1),

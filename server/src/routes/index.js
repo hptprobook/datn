@@ -41,6 +41,7 @@ import { seoConfigApi } from './routeForAdmin/seoConfigRouter';
 import { navDashboardApi } from './routeForAdmin/navDashboardRoute';
 import { webApi } from './routeForAdmin/webRouter';
 import { timetableApi } from './routeForAdmin/timetableRouter';
+import { dashboardApi } from './routeForAdmin/dashboardRoute';
 
 
 const Router = express.Router();
@@ -78,6 +79,7 @@ Router.use('/static-pages', staticPageApi);
 Router.use('/customer-group', customerGroupApi);
 Router.use('/timetables', timetableApi);
 Router.use('/blogs', blogApi);
+Router.use('/dashboard', dashboardApi);
 
 Router.use('/couponHistory', couponHistoryApi);
 Router.use('/receipts', receiptsApi);

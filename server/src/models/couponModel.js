@@ -21,7 +21,7 @@ const getCouponsById = async (id) => {
   const db = await GET_DB().collection('coupons');
   const result = await db.findOne({ _id: new ObjectId(id) });
   return result;
-}
+};
 const findOneCoupons = async (code) => {
   const db = await GET_DB().collection('coupons');
   const result = await db.findOne({
@@ -101,12 +101,12 @@ const getCouponsByType = async (type) => {
   return result;
 };
 
-const getCouponAndUser = async (userId, couponId) => {
+const getCouponAndUser = async (userId, code) => {
   const db = await GET_DB().collection('coupons');
   const userDb = await GET_DB().collection('users');
 
   const user = await userDb.findOne({ _id: new ObjectId(userId) });
-  const coupon = await db.findOne({ _id: new ObjectId(couponId) });
+  const coupon = await db.findOne({ code: code });
 
   if (user) {
     delete user.password;
@@ -116,20 +116,16 @@ const getCouponAndUser = async (userId, couponId) => {
   return { user, coupon };
 };
 
-const updateCouponUsage = async (couponId, userId) => {
+const updateCouponUsage = async (code, userId) => {
   const db = await GET_DB().collection('coupons');
 
-  await db.findOneAndUpdate(
-    { _id: new ObjectId(couponId) },
-    { $inc: { usageCount: 1 } }
-  );
+  await db.findOneAndUpdate({ code: code }, { $inc: { usageCount: 1 } });
 
   await db.findOneAndUpdate(
-    { _id: new ObjectId(couponId) },
+    { code: code },
     { $addToSet: { eligibleUsers: userId } }
   );
 };
-
 
 export const couponModel = {
   createCoupon,
@@ -141,5 +137,5 @@ export const couponModel = {
   getCouponsById,
   getCouponsByType,
   updateCouponUsage,
-  getCouponAndUser
+  getCouponAndUser,
 };

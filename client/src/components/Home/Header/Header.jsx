@@ -20,11 +20,11 @@ import { getCurrentUser } from '~/APIs';
 import { useUser } from '~/context/UserContext';
 import { useWebConfig } from '~/context/WebsiteConfig';
 import NotifyBar from './NotifyBar';
-import axios from 'axios';
+import { useSocketContext } from '~/context/SocketContext';
+import { io } from 'socket.io-client';
 
 const Header = () => {
   const { isAuthenticated } = useCheckAuth();
-  const [notifications, setNotifications] = useState([]);
 
   const [openCart, setOpenCart] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
@@ -34,6 +34,7 @@ const Header = () => {
   const { user } = useUser();
   const { config } = useWebConfig();
   const { items } = useCart();
+  const { socket, onlineUser, setOnlineUser, setSocket } = useSocketContext();
 
   const { data } = useQuery({
     queryKey: ['getCurrentUser'],
@@ -43,21 +44,21 @@ const Header = () => {
 
   const currentUserInfor = data ? data : null;
 
-  const notifies = async () => {
-    try {
-      const result = await axios.get(
-        'http://localhost:3000/api/users/672332bb3eb63a6c62287dc6'
-      );
-
-      setNotifications(result.data.notifies);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
+  if (data) {
+    io(import.meta.env.VITE_SERVER_URL, {
+      query: {
+        userId: data._id,
+      },
+    });
+  }
   useEffect(() => {
-    notifies();
-  }, []);
+    if (socket) {
+      socket.on('receiveNotifies', (notifies) => {
+        console.log(notifies);
+      });
+    }
+  }, [socket]);
+
   return (
     <div>
       {/* Header dùng chung cho Window */}
@@ -91,7 +92,12 @@ const Header = () => {
                   className='text-2xl text-gray-50 cursor-pointer relative hover:text-red-600'
                   title='Thông báo'
                 >
-                  <NotifyBar notifies={notifications} />
+                  <NotifyBar notifies={currentUserInfor?.notifies} />
+                  {currentUserInfor?.notifies.some(
+                    (notify) => notify.isReaded === false
+                  ) && (
+                    <div className='absolute -top-1 -right-1 bg-red-700 text-white rounded-full w-3 h-3 flex items-center justify-center text-xs'></div>
+                  )}
                 </div>
               </>
             )}

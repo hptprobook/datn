@@ -43,7 +43,7 @@ export const CheckoutProvider = ({ children }) => {
       address: '',
       fullAddress: '',
       note: '',
-      payment: 'COD',
+      paymentMethod: 'Tiền mặt',
     },
     validationSchema,
     onSubmit: (values) => {

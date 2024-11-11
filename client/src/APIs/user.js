@@ -21,6 +21,16 @@ export const updateCurrentUser = async (data) => {
   }
 };
 
+export const readAllNotifiesAPI = async () => {
+  try {
+    const response = await request.get('/users/notifies/readAll');
+    return response.data;
+  } catch (error) {
+    console.error('Xảy ra lỗi khi cập nhật thông tin người dùng:', error);
+    throw error;
+  }
+};
+
 export const addCartToCurrent = async (data) => {
   try {
     const response = await request.put('/users/me/addCart', data);
@@ -42,12 +52,13 @@ export const removeCartToCurrent = async (_id) => {
 };
 
 export const changePassWord = async (data) => {
+  console.log(data);
   try {
-    const response = await request.put('/users/me/password', data);
+    const response = await request.post('/auth/changePassword', data);
     return response.data;
   } catch (error) {
     console.error('Xảy ra lỗi khi thay đổi mật khẩu:', error);
-    throw error;
+    throw error.response.data;
   }
 };
 
