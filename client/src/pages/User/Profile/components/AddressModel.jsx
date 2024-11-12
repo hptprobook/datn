@@ -171,7 +171,7 @@ const AddressModel = ({
       ></div>
 
       <div
-        className={`relative bg-white p-6 rounded-md shadow-lg z-10 w-2/3 max-lg:w-4/5 md:2/3 transform ${
+        className={`relative bg-white p-6 rounded-md shadow-lg z-10 w-2/3 max-lg:w-4/5 md:2/3 transform overflow-y-auto max-h-[90vh] ${
           isOpen && !isClosing ? 'animate-slideDown' : 'animate-slideUp'
         }`}
       >
