@@ -66,53 +66,53 @@ const Header = () => {
         isOpen={isWishlistOpen}
         onClose={() => setIsWishlistOpen(false)}
       />
-      <header className="w-full h-20 bg-amber-600 hidden lg:block text-black">
-        <div className="max-w-container h-full mx-auto flex justify-between items-center">
-          <NavLink to="/">
+      <header className='w-full h-20 bg-amber-600 hidden lg:block text-black'>
+        <div className='max-w-container h-full mx-auto flex justify-between items-center'>
+          <NavLink to='/'>
             <div>
               <img
                 src={`${import.meta.env.VITE_SERVER_URL}/${config?.logo}`}
-                alt="Logo"
-                className="h-full w-48"
+                alt='Logo'
+                className='h-full w-48'
               />
             </div>
           </NavLink>
           <SearchBar />
-          <div className="flex gap-4">
+          <div className='flex gap-4'>
             {isAuthenticated && (
               <>
                 <div
-                  className="text-2xl text-gray-50 cursor-pointer relative hover:text-red-600"
-                  title="Danh sách yêu thích"
+                  className='text-2xl text-gray-50 cursor-pointer relative hover:text-red-600'
+                  title='Danh sách yêu thích'
                   onClick={() => setIsWishlistOpen(true)}
                 >
-                  <Icon icon="line-md:heart" />
+                  <Icon icon='line-md:heart' />
                 </div>
                 <div
-                  className="text-2xl text-gray-50 cursor-pointer relative hover:text-red-600"
-                  title="Thông báo"
+                  className='text-2xl text-gray-50 cursor-pointer relative hover:text-red-600'
+                  title='Thông báo'
                 >
                   <NotifyBar notifies={currentUserInfor?.notifies} />
                   {currentUserInfor?.notifies.some(
                     (notify) => notify.isReaded === false
                   ) && (
-                    <div className="absolute -top-2 -right-1 bg-red-600 text-white rounded-full w-3 h-3 flex items-center justify-center text-xs"></div>
+                    <div className='absolute -top-2 -right-1 bg-red-600 text-white rounded-full w-3 h-3 flex items-center justify-center text-xs'></div>
                   )}
                 </div>
               </>
             )}
             <div
-              className="text-2xl text-gray-50 cursor-pointer relative"
+              className='text-2xl text-gray-50 cursor-pointer relative'
               onClick={() => setOpenCart(true)}
             >
               <PiShoppingCartBold />
-              <div className="absolute -top-2 -right-3 bg-red-700 text-white rounded-md w-6 h-4 flex items-center justify-center text-xs">
+              <div className='absolute -top-2 -right-3 bg-red-700 text-white rounded-md w-6 h-4 flex items-center justify-center text-xs'>
                 {isAuthenticated ? user?.carts.length : items.length}
               </div>
             </div>
             <CartFixed open={openCart} setOpen={setOpenCart} />
             <Link to={'/theo-doi-don-hang'}>
-              <div className="text-2xl text-gray-50 cursor-pointer">
+              <div className='text-2xl text-gray-50 cursor-pointer'>
                 <MdOutlineContentPasteSearch />
               </div>
             </Link>
@@ -127,55 +127,57 @@ const Header = () => {
       </header>
 
       {/* Header dùng chung cho Mobile & Tablet */}
-      <header className="w-full h-16 bg-amber-600 lg:hidden flex justify-between items-center px-4 z-10">
+      <header className='w-full h-16 bg-amber-600 lg:hidden flex justify-between items-center px-4 z-10'>
         <div
-          className="text-2xl text-gray-50 cursor-pointer"
+          className='text-2xl text-gray-50 cursor-pointer'
           onClick={() => setOpenMenu(true)}
         >
           <FaBars />
         </div>
-        <NavLink to="/" className="flex-grow text-center">
+        <NavLink to='/' className='flex-grow text-center'>
           <img
             src={`${import.meta.env.VITE_SERVER_URL}/${config?.logo}`}
+            alt='Logo'
+            className='h-full w-52 mx-auto max-lg:w-auto'
             alt="Logo"
-            className="h-full w-52 mx-auto"
+            className="h-16 w-20 mx-auto"
           />
         </NavLink>
-        <div className="flex gap-4">
+        <div className='flex gap-4'>
           {isAuthenticated && (
             <>
               <div
-                className="text-2xl text-gray-50 cursor-pointer relative hover:text-red-600"
-                title="Danh sách yêu thích"
+                className='text-2xl text-gray-50 cursor-pointer relative hover:text-red-600'
+                title='Danh sách yêu thích'
                 onClick={() => setIsWishlistOpen(true)}
               >
-                <Icon icon="line-md:heart" />
+                <Icon icon='line-md:heart' />
               </div>
               <div
-                className="text-2xl text-gray-50 cursor-pointer relative hover:text-red-600"
-                title="Thông báo"
+                className='text-2xl text-gray-50 cursor-pointer relative hover:text-red-600'
+                title='Thông báo'
               >
                 <NotifyBar notifies={currentUserInfor?.notifies} />
                 {currentUserInfor?.notifies.some(
                   (notify) => notify.isReaded === false
                 ) && (
-                  <div className="absolute -top-2 -right-1 bg-red-600 text-white rounded-full w-3 h-3 flex items-center justify-center text-xs"></div>
+                  <div className='absolute -top-2 -right-1 bg-red-600 text-white rounded-full w-3 h-3 flex items-center justify-center text-xs'></div>
                 )}
               </div>
             </>
           )}
           <div
-            className="text-2xl text-gray-50 cursor-pointer"
+            className='text-2xl text-gray-50 cursor-pointer'
             onClick={() => setOpenSearch(true)}
           >
             <IoIosSearch />
           </div>
           <div
-            className="text-2xl text-gray-50 cursor-pointer relative"
+            className='text-2xl text-gray-50 cursor-pointer relative'
             onClick={() => setOpenCart(true)}
           >
             <PiShoppingCartBold />
-            <div className="absolute -top-2 -right-3 bg-red-700 text-white rounded-md w-6 h-4 flex items-center justify-center text-xs">
+            <div className='absolute -top-2 -right-3 bg-red-700 text-white rounded-md w-6 h-4 flex items-center justify-center text-xs'>
               {items.length}
             </div>
           </div>
