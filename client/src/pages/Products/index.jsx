@@ -85,43 +85,43 @@ const ProductPage = () => {
   };
 
   return (
-    <section className="max-w-container mx-auto mt-16">
+    <section className='max-w-container mx-auto mt-16'>
       <Helmet>
         <title>BMT Life | {productInfo.name || 'Chi tiết sản phẩm'}</title>
         <meta
-          name="description"
+          name='description'
           content={
             productInfo?.seoOptions?.description ||
             'Website thời trang chuyên cung cấp quần áo, giày dép, túi xách, phụ kiện với chất lượng cao và giá cả phải chăng. Cập nhật xu hướng thời trang mới nhất.'
           }
         />
         <meta
-          name="keywords"
+          name='keywords'
           content={
             productInfo?.seoOptions?.alias ||
             'BMT Life, thời trang, quần áo, giày dép, túi xách, phụ kiện, mua sắm, thời trang nam nữ'
           }
         />
         <meta
-          property="og:title"
+          property='og:title'
           content={
             productInfo?.seoOptions?.title ||
             'BMT Life - Thời Trang Đẳng Cấp | Mua Sắm Dễ Dàng'
           }
         />
         <meta
-          property="og:description"
+          property='og:description'
           content={
             productInfo?.seoOptions?.description ||
             'Website thời trang chuyên cung cấp quần áo, giày dép, túi xách, phụ kiện với chất lượng cao và giá cả phải chăng. Cập nhật xu hướng thời trang mới nhất.'
           }
         />
       </Helmet>
-      <HeaderBC title="Chi tiết sản phẩm" name={productInfo.name} />
+      <HeaderBC title='Chi tiết sản phẩm' name={productInfo.name} />
 
-      <div className="mb-24 mt-12">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+      <div className='mb-24 mt-12'>
+        <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
+          <div className='grid grid-cols-1 gap-8 lg:grid-cols-2'>
             <ProductDetailSlider
               images={images}
               activeIndex={activeImageIndex}
@@ -134,16 +134,16 @@ const ProductPage = () => {
         </div>
       </div>
 
-      <div className="divider pt-20"></div>
+      <div className='divider pt-20'></div>
 
       {/* Product Description */}
-      <div className="lg:px-60 px-2 mt-10 text-gray-600 z-20">
-        <div className="text-center lg:text-left font-extrabold">
+      <div className='mt-10 text-gray-600 z-20'>
+        <div className='text-center lg:text-left font-extrabold'>
           MÔ TẢ SẢN PHẨM
         </div>
-        <div className="divider"></div>
+        <div className='divider'></div>
         <div
-          className="text-gray-700 mt-2 font-light"
+          className='text-gray-700 mt-2 font-light px-4'
           dangerouslySetInnerHTML={{
             __html: isContentExpanded
               ? productInfo?.content
@@ -152,7 +152,7 @@ const ProductPage = () => {
         />
 
         <button
-          className="btn bg-red-600 hover:bg-red-700 rounded-md text-white mt-4"
+          className='btn bg-red-600 hover:bg-red-700 rounded-md text-white mt-4 mx-4'
           onClick={handleToggleContent}
         >
           {isContentExpanded ? 'Thu gọn' : 'Xem thêm'}
@@ -163,21 +163,21 @@ const ProductPage = () => {
 
       {user && (
         <>
-          <div className="text-gray-900 mt-8 border-t border-gray-200 pt-8">
-            <h2 className="text-2xl font-bold uppercase">Sản phẩm đã xem</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mt-8">
+          <div className='text-gray-900 mt-8 border-t border-gray-200 pt-8 px-4 sm:px-6 lg:px-8'>
+            <h2 className='text-2xl font-bold uppercase'>Sản phẩm đã xem</h2>
+            <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mt-8'>
               {productsViewed.map((item) => (
-                <div key={item._id} className="relative">
+                <div key={item._id} className='relative'>
                   <ProductItem product={item} />
                 </div>
               ))}
             </div>
           </div>
-          <div className="text-gray-900 mt-8 border-t border-gray-200 pt-8">
-            <h2 className="text-2xl font-bold uppercase">Sản phẩm yêu thích</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mt-8">
+          <div className='text-gray-900 mt-8 border-t border-gray-200 pt-8 px-4 sm:px-6 lg:px-8'>
+            <h2 className='text-2xl font-bold uppercase'>Sản phẩm yêu thích</h2>
+            <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mt-8'>
               {favoriteProducts.map((item) => (
-                <div key={item._id} className="relative">
+                <div key={item._id} className='relative'>
                   <ProductItem product={item} isWishList={true} />
                 </div>
               ))}
