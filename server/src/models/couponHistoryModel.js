@@ -9,12 +9,13 @@ const validateBeforeCreate = async (data) => {
   });
 };
 
-const getCouponHistory = async () => {
+const getCouponHistory = async (filter) => {
   // page = parseInt(page) || 1;
   // limit = parseInt(limit) || 12;
   const db = await GET_DB().collection('couponUsageHistory');
   const result = await db
     .find()
+    .filter(filter)
     // .skip((page - 1) * limit)
     // .limit(limit)
     .toArray();

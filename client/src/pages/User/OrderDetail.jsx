@@ -10,10 +10,13 @@ import {
   formatCurrencyVND,
   formatVietnamesePhoneNumber,
 } from '~/utils/formatters';
+import ReviewModal from './ReviewModal';
+import { useState } from 'react';
 
 const OrderDetail = () => {
   const { orderCode } = useParams();
   const navigate = useNavigate();
+  const [showReviewModal, setShowReviewModal] = useState(false);
 
   const { data, refetch, error, isLoading } = useQuery({
     queryKey: ['getOrderDetail', orderCode],
@@ -72,9 +75,13 @@ const OrderDetail = () => {
           cancelOrder({
             id: data?._id,
             data: {
+              // status: {
+              //   status: 'cancelled',
+              //   note: 'Khách hàng huỷ đơn!',
+              // },
               status: {
-                status: 'cancelled',
-                note: 'Khách hàng huỷ đơn!',
+                status: 'completed',
+                note: 'Đơn hàng đã hoàn thành!',
               },
             },
           });
@@ -106,6 +113,14 @@ const OrderDetail = () => {
 
   return (
     <>
+      {showReviewModal && (
+        <ReviewModal
+          products={data?.productsList}
+          orderId={data?._id}
+          onClose={() => setShowReviewModal(false)}
+          refetch={refetch}
+        />
+      )}
       <div className="container mx-auto p-4 bg-white text-black flex items-center justify-between rounded-sm">
         <div
           className="flex items-center gap-3 cursor-pointer hover:text-red-500"
@@ -146,8 +161,12 @@ const OrderDetail = () => {
               >
                 Mua lại
               </button>
-              <button className="btn bg-red-500 rounded-md hover:bg-red-600 hover:shadow-md text-white min-w-48">
-                Đánh giá
+              <button
+                onClick={() => setShowReviewModal(true)}
+                className="btn bg-red-500 rounded-md hover:bg-red-600 hover:shadow-md text-white min-w-48"
+                disabled={data?.isComment}
+              >
+                {data?.isComment ? 'Đã đánh giá' : 'Đánh giá'}
               </button>
             </>
           )}
@@ -159,8 +178,8 @@ const OrderDetail = () => {
         </div>
       </div>
       <div className="container mx-auto p-6 bg-white text-black rounded-sm mt-[1px]">
-        <div className="grid grid-cols-12 gap-6">
-          <div className="col-span-4">
+        <div className="grid grid-cols-12 gap-6 max-lg:gap-0">
+          <div className="col-span-4 max-lg:col-span-6">
             <div className="p-6 bg-white">
               <h3 className="text-lg font-semibold mb-4 text-gray-900">
                 Địa chỉ nhận hàng
@@ -181,7 +200,7 @@ const OrderDetail = () => {
             </div>
           </div>
 
-          <div className="col-span-7">
+          <div className="col-span-7 max-lg:col-span-6">
             <div className="space-y-6 bg-white p-6 border-l border-gray-200">
               <h3 className="text-xl font-semibold text-gray-900">
                 Trạng thái giao hàng

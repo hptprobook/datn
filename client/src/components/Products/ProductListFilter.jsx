@@ -117,12 +117,13 @@ const ProductListFilter = ({
   return (
     <div className="sticky top-4">
       <MultiRangeSlider
-        min={priceRangeData?.minPrice || 1000}
-        max={priceRangeData?.maxPrice || 1000000}
+        min={priceRangeData?.minPrice}
+        max={priceRangeData?.maxPrice}
+        initialMin={priceRangeData?.minPrice}
+        initialMax={priceRangeData?.maxPrice}
         onPriceRangeChange={handlePriceRangeChange}
       />
 
-      {/* Selected Filters */}
       <p className="text-gray-700 font-bold">Đã chọn: </p>
       <div className="flex flex-wrap gap-2 mt-4">
         {selectedColors.map((color) => (
@@ -149,7 +150,6 @@ const ProductListFilter = ({
         ))}
       </div>
 
-      {/* Color Filter */}
       <div className="space-y-2 mt-12">
         <div className="overflow-hidden rounded-md border border-gray-300">
           <button
@@ -193,7 +193,7 @@ const ProductListFilter = ({
               </button>
             </header>
 
-            <div className="grid grid-cols-4 gap-4 border-t border-gray-200 p-4">
+            <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2 border-t border-gray-200 p-4">
               {colors.map((color) => (
                 <button
                   key={color}
@@ -213,7 +213,6 @@ const ProductListFilter = ({
         </div>
       </div>
 
-      {/* Size Filter */}
       <div className="space-y-2 mt-6">
         <div className="overflow-hidden rounded-md border border-gray-300">
           <button
@@ -257,7 +256,7 @@ const ProductListFilter = ({
               </button>
             </header>
 
-            <div className="grid grid-cols-3 gap-4 border-t border-gray-200 p-4">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 border-t border-gray-200 p-4">
               {sizes.map((size) => (
                 <button
                   key={size}

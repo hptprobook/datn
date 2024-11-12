@@ -635,7 +635,13 @@ const ratingProduct = async (req, res) => {
       data.images = images;
     }
 
-    const isComment = await productModel.isComment(data.userId, data.productId);
+    const isComment = await productModel.isComment(
+      data.userId,
+      data.productId,
+      data.orderId,
+      data.variantColor,
+      data.variantSize
+    );
 
     if (isComment) {
       if (req.files) {
@@ -1128,7 +1134,7 @@ const searchInDashboard = async (req, res) => {
       error: error.message,
     });
   }
-}
+};
 
 export const productController = {
   createProduct,
@@ -1159,5 +1165,5 @@ export const productController = {
   getMinMaxPrices,
   ratingShopProduct,
   ratingManyProduct,
-  searchInDashboard
+  searchInDashboard,
 };

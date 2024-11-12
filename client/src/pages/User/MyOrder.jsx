@@ -13,6 +13,7 @@ import { formatCurrencyVND, formatDateToDDMMYYYY } from '~/utils/formatters';
 import { getStatusColor, getStatusName, tabs } from './Profile/utils/tabs';
 import { useSwal, useSwalWithConfirm } from '~/customHooks/useSwal';
 import OrderLoading from '~/components/common/Loading/OrderLoading';
+import ReviewModal from './ReviewModal';
 
 const MyOrder = () => {
   const { tab } = useParams();
@@ -20,6 +21,9 @@ const MyOrder = () => {
   const navigate = useNavigate();
   const [selectedTab, setSelectedTab] = useState(tab || 'all'); // 'all' là mặc định
   const tabsRef = useRef(null);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewOrderId, setReviewOrderId] = useState(null);
+  const [reviewProducts, setReviewProducts] = useState([]);
 
   useEffect(() => {
     setSelectedTab(tab || 'all');
@@ -45,9 +49,8 @@ const MyOrder = () => {
   } = useQuery({
     queryKey: ['orders', limitOrder, selectedTab],
     queryFn: fetchOrders,
-    staleTime: 30000,
-    keepPreviousData: true,
-    cacheTime: 30000,
+    staleTime: 0,
+    cacheTime: 0,
   });
 
   const orderData = data?.result || [];
@@ -143,21 +146,27 @@ const MyOrder = () => {
     setLimitOrder((prev) => prev + 10);
   };
 
+  const handleShowReviewModal = (orderId, products) => {
+    setReviewOrderId(orderId);
+    setReviewProducts(products);
+    setShowReviewModal(true);
+  };
+
   if (cancelOrderLoading) return <MainLoading />;
 
   return (
-    <div className="container mx-auto p-4 sm:p-6 lg:p-8 bg-white text-black relative">
+    <div className='container mx-auto p-4 sm:p-6 lg:p-8 bg-white text-black relative'>
       {isLoading && <OrderLoading />}
-      <div className="relative">
+      <div className='relative'>
         <button
           onClick={handleScrollLeft}
-          className="absolute -left-8 top-0 h-full z-10 p-2"
+          className='absolute -left-8 top-0 h-full z-10 p-2'
         >
-          <Icon className="text-2xl" icon="mingcute:left-fill" />
+          <Icon className='text-2xl' icon='mingcute:left-fill' />
         </button>
         <div
           ref={tabsRef}
-          className="flex overflow-x-auto border-b border-gray-300 hide-scrollbar"
+          className='flex overflow-x-auto border-b border-gray-300 hide-scrollbar'
         >
           {tabs.map((tab) => (
             <button
@@ -175,28 +184,36 @@ const MyOrder = () => {
         </div>
         <button
           onClick={handleScrollRight}
-          className="absolute -right-8 top-0 h-full z-10 p-2"
+          className='absolute -right-8 top-0 h-full z-10 p-2'
         >
-          <Icon className="text-2xl" icon="mingcute:right-fill" />
+          <Icon className='text-2xl' icon='mingcute:right-fill' />
         </button>
       </div>
-      <div className="mt-4">
+      <div className='mt-4'>
         {filteredOrders.length > 0 ? (
           filteredOrders.map((order) => (
             <div
               key={order._id}
-              className="p-4 mb-4 bg-zinc-100 shadow-md border-t border-gray-100 rounded-md"
+              className='p-4 mb-4 bg-zinc-100 shadow-md border-t border-gray-100 rounded-md'
             >
+              {showReviewModal && (
+                <ReviewModal
+                  orderId={reviewOrderId}
+                  products={reviewProducts}
+                  onClose={() => setShowReviewModal(false)}
+                  refetch={refetchOrderData}
+                />
+              )}
               <Link
                 to={`/nguoi-dung/don-hang/${order.orderCode}`}
-                className="flex justify-between items-center py-2 border-b border-gray-300"
+                className='flex justify-between items-center py-2 border-b border-gray-300 max-lg:gap-2'
               >
-                <div className="flex gap-5 items-center">
-                  <span className="text-lg font-bold">
+                <div className='flex gap-5 items-center max-lg:gap-2'>
+                  <span className='text-lg font-bold'>
                     Đơn hàng: #{order.orderCode}
                   </span>{' '}
                   -
-                  <i className="text-gray-500">
+                  <i className='text-gray-500'>
                     {formatDateToDDMMYYYY(
                       order.status[order.status.length - 1].createdAt,
                       'dd/MM/yyyy'
@@ -216,23 +233,23 @@ const MyOrder = () => {
                 </div>
               </Link>
               <Link
-                className="mt-2"
+                className='mt-2'
                 to={`/nguoi-dung/don-hang/${order.orderCode}`}
               >
                 {order?.productsList.map((product, i) => (
                   <div
                     key={i}
-                    className="flex justify-between py-3 border-b border-gray-300 last:border-none"
+                    className='flex justify-between py-3 border-b border-gray-300 last:border-none'
                   >
-                    <div className="flex gap-5 items-center">
+                    <div className='flex gap-5 items-center'>
                       <img
                         src={product?.image}
                         alt={product?.name}
-                        className="w-16 h-20 rounded-md"
+                        className='w-16 h-20 rounded-md'
                       />
-                      <div className="flex flex-col gap-1">
+                      <div className='flex flex-col gap-1'>
                         <span>{product?.name}</span>
-                        <div className="text-indigo-600">
+                        <div className='text-indigo-600'>
                           {product?.variantColor}
                           {product?.variantSize !== 'FREESIZE' &&
                             ` - ${product.variantSize}`}
@@ -240,24 +257,24 @@ const MyOrder = () => {
                         <span>x {product?.quantity}</span>
                       </div>
                     </div>
-                    <div className="flex flex-col gap-1 items-end justify-center text-orange-600 ml-10">
+                    <div className='flex flex-col gap-1 items-end justify-center text-orange-600 ml-10'>
                       <span>{formatCurrencyVND(product?.price)}</span>
                     </div>
                   </div>
                 ))}
               </Link>
-              <div className="flex justify-end border-t border-gray-200 pt-6">
-                <span className="text-lg">
+              <div className='flex justify-end border-t border-gray-200 pt-6'>
+                <span className='text-lg'>
                   Tổng cộng:{' '}
-                  <span className="font-bold text-red-600 text-xl ml-4">
+                  <span className='font-bold text-red-600 text-xl ml-4'>
                     {formatCurrencyVND(order?.totalPayment)}
                   </span>
                 </span>
               </div>
-              <div className="flex justify-end gap-3 mt-6">
+              <div className='flex justify-end gap-3 mt-6'>
                 <Link
                   to={`/nguoi-dung/don-hang/${order.orderCode}`}
-                  className="bg-red-500 text-white px-4 py-2 rounded-md"
+                  className='bg-red-500 text-white px-4 py-2 rounded-md'
                 >
                   Chi tiết
                 </Link>
@@ -266,12 +283,18 @@ const MyOrder = () => {
                   <>
                     <button
                       onClick={() => handleReOrder(order)}
-                      className="bg-red-500 text-white px-4 py-2 rounded-md"
+                      className='bg-red-500 text-white px-4 py-2 rounded-md'
                     >
                       Mua lại
                     </button>
-                    <button className="bg-red-500 text-white px-4 py-2 rounded-md">
-                      Đánh giá
+                    <button
+                      onClick={() =>
+                        handleShowReviewModal(order._id, order.productsList)
+                      }
+                      disabled={order?.isComment}
+                      className=' btn bg-red-500 text-white rounded-md'
+                    >
+                      {order?.isComment ? 'Đã đánh giá' : 'Đánh giá'}
                     </button>
                   </>
                 )}
@@ -283,14 +306,14 @@ const MyOrder = () => {
                     'delivered' && (
                     <button
                       onClick={() => handleCancelOrder(order._id)}
-                      className="bg-red-500 text-white px-4 py-2 rounded-md"
+                      className='bg-red-500 text-white px-4 py-2 rounded-md'
                     >
                       Hủy đơn
                     </button>
                   )}
                 {order.status[order.status.length - 1].status ===
                   'received' && (
-                  <button className="bg-red-500 text-white px-4 py-2 rounded-md">
+                  <button className='bg-red-500 text-white px-4 py-2 rounded-md'>
                     Yêu cầu hoàn trả
                   </button>
                 )}
@@ -298,13 +321,13 @@ const MyOrder = () => {
             </div>
           ))
         ) : (
-          <EmptyCart usedBy="order" />
+          <EmptyCart usedBy='order' />
         )}
         {orderData.length > 0 && (
-          <div className="flex justify-center">
+          <div className='flex justify-center'>
             <button
               onClick={handleLoadMore}
-              className="btn btn-primary text-white hover:bg-red-600 rounded-md mt-8"
+              className='btn btn-primary text-white hover:bg-red-600 rounded-md mt-8'
             >
               Xem thêm
             </button>

@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 
 const SelectColor = ({ variants, onChange, selectedColor }) => {
   return (
-    <div className="grid grid-cols-6 gap-3 mb-6 max-w-sm">
+    <div className='grid grid-cols-6 gap-3 mb-6'>
       {variants.map((variant) => (
         <div
           key={variant.color}
@@ -11,10 +11,10 @@ const SelectColor = ({ variants, onChange, selectedColor }) => {
           } ${variant.stock === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
           onClick={() => variant.stock !== 0 && onChange(variant.color)}
         >
-          <div className="relative pb-[120%]">
+          <div className='relative pb-[120%]'>
             {' '}
             {/* Aspect ratio 5:6 */}
-            <div className="absolute inset-0">
+            <div className='absolute inset-0'>
               <img
                 src={variant.image}
                 alt={`${variant.color} image`}
@@ -25,8 +25,8 @@ const SelectColor = ({ variants, onChange, selectedColor }) => {
                 } rounded-md transition-all duration-500`}
               />
               {variant.stock === 0 && (
-                <div className="absolute inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center rounded-md">
-                  <p className="text-white text-xs font-semibold">Hết hàng</p>
+                <div className='absolute inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center rounded-md'>
+                  <p className='text-white text-xs font-semibold'>Hết hàng</p>
                 </div>
               )}
             </div>
