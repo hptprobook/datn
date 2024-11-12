@@ -1,12 +1,13 @@
 import { createSlice, createAction, createAsyncThunk } from '@reduxjs/toolkit';
 import CouponServices from '../services/coupon.service';
+import DashboardService from '../services/dashboard.service';
 /* eslint-disable */
 
 export const fetchAll = createAsyncThunk(
   'coupons/fetchAll',
   async (_, rejectWithValue) => {
     try {
-      const res = await CouponServices.getAll();
+      const res = await DashboardService.gets('/coupons');
       return res;
     } catch (err) {
       return rejectWithValue(err.response.data);
@@ -17,15 +18,24 @@ export const fetchOne = createAsyncThunk(
   'coupons/fetchOne',
   async (id, { rejectWithValue }) => {
     try {
-      console.log('id', id);
-      const res = await CouponServices.getOne(id);
+      const res = await DashboardService.gets(`/coupons/${id}`);
       return res;
     } catch (err) {
       return rejectWithValue(err.response.data);
     }
   }
 );
-
+export const fetchHistory = createAsyncThunk(
+  'coupons/fetchHistory',
+  async (couponId, { rejectWithValue }) => {
+    try {
+      const res = await DashboardService.gets(`/coupon-history?couponId=${couponId}`);
+      return res;
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
 export const create = createAsyncThunk(
   'coupons/create',
   async (data, { rejectWithValue }) => {
@@ -82,7 +92,9 @@ const couponSlice = createSlice({
     coupons: [],
     coupon: {},
     delete: null,
+    history: [],
     status: 'idle',
+    statusHistory: 'idle',
     statusUpdate: 'idle',
     statusDelete: 'idle',
     statusCreate: 'idle',
@@ -99,6 +111,17 @@ const couponSlice = createSlice({
       })
       .addCase(fetchAll.rejected, (state, action) => {
         state.status = 'failed';
+        state.error = action.error;
+      })
+      .addCase(fetchHistory.pending, (state) => {
+        state.statusHistory = 'loading';
+      })
+      .addCase(fetchHistory.fulfilled, (state, action) => {
+        state.statusHistory = 'successful';
+        state.history = action.payload;
+      })
+      .addCase(fetchHistory.rejected, (state, action) => {
+        state.statusHistory = 'failed';
         state.error = action.error;
       })
       .addCase(fetchOne.pending, (state) => {

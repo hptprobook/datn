@@ -127,7 +127,7 @@ const getMe = async (req, res) => {
                 message: 'Phiên đăng nhập hết hạn',
             });
         }
-        if (((exp - Date.now()) / 1000) > 60 * 60 * 24) {
+        if ((exp - (Date.now()/1000)) < 0) {
             const decodedToken = jwt.verify(refreshToken, process.env.SECRET_STAFF);
             if (!decodedToken) {
                 return res.status(401).json({
@@ -145,6 +145,7 @@ const getMe = async (req, res) => {
             delete staff.refreshToken;
             return res.status(200).json(staff);
         }
+
         const staff = await staffsModel.getStaffBy('_id', user_id);
         if (!staff) {
             return res.status(401).json({
