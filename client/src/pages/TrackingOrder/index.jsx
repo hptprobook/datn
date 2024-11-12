@@ -112,25 +112,25 @@ const TrackingOrderPage = () => {
   };
 
   return (
-    <section className="bg-white py-8 antialiased md:py-16">
+    <section className='bg-white py-8 antialiased md:py-16'>
       <Helmet>
         <title>BMT Life | Theo dõi đơn hàng </title>
       </Helmet>
-      <div className="mx-auto max-w-screen-xl px-4 2xl:px-0">
+      <div className='mx-auto max-w-screen-xl px-4 2xl:px-0'>
         <form
           onSubmit={handleSubmit}
-          className="flex flex-col items-center gap-4 mb-8"
+          className='flex flex-col items-center gap-4 mb-8'
         >
           <input
-            type="text"
-            className="w-full max-w-lg rounded-md border border-gray-300 p-3 text-sm bg-white text-gray-900"
-            placeholder="Nhập mã đơn hàng được gửi trong gmail"
+            type='text'
+            className='w-full max-w-lg rounded-md border border-gray-300 p-3 text-sm bg-white text-gray-900'
+            placeholder='Nhập mã đơn hàng được gửi trong gmail'
             value={orderCode}
             onChange={(e) => setOrderCode(e.target.value)}
           />
           <button
-            type="submit"
-            className="btn rounded-md bg-red-500 hover:bg-red-700 text-white px-6 py-2"
+            type='submit'
+            className='btn rounded-md bg-red-500 hover:bg-red-700 text-white px-6 py-2'
             disabled={debounce}
           >
             Tìm kiếm đơn hàng
@@ -139,50 +139,50 @@ const TrackingOrderPage = () => {
 
         {searchedOrder && (
           <>
-            <h2 className="text-xl font-semibold text-gray-900 sm:text-2xl">
+            <h2 className='text-xl font-semibold text-gray-900 sm:text-2xl'>
               Theo dõi đơn hàng {orderCode}
             </h2>
 
-            <div className="mt-6 sm:mt-8 lg:flex lg:gap-8">
-              <div className="w-full divide-y divide-gray-200 overflow-hidden rounded-lg border border-gray-200 lg:max-w-xl xl:max-w-2xl">
+            <div className='mt-6 sm:mt-8 lg:flex lg:gap-8'>
+              <div className='w-full divide-y divide-gray-200 overflow-hidden rounded-lg border border-gray-200 lg:max-w-xl xl:max-w-2xl'>
                 {searchedOrder?.productsList?.map((product) => (
                   <>
-                    <div className="space-y-4 p-6">
-                      <div className="flex items-center gap-6">
+                    <div className='space-y-4 p-6'>
+                      <div className='flex items-center max-lg:gap-2 gap-6'>
                         <Link
                           to={`/san-pham/${product?.slug}`}
-                          className="h-24 w-20"
+                          className='h-24 w-20'
                         >
                           <img
-                            className="h-full w-full"
+                            className='h-full w-full'
                             src={product?.image}
                             alt={product?.name}
                           />
                         </Link>
                         <Link
                           to={`/san-pham/${product?.slug}`}
-                          className="min-w-0 flex-1 font-medium text-gray-900 hover:underline"
+                          className='flex-1 font-medium text-gray-900 hover:underline'
                         >
                           {product?.name}
                         </Link>
-                        <p className="text-sm font-normal text-gray-900">
-                          <span className="font-medium text-gray-900">
+                        <p className='text-sm font-normal text-gray-900 max-lg:w-[80px]'>
+                          <span className='font-medium text-gray-900'>
                             Loại:
                           </span>{' '}
-                          <span className="text-indigo-700">
+                          <span className='text-indigo-700'>
                             {product?.variantColor}
                             {product?.variantSize !== 'FREESIZE' &&
                               ` - ${product.variantSize}`}
                           </span>
                         </p>
                       </div>
-                      <div className="flex items-center justify-between gap-4">
+                      <div className='flex items-center justify-between gap-4'>
                         <div></div>
-                        <div className="flex items-center justify-end gap-4">
-                          <p className="text-base font-normal text-gray-900">
+                        <div className='flex items-center justify-end gap-4'>
+                          <p className='text-base font-normal text-gray-900'>
                             x{product?.quantity}
                           </p>
-                          <p className="text-xl font-bold leading-tight text-red-600">
+                          <p className='text-xl font-bold leading-tight text-red-600'>
                             {formatCurrencyVND(product?.price)}
                           </p>
                         </div>
@@ -190,59 +190,59 @@ const TrackingOrderPage = () => {
                     </div>
                   </>
                 ))}
-                <div className="col-span-12 lg:col-span-4 space-y-6">
-                  <div className="p-6 rounded-lg bg-white">
-                    <h3 className="text-lg font-semibold mb-4 text-gray-900">
+                <div className='col-span-12 lg:col-span-4 space-y-6'>
+                  <div className='p-6 rounded-lg bg-white'>
+                    <h3 className='text-lg font-semibold mb-4 text-gray-900'>
                       Thông tin đơn hàng
                     </h3>
-                    <div className="space-y-4">
+                    <div className='space-y-4'>
                       {/* Tổng tiền hàng */}
-                      <div className="grid grid-cols-12">
-                        <span className="col-span-4 font-medium text-gray-700">
+                      <div className='grid grid-cols-12'>
+                        <span className='col-span-4 font-medium text-gray-700'>
                           Tổng tiền hàng:
                         </span>
-                        <span className="col-span-8 text-red-600 font-bold text-lg text-right">
+                        <span className='col-span-8 text-red-600 font-bold text-lg text-right'>
                           {formatCurrencyVND(searchedOrder?.totalPrice)}
                         </span>
                       </div>
 
                       {/* Phí ship */}
-                      <div className="grid grid-cols-12">
-                        <span className="col-span-4 font-medium text-gray-700">
+                      <div className='grid grid-cols-12'>
+                        <span className='col-span-4 font-medium text-gray-700'>
                           Phí giao hàng:
                         </span>
-                        <span className="col-span-8 text-orange-700 text-right">
+                        <span className='col-span-8 text-orange-700 text-right'>
                           + {formatCurrencyVND(searchedOrder?.fee)}
                         </span>
                       </div>
 
                       {/* Giảm giá */}
                       {searchedOrder.discountPercentage && (
-                        <div className="grid grid-cols-12">
-                          <span className="col-span-4 font-medium text-gray-700">
+                        <div className='grid grid-cols-12'>
+                          <span className='col-span-4 font-medium text-gray-700'>
                             Giảm giá:
                           </span>
-                          <span className="col-span-8 text-green-600 text-right">
+                          <span className='col-span-8 text-green-600 text-right'>
                             - {formatCurrencyVND(searchedOrder.discountAmount)}
                           </span>
                         </div>
                       )}
 
                       {/* Phương thức thanh toán */}
-                      <div className="grid grid-cols-12">
-                        <span className="col-span-4 font-medium text-gray-700">
+                      <div className='grid grid-cols-12'>
+                        <span className='col-span-4 font-medium text-gray-700'>
                           Phương thức thanh toán:
                         </span>
-                        <span className="col-span-8 text-gray-900 text-right">
+                        <span className='col-span-8 text-gray-900 text-right'>
                           {searchedOrder?.paymentMethod}
                         </span>
                       </div>
 
-                      <div className="grid grid-cols-12">
-                        <span className="col-span-4 font-medium text-gray-700">
+                      <div className='grid grid-cols-12'>
+                        <span className='col-span-4 font-medium text-gray-700'>
                           Người nhận:
                         </span>
-                        <span className="col-span-8 text-gray-900 font-bold text-right">
+                        <span className='col-span-8 text-gray-900 font-bold text-right'>
                           {searchedOrder?.shippingInfo?.name} -{' '}
                           {formatVietnamesePhoneNumber(
                             searchedOrder?.shippingInfo?.phone
@@ -251,20 +251,20 @@ const TrackingOrderPage = () => {
                       </div>
 
                       {/* Địa chỉ giao hàng */}
-                      <div className="grid grid-cols-12">
-                        <span className="col-span-4 font-medium text-gray-700">
+                      <div className='grid grid-cols-12'>
+                        <span className='col-span-4 font-medium text-gray-700'>
                           Địa chỉ giao hàng:
                         </span>
-                        <span className="col-span-8 text-gray-900 text-right">
+                        <span className='col-span-8 text-gray-900 text-right'>
                           {searchedOrder?.shippingInfo?.fullAddress}
                         </span>
                       </div>
 
-                      <div className="grid grid-cols-12">
-                        <span className="col-span-4 font-medium text-gray-700">
+                      <div className='grid grid-cols-12'>
+                        <span className='col-span-4 font-medium text-gray-700'>
                           Ngày giao hàng dự kiến:
                         </span>
-                        <span className="col-span-8 text-gray-900 text-right">
+                        <span className='col-span-8 text-gray-900 text-right'>
                           {formatDateToDDMMYYYY(
                             searchedOrder?.estimatedDeliveryDate
                           )}
@@ -272,11 +272,11 @@ const TrackingOrderPage = () => {
                       </div>
 
                       {/* Ghi chú */}
-                      <div className="grid grid-cols-12">
-                        <span className="col-span-4 font-medium text-gray-700">
+                      <div className='grid grid-cols-12'>
+                        <span className='col-span-4 font-medium text-gray-700'>
                           Ghi chú:
                         </span>
-                        <span className="col-span-8 text-gray-700 text-sm text-right">
+                        <span className='col-span-8 text-gray-700 text-sm text-right'>
                           {searchedOrder?.shippingInfo?.note || 'Không'}
                         </span>
                       </div>
@@ -285,13 +285,13 @@ const TrackingOrderPage = () => {
                 </div>
               </div>
 
-              <div className="mt-6 grow sm:mt-8 lg:mt-0">
-                <div className="space-y-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-                  <h3 className="text-xl font-semibold text-gray-900">
+              <div className='mt-6 grow sm:mt-8 lg:mt-0'>
+                <div className='space-y-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm'>
+                  <h3 className='text-xl font-semibold text-gray-900'>
                     Lịch sử đơn hàng
                   </h3>
 
-                  <ol className="relative ms-3 border-s border-gray-200">
+                  <ol className='relative ms-3 border-s border-gray-200'>
                     {[...searchedOrder.status]
                       .reverse()
                       .map((status, index) => {
@@ -321,35 +321,35 @@ const TrackingOrderPage = () => {
                               {isLastStatus ? (
                                 isCancelled ? (
                                   <Icon
-                                    icon="mdi:close-circle-outline"
-                                    className="h-4 w-4 text-red-600"
+                                    icon='mdi:close-circle-outline'
+                                    className='h-4 w-4 text-red-600'
                                   />
                                 ) : (
                                   <Icon
-                                    icon="mdi:clock-outline"
-                                    className="h-4 w-4 text-blue-600"
+                                    icon='mdi:clock-outline'
+                                    className='h-4 w-4 text-blue-600'
                                   />
                                 )
                               ) : (
                                 <Icon
-                                  icon="mdi:checkbox-marked-circle-outline"
-                                  className="h-4 w-4 text-green-600"
+                                  icon='mdi:checkbox-marked-circle-outline'
+                                  className='h-4 w-4 text-green-600'
                                 />
                               )}
                             </span>
-                            <h4 className="mb-0.5 text-base font-semibold">
+                            <h4 className='mb-0.5 text-base font-semibold'>
                               {new Date(status.createdAt).toLocaleString()}
                             </h4>
-                            <p className="text-sm">{status.note}</p>
+                            <p className='text-sm'>{status.note}</p>
                           </li>
                         );
                       })}
                   </ol>
 
-                  <div className="gap-4 sm:flex sm:items-center">
+                  <div className='gap-4 sm:flex sm:items-center'>
                     <button
-                      type="button"
-                      className="w-full btn rounded-md bg-red-600 hover:bg-red-700 text-white"
+                      type='button'
+                      className='w-full btn rounded-md bg-red-600 hover:bg-red-700 text-white'
                       disabled={
                         searchedOrder?.status[searchedOrder?.status.length - 1]
                           .status === 'cancelled'

@@ -109,53 +109,53 @@ const MyProfile = () => {
   }
 
   return (
-    <div className="text-black bg-white rounded-sm p-10">
-      <h1 className="text-xl font-bold border-b pb-3">Hồ sơ của tôi</h1>
+    <div className='text-black bg-white rounded-sm p-10'>
+      <h1 className='text-xl font-bold border-b pb-3'>Hồ sơ của tôi</h1>
       <form onSubmit={formik.handleSubmit}>
-        <div className="grid grid-cols-12 gap-2 mt-4">
-          <div className="col-span-4">
+        <div className='grid grid-cols-12 gap-2 mt-4'>
+          <div className='col-span-4 max-lg:col-span-12'>
             <UploadImage
               onFileSelect={handleAvatarChange}
               avatar={user?.avatar}
             />
           </div>
 
-          <div className="col-span-1 flex justify-center">
-            <div className="border-l h-full border-gray-300"></div>
+          <div className='col-span-1 flex justify-center max-lg:col-span-12'>
+            <div className='border-l h-full border-gray-300'></div>
           </div>
 
-          <div className="col-span-7 no-gu">
+          <div className='col-span-7 no-gu max-lg:col-span-12'>
             <InputField_Full
-              id="name"
-              label="Họ và tên"
-              name="name"
-              type="text"
+              id='name'
+              label='Họ và tên'
+              name='name'
+              type='text'
               value={formik.values.name}
               onChange={formik.handleChange}
               error={formik.touched.name && formik.errors.name}
             />
-            <div className="mt-2">
+            <div className='mt-2'>
               <InputField_Full
-                id="email"
-                label="Email"
-                name="email"
-                type="email"
+                id='email'
+                label='Email'
+                name='email'
+                type='email'
                 value={user?.email}
                 disabled
               />
             </div>
-            <div className="mt-2">
+            <div className='mt-2'>
               <label
-                htmlFor="birthdate"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                htmlFor='birthdate'
+                className='block text-sm font-medium text-gray-700 mb-2'
               >
                 Ngày sinh
               </label>
               <Datepicker
-                id="birthdate"
-                label="Ngày sinh"
-                name="birthdate"
-                language="vi"
+                id='birthdate'
+                label='Ngày sinh'
+                name='birthdate'
+                language='vi'
                 selected={formik.values.birthdate}
                 onSelectedDateChanged={(date) =>
                   formik.setFieldValue('birthdate', date)
@@ -166,28 +166,28 @@ const MyProfile = () => {
                     ? moment(formik.values.birthdate).format('DD-MM-YYYY')
                     : moment(user?.birthdate).format('DD-MM-YYYY')
                 }
-                dateFormat="dd-MM-yyyy"
-                className="w-full"
+                dateFormat='dd-MM-yyyy'
+                className='w-full'
               />
               {formik.touched.birthdate && formik.errors.birthdate && (
-                <p className="text-red-500 text-xs mt-1">
+                <p className='text-red-500 text-xs mt-1'>
                   {formik.errors.birthdate}
                 </p>
               )}
             </div>
-            <div id="gender" className="mt-2 text-sm font-medium text-gray-700">
-              <h3 className="">Giới tính</h3>
+            <div id='gender' className='mt-2 text-sm font-medium text-gray-700'>
+              <h3 className=''>Giới tính</h3>
 
-              <div className="flex gap-6 my-3">
+              <div className='flex gap-6 my-3'>
                 {['male', 'female', 'other'].map((gender) => (
                   <label
                     key={gender}
-                    className="flex cursor-pointer gap-2 items-center"
+                    className='flex cursor-pointer gap-2 items-center'
                   >
                     <input
-                      type="radio"
-                      className="radio bg-white"
-                      name="gender"
+                      type='radio'
+                      className='radio bg-white'
+                      name='gender'
                       value={gender}
                       checked={formik.values.gender === gender}
                       onChange={formik.handleChange}
@@ -203,21 +203,21 @@ const MyProfile = () => {
                 ))}
               </div>
             </div>
-            <div className="mt-2">
+            <div className='mt-2'>
               <InputField_Full
-                id="phone"
-                label="Số điện thoại"
-                name="phone"
-                type="text"
+                id='phone'
+                label='Số điện thoại'
+                name='phone'
+                type='text'
                 value={formik.values.phone}
                 onChange={formik.handleChange}
                 error={formik.touched.phone && formik.errors.phone}
               />
             </div>
-            <div className="mt-4">
+            <div className='mt-4'>
               <button
-                type="submit"
-                className="btn bg-red-600 float-end rounded-md"
+                type='submit'
+                className='btn bg-red-600 float-end rounded-md'
                 disabled={mutation.isLoading || !formik.dirty}
               >
                 {mutation.isLoading ? 'Đang lưu...' : 'Lưu thay đổi'}
