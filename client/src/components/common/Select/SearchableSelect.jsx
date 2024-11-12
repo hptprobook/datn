@@ -32,10 +32,10 @@ const SearchableSelect = ({
   };
 
   return (
-    <div className="w-full">
+    <div className='w-full'>
       <label
         htmlFor={id}
-        className="block text-sm font-medium text-gray-700 mb-2"
+        className='block text-sm font-medium text-gray-700 mb-2'
       >
         {label}
       </label>
@@ -52,7 +52,7 @@ const SearchableSelect = ({
         options={options}
         getOptionLabel={getOptionLabel}
         getOptionValue={getOptionValue}
-        classNamePrefix="react-select"
+        classNamePrefix='react-select'
         isSearchable={isSearchable}
         styles={customStyles}
         className={`w-full rounded-md text-sm h-10 ${
@@ -61,7 +61,7 @@ const SearchableSelect = ({
         noOptionsMessage={() => 'Không tìm thấy'}
         {...rest}
       />
-      {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+      {error && <p className='text-red-500 text-xs mt-1'>{error}</p>}
     </div>
   );
 };

@@ -166,63 +166,66 @@ const AddressModel = ({
       }`}
     >
       <div
-        className="absolute inset-0 bg-black opacity-50"
+        className='absolute inset-0 bg-black opacity-50'
         onClick={!onBack ? handleClose : onBack}
       ></div>
 
       <div
-        className={`relative bg-white p-6 rounded-md shadow-lg z-10 w-2/3 transform ${
+        className={`relative bg-white p-6 rounded-md shadow-lg z-10 w-2/3 max-lg:w-4/5 md:2/3 transform ${
           isOpen && !isClosing ? 'animate-slideDown' : 'animate-slideUp'
         }`}
       >
         {!onBack && (
           <button
-            className="absolute top-4 right-4 text-gray-500 hover:text-black"
+            className='absolute top-4 right-4 text-gray-500 hover:text-black max-lg:top-8'
             onClick={handleClose}
           >
             <FaTimes size={20} />
           </button>
         )}
-        <h2 className="font-bold text-black mb-4">
+        <h2 className='font-bold text-black mb-4 max-lg:mb-0'>
           {address ? 'CHỈNH SỬA ĐỊA CHỈ' : 'THÊM ĐỊA CHỈ MỚI'}
         </h2>
-        <form className="mt-12 grid gap-6" onSubmit={formik.handleSubmit}>
+        <form
+          className='mt-12 grid gap-6 max-lg:gap-2 max-lg:mt-4'
+          onSubmit={formik.handleSubmit}
+        >
           <InputField_50
-            id="name"
-            label="Họ tên"
-            name="name"
-            type="text"
+            id='name'
+            label='Họ tên'
+            name='name'
+            type='text'
             value={formik.values.name}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             error={formik.touched.name && formik.errors.name}
           />
           <InputField_50
-            id="Số điện thoại"
-            label="Số điện thoại"
-            name="phone"
-            type="text"
+            id='Số điện thoại'
+            label='Số điện thoại'
+            name='phone'
+            type='text'
             value={formik.values.phone}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             error={formik.touched.phone && formik.errors.phone}
           />
           <InputField_50
-            id="Email"
-            label="Email"
-            name="email"
-            type="email"
+            id='Email'
+            label='Email'
+            name='email'
+            type='email'
             value={formik.values.email}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             error={formik.touched.email && formik.errors.email}
           />
 
-          <div className="grid grid-cols-3 gap-4 col-span-6">
+          <div className='grid grid-cols-3 gap-4 col-span-6 max-lg:grid-cols-1 max-lg:col-span-4 md:col-span-6 max-lg:gap-2'>
             <SearchableSelect
-              id="province"
-              label="Tỉnh / Thành phố"
-              name="province_id"
+              id='province'
+              label='Tỉnh / Thành phố'
+              name='province_id'
               options={provinceOptions}
               value={formik.values.province_id}
               defaultValue={'Chọn tỉnh / thành phố'}
@@ -241,9 +244,9 @@ const AddressModel = ({
             />
 
             <SearchableSelect
-              id="district"
-              label="Quận / Huyện"
-              name="district"
+              id='district'
+              label='Quận / Huyện'
+              name='district'
               options={districtOptions}
               value={formik.values.district_id}
               onChange={(option) => {
@@ -258,9 +261,9 @@ const AddressModel = ({
               error={formik.touched.district_id && formik.errors.district_id}
             />
             <SearchableSelect
-              id="ward"
-              label="Xã / Phường"
-              name="ward"
+              id='ward'
+              label='Xã / Phường'
+              name='ward'
               options={wardOptions}
               value={formik.values.ward_id}
               onChange={(option) => {
@@ -272,37 +275,37 @@ const AddressModel = ({
           </div>
 
           <InputField_Full
-            id="address"
-            label="Địa chỉ"
-            name="address"
-            type="text"
+            id='address'
+            label='Địa chỉ'
+            name='address'
+            type='text'
             value={formik.values.address}
             onChange={formik.handleChange}
             error={formik.touched.address && formik.errors.address}
           />
 
           <div>
-            <div className="mb-4">
-              <label htmlFor="isDefault" className="flex items-center gap-2">
+            <div className='mb-4'>
+              <label htmlFor='isDefault' className='flex items-center gap-2'>
                 <input
-                  type="checkbox"
-                  id="isDefault"
-                  name="isDefault"
-                  className="checkbox checkbox-error"
+                  type='checkbox'
+                  id='isDefault'
+                  name='isDefault'
+                  className='checkbox checkbox-error'
                   checked={formik.values.isDefault}
                   onChange={formik.handleChange}
                 />
-                <span className="text-sm text-gray-700">
+                <span className='text-sm text-gray-700'>
                   Đặt làm địa chỉ mặc định
                 </span>
               </label>
             </div>
 
-            <div className="flex gap-3">
+            <div className='flex gap-3'>
               {onBack && (
                 <button
-                  type="button"
-                  className="btn bg-red-600 rounded-md mt-4 px-12"
+                  type='button'
+                  className='btn bg-red-600 rounded-md mt-4 px-12'
                   onClick={onBack}
                 >
                   Quay lại
@@ -310,9 +313,9 @@ const AddressModel = ({
               )}
 
               <button
-                type="submit"
+                type='submit'
                 onClick={formik.handleSubmit}
-                className="btn bg-red-600 rounded-md mt-4 px-12"
+                className='btn bg-red-600 rounded-md mt-4 px-12 max-lg:mt-0'
               >
                 {address ? 'Cập nhật địa chỉ' : 'Lưu địa chỉ'}
               </button>
