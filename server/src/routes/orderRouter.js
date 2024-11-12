@@ -19,6 +19,7 @@ Router.get('/me/status', verifyToken, orderController.getCurrentOrderByStatus);
 Router.post('/', verifyToken, orderController.addOrder);
 
 Router.put('/:id', verifyStaff, orderController.updateOrder);
+Router.put('/me/:id', verifyToken, orderController.updateOrder);
 Router.delete('/:idOrder', verifyToken, orderController.removeOrder);
 Router.post('/check_stock', orderController.checkStockProducts);
 Router.post('/update_stock', verifyToken, orderController.updateStockProducts);

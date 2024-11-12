@@ -11,11 +11,12 @@ import { APIs } from './routes';
 import swaggerUi from 'swagger-ui-express';
 import swaggerFile from '../swagger_output.json';
 import path from 'path';
-const { app, server } = require('./socket/socket');
+import http from 'http';
+// const { app, server } = require('./socket/socket');
 
 const START_SERVER = () => {
-  // const app = express();
-  // const server = http.createServer(app);
+  const app = express();
+  const server = http.createServer(app);
   app.use(cookieParser());
   app.use(
     cors({

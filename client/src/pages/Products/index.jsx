@@ -121,7 +121,7 @@ const ProductPage = () => {
 
       <div className="mb-24 mt-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
             <ProductDetailSlider
               images={images}
               activeIndex={activeImageIndex}

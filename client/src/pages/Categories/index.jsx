@@ -42,7 +42,6 @@ const CategoryPage = () => {
   const { data: priceRangeData } = useQuery({
     queryKey: ['price-range'],
     queryFn: getMinMaxPrices,
-    initialData: { minPrice: 1000, maxPrice: 2000000 },
     staleTime: 1000 * 60 * 30,
     cacheTime: 1000 * 60 * 60,
   });
@@ -188,14 +187,14 @@ const CategoryPage = () => {
   }
 
   return (
-    <section className='max-w-container mx-auto max-lg:mt-0 mt-16 max-lg:px-4 max-lg:relative'>
+    <section className="max-w-container mx-auto max-lg:mt-0 mt-16 max-lg:px-4 max-lg:relative">
       <Helmet>
         <title>BMT Life | {categoryData?.name || 'Danh mục sản phẩm'}</title>
       </Helmet>
       <HeaderBC title={'Danh mục sản phẩm'} name={categoryData?.name} />
-      <div className='divider'></div>
-      <div className='grid grid-cols-5 gap-6 mt-8 '>
-        <div className='col-span-1'>
+      <div className="divider"></div>
+      <div className="grid max-lg:grid-cols-1 grid-cols-5 gap-6 mt-8">
+        <div className="max-lg:col-span-1 col-span-1">
           <ProductListFilter
             onFilterChange={handleFilterChange}
             onPriceRangeChange={handlePriceRangeChange}
@@ -203,14 +202,14 @@ const CategoryPage = () => {
             initialFilters={filters}
           />
         </div>
-        <div className='max-lg:col-span-5 col-span-4'>
+        <div className="max-lg:col-span-1 col-span-4">
           {noMatchingProducts || filteredProductsData?.length === 0 ? (
-            <div className='flex flex-col items-center justify-center h-64 text-gray-600'>
-              <Icon icon='tabler:news-off' className='text-6xl mb-4' />
-              <p className='text-xl font-semibold mb-2'>
+            <div className="flex flex-col items-center justify-center h-64 text-gray-600">
+              <Icon icon="tabler:news-off" className="text-6xl mb-4" />
+              <p className="text-xl font-semibold mb-2">
                 Không có sản phẩm nào phù hợp
               </p>
-              <p className='text-sm'>Vui lòng thử lại với các bộ lọc khác</p>
+              <p className="text-sm">Vui lòng thử lại với các bộ lọc khác</p>
             </div>
           ) : (
             <ProductListWithSort
