@@ -139,6 +139,8 @@ const Header = () => {
             src={`${import.meta.env.VITE_SERVER_URL}/${config?.logo}`}
             alt='Logo'
             className='h-full w-52 mx-auto max-lg:w-auto'
+            alt="Logo"
+            className="h-16 w-20 mx-auto"
           />
         </NavLink>
         <div className='flex gap-4'>
