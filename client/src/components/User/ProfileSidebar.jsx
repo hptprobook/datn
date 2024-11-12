@@ -30,9 +30,9 @@ const ProfileSidebar = () => {
   };
 
   return (
-    <div className="relative h-[50px] md:h-full z-[10000]">
+    <div className="relative h-[50px] md:h-full z-30">
       <button
-        className="mt-2 ml-4 left-4 py-2 px-6 text-white bg-red-600 rounded-full z-[10000]"
+        className="md:hidden mt-2 ml-4 left-4 py-2 px-6 text-white bg-red-600 rounded-full z-30"
         onClick={toggleSidebar}
       >
         Thanh công cụ
@@ -41,13 +41,13 @@ const ProfileSidebar = () => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed md:relative top-0 left-0 h-full md:h-auto w-full md:w-auto bg-white rounded-sm z-[10000] p-4 md:p-0 transform transition-transform ${
+        className={`fixed md:relative top-0 left-0 h-full md:h-auto w-full md:w-auto bg-white rounded-sm z-50 p-4 md:p-0 transform transition-transform ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } md:translate-x-0`}
       >
         {/* Close Button for Mobile */}
         <button
-          className="fixed top-4 right-8 p-2 bg-red-600 text-white rounded-full z-[10000]"
+          className="md:hidden fixed top-20 right-8 p-2 bg-red-600 text-white rounded-full z-[10000]"
           onClick={toggleSidebar}
         >
           <GrClose className="text-xl" />
