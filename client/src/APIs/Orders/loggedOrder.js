@@ -14,7 +14,7 @@ export const createOrderAPI = async (data) => {
 
 export const updateOrderAPI = async (data) => {
   try {
-    const response = await request.put(`/orders/${data.id}`, data.data);
+    const response = await request.put(`/orders/me/${data.id}`, data.data);
     return response.data;
   } catch (error) {
     console.log('Lỗi khi huỷ đơn hàng', error);

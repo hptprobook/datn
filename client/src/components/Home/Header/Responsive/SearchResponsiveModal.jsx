@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
-import { FaArrowLeft, FaFire } from 'react-icons/fa';
+import { FaArrowLeft } from 'react-icons/fa';
 import { IoIosSearch } from 'react-icons/io';
 import PropTypes from 'prop-types';
+import { useNavigate } from 'react-router-dom';
 
 const SearchResponsiveModal = ({ openSearch, setOpenSearch }) => {
   const [searchValue, setSearchValue] = useState('');
   const [animateSearch, setAnimateSearch] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (openSearch) {
@@ -15,6 +17,10 @@ const SearchResponsiveModal = ({ openSearch, setOpenSearch }) => {
       return () => clearTimeout(timeout);
     }
   }, [openSearch]);
+
+  const handleSearchButtonClick = () => {
+    navigate(`/tim-kiem?keyword=${searchValue}`);
+  };
 
   return (
     <div>
@@ -37,34 +43,17 @@ const SearchResponsiveModal = ({ openSearch, setOpenSearch }) => {
                   type="text"
                   className="w-full md:w-search h-10 rounded-l-md outline-none pl-3 text-sm"
                   placeholder="Tìm kiếm ..."
+                  value={searchValue}
                   onChange={(e) => setSearchValue(e.target.value)}
                 />
                 <button
-                  type="submit"
+                  type="button"
+                  onClick={handleSearchButtonClick}
                   className="w-12 h-10 bg-red-800 rounded-r-md flex justify-center items-center"
                 >
                   <IoIosSearch className="text-gray-50" />
                 </button>
               </form>
-            </div>
-            <div className="flex-grow">
-              {searchValue === '' ? (
-                <div className="px-5">
-                  <div className="flex gap-3 items-center pt-6">
-                    <FaFire className="text-red-500" />
-                    <p className="font-bold">Tìm kiếm phổ biến nhất</p>
-                  </div>
-                  <div className="flex gap-3 items-center mt-3 overflow-x-auto"></div>
-                </div>
-              ) : (
-                <div className="px-5">
-                  <div className="flex gap-3 items-center py-6">
-                    <FaFire className="text-red-500" />
-                    <p className="font-bold">Tìm kiếm gợi ý</p>
-                  </div>
-                  <div className="mt-4"></div>
-                </div>
-              )}
             </div>
           </div>
         </div>

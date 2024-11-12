@@ -13,6 +13,7 @@ import { formatCurrencyVND, formatDateToDDMMYYYY } from '~/utils/formatters';
 import { getStatusColor, getStatusName, tabs } from './Profile/utils/tabs';
 import { useSwal, useSwalWithConfirm } from '~/customHooks/useSwal';
 import OrderLoading from '~/components/common/Loading/OrderLoading';
+import ReviewModal from './ReviewModal';
 
 const MyOrder = () => {
   const { tab } = useParams();
@@ -20,6 +21,9 @@ const MyOrder = () => {
   const navigate = useNavigate();
   const [selectedTab, setSelectedTab] = useState(tab || 'all'); // 'all' là mặc định
   const tabsRef = useRef(null);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewOrderId, setReviewOrderId] = useState(null);
+  const [reviewProducts, setReviewProducts] = useState([]);
 
   useEffect(() => {
     setSelectedTab(tab || 'all');
@@ -45,9 +49,8 @@ const MyOrder = () => {
   } = useQuery({
     queryKey: ['orders', limitOrder, selectedTab],
     queryFn: fetchOrders,
-    staleTime: 30000,
-    keepPreviousData: true,
-    cacheTime: 30000,
+    staleTime: 0,
+    cacheTime: 0,
   });
 
   const orderData = data?.result || [];
@@ -143,6 +146,12 @@ const MyOrder = () => {
     setLimitOrder((prev) => prev + 10);
   };
 
+  const handleShowReviewModal = (orderId, products) => {
+    setReviewOrderId(orderId);
+    setReviewProducts(products);
+    setShowReviewModal(true);
+  };
+
   if (cancelOrderLoading) return <MainLoading />;
 
   return (
@@ -187,6 +196,14 @@ const MyOrder = () => {
               key={order._id}
               className="p-4 mb-4 bg-zinc-100 shadow-md border-t border-gray-100 rounded-md"
             >
+              {showReviewModal && (
+                <ReviewModal
+                  orderId={reviewOrderId}
+                  products={reviewProducts}
+                  onClose={() => setShowReviewModal(false)}
+                  refetch={refetchOrderData}
+                />
+              )}
               <Link
                 to={`/nguoi-dung/don-hang/${order.orderCode}`}
                 className="flex justify-between items-center py-2 border-b border-gray-300"
@@ -270,8 +287,14 @@ const MyOrder = () => {
                     >
                       Mua lại
                     </button>
-                    <button className="bg-red-500 text-white px-4 py-2 rounded-md">
-                      Đánh giá
+                    <button
+                      onClick={() =>
+                        handleShowReviewModal(order._id, order.productsList)
+                      }
+                      disabled={order?.isComment}
+                      className=" btn bg-red-500 text-white rounded-md"
+                    >
+                      {order?.isComment ? 'Đã đánh giá' : 'Đánh giá'}
                     </button>
                   </>
                 )}

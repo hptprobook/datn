@@ -1236,31 +1236,43 @@ const getMinMaxProductPrices = async () => {
   };
 };
 
-const isComment = async (userId, productId) => {
+const isComment = async (
+  userId,
+  productId,
+  orderId,
+  variantColor,
+  variantSize
+) => {
   const db = GET_DB().collection('products');
 
   const product = await db.findOne({
     _id: new ObjectId(productId),
     'reviews.userId': new ObjectId(userId),
+    'reviews.variantColor': variantColor,
+    'reviews.variantSize': variantSize,
+    'reviews.orderId': new ObjectId(orderId),
   });
 
   return !!product;
 };
 const searchInDashboard = async (keyword) => {
   const db = await GET_DB();
-  const result = await db.collection('products').find({
-    $or: [
-      { name: { $regex: keyword, $options: 'i' } },
-      { sku: { $regex: keyword, $options: 'i' } },
-      { variants: { $elemMatch: { sku: { $regex: keyword, $options: 'i' } } } },
-    ]
-  })
-    .project({ name: 1, _id: 1, variants: 1, thumbnail: 1, price: 1})
+  const result = await db
+    .collection('products')
+    .find({
+      $or: [
+        { name: { $regex: keyword, $options: 'i' } },
+        { sku: { $regex: keyword, $options: 'i' } },
+        {
+          variants: { $elemMatch: { sku: { $regex: keyword, $options: 'i' } } },
+        },
+      ],
+    })
+    .project({ name: 1, _id: 1, variants: 1, thumbnail: 1, price: 1 })
     .limit(10)
     .toArray();
   return result;
-}
-
+};
 
 export const productModel = {
   countProductAll,
@@ -1292,5 +1304,5 @@ export const productModel = {
   getMinMaxProductPrices,
   ratingShopResponse,
   isComment,
-  searchInDashboard
+  searchInDashboard,
 };

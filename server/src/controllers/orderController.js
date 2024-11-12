@@ -267,12 +267,12 @@ const updateOrder = async (req, res) => {
     const data = req.body;
     if (data.status) {
       const oldStatus = await orderModel.getStatusOrder(id);
-      //   const check = oldStatus.some((i) => data.status.status === i.status);
-      //   if (check) {
-      //     return res.status(StatusCodes.BAD_REQUEST).json({
-      //       message: 'Trạng thái đơn hàng bị trùng lặp vui lòng kiểm tra lại',
-      //     });
-      //   }
+      const check = oldStatus.some((i) => data.status.status === i.status);
+      if (check) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          message: 'Trạng thái đơn hàng bị trùng lặp vui lòng kiểm tra lại',
+        });
+      }
       const newStatus = [...oldStatus, data.status];
       data.status = newStatus;
     }

@@ -31,7 +31,7 @@ const HomePage = () => {
         <div>
           <img
             src={`${import.meta.env.VITE_SERVER_URL}/${config?.logo}`}
-            className="h-16 object-cover"
+            className="h-48 object-cover"
             alt=""
           />
         </div>
@@ -41,7 +41,7 @@ const HomePage = () => {
             {config?.nameCompany}"
           </p>
           <div
-            className="text-gray-700 mt-2 font-light"
+            className="text-white mt-2 font-light"
             dangerouslySetInnerHTML={{ __html: config?.footerThanks }}
           />
         </div>
