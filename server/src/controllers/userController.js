@@ -521,6 +521,7 @@ const readNotify = async (req, res) => {
 };
 
 const readAllNotifies = async (req, res) => {
+  console.log('vào');
   try {
     const userId = req.user.user_id;
 
