@@ -511,7 +511,7 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
               <div className="sticky bottom-0 right-8 flex justify-end gap-3">
                 <button
                   type="submit"
-                  className="btn bg-red-600 rounded-md mt-4"
+                  className="btn bg-red-600 rounded-md mt-4 text-white"
                   onClick={handleVoucherClose}
                 >
                   Xác nhận

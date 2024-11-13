@@ -66,9 +66,23 @@ const getCouponHistoryByParams = async ({ userId, orderId, couponId }) => {
   return history;
 };
 
+const deleteCouponHistory = async ({ userId, orderId, couponId }) => {
+  const db = await GET_DB();
+  const couponUsageCollection = db.collection('couponUsageHistory');
+
+  const query = {};
+  if (userId) query.userId = userId;
+  if (orderId) query.orderId = orderId;
+  if (couponId) query.couponId = couponId;
+
+  const result = await couponUsageCollection.deleteMany(query);
+  return result;
+};
+
 export const couponHistoryModel = {
   addCouponHistory,
   countCouponHistory,
   getCouponHistoryByParams,
   getCouponHistory,
+  deleteCouponHistory,
 };

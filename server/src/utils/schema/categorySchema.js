@@ -53,6 +53,7 @@ export const SAVE_CATEGORY_SCHEMA = Joi.object({
     .messages({
       'any.required': 'SEO là bắt buộc',
     }),
+  views: Joi.number().integer().default(0),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(Date.now),
 });
@@ -78,6 +79,7 @@ export const UPDATE_CATEGORY = Joi.object({
     'number.integer': 'Thứ tự phải là số nguyên',
     'any.only': 'Thứ tự không hợp lệ',
   }),
+  views: Joi.number().integer(),
   status: Joi.boolean(),
   seoOption: Joi.object({
     title: Joi.string().trim().min(1).max(70).messages({

@@ -22,6 +22,18 @@ const getAllProducts = async (req, res) => {
   }
 };
 
+const increaseView = async (req, res) => {
+  try {
+    let { slug } = req.params;
+    await productModel.increaseViewBySlug(slug);
+    return res.status(StatusCodes.OK).json({ message: 'Thành công' });
+  } catch (error) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json('Có lỗi xảy ra xin thử lại sau');
+  }
+};
+
 const getAllProductsSpecial = async (req, res) => {
   try {
     const products = await productModel.getProductsAllSpecial();
@@ -80,6 +92,22 @@ const getProductByCategory = async (req, res) => {
         .json({ message: 'Không tìm thấy sản phẩm!' });
     }
     return res.status(StatusCodes.OK).json(product);
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
+  }
+};
+
+const getProductsByView = async (req, res) => {
+  try {
+    const products = await productModel.getProductsByView();
+
+    console.log(products);
+    if (!products) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: 'Không tìm thấy sản phẩm!' });
+    }
+    return res.status(StatusCodes.OK).json(products);
   } catch (error) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
   }
@@ -1139,6 +1167,8 @@ const searchInDashboard = async (req, res) => {
 export const productController = {
   createProduct,
   getAllProducts,
+  getProductsByView,
+  increaseView,
   getProductById,
   updateProduct,
   ratingProduct,
