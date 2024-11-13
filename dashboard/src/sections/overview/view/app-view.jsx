@@ -84,7 +84,7 @@ export default function AppView() {
         <Grid xs={12} sm={6} md={3}>
           <AppWidgetSummary
             title="Hóa đơn (7 ngày)"
-            total={get7Day.countReceipts || 0}
+            total={get7Day?.countReceipts || 0}
             color="error"
             icon={<img alt="icon" src="/assets/icons/glass/ic_glass_message.png" />}
           />

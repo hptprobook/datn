@@ -184,7 +184,7 @@ const ProductDetailReview = ({ reviews }) => {
             currentReviews?.map((review) => (
               <div
                 key={review?.orderId}
-                className='pt-11 pb-8 border-b border-gray-100 max-xl:max-w-2xl max-xl:mx-auto'
+                className='pt-11 pb-8 border-b border-gray-100 max-xl:mx-auto'
               >
                 <div className='flex sm:items-center flex-col min-[400px]:flex-row justify-between gap-5 mb-4'>
                   <div className='flex items-center gap-3'>

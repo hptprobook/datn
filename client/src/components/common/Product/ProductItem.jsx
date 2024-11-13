@@ -29,10 +29,10 @@ const ProductItem = ({
   if (isLoading) {
     return (
       <div className={'h-[400px] rounded-md'}>
-        <div className="skeleton h-full w-full"></div>
-        <div className="skeleton h-4 w-full mt-2"></div>
-        <div className="skeleton h-4 w-3/4 mt-2"></div>
-        <div className="skeleton h-4 w-1/2 mt-2"></div>
+        <div className='skeleton h-full w-full'></div>
+        <div className='skeleton h-4 w-full mt-2'></div>
+        <div className='skeleton h-4 w-3/4 mt-2'></div>
+        <div className='skeleton h-4 w-1/2 mt-2'></div>
       </div>
     );
   }
@@ -57,49 +57,49 @@ const ProductItem = ({
         onClick={handleLinkClickInWishList}
       >
         <Link to={`/san-pham/${product?.slug}`}>
-          <div className="flex gap-2 absolute top-2 left-2 z-10">
+          <div className='flex gap-2 absolute top-2 left-2 z-10'>
             {product?.tags?.slice(0, 2).map((label, index) => (
               <ProductLabelBadge key={index} text={label} />
             ))}
           </div>
           <img
             src={thumbnailUrl}
-            alt=""
-            className="w-full h-full object-cover rounded-md"
+            alt=''
+            className='w-full h-full object-cover rounded-md'
           />
         </Link>
         {!isWishList && (
-          <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className='absolute bottom-2 left-0 right-0 flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity max-sm:hidden'>
             <button
-              className="bg-gray-800 text-white p-2 rounded-full hover:bg-gray-700 transition-colors"
+              className='bg-gray-800 text-white p-2 rounded-full hover:bg-gray-700 transition-colors'
               onClick={() => setIsQuickViewOpen(true)}
-              title="Quick View"
+              title='Quick View'
             >
-              <FaEye className="w-4 h-4" />
+              <FaEye className='w-4 h-4' />
             </button>
             {isAuthenticated && (
               <AddToWhistListBtn isInProductItem={true} product={product} />
             )}
             <button
-              className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition-colors"
+              className='bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition-colors'
               onClick={() => setIsQuickViewOpen(true)}
-              title="Add to Cart"
+              title='Add to Cart'
             >
-              <FaShoppingCart className="w-4 h-4" />
+              <FaShoppingCart className='w-4 h-4' />
             </button>
           </div>
         )}
       </div>
       <NavLink to={`/san-pham/${product?.slug}`}>
         <div
-          className="mt-3 text-clamp-2 text-gray-900 hover:text-red-500 h-12 overflow-hidden"
+          className='mt-3 text-clamp-2 text-gray-900 hover:text-red-500 h-12 overflow-hidden'
           title={product?.name}
         >
           {product?.name}
         </div>
       </NavLink>
       {product?.totalComment > 0 && (
-        <Rating className="mt-1">
+        <Rating className='mt-1'>
           {Array.from({ length: 5 }).map((_, i) => (
             <Rating.Star
               key={i}
@@ -109,10 +109,10 @@ const ProductItem = ({
               filled={i < product?.averageRating}
             />
           ))}
-          <p className="text-sm text-gray-800">({product?.totalComment})</p>
+          <p className='text-sm text-gray-800'>({product?.totalComment})</p>
         </Rating>
       )}
-      <div className="mt-3 font-bold text-sm text-red-600">
+      <div className='mt-3 font-bold text-sm text-red-600'>
         {formatCurrencyVND(product?.price)}
       </div>
       <QuickViewModal
