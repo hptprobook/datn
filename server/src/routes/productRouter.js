@@ -95,5 +95,6 @@ Router.delete(
   productController.deleteRating
 );
 Router.get('/search/dashboard', productController.searchInDashboard);
+Router.post('/getByIds', productController.getProductByArrayId);
 
 export const productsApi = Router;
