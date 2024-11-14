@@ -3,11 +3,13 @@ import { FaArrowLeft } from 'react-icons/fa';
 import { IoIosSearch } from 'react-icons/io';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
+import { useWebConfig } from '~/context/WebsiteConfig';
 
 const SearchResponsiveModal = ({ openSearch, setOpenSearch }) => {
   const [searchValue, setSearchValue] = useState('');
   const [animateSearch, setAnimateSearch] = useState(false);
   const navigate = useNavigate();
+  const { minMaxPrice } = useWebConfig();
 
   useEffect(() => {
     if (openSearch) {
@@ -19,7 +21,9 @@ const SearchResponsiveModal = ({ openSearch, setOpenSearch }) => {
   }, [openSearch]);
 
   const handleSearchButtonClick = () => {
-    navigate(`/tim-kiem?keyword=${searchValue}`);
+    navigate(
+      `/tim-kiem?keyword=${searchValue}&minPrice=${minMaxPrice?.minPrice}&maxPrice=${minMaxPrice?.maxPrice}`
+    );
   };
 
   return (

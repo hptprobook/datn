@@ -6,6 +6,7 @@ import SearchResult from './SearchResult';
 import { searchProducts } from '~/APIs/ProductList/search';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { useWebConfig } from '~/context/WebsiteConfig';
 
 const SearchBar = () => {
   const [isFocused, setIsFocused] = useState(false);
@@ -13,6 +14,7 @@ const SearchBar = () => {
   const [keyword, setKeyword] = useState('');
   const inputRef = useRef(null);
   const navigate = useNavigate();
+  const { minMaxPrice } = useWebConfig();
   // eslint-disable-next-line no-unused-vars
   const [limit, setLimit] = useState(5);
 
@@ -57,7 +59,9 @@ const SearchBar = () => {
 
   const handleSearchKeyUp = (e) => {
     if (e.key === 'Enter') {
-      navigate(`/tim-kiem?keyword=${searchValue}`);
+      navigate(
+        `/tim-kiem?keyword=${searchValue}&minPrice=${minMaxPrice?.minPrice}&maxPrice=${minMaxPrice?.maxPrice}`
+      );
       handleOverlayClick();
       inputRef.current.blur();
     }
@@ -70,7 +74,9 @@ const SearchBar = () => {
   };
 
   const handleSearchButtonClick = () => {
-    navigate(`/tim-kiem?keyword=${searchValue}`);
+    navigate(
+      `/tim-kiem?keyword=${searchValue}&minPrice=${minMaxPrice?.minPrice}&maxPrice=${minMaxPrice?.maxPrice}`
+    );
     handleOverlayClick();
     inputRef.current.blur();
   };

@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getMenu } from '~/APIs';
 import MainLoading from '~/components/common/Loading/MainLoading';
 import { useUser } from '~/context/UserContext';
+import { useWebConfig } from '~/context/WebsiteConfig';
 
 const SideNavMenu = ({
   openMenu,
@@ -16,6 +17,7 @@ const SideNavMenu = ({
   const [menuPath, setMenuPath] = useState([]);
   const [animateMenu, setAnimateMenu] = useState(false);
   const { user } = useUser();
+  const { minMaxPrice } = useWebConfig();
 
   const { data, isLoading } = useQuery({
     queryKey: ['categories'],
@@ -91,7 +93,7 @@ const SideNavMenu = ({
                   className="mb-6 flex justify-between items-center font-medium"
                 >
                   <Link
-                    to={`/danh-muc-san-pham/${item.slug}`}
+                    to={`/danh-muc-san-pham/${item.slug}?minPrice=${minMaxPrice?.minPrice}&maxPrice=${minMaxPrice?.maxPrice}`}
                     onClick={() => setOpenMenu(false)}
                     className="cursor-pointer hover:text-red-500 flex-grow"
                   >
