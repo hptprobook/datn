@@ -1076,7 +1076,9 @@ const getProductsBySlugAndPriceRange = async (
   limit,
   sortCriteria,
   colors,
-  sizes
+  sizes,
+  type,
+  tags
 ) => {
   const db = await GET_DB();
 
@@ -1120,6 +1122,14 @@ const getProductsBySlugAndPriceRange = async (
 
   if (sizes && sizes.length > 0) {
     query['variants.sizes.size'] = { $in: sizes };
+  }
+
+  if (type) {
+    query['productType'] = type; // Thêm điều kiện lọc cho type
+  }
+
+  if (tags && tags.length > 0) {
+    query['tags'] = { $in: tags }; // Thêm điều kiện lọc cho tags
   }
 
   const products = await db

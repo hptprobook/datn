@@ -1,3 +1,4 @@
+import ForgotPasswordPage from '~/pages/Auth/ForgotPasswordPage';
 import LoginPage from '~/pages/Auth/LoginPage';
 import RegisterPage from '~/pages/Auth/RegisterPage';
 
@@ -11,6 +12,10 @@ const AuthRoutes = {
     {
       path: 'dang-nhap',
       element: <LoginPage />,
+    },
+    {
+      path: 'quen-mat-khau',
+      element: <ForgotPasswordPage />,
     },
   ],
 };

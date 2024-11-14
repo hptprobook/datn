@@ -30,3 +30,20 @@ export const loginSchema = Yup.object().shape({
     .min(6, 'Mật khẩu phải có ít nhất 6 ký tự')
     .required('Mật khẩu là bắt buộc'),
 });
+
+export const forgotPasswordSchema = Yup.object().shape({
+  email: Yup.string()
+    .email('Định dạng email không hợp lệ')
+    .required('Email là bắt buộc'),
+});
+
+export const otpSchema = Yup.object().shape({
+  otp: Yup.string().required('Mã OTP là bắt buộc'),
+});
+
+export const resetPasswordSchema = Yup.object().shape({
+  password: Yup.string()
+    .trim()
+    .min(6, 'Mật khẩu phải có ít nhất 6 ký tự')
+    .required('Mật khẩu là bắt buộc'),
+});

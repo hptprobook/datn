@@ -175,7 +175,7 @@ const LoginPageUI = () => {
                 </p>
               </div>
 
-              <div className="col-span-6 flex items-center justify-center">
+              {/* <div className="col-span-6 flex items-center justify-center">
                 <p className="text-center">hoặc</p>
               </div>
               <div className="col-span-6">
@@ -193,6 +193,19 @@ const LoginPageUI = () => {
                     <span>Đăng nhập với Google</span>
                   </button>
                 </div>
+              </div> */}
+
+              <div className="col-span-6 sm:flex sm:items-center sm:gap-4">
+                <p className="mt-4 text-sm text-gray-500 sm:mt-0">
+                  Quên mật khẩu ?{' '}
+                  <NavLink
+                    to={'/tai-khoan/quen-mat-khau'}
+                    className="text-gray-700 underline hover:text-red-500"
+                  >
+                    Lấy lại mật khẩu
+                  </NavLink>
+                  .
+                </p>
               </div>
             </form>
           </div>
