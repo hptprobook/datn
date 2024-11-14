@@ -37,10 +37,12 @@ import { useMemo, useState, useEffect } from 'react';
 import { handleToast } from 'src/hooks/toast';
 import LoadingFull from 'src/components/loading/loading-full';
 import PropTypes from 'prop-types';
+import { ProductList } from 'src/sections/receiptsWarehouse/product-list';
+import { getProductByArrayId } from 'src/redux/slices/posSlices';
 import { couponSchema } from '../utils';
 
-import ProductAcceptSelect from '../product-select';
 import HistoryUsedTable from '../history-table';
+import ProductSelectedList from '../product-select-list';
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -74,18 +76,8 @@ function a11yProps(index) {
 // ----------------------------------------------------------------------
 export default function DetailCouponPage() {
   const { id } = useParams();
-  const route = useRouter();
-  useEffect(() => {
-    if (id) {
-      if (isValidObjectId(id)) {
-        dispatch(fetchOne(id));
-        dispatch(fetchHistory(id));
-      } else {
-        handleToast('error', 'Id không hợp lệ');
-        route.push('/coupons');
-      }
-    }
-  }, [id]);
+
+  const [products, setProducts] = useState([]);
   const [value, setValue] = useState(0);
   const [errorDate, setErrorDate] = useState(null);
   const [errorEnd, setErrorEnd] = useState(null);
@@ -94,6 +86,36 @@ export default function DetailCouponPage() {
   const err = useSelector((state) => state.coupons.error);
   const coupon = useSelector((state) => state.coupons.coupon);
   const statusGetCoupon = useSelector((state) => state.coupons.status);
+
+  const route = useRouter();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (id) {
+      if (isValidObjectId(id)) {
+        dispatch(fetchOne(id));
+
+        dispatch(fetchHistory(id));
+      } else {
+        handleToast('error', 'Id không hợp lệ');
+        route.push('/coupons');
+      }
+    }
+  }, [id]);
+  useEffect(() => {
+    if (coupon.applicableProducts && coupon.applicableProducts.length > 0) {
+      console.log(coupon.applicableProducts);
+      dispatch(
+        getProductByArrayId({
+          ids: coupon.applicableProducts,
+        })
+      ).then((res) => {
+        if (res.meta.requestStatus === 'fulfilled') {
+          setProducts(res.payload);
+        }
+      });
+    }
+  }, [coupon]);
 
   const errorMessage = useMemo(() => {
     switch (errorDate) {
@@ -106,6 +128,7 @@ export default function DetailCouponPage() {
       }
     }
   }, [errorDate]);
+
   const errorMessageEnd = useMemo(() => {
     switch (errorEnd) {
       case 'minDate': {
@@ -121,7 +144,7 @@ export default function DetailCouponPage() {
       }
     }
   }, [errorEnd]);
-  const dispatch = useDispatch();
+
   useEffect(() => {
     if (status === 'successful') {
       handleToast('success', 'Cập nhật mã giảm giá thành công');
@@ -173,6 +196,7 @@ export default function DetailCouponPage() {
       data.usageLimit = Number(values.usageLimit);
       data.dateStart = dayjs(values.dateStart).valueOf();
       data.dateEnd = dayjs(values.dateEnd).valueOf();
+      data.applicableProducts = products.map((product) => product._id);
       dispatch(update({ id, data }));
     },
   });
@@ -180,6 +204,17 @@ export default function DetailCouponPage() {
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
+  const handleAddProduct = (product) => {
+    if (products.find((item) => item._id === product._id)) {
+      return;
+    }
+    setProducts([...products, product]);
+  };
+  const handleDelete = (i) => {
+    const newProducts = products.filter((product) => product._id !== i);
+    setProducts(newProducts);
+  };
+
   return (
     <Container>
       {status === 'loading' && <LoadingFull />}
@@ -421,15 +456,8 @@ export default function DetailCouponPage() {
                     <Typography variant="h5">Sản phẩm áp dụng</Typography>
                   </Grid2>
                   <Grid2 xs={12}>
-                    <ProductAcceptSelect
-                      value={formik.values.applicableProducts}
-                      onChange={(event, newValue) =>
-                        formik.setFieldValue(
-                          'applicableProducts',
-                          newValue.map((product) => product._id)
-                        )
-                      }
-                    />
+                    <ProductList onAddProduct={handleAddProduct} />
+                    <ProductSelectedList products={products} onDelete={handleDelete} />
                   </Grid2>
                 </Card>
               </Grid2>

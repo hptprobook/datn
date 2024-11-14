@@ -1,5 +1,6 @@
 import { createSlice, createAction, createAsyncThunk } from "@reduxjs/toolkit";
 import PosService from "../services/pos.service";
+import DashboardService from "../services/dashboard.service";
 
 export const trackingOrder = createAsyncThunk(
     'pos/trackingOrder',
@@ -34,6 +35,17 @@ export const searchProducts = createAsyncThunk(
         }
     }
 );
+export const getProductByArrayId = createAsyncThunk(
+    'pos/getProductByArrayId',
+    async (data, { rejectWithValue }) => {
+        try {
+            const response = await DashboardService.create("products/getByIds", data);
+            return response;
+        } catch (err) {
+            return rejectWithValue(err.response.data);
+        }
+    }
+);
 export const searchUser = createAsyncThunk(
     'pos/searchUser',
     async (data, { rejectWithValue }) => {
@@ -54,6 +66,7 @@ const initialState = {
     statusMe: "idle",
     statusSearch: "idle",
     statusSearchUser: "idle",
+    status: "idle",
     users: null,
     products: null,
     error: null,
@@ -99,6 +112,18 @@ const posSlices = createSlice({
             })
             .addCase(searchProducts.rejected, (state, action) => {
                 state.statusSearch = "failed";
+                state.error = action.payload;
+            })
+            .addCase(getProductByArrayId.pending, (state) => {
+                state.status = "loading";
+            })
+            .addCase(getProductByArrayId.fulfilled, (state, action) => {
+                state.status = "successful";
+                state.products = action.payload;
+                state.error = null;
+            })
+            .addCase(getProductByArrayId.rejected, (state, action) => {
+                state.status = "failed";
                 state.error = action.payload;
             })
             .addCase(searchUser.pending, (state) => {

@@ -1312,6 +1312,23 @@ const searchInDashboard = async (keyword) => {
     .toArray();
   return result;
 };
+const getProductByArrayId = async (ids) => {
+  const db = await GET_DB();
+  if (!Array.isArray(ids) || ids.length === 0) {
+    return [];
+  }
+  const objectIds = ids.map((id) => new ObjectId(id));
+  const result = await db
+    .collection('products')
+    .find({ _id: { $in: objectIds } })
+    .project({
+      _id: 1,
+      name: 1,
+      thumbnail: 1,
+    })
+    .toArray();
+  return result;
+}
 
 export const productModel = {
   countProductAll,
@@ -1346,4 +1363,5 @@ export const productModel = {
   ratingShopResponse,
   isComment,
   searchInDashboard,
+  getProductByArrayId
 };
