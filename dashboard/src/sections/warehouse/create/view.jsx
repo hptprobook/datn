@@ -13,8 +13,8 @@ import {
   MenuItem,
   FormGroup,
   TextField,
-  FormControlLabel,
   IconButton,
+  FormControlLabel,
 } from '@mui/material';
 import { useFormik } from 'formik';
 import { useDispatch, useSelector } from 'react-redux';
@@ -23,14 +23,16 @@ import { handleToast } from 'src/hooks/toast';
 import LoadingFull from 'src/components/loading/loading-full';
 import { setStatus, createWarehouse } from 'src/redux/slices/warehouseSlices';
 import CountrySelect from 'src/sections/timetables/select-address';
-import { schema, validateCoordinates } from '../utils';
 import Iconify from 'src/components/iconify';
+import { schema, validateCoordinates } from '../utils';
+import ModalHelper from '../modal-helper';
 
 export default function WarehouseCreatePage() {
   const status = useSelector((state) => state.warehouses.statusCreate);
   const err = useSelector((state) => state.warehouses.error);
   const [province, setProvince] = useState([]);
   const [district, setDistrict] = useState([]);
+  const [open, setOpen] = useState(false);
   const [ward, setWard] = useState([]);
   const [selectedProvince, setSelectedProvince] = useState('');
   const [selectedDistrict, setSelectedDistrict] = useState('');
@@ -40,7 +42,7 @@ export default function WarehouseCreatePage() {
   const formik = useFormik({
     initialValues: {
       name: '',
-      location: '',
+      address: '',
       longitude: '',
       latitude: '',
       capacity: 0,
@@ -62,8 +64,10 @@ export default function WarehouseCreatePage() {
 
       values.province_id = selectedProvince.ProvinceID;
       values.district_id = selectedDistrict.DistrictID;
-      values.location = `${values.location}, ${selectedWard.WardName}, ${selectedDistrict.DistrictName}, ${selectedProvince.ProvinceName}`;
+      values.location = `${values.address}, ${selectedWard.WardName}, ${selectedDistrict.DistrictName}, ${selectedProvince.ProvinceName}`;
       values.ward_id = selectedWard.WardCode;
+      delete values.address;
+
       dispatch(createWarehouse(values));
     },
   });
@@ -141,6 +145,7 @@ export default function WarehouseCreatePage() {
   return (
     <Container>
       {status === 'loading' && <LoadingFull />}
+      <ModalHelper openModal={open} onClose={() => setOpen(false)} />
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Typography variant="h4">Kho mới</Typography>
       </Stack>
@@ -249,7 +254,7 @@ export default function WarehouseCreatePage() {
                 >
                   Dán vị trí từ bản đồ
                 </Button>
-                <IconButton type="button" onClick={() => handleGetLocation()}>
+                <IconButton type="button" onClick={() => setOpen(true)}>
                   <Iconify icon="mdi:help-circle" />
                 </IconButton>
               </Stack>
@@ -258,12 +263,12 @@ export default function WarehouseCreatePage() {
               <TextField
                 fullWidth
                 label="Địa chỉ chi tiết"
-                name="location"
-                value={formik.values.location}
+                name="address"
+                value={formik.values.address}
                 onBlur={formik.handleBlur}
                 onChange={formik.handleChange}
-                error={formik.touched.location && Boolean(formik.errors.location)}
-                helperText={formik.touched.location && formik.errors.location}
+                error={formik.touched.address && Boolean(formik.errors.address)}
+                helperText={formik.touched.address && formik.errors.address}
               />
             </Grid2>
             <Grid2 xs={12} md={2}>

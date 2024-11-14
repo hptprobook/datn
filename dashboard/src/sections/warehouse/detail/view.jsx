@@ -7,19 +7,28 @@ import Typography from '@mui/material/Typography';
 
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import AddressService from 'src/redux/services/address.service';
-import { Button, Select, MenuItem, FormGroup, TextField, FormControlLabel } from '@mui/material';
+import {
+  Button,
+  Select,
+  MenuItem,
+  FormGroup,
+  TextField,
+  IconButton,
+  FormControlLabel,
+} from '@mui/material';
 import { useFormik } from 'formik';
 import { useDispatch, useSelector } from 'react-redux';
 import { useState, useEffect } from 'react';
 import { handleToast } from 'src/hooks/toast';
-import { setStatus } from 'src/redux/slices/brandSlices';
 import LoadingFull from 'src/components/loading/loading-full';
-import { update, fetchById } from 'src/redux/slices/warehouseSlices';
+import { setStatus, update, fetchById } from 'src/redux/slices/warehouseSlices';
 import CountrySelect from 'src/sections/timetables/select-address';
 import { useParams } from 'react-router-dom';
 import { useRouter } from 'src/routes/hooks';
 import { isValidObjectId } from 'src/utils/check';
-import { schema } from '../utils';
+import Iconify from 'src/components/iconify';
+import { schema, validateCoordinates } from '../utils';
+import ModalHelper from '../modal-helper';
 
 export default function WarehouseEditPage() {
   const { id } = useParams();
@@ -46,7 +55,7 @@ export default function WarehouseEditPage() {
   const [selectedProvince, setSelectedProvince] = useState('');
   const [selectedDistrict, setSelectedDistrict] = useState('');
   const [selectedWard, setSelectedWard] = useState('');
-
+  const [open, setOpen] = useState(false);
   useEffect(() => {
     AddressService.getProvince().then((res) => {
       setProvince(res);
@@ -56,12 +65,14 @@ export default function WarehouseEditPage() {
   const formik = useFormik({
     initialValues: {
       name: warehouse.name || '',
-      location: warehouse.location || '',
+      address: warehouse.location || '',
       capacity: warehouse.capacity || 0,
       currentQuantity: warehouse.currentQuantity || 0,
       status: warehouse.status || 'active',
       province_id: warehouse.province_id || '',
       district_id: warehouse.district_id || '',
+      longitude: warehouse.longitude || '',
+      latitude: warehouse.latitude || '',
       ward_id: warehouse.ward_id || '',
     },
     enableReinitialize: true,
@@ -70,14 +81,11 @@ export default function WarehouseEditPage() {
       if (!values.status) {
         handleToast('error', 'Vui lòng chọn trạng thái');
       }
-      if (!selectedProvince || !selectedDistrict || !selectedWard) {
-        handleToast('error', 'Vui lòng chọn địa chỉ');
-        return;
-      }
-
       values.province_id = selectedProvince.ProvinceID;
       values.district_id = selectedDistrict.DistrictID;
       values.ward_id = selectedWard.WardCode;
+      values.location = `${values.address}, ${selectedWard.WardName}, ${selectedDistrict.DistrictName}, ${selectedProvince.ProvinceName}`;
+      delete values.address;
       dispatch(update({ id, data: values }));
     },
   });
@@ -93,15 +101,15 @@ export default function WarehouseEditPage() {
     }
   }, [status, err, dispatch]);
 
-  const handleChangeProvince = (provincecheck) => {
+  const handleChangeProvince = (p) => {
     setWard([]);
     setDistrict([]);
     setSelectedDistrict(''); // Reset district
     setSelectedWard(''); // Reset ward
-    setSelectedProvince(provincecheck);
-    formik.setFieldValue('province_id', provincecheck.ProvinceID);
-    if (provincecheck) {
-      AddressService.getDistrict(provincecheck.ProvinceID).then((res) => {
+    setSelectedProvince(p);
+    formik.setFieldValue('province_id', p.ProvinceID);
+    if (p) {
+      AddressService.getDistrict(p.ProvinceID).then((res) => {
         setDistrict(res);
       });
     }
@@ -118,7 +126,33 @@ export default function WarehouseEditPage() {
       });
     }
   };
+  const handleGetLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        formik.setFieldValue('latitude', position.coords.latitude);
+        formik.setFieldValue('longitude', position.coords.longitude);
+      });
+    } else {
+      handleToast('error', 'Trình duyệt không hỗ trợ lấy vị trí');
+    }
+  };
 
+  const handlePasteLocation = async () => {
+    try {
+      // Đọc văn bản từ bộ nhớ tạm
+      const text = await navigator.clipboard.readText();
+      // Cập nhật state với văn bản đã dán
+      if (validateCoordinates(text)) {
+        const [latitude, longitude] = text.split(',').map(Number);
+        formik.setFieldValue('latitude', latitude);
+        formik.setFieldValue('longitude', longitude);
+      } else {
+        handleToast('error', 'Vui lòng dán vị trí theo định dạng "latitude, longitude"');
+      }
+    } catch (error) {
+      handleToast('error', 'Không thể dán vị trí');
+    }
+  };
   const handleChangeWard = (wardCheck) => {
     setSelectedWard(wardCheck);
     formik.setFieldValue('ward_id', wardCheck.WardCode);
@@ -127,8 +161,9 @@ export default function WarehouseEditPage() {
   return (
     <Container>
       {status === 'loading' && <LoadingFull />}
+      <ModalHelper openModal={open} onClose={() => setOpen(false)} />
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Chỉnh sửa kho</Typography>
+        <Typography variant="h4">Kho mới</Typography>
       </Stack>
       <form onSubmit={formik.handleSubmit}>
         <Card
@@ -137,6 +172,9 @@ export default function WarehouseEditPage() {
           }}
         >
           <Grid2 container spacing={2}>
+            <Grid2 xs={12}>
+              <Typography variant="h5">Thông tin kho</Typography>
+            </Grid2>
             <Grid2 xs={6}>
               <TextField
                 fullWidth
@@ -149,19 +187,8 @@ export default function WarehouseEditPage() {
                 helperText={formik.touched.name && formik.errors.name}
               />
             </Grid2>
-            <Grid2 xs={6}>
-              <TextField
-                fullWidth
-                label="Vị trí"
-                name="location"
-                value={formik.values.location}
-                onBlur={formik.handleBlur}
-                onChange={formik.handleChange}
-                error={formik.touched.location && Boolean(formik.errors.location)}
-                helperText={formik.touched.location && formik.errors.location}
-              />
-            </Grid2>
-            <Grid2 xs={4}>
+
+            <Grid2 xs={3}>
               <TextField
                 fullWidth
                 label="Sức chứa"
@@ -173,7 +200,7 @@ export default function WarehouseEditPage() {
                 helperText={formik.touched.capacity && formik.errors.capacity}
               />
             </Grid2>
-            <Grid2 xs={4}>
+            <Grid2 xs={3}>
               <TextField
                 fullWidth
                 label="Hàng hiện tại"
@@ -185,35 +212,103 @@ export default function WarehouseEditPage() {
                 helperText={formik.touched.currentQuantity && formik.errors.currentQuantity}
               />
             </Grid2>
-            <Grid2 xs={4}>
+            <Grid2 xs={3}>
               <FormGroup>
                 <FormControlLabel
                   sx={{ m: 0 }}
                   control={
                     <Select
+                      fullWidth
                       name="status"
                       value={formik.values.status}
                       onChange={formik.handleChange}
                     >
                       <MenuItem value="active">Hoạt động</MenuItem>
                       <MenuItem value="close">Đóng cửa</MenuItem>
-                      <MenuItem value="full">Đầy kho</MenuItem>
+                      <MenuItem value="full">Đầy</MenuItem>
                     </Select>
                   }
                 />
               </FormGroup>
             </Grid2>
-            <Grid2 xs={12} md={4}>
-              <CountrySelect label='Tỉnh' data={province} query="ProvinceName" onSelect={handleChangeProvince} />
+            <Grid2 xs={2}>
+              <TextField
+                fullWidth
+                label="Kinh độ"
+                name="longitude"
+                value={formik.values.longitude}
+                onChange={formik.handleChange}
+                error={formik.touched.longitude && Boolean(formik.errors.longitude)}
+                helperText={formik.touched.longitude && formik.errors.longitude}
+              />
             </Grid2>
-            <Grid2 xs={12} md={4}>
-              <CountrySelect label='Huyện' data={district} query="DistrictName" onSelect={handleChangeDistrict} />
+            <Grid2 xs={2}>
+              <TextField
+                fullWidth
+                label="Vĩ độ"
+                name="latitude"
+                value={formik.values.latitude}
+                onChange={formik.handleChange}
+                error={formik.touched.latitude && Boolean(formik.errors.latitude)}
+                helperText={formik.touched.latitude && formik.errors.latitude}
+              />
             </Grid2>
-            <Grid2 xs={12} md={4}>
-              <CountrySelect label='Xã' data={ward} query="WardName" onSelect={handleChangeWard} />
+            <Grid2 xs={5}>
+              <Stack direction="row" alignItems="center" spacing={2}>
+                <Button
+                  type="button"
+                  variant="contained"
+                  color="inherit"
+                  onClick={() => handleGetLocation()}
+                >
+                  Lấy vị trí hiện tại
+                </Button>
+                <Button
+                  type="button"
+                  variant="contained"
+                  color="inherit"
+                  onClick={() => handlePasteLocation()}
+                >
+                  Dán vị trí từ bản đồ
+                </Button>
+                <IconButton type="button" onClick={() => setOpen(true)}>
+                  <Iconify icon="mdi:help-circle" />
+                </IconButton>
+              </Stack>
+            </Grid2>
+            <Grid2 xs={6}>
+              <TextField
+                fullWidth
+                label="Địa chỉ chi tiết"
+                name="address"
+                value={formik.values.address}
+                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
+                error={formik.touched.address && Boolean(formik.errors.address)}
+                helperText={formik.touched.address && formik.errors.address}
+              />
+            </Grid2>
+            <Grid2 xs={12} md={2}>
+              <CountrySelect
+                label="Tỉnh"
+                data={province}
+                query="ProvinceName"
+                onSelect={handleChangeProvince}
+              />
+            </Grid2>
+            <Grid2 xs={12} md={2}>
+              <CountrySelect
+                label="Huyện"
+                data={district}
+                query="DistrictName"
+                onSelect={handleChangeDistrict}
+              />
+            </Grid2>
+            <Grid2 xs={12} md={2}>
+              <CountrySelect label="Xã" data={ward} query="WardName" onSelect={handleChangeWard} />
             </Grid2>
             <Grid2 xs={12}>
-              <Button type="submit" variant="contained">
+              <Button type="submit" variant="contained" color="inherit">
                 Lưu
               </Button>
             </Grid2>

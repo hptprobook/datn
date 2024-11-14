@@ -11,7 +11,7 @@ export const schema = Yup.object().shape({
     .trim()
     .min(1, 'Tên không được để trống')
     .required('Tên là bắt buộc'),
-  location: Yup.string()
+    address: Yup.string()
     .trim()
     .min(1, 'Địa chỉ không được để trống')
     .required('Địa chỉ là bắt buộc'),
