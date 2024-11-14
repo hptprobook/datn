@@ -13,6 +13,8 @@ import useCheckAuth from '~/customHooks/useCheckAuth';
 import { handleToast } from '~/customHooks/useToast';
 import { loginSchema } from '~/utils/schema';
 import ObjectID from 'bson-objectid';
+// import { io } from 'socket.io-client';
+// import { useSocketContext } from '~/context/SocketContext';
 
 const LoginPage = () => {
   return (
@@ -29,7 +31,7 @@ const LoginPageUI = () => {
   const navigate = useNavigate();
   const { login } = useCheckAuth();
   const { items, emptyCart } = useCart();
-
+  // const { socket, onlineUser, setOnlineUser, setSocket } = useSocketContext();
   const initialValues = {
     email: '',
     password: '',
@@ -65,6 +67,22 @@ const LoginPageUI = () => {
     mutationFn: loginAuth,
     onSuccess: (data) => {
       handleToast('success', 'Đăng nhập thành công!');
+      // if (data) {
+      //   const socket = io(import.meta.env.VITE_SERVER_URL, {
+      //     query: {
+      //       userId: data._id,
+      //     },
+      //   });
+      //   // console.log(socket);
+      //   // setSocket(socket);
+      //   // socket.on('getOnlineUser', (user) => {
+      //   //   setOnlineUser(user);
+      //   // });
+      // } else if (socket) {
+      //   socket.close();
+      //   setSocket(null);
+      // }
+
       login(data.token);
 
       handleCartAfterLogin(data);
@@ -157,7 +175,7 @@ const LoginPageUI = () => {
                 </p>
               </div>
 
-              <div className="col-span-6 flex items-center justify-center">
+              {/* <div className="col-span-6 flex items-center justify-center">
                 <p className="text-center">hoặc</p>
               </div>
               <div className="col-span-6">
@@ -175,6 +193,19 @@ const LoginPageUI = () => {
                     <span>Đăng nhập với Google</span>
                   </button>
                 </div>
+              </div> */}
+
+              <div className="col-span-6 sm:flex sm:items-center sm:gap-4">
+                <p className="mt-4 text-sm text-gray-500 sm:mt-0">
+                  Quên mật khẩu ?{' '}
+                  <NavLink
+                    to={'/tai-khoan/quen-mat-khau'}
+                    className="text-gray-700 underline hover:text-red-500"
+                  >
+                    Lấy lại mật khẩu
+                  </NavLink>
+                  .
+                </p>
               </div>
             </form>
           </div>

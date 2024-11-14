@@ -9,6 +9,7 @@ import { userModel } from '~/models/userModel';
 import { recieptModel } from '~/models/receiptModel';
 import { orderStatus } from '~/utils/format';
 import { ObjectId } from 'mongodb';
+import { couponHistoryModel } from '~/models/couponHistoryModel';
 const getAllOrder = async (req, res) => {
   try {
     const { page, limit } = req.query;
@@ -115,8 +116,32 @@ const addOrder = async (req, res) => {
       ];
     }
 
+    console.log(dataOrder);
+
     const result = await orderModel.addOrder(dataOrder);
     const orderData = await orderModel.getOrderById(result.insertedId);
+
+    //     if (!orderData) {
+    //       return res.status(StatusCodes.OK).json({
+    //         message: 'Đặt hàng không thành công',
+    //       });
+    //     }
+    //     orderData.type = 'order';
+    //     orderData.title = 'Đơn hàng';
+    //     await userModel.sendNotifies(orderData);
+
+    if (dataOrder.couponId && dataOrder.couponId.length > 0) {
+      for (const couponId of dataOrder.couponId) {
+        const usageData = {
+          userId: dataOrder.userId,
+          couponId,
+          orderId: result.insertedId.toString(),
+          discountAmount: dataOrder.discountPrice || 0,
+          status: 'successful',
+        };
+        await couponHistoryModel.addCouponHistory(usageData);
+      }
+    }
 
     if (dataOrder.paymentMethod !== 'VNPAY') {
       const notifyData = {
@@ -241,6 +266,25 @@ const removeOrder = async (req, res) => {
         .status(StatusCodes.BAD_REQUEST)
         .json({ message: 'Thiếu thông tin đơn hàng' });
     }
+
+    const orderData = await orderModel.getOrderById(idOrder);
+    if (!orderData) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: 'Không tìm thấy đơn hàng' });
+    }
+
+    if (orderData.couponId && orderData.couponId.length > 0) {
+      for (const couponId of orderData.couponId) {
+        await couponHistoryModel.deleteCouponHistory({
+          userId: orderData.userId,
+          orderId: idOrder,
+          couponId: couponId,
+        });
+      }
+    }
+
+    // Xóa đơn hàng
     await orderModel.deleteOrder(idOrder);
     return res
       .status(StatusCodes.OK)
@@ -258,12 +302,12 @@ const updateOrder = async (req, res) => {
     const data = req.body;
     if (data.status) {
       const oldStatus = await orderModel.getStatusOrder(id);
-      //   const check = oldStatus.some((i) => data.status.status === i.status);
-      //   if (check) {
-      //     return res.status(StatusCodes.BAD_REQUEST).json({
-      //       message: 'Trạng thái đơn hàng bị trùng lặp vui lòng kiểm tra lại',
-      //     });
-      //   }
+      const check = oldStatus.some((i) => data.status.status === i.status);
+      if (check) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          message: 'Trạng thái đơn hàng bị trùng lặp vui lòng kiểm tra lại',
+        });
+      }
       const newStatus = [...oldStatus, data.status];
       data.status = newStatus;
     }
@@ -371,6 +415,7 @@ const updateOrder = async (req, res) => {
         await recieptModel.addReceipt(dataEnd);
       }
     }
+
     return res.status(StatusCodes.OK).json(dataOrder);
   } catch (error) {
     console.log(error);

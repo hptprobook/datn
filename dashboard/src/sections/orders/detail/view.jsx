@@ -135,7 +135,7 @@ export default function DetailOrderPage() {
       return '';
     }
     const latestStatus = orderStatus[orderStatus.length - 1]?.status;
-    if (latestStatus === 'pending' || latestStatus === 'processing') {
+    if (latestStatus === 'pending' || latestStatus === 'confirmed') {
       return (
         <Button
           variant="contained"

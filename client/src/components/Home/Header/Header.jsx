@@ -20,6 +20,8 @@ import { getCurrentUser } from '~/APIs';
 import { useUser } from '~/context/UserContext';
 import { useWebConfig } from '~/context/WebsiteConfig';
 import NotifyBar from './NotifyBar';
+// import { useSocketContext } from '~/context/SocketContext';
+// import { io } from 'socket.io-client';
 
 const Header = () => {
   const { isAuthenticated } = useCheckAuth();
@@ -32,6 +34,7 @@ const Header = () => {
   const { user } = useUser();
   const { config } = useWebConfig();
   const { items } = useCart();
+  // const { socket, onlineUser, setOnlineUser, setSocket } = useSocketContext();
 
   const { data } = useQuery({
     queryKey: ['getCurrentUser'],
@@ -40,6 +43,21 @@ const Header = () => {
   });
 
   const currentUserInfor = data ? data : null;
+
+  // if (data) {
+  //   io(import.meta.env.VITE_SERVER_URL, {
+  //     query: {
+  //       userId: data._id,
+  //     },
+  //   });
+  // }
+  // useEffect(() => {
+  //   if (socket) {
+  //     socket.on('receiveNotifies', (notifies) => {
+  //       console.log(notifies);
+  //     });
+  //   }
+  // }, [socket]);
 
   return (
     <div>
@@ -75,6 +93,11 @@ const Header = () => {
                   title="Thông báo"
                 >
                   <NotifyBar notifies={currentUserInfor?.notifies} />
+                  {currentUserInfor?.notifies.some(
+                    (notify) => notify.isReaded === false
+                  ) && (
+                    <div className="absolute -top-2 -right-1 bg-red-600 text-white rounded-full w-3 h-3 flex items-center justify-center text-xs"></div>
+                  )}
                 </div>
               </>
             )}
@@ -115,10 +138,32 @@ const Header = () => {
           <img
             src={`${import.meta.env.VITE_SERVER_URL}/${config?.logo}`}
             alt="Logo"
-            className="h-full w-52 mx-auto"
+            className="h-16 w-20 mx-auto"
           />
         </NavLink>
         <div className="flex gap-4">
+          {isAuthenticated && (
+            <>
+              <div
+                className="text-2xl text-gray-50 cursor-pointer relative hover:text-red-600"
+                title="Danh sách yêu thích"
+                onClick={() => setIsWishlistOpen(true)}
+              >
+                <Icon icon="line-md:heart" />
+              </div>
+              <div
+                className="text-2xl text-gray-50 cursor-pointer relative hover:text-red-600"
+                title="Thông báo"
+              >
+                <NotifyBar notifies={currentUserInfor?.notifies} />
+                {currentUserInfor?.notifies.some(
+                  (notify) => notify.isReaded === false
+                ) && (
+                  <div className="absolute -top-2 -right-1 bg-red-600 text-white rounded-full w-3 h-3 flex items-center justify-center text-xs"></div>
+                )}
+              </div>
+            </>
+          )}
           <div
             className="text-2xl text-gray-50 cursor-pointer"
             onClick={() => setOpenSearch(true)}

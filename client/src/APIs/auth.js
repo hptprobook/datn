@@ -23,6 +23,37 @@ export const register = async (data) => {
   }
 };
 
+export const getOTP = async (data) => {
+  try {
+    const response = await request.post('/auth/otps', data);
+    return response.data;
+  } catch (error) {
+    console.error('Xảy ra lỗi khi đăng ký:', error);
+    throw error.response.data;
+  }
+};
+
+export const checkOTP = async (data) => {
+  console.log(data);
+  try {
+    const response = await request.post('/auth/otps/verify', data);
+    return response.data;
+  } catch (error) {
+    console.error('Xảy ra lỗi khi đăng ký:', error);
+    throw error.response.data;
+  }
+};
+
+export const resetPassword = async (data) => {
+  try {
+    const response = await request.put('/auth/otps/reset-password', data);
+    return response.data;
+  } catch (error) {
+    console.error('Xảy ra lỗi khi đăng ký:', error);
+    throw error.response.data;
+  }
+};
+
 export const logoutAPI = async () => {
   try {
     const response = await request.post('/auth/logout');

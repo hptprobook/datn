@@ -88,6 +88,7 @@ export const SAVE_ORDER = Joi.object({
     'Tiền mặt'
   ), // Phương thức thanh toán
   type: Joi.string().trim().min(1).default('userOrder'), // Loại đơn hàng
+  isComment: Joi.boolean().default(false),
   createdAt: Joi.date().timestamp('javascript').default(Date.now), // Thời gian tạo trạng thái
 });
 
@@ -218,6 +219,7 @@ export const UPDATE_ORDER = Joi.object({
   totalProfit: Joi.number().min(0), // Tổng lợi nhuận
   paymentMethod: Joi.valid('Tiền mặt', 'Chuyển khoản', 'VNPAY'), // Phương thức thanh toán
   type: Joi.string().trim().min(1), // Loại đơn hàng
+  isComment: Joi.boolean(),
   updatedAt: Joi.date().timestamp('javascript').default(Date.now), // Thời gian chỉnh sửa đơn hàng
 });
 

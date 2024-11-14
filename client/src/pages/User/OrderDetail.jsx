@@ -10,10 +10,13 @@ import {
   formatCurrencyVND,
   formatVietnamesePhoneNumber,
 } from '~/utils/formatters';
+import ReviewModal from './ReviewModal';
+import { useState } from 'react';
 
 const OrderDetail = () => {
   const { orderCode } = useParams();
   const navigate = useNavigate();
+  const [showReviewModal, setShowReviewModal] = useState(false);
 
   const { data, refetch, error, isLoading } = useQuery({
     queryKey: ['getOrderDetail', orderCode],
@@ -72,9 +75,13 @@ const OrderDetail = () => {
           cancelOrder({
             id: data?._id,
             data: {
+              // status: {
+              //   status: 'cancelled',
+              //   note: 'Khách hàng huỷ đơn!',
+              // },
               status: {
-                status: 'cancelled',
-                note: 'Khách hàng huỷ đơn!',
+                status: 'completed',
+                note: 'Đơn hàng đã hoàn thành!',
               },
             },
           });
@@ -106,18 +113,26 @@ const OrderDetail = () => {
 
   return (
     <>
-      <div className="container mx-auto p-4 bg-white text-black flex items-center justify-between rounded-sm">
+      {showReviewModal && (
+        <ReviewModal
+          products={data?.productsList}
+          orderId={data?._id}
+          onClose={() => setShowReviewModal(false)}
+          refetch={refetch}
+        />
+      )}
+      <div className="container mx-auto p-4 bg-white text-black flex flex-col sm:flex-row items-center justify-between rounded-sm">
         <div
-          className="flex items-center gap-3 cursor-pointer hover:text-red-500"
+          className="flex items-center gap-3 cursor-pointer hover:text-red-500 mb-2 sm:mb-0"
           onClick={() => navigate(-1)}
         >
           <Icon icon="ep:d-arrow-left" /> <span>Trở lại</span>
         </div>
-        <div className="flex items-center gap-4 text-sm">
+        <div className="flex items-center gap-4 text-sm justify-between w-full sm:w-auto">
           <div>
             Mã đơn hàng: <b className="text-red-500">#{orderCode}</b>
           </div>
-          <span className="text-xs">|</span>
+          <span className="text-xs hidden sm:block">|</span>
           <div>
             <b className="text-red-500 uppercase">
               {getStatusName(data?.status[data?.status?.length - 1]?.status)}
@@ -125,15 +140,16 @@ const OrderDetail = () => {
           </div>
         </div>
       </div>
+
       <div className="container mx-auto p-6 bg-white text-black rounded-sm mt-[1px]">
         <OrderDetailStatus status={data?.status} />
-        <div className="flex justify-center gap-3 px-12 mt-0">
+        <div className="flex flex-col sm:flex-row justify-center gap-3 px-12 mt-0">
           {currentStatus !== 'completed' &&
             currentStatus !== 'cancelled' &&
             currentStatus !== 'delivered' && (
               <button
                 onClick={handleCancelOrder}
-                className="btn bg-red-500 rounded-md hover:bg-red-600 hover:shadow-md text-white min-w-48"
+                className="btn bg-red-500 rounded-md hover:bg-red-600 hover:shadow-md text-white w-full sm:min-w-48"
               >
                 Huỷ đơn
               </button>
@@ -142,25 +158,30 @@ const OrderDetail = () => {
             <>
               <button
                 onClick={handleReOrder}
-                className="btn bg-red-500 rounded-md hover:bg-red-600 hover:shadow-md text-white min-w-48"
+                className="btn bg-red-500 rounded-md hover:bg-red-600 hover:shadow-md text-white w-full sm:min-w-48"
               >
                 Mua lại
               </button>
-              <button className="btn bg-red-500 rounded-md hover:bg-red-600 hover:shadow-md text-white min-w-48">
-                Đánh giá
+              <button
+                onClick={() => setShowReviewModal(true)}
+                className="btn bg-red-500 rounded-md hover:bg-red-600 hover:shadow-md text-white w-full sm:min-w-48"
+                disabled={data?.isComment}
+              >
+                {data?.isComment ? 'Đã đánh giá' : 'Đánh giá'}
               </button>
             </>
           )}
           {currentStatus === 'delivered' && (
-            <button className="btn bg-red-500 rounded-md hover:bg-red-600 hover:shadow-md text-white min-w-48">
+            <button className="btn bg-red-500 rounded-md hover:bg-red-600 hover:shadow-md text-white w-full sm:min-w-48">
               Yêu cầu trả hàng
             </button>
           )}
         </div>
       </div>
+
       <div className="container mx-auto p-6 bg-white text-black rounded-sm mt-[1px]">
-        <div className="grid grid-cols-12 gap-6">
-          <div className="col-span-4">
+        <div className="grid grid-cols-12 gap-6 max-lg:gap-0 max-lg:grid-cols-1">
+          <div className="col-span-4 max-lg:col-span-6">
             <div className="p-6 bg-white">
               <h3 className="text-lg font-semibold mb-4 text-gray-900">
                 Địa chỉ nhận hàng
@@ -181,8 +202,8 @@ const OrderDetail = () => {
             </div>
           </div>
 
-          <div className="col-span-7">
-            <div className="space-y-6 bg-white p-6 border-l border-gray-200">
+          <div className="col-span-7 max-lg:col-span-6">
+            <div className="space-y-6 bg-white p-6 md:border-l border-gray-200">
               <h3 className="text-xl font-semibold text-gray-900">
                 Trạng thái giao hàng
               </h3>

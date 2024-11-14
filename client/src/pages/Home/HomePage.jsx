@@ -4,6 +4,7 @@ import CatSuggest from '~/components/Home/Container/CatSuggest/CatSuggest';
 import HeaderSlider from '~/components/Home/Slider/HeaderSlider';
 import FilterCategories from './FilterCategories';
 import { useWebConfig } from '~/context/WebsiteConfig';
+import Post from '~/components/Home/Container/Post/Post';
 
 const HomePage = () => {
   const eventCategories = ['ao-polo', 'ao-somi', 'quan-short'];
@@ -17,6 +18,7 @@ const HomePage = () => {
         {eventCategories.map((item, i) => (
           <FilterCategories key={i} slug={item} />
         ))}
+        <Post />
         <div className="banner mt-24 w-full h-slider">
           <NavLink to={config?.eventUrl}>
             <img
@@ -31,7 +33,7 @@ const HomePage = () => {
         <div>
           <img
             src={`${import.meta.env.VITE_SERVER_URL}/${config?.logo}`}
-            className="h-16 object-cover"
+            className="h-48 object-cover"
             alt=""
           />
         </div>
@@ -41,7 +43,7 @@ const HomePage = () => {
             {config?.nameCompany}"
           </p>
           <div
-            className="text-gray-700 mt-2 font-light"
+            className="text-white mt-2 font-light"
             dangerouslySetInnerHTML={{ __html: config?.footerThanks }}
           />
         </div>

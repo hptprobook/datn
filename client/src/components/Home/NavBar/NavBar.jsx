@@ -4,6 +4,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { getMenu } from '~/APIs';
 import { handleToast } from '~/customHooks/useToast';
 import './style.css';
+import { useWebConfig } from '~/context/WebsiteConfig';
 
 const NavBar = () => {
   const [hoveredMenu, setHoveredMenu] = useState(null);
@@ -12,6 +13,7 @@ const NavBar = () => {
     queryKey: ['categories'],
     queryFn: getMenu,
   });
+  const { minMaxPrice } = useWebConfig();
 
   if (error) {
     handleToast('error', error);
@@ -64,7 +66,10 @@ const NavBar = () => {
             onMouseEnter={() => setHoveredMenu(item.id)}
             onMouseLeave={() => setHoveredMenu(null)}
           >
-            <NavLink to={`/danh-muc-san-pham/${item.slug}`} end>
+            <NavLink
+              to={`/danh-muc-san-pham/${item.slug}?minPrice=${minMaxPrice.minPrice}&maxPrice=${minMaxPrice.maxPrice}`}
+              end
+            >
               <p className="cursor-pointer hover:text-red-500 font-semibold text-sm">
                 {item.title}
               </p>
@@ -73,7 +78,10 @@ const NavBar = () => {
               <div className="fixed top-36 w-container left-1/2 -translate-x-1/2 bg-slate-50 shadow-lg z-10 p-4 border-t-df grid grid-cols-4 gap-5 menu-hovered">
                 {item.list?.map((subItem) => (
                   <div key={subItem.id} className="mb-4">
-                    <NavLink to={`/danh-muc-san-pham/${subItem.slug}`} end>
+                    <NavLink
+                      to={`/danh-muc-san-pham/${subItem.slug}?minPrice=${minMaxPrice.minPrice}&maxPrice=${minMaxPrice.maxPrice}`}
+                      end
+                    >
                       <p className="font-bold mb-4 text-sm hover:text-red-600">
                         {subItem.title}
                       </p>
@@ -82,7 +90,7 @@ const NavBar = () => {
                       {subItem.list?.map((childItem) => (
                         <NavLink
                           key={childItem.id}
-                          to={`/danh-muc-san-pham/${childItem.slug}`}
+                          to={`/danh-muc-san-pham/${childItem.slug}?minPrice=${minMaxPrice.minPrice}&maxPrice=${minMaxPrice.maxPrice}`}
                           end
                         >
                           <p className="mb-3 hover:text-red-500 cursor-pointer text-sm">

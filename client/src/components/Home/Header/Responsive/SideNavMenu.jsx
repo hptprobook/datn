@@ -1,8 +1,12 @@
-// import { useState, useEffect } from 'react';
-// import { FaAngleRight, FaArrowLeft, FaBars, FaTimes } from 'react-icons/fa';
-// import { NavLink } from 'react-router-dom';
-// import Logo from '~/assets/logo2.png';
-// import PropTypes from 'prop-types';
+import { useState, useEffect } from 'react';
+import { FaAngleRight, FaArrowLeft, FaBars, FaTimes } from 'react-icons/fa';
+import { Link, NavLink } from 'react-router-dom';
+import PropTypes from 'prop-types';
+import { useQuery } from '@tanstack/react-query';
+import { getMenu } from '~/APIs';
+import MainLoading from '~/components/common/Loading/MainLoading';
+import { useUser } from '~/context/UserContext';
+import { useWebConfig } from '~/context/WebsiteConfig';
 
 const SideNavMenu = ({
   openMenu,
@@ -10,37 +14,48 @@ const SideNavMenu = ({
   currentTitle,
   setCurrentTitle,
 }) => {
-  // const [menuPath, setMenuPath] = useState([]);
-  // const [animateMenu, setAnimateMenu] = useState(false);
+  const [menuPath, setMenuPath] = useState([]);
+  const [animateMenu, setAnimateMenu] = useState(false);
+  const { user } = useUser();
+  const { minMaxPrice } = useWebConfig();
 
-  // useEffect(() => {
-  //   if (openMenu) {
-  //     setAnimateMenu(true);
-  //   } else {
-  //     const timeout = setTimeout(() => setAnimateMenu(false), 300);
-  //     return () => clearTimeout(timeout);
-  //   }
-  // }, [openMenu]);
+  const { data, isLoading } = useQuery({
+    queryKey: ['categories'],
+    queryFn: getMenu,
+  });
 
-  // const handleMenuClick = (menuItem) => {
-  //   setMenuPath([...menuPath, menuItem]);
-  //   setCurrentTitle(menuItem.title);
-  // };
+  const menu = data?.menu || [];
 
-  // const handleBackClick = () => {
-  //   const newPath = menuPath.slice(0, -1);
-  //   setMenuPath(newPath);
-  //   setCurrentTitle(
-  //     newPath.length > 0 ? newPath[newPath.length - 1].title : 'Danh mục'
-  //   );
-  // };
+  useEffect(() => {
+    if (openMenu) {
+      setAnimateMenu(true);
+    } else {
+      const timeout = setTimeout(() => setAnimateMenu(false), 300);
+      return () => clearTimeout(timeout);
+    }
+  }, [openMenu]);
 
-  // const currentMenu =
-  //   menuPath.length === 0 ? menu : menuPath[menuPath.length - 1].list || [];
+  const handleMenuClick = (menuItem) => {
+    setMenuPath([...menuPath, menuItem]);
+    setCurrentTitle(menuItem.title);
+  };
+
+  const handleBackClick = () => {
+    const newPath = menuPath.slice(0, -1);
+    setMenuPath(newPath);
+    setCurrentTitle(
+      newPath.length > 0 ? newPath[newPath.length - 1].title : 'Danh mục'
+    );
+  };
+
+  const currentMenu =
+    menuPath.length === 0 ? menu : menuPath[menuPath.length - 1].list || [];
+
+  if (isLoading) return <MainLoading />;
 
   return (
     <div className="z-20">
-      {/* {animateMenu && (
+      {animateMenu && (
         <div>
           <div
             className="fixed inset-0 bg-black bg-opacity-50 z-20 transform transition-transform duration-300"
@@ -71,18 +86,19 @@ const SideNavMenu = ({
                 onClick={() => setOpenMenu(false)}
               />
             </div>
-            <div className="flex justify-center">
-              <img src={Logo} alt="Logo" className="h-full w-56" />
-            </div>
             <div className="p-6">
               {currentMenu?.map((item) => (
                 <div
                   key={item.id}
                   className="mb-6 flex justify-between items-center font-medium"
                 >
-                  <p className="cursor-pointer hover:text-red-500 flex-grow">
+                  <Link
+                    to={`/danh-muc-san-pham/${item.slug}?minPrice=${minMaxPrice?.minPrice}&maxPrice=${minMaxPrice?.maxPrice}`}
+                    onClick={() => setOpenMenu(false)}
+                    className="cursor-pointer hover:text-red-500 flex-grow"
+                  >
                     {item.title}
-                  </p>
+                  </Link>
                   {item.list && (
                     <button className="text-gray-500 hover:text-red-500">
                       <FaAngleRight onClick={() => handleMenuClick(item)} />
@@ -90,25 +106,38 @@ const SideNavMenu = ({
                   )}
                 </div>
               ))}
+              <Link onClick={() => setOpenMenu(false)} to="/tin-tuc">
+                Tin tức
+              </Link>
             </div>
-            <div className="flex justify-center gap-4 font-bold text-lg">
-              <NavLink
-                to={'/tai-khoan/dang-nhap'}
-                className={'hover:text-red-500'}
+            {user ? (
+              <Link
+                to={'/nguoi-dung/tai-khoan'}
+                className="flex justify-center gap-4 font-bold text-lg"
+                title="Xem trang cá nhân"
               >
-                Đăng nhập
-              </NavLink>
-              <p>|</p>
+                Xin chào, {user?.name}
+              </Link>
+            ) : (
+              <div className="flex justify-center gap-4 font-bold text-lg">
+                <NavLink
+                  to={'/tai-khoan/dang-nhap'}
+                  className={'hover:text-red-500'}
+                >
+                  Đăng nhập
+                </NavLink>
+                <p>|</p>
+                <NavLink
+                  to={'/tai-khoan/dang-ky'}
+                  className={'hover:text-red-500'}
+                >
+                  Đăng ký
+                </NavLink>
+              </div>
+            )}
+            <div className="p-6" onClick={() => setOpenMenu(false)}>
               <NavLink
-                to={'/tai-khoan/dang-ky'}
-                className={'hover:text-red-500'}
-              >
-                Đăng ký
-              </NavLink>
-            </div>
-            <div className="p-6">
-              <a
-                href="#"
+                to={'/theo-doi-don-hang'}
                 className="inline-flex items-center px-5 py-2.5 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 w-full justify-center"
               >
                 Tra cứu đơn hàng
@@ -127,18 +156,18 @@ const SideNavMenu = ({
                     d="M1 5h12m0 0L9 1m4 4L9 9"
                   />
                 </svg>
-              </a>
+              </NavLink>
             </div>
           </div>
         </div>
-      )} */}
+      )}
     </div>
   );
 };
 
-// SideNavMenu.propTypes = {
-//   openMenu: PropTypes.bool.isRequired,
-//   setOpenMenu: PropTypes.func.isRequired,
-// };
+SideNavMenu.propTypes = {
+  openMenu: PropTypes.bool.isRequired,
+  setOpenMenu: PropTypes.func.isRequired,
+};
 
 export default SideNavMenu;

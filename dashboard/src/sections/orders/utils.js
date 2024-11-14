@@ -57,14 +57,16 @@ export function applyFilter({ inputData, comparator, filterName }) {
 
 export const statusConfig = {
   pending: { value: 'Pending', label: 'Đang chờ', color: 'primary' },
-  processing: { value: 'Processing', label: 'Đang xử lý', color: 'info' },
+  shipping: { value: 'Processing', label: 'Đang xử lý', color: 'info' },
   delivered: { value: 'Delivered', label: 'Đã giao hàng', color: 'success' },
   cancelled: { value: 'Canceled', label: 'Đã hủy', color: 'error' },
   confirmed: { value: 'Confirmed', label: 'Đã xác nhận', color: 'primary' },
   shipped: { value: 'Shipped', label: 'Đã vận chuyển', color: 'success' },
   returned: { value: 'Returned', label: 'Đã trả lại', color: 'warning' },
   refunded: { value: 'Refunded', label: 'Đã hoàn tiền', color: 'warning' },
-  onHold: { value: 'On Hold', label: 'Đang giữ', color: 'error' }
+  onHold: { value: 'On Hold', label: 'Đang giữ', color: 'error' },
+  completed: { value: 'Completed', label: 'Hoàn thành', color: 'success' },
+  paymentPending: { value: 'Payment Pending', label: 'Chờ thanh toán', color: 'warning' },
 };
 export const statusDeliverConfig = {
   pending: { value: 'Pending', label: 'Đang chờ', color: 'primary' },
@@ -86,8 +88,8 @@ export const paymentConfig = {
 };
 
 export const handleStatusConfig = {
-  pending: { value: 'processing', label: 'Xác nhận đơn hàng', icon: 'eva:checkmark-outline' },
-  processing: { value: 'shipping', label: 'Giao hàng', icon: 'eva:car-outline' },
+  pending: { value: 'confirmed', label: 'Xác nhận đơn hàng', icon: 'eva:checkmark-outline' },
+  confirmed: { value: 'shipping', label: 'Giao hàng', icon: 'eva:car-outline' },
   shipped: { value: 'confirmed', label: 'Hoàn thành', icon: 'eva:checkmark-square-outline' },
   shipping: { value: 'shipped', label: 'Đã giao', icon: 'eva:clipboard-outline' },
 };

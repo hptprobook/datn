@@ -5,11 +5,14 @@ import { NotifyProvider } from './context/ReLoginContext';
 import { Helmet } from 'react-helmet-async';
 import WebIcon from '~/assets/logo4.png';
 import { useWebConfig } from './context/WebsiteConfig';
+// import { SocketProvider } from './context/SocketContext';
 // import PhoneSignIn from './components/Auth/PhoneSignIn';
 
 const App = () => {
   const { config } = useWebConfig();
+
   return (
+    // <SocketProvider>
     <NotifyProvider>
       <Helmet>
         <title>
@@ -46,6 +49,7 @@ const App = () => {
       <Routes />
       {/* <PhoneSignIn /> */}
     </NotifyProvider>
+    // </SocketProvider>
   );
 };
 

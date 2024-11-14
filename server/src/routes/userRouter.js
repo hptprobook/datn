@@ -37,6 +37,8 @@ Router.get('/admin', verifyToken, verifyAdmin, (req, res) => {
 });
 
 Router.get('/:id', usersController.getUserById);
+//notifies
+// Router.get('/notifies/:id', usersController.getNotifiesUserById);
 Router.get('/email/:email', usersController.getUserByEmail);
 
 Router.put('/me', verifyToken, usersController.updateCurrentUser);
@@ -57,8 +59,8 @@ Router.put('/me/addCart', verifyToken, usersController.addCartToCurrent);
 Router.put('/me/removeCart', verifyToken, usersController.removeCartToCurrent);
 
 //read
-Router.post('/notify/:id', usersController.readNotify);
 Router.get('/notifies/readAll', verifyToken, usersController.readAllNotifies);
+Router.post('/notify/:id', usersController.readNotify);
 
 //favorite
 Router.post('/favorite/:id', usersController.favoriteProduct);

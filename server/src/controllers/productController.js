@@ -22,6 +22,18 @@ const getAllProducts = async (req, res) => {
   }
 };
 
+const increaseView = async (req, res) => {
+  try {
+    let { slug } = req.params;
+    await productModel.increaseViewBySlug(slug);
+    return res.status(StatusCodes.OK).json({ message: 'Thành công' });
+  } catch (error) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json('Có lỗi xảy ra xin thử lại sau');
+  }
+};
+
 const getAllProductsSpecial = async (req, res) => {
   try {
     const products = await productModel.getProductsAllSpecial();
@@ -80,6 +92,21 @@ const getProductByCategory = async (req, res) => {
         .json({ message: 'Không tìm thấy sản phẩm!' });
     }
     return res.status(StatusCodes.OK).json(product);
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
+  }
+};
+
+const getProductsByView = async (req, res) => {
+  try {
+    const products = await productModel.getProductsByView();
+
+    if (!products) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: 'Không tìm thấy sản phẩm!' });
+    }
+    return res.status(StatusCodes.OK).json(products);
   } catch (error) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
   }
@@ -635,7 +662,13 @@ const ratingProduct = async (req, res) => {
       data.images = images;
     }
 
-    const isComment = await productModel.isComment(data.userId, data.productId);
+    const isComment = await productModel.isComment(
+      data.userId,
+      data.productId,
+      data.orderId,
+      data.variantColor,
+      data.variantSize
+    );
 
     if (isComment) {
       if (req.files) {
@@ -1032,11 +1065,21 @@ const getProductByEvent = async (req, res) => {
 const getProductsBySlugAndPriceRange = async (req, res) => {
   try {
     const { slug } = req.params;
-    const { minPrice, maxPrice, pages, limit, colors, sizes, ...sortCriteria } =
-      req.query;
+    const {
+      minPrice,
+      maxPrice,
+      pages,
+      limit,
+      colors,
+      sizes,
+      type,
+      tags,
+      ...sortCriteria
+    } = req.query;
 
     const parsedColors = colors ? colors.split(',') : [];
     const parsedSizes = sizes ? sizes.split(',') : [];
+    const parsedTags = tags ? tags.split(',') : [];
 
     const products = await productModel.getProductsBySlugAndPriceRange(
       slug,
@@ -1046,14 +1089,10 @@ const getProductsBySlugAndPriceRange = async (req, res) => {
       parseInt(limit) || 20,
       sortCriteria,
       parsedColors,
-      parsedSizes
+      parsedSizes,
+      type, // Truyền type
+      parsedTags // Truyền tags
     );
-
-    // if (!products || products.length === 0) {
-    //   return res
-    //     .status(StatusCodes.NOT_FOUND)
-    //     .json({ message: 'Không tìm thấy sản phẩm!' });
-    // }
 
     return res.status(StatusCodes.OK).json(products);
   } catch (error) {
@@ -1128,11 +1167,13 @@ const searchInDashboard = async (req, res) => {
       error: error.message,
     });
   }
-}
+};
 
 export const productController = {
   createProduct,
   getAllProducts,
+  getProductsByView,
+  increaseView,
   getProductById,
   updateProduct,
   ratingProduct,
@@ -1159,5 +1200,5 @@ export const productController = {
   getMinMaxPrices,
   ratingShopProduct,
   ratingManyProduct,
-  searchInDashboard
+  searchInDashboard,
 };

@@ -29,16 +29,15 @@ import { useParams } from 'react-router-dom';
 import { useRouter } from 'src/routes/hooks';
 import { isValidObjectId } from 'src/utils/check';
 import { useDispatch, useSelector } from 'react-redux';
-import { update, fetchOne, setStatus } from 'src/redux/slices/couponSlice';
+import { update, fetchOne, setStatus, fetchHistory } from 'src/redux/slices/couponSlice';
 import { useMemo, useState, useEffect } from 'react';
 import { handleToast } from 'src/hooks/toast';
 import LoadingFull from 'src/components/loading/loading-full';
-import { createCode, couponSchema } from '../utils';
+import { couponSchema } from '../utils';
 
 import ProductAcceptSelect from '../product-select';
 
 // ----------------------------------------------------------------------
-const now = dayjs();
 export default function DetailCouponPage() {
   const { id } = useParams();
   const route = useRouter();
@@ -46,6 +45,7 @@ export default function DetailCouponPage() {
     if (id) {
       if (isValidObjectId(id)) {
         dispatch(fetchOne(id));
+        dispatch(fetchHistory(id));
       } else {
         handleToast('error', 'Id không hợp lệ');
         route.push('/coupons');
@@ -59,14 +59,9 @@ export default function DetailCouponPage() {
   const err = useSelector((state) => state.coupons.error);
   const coupon = useSelector((state) => state.coupons.coupon);
   const statusGetCoupon = useSelector((state) => state.coupons.status);
-  const products_applied = useSelector((state) => state.products.products);
 
   const errorMessage = useMemo(() => {
     switch (errorDate) {
-      case 'minDate': {
-        return 'Ngày nhập phải lớn hơn ngày hiện tại';
-      }
-
       case 'invalidDate': {
         return 'Bạn phải nhập 1 ngày hợp lệ';
       }
@@ -96,14 +91,11 @@ export default function DetailCouponPage() {
     if (status === 'successful') {
       handleToast('success', 'Cập nhật mã giảm giá thành công');
       dispatch(setStatus({ key: 'statusUpdate', value: 'idle' }));
-
     }
     if (status === 'failed') {
       handleToast('error', err?.message || 'Có lỗi xảy ra');
       dispatch(setStatus({ key: 'error', value: 'idle' }));
-
     }
-
   }, [status, err, dispatch]);
 
   const formik = useFormik({
@@ -150,15 +142,6 @@ export default function DetailCouponPage() {
     },
   });
 
-
-  useEffect(() => {
-    const name = formik.values.name?.trim();
-    if (name) {
-      const code = createCode(name);
-      formik.setFieldValue('code', code);
-    }
-  }, [formik.values.name]);
-
   return (
     <Container>
       {status === 'loading' && <LoadingFull />}
@@ -198,7 +181,6 @@ export default function DetailCouponPage() {
                     name="name"
                     value={formik.values.name}
                     onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
                     error={formik.touched.name && Boolean(formik.errors.name)}
                     helperText={formik.touched.name && formik.errors.name}
                   />
@@ -226,7 +208,6 @@ export default function DetailCouponPage() {
                     name="code"
                     value={formik.values.code}
                     onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
                     error={formik.touched.code && Boolean(formik.errors.code)}
                     helperText={formik.touched.code && formik.errors.code}
                   />
@@ -274,7 +255,6 @@ export default function DetailCouponPage() {
                     name="usageLimit"
                     value={formik.values.usageLimit}
                     onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
                     error={formik.touched.usageLimit && Boolean(formik.errors.usageLimit)}
                     helperText={formik.touched.usageLimit && formik.errors.usageLimit}
                   />
@@ -287,7 +267,6 @@ export default function DetailCouponPage() {
                     disabled={formik.values.type === 'percent'}
                     value={formik.values.discountValue}
                     onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
                     error={formik.touched.discountValue && Boolean(formik.errors.discountValue)}
                     helperText={formik.touched.discountValue && formik.errors.discountValue}
                   />
@@ -300,7 +279,6 @@ export default function DetailCouponPage() {
                     disabled={formik.values.type === 'price' || formik.values.type === 'shipping'}
                     value={formik.values.discountPercent}
                     onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
                     error={formik.touched.discountPercent && Boolean(formik.errors.discountPercent)}
                     helperText={formik.touched.discountPercent && formik.errors.discountPercent}
                   />
@@ -312,7 +290,6 @@ export default function DetailCouponPage() {
                     name="minPurchasePrice"
                     value={formik.values.minPurchasePrice}
                     onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
                     error={
                       formik.touched.minPurchasePrice && Boolean(formik.errors.minPurchasePrice)
                     }
@@ -326,7 +303,6 @@ export default function DetailCouponPage() {
                     name="maxPurchasePrice"
                     value={formik.values.maxPurchasePrice}
                     onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
                     error={
                       formik.touched.maxPurchasePrice && Boolean(formik.errors.maxPurchasePrice)
                     }
@@ -342,7 +318,6 @@ export default function DetailCouponPage() {
                     rows={4}
                     value={formik.values.description}
                     onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
                     error={formik.touched.description && Boolean(formik.errors.description)}
                     helperText={formik.touched.description && formik.errors.description}
                   />
@@ -358,7 +333,6 @@ export default function DetailCouponPage() {
                           helperText: errorMessage,
                         },
                       }}
-                      minDate={now}
                       onChange={(date) => formik.setFieldValue('dateStart', date)}
                     />
                   </LocalizationProvider>
@@ -378,11 +352,16 @@ export default function DetailCouponPage() {
                       onChange={(date) => formik.setFieldValue('dateEnd', date)}
                     />
                   </LocalizationProvider>
-                  { }
+                  {}
                 </Grid2>
               </Grid2>
               <Stack direction="row" justifyContent="flex-end" mt={3}>
-                <Button onClick={() => formik.handleSubmit()} type="button" color="inherit" variant="contained">
+                <Button
+                  onClick={() => formik.handleSubmit()}
+                  type="button"
+                  color="inherit"
+                  variant="contained"
+                >
                   Lưu
                 </Button>
               </Stack>
@@ -396,9 +375,7 @@ export default function DetailCouponPage() {
               </Grid2>
               <Grid2 xs={12}>
                 <ProductAcceptSelect
-                  value={formik.values.applicableProducts.map((_id) =>
-                    products_applied.find((product) => product._id === _id)
-                  )}
+                  value={formik.values.applicableProducts}
                   onChange={(event, newValue) =>
                     formik.setFieldValue(
                       'applicableProducts',

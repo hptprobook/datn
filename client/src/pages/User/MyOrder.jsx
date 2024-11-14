@@ -13,6 +13,7 @@ import { formatCurrencyVND, formatDateToDDMMYYYY } from '~/utils/formatters';
 import { getStatusColor, getStatusName, tabs } from './Profile/utils/tabs';
 import { useSwal, useSwalWithConfirm } from '~/customHooks/useSwal';
 import OrderLoading from '~/components/common/Loading/OrderLoading';
+import ReviewModal from './ReviewModal';
 
 const MyOrder = () => {
   const { tab } = useParams();
@@ -20,6 +21,9 @@ const MyOrder = () => {
   const navigate = useNavigate();
   const [selectedTab, setSelectedTab] = useState(tab || 'all'); // 'all' là mặc định
   const tabsRef = useRef(null);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewOrderId, setReviewOrderId] = useState(null);
+  const [reviewProducts, setReviewProducts] = useState([]);
 
   useEffect(() => {
     setSelectedTab(tab || 'all');
@@ -45,9 +49,8 @@ const MyOrder = () => {
   } = useQuery({
     queryKey: ['orders', limitOrder, selectedTab],
     queryFn: fetchOrders,
-    staleTime: 30000,
-    keepPreviousData: true,
-    cacheTime: 30000,
+    staleTime: 0,
+    cacheTime: 0,
   });
 
   const orderData = data?.result || [];
@@ -143,12 +146,18 @@ const MyOrder = () => {
     setLimitOrder((prev) => prev + 10);
   };
 
+  const handleShowReviewModal = (orderId, products) => {
+    setReviewOrderId(orderId);
+    setReviewProducts(products);
+    setShowReviewModal(true);
+  };
+
   if (cancelOrderLoading) return <MainLoading />;
 
   return (
     <div className="container mx-auto p-4 sm:p-6 lg:p-8 bg-white text-black relative">
       {isLoading && <OrderLoading />}
-      <div className="relative">
+      <div className="relative overflow-hidden md:overflow-visible">
         <button
           onClick={handleScrollLeft}
           className="absolute -left-8 top-0 h-full z-10 p-2"
@@ -157,12 +166,12 @@ const MyOrder = () => {
         </button>
         <div
           ref={tabsRef}
-          className="flex overflow-x-auto border-b border-gray-300 hide-scrollbar"
+          className="flex overflow-x-auto border-b border-gray-300 hide-scrollbar w-full"
         >
           {tabs.map((tab) => (
             <button
               key={tab.key}
-              className={`py-2 px-4 font-medium whitespace-nowrap ${
+              className={`py-2 px-4 font-medium whitespace-nowrap max-w-full ${
                 selectedTab === tab.key
                   ? 'border-b-4 border-red-500 text-red-500'
                   : 'text-gray-500 hover:text-red-500'
@@ -180,6 +189,7 @@ const MyOrder = () => {
           <Icon className="text-2xl" icon="mingcute:right-fill" />
         </button>
       </div>
+
       <div className="mt-4">
         {filteredOrders.length > 0 ? (
           filteredOrders.map((order) => (
@@ -187,23 +197,31 @@ const MyOrder = () => {
               key={order._id}
               className="p-4 mb-4 bg-zinc-100 shadow-md border-t border-gray-100 rounded-md"
             >
+              {showReviewModal && (
+                <ReviewModal
+                  orderId={reviewOrderId}
+                  products={reviewProducts}
+                  onClose={() => setShowReviewModal(false)}
+                  refetch={refetchOrderData}
+                />
+              )}
               <Link
                 to={`/nguoi-dung/don-hang/${order.orderCode}`}
-                className="flex justify-between items-center py-2 border-b border-gray-300"
+                className="flex justify-between items-center py-2 border-b border-gray-300 max-lg:gap-2"
               >
-                <div className="flex gap-5 items-center">
+                <div className="flex gap-5 items-center max-lg:gap-2">
                   <span className="text-lg font-bold">
                     Đơn hàng: #{order.orderCode}
                   </span>{' '}
                   -
-                  <i className="text-gray-500">
+                  <i className="text-gray-500 hidden md:block">
                     {formatDateToDDMMYYYY(
                       order.status[order.status.length - 1].createdAt,
                       'dd/MM/yyyy'
                     )}
                   </i>
                 </div>
-                <div>
+                <div className="text-right">
                   <span
                     className={`uppercase font-bold ${getStatusColor(
                       order.status[order.status.length - 1].status
@@ -254,10 +272,10 @@ const MyOrder = () => {
                   </span>
                 </span>
               </div>
-              <div className="flex justify-end gap-3 mt-6">
+              <div className="flex flex-col md:flex-row justify-end gap-3 mt-6">
                 <Link
                   to={`/nguoi-dung/don-hang/${order.orderCode}`}
-                  className="bg-red-500 text-white px-4 py-2 rounded-md"
+                  className="bg-red-500 text-white px-4 py-2 rounded-md text-center"
                 >
                   Chi tiết
                 </Link>
@@ -270,8 +288,14 @@ const MyOrder = () => {
                     >
                       Mua lại
                     </button>
-                    <button className="bg-red-500 text-white px-4 py-2 rounded-md">
-                      Đánh giá
+                    <button
+                      onClick={() =>
+                        handleShowReviewModal(order._id, order.productsList)
+                      }
+                      disabled={order?.isComment}
+                      className=" btn bg-red-500 text-white rounded-md"
+                    >
+                      {order?.isComment ? 'Đã đánh giá' : 'Đánh giá'}
                     </button>
                   </>
                 )}

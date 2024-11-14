@@ -7,6 +7,7 @@ import { getHotSearch } from '~/APIs';
 import { useQuery } from '@tanstack/react-query';
 import './style.css';
 import { capitalizeFirstLetter } from '~/utils/formatters';
+import { useWebConfig } from '~/context/WebsiteConfig';
 
 const SearchPopular = ({ handleModelClick, isOpen, handleOverlayClick }) => {
   const { data, isLoading } = useQuery({
@@ -15,6 +16,7 @@ const SearchPopular = ({ handleModelClick, isOpen, handleOverlayClick }) => {
     staleTime: 1000 * 60 * 60 * 24,
     cacheTime: 1000 * 60 * 60 * 24,
   });
+  const { minMaxPrice } = useWebConfig();
 
   useEffect(() => {
     if (isOpen) {
@@ -47,7 +49,10 @@ const SearchPopular = ({ handleModelClick, isOpen, handleOverlayClick }) => {
         </div>
         <div className="flex gap-3 items-center mt-3">
           {data?.map((item) => (
-            <Link key={item._id} to={`/tim-kiem?keyword=${item?.keyword}`}>
+            <Link
+              key={item._id}
+              to={`/tim-kiem?keyword=${item?.keyword}&minPrice=${minMaxPrice?.minPrice}&maxPrice=${minMaxPrice?.maxPrice}`}
+            >
               <Badge
                 color="light"
                 className="cursor-pointer rounded-xs px-3"

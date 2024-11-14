@@ -72,7 +72,7 @@ const UploadImage = ({ onFileSelect, avatar }) => {
         <input
           type="file"
           name="avatar"
-          className="absolute inset-0 w-full h-full opacity-0 z-50"
+          className="absolute inset-0 w-full h-full opacity-0 z-10"
           onChange={handleChange}
         />
         {previewSrc && (

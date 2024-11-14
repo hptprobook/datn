@@ -13,7 +13,7 @@ import Chart, { useChart } from 'src/components/chart';
 export default function AppConversionRates({ title, subheader, chart, ...other }) {
   const { colors, series, options } = chart;
 
-  const chartSeries = series.map((i) => i.value);
+  const chartSeries = series.map((i) => i.views);
 
   const chartOptions = useChart({
     colors,
@@ -34,23 +34,30 @@ export default function AppConversionRates({ title, subheader, chart, ...other }
       },
     },
     xaxis: {
-      categories: series.map((i) => i.label),
+      categories: series.map((i) => i.name),
     },
     ...options,
   });
 
   return (
-    <Card {...other}>
+    <Card
+      {...other}
+      sx={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       <CardHeader title={title} subheader={subheader} />
 
-      <Box sx={{ mx: 3 }}>
+      <Box sx={{ mx: 3, flexGrow: 1 }}>
         <Chart
           dir="ltr"
           type="bar"
           series={[{ data: chartSeries }]}
           options={chartOptions}
           width="100%"
-          height={364}
+          height='100%'
         />
       </Box>
     </Card>

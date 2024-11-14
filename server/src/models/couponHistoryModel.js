@@ -9,12 +9,13 @@ const validateBeforeCreate = async (data) => {
   });
 };
 
-const getCouponHistory = async () => {
+const getCouponHistory = async (filter) => {
   // page = parseInt(page) || 1;
   // limit = parseInt(limit) || 12;
   const db = await GET_DB().collection('couponUsageHistory');
   const result = await db
     .find()
+    .filter(filter)
     // .skip((page - 1) * limit)
     // .limit(limit)
     .toArray();
@@ -65,9 +66,23 @@ const getCouponHistoryByParams = async ({ userId, orderId, couponId }) => {
   return history;
 };
 
+const deleteCouponHistory = async ({ userId, orderId, couponId }) => {
+  const db = await GET_DB();
+  const couponUsageCollection = db.collection('couponUsageHistory');
+
+  const query = {};
+  if (userId) query.userId = userId;
+  if (orderId) query.orderId = orderId;
+  if (couponId) query.couponId = couponId;
+
+  const result = await couponUsageCollection.deleteMany(query);
+  return result;
+};
+
 export const couponHistoryModel = {
   addCouponHistory,
   countCouponHistory,
   getCouponHistoryByParams,
   getCouponHistory,
+  deleteCouponHistory,
 };

@@ -13,7 +13,11 @@ export const ProtectedRoute = ({ children }) => {
   const auth = useSelector((state) => state.auth.auth);
   useEffect(() => {
     if (auth === null && statusMe === 'idle') {
-      dispatch(getMe());
+      dispatch(getMe()).then((result) => {
+        if (result.type === 'auth/me/fulfilled') {
+          localStorage.setItem('token', result.payload.token);
+        }
+      });
     }
   }, [dispatch, statusMe, auth]);
   if (!token) {

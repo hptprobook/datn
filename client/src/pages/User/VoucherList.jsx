@@ -21,6 +21,7 @@ const VoucherList = () => {
       title: 'Thành công!',
       text: 'Đã sao chép mã giảm giá: ' + code,
       confirmButtonText: 'Xác nhận',
+      timer: 1000,
     });
   };
 
@@ -54,7 +55,7 @@ const VoucherList = () => {
                 >
                   <h3 className="text-2xl font-semibold my-4">{coupon.name}</h3>
                   <p className="text-sm mb-4">{coupon.description}</p>
-                  <div className="flex items-center space-x-2 mb-4">
+                  <div className="flex items-center space-x-2 mb-4 max-lg:flex-col max-lg:space-y-3">
                     <span className="border-dashed border text-white px-4 py-2 rounded-l">
                       {coupon.code}
                     </span>

@@ -97,8 +97,10 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 }));
 
 export default function AdminLayout({ children }) {
+
+
   const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(true);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -114,6 +116,25 @@ export default function AdminLayout({ children }) {
       setOpen(false);
     }
   }, [pathname]);
+  React.useEffect(() => {
+    if (window.innerWidth < 768) {
+      setOpen(false);
+    }
+  }, []);
+  const findTitleByPath = (items, targetPath) => 
+     items
+      .map(item => {
+        // Check if the current item's path matches
+        if (item.path === targetPath) return item.title;
+  
+        // If the item has children, recursively search within `child`
+        if (item.child) return findTitleByPath(item.child, targetPath);
+  
+        return null; // Return null if no match
+      })
+      .find(title => title) // Find the first non-null title
+  ;
+  
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
@@ -141,7 +162,7 @@ export default function AdminLayout({ children }) {
               color: 'text.primary',
             }}
           >
-            {navConfig.find((item) => item.path === pathname)?.title}
+            {findTitleByPath(navConfig, pathname)}
           </Typography>
           <Box sx={{ flexGrow: 1 }} />
           <Header />
