@@ -20,7 +20,6 @@ import { formatCurrency } from 'src/utils/format-number';
 import { formatDateTime } from 'src/utils/format-time';
 import Label from 'src/components/label';
 
-
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
     return -1;
@@ -290,6 +289,13 @@ export default function HistoryUsedTable() {
                   </TableRow>
                 );
               })}
+              {visibleRows.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={6} align="center">
+                    Không có dữ liệu
+                  </TableCell>
+                </TableRow>
+              )}
               {emptyRows > 0 && (
                 <TableRow
                   style={{
