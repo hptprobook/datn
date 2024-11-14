@@ -1,16 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
 import { NavLink } from 'react-router-dom';
-import { getAllCategory } from '~/APIs';
+import { getBestViewCategory } from '~/APIs';
 
 const CatSuggest = () => {
   const { data, isLoading } = useQuery({
-    queryKey: ['getAllCategories'],
-    queryFn: getAllCategory,
+    queryKey: ['getTopViewCategory'],
+    queryFn: getBestViewCategory,
   });
 
   if (isLoading) return null;
 
-  const categories = data?.slice(0, 12) || [];
+  const categories = data || [];
 
   const getValidImageURL = (url) => {
     if (!/^https?:\/\//i.test(url)) {
@@ -24,7 +24,7 @@ const CatSuggest = () => {
       <h2 className="text-2xl text-center font-bold text-red-600">
         MUA GÌ HÔM NAY?
       </h2>
-      <div className="grid grid-cols-4 gap-4 lg:gap-10 sm:grid-cols-6 mt-6 lg:px-0">
+      <div className="grid grid-cols-3 gap-4 lg:gap-10 sm:grid-cols-6 mt-6 lg:px-0">
         {categories.length > 0 &&
           categories.map((item) => (
             <div key={item._id} className="flex flex-col items-center">

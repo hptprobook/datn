@@ -10,66 +10,6 @@ import { useWebConfig } from './context/WebsiteConfig';
 
 const App = () => {
   const { config } = useWebConfig();
-  // Hàm tính khoảng cách giữa hai tọa độ bằng công thức Haversine
-  function calculateDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371; // Bán kính trái đất tính theo km
-    const dLat = ((lat2 - lat1) * Math.PI) / 180;
-    const dLon = ((lon2 - lon1) * Math.PI) / 180;
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos((lat1 * Math.PI) / 180) *
-        Math.cos((lat2 * Math.PI) / 180) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c; // Kết quả tính theo km
-  }
-
-  // Danh sách các kho với toạ độ
-  const warehouses = [
-    { name: 'Kho A', latitude: 10.762622, longitude: 106.660172 },
-    {
-      name: 'Kho B',
-      latitude: 12.668157722441334,
-      longitude: 108.03781353068327,
-    },
-    { name: 'Kho C', latitude: 16.047079, longitude: 108.20623 },
-  ];
-
-  // Lấy vị trí hiện tại của người dùng
-  navigator.geolocation.getCurrentPosition(
-    (position) => {
-      const { latitude, longitude } = position.coords;
-
-      // Tìm kho gần nhất
-      let nearestWarehouse = null;
-      let minDistance = Infinity;
-
-      warehouses.forEach((warehouse) => {
-        const distance = calculateDistance(
-          latitude,
-          longitude,
-          warehouse.latitude,
-          warehouse.longitude
-        );
-        if (distance < minDistance) {
-          minDistance = distance;
-          nearestWarehouse = warehouse;
-        }
-      });
-
-      console.log(
-        'Kho gần nhất:',
-        nearestWarehouse,
-        'Khoảng cách:',
-        minDistance,
-        'km'
-      );
-    },
-    (error) => {
-      console.error('Error getting location:', error);
-    }
-  );
 
   return (
     // <SocketProvider>

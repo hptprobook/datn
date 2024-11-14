@@ -91,6 +91,7 @@ const getProductsByView = async () => {
   const result = await db
     .find()
     .sort({ views: -1 })
+    .limit(10)
     .project({
       _id: 1,
       name: 1,

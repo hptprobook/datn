@@ -27,7 +27,7 @@ const getCategoryByViews = async () => {
   try {
     const db = await GET_DB().collection('categories');
     const categories = await db
-      .find()
+      .find({ parentId: { $ne: 'ROOT' } })
       .sort({ views: -1 })
       .limit(parseInt(12))
       .toArray();

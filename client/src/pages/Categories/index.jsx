@@ -1,10 +1,11 @@
 import { useParams, useSearchParams } from 'react-router-dom';
 import HeaderBC from '~/components/common/Breadcrumb/HeaderBC';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import {
   filterProductsWithPriceRange,
   getCategoryBySlug,
   getMinMaxPrices,
+  increaseCategoryView,
 } from '~/APIs';
 import { useState, useCallback, useEffect } from 'react';
 import { Icon } from '@iconify/react';
@@ -50,6 +51,18 @@ const CategoryPage = () => {
     staleTime: 1000 * 60 * 30,
     cacheTime: 1000 * 60 * 60,
   });
+
+  const increaseView = useMutation({
+    mutationFn: increaseCategoryView,
+  });
+
+  useEffect(() => {
+    const viewTimeout = setTimeout(() => {
+      increaseView.mutate({ slug });
+    }, 3000);
+
+    return () => clearTimeout(viewTimeout);
+  }, [slug]);
 
   const hasActiveFilters = useCallback(() => {
     return (
