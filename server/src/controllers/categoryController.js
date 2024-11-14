@@ -87,6 +87,20 @@ const getAllCategories = async (req, res) => {
   }
 };
 
+const increaseViews = async (req, res) => {
+  try {
+    const { slug } = req.params;
+
+    const categories = await categoryModel.increaseViewBySlug(slug);
+
+    return res.status(StatusCodes.OK).json(categories);
+  } catch (error) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
+  }
+};
+
 const getMenuCategories = async (req, res) => {
   try {
     const menu = await getCategoryHierarchy();
@@ -94,6 +108,18 @@ const getMenuCategories = async (req, res) => {
     return res.status(StatusCodes.OK).json({
       menu,
     });
+  } catch (error) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
+  }
+};
+
+const getCategoryByViews = async (req, res) => {
+  try {
+    const categories = await categoryModel.getCategoryByViews();
+
+    return res.status(StatusCodes.OK).json(categories);
   } catch (error) {
     return res
       .status(StatusCodes.BAD_REQUEST)
@@ -257,6 +283,8 @@ export const categoryController = {
   getMenuCategories,
   createCategory,
   update,
+  increaseViews,
+  getCategoryByViews,
   deleteCategory,
   getCategoryById,
   getAllCategories,

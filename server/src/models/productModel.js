@@ -85,6 +85,45 @@ const getProductsAll = async (page, limit) => {
   return result;
 };
 
+const getProductsByView = async () => {
+  const db = await GET_DB().collection('products');
+
+  const result = await db
+    .find()
+    .sort({ views: -1 })
+    .limit(10)
+    .project({
+      _id: 1,
+      name: 1,
+      tags: 1,
+      reviews: 1,
+      price: 1,
+      thumbnail: 1,
+      status: 1,
+      statusStock: 1,
+      slug: 1,
+      productType: 1,
+    })
+    .toArray();
+
+  if (!result) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
+  }
+  return result;
+};
+
+const increaseViewBySlug = async (slug) => {
+  const db = await GET_DB().collection('products');
+
+  await db.findOneAndUpdate(
+    { slug },
+    { $inc: { views: 1 } },
+    { returnDocument: 'after' }
+  );
+
+  return;
+};
+
 const getProductsAllSpecial = async () => {
   const db = await GET_DB().collection('products');
   const result = await db
@@ -210,13 +249,13 @@ const getProductsByCategoryId = async (id, page, limit) => {
       _id: 1,
       name: 1,
       tags: 1,
-      variants: 1,
       reviews: 1,
       price: 1,
       thumbnail: 1,
       status: 1,
       statusStock: 1,
       slug: 1,
+      productType: 1,
     })
     .skip((page - 1) * limit)
     .limit(limit)
@@ -1038,7 +1077,9 @@ const getProductsBySlugAndPriceRange = async (
   limit,
   sortCriteria,
   colors,
-  sizes
+  sizes,
+  type,
+  tags
 ) => {
   const db = await GET_DB();
 
@@ -1084,6 +1125,14 @@ const getProductsBySlugAndPriceRange = async (
     query['variants.sizes.size'] = { $in: sizes };
   }
 
+  if (type) {
+    query['productType'] = type; // Thêm điều kiện lọc cho type
+  }
+
+  if (tags && tags.length > 0) {
+    query['tags'] = { $in: tags }; // Thêm điều kiện lọc cho tags
+  }
+
   const products = await db
     .collection('products')
     .find(query)
@@ -1097,6 +1146,7 @@ const getProductsBySlugAndPriceRange = async (
       status: 1,
       statusStock: 1,
       slug: 1,
+      productType: 1,
     })
     .collation({ locale: 'en', strength: 2 })
     .sort(sortOption)
@@ -1277,6 +1327,8 @@ const searchInDashboard = async (keyword) => {
 export const productModel = {
   countProductAll,
   getProductsAll,
+  getProductsByView,
+  increaseViewBySlug,
   createProduct,
   deleteProduct,
   update,

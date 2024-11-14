@@ -19,25 +19,40 @@ const getCoupons = async (req, res) => {
 const getCouponsForOrder = async (req, res) => {
   try {
     let coupons = await couponModel.getCoupons();
+    const currentDate = new Date();
 
     coupons = await Promise.all(
       coupons.map(async (coupon) => {
+        // Kiểm tra trạng thái của mã giảm giá
+        if (coupon.status !== 'active') {
+          return null;
+        }
+
+        // Kiểm tra thời hạn sử dụng của mã giảm giá
+        const startDate = new Date(coupon.dateStart);
+        const endDate = new Date(coupon.dateEnd);
+        if (currentDate < startDate || currentDate > endDate) {
+          return null;
+        }
+
+        // Kiểm tra giới hạn sử dụng chung của coupon
         const usageCount = await couponHistoryModel.countCouponHistory({
           couponId: coupon._id,
         });
-
         if (usageCount >= coupon.usageLimit) {
           return null;
         }
 
+        // Kiểm tra giới hạn sử dụng cho từng người dùng nếu có
         if (coupon.limitOnUser) {
-          const userUsageCount = await couponHistoryModel.countCouponHistory({
-            couponId: coupon._id,
-            userId: req.user,
-          });
+          const userUsageHistory =
+            await couponHistoryModel.getCouponHistoryByParams({
+              userId: req.user.user_id,
+              couponId: coupon._id,
+            });
 
-          if (userUsageCount >= 1) {
-            return null;
+          if (userUsageHistory.length > 0) {
+            return null; // Người dùng đã sử dụng mã giảm giá này trước đó
           }
         }
 
@@ -45,20 +60,20 @@ const getCouponsForOrder = async (req, res) => {
       })
     );
 
+    // Lọc các mã giảm giá hợp lệ
     coupons = coupons.filter((coupon) => coupon !== null);
 
+    // Phân loại mã giảm giá
     const categorizedCoupons = {
       shipping: [],
       order: [],
     };
 
     coupons.forEach((coupon) => {
-      if (coupon.type === 'percent') {
+      if (coupon.type === 'percent' || coupon.type === 'price') {
         categorizedCoupons.order.push(coupon);
       } else if (coupon.type === 'shipping') {
         categorizedCoupons.shipping.push(coupon);
-      } else if (coupon.type === 'price') {
-        categorizedCoupons.order.push(coupon);
       }
     });
 
@@ -196,8 +211,6 @@ const checkCouponApplicability = async (req, res) => {
   const { code, purchaseAmount } = req.body;
   const userId = req.user.user_id;
 
-  console.log(code);
-
   try {
     const { user, coupon } = await couponModel.getCouponAndUser(userId, code);
 
@@ -207,17 +220,23 @@ const checkCouponApplicability = async (req, res) => {
       });
     }
 
-    const applicableProducts = coupon.applicableProducts || [];
-    const eligibleUsers = coupon.eligibleUsers || [];
-    const isApplicableToAllProducts = applicableProducts.includes('all');
+    const couponHistory = await couponHistoryModel.getCouponHistoryByParams({
+      userId: userId,
+      couponId: coupon._id.toString(),
+    });
 
-    // Check if the user is eligible for the coupon
+    if (couponHistory.length > 0) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: 'Phiếu giảm giá này đã được sử dụng bởi người dùng.',
+      });
+    }
+
+    const eligibleUsers = coupon.eligibleUsers || [];
+
     const isUserEligible =
       eligibleUsers.length === 0 || eligibleUsers.includes(userId);
 
-    console.log('isApplicableToAllProducts:', isApplicableToAllProducts);
-
-    // Check coupon status
     if (coupon.status !== 'active') {
       return res.status(StatusCodes.BAD_REQUEST).json({
         success: false,

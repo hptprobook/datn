@@ -81,7 +81,7 @@ Router.use('/timetables', timetableApi);
 Router.use('/blogs', blogApi);
 Router.use('/dashboard', dashboardApi);
 
-Router.use('/couponHistory', couponHistoryApi);
+Router.use('/coupon-history', couponHistoryApi);
 Router.use('/receipts', receiptsApi);
 
 Router.get('/', (req, res) => {

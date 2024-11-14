@@ -13,8 +13,8 @@ import useCheckAuth from '~/customHooks/useCheckAuth';
 import { handleToast } from '~/customHooks/useToast';
 import { loginSchema } from '~/utils/schema';
 import ObjectID from 'bson-objectid';
-import { io } from 'socket.io-client';
-import { useSocketContext } from '~/context/SocketContext';
+// import { io } from 'socket.io-client';
+// import { useSocketContext } from '~/context/SocketContext';
 
 const LoginPage = () => {
   return (
@@ -31,7 +31,7 @@ const LoginPageUI = () => {
   const navigate = useNavigate();
   const { login } = useCheckAuth();
   const { items, emptyCart } = useCart();
-  const { socket, onlineUser, setOnlineUser, setSocket } = useSocketContext();
+  // const { socket, onlineUser, setOnlineUser, setSocket } = useSocketContext();
   const initialValues = {
     email: '',
     password: '',
@@ -67,21 +67,21 @@ const LoginPageUI = () => {
     mutationFn: loginAuth,
     onSuccess: (data) => {
       handleToast('success', 'Đăng nhập thành công!');
-      if (data) {
-        const socket = io(import.meta.env.VITE_SERVER_URL, {
-          query: {
-            userId: data._id,
-          },
-        });
-        // console.log(socket);
-        setSocket(socket);
-        socket.on('getOnlineUser', (user) => {
-          setOnlineUser(user);
-        });
-      } else if (socket) {
-        socket.close();
-        setSocket(null);
-      }
+      // if (data) {
+      //   const socket = io(import.meta.env.VITE_SERVER_URL, {
+      //     query: {
+      //       userId: data._id,
+      //     },
+      //   });
+      //   // console.log(socket);
+      //   // setSocket(socket);
+      //   // socket.on('getOnlineUser', (user) => {
+      //   //   setOnlineUser(user);
+      //   // });
+      // } else if (socket) {
+      //   socket.close();
+      //   setSocket(null);
+      // }
 
       login(data.token);
 
@@ -123,22 +123,22 @@ const LoginPageUI = () => {
   });
 
   return (
-    <section className='bg-white'>
-      <div className='lg:grid lg:min-h-screen lg:grid-cols-12'>
+    <section className="bg-white">
+      <div className="lg:grid lg:min-h-screen lg:grid-cols-12">
         <AuthBanner type={'login'} />
 
-        <main className='flex items-center justify-center px-8 py-8 sm:px-12 lg:col-span-7 lg:px-16 lg:py-12 xl:col-span-6'>
-          <div className='max-w-xl w-full'>
+        <main className="flex items-center justify-center px-8 py-8 sm:px-12 lg:col-span-7 lg:px-16 lg:py-12 xl:col-span-6">
+          <div className="max-w-xl w-full">
             <BackToHome />
             <form
               onSubmit={formik.handleSubmit}
-              className='mt-12 grid grid-cols-6 gap-6'
+              className="mt-12 grid grid-cols-6 gap-6"
             >
               <InputField_Full
-                id='Email'
-                label='Địa chỉ Email'
-                name='email'
-                type='email'
+                id="Email"
+                label="Địa chỉ Email"
+                name="email"
+                type="email"
                 value={formik.values.email}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
@@ -146,28 +146,28 @@ const LoginPageUI = () => {
               />
 
               <InputField_Full
-                id='Password'
-                label='Mật khẩu'
-                name='password'
-                type='password'
+                id="Password"
+                label="Mật khẩu"
+                name="password"
+                type="password"
                 value={formik.values.password}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 error={formik.touched.password && formik.errors.password}
               />
 
-              <div className='col-span-6 sm:flex sm:items-center sm:gap-4'>
+              <div className="col-span-6 sm:flex sm:items-center sm:gap-4">
                 <AuthButton
                   text={'Đăng nhập'}
-                  type='submit'
+                  type="submit"
                   isLoading={mutation.isPending}
                 />
 
-                <p className='mt-4 text-sm text-gray-500 sm:mt-0'>
+                <p className="mt-4 text-sm text-gray-500 sm:mt-0">
                   Chưa có tài khoản?{' '}
                   <NavLink
                     to={'/tai-khoan/dang-ky'}
-                    className='text-gray-700 underline hover:text-red-500'
+                    className="text-gray-700 underline hover:text-red-500"
                   >
                     Tạo tài khoản
                   </NavLink>
@@ -175,24 +175,37 @@ const LoginPageUI = () => {
                 </p>
               </div>
 
-              <div className='col-span-6 flex items-center justify-center'>
-                <p className='text-center'>hoặc</p>
+              {/* <div className="col-span-6 flex items-center justify-center">
+                <p className="text-center">hoặc</p>
               </div>
-              <div className='col-span-6'>
-                <div className='flex items-center justify-center'>
+              <div className="col-span-6">
+                <div className="flex items-center justify-center">
                   <button
-                    type='button'
-                    className='px-12 py-2 border flex gap-2 border-slate-200  rounded-lg text-slate-700 dark:text-slate-200  hover:text-slate-900  hover:shadow transition duration-150'
+                    type="button"
+                    className="px-12 py-2 border flex gap-2 border-slate-200  rounded-lg text-slate-700 dark:text-slate-200  hover:text-slate-900  hover:shadow transition duration-150"
                   >
                     <img
-                      className='w-6 h-6'
-                      src='https://www.svgrepo.com/show/475656/google-color.svg'
-                      loading='lazy'
-                      alt='google logo'
+                      className="w-6 h-6"
+                      src="https://www.svgrepo.com/show/475656/google-color.svg"
+                      loading="lazy"
+                      alt="google logo"
                     />
                     <span>Đăng nhập với Google</span>
                   </button>
                 </div>
+              </div> */}
+
+              <div className="col-span-6 sm:flex sm:items-center sm:gap-4">
+                <p className="mt-4 text-sm text-gray-500 sm:mt-0">
+                  Quên mật khẩu ?{' '}
+                  <NavLink
+                    to={'/tai-khoan/quen-mat-khau'}
+                    className="text-gray-700 underline hover:text-red-500"
+                  >
+                    Lấy lại mật khẩu
+                  </NavLink>
+                  .
+                </p>
               </div>
             </form>
           </div>

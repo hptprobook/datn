@@ -23,6 +23,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 //admin
+Router.get('/getByViews', productController.getProductsByView);
 Router.get('/price-range', productController.getMinMaxPrices);
 Router.get('/search/keyword', productController.getProductsBySearchAndFilter);
 Router.get('/search', productController.getProductBySearch);
@@ -31,6 +32,7 @@ Router.get('/event/:slug', productController.getProductByEvent);
 Router.get('/special', productController.getAllProductsSpecial);
 Router.get('/:id', productController.getProductById);
 Router.get('/slug/:slug', productController.getProductBySlug);
+Router.get('/:slug/views', productController.increaseView);
 //Category
 Router.get('/category/:id', productController.getProductByCategoryId);
 Router.get('/category/slug/:slug', productController.getProductByCategory);
