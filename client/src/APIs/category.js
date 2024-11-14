@@ -11,6 +11,26 @@ export const getAllCategory = async () => {
   }
 };
 
+export const increaseCategoryView = async (data) => {
+  try {
+    const response = await request.get(`/categories/${data.slug}/views`);
+    return response.data;
+  } catch (error) {
+    console.error('Xảy ra lỗi khi tăng view cho sản phẩm:');
+    throw error.response.data;
+  }
+};
+
+export const getBestViewCategory = async () => {
+  try {
+    const response = await request.get('/categories/getByView');
+    return response.data;
+  } catch (error) {
+    console.error('Xảy ra lỗi khi lấy sản phẩm top view:');
+    throw error.response.data;
+  }
+};
+
 export const getMenu = async () => {
   try {
     const response = await request.get('/categories/menu');

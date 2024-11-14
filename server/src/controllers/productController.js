@@ -101,7 +101,6 @@ const getProductsByView = async (req, res) => {
   try {
     const products = await productModel.getProductsByView();
 
-    console.log(products);
     if (!products) {
       return res
         .status(StatusCodes.NOT_FOUND)
@@ -1066,11 +1065,21 @@ const getProductByEvent = async (req, res) => {
 const getProductsBySlugAndPriceRange = async (req, res) => {
   try {
     const { slug } = req.params;
-    const { minPrice, maxPrice, pages, limit, colors, sizes, ...sortCriteria } =
-      req.query;
+    const {
+      minPrice,
+      maxPrice,
+      pages,
+      limit,
+      colors,
+      sizes,
+      type,
+      tags,
+      ...sortCriteria
+    } = req.query;
 
     const parsedColors = colors ? colors.split(',') : [];
     const parsedSizes = sizes ? sizes.split(',') : [];
+    const parsedTags = tags ? tags.split(',') : [];
 
     const products = await productModel.getProductsBySlugAndPriceRange(
       slug,
@@ -1080,14 +1089,10 @@ const getProductsBySlugAndPriceRange = async (req, res) => {
       parseInt(limit) || 20,
       sortCriteria,
       parsedColors,
-      parsedSizes
+      parsedSizes,
+      type, // Truyền type
+      parsedTags // Truyền tags
     );
-
-    // if (!products || products.length === 0) {
-    //   return res
-    //     .status(StatusCodes.NOT_FOUND)
-    //     .json({ message: 'Không tìm thấy sản phẩm!' });
-    // }
 
     return res.status(StatusCodes.OK).json(products);
   } catch (error) {

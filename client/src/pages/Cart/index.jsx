@@ -5,11 +5,21 @@ import { CartProvider } from '~/context/CartContext';
 import { Helmet } from 'react-helmet-async';
 import ProductItem from '~/components/common/Product/ProductItem';
 import { useUser } from '~/context/UserContext';
+import { useQuery } from '@tanstack/react-query';
+import { getBestViewProduct } from '~/APIs';
+import MainLoading from '~/components/common/Loading/MainLoading';
 
 const CartPage = () => {
   const { user } = useUser();
   const productsViewed = user ? user?.views : [];
   const favoriteProducts = user ? user?.favorites : [];
+
+  const { data: bestViewProduct, isLoading } = useQuery({
+    queryKey: ['getTopViewProduct'],
+    queryFn: getBestViewProduct,
+  });
+
+  if (isLoading) return <MainLoading />;
 
   return (
     <CartProvider>
@@ -35,6 +45,19 @@ const CartPage = () => {
                   <CartSummary />
                 </div>
               </div>
+            </div>
+          </div>
+
+          <div className="text-gray-900 mt-8 border-t border-gray-200 pt-8">
+            <h2 className="text-2xl font-bold uppercase">
+              Sản phẩm được xem nhiều nhất
+            </h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mt-8">
+              {bestViewProduct?.map((item) => (
+                <div key={item._id} className="relative">
+                  <ProductItem product={item} isWishList={true} />
+                </div>
+              ))}
             </div>
           </div>
 

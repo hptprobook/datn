@@ -4,6 +4,7 @@ import CatSuggest from '~/components/Home/Container/CatSuggest/CatSuggest';
 import HeaderSlider from '~/components/Home/Slider/HeaderSlider';
 import FilterCategories from './FilterCategories';
 import { useWebConfig } from '~/context/WebsiteConfig';
+import Post from '~/components/Home/Container/Post/Post';
 
 const HomePage = () => {
   const eventCategories = ['ao-polo', 'ao-somi', 'quan-short'];
@@ -17,6 +18,7 @@ const HomePage = () => {
         {eventCategories.map((item, i) => (
           <FilterCategories key={i} slug={item} />
         ))}
+        <Post />
         <div className="banner mt-24 w-full h-slider">
           <NavLink to={config?.eventUrl}>
             <img

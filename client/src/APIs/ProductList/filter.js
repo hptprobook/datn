@@ -8,13 +8,15 @@ export const filterProductsWithPriceRange = async ({
   maxPrice,
   colors,
   sizes,
+  type,
+  tags,
   sortOption,
 } = {}) => {
   try {
     const params = new URLSearchParams({
       limit: limit.toString(),
-      minPrice: minPrice.toString(),
-      maxPrice: maxPrice.toString(),
+      minPrice: minPrice?.toString() || '',
+      maxPrice: maxPrice?.toString() || '',
     });
 
     if (colors && colors.length > 0) {
@@ -23,6 +25,14 @@ export const filterProductsWithPriceRange = async ({
 
     if (sizes && sizes.length > 0) {
       params.append('sizes', sizes.join(','));
+    }
+
+    if (type) {
+      params.append('type', type);
+    }
+
+    if (tags && tags.length > 0) {
+      params.append('tags', tags.join(','));
     }
 
     if (sortOption) {
