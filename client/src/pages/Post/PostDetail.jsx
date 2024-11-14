@@ -1,6 +1,5 @@
 import { Icon } from '@iconify/react';
 import { useQuery } from '@tanstack/react-query';
-import { FaCalendarAlt } from 'react-icons/fa';
 import { Link, NavLink, useParams } from 'react-router-dom';
 import { getBlogBySlugAPI, getTopViewBlogAPI } from '~/APIs';
 import { convertHTMLToText, formatDateToDDMMYYYY } from '~/utils/formatters';

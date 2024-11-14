@@ -113,7 +113,7 @@ const UserAddress = ({ userAddress, setUserAddress }) => {
             className="absolute inset-0 bg-black opacity-50"
             onClick={handleClose}
           ></div>
-          <div className="bg-white p-6 rounded-lg relative z-10 min-w-[520px] max-w-[800px] max-h-[90vh] overflow-y-auto hide-scrollbar">
+          <div className="bg-white p-6 rounded-lg relative z-10 min-w-[80%] md:min-w-[520px] max-w-[800px] max-h-[90vh] overflow-y-auto hide-scrollbar">
             <button
               className="absolute top-4 right-4 text-gray-500 hover:text-black"
               onClick={handleClose}
@@ -134,7 +134,7 @@ const UserAddress = ({ userAddress, setUserAddress }) => {
                       onChange={() => handleAddressChange(addr)}
                     />
                     <div className="w-full">
-                      <div className="flex justify-between">
+                      <div className="flex justify-between flex-col md:flex-row">
                         <label htmlFor={addr._id} className="flex gap-2 mb-2">
                           <span className="font-bold transform uppercase">
                             {addr.name}
@@ -193,14 +193,14 @@ const UserAddress = ({ userAddress, setUserAddress }) => {
             </button>
             <div className="flex justify-end gap-3">
               <button
-                className="btn bg-red-600 rounded-md mt-4"
+                className="btn bg-red-600 rounded-md mt-4 text-white"
                 onClick={handleClose}
               >
                 Huỷ
               </button>
               <button
                 type="submit"
-                className="btn bg-red-600 rounded-md mt-4"
+                className="btn bg-red-600 rounded-md mt-4 text-white"
                 onClick={handleConfirmAddress}
               >
                 Xác nhận
