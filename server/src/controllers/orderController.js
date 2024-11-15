@@ -9,6 +9,7 @@ import { userModel } from '~/models/userModel';
 import { recieptModel } from '~/models/receiptModel';
 import { orderStatus } from '~/utils/format';
 import { ObjectId } from 'mongodb';
+import { couponHistoryModel } from '~/models/couponHistoryModel';
 const getAllOrder = async (req, res) => {
   try {
     const { page, limit } = req.query;
@@ -103,8 +104,6 @@ const addOrder = async (req, res) => {
     const { user_id } = req.user;
     const dataOrder = { userId: user_id, ...req.body };
 
-    console.log(dataOrder);
-
     // Kiểm tra phương thức thanh toán
     if (dataOrder.paymentMethod === 'VNPAY') {
       dataOrder.status = [
@@ -115,25 +114,43 @@ const addOrder = async (req, res) => {
       ];
     }
 
+    console.log(dataOrder);
+
+    // Thêm đơn hàng vào cơ sở dữ liệu
     const result = await orderModel.addOrder(dataOrder);
     const orderData = await orderModel.getOrderById(result.insertedId);
 
-    //     if (!orderData) {
-    //       return res.status(StatusCodes.OK).json({
-    //         message: 'Đặt hàng không thành công',
-    //       });
-    //     }
-    //     orderData.type = 'order';
-    //     orderData.title = 'Đơn hàng';
-    //     await userModel.sendNotifies(orderData);
+    // Gửi thông báo qua Socket.IO
+    const notifyData = {
+      userId: new ObjectId(dataOrder.userId),
+      title: 'Cảm ơn bạn đã đặt hàng tại BMT Life',
+      description: `Đơn hàng #${dataOrder.orderCode} của bạn đã được đặt thành công.`,
+      type: 'order',
+      orderId: result.insertedId.toString(),
+      orderCode: dataOrder.orderCode,
+    };
 
+    // // Emit thông báo tới user
+    // req.io
+    //   .to(dataOrder.userId.toString())
+    //   .emit('orderNotification', notifyData);
+
+    // Lưu lịch sử coupon nếu có
+    if (dataOrder.couponId && dataOrder.couponId.length > 0) {
+      for (const couponId of dataOrder.couponId) {
+        const usageData = {
+          userId: dataOrder.userId,
+          couponId,
+          orderId: result.insertedId.toString(),
+          discountAmount: dataOrder.discountPrice || 0,
+          status: 'successful',
+        };
+        await couponHistoryModel.addCouponHistory(usageData);
+      }
+    }
+
+    // Gửi thông báo chung nếu không dùng VNPAY
     if (dataOrder.paymentMethod !== 'VNPAY') {
-      const notifyData = {
-        userId: new ObjectId(dataOrder.userId),
-        title: 'Cảm ơn bạn đã đặt hàng tại BMT Life',
-        description: `Đơn hàng #${dataOrder.orderCode} của bạn đã được đặt thành công và đang trong trạng thái "Chờ shop xác nhận đơn".`,
-        type: 'order',
-      };
       await userModel.sendNotifies(notifyData);
     }
 
@@ -250,6 +267,25 @@ const removeOrder = async (req, res) => {
         .status(StatusCodes.BAD_REQUEST)
         .json({ message: 'Thiếu thông tin đơn hàng' });
     }
+
+    const orderData = await orderModel.getOrderById(idOrder);
+    if (!orderData) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: 'Không tìm thấy đơn hàng' });
+    }
+
+    if (orderData.couponId && orderData.couponId.length > 0) {
+      for (const couponId of orderData.couponId) {
+        await couponHistoryModel.deleteCouponHistory({
+          userId: orderData.userId,
+          orderId: idOrder,
+          couponId: couponId,
+        });
+      }
+    }
+
+    // Xóa đơn hàng
     await orderModel.deleteOrder(idOrder);
     return res
       .status(StatusCodes.OK)
@@ -285,7 +321,15 @@ const updateOrder = async (req, res) => {
         title: `Cập nhật thông tin cho đơn hàng #${dataOrder.orderCode}`,
         description: `Đơn hàng #${dataOrder.orderCode} của bạn hiện đã chuyển sang trạng thái "${statusInVietnamese}". Vui lòng kiểm tra thông tin trong chi tiết đơn hàng.`,
         type: 'order',
+        orderCode: dataOrder.orderCode,
       };
+      // Emit thông báo tới user qua Socket.IO
+      if (endStatus.note !== 'Khách hàng huỷ đơn') {
+        req.io
+          .to(dataOrder.userId.toString())
+          .emit('orderStatusUpdate', notifyData);
+      }
+
       await userModel.sendNotifies(notifyData);
 
       //  trạng thái xác nhận trừ số lượng

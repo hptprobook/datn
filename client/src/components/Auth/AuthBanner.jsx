@@ -19,17 +19,27 @@ const AuthBanner = ({ type }) => {
           />
         </NavLink>
 
-        <h2 className="mt-6 text-2xl font-bold text-white sm:text-3xl md:text-4xl">
-          {type === 'login' ? 'Chào mừng bạn trở lại' : 'Chào mừng bạn đến với'}{' '}
-          {config?.nameCompany}
-        </h2>
+        {type === 'forgot' ? (
+          <h2 className="mt-6 text-2xl font-bold text-white sm:text-3xl md:text-4xl">
+            Lấy lại mật khẩu
+          </h2>
+        ) : (
+          <>
+            <h2 className="mt-6 text-2xl font-bold text-white sm:text-3xl md:text-4xl">
+              {type === 'login'
+                ? 'Chào mừng bạn trở lại'
+                : 'Chào mừng bạn đến với'}{' '}
+              {config?.nameCompany}
+            </h2>
 
-        <p className="mt-4 leading-relaxed text-white/90">
-          {type === 'login'
-            ? 'Đăng nhập vào tài khoản của bạn để tiếp tục'
-            : 'Đăng ký tài khoản ngay để'}{' '}
-          mua sắm và khám phá những ưu đãi đặc biệt dành riêng cho bạn.
-        </p>
+            <p className="mt-4 leading-relaxed text-white/90">
+              {type === 'login'
+                ? 'Đăng nhập vào tài khoản của bạn để tiếp tục'
+                : 'Đăng ký tài khoản ngay để'}{' '}
+              mua sắm và khám phá những ưu đãi đặc biệt dành riêng cho bạn.
+            </p>
+          </>
+        )}
       </div>
     </section>
   );

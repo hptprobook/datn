@@ -52,20 +52,6 @@ const updateCoupon = async (id, dataCoupon) => {
   const validData = await validateBeforeUpdate(dataCoupon);
   const db = await GET_DB();
   const collection = db.collection('coupons');
-  if (validData.applicableProducts) {
-    const data = {
-      ...validData,
-      applicableProducts: validData.applicableProducts.map((item) => {
-        return new ObjectId(item.applicableProducts);
-      }),
-    };
-    const result = await collection.findOneAndUpdate(
-      { _id: new ObjectId(id) },
-      { $set: data },
-      { returnDocument: 'after' }
-    );
-    return result;
-  }
   const result = await collection.findOneAndUpdate(
     { _id: new ObjectId(id) },
     { $set: validData },

@@ -35,6 +35,13 @@ const MultiRangeSlider = ({ min, max, onPriceRangeChange }) => {
     }, 2000);
   }, [minVal, maxVal, onPriceRangeChange]);
 
+  // useEffect(() => {
+  //   if (minVal === min && maxVal === max) {
+  //     setMinVal(min);
+  //     setMaxVal(max);
+  //   }
+  // }, [min, max]);
+
   useEffect(() => {
     debouncedPriceRangeChange();
     return () => {

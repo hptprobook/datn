@@ -16,8 +16,12 @@ const ProductListFilter = ({
   const [selectedSizes, setSelectedSizes] = useState(
     initialFilters.sizes || []
   );
+  const [selectedType, setSelectedType] = useState(initialFilters.type || '');
+  const [selectedTags, setSelectedTags] = useState(initialFilters.tags || []);
   const [isColorOpen, setIsColorOpen] = useState(false);
   const [isSizeOpen, setIsSizeOpen] = useState(false);
+  const [isTypeOpen, setIsTypeOpen] = useState(false);
+  const [isTagOpen, setIsTagOpen] = useState(false);
 
   const debouncedFilterChange = useCallback(
     debounce((filters) => {
@@ -30,10 +34,17 @@ const ProductListFilter = ({
     const filters = {
       colors: selectedColors,
       sizes: selectedSizes,
+      type: selectedType,
+      tags: selectedTags,
     };
-    sessionStorage.setItem('catProductListFilters', JSON.stringify(filters));
     debouncedFilterChange(filters);
-  }, [selectedColors, selectedSizes, debouncedFilterChange]);
+  }, [
+    selectedColors,
+    selectedSizes,
+    selectedType,
+    selectedTags,
+    debouncedFilterChange,
+  ]);
 
   const handlePriceRangeChange = useCallback(
     (newPriceRange) => {
@@ -68,6 +79,9 @@ const ProductListFilter = ({
 
   const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
+  const types = ['Nam', 'Nữ', 'Trẻ em'];
+  const tags = ['Mới nhất', 'Bán chạy', 'Hot sale', 'Freeship'];
+
   const handleColorChange = (color) => {
     setSelectedColors((prevSelectedColors) =>
       prevSelectedColors.includes(color)
@@ -81,6 +95,18 @@ const ProductListFilter = ({
       prevSelectedSizes.includes(size)
         ? prevSelectedSizes.filter((s) => s !== size)
         : [...prevSelectedSizes, size]
+    );
+  };
+
+  const handleTypeChange = (type) => {
+    setSelectedType((prevType) => (prevType === type ? '' : type));
+  };
+
+  const handleTagChange = (tag) => {
+    setSelectedTags((prevSelectedTags) =>
+      prevSelectedTags.includes(tag)
+        ? prevSelectedTags.filter((t) => t !== tag)
+        : [...prevSelectedTags, tag]
     );
   };
 
@@ -114,8 +140,29 @@ const ProductListFilter = ({
     setSelectedSizes(selectedSizes.filter((s) => s !== size));
   };
 
+  const removeType = () => setSelectedType('');
+  const removeTag = (tag) =>
+    setSelectedTags(selectedTags.filter((t) => t !== tag));
+
+  const handleResetFilters = () => {
+    setSelectedColors([]);
+    setSelectedSizes([]);
+    setSelectedType('');
+    setSelectedTags([]);
+    onFilterChange({
+      colors: [],
+      sizes: [],
+      type: '',
+      tags: [],
+      priceRange: {
+        min: priceRangeData?.minPrice,
+        max: priceRangeData?.maxPrice,
+      },
+    });
+  };
+
   return (
-    <div className="sticky top-4">
+    <div className="sticky top-4 max-h-[80vh] overflow-y-auto hide-scrollbar px-[2px]">
       <MultiRangeSlider
         min={priceRangeData?.minPrice}
         max={priceRangeData?.maxPrice}
@@ -148,6 +195,41 @@ const ProductListFilter = ({
             </button>
           </div>
         ))}
+        {selectedType && (
+          <div className="badge badge-info flex items-center">
+            {selectedType}
+            <button
+              className="badge-close ml-2 w-4 h-4 font-bold bg-gray-300 hover:bg-white hover:text-gray-900 rounded-full transition-colors duration-200"
+              onClick={removeType}
+            >
+              ×
+            </button>
+          </div>
+        )}
+        {selectedTags.map((tag) => (
+          <div key={tag} className="badge badge-warning flex items-center">
+            {tag}
+            <button
+              className="badge-close ml-2 w-4 h-4 font-bold bg-gray-300 hover:bg-white hover:text-gray-900 rounded-full transition-colors duration-200"
+              onClick={() => removeTag(tag)}
+            >
+              ×
+            </button>
+          </div>
+        ))}
+      </div>
+      <div>
+        {selectedColors.length > 0 ||
+        selectedSizes.length > 0 ||
+        selectedType ||
+        selectedTags.length > 0 ? (
+          <button
+            className="mt-5 btn rounded-md text-white bg-red-500 hover:bg-red-600"
+            onClick={handleResetFilters}
+          >
+            Làm mới tất cả
+          </button>
+        ) : null}
       </div>
 
       <div className="space-y-2 mt-12">
@@ -193,7 +275,7 @@ const ProductListFilter = ({
               </button>
             </header>
 
-            <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2 border-t border-gray-200 p-4">
+            <div className="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-4 gap-2 border-t border-gray-200 p-4">
               {colors.map((color) => (
                 <button
                   key={color}
@@ -256,7 +338,7 @@ const ProductListFilter = ({
               </button>
             </header>
 
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 border-t border-gray-200 p-4">
+            <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-3 gap-2 border-t border-gray-200 p-4">
               {sizes.map((size) => (
                 <button
                   key={size}
@@ -268,6 +350,103 @@ const ProductListFilter = ({
                   }`}
                 >
                   {size}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-2 mt-6">
+        <div className="overflow-hidden rounded-md border border-gray-300">
+          <button
+            className="flex w-full cursor-pointer items-center justify-between gap-2 bg-white p-4 text-gray-900 transition"
+            onClick={() => setIsTypeOpen(!isTypeOpen)}
+          >
+            <span className="text-sm font-bold">Loại sản phẩm</span>
+            <span className={`transition ${isTypeOpen ? 'rotate-180' : ''}`}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="1.5"
+                stroke="currentColor"
+                className="h-4 w-4"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+                />
+              </svg>
+            </span>
+          </button>
+          <div
+            className={`border-t border-gray-200 bg-white transition-all duration-300 ${
+              isTypeOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+            } overflow-hidden`}
+          >
+            <div className="grid grid-cols-2 gap-2 border-t border-gray-200 p-4">
+              {types.map((type) => (
+                <button
+                  key={type}
+                  onClick={() => handleTypeChange(type)}
+                  className={`btn px-4 py-2 rounded border flex justify-center items-center ${
+                    selectedType === type
+                      ? 'bg-red-500 text-white'
+                      : 'bg-white text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  {type}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Collapse for Tag */}
+      <div className="space-y-2 mt-6">
+        <div className="overflow-hidden rounded-md border border-gray-300">
+          <button
+            className="flex w-full cursor-pointer items-center justify-between gap-2 bg-white p-4 text-gray-900 transition"
+            onClick={() => setIsTagOpen(!isTagOpen)}
+          >
+            <span className="text-sm font-bold">Tags</span>
+            <span className={`transition ${isTagOpen ? 'rotate-180' : ''}`}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="1.5"
+                stroke="currentColor"
+                className="h-4 w-4"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+                />
+              </svg>
+            </span>
+          </button>
+          <div
+            className={`border-t border-gray-200 bg-white transition-all duration-300 ${
+              isTagOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+            } overflow-hidden`}
+          >
+            <div className="grid grid-cols-1 gap-2 border-t border-gray-200 p-4">
+              {tags.map((tag) => (
+                <button
+                  key={tag}
+                  onClick={() => handleTagChange(tag)}
+                  className={`btn px-4 py-2 rounded border flex justify-center items-center ${
+                    selectedTags.includes(tag)
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-white text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  {tag}
                 </button>
               ))}
             </div>

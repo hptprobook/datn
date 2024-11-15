@@ -1,12 +1,13 @@
 // import PropTypes from 'prop-types';
 import { Icon } from '@iconify/react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FaTimes } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   checkAbleCoupon,
   createOrderAPI,
+  getAllWarehouses,
   getCouponsForOrder,
   getShippingFee,
   getVnpayUrlAPI,
@@ -18,6 +19,8 @@ import { formatCurrencyVND } from '~/utils/formatters';
 import { v4 as uuidv4 } from 'uuid';
 import { useUser } from '~/context/UserContext';
 import PropTypes from 'prop-types';
+import { handleToast } from '~/customHooks/useToast';
+import { getCoordinatesFromAddress } from '~/APIs/address';
 
 const paymentMethods = [
   { label: 'Thanh toán khi nhận hàng', value: 'Tiền mặt' },
@@ -39,7 +42,8 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
   const [isVoucherClosing, setIsVoucherClosing] = useState(false);
 
   const [couponCode, setCouponCode] = useState('');
-
+  const nearestWarehouse = useRef(null);
+  const DEFAULT_FROM_DISTRICT_ID = 1552;
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -91,12 +95,76 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
     queryFn: getCouponsForOrder,
   });
 
-  // Lấy phí ship dựa trên Địa chỉ giao hàng
+  function calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371; // Bán kính trái đất tính theo km
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c; // Kết quả tính theo km
+  }
+
+  // query lấy tất cả kho
+  useEffect(() => {
+    const fetchWarehouses = async () => {
+      const warehouses = await getAllWarehouses();
+
+      if (warehouses && userAddress?.fullAddress) {
+        try {
+          // Lấy tọa độ từ địa chỉ người dùng
+          const userCoordinates = await getCoordinatesFromAddress(
+            userAddress.fullAddress
+          );
+
+          const [userLongitude, userLatitude] = userCoordinates;
+
+          let minDistance = Infinity;
+          warehouses.forEach((warehouse) => {
+            const distance = calculateDistance(
+              userLatitude,
+              userLongitude,
+              warehouse.latitude,
+              warehouse.longitude
+            );
+
+            if (distance < minDistance) {
+              minDistance = distance;
+              nearestWarehouse.current = warehouse;
+            }
+          });
+
+          fetchShippingFee();
+        } catch (error) {
+          nearestWarehouse.current = {
+            district_id: DEFAULT_FROM_DISTRICT_ID,
+          };
+          fetchShippingFee();
+          handleToast(
+            'warning',
+            'Không thể xác định tọa độ từ địa chỉ của bạn. Sử dụng kho mặc định để tính phí vận chuyển.'
+          );
+        }
+      }
+    };
+
+    fetchWarehouses();
+  }, [userAddress]);
+
+  // Lấy kho gần nhất từ vị trí của user
+  // console.log(warehouses);
+
+  // Lấy vị trí hiện tại của người dùng
+
   const fetchShippingFee = async () => {
-    if (userAddress) {
+    if (userAddress && nearestWarehouse.current) {
       let data = {
         service_type_id: 2,
-        from_district_id: 1552,
+        from_district_id: +nearestWarehouse.current.district_id,
         to_district_id: userAddress.district_id,
         to_ward_code: userAddress.ward_id,
         weight: totalWeight || 1,
@@ -128,7 +196,7 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
 
   useEffect(() => {
     fetchShippingFee();
-  }, [userAddress]);
+  }, [userAddress, nearestWarehouse]);
 
   // mutate xoá sản phẩm khỏi giỏ hàng sau khi đặt thành công
   const { mutate: removeCart, isLoading: isRemovingCart } = useMutation({
@@ -400,7 +468,7 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
               className="absolute inset-0 bg-black opacity-50"
               onClick={handleVoucherClose}
             ></div>
-            <div className="bg-white p-6 rounded-lg relative z-10 min-w-[700px] max-w-[800px] max-h-[80vh] overflow-y-auto hide-scrollbar">
+            <div className="bg-white p-6 rounded-lg relative z-10  min-w-[80%] md:min-w-[700px] max-w-[800px] max-h-[80vh] overflow-y-auto hide-scrollbar">
               <button
                 className="absolute top-4 right-4 text-gray-500 hover:text-black"
                 onClick={handleVoucherClose}
@@ -409,17 +477,17 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
               </button>
 
               <h2 className="font-bold text-black mb-4">Nhập mã giảm giá</h2>
-              <div className="w-full">
+              <div className="w-full flex md:block">
                 <input
                   type="text"
-                  className="w-[80%] border border-gray-300 h-[40px] px-4 bg-white text-gray-600 rounded-s-md"
+                  className="w-[60%] md:w-[80%] border border-gray-300 h-[40px] px-4 bg-white text-gray-600 rounded-s-md"
                   placeholder="Nhập mã giảm giá"
                   value={couponCode}
                   onChange={(e) => setCouponCode(e.target.value)}
                 />
                 <button
                   onClick={handleApplyCoupon}
-                  className="w-[20%] bg-red-500 text-white px-4 h-[40px] rounded-e-md"
+                  className="w-[40%] md:w-[20%] bg-red-500 text-white px-4 h-[40px] rounded-e-md"
                 >
                   Áp dụng
                 </button>
@@ -443,7 +511,7 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
                         .map((coupon) => (
                           <li
                             key={coupon._id}
-                            className={`flex items-center justify-between rounded-md cursor-pointer px-8 py-2 border ${
+                            className={`flex relative md:static items-center justify-between rounded-md cursor-pointer px-8 py-2 border ${
                               (type === 'order' &&
                                 (selectedDiscount.orderPercent?._id ===
                                   coupon._id ||
@@ -461,18 +529,18 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
                             >
                               <div>
                                 <Icon
-                                  className="text-5xl text-red-600"
+                                  className="text-2xl md:text-5xl text-red-600"
                                   icon="icon-park-outline:ticket"
                                 />
                               </div>
                               <div>
-                                <p className="text-md font-semibold">
+                                <p className="text-sm md:text-xl font-semibold">
                                   {coupon?.name}
                                 </p>
-                                <p className="text-md">
+                                <p className="text-xs md:text-[16px]">
                                   Mã giảm giá: <strong>{coupon?.code}</strong>
                                 </p>
-                                <p className="text-gray-600 text-sm mt-2">
+                                <p className="text-gray-600 text-xs md:text-[14px] mt-2">
                                   {coupon?.description}
                                 </p>
                               </div>
@@ -511,7 +579,7 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
               <div className="sticky bottom-0 right-8 flex justify-end gap-3">
                 <button
                   type="submit"
-                  className="btn bg-red-600 rounded-md mt-4"
+                  className="btn bg-red-600 rounded-md mt-4 text-white"
                   onClick={handleVoucherClose}
                 >
                   Xác nhận
@@ -598,7 +666,7 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
             className="absolute inset-0 bg-black opacity-50"
             onClick={handlePaymentClose}
           ></div>
-          <div className="bg-white p-6 rounded-lg relative z-10 min-w-[520px] max-w-[800px] max-h-[90vh] overflow-y-auto hide-scrollbar">
+          <div className="bg-white p-6 rounded-lg relative z-10 min-w-[80%] md:min-w-[520px] max-w-[800px] max-h-[90vh] overflow-y-auto hide-scrollbar">
             <button
               className="absolute top-4 right-4 text-gray-500 hover:text-black"
               onClick={handlePaymentClose}

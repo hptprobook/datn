@@ -26,13 +26,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import { create, setStatus } from 'src/redux/slices/couponSlice';
 import { useMemo, useState, useEffect } from 'react';
 import { handleToast } from 'src/hooks/toast';
-import { createCode, couponSchema } from '../utils';
-import ProductAcceptSelect from '../product-select';
+import { ProductList } from 'src/sections/receiptsWarehouse/product-list';
+import { couponSchema } from '../utils';
+import ProductSelectedList from '../product-select-list';
 // ----------------------------------------------------------------------
 const now = dayjs();
 export default function CreateCouponPage() {
   const [error, setError] = useState(null);
   const [errorEnd, setErrorEnd] = useState(null);
+  const [products, setProducts] = useState([]);
 
   const status = useSelector((state) => state.coupons.statusCreate);
   const err = useSelector((state) => state.coupons.error);
@@ -68,11 +70,11 @@ export default function CreateCouponPage() {
     }
   }, [errorEnd]);
   const dispatch = useDispatch();
-  const products_applied = useSelector((state) => state.products.products);
 
   useEffect(() => {
     if (status === 'successful') {
       dispatch(setStatus({ key: 'statusCreate', value: 'idle' }));
+      formik.resetForm();
       handleToast('success', 'Tạo mã giảm giá thành công!');
     }
     if (status === 'failed') {
@@ -119,16 +121,21 @@ export default function CreateCouponPage() {
       data.usageLimit = Number(values.usageLimit);
       data.dateStart = dayjs(values.dateStart).valueOf();
       data.dateEnd = dayjs(values.dateEnd).valueOf();
+      data.applicableProducts = products.map((product) => product._id);
       dispatch(create(data));
     },
   });
-  useEffect(() => {
-    const name = formik.values.name?.trim();
-    if (name) {
-      const code = createCode(name);
-      formik.setFieldValue('code', code);
+
+  const handleAddProduct = (product) => {
+    if (products.find((item) => item._id === product._id)) {
+      return;
     }
-  }, [formik.values.name]);
+    setProducts([...products, product]);
+  };
+  const handleDelete = (id) => {
+    const newProducts = products.filter((product) => product._id !== id);
+    setProducts(newProducts);
+  };
 
   return (
     <Container>
@@ -350,12 +357,8 @@ export default function CreateCouponPage() {
               <Grid2 xs={12}>
                 <Typography variant="h5">Sản phẩm áp dụng</Typography>
               </Grid2>
-              <Grid2 xs={12}>
-              <ProductAcceptSelect
-            value={formik.values.applicableProducts.map((_id) => products_applied.find((product) => product._id === _id))}
-            onChange={(event, newValue) => formik.setFieldValue('applicableProducts', newValue.map((product) => product._id))}
-          />
-              </Grid2>
+              <ProductList onAddProduct={handleAddProduct} />
+              <ProductSelectedList products={products} onDelete={handleDelete} />
             </Card>
           </Grid2>
         </Grid2>
