@@ -149,7 +149,7 @@ const OrderDetail = () => {
             currentStatus !== 'delivered' && (
               <button
                 onClick={handleCancelOrder}
-                className="btn bg-red-500 rounded-md hover:bg-red-600 hover:shadow-md text-white w-full sm:min-w-48"
+                className="btn bg-red-500 rounded-md hover:bg-red-600 hover:shadow-md text-white w-full sm:w-48"
               >
                 Huỷ đơn
               </button>
@@ -158,13 +158,13 @@ const OrderDetail = () => {
             <>
               <button
                 onClick={handleReOrder}
-                className="btn bg-red-500 rounded-md hover:bg-red-600 hover:shadow-md text-white w-full sm:min-w-48"
+                className="btn bg-red-500 rounded-md hover:bg-red-600 hover:shadow-md text-white w-full sm:w-48"
               >
                 Mua lại
               </button>
               <button
                 onClick={() => setShowReviewModal(true)}
-                className="btn bg-red-500 rounded-md hover:bg-red-600 hover:shadow-md text-white w-full sm:min-w-48"
+                className="btn bg-red-500 rounded-md hover:bg-red-600 hover:shadow-md text-white w-full md:w-48"
                 disabled={data?.isComment}
               >
                 {data?.isComment ? 'Đã đánh giá' : 'Đánh giá'}

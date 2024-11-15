@@ -123,33 +123,55 @@ const CategoryPage = () => {
   const updateSearchParams = (newFilters) => {
     const params = new URLSearchParams(searchParams);
 
-    if (newFilters.colors.length > 0)
-      params.set('colors', newFilters.colors.join(','));
-    else params.delete('colors');
+    if (newFilters.colors.join(',') !== params.get('colors')) {
+      if (newFilters.colors.length > 0)
+        params.set('colors', newFilters.colors.join(','));
+      else params.delete('colors');
+    }
 
-    if (newFilters.sizes.length > 0)
-      params.set('sizes', newFilters.sizes.join(','));
-    else params.delete('sizes');
+    if (newFilters.sizes.join(',') !== params.get('sizes')) {
+      if (newFilters.sizes.length > 0)
+        params.set('sizes', newFilters.sizes.join(','));
+      else params.delete('sizes');
+    }
 
-    if (newFilters.tags.length > 0)
-      params.set('tags', newFilters.tags.join(','));
-    else params.delete('tags');
+    if (newFilters.tags.join(',') !== params.get('tags')) {
+      if (newFilters.tags.length > 0)
+        params.set('tags', newFilters.tags.join(','));
+      else params.delete('tags');
+    }
 
-    if (newFilters.type) params.set('type', newFilters.type);
-    else params.delete('type');
+    if (newFilters.type !== params.get('type')) {
+      if (newFilters.type) params.set('type', newFilters.type);
+      else params.delete('type');
+    }
 
-    if (newFilters.priceRange.min !== null)
+    if (
+      newFilters.priceRange.min !== null &&
+      newFilters.priceRange.min !== Number(params.get('minPrice'))
+    ) {
       params.set('minPrice', newFilters.priceRange.min);
-    else params.delete('minPrice');
+    } else if (newFilters.priceRange.min === null) {
+      params.delete('minPrice');
+    }
 
-    if (newFilters.priceRange.max !== null)
+    if (
+      newFilters.priceRange.max !== null &&
+      newFilters.priceRange.max !== Number(params.get('maxPrice'))
+    ) {
       params.set('maxPrice', newFilters.priceRange.max);
-    else params.delete('maxPrice');
+    } else if (newFilters.priceRange.max === null) {
+      params.delete('maxPrice');
+    }
 
-    if (sortOption) params.set('sort', sortOption);
-    else params.delete('sort');
+    if (sortOption !== params.get('sort')) {
+      if (sortOption) params.set('sort', sortOption);
+      else params.delete('sort');
+    }
 
-    setSearchParams(params);
+    if (params.toString() !== searchParams.toString()) {
+      setSearchParams(params);
+    }
   };
 
   const handleFilterChange = useCallback(

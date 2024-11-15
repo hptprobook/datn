@@ -2,7 +2,6 @@
 import request from '~/config/axiosConfig';
 
 export const createOrderAPI = async (data) => {
-  console.log(data);
   try {
     const response = await request.post('/orders', data);
     return response.data;
