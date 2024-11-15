@@ -20,6 +20,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { useUser } from '~/context/UserContext';
 import PropTypes from 'prop-types';
 import { handleToast } from '~/customHooks/useToast';
+import { getCoordinatesFromAddress } from '~/APIs/address';
 
 const paymentMethods = [
   { label: 'Thanh toán khi nhận hàng', value: 'Tiền mặt' },
@@ -113,44 +114,46 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
     const fetchWarehouses = async () => {
       const warehouses = await getAllWarehouses();
 
-      if (warehouses && navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const { latitude, longitude } = position.coords;
+      if (warehouses && userAddress?.fullAddress) {
+        try {
+          // Lấy tọa độ từ địa chỉ người dùng
+          const userCoordinates = await getCoordinatesFromAddress(
+            userAddress.fullAddress
+          );
 
-            let minDistance = Infinity;
-            warehouses.forEach((warehouse) => {
-              const distance = calculateDistance(
-                latitude,
-                longitude,
-                warehouse.latitude,
-                warehouse.longitude
-              );
+          const [userLongitude, userLatitude] = userCoordinates;
 
-              if (distance < minDistance) {
-                minDistance = distance;
-                nearestWarehouse.current = warehouse;
-              }
-            });
-
-            fetchShippingFee();
-          },
-          () => {
-            nearestWarehouse.current = {
-              district_id: DEFAULT_FROM_DISTRICT_ID,
-            };
-            fetchShippingFee();
-            handleToast(
-              'warning',
-              'Không thể truy cập vị trí của bạn. Sử dụng kho mặc định để tính phí vận chuyển hoặc cho phép chúng tôi truy cập địa chỉ để tiết kiệm tối đa phí vận chuyển.'
+          let minDistance = Infinity;
+          warehouses.forEach((warehouse) => {
+            const distance = calculateDistance(
+              userLatitude,
+              userLongitude,
+              warehouse.latitude,
+              warehouse.longitude
             );
-          }
-        );
+
+            if (distance < minDistance) {
+              minDistance = distance;
+              nearestWarehouse.current = warehouse;
+            }
+          });
+
+          fetchShippingFee();
+        } catch (error) {
+          nearestWarehouse.current = {
+            district_id: DEFAULT_FROM_DISTRICT_ID,
+          };
+          fetchShippingFee();
+          handleToast(
+            'warning',
+            'Không thể xác định tọa độ từ địa chỉ của bạn. Sử dụng kho mặc định để tính phí vận chuyển.'
+          );
+        }
       }
     };
 
     fetchWarehouses();
-  }, []);
+  }, [userAddress]);
 
   // Lấy kho gần nhất từ vị trí của user
   // console.log(warehouses);
