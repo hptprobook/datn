@@ -12,11 +12,41 @@ import swaggerUi from 'swagger-ui-express';
 import swaggerFile from '../swagger_output.json';
 import path from 'path';
 import http from 'http';
-// const { app, server } = require('./socket/socket');
+import { Server } from 'socket.io';
 
 const START_SERVER = () => {
   const app = express();
   const server = http.createServer(app);
+  // Socket config
+  const io = new Server(server, {
+    cors: {
+      origin: '*',
+      methods: ['GET', 'POST', 'PUT', 'DELETE'],
+      allowedHeaders: ['Content-Type'],
+      credentials: true,
+    },
+  });
+
+  io.on('connection', (socket) => {
+    console.log(`A user connected: ${socket.id}`);
+
+    // Tham gia Room dựa trên userId
+    socket.on('online', (userId) => {
+      if (userId) {
+        socket.join(userId);
+      }
+    });
+
+    // Lắng nghe tin nhắn từ client
+    socket.on('sendMessage', (data) => {
+      io.to(data.room).emit('receiveMessage', data.message);
+    });
+
+    socket.on('disconnect', () => {
+      console.log(`A user disconnected: ${socket.id}`);
+    });
+  });
+
   app.use(cookieParser());
   app.use(
     cors({
@@ -32,6 +62,11 @@ const START_SERVER = () => {
   );
   app.use(express.json());
   app.use(errorHandlingMiddleware);
+
+  app.use((req, res, next) => {
+    req.io = io;
+    next();
+  });
 
   // Serve static files from the 'src/public/imgs' directory
   app.use('/uploads', express.static(path.join(__dirname, '../uploads')));

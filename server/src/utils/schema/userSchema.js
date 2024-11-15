@@ -117,6 +117,8 @@ export const SEND_NOTIFIES = Joi.object({
   title: Joi.string().trim().min(1),
   description: Joi.string().trim().min(1),
   type: Joi.string().trim().min(1),
+  orderId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
+  orderCode: Joi.string().trim().min(1),
   isReaded: Joi.boolean().default(false),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(Date.now),
