@@ -11,6 +11,7 @@ export const ProtectedRoute = ({ children }) => {
   const statusMe = useSelector((state) => state.auth.statusMe);
   const dispatch = useDispatch();
   const auth = useSelector((state) => state.auth.auth);
+  const { pathname } = window.location;
   useEffect(() => {
     if (auth === null && statusMe === 'idle') {
       dispatch(getMe()).then((result) => {
@@ -23,6 +24,9 @@ export const ProtectedRoute = ({ children }) => {
   if (!token) {
     // user is not authenticated
     return <Navigate to="/login" />;
+  }
+  if (pathname.includes('admin') && auth.role === 'staff') {
+    return <Navigate to="/" />;
   }
   if (auth === null && statusMe === 'successful') {
     return <Navigate to="/login" />;

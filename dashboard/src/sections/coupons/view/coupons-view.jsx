@@ -26,12 +26,11 @@ import {
 } from 'src/redux/slices/couponSlice';
 import { useRouter } from 'src/routes/hooks';
 import { formatCurrency } from 'src/utils/format-number';
-import TableEmptyRows from 'src/components/table/table-empty-rows';
 import TableNoData from 'src/components/table/table-no-data';
 import CouponTableRow from '../coupon-table-row';
 
 import CouponTableToolbar from '../coupon-table-toolbar';
-import { emptyRows, applyFilter, getComparator } from '../utils';
+import { applyFilter, getComparator } from '../utils';
 import CouponTableHead from '../coupon-table-head';
 
 // ----------------------------------------------------------------------
@@ -57,14 +56,21 @@ export default function CouponsPage() {
   const data = useSelector((state) => state.coupons.coupons);
   const status = useSelector((state) => state.coupons.status);
   const statusDelete = useSelector((state) => state.coupons.statusDelete);
-
+  const getCoupons = (p = 1, limit = 2) =>
+    dispatch(
+      fetchAll({
+        page: p,
+        limit,
+      })
+    );
   useEffect(() => {
-    dispatch(fetchAll());
+    getCoupons(1, rowsPerPage);
+    // eslint-disable-next-line
   }, [dispatch]);
 
   useEffect(() => {
     if (status === 'successful') {
-      setCoupons(data);
+      setCoupons(data.data);
     }
   }, [status, dispatch, data]);
 
@@ -113,11 +119,13 @@ export default function CouponsPage() {
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
+    getCoupons(newPage + 1, rowsPerPage);
   };
 
   const handleChangeRowsPerPage = (event) => {
     setPage(0);
     setRowsPerPage(parseInt(event.target.value, 10));
+    getCoupons(1, event.target.value);
   };
 
   const handleFilterByName = (event) => {
@@ -170,7 +178,7 @@ export default function CouponsPage() {
             aria-label="load"
             variant="contained"
             color="inherit"
-            onClick={() => dispatch(fetchAll())}
+            onClick={() => getCoupons(1, rowsPerPage)}
           >
             <Iconify icon="mdi:reload" />
           </IconButton>
@@ -220,7 +228,6 @@ export default function CouponsPage() {
               />
               <TableBody>
                 {dataFiltered
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
                     <CouponTableRow
                       id={row._id}
@@ -242,14 +249,7 @@ export default function CouponsPage() {
                       handleNavigate={() => handleNavigate(row._id)}
                     />
                   ))}
-
-                <TableEmptyRows
-                  height={77}
-                  emptyRows={emptyRows(page, rowsPerPage, coupons.length)}
-                  col={12}
-                />
-
-                {notFound && <TableNoData query={filterName} col={12}/>}
+                {notFound && <TableNoData query={filterName} col={12} />}
               </TableBody>
             </Table>
           </TableContainer>
@@ -258,7 +258,7 @@ export default function CouponsPage() {
         <TablePagination
           page={page}
           component="div"
-          count={coupons.length}
+          count={data.count}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}
           rowsPerPageOptions={[5, 10, 25]}
