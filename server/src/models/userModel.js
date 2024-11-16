@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb';
 import {
   SAVE_USER_SCHEMA,
   UPDATE_USER,
-  INFOR_USER,
+  INFO_USER,
   SEND_NOTIFIES,
 } from '~/utils/schema/userSchema';
 
@@ -24,7 +24,7 @@ const generateDescription = (title, orderCode, status) => {
 };
 
 const validateBeforeUpdateInfor = async (data) => {
-  return await INFOR_USER.validateAsync(data, { abortEarly: false });
+  return await INFO_USER.validateAsync(data, { abortEarly: false });
 };
 
 const validateBeforeSendNotifies = async (data) => {
@@ -41,16 +41,33 @@ const countUserAll = async () => {
   return totail;
 };
 
-const getUserAll = async (page, limit, user_id) => {
-  page = parseInt(page) || 1;
-  limit = parseInt(limit) || 2;
+const getUserAll = async ({
+  userId,
+  page,
+  limit,
+  start
+}) => {
+  page = Number(page) || 1;
+  limit = parseInt(limit);
   const db = await GET_DB().collection('users');
+  const skip = parseInt(start) ? parseInt(start) : (page - 1) * limit;
+  const count = await db.countDocuments();
   const result = await db
-    .find({ _id: { $ne: new ObjectId(user_id) } })
-    .skip((page - 1) * limit)
+    .find({ _id: { $ne: new ObjectId(userId) } })
+    .project({
+      password: 0,
+      carts: 0,
+      notifies: 0,
+      favorites: 0,
+      addresses: 0,
+    })
+    .skip(skip)
     .limit(limit)
     .toArray();
-  return result;
+  return {
+    count,
+    result,
+  };
 };
 
 const register = async (dataUser) => {
@@ -395,20 +412,41 @@ const readNotify = async (id, data) => {
   return result;
 };
 
-const findUsers = async (data, page = 1, limit = 10) => {
+const findUsers = async ({
+  search,
+  page = 1,
+  limit = 10,
+}) => {
   const db = await GET_DB().collection('users');
-  const users = await db
+  const count = await db.countDocuments({
+    $or: [
+      { email: { $regex: search, $options: 'i' } },
+      { phone: { $regex: search, $options: 'i' } },
+      { name: { $regex: search, $options: 'i' } },
+    ],
+  });
+  const result = await db
     .find({
       $or: [
-        { email: { $regex: data, $options: 'i' } },
-        { phone: { $regex: data, $options: 'i' } },
-        { name: { $regex: data, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+        { phone: { $regex: search, $options: 'i' } },
+        { name: { $regex: search, $options: 'i' } },
       ],
     })
+    .project({
+      password: 0,
+      carts: 0,
+      notifies: 0,
+      favorites: 0,
+      addresses: 0,
+    })
     .skip((page - 1) * limit)
-    .limit(limit)
+    .limit(Number(limit))
     .toArray();
-  return users;
+  return {
+    count,
+    result,
+  };
 };
 
 export const userModel = {

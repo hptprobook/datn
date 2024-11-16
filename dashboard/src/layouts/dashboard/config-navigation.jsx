@@ -19,11 +19,23 @@ const navConfig = [
     child: undefined,
   },
   {
-    title: 'Nhóm khách hàng',
-    path: '/customerGroups',
-    icon: 'ion:people',
-    child: undefined,
+    title: 'Khách hàng',
+    path: '/users',
+    icon: 'ion:person',
+    child: [
+      {
+        title: 'Danh sách khách hàng',
+        path: '/users',
+        icon: 'ion:person',
+      },
+      {
+        title: 'Nhóm khách hàng',
+        path: '/customerGroups',
+        icon: 'ion:people',
+      },
+    ],
   },
+
   {
     title: 'Banner',
     path: '/webBanners',

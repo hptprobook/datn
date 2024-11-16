@@ -22,7 +22,6 @@ export default function UserTableRow({
   onDelete,
   id,
   email,
-  role,
   isVerified,
   status,
   handleClick,
@@ -60,7 +59,6 @@ export default function UserTableRow({
 
         <TableCell>{email}</TableCell>
 
-        <TableCell>{role.toUpperCase()}</TableCell>
 
         <TableCell align="center">{isVerified ? 'Có' : 'Không'}</TableCell>
 
@@ -107,7 +105,6 @@ UserTableRow.propTypes = {
   handleClick: PropTypes.func,
   isVerified: PropTypes.any,
   name: PropTypes.any,
-  role: PropTypes.any,
   selected: PropTypes.any,
   status: PropTypes.string,
   onDelete: PropTypes.func,
