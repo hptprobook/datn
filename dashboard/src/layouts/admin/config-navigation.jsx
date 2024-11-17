@@ -12,12 +12,6 @@ const navConfig = [
     child: undefined,
   },
   {
-    title: 'Khách hàng',
-    path: '/admin/users',
-    icon: 'ion:person',
-    child: undefined,
-  },
-  {
     title: 'Đơn hàng',
     path: '/admin/orders',
     icon: 'ion:cart',

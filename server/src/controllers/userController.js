@@ -56,24 +56,6 @@ const createUser = async (req, res) => {
   }
 };
 
-const getCurrentAdmin = async (req, res) => {
-  try {
-    const { user_id } = req.user;
-    const user = await userModel.getUserID(user_id);
-    delete user.password;
-    if (user) {
-      return res.status(StatusCodes.OK).json(user);
-    }
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Không tồn tại người dùng' });
-  } catch (error) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: ERROR_MESSAGES.ERR_AGAIN,
-      error: error,
-    });
-  }
-};
 
 const getUserById = async (req, res) => {
   try {
@@ -299,23 +281,29 @@ const removeCartToCurrent = async (req, res) => {
 
 const getAllUsers = async (req, res) => {
   try {
-    let { pages, limit, search } = req.query;
+    let { page, limit, search, start } = req.query;
     const { user_id } = req.user;
     if (search) {
       search = search.trim();
-      const u = await userModel.findUsers(search);
+      const u = await userModel.findUsers({
+        search,
+        page,
+        limit,
+      });
       return res.status(StatusCodes.OK).json(u);
     }
-    const users = await userModel.getUserAll(pages, limit, user_id);
-    const countUsers = await userModel.countUserAll();
-    return res.status(StatusCodes.OK).json({
-      users,
-      countUsers,
+    const users = await userModel.getUserAll({
+      page,
+      limit,
+      start,
+      userId: user_id,
     });
+    return res.status(StatusCodes.OK).json(users);
   } catch (error) {
+    console.log(error);
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       message: 'Có lỗi xảy ra xin thử lại sau',
-      error: error,
+      error
     });
   }
 };
@@ -556,7 +544,6 @@ const readAllNotifies = async (req, res) => {
 export const usersController = {
   getUserById,
   getCurrentUser,
-  getCurrentAdmin,
   getUserByEmail,
   updateCurrentUser,
   updateUser,

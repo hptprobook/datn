@@ -7,7 +7,8 @@ import { couponHistoryModel } from '~/models/couponHistoryModel';
 // import { ERROR_MESSAGES } from '~/utils/errorMessage';
 const getCoupons = async (req, res) => {
   try {
-    const coupons = await couponModel.getCoupons();
+    const { limit, page } = req.query;
+    const coupons = await couponModel.getCoupons({ page, limit });
     return res.status(StatusCodes.OK).json(coupons);
   } catch (error) {
     return res

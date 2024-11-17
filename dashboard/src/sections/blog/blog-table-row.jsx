@@ -12,6 +12,7 @@ import IconButton from '@mui/material/IconButton';
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import { Box } from '@mui/material';
+import { renderUrl } from 'src/utils/check';
 
 const backendUrl = import.meta.env.VITE_BACKEND_APP_URL;
 
@@ -26,7 +27,7 @@ export default function BlogTableRow({
   onDelete,
   status,
   handleClick,
-  handleNavigate
+  handleNavigate,
 }) {
   const [open, setOpen] = useState(null);
 
@@ -65,8 +66,15 @@ export default function BlogTableRow({
 
         <TableCell component="th" scope="row" padding="none">
           <Stack direction="row" alignItems="center" spacing={2}>
-            <Avatar alt={title} src={`${backendUrl}${thumbnail}`} />
-            <Box sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <Avatar alt={title} src={renderUrl(thumbnail, backendUrl)} />
+            <Box
+              sx={{
+                maxWidth: 200,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
               <Typography variant="subtitle2" noWrap>
                 {title}
               </Typography>
@@ -75,7 +83,14 @@ export default function BlogTableRow({
         </TableCell>
 
         <TableCell>
-          <Box sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <Box
+            sx={{
+              maxWidth: 200,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >
             <Typography variant="subtitle2" noWrap>
               {slug}
             </Typography>
@@ -143,5 +158,5 @@ BlogTableRow.propTypes = {
   authName: PropTypes.any,
   selected: PropTypes.any,
   status: PropTypes.string,
-  onDelete: PropTypes.func
+  onDelete: PropTypes.func,
 };

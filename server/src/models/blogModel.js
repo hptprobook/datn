@@ -13,13 +13,17 @@ const getAllBlogs = async (page, limit) => {
   page = parseInt(page) || 1;
   limit = parseInt(limit) || 12;
   const db = await GET_DB().collection('blogs');
+  const count = await db.countDocuments();
   const result = await db
     .find()
     .skip((page - 1) * limit)
     .limit(limit)
     // .project({ _id: 0, age:1 })
     .toArray();
-  return result;
+  return {
+    data: result,
+    count
+  };
 };
 
 const getTopViewBlogs = async () => {

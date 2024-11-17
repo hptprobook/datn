@@ -21,7 +21,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useState, useEffect } from 'react';
 import { handleToast } from 'src/hooks/toast';
 import LoadingFull from 'src/components/loading/loading-full';
-import { setStatus, update, fetchById } from 'src/redux/slices/warehouseSlices';
+import { update, setStatus, fetchById } from 'src/redux/slices/warehouseSlices';
 import CountrySelect from 'src/sections/timetables/select-address';
 import { useParams } from 'react-router-dom';
 import { useRouter } from 'src/routes/hooks';

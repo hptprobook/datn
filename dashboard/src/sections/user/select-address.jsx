@@ -62,7 +62,3 @@ CountrySelect.propTypes = {
   key: PropTypes.string,
   onSelect: PropTypes.func.isRequired, // Ensure onSelect is required
 };
-
-CountrySelect.defaultProps = {
-  label: 'Lựa chọn',
-};

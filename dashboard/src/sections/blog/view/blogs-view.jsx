@@ -12,7 +12,12 @@ import TablePagination from '@mui/material/TablePagination';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
-import { setStatus, fetchAllBlogs ,fetchBlogById , deleteBlogtById  } from 'src/redux/slices/blogSlice';
+import {
+  setStatus,
+  fetchAllBlogs,
+  fetchBlogById,
+  deleteBlogtById,
+} from 'src/redux/slices/blogSlice';
 import { handleToast } from 'src/hooks/toast';
 
 import Iconify from 'src/components/iconify';
@@ -49,10 +54,21 @@ export default function BlogView() {
   const [open, setOpen] = React.useState(false);
   const blog = useSelector((state) => state.blogs.blog);
 
+  const getBlogs = ({ p = 0, limit = rowsPerPage }) => {
+    dispatch(
+      fetchAllBlogs({
+        page: p,
+        limit,
+      })
+    );
+  };
   useEffect(() => {
-    dispatch(fetchAllBlogs());
-  }, [dispatch]);
-
+    getBlogs({
+      p: page,
+      limit: rowsPerPage,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const toggleDrawer = (value) => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
       return;
@@ -67,7 +83,6 @@ export default function BlogView() {
   useEffect(() => {
     if (statusDelete === 'successful') {
       handleToast('success', 'Xóa bài viết thành công!');
-      dispatch(fetchAllBlogs());
     }
     if (statusDelete === 'failed') {
       handleToast('error', error?.message || 'Có lỗi xảy ra vui lòng thử lại!');
@@ -79,7 +94,7 @@ export default function BlogView() {
     if (status === 'failed') {
       handleToast('error', 'Có lỗi xảy ra vui lòng thử lại!');
     } else if (status === 'successful') {
-      setBlogsList(blogs);
+      setBlogsList(blogs.data);
     }
   }, [blogs, status]);
 
@@ -93,7 +108,7 @@ export default function BlogView() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = blogsList.map((n) => n.title);
+      const newSelecteds = blogsList.map((n) => n._id);
       setSelected(newSelecteds);
       return;
     }
@@ -120,11 +135,19 @@ export default function BlogView() {
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
+    getBlogs({
+      p: newPage,
+      limit: rowsPerPage,
+    });
   };
 
   const handleChangeRowsPerPage = (event) => {
     setPage(0);
     setRowsPerPage(parseInt(event.target.value, 10));
+    getBlogs({
+      p: 0,
+      limit: parseInt(event.target.value, 10),
+    });
   };
 
   const handleFilterByName = (event) => {
@@ -141,12 +164,10 @@ export default function BlogView() {
   const notFound = !dataFiltered.length && !!filterName;
   const navigate = useNavigate();
 
-
   const handleDelete = (id) => {
     setConfirm(id);
   };
   const dispatchDelete = () => {
-    console.log(confirm);
     dispatch(deleteBlogtById(confirm));
   };
   const handleMultiDelete = () => {
@@ -173,29 +194,26 @@ export default function BlogView() {
         label="Những bài viết đã chọn"
       />
       <Drawer anchor="right" open={open} onClose={toggleDrawer()}>
-      <BlogCard
-          status={status}
-          blog={blog}
-          author={blog?.authName}
-        />
-
+        <BlogCard status={status} blog={blog} author={blog?.authName} />
       </Drawer>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-      <Stack direction="row" alignItems="center">
-      <Typography variant="h4">Bài viết</Typography>
-        <IconButton
+        <Stack direction="row" alignItems="center">
+          <Typography variant="h4">Bài viết</Typography>
+          <IconButton
             aria-label="load"
             variant="contained"
             color="inherit"
-            onClick={() => dispatch(fetchAllBlogs())}
+            onClick={() => getBlogs()}
           >
             <Iconify icon="mdi:reload" />
           </IconButton>
         </Stack>
-      
 
-        <Button onClick={handleNewBlogClick} variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />}
-        
+        <Button
+          onClick={handleNewBlogClick}
+          variant="contained"
+          color="inherit"
+          startIcon={<Iconify icon="eva:plus-fill" />}
         >
           Tạo bài viết
         </Button>
@@ -207,7 +225,6 @@ export default function BlogView() {
           filterName={filterName}
           onFilterName={handleFilterByName}
           onMultiDelete={() => setConfirmMulti(true)}
-
         />
 
         <Scrollbar>
@@ -229,29 +246,24 @@ export default function BlogView() {
                 ]}
               />
               <TableBody>
-                {dataFiltered
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((row) => (
-                    <BlogTableRow
-                      onClick={toggleDrawer(row._id)}
-                      id={row._id}
-                      key={row._id}
-                      title={row.title}
-                      slug={row.slug}
-                      thumbnail={row.thumbnail}
-                      status={row.status}
-                      authName={row.authName}
-                      selected={selected.indexOf(row._id) !== -1}
-                      handleClick={(event) => handleClick(event, row._id)}
-                      onDelete={handleDelete}
-                      handleNavigate={() => navigate(row._id)}
-                    />
-                  ))}
+                {dataFiltered.map((row) => (
+                  <BlogTableRow
+                    onClick={toggleDrawer(row._id)}
+                    id={row._id}
+                    key={row._id}
+                    title={row.title}
+                    slug={row.slug}
+                    thumbnail={row.thumbnail}
+                    status={row.status}
+                    authName={row.authName}
+                    selected={selected.indexOf(row._id) !== -1}
+                    handleClick={(event) => handleClick(event, row._id)}
+                    onDelete={handleDelete}
+                    handleNavigate={() => navigate(row._id)}
+                  />
+                ))}
 
-                <TableEmptyRows
-                  height={77}
-                  emptyRows={emptyRows(page, rowsPerPage, blogsList.length)}
-                />
+                <TableEmptyRows height={77} emptyRows={emptyRows(page, rowsPerPage, blogs.count)} />
 
                 {notFound && <TableNoData query={filterName} />}
               </TableBody>
@@ -260,12 +272,13 @@ export default function BlogView() {
         </Scrollbar>
 
         <TablePagination
-          page={page}
-          component="div"
-          count={blogsList.length}
-          rowsPerPage={rowsPerPage}
-          onPageChange={handleChangePage}
           rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          labelRowsPerPage="Số bài viết mỗi trang"
+          count={blogs?.count}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Card>

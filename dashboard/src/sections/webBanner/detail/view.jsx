@@ -69,9 +69,6 @@ export default function DetailBlogView() {
       if (thumbnail !== null) {
         values.image = thumbnail;
       }
-     
-      console.log(values);
-
       dispatch(update({ id, data: values }));
     },
   });
@@ -172,8 +169,10 @@ export default function DetailBlogView() {
                   </Typography>
                   <TextField
                     fullWidth
-                    label="description"
+                    label="Mô tả"
                     variant="outlined"
+                    multiline
+                    rows={4}
                     name="description"
                     value={formik.values.description}
                     onChange={formik.handleChange}

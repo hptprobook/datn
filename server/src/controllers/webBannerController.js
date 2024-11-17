@@ -72,7 +72,7 @@ const updateWebBanner = async (req, res) => {
         const result = await webBannerModel.updateWebBanner(
             webBannerID,
             dataWebBanner
-        ); 
+        );
 
         if (result.error) {
             await uploadModel.deleteImg(req.file.filename);
@@ -134,10 +134,76 @@ const getWebBannerById = async (req, res) => {
             .json({ message: 'Có lỗi xảy ra xin thử lại sau', error });
     }
 };
+const createManyBanner = async (req, res) => {
+    try {
+        const webs = req.body;
+        const errors = [];
+        const successful = [];
+        for (const w of webs) {
+            try {
+                if (w._id) {
+                    const existingVariant = await webBannerModel.findWebBannerByID(
+                        w._id
+                    );
+                    if (!existingVariant) {
+                        errors.push({
+                            name: w.title,
+                            message: 'Biến thể không tồn tại',
+                        });
+                        continue;
+                    }
+                    const id = w._id;
+                    delete w._id;
+                    const u = await webBannerModel.updateWebBanner(
+                        id,
+                        w
+                    );
+                    successful.push({
+                        message: 'Cập nhật thành công khuyến mãi: ' + u.title,
+                    });
+                }
+                else {
+                    const result = await webBannerModel.create(w);
+                    successful.push({
+                        message: 'Tạo mới thành công biến thể: ' + result.title,
+                    });
+                }
+
+            } catch (error) {
+                // Lưu lại lỗi nếu có lỗi xảy ra với biến thể hiện tại
+                errors.push({
+                    name: w.title,
+                    message: error.details
+                        ? error.details[0].message
+                        : 'Có lỗi xảy ra khi thêm biến thể',
+                });
+            }
+        }
+
+        // Trả về kết quả
+        if (errors.length) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: 'Một số banner khuyến mãi không thể thêm được',
+                errors,
+                successful,
+            });
+        }
+
+        return res.status(StatusCodes.OK).json({
+            message: 'Tất cả đã được thêm thành công',
+            successful,
+        });
+    } catch (error) {
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            message: 'Có lỗi xảy ra, xin thử lại sau',
+        });
+    }
+};
 export const webBannerController = {
     createWebBanner,
     getwebBanner,
     updateWebBanner,
     deleteWebBanner,
-    getWebBannerById
+    getWebBannerById,
+    createManyBanner
 };

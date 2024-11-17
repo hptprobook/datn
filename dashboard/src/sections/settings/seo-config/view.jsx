@@ -61,20 +61,10 @@ const configSchema = Yup.object().shape({
 export default function SeoPage() {
   const [config, setConfig] = useState({});
   const dispatch = useDispatch();
-  // const [uploadedImageUrl, setUploadedImageUrl] = useState(null);
-
   const data = useSelector((state) => state.settings.web);
   const status = useSelector((state) => state.settings.statusWeb);
   const statusUpdate = useSelector((state) => state.settings.statusUpdateWeb);
   const error = useSelector((state) => state.settings.error);
-  // const handleChangeUploadImg = useCallback((files) => {
-  //   if (files) {
-  //     setUploadedImageUrl({
-  //       file: files,
-  //       name: 'logo',
-  //     });
-  //   }
-  // }, []);
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
