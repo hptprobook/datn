@@ -50,21 +50,23 @@ export default function WebBannerTableRow({
         <Stack direction="row" alignItems="center" spacing={2}>
           <Avatar alt={title} src={renderUrl(image, backendUrl)} />
           <Typography variant="subtitle2" noWrap>
-            {title}
+            {title.length > 50 ? `${title.substring(0, 50)}...` : title}
           </Typography>
         </Stack>
       </TableCell>
 
-      <TableCell>{description}</TableCell>
+      <TableCell>
+        {description.length > 50 ? `${description.substring(0, 50)}...` : description}
+      </TableCell>
 
-      <TableCell>{url}</TableCell>
+      <TableCell> {url.length > 50 ? `${url.substring(0, 30)}...` : url}</TableCell>
 
       <TableCell align="right">
         <IconButton onClick={handleNavigate}>
           <Iconify icon="eva:eye-fill" />
         </IconButton>
         <IconButton onClick={handleDelete}>
-          <Iconify icon="eva:trash-2-outline" />
+          <Iconify icon="mdi:trash" />
         </IconButton>
       </TableCell>
     </TableRow>
