@@ -157,7 +157,8 @@ export default function StorePage() {
       dispatch(setStatus({ key: 'statusUpdateWeb', value: 'idle' }));
     }
     if (statusUpdate === 'failed') {
-      handleToast('error', error);
+      console.log(error);
+      handleToast('error', error?.messages || 'Có lỗi xảy ra');
     }
   }, [statusUpdate, data, error, dispatch]);
   const handleSubmit = () => {

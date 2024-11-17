@@ -18,15 +18,13 @@ import ConfirmDelete from 'src/components/modal/confirm-delete';
 import { handleToast } from 'src/hooks/toast';
 
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  fetchAll,
-  setStatus,
-  fetchById,
-  deleteWebBanner
-} from 'src/redux/slices/webBannerSlice';
+import { fetchAll, setStatus, fetchById, deleteWebBanner } from 'src/redux/slices/webBannerSlice';
 import { useRouter } from 'src/routes/hooks';
 import TableEmptyRows from 'src/components/table/table-empty-rows';
 import TableNoData from 'src/components/table/table-no-data';
+import { IconExcel } from 'src/components/iconify/icon';
+import { handleExport } from 'src/utils/excel';
+import ImportExcelModal from 'src/components/modal/import-modal';
 import WebBannerTableRow from '../webBanner-table-row';
 
 import WebBannerTableToolbar from '../webBanner-table-toolbar';
@@ -49,7 +47,6 @@ export default function WebBannersPage() {
   const route = useRouter();
 
   const [open, setOpen] = React.useState(false);
-
 
   const data = useSelector((state) => state.webBanners.webBanners);
   const status = useSelector((state) => state.webBanners.status);
@@ -178,15 +175,21 @@ export default function WebBannersPage() {
         label="những Banner quảng cáo đã chọn"
       />
       <Drawer anchor="right" open={open} onClose={toggleDrawer()}>
-        <WebBannerCard
-          webBanner={webBanner}
-          status={status}
-        />
+        <WebBannerCard webBanner={webBanner} status={status} />
       </Drawer>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
           <Typography variant="h4">Banner quảng cáo </Typography>
-
+          <Button
+            variant="contained"
+            onClick={() => handleExport(webBanners, 'Danh sách banner', 'webBanners')}
+            color="inherit"
+            startIcon={<IconExcel />}
+          >
+            Xuất Excel
+          </Button>
+          <ImportExcelModal
+              validateKey={['title', 'url', 'image', 'description']}/>
           <IconButton
             aria-label="load"
             variant="contained"
@@ -237,7 +240,7 @@ export default function WebBannersPage() {
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
                     <WebBannerTableRow
-                    onClick={toggleDrawer(row._id)}
+                      onClick={toggleDrawer(row._id)}
                       id={row._id}
                       key={row._id}
                       image={row.image}
@@ -268,6 +271,7 @@ export default function WebBannersPage() {
           component="div"
           count={webBanners.length}
           rowsPerPage={rowsPerPage}
+          labelRowsPerPage="Số dòng trên trang"
           onPageChange={handleChangePage}
           rowsPerPageOptions={[5, 10, 25]}
           onRowsPerPageChange={handleChangeRowsPerPage}
