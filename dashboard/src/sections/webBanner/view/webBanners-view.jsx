@@ -18,7 +18,13 @@ import ConfirmDelete from 'src/components/modal/confirm-delete';
 import { handleToast } from 'src/hooks/toast';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchAll, setStatus, fetchById, deleteWebBanner } from 'src/redux/slices/webBannerSlice';
+import {
+  fetchAll,
+  setStatus,
+  fetchById,
+  deleteWebBanner,
+  createManyBanner,
+} from 'src/redux/slices/webBannerSlice';
 import { useRouter } from 'src/routes/hooks';
 import TableEmptyRows from 'src/components/table/table-empty-rows';
 import TableNoData from 'src/components/table/table-no-data';
@@ -33,7 +39,34 @@ import WebBannerTableHead from '../webBanner-table-head';
 import WebBannerCard from '../webBanner-card';
 
 // ----------------------------------------------------------------------
-
+const columns = [
+  { field: '_id', headerName: 'ID', width: 90 },
+  {
+    field: 'title',
+    headerName: 'Tiêu đề',
+    width: 150,
+    editable: true,
+  },
+  {
+    field: 'url',
+    headerName: 'Đường dẫn',
+    width: 150,
+    editable: true,
+  },
+  {
+    field: 'description',
+    headerName: 'Mô tả',
+    width: 110,
+    editable: true,
+  },
+  {
+    field: 'image',
+    headerName: 'Hình ảnh',
+    // sortable: false,
+    width: 160,
+    // valueGetter: (value, row) => `${row.firstName || ''} ${row.lastName || ''}`,
+  },
+];
 export default function WebBannersPage() {
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
@@ -50,6 +83,8 @@ export default function WebBannersPage() {
 
   const data = useSelector((state) => state.webBanners.webBanners);
   const status = useSelector((state) => state.webBanners.status);
+  const statusCreate = useSelector((state) => state.webBanners.statusCreate);
+  const dataCreateMany = useSelector((state) => state.webBanners.dataCreateMany);
   const statusDelete = useSelector((state) => state.webBanners.statusDelete);
   const error = useSelector((state) => state.webBanners.error);
   const webBanner = useSelector((state) => state.webBanners.webBanner);
@@ -156,7 +191,41 @@ export default function WebBannersPage() {
     setSelected([]);
     // dispatch(deleteManyCoupon(selected));
   };
-
+  const handleSave = (d) => {
+    dispatch(
+      createManyBanner({
+        data: d,
+      })
+    );
+  };
+  useEffect(() => {
+    if (statusCreate === 'successful') {
+      dataCreateMany.successful.forEach((item) => {
+        handleToast('success', item.message);
+      });
+      dispatch(
+        setStatus({
+          key: 'statusCreate',
+          value: 'idle',
+        })
+      );
+    }
+    if (statusCreate === 'failed') {
+      handleToast('error', dataCreateMany.message || 'Thêm biến thể thất bại');
+      dataCreateMany.errors.forEach((item) => {
+        handleToast('error', `${item.name}: ${item.message}`);
+      });
+      dataCreateMany.successful.forEach((item) => {
+        handleToast('success', item.message);
+      });
+      dispatch(
+        setStatus({
+          key: 'statusCreate',
+          value: 'idle',
+        })
+      );
+    }
+  }, [statusCreate, dataCreateMany, dispatch]);
   const [confirm, setConfirm] = useState(false);
   const [confirmMulti, setConfirmMulti] = useState(false);
   return (
@@ -189,7 +258,12 @@ export default function WebBannersPage() {
             Xuất Excel
           </Button>
           <ImportExcelModal
-              validateKey={['title', 'url', 'image', 'description']}/>
+            validateKey={['title', 'url', 'image', 'description', '_id']}
+            columns={columns}
+            onSave={handleSave}
+            loading={statusCreate === 'loading'}
+          />
+
           <IconButton
             aria-label="load"
             variant="contained"
