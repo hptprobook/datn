@@ -6,16 +6,20 @@ const validateBeforeCreate = async (data) => {
   return await CREATE_COUPONS.validateAsync(data, { abortEarly: false });
 };
 
-const getCoupons = async () => {
-  // page = parseInt(page) || 1;
-  // limit = parseInt(limit) || 12;
+const getCoupons = async ({ page, limit }) => {
+  page = parseInt(page) || 1;
+  limit = parseInt(limit) || 12;
   const db = await GET_DB().collection('coupons');
+  const count = await db.countDocuments();
   const result = await db
     .find()
-    // .skip((page - 1) * limit)
-    // .limit(limit)
+    .skip((page - 1) * limit)
+    .limit(limit)
     .toArray();
-  return result;
+  return {
+    data: result,
+    count,
+  };
 };
 const getCouponsById = async (id) => {
   const db = await GET_DB().collection('coupons');

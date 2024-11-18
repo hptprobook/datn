@@ -20,6 +20,7 @@ const MENU_OPTIONS = [
   {
     label: 'Trang chủ',
     icon: 'eva:home-fill',
+    navigator: '/',
   },
   {
     label: 'Thông tin',
@@ -29,6 +30,7 @@ const MENU_OPTIONS = [
   {
     label: 'Cài đặt',
     icon: 'eva:settings-2-fill',
+    navigator: '/settings',
   },
 ];
 

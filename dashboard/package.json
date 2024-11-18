@@ -27,6 +27,7 @@
     "@iconify/react": "^4.1.1",
     "@mui/lab": "^5.0.0-alpha.147",
     "@mui/material": "^5.16.7",
+    "@mui/x-data-grid": "^7.22.2",
     "@mui/x-date-pickers": "^7.17.0",
     "@reduxjs/toolkit": "^2.2.6",
     "@tinymce/tinymce-react": "^5.1.1",

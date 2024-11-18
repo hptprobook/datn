@@ -1,4 +1,4 @@
-import { get, del,  uploadOrUpdate  } from 'src/utils/request';
+import { get, del, post, uploadOrUpdate } from 'src/utils/request';
 /* eslint-disable */
 
 const WebBannerService = {
@@ -47,6 +47,15 @@ const WebBannerService = {
       throw err;
     }
   },
+  createMany: async (data) => {
+    try {
+      return await post('web-banner/creates', data);
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  }
+
 };
 
 export default WebBannerService;
