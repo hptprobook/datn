@@ -2,7 +2,8 @@ import { handleToast } from "src/hooks/toast";
 import * as XLSX from "xlsx";
 
 export const handleExport = (data, nameSheet, nameFile) => {
-    const worksheet = XLSX.utils.json_to_sheet(data);
+    const filteredData = data.map(({ createdAt, updatedAt, ...rest }) => rest);
+    const worksheet = XLSX.utils.json_to_sheet(filteredData);
 
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, nameSheet);
@@ -33,13 +34,18 @@ export const handleImportExcel = (event, validateKey) => new Promise((resolve, r
                 const keys = Object.keys(sheetData[0]);
                 const isValid = keys.every((key) => validateKey.includes(key));
 
+
                 if (!isValid) {
                     handleToast('error', 'Các cột trong file Excel không đúng định dạng.');
                     return resolve([]);
                 }
+                const data = sheetData.map((item , i) => ({
+                        ...item,
+                        key: i
+                    }))
 
                 // Return the data if valid
-                resolve(sheetData);
+                resolve(data);
             } catch (error) {
                 handleToast('error', 'Đã xảy ra lỗi khi đọc file Excel.');
                 reject(error);
