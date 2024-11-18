@@ -2,8 +2,8 @@ import { PiShoppingCartBold } from 'react-icons/pi';
 import { MdOutlineContentPasteSearch } from 'react-icons/md';
 import { FaBars } from 'react-icons/fa';
 import { IoIosSearch } from 'react-icons/io';
-import { useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import UserBar from '~/components/Home/Header/UserBar';
 import SideNavMenu from './Responsive/SideNavMenu';
 import SearchBar from './Search/SearchBar';
@@ -20,6 +20,8 @@ import { getCurrentUser } from '~/APIs';
 import { useUser } from '~/context/UserContext';
 import { useWebConfig } from '~/context/WebsiteConfig';
 import NotifyBar from './NotifyBar';
+import socket from '~/config/socket';
+import { useSwalWithConfirm } from '~/customHooks/useSwal';
 // import { useSocketContext } from '~/context/SocketContext';
 // import { io } from 'socket.io-client';
 
@@ -34,7 +36,7 @@ const Header = () => {
   const { user } = useUser();
   const { config } = useWebConfig();
   const { items } = useCart();
-  // const { socket, onlineUser, setOnlineUser, setSocket } = useSocketContext();
+  const navigate = useNavigate();
 
   const { data } = useQuery({
     queryKey: ['getCurrentUser'],
@@ -42,22 +44,35 @@ const Header = () => {
     enabled: isAuthenticated,
   });
 
-  const currentUserInfor = data ? data : null;
+  useEffect(() => {
+    if (!isAuthenticated) return;
 
-  // if (data) {
-  //   io(import.meta.env.VITE_SERVER_URL, {
-  //     query: {
-  //       userId: data._id,
-  //     },
-  //   });
-  // }
-  // useEffect(() => {
-  //   if (socket) {
-  //     socket.on('receiveNotifies', (notifies) => {
-  //       console.log(notifies);
-  //     });
-  //   }
-  // }, [socket]);
+    // Tham gia Room dựa trên userId
+    socket.emit('online', user?._id);
+
+    // Lắng nghe thông báo mới từ server
+    socket.on('orderStatusUpdate', (notifyData) => {
+      useSwalWithConfirm
+        .fire({
+          icon: 'info',
+          title: 'Thông báo',
+          text: notifyData.description,
+          confirmButtonText: 'Xác nhận',
+          cancelButtonText: 'Kiểm tra',
+        })
+        .then((result) => {
+          if (result.isDismissed) {
+            navigate(`/nguoi-dung/don-hang/${notifyData.orderCode}`);
+          }
+        });
+    });
+
+    // Cleanup
+    return () => {
+      socket.off('orderStatusUpdate');
+    };
+  }, [isAuthenticated, user]);
+  const currentUserInfor = data ? data : null;
 
   return (
     <div>

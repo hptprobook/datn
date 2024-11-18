@@ -1,11 +1,15 @@
 import { createSlice, createAction, createAsyncThunk } from '@reduxjs/toolkit';
 import BlogsService from '../services/blog.service';
+import DashboardService from '../services/dashboard.service';
 
 export const fetchAllBlogs = createAsyncThunk(
   'blogs/fetchBlogs',
-  async (_, { rejectWithValue }) => {
+  async ({
+    limit = 10,
+    page = 1,
+  }, { rejectWithValue }) => {
     try {
-      const response = await BlogsService.getAllBlogs();
+      const response = await DashboardService.gets(`/blogs?limit=${limit}&page=${page}`);
       return response;
     } catch (err) {
       return rejectWithValue(err.response.data);

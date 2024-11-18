@@ -13,11 +13,7 @@ import Divider from '@mui/material/Divider';
 
 const backendUrl = import.meta.env.VITE_BACKEND_APP_URL;
 
-const WebBannerCard = ({ status, webBanner }) => {
- console.log('webBanner', webBanner);
- console.log('status', status);
-
-  return (
+const WebBannerCard = ({ status, webBanner }) => (
     <>
       {status === 'loading' && (
         <Box sx={{ display: 'flex' }}>
@@ -90,7 +86,6 @@ const WebBannerCard = ({ status, webBanner }) => {
       )}
     </>
   );
-};
 
 WebBannerCard.propTypes = {
   status: PropTypes.string,

@@ -1168,37 +1168,48 @@ const searchInDashboard = async (req, res) => {
     });
   }
 };
+const getProductByArrayId = async (req, res) => {
+  try {
+    const { ids } = req.body;
+    const product = await productModel.getProductByArrayId(ids);
+    return res.status(StatusCodes.OK).json(product);
+  }
+  catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
+  }
+};
 
 export const productController = {
-  createProduct,
-  getAllProducts,
-  getProductsByView,
-  increaseView,
-  getProductById,
-  updateProduct,
-  ratingProduct,
-  deleteProduct,
-  updateRatingProduct,
-  deleteRating,
-  getProductBySlug,
-  getProductByCategory,
-  getProductByCategoryId,
-  getProductByBrandId,
-  getProductByBrand,
-  getProductByAlphabetAZ,
-  getProductByAlphabetZA,
-  getProductByPriceAsc,
-  getProductByPriceDesc,
-  getProductByNewest,
-  getProductByOldest,
-  getProductBySearch,
-  getAllProductsSpecial,
-  getProductByCategoryFilter,
-  getProductByEvent,
-  getProductsBySlugAndPriceRange,
-  getProductsBySearchAndFilter,
-  getMinMaxPrices,
-  ratingShopProduct,
-  ratingManyProduct,
-  searchInDashboard,
-};
+        createProduct,
+        getAllProducts,
+        getProductsByView,
+        increaseView,
+        getProductById,
+        updateProduct,
+        ratingProduct,
+        deleteProduct,
+        updateRatingProduct,
+        deleteRating,
+        getProductBySlug,
+        getProductByCategory,
+        getProductByCategoryId,
+        getProductByBrandId,
+        getProductByBrand,
+        getProductByAlphabetAZ,
+        getProductByAlphabetZA,
+        getProductByPriceAsc,
+        getProductByPriceDesc,
+        getProductByNewest,
+        getProductByOldest,
+        getProductBySearch,
+        getAllProductsSpecial,
+        getProductByCategoryFilter,
+        getProductByEvent,
+        getProductsBySlugAndPriceRange,
+        getProductsBySearchAndFilter,
+        getMinMaxPrices,
+        ratingShopProduct,
+        ratingManyProduct,
+        searchInDashboard,
+        getProductByArrayId
+      };

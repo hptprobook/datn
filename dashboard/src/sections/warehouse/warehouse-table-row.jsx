@@ -42,8 +42,8 @@ export default function WarehouseTableRow({
       <TableCell>{capacity}</TableCell>
       <TableCell>{currentQuantity}</TableCell>
 
-      <TableCell>{location}</TableCell>
       <TableCell>{status ? 'Hoạt động' : 'Không'}</TableCell>
+      <TableCell>{location}</TableCell>
       <TableCell>{formatDateTime(createdAt)}</TableCell>
       <TableCell>{formatDateTime(updatedAt)}</TableCell>
       <TableCell align="right">
@@ -51,7 +51,7 @@ export default function WarehouseTableRow({
           <Iconify icon="eva:eye-fill" />
         </IconButton>
         <IconButton onClick={handleDelete}>
-          <Iconify icon="eva:trash-2-outline" />
+          <Iconify icon="mdi:trash" />
         </IconButton>
       </TableCell>
     </TableRow>
@@ -64,7 +64,7 @@ WarehouseTableRow.propTypes = {
   createdAt: PropTypes.any,
   updatedAt: PropTypes.any,
   currentQuantity: PropTypes.any,
-  status: PropTypes.bool,
+  status: PropTypes.string,
   selected: PropTypes.bool,
   handleClick: PropTypes.func,
   capacity: PropTypes.any,

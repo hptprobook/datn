@@ -5,9 +5,12 @@ import DashboardService from '../services/dashboard.service';
 
 export const fetchAll = createAsyncThunk(
   'coupons/fetchAll',
-  async (_, rejectWithValue) => {
+  async ({
+    page,
+    limit,
+  }, rejectWithValue) => {
     try {
-      const res = await DashboardService.gets('/coupons');
+      const res = await DashboardService.gets(`/coupons?page=${page}&limit=${limit}`);
       return res;
     } catch (err) {
       return rejectWithValue(err.response.data);
@@ -52,7 +55,6 @@ export const update = createAsyncThunk(
   'coupons/update',
   async ({ id, data }, { rejectWithValue }) => {
     try {
-      console.log('data', data);
       const res = await CouponServices.update(id, data);
       return res;
     } catch (err) {
