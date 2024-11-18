@@ -25,7 +25,7 @@ export const ProtectedRoute = ({ children }) => {
     // user is not authenticated
     return <Navigate to="/login" />;
   }
-  if (pathname.includes('admin') && auth.role === 'staff') {
+  if (pathname.includes('admin') && auth?.role === 'staff') {
     return <Navigate to="/" />;
   }
   if (auth === null && statusMe === 'successful') {

@@ -24,6 +24,17 @@ export const deleteBrand = createAsyncThunk(
     }
   }
 );
+export const deleteBrands = createAsyncThunk(
+  'brands/deletes',
+  async (data, { rejectWithValue }) => {
+    try {
+      const res = await BrandServices.deletes(data);
+      return res;
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
 export const createWithImage = createAsyncThunk(
   'brands/createWithImage',
   async ({ file, data }, { rejectWithValue }) => {
@@ -40,6 +51,17 @@ export const create = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       const res = await BrandServices.create(data);
+      return res;
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
+export const creates = createAsyncThunk(
+  'brands/creates',
+  async (data, { rejectWithValue }) => {
+    try {
+      const res = await BrandServices.creates(data);
       return res;
     } catch (err) {
       return rejectWithValue(err.response.data);
@@ -86,6 +108,7 @@ const initialState = {
   statusDelete: 'idle',
   statusCreate: 'idle',
   statusGet: 'idle',
+  dataCreates: null,
   error: null,
 };
 
@@ -128,6 +151,17 @@ const brandSlices = createSlice({
         state.statusCreate = 'failed';
         state.error = action.payload;
       })
+      .addCase(creates.pending, (state) => {
+        state.statusCreate = 'loading';
+      })
+      .addCase(creates.fulfilled, (state, action) => {
+        state.statusCreate = 'successful';
+        state.dataCreates = action.payload;
+      })
+      .addCase(creates.rejected, (state, action) => {
+        state.statusCreate = 'failed';
+        state.dataCreates = action.payload;
+      })
       .addCase(updateWithImage.pending, (state) => {
         state.statusUpdate = 'loading';
       })
@@ -168,6 +202,16 @@ const brandSlices = createSlice({
         state.brands = action.payload;
       })
       .addCase(deleteBrand.rejected, (state, action) => {
+        state.statusDelete = 'failed';
+        state.error = action.message;
+      })
+      .addCase(deleteBrands.pending, (state) => {
+        state.statusDelete = 'loading';
+      })
+      .addCase(deleteBrands.fulfilled, (state, action) => {
+        state.statusDelete = 'successful';
+      })
+      .addCase(deleteBrands.rejected, (state, action) => {
         state.statusDelete = 'failed';
         state.error = action.message;
       })

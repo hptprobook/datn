@@ -16,6 +16,7 @@ const style = {
   transform: 'translate(-50%, -50%)',
   bgcolor: 'background.paper',
   border: '2px solid #000',
+  maxWidth: '90%',
   boxShadow: 24,
   p: 4,
 };
@@ -50,7 +51,8 @@ export default function ImportExcelModal({
     setData(d);
   };
   const handleSave = () => {
-    onSave(data);
+    const d = data.map(({ key, ...rest }) => rest); 
+    onSave(d);
   };
   return (
     <div>
@@ -116,7 +118,7 @@ export default function ImportExcelModal({
                   noRowsVariant: 'linear-progress',
                 },
               }}
-              getRowId={(row) => row._id}
+              getRowId={(row) => row.key}
               localeText={{
                 noRowsLabel: 'Không có dữ liệu',
                 MuiTablePagination: {
@@ -131,7 +133,7 @@ export default function ImportExcelModal({
                 },
               }}
               pageSizeOptions={[5, 10]}
-              checkboxSelection
+              // checkboxSelection
               disableRowSelectionOnClick
             />
           </Box>
