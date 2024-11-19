@@ -10,10 +10,17 @@ import {
 import MainLoading from '~/components/common/Loading/MainLoading';
 import EmptyCart from '~/components/Home/Header/EmptyCart';
 import { formatCurrencyVND, formatDateToDDMMYYYY } from '~/utils/formatters';
-import { getStatusColor, getStatusName, tabs } from './Profile/utils/tabs';
+import {
+  getStatusColor,
+  getStatusName,
+  reasonsForCancel,
+  reasonsForReturn,
+  tabs,
+} from './Profile/utils/tabs';
 import { useSwal, useSwalWithConfirm } from '~/customHooks/useSwal';
 import OrderLoading from '~/components/common/Loading/OrderLoading';
 import ReviewModal from './ReviewModal';
+import Swal from 'sweetalert2';
 
 const MyOrder = () => {
   const { tab } = useParams();
@@ -84,42 +91,12 @@ const MyOrder = () => {
             order?.status[order.status.length - 1].status === selectedTab
         );
 
-  // const getCurrentOrderStatus = (orderId) => {
-  //   const order = orderData.find((order) => order._id === orderId);
-  //   if (!order) return 'Không tồn tại';
-  //   return order.status[order.status.length - 1];
-  // };
-
   const handleScrollLeft = () => {
     tabsRef.current.scrollBy({ left: -150, behavior: 'smooth' });
   };
 
   const handleScrollRight = () => {
     tabsRef.current.scrollBy({ left: 150, behavior: 'smooth' });
-  };
-
-  const handleCancelOrder = (orderId) => {
-    useSwalWithConfirm
-      .fire({
-        icon: 'warning',
-        title: 'Xác nhận hủy đơn hàng?',
-        text: 'Bạn có chắc muốn hủy đơn hàng này không? Hành động này không thể hoàn tác.',
-        confirmButtonText: 'Xác nhận hủy',
-        cancelButtonText: 'Không',
-      })
-      .then((result) => {
-        if (result.isConfirmed) {
-          cancelOrder({
-            id: orderId,
-            data: {
-              status: {
-                status: 'cancelled',
-                note: 'Khách hàng huỷ đơn',
-              },
-            },
-          });
-        }
-      });
   };
 
   const handleReOrder = (order) => {
@@ -150,6 +127,119 @@ const MyOrder = () => {
     setReviewOrderId(orderId);
     setReviewProducts(products);
     setShowReviewModal(true);
+  };
+
+  const handleCancelOrder = (orderId) => {
+    Swal.fire({
+      title: 'Lý do hủy đơn hàng',
+      html: `
+        <div style="display: flex; flex-direction: column; justify-content: center; width: 100%; align-items: center;">
+          <select id="reason-select" class="select select-error w-full">
+            ${reasonsForCancel
+              .map((reason) => `<option value="${reason}">${reason}</option>`)
+              .join('')}
+          </select>
+          <textarea id="custom-reason" class="textarea w-full" placeholder="Nhập lý do khác..." style="display: none; margin-top: 10px;"></textarea>
+        </div>
+      `,
+      preConfirm: () => {
+        const selectedReason = document.getElementById('reason-select').value;
+        const customReason = document
+          .getElementById('custom-reason')
+          .value.trim();
+
+        if (selectedReason === 'Lý do khác' && !customReason) {
+          Swal.showValidationMessage('Vui lòng nhập lý do!');
+        }
+
+        return selectedReason === 'Lý do khác' ? customReason : selectedReason;
+      },
+      showCancelButton: true,
+      confirmButtonText: 'Xác nhận',
+      cancelButtonText: 'Hủy',
+      didOpen: () => {
+        const reasonSelect = document.getElementById('reason-select');
+        const customReasonInput = document.getElementById('custom-reason');
+
+        reasonSelect.addEventListener('change', () => {
+          if (reasonSelect.value === 'Lý do khác') {
+            customReasonInput.style.display = 'block';
+          } else {
+            customReasonInput.style.display = 'none';
+          }
+        });
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const statusData = {
+          status: 'cancelled',
+          note: 'Khách hàng hủy đơn!',
+          reason: result.value,
+        };
+
+        cancelOrder({
+          id: orderId,
+          data: { status: statusData },
+        });
+      }
+    });
+  };
+
+  const handleReturnOrder = (orderId) => {
+    Swal.fire({
+      title: 'Lý do trả hàng',
+      html: `
+        <div style="display: flex; flex-direction: column; justify-content: center; width: 100%; align-items: center;">
+          <select id="reason-select" class="select select-error w-full">
+            ${reasonsForReturn
+              .map((reason) => `<option value="${reason}">${reason}</option>`)
+              .join('')}
+          </select>
+          <textarea id="custom-reason" class="textarea w-full" placeholder="Nhập lý do khác..." style="display: none; margin-top: 10px;"></textarea>
+        </div>
+      `,
+      preConfirm: () => {
+        const selectedReason = document.getElementById('reason-select').value;
+        const customReason = document
+          .getElementById('custom-reason')
+          .value.trim();
+
+        if (selectedReason === 'Lý do khác' && !customReason) {
+          Swal.showValidationMessage('Vui lòng nhập lý do!');
+        }
+
+        return selectedReason === 'Lý do khác' ? customReason : selectedReason;
+      },
+      showCancelButton: true,
+      confirmButtonText: 'Xác nhận',
+      cancelButtonText: 'Hủy',
+      didOpen: () => {
+        const reasonSelect = document.getElementById('reason-select');
+        const customReasonInput = document.getElementById('custom-reason');
+
+        reasonSelect.addEventListener('change', () => {
+          if (reasonSelect.value === 'Lý do khác') {
+            customReasonInput.style.display = 'block';
+          } else {
+            customReasonInput.style.display = 'none';
+          }
+        });
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const statusData = {
+          status: 'returned',
+          note: 'Khách hàng yêu cầu trả hàng!',
+          reason: result.value,
+          returnStatus: 'pending',
+        };
+
+        cancelOrder({
+          id: orderId,
+          data: { status: statusData },
+        });
+      }
+    });
   };
 
   if (cancelOrderLoading) return <MainLoading />;
@@ -194,7 +284,7 @@ const MyOrder = () => {
         {filteredOrders.length > 0 ? (
           filteredOrders.map((order) => (
             <div
-              key={order._id}
+              key={order?._id}
               className="p-4 mb-4 bg-zinc-100 shadow-md border-t border-gray-100 rounded-md"
             >
               {showReviewModal && (
@@ -206,17 +296,17 @@ const MyOrder = () => {
                 />
               )}
               <Link
-                to={`/nguoi-dung/don-hang/${order.orderCode}`}
+                to={`/nguoi-dung/don-hang/${order?.orderCode}`}
                 className="flex justify-between items-center py-2 border-b border-gray-300 max-lg:gap-2"
               >
                 <div className="flex gap-5 items-center max-lg:gap-2">
                   <span className="text-lg font-bold">
-                    Đơn hàng: #{order.orderCode}
+                    Đơn hàng: #{order?.orderCode}
                   </span>{' '}
                   -
                   <i className="text-gray-500 hidden md:block">
                     {formatDateToDDMMYYYY(
-                      order.status[order.status.length - 1].createdAt,
+                      order?.status[order.status.length - 1]?.createdAt,
                       'dd/MM/yyyy'
                     )}
                   </i>
@@ -224,20 +314,20 @@ const MyOrder = () => {
                 <div className="text-right">
                   <span
                     className={`uppercase font-bold ${getStatusColor(
-                      order.status[order.status.length - 1].status
+                      order?.status[order.status.length - 1]?.status
                     )}`}
                   >
                     {getStatusName(
-                      order.status[order.status.length - 1].status
+                      order?.status[order.status.length - 1]?.status
                     )}
                   </span>
                 </div>
               </Link>
               <Link
                 className="mt-2"
-                to={`/nguoi-dung/don-hang/${order.orderCode}`}
+                to={`/nguoi-dung/don-hang/${order?.orderCode}`}
               >
-                {order?.productsList.map((product, i) => (
+                {order?.productsList?.map((product, i) => (
                   <div
                     key={i}
                     className="flex justify-between py-3 border-b border-gray-300 last:border-none"
@@ -253,7 +343,7 @@ const MyOrder = () => {
                         <div className="text-indigo-600">
                           {product?.variantColor}
                           {product?.variantSize !== 'FREESIZE' &&
-                            ` - ${product.variantSize}`}
+                            ` - ${product?.variantSize}`}
                         </div>
                         <span>x {product?.quantity}</span>
                       </div>
@@ -274,12 +364,12 @@ const MyOrder = () => {
               </div>
               <div className="flex flex-col md:flex-row justify-end gap-3 mt-6">
                 <Link
-                  to={`/nguoi-dung/don-hang/${order.orderCode}`}
+                  to={`/nguoi-dung/don-hang/${order?.orderCode}`}
                   className="bg-red-500 text-white px-4 py-2 rounded-md text-center"
                 >
                   Chi tiết
                 </Link>
-                {order.status[order.status.length - 1].status ===
+                {order?.status[order.status.length - 1]?.status ===
                   'completed' && (
                   <>
                     <button
@@ -290,7 +380,7 @@ const MyOrder = () => {
                     </button>
                     <button
                       onClick={() =>
-                        handleShowReviewModal(order._id, order.productsList)
+                        handleShowReviewModal(order?._id, order?.productsList)
                       }
                       disabled={order?.isComment}
                       className=" btn bg-red-500 text-white rounded-md"
@@ -299,22 +389,27 @@ const MyOrder = () => {
                     </button>
                   </>
                 )}
-                {order.status[order.status.length - 1].status !== 'cancelled' &&
-                  order.status[order.status.length - 1].status !==
+                {order?.status[order?.status?.length - 1]?.status !==
+                  'cancelled' &&
+                  order?.status[order?.status?.length - 1]?.status !==
                     'completed' &&
-                  order.status[order.status.length - 1].status !== 'received' &&
-                  order.status[order.status.length - 1].status !==
+                  order?.status[order?.status?.length - 1]?.status !==
+                    'received' &&
+                  order?.status[order?.status?.length - 1]?.status !==
                     'delivered' && (
                     <button
-                      onClick={() => handleCancelOrder(order._id)}
+                      onClick={() => handleCancelOrder(order?._id)}
                       className="bg-red-500 text-white px-4 py-2 rounded-md"
                     >
                       Hủy đơn
                     </button>
                   )}
-                {order.status[order.status.length - 1].status ===
+                {order?.status[order?.status?.length - 1]?.status ===
                   'received' && (
-                  <button className="bg-red-500 text-white px-4 py-2 rounded-md">
+                  <button
+                    onClick={() => handleReturnOrder(order?._id)}
+                    className="bg-red-500 text-white px-4 py-2 rounded-md"
+                  >
                     Yêu cầu hoàn trả
                   </button>
                 )}
@@ -324,7 +419,7 @@ const MyOrder = () => {
         ) : (
           <EmptyCart usedBy="order" />
         )}
-        {orderData.length > 0 && (
+        {orderData?.length > 0 && (
           <div className="flex justify-center">
             <button
               onClick={handleLoadMore}

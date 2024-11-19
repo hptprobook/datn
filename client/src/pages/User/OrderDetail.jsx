@@ -5,13 +5,20 @@ import { getOrderByCodeAPI, updateOrderAPI } from '~/APIs';
 import MainLoading from '~/components/common/Loading/MainLoading';
 import { useSwal, useSwalWithConfirm } from '~/customHooks/useSwal';
 import OrderDetailStatus from './Profile/components/OrderDetailStatus';
-import { getStatusName, tabs } from './Profile/utils/tabs';
+import {
+  getStatusName,
+  reasonsForCancel,
+  reasonsForReturn,
+  returnStatus,
+  tabs,
+} from './Profile/utils/tabs';
 import {
   formatCurrencyVND,
   formatVietnamesePhoneNumber,
 } from '~/utils/formatters';
 import ReviewModal from './ReviewModal';
 import { useState } from 'react';
+import Swal from 'sweetalert2';
 
 const OrderDetail = () => {
   const { orderCode } = useParams();
@@ -61,33 +68,33 @@ const OrderDetail = () => {
       });
   }
 
-  const handleCancelOrder = () => {
-    useSwalWithConfirm
-      .fire({
-        icon: 'warning',
-        title: 'Xác nhận hủy đơn hàng?',
-        text: 'Bạn có chắc muốn hủy đơn hàng này không? Hành động này không thể hoàn tác.',
-        confirmButtonText: 'Xác nhận hủy',
-        cancelButtonText: 'Không',
-      })
-      .then((result) => {
-        if (result.isConfirmed) {
-          cancelOrder({
-            id: data?._id,
-            data: {
-              // status: {
-              //   status: 'cancelled',
-              //   note: 'Khách hàng huỷ đơn!',
-              // },
-              status: {
-                status: 'completed',
-                note: 'Đơn hàng đã hoàn thành!',
-              },
-            },
-          });
-        }
-      });
-  };
+  // const handleCancelOrder = () => {
+  //   useSwalWithConfirm
+  //     .fire({
+  //       icon: 'warning',
+  //       title: 'Xác nhận hủy đơn hàng?',
+  //       text: 'Bạn có chắc muốn hủy đơn hàng này không? Hành động này không thể hoàn tác.',
+  //       confirmButtonText: 'Xác nhận hủy',
+  //       cancelButtonText: 'Không',
+  //     })
+  //     .then((result) => {
+  //       if (result.isConfirmed) {
+  //         cancelOrder({
+  //           id: data?._id,
+  //           data: {
+  //             // status: {
+  //             //   status: 'cancelled',
+  //             //   note: 'Khách hàng huỷ đơn!',
+  //             // },
+  //             status: {
+  //               status: 'delivered',
+  //               note: 'Đã nhận hàng!',
+  //             },
+  //           },
+  //         });
+  //       }
+  //     });
+  // };
 
   const handleReOrder = () => {
     useSwalWithConfirm
@@ -108,6 +115,100 @@ const OrderDetail = () => {
         }
       });
   };
+
+  const handleOpenReasonModal = (actionType) => {
+    const reasons =
+      actionType === 'cancel' ? reasonsForCancel : reasonsForReturn;
+
+    Swal.fire({
+      title: actionType === 'cancel' ? 'Lý do hủy đơn hàng' : 'Lý do trả hàng',
+      html: `
+        <div style="display: flex; flex-direction: column; justify-content: center; width: 100%; align-items: center;">
+          <select id="reason-select" class="select select-error">
+          ${reasons
+            .map((reason) => `<option value="${reason}">${reason}</option>`)
+            .join('')}
+        </select>
+        <textarea id="custom-reason" class="textarea w-full" placeholder="Nhập lý do khác..." style="display: none; margin-top: 10px;"></textarea>
+        </div>
+      `,
+      preConfirm: () => {
+        const selectedReason = document.getElementById('reason-select').value;
+        const customReason = document
+          .getElementById('custom-reason')
+          .value.trim();
+
+        if (selectedReason === 'Lý do khác' && !customReason) {
+          Swal.showValidationMessage('Vui lòng nhập lý do!');
+        }
+
+        return selectedReason === 'Lý do khác' ? customReason : selectedReason;
+      },
+      showCancelButton: true,
+      confirmButtonText: 'Xác nhận',
+      cancelButtonText: 'Hủy',
+      didOpen: () => {
+        const reasonSelect = document.getElementById('reason-select');
+        const customReasonInput = document.getElementById('custom-reason');
+
+        reasonSelect.addEventListener('change', () => {
+          if (reasonSelect.value === 'Lý do khác') {
+            customReasonInput.style.display = 'block';
+          } else {
+            customReasonInput.style.display = 'none';
+          }
+        });
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const statusData =
+          actionType === 'cancel'
+            ? {
+                status: 'cancelled',
+                note: 'Khách hàng hủy đơn!',
+                reason: result.value,
+              }
+            : {
+                status: 'returned',
+                note: 'Khách hàng yêu cầu trả hàng!',
+                reason: result.value,
+                returnStatus: 'pending',
+              };
+
+        cancelOrder({
+          id: data?._id,
+          data: { status: statusData },
+        });
+      }
+    });
+  };
+
+  const handleCancelOrder = () => handleOpenReasonModal('cancel');
+  const handleReturnOrder = () => handleOpenReasonModal('return');
+
+  // const handleReturnOrder = () => {
+  //   useSwalWithConfirm
+  //     .fire({
+  //       icon: 'question',
+  //       title: 'Yêu cầu trả hàng',
+  //       text: 'Bạn muốn trả lại đơn hàng này?',
+  //       confirmButtonText: 'Xác nhận',
+  //       cancelButtonText: 'Không',
+  //     })
+  //     .then((result) => {
+  //       if (result.isConfirmed) {
+  //         cancelOrder({
+  //           id: data?._id,
+  //           data: {
+  //             status: {
+  //               status: 'delivered',
+  //               note: 'Đã nhận hàng!',
+  //             },
+  //           },
+  //         });
+  //       }
+  //     });
+  // };
 
   if (isLoading || cancelOrderLoading) return <MainLoading />;
 
@@ -172,7 +273,10 @@ const OrderDetail = () => {
             </>
           )}
           {currentStatus === 'delivered' && (
-            <button className="btn bg-red-500 rounded-md hover:bg-red-600 hover:shadow-md text-white w-full sm:min-w-48">
+            <button
+              onClick={handleReturnOrder}
+              className="btn bg-red-500 rounded-md hover:bg-red-600 hover:shadow-md text-white w-full md:w-48"
+            >
               Yêu cầu trả hàng
             </button>
           )}
@@ -245,6 +349,13 @@ const OrderDetail = () => {
                       (tab) => tab.key === status.status
                     );
                     const isCancelled = status.status === 'cancelled';
+                    const isReturned = status.status === 'returned';
+
+                    const returnStatusName = isReturned
+                      ? returnStatus.find(
+                          (item) => item.status === status.returnStatus
+                        )?.name
+                      : null;
 
                     return (
                       <li
@@ -298,6 +409,21 @@ const OrderDetail = () => {
                           )}
                         </div>
                         <p className="text-sm">{status.note}</p>
+
+                        {/* Hiển thị lý do nếu có */}
+                        {status.reason && (
+                          <p className="text-sm text-gray-700">
+                            <strong>Lý do:</strong> {status.reason}
+                          </p>
+                        )}
+
+                        {/* Hiển thị trạng thái trả hàng nếu có */}
+                        {isReturned && returnStatusName && (
+                          <p className="text-sm text-gray-700">
+                            <strong>Trạng thái trả hàng:</strong>{' '}
+                            {returnStatusName}
+                          </p>
+                        )}
                       </li>
                     );
                   })}

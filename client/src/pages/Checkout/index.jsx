@@ -50,7 +50,7 @@ const CheckoutUI = () => {
   } = useMutation({
     mutationFn: orderNotLoginApi,
     onSuccess: (data) => {
-      if (data?.data?.paymentMethod === 'VNPAY') {
+      if (data?.data?.paymentMethod !== 'VNPAY') {
         useSwal
           .fire(
             'Thành công!',
@@ -138,11 +138,10 @@ const CheckoutUI = () => {
               productsList: productsList,
               shippingInfo: shippingInfo,
               email: formik.values.email,
-              totalPrice:
-                productsList.reduce(
-                  (total, product) => total + product.itemTotal,
-                  0
-                ) + shippingFee,
+              totalPrice: productsList.reduce(
+                (total, product) => total + product.itemTotal,
+                0
+              ),
               totalPayment:
                 productsList.reduce(
                   (total, product) => total + product.itemTotal,

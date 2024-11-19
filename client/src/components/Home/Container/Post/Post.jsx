@@ -13,19 +13,21 @@ export default function Post() {
 
   if (isLoading) return <MainLoading />;
 
-  const firstPost = blogData.reduce(
-    (max, post) => (post.view > max.view ? post : max),
+  const firstPost = blogData?.reduce(
+    (max, post) => (post?.view > max?.view ? post : max),
     blogData[0]
   );
 
-  const otherPosts = blogData.filter((post) => post !== firstPost).slice(0, 4);
+  const otherPosts = blogData
+    ?.filter((post) => post !== firstPost)
+    ?.slice(0, 4);
 
   // Xây dựng URL cho thumbnail của firstPost
   const firstPostThumbnailUrl =
-    firstPost.thumbnail.startsWith('http://') ||
-    firstPost.thumbnail.startsWith('https://')
-      ? firstPost.thumbnail
-      : `${serverUrl}/${firstPost.thumbnail}`;
+    firstPost?.thumbnail?.startsWith('http://') ||
+    firstPost?.thumbnail?.startsWith('https://')
+      ? firstPost?.thumbnail
+      : `${serverUrl}/${firstPost?.thumbnail}`;
 
   if (isLoading) return <MainLoading />;
 
@@ -35,49 +37,53 @@ export default function Post() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8 lg:h-post">
         <div>
           <div className="w-full h-96">
-            <NavLink to={`/tin-tuc/${firstPost.slug}`}>
+            <NavLink to={`/tin-tuc/${firstPost?.slug}`}>
               <img
                 src={firstPostThumbnailUrl}
-                alt={firstPost.title}
+                alt={firstPost?.title}
                 className="w-full h-full object-cover"
               />
             </NavLink>
           </div>
           <p className="text-black font-semibold text-md mt-3 hover:text-red-600 text-clamp-2">
-            <NavLink to={`/post/${firstPost.id}`}>{firstPost.title}</NavLink>
+            <NavLink to={`/tin-tuc/${firstPost?.slug}`}>
+              {firstPost?.title}
+            </NavLink>
           </p>
           <p className="text-slate-700 font-normal text-sm mt-1 text-clamp-3">
-            {firstPost.shortDesc}
+            {firstPost?.shortDesc}
           </p>
         </div>
         <div className="h-full lg:overflow-hidden">
           {otherPosts.map((post) => {
             const postImgUrl =
-              post.thumbnail.startsWith('http://') ||
-              post.thumbnail.startsWith('https://')
-                ? post.thumbnail
-                : `${serverUrl}/${post.thumbnail}`; // URL đầy đủ cho img
+              post?.thumbnail?.startsWith('http://') ||
+              post?.thumbnail?.startsWith('https://')
+                ? post?.thumbnail
+                : `${serverUrl}/${post?.thumbnail}`; // URL đầy đủ cho img
 
             return (
               <div
-                key={post._id}
+                key={post?._id}
                 className="flex lg:h-1/4 pb-2 border-b-2 mb-2 last:border-0 h-36"
               >
                 <div className="w-44 flex-shrink-0">
-                  <NavLink to={`/tin-tuc/${post.slug}`}>
+                  <NavLink to={`/tin-tuc/${post?.slug}`}>
                     <img
                       src={postImgUrl} // URL đầy đủ cho img của post
-                      alt={post.title}
+                      alt={post?.title}
                       className="w-full h-full object-cover"
                     />
                   </NavLink>
                 </div>
                 <div className="ml-4 flex-1">
                   <p className="text-black font-semibold text-md hover:text-red-600 text-clamp-2">
-                    <NavLink to={`/tin-tuc/${post.slug}`}>{post.title}</NavLink>
+                    <NavLink to={`/tin-tuc/${post?.slug}`}>
+                      {post?.title}
+                    </NavLink>
                   </p>
                   <p className="text-slate-700 font-normal text-sm mt-1 text-clamp-3">
-                    {post.content}
+                    {post?.content}
                   </p>
                 </div>
               </div>

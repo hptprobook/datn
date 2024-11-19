@@ -31,6 +31,12 @@ const CheckoutConfirm = () => {
   const { isAuthenticated } = useCheckAuth();
   const vnp_ResponseCode = searchParams.get('vnp_ResponseCode');
 
+  useEffect(() => {
+    if (!orderCode) {
+      navigate('/');
+    }
+  }, [orderCode, navigate]);
+
   const { mutate: updateOrder, isLoading: updateOrderLoading } = useMutation({
     mutationFn: updateOrderAPI,
   });
@@ -68,7 +74,11 @@ const CheckoutConfirm = () => {
           const latestStatus =
             orderData?.status[orderData.status.length - 1]?.status;
 
-          if (vnp_ResponseCode === '00' && latestStatus !== 'pending') {
+          if (
+            vnp_ResponseCode &&
+            vnp_ResponseCode === '00' &&
+            latestStatus !== 'pending'
+          ) {
             updateOrder({
               id: orderData?._id,
               data: {
@@ -78,7 +88,7 @@ const CheckoutConfirm = () => {
                 },
               },
             });
-          } else if (vnp_ResponseCode !== '00') {
+          } else if (vnp_ResponseCode && vnp_ResponseCode !== '00') {
             useSwal
               .fire({
                 icon: 'error',
@@ -96,7 +106,11 @@ const CheckoutConfirm = () => {
         const latestStatus =
           orderData?.status[orderData.status.length - 1]?.status;
 
-        if (vnp_ResponseCode === '00' && latestStatus !== 'pending') {
+        if (
+          vnp_ResponseCode &&
+          vnp_ResponseCode === '00' &&
+          latestStatus !== 'pending'
+        ) {
           updateOrderNotLogin({
             id: orderData?._id,
             data: {
@@ -106,7 +120,7 @@ const CheckoutConfirm = () => {
               },
             },
           });
-        } else if (vnp_ResponseCode !== '00') {
+        } else if (vnp_ResponseCode && vnp_ResponseCode !== '00') {
           useSwal
             .fire({
               icon: 'error',
