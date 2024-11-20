@@ -52,19 +52,24 @@ const Header = () => {
 
     // Lắng nghe thông báo mới từ server
     socket.on('orderStatusUpdate', (notifyData) => {
-      useSwalWithConfirm
-        .fire({
-          icon: 'info',
-          title: 'Thông báo',
-          text: notifyData.description,
-          confirmButtonText: 'Xác nhận',
-          cancelButtonText: 'Kiểm tra',
-        })
-        .then((result) => {
-          if (result.isDismissed) {
-            navigate(`/nguoi-dung/don-hang/${notifyData.orderCode}`);
-          }
-        });
+      if (
+        notifyData?.status != 'cancelled' &&
+        notifyData?.status != 'returned'
+      ) {
+        useSwalWithConfirm
+          .fire({
+            icon: 'info',
+            title: 'Thông báo',
+            text: notifyData.description,
+            confirmButtonText: 'Xác nhận',
+            cancelButtonText: 'Kiểm tra',
+          })
+          .then((result) => {
+            if (result.isDismissed) {
+              navigate(`/nguoi-dung/don-hang/${notifyData.orderCode}`);
+            }
+          });
+      }
     });
 
     // Cleanup

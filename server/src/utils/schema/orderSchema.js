@@ -186,9 +186,15 @@ export const UPDATE_ORDER = Joi.object({
         .min(1)
         .valid(...Object.values(OrderStatus)), // Trạng thái đơn hàng
       note: Joi.string().trim().min(1).default('Không có ghi chú'), // Ghi chú trạng thái
+      reason: Joi.string().trim().min(1).allow('', null).default(null),
+      returnStatus: Joi.string()
+        .trim()
+        .valid('pending', 'approved', 'rejected', null) // Trạng thái trả hàng hợp lệ
+        .default(null),
       createdAt: Joi.date().timestamp('javascript').default(Date.now), // Thời gian tạo trạng thái
     })
   ), // Lịch sử trạng thái của đơn hàng
+
   shippingInfo: Joi.object({
     provinceName: Joi.string().trim().min(1), // Tên tỉnh/thành phố
     districtName: Joi.string().trim().min(1), // Tên quận/huyện

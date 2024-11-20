@@ -322,13 +322,15 @@ const updateOrder = async (req, res) => {
         description: `Đơn hàng #${dataOrder.orderCode} của bạn hiện đã chuyển sang trạng thái "${statusInVietnamese}". Vui lòng kiểm tra thông tin trong chi tiết đơn hàng.`,
         type: 'order',
         orderCode: dataOrder.orderCode,
+        status: endStatus,
       };
-      // Emit thông báo tới user qua Socket.IO
-      if (endStatus.note !== 'Khách hàng huỷ đơn') {
-        req.io
-          .to(dataOrder.userId.toString())
-          .emit('orderStatusUpdate', notifyData);
-      }
+
+      req.io
+        .to(dataOrder.userId.toString())
+        .emit('orderStatusUpdate', notifyData);
+
+      delete notifyData.status;
+      delete notifyData.note;
 
       await userModel.sendNotifies(notifyData);
 

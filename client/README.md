@@ -10,4 +10,9 @@
 <!-- footer tin tuc o trang home -->
 <!-- realtime thong bao -->
 tra lai don hang
+thanh toan lai don hang cho thanh toan
+dem view cho tin tuc
+bo loc tin tuc
+tag tin tuc
+login google
 test website va training chatbot

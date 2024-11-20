@@ -43,5 +43,6 @@ Router.delete('/:id', verifyToken, isAdmin, brandController.deleteBrand);
 //Delete all
 Router.post('/all', verifyToken, isAdmin, brandController.deleteAllBrand);
 Router.post('/many', verifyToken, isAdmin, brandController.deleteManyBrand);
+Router.post('/creates', verifyToken, isAdmin, brandController.createManyBrands);
 
 export const brandsApi = Router;
