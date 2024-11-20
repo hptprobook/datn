@@ -1,5 +1,6 @@
 import { createSlice, createAction, createAsyncThunk } from '@reduxjs/toolkit';
 import SupplierServices from '../services/suppliers.service';
+import DashboardService from '../services/dashboard.service';
 /* eslint-disable */
 
 export const fetchAll = createAsyncThunk(
@@ -44,6 +45,16 @@ export const create = createAsyncThunk(
     }
   }
 );
+export const creates = createAsyncThunk(
+  'suppliers/creates',
+  async (data, { rejectWithValue }) => {
+    try {
+      return await DashboardService.create('suppliers/creates', data);
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
 export const deleteSupplier = createAsyncThunk(
   'suppliers/deleteSupplier',
   async (data, { rejectWithValue }) => {
@@ -54,7 +65,16 @@ export const deleteSupplier = createAsyncThunk(
     }
   }
 );
-
+export const deletes = createAsyncThunk(
+  'suppliers/deletes',
+  async (data, { rejectWithValue }) => {
+    try {
+      return await DashboardService.create('suppliers/many', data);
+    } catch (err) {
+      return rejectWithValue(err.response?.data);
+    }
+  }
+);
 const initialState = {
   suppliers: [],
   supplier: {},
@@ -64,6 +84,7 @@ const initialState = {
   statusDelete: 'idle',
   statusCreate: 'idle',
   statusUpdate: 'idle',
+  dataCreates: null,
   error: null,
 };
 
@@ -118,6 +139,17 @@ const supplierSlices = createSlice({
         state.statusCreate = 'failed';
         state.error = action.payload;
       })
+      .addCase(creates.pending, (state) => {
+        state.statusCreate = 'loading';
+      })
+      .addCase(creates.fulfilled, (state, action) => {
+        state.statusCreate = 'successful';
+        state.dataCreates = action.payload;
+      })
+      .addCase(creates.rejected, (state, action) => {
+        state.statusCreate = 'failed';
+        state.dataCreates = action.payload;
+      })
       .addCase(deleteSupplier.pending, (state) => {
         state.statusDelete = 'loading';
       })
@@ -125,6 +157,16 @@ const supplierSlices = createSlice({
         state.statusDelete = 'successful';
       })
       .addCase(deleteSupplier.rejected, (state, action) => {
+        state.statusDelete = 'failed';
+        state.error = action.payload;
+      })
+      .addCase(deletes.pending, (state) => {
+        state.statusDelete = 'loading';
+      })
+      .addCase(deletes.fulfilled, (state, action) => {
+        state.statusDelete = 'successful';
+      })
+      .addCase(deletes.rejected, (state, action) => {
         state.statusDelete = 'failed';
         state.error = action.payload;
       })

@@ -15,7 +15,7 @@ import {
 } from '~/APIs';
 import MainLoading from '~/components/common/Loading/MainLoading';
 import { useSwal, useSwalWithConfirm } from '~/customHooks/useSwal';
-import { formatCurrencyVND } from '~/utils/formatters';
+import { calculateDistance, formatCurrencyVND } from '~/utils/formatters';
 import { v4 as uuidv4 } from 'uuid';
 import { useUser } from '~/context/UserContext';
 import PropTypes from 'prop-types';
@@ -95,25 +95,15 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
     queryFn: getCouponsForOrder,
   });
 
-  function calculateDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371; // Bán kính trái đất tính theo km
-    const dLat = ((lat2 - lat1) * Math.PI) / 180;
-    const dLon = ((lon2 - lon1) * Math.PI) / 180;
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos((lat1 * Math.PI) / 180) *
-        Math.cos((lat2 * Math.PI) / 180) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c; // Kết quả tính theo km
-  }
+  const { data: warehouses, isLoading: isLoadingWarehouses } = useQuery({
+    queryKey: ['warehouses'],
+    queryFn: getAllWarehouses,
+    keepPreviousData: true,
+  });
 
   // query lấy tất cả kho
   useEffect(() => {
     const fetchWarehouses = async () => {
-      const warehouses = await getAllWarehouses();
-
       if (warehouses && userAddress?.fullAddress) {
         try {
           // Lấy tọa độ từ địa chỉ người dùng
@@ -153,7 +143,7 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
     };
 
     fetchWarehouses();
-  }, [userAddress]);
+  }, [userAddress, warehouses]);
 
   // Lấy kho gần nhất từ vị trí của user
   // console.log(warehouses);
@@ -196,7 +186,7 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
 
   useEffect(() => {
     fetchShippingFee();
-  }, [userAddress, nearestWarehouse]);
+  }, [userAddress, nearestWarehouse, warehouses]);
 
   // mutate xoá sản phẩm khỏi giỏ hàng sau khi đặt thành công
   const { mutate: removeCart, isLoading: isRemovingCart } = useMutation({
@@ -452,7 +442,13 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
     });
   };
 
-  if (isLoading || isRemovingCart || isLoadingCoupons || isLoadingVnpayUrl)
+  if (
+    isLoading ||
+    isRemovingCart ||
+    isLoadingCoupons ||
+    isLoadingVnpayUrl ||
+    isLoadingWarehouses
+  )
     return <MainLoading />;
 
   return (

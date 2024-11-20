@@ -2,48 +2,38 @@ import { useState, useEffect } from 'react';
 
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
-import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
-import TableBody from '@mui/material/TableBody';
 import Typography from '@mui/material/Typography';
-import TableContainer from '@mui/material/TableContainer';
-import TablePagination from '@mui/material/TablePagination';
 
 import Iconify from 'src/components/iconify';
-import Scrollbar from 'src/components/scrollbar';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'src/routes/hooks';
-import { fetchAll, setStatus, deleteBrand } from 'src/redux/slices/brandSlices';
+import {
+  creates,
+  fetchAll,
+  setStatus,
+  deleteBrand,
+  deleteBrands,
+} from 'src/redux/slices/brandSlices';
 import ConfirmDelete from 'src/components/modal/confirm-delete';
 import { handleToast } from 'src/hooks/toast';
-import LoadingFull from 'src/components/loading/loading-full';
-import TableEmptyRows from 'src/components/table/table-empty-rows';
-import TableNoData from 'src/components/table/table-no-data';
-import { emptyRows, applyFilter, getComparator } from 'src/components/table/utils';
 import { IconButton } from '@mui/material';
-import BrandTableHead from '../brand-table-head';
-import BrandTableRow from '../brand-table-row';
-import BrandTableToolbar from '../brand-table-toolbar';
+import { DataGrid, GridToolbar, GridActionsCellItem } from '@mui/x-data-grid';
+import { IconEdit, IconExcel, IconDelete } from 'src/components/iconify/icon';
+import { renderUrl } from 'src/utils/check';
+import { handleExport } from 'src/utils/excel';
+import ImportExcelModal from 'src/components/modal/import-modal';
 
 // ----------------------------------------------------------------------
+const backEnd = import.meta.env.VITE_BACKEND_APP_URL;
 
 export default function BrandsPage() {
-  const [page, setPage] = useState(0);
-
-  const [order, setOrder] = useState('asc');
-
-  const [selected, setSelected] = useState([]);
-
-  const [orderBy, setOrderBy] = useState('name');
-
-  const [filterName, setFilterName] = useState('');
-
-  const [rowsPerPage, setRowsPerPage] = useState(5);
   const [confirm, setConfirm] = useState(false);
-
+  const [confirms, setConfirms] = useState(false);
   const [brands, setBrands] = useState([]);
+  const [rowSelectionModel, setRowSelectionModel] = useState([]);
 
   const dispatch = useDispatch();
   const route = useRouter();
@@ -52,11 +42,41 @@ export default function BrandsPage() {
   const status = useSelector((state) => state.brands.status);
   const error = useSelector((state) => state.brands.error);
   const statusDelete = useSelector((state) => state.brands.statusDelete);
-
+  const statusCreate = useSelector((state) => state.brands.statusCreate);
+  const dataCreates = useSelector((state) => state.brands.dataCreates);
   useEffect(() => {
     dispatch(fetchAll());
   }, [dispatch]);
-
+  useEffect(() => {
+    if (statusCreate === 'successful') {
+      dispatch(fetchAll());
+      dataCreates.successful.forEach((item) => {
+        handleToast('success', item.message);
+      });
+      dispatch(
+        setStatus({
+          key: 'statusCreate',
+          value: 'idle',
+        })
+      );
+    }
+    if (statusCreate === 'failed') {
+      dispatch(fetchAll());
+      handleToast('error', dataCreates.message || 'Thêm biến thể thất bại');
+      dataCreates.errors.forEach((item) => {
+        handleToast('error', item.message);
+      });
+      dataCreates.successful.forEach((item) => {
+        handleToast('success', item.message);
+      });
+      dispatch(
+        setStatus({
+          key: 'statusCreate',
+          value: 'idle',
+        })
+      );
+    }
+  }, [statusCreate, dataCreates, dispatch]);
   useEffect(() => {
     if (status === 'successful') {
       setBrands(data);
@@ -64,9 +84,9 @@ export default function BrandsPage() {
   }, [status, dispatch, data]);
   useEffect(() => {
     if (statusDelete === 'successful') {
+      dispatch(fetchAll());
       handleToast('success', 'Xóa nhãn hàng thành công!');
       dispatch(setStatus({ key: 'statusDelete', value: 'idle' }));
-      dispatch(fetchAll());
     }
     if (statusDelete === 'failed') {
       handleToast('error', error.messages);
@@ -74,86 +94,120 @@ export default function BrandsPage() {
     }
   }, [statusDelete, dispatch, error]);
 
-  const handleSort = (event, id) => {
-    const isAsc = orderBy === id && order === 'asc';
-    if (id !== '') {
-      setOrder(isAsc ? 'desc' : 'asc');
-      setOrderBy(id);
-    }
-  };
-
-  const handleSelectAllClick = (event) => {
-    if (event.target.checked) {
-      const newSelected = brands.map((n) => n.name);
-      setSelected(newSelected);
-      return;
-    }
-    setSelected([]);
-  };
-
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
-    let newSelected = [];
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
-      );
-    }
-    setSelected(newSelected);
-  };
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setPage(0);
-    setRowsPerPage(parseInt(event.target.value, 10));
-  };
-
-  const handleFilterByName = (event) => {
-    setPage(0);
-    setFilterName(event.target.value);
-  };
-
-  const dataFiltered = applyFilter({
-    inputData: brands,
-    comparator: getComparator(order, orderBy),
-    filterName,
-    fillerQuery: 'name',
-  });
-  const handleNavigate = (id) => {
-    route.push(id);
-  };
-  const handleDelete = (id) => {
+  const handleDeleteClick = (id) => {
     setConfirm(id);
   };
   const dispatchDelete = () => {
     dispatch(deleteBrand(confirm));
   };
+  const handleEditClick = (id) => () => {
+    route.push(id);
+  };
+  const handleSave = (d) => {
+    dispatch(creates(d));
+  };
 
-  const notFound = !dataFiltered.length && !!filterName;
-
+  const renderImage = (params) => {
+    const imageUrl = params.formattedValue; // URL của hình ảnh lấy từ params.value
+    return (
+      <img
+        src={imageUrl}
+        alt="Hình ảnh"
+        style={{ width: '50px', height: '50px', objectFit: 'contain' }}
+      />
+    );
+  };
+  const columns = [
+    {
+      field: 'actions',
+      type: 'actions',
+      headerName: 'Hành động',
+      width: 100,
+      cellClassName: 'actions',
+      getActions: ({ id }) => [
+        <GridActionsCellItem
+          icon={<IconEdit />}
+          label="Sửa"
+          className="textPrimary"
+          onClick={handleEditClick(id)}
+          color="inherit"
+        />,
+        <GridActionsCellItem
+          icon={<IconDelete />}
+          label="Xóa"
+          onClick={() => handleDeleteClick(id)}
+          color="inherit"
+        />,
+      ],
+    },
+    { field: 'name', headerName: 'Tên nhãn hàng', width: 200 },
+    {
+      field: 'image',
+      headerName: 'Hình ảnh',
+      width: 200,
+      valueFormatter: (params) => renderUrl(params, backEnd),
+      renderCell: renderImage,
+    },
+    { field: 'slug', headerName: 'Slug', width: 200 },
+    { field: 'category', headerName: 'Danh mục', width: 200 },
+    { field: 'description', headerName: 'Mô tả', width: 200 },
+    { field: 'createdAt', headerName: 'Ngày tạo', width: 200 },
+    { field: 'updatedAt', headerName: 'Ngày nhập', width: 200 },
+    { field: 'website', headerName: 'Trang chủ', width: 200 },
+    { field: 'status', headerName: 'Trạng thái', width: 200 },
+  ];
+  const handleDeleteMany = () => {
+    dispatch(
+      deleteBrands({
+        ids: rowSelectionModel,
+      })
+    );
+  };
   return (
     <Container>
-      {status === 'loading' && <LoadingFull />}
       <ConfirmDelete
         openConfirm={!!confirm}
         onAgree={dispatchDelete}
         onClose={() => setConfirm(false)}
       />
+      <ConfirmDelete
+        openConfirm={confirms}
+        onAgree={handleDeleteMany}
+        label="các nhãn hàng đã chọn"
+        onClose={() => setConfirms(false)}
+      />
 
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
           <Typography variant="h4">Nhãn hàng</Typography>
-
+          <Button
+            variant="contained"
+            onClick={() => handleExport(brands, 'Danh sách nhãn hàng', 'brands')}
+            color="inherit"
+            startIcon={<IconExcel />}
+          >
+            Xuất Excel
+          </Button>
+          <ImportExcelModal
+            validateKey={[
+              '_id',
+              'name',
+              'slug',
+              'category',
+              'description',
+              'image',
+              'status',
+              'website',
+            ]}
+            columns={columns
+              .filter(
+                (col) =>
+                  col.field !== 'createdAt' && col.field !== 'updatedAt' && col.field !== 'actions'
+              )
+              .map((col) => col)}
+            onSave={handleSave}
+            loading={statusCreate === 'loading'}
+          />
           <IconButton
             aria-label="load"
             variant="contained"
@@ -162,6 +216,11 @@ export default function BrandsPage() {
           >
             <Iconify icon="mdi:reload" />
           </IconButton>
+          {rowSelectionModel.length > 0 && (
+            <Button variant="text" color="error" onClick={() => setConfirms(true)}>
+              Xóa nhiều
+            </Button>
+          )}
         </Stack>
         <Button
           variant="contained"
@@ -174,74 +233,57 @@ export default function BrandsPage() {
       </Stack>
 
       <Card>
-        <BrandTableToolbar
-          numSelected={selected.length}
-          filterName={filterName}
-          onFilterName={handleFilterByName}
-        />
-
-        <Scrollbar>
-          <TableContainer sx={{ overflow: 'unset' }}>
-            <Table sx={{ minWidth: 800 }}>
-              <BrandTableHead
-                order={order}
-                orderBy={orderBy}
-                rowCount={brands.length}
-                numSelected={selected.length}
-                onRequestSort={handleSort}
-                onSelectAllClick={handleSelectAllClick}
-                headLabel={[
-                  { id: 'name', label: 'Tên nhãn hàng' },
-                  { id: 'slug', label: 'Slug' },
-                  { id: 'createdAt', label: 'Ngày tạo' },
-                  { id: 'updatedAt', label: 'Ngày nhập' },
-                  { id: 'website', label: 'Trang chủ' },
-                  { id: 'status', label: 'Trạng thái' },
-                  { id: '' },
-                ]}
-              />
-              <TableBody>
-                {dataFiltered
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((row) => (
-                    <BrandTableRow
-                      key={row._id}
-                      name={row.name}
-                      status={row.status}
-                      createdAt={row.createdAt}
-                      updatedAt={row.updatedAt}
-                      avatar={row.image}
-                      slug={row.slug}
-                      website={row.website}
-                      selected={selected.indexOf(row.name) !== -1} // Assuming the company name is used for selection
-                      handleClick={(event) => handleClick(event, row._id)}
-                      handleNavigate={() => handleNavigate(row._id)}
-                      onDelete={() => handleDelete(row._id)}
-                    />
-                  ))}
-
-                <TableEmptyRows
-                  height={77}
-                  emptyRows={emptyRows(page, rowsPerPage, brands.length)}
-                  col={6}
-                />
-
-                {notFound && <TableNoData query={filterName} />}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Scrollbar>
-
-        <TablePagination
-          page={page}
-          component="div"
-          labelRowsPerPage="Số hàng trên trang"
-          count={brands.length}
-          rowsPerPage={rowsPerPage}
-          onPageChange={handleChangePage}
-          rowsPerPageOptions={[5, 10, 25]}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
+        <div style={{ height: 400, width: '100%' }}>
+          <DataGrid
+            initialState={{
+              columns: {
+                columnVisibilityModel: {
+                  status: false,
+                  createdAt: false,
+                  updatedAt: false,
+                },
+              },
+              pagination: {
+                paginationModel: {
+                  pageSize: 5,
+                },
+              },
+            }}
+            loading={status === 'loading'}
+            slotProps={{
+              loadingOverlay: {
+                variant: 'linear-progress',
+                noRowsVariant: 'linear-progress',
+              },
+            }}
+            columns={columns}
+            rows={brands}
+            pageSizeOptions={[5, 10]}
+            getRowId={(row) => row._id}
+            slots={{ toolbar: GridToolbar }}
+            localeText={{
+              noRowsLabel: 'Không có dữ liệu',
+              MuiTablePagination: {
+                labelRowsPerPage: 'Số dòng mỗi trang',
+              },
+              toolbarColumns: 'Cột',
+              toolbarFilters: 'Lọc',
+              toolbarExport: 'Xuất',
+              toolbarExportCSV: 'Xuất CSV',
+              toolbarExportPrint: 'In',
+              toolbarExportExcel: 'Xuất Excel',
+              toolbarDensity: 'Mật độ',
+              toolbarDensityCompact: 'Nhỏ',
+              toolbarDensityStandard: 'Bình thường',
+              toolbarDensityComfortable: 'Lớn',
+            }}
+            checkboxSelection
+            onRowSelectionModelChange={(newRowSelectionModel) => {
+              setRowSelectionModel(newRowSelectionModel);
+            }}
+            selectionModel={rowSelectionModel}
+          />
+        </div>
       </Card>
     </Container>
   );

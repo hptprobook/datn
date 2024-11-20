@@ -9,7 +9,7 @@ import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { Button, TextField } from '@mui/material';
 import { useFormik } from 'formik';
 import { useDispatch, useSelector } from 'react-redux';
-import { create , setStatus } from 'src/redux/slices/supplierSlices';
+import { create, setStatus } from 'src/redux/slices/supplierSlices';
 import { useEffect } from 'react';
 import { handleToast } from 'src/hooks/toast';
 import { supplierSchema } from '../utils';
@@ -29,7 +29,7 @@ export default function SupplierCreatePage() {
     }
     if (status === 'failed') {
       dispatch(setStatus({ key: 'statusCreate', value: 'idle' }));
-      handleToast('error', err.messages);
+      handleToast('error', err.message || 'Có lỗi xảy ra khi tạo nhà cung cấp');
     }
   }, [status, err, dispatch]);
   const formik = useFormik({
@@ -47,7 +47,10 @@ export default function SupplierCreatePage() {
     },
     validationSchema: supplierSchema,
     onSubmit: async (values) => {
-      dispatch(create(values));
+      const t = Object.fromEntries(
+        Object.entries(values).map(([key, value]) => [key, value === "" ? null : value])
+      );
+      dispatch(create(t));
     },
   });
 
@@ -182,7 +185,7 @@ export default function SupplierCreatePage() {
               />
             </Grid2>
             <Grid2 xs={12}>
-              <Button type="submit" variant="contained">
+              <Button type="submit" variant="contained" color="inherit">
                 Lưu
               </Button>
             </Grid2>
