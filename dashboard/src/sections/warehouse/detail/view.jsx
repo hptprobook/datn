@@ -68,7 +68,7 @@ export default function WarehouseEditPage() {
       address: warehouse.location || '',
       capacity: warehouse.capacity || 0,
       currentQuantity: warehouse.currentQuantity || 0,
-      status: warehouse.status || 'active',
+      status: warehouse.status || 'Hoạt động',
       province_id: warehouse.province_id || '',
       district_id: warehouse.district_id || '',
       longitude: warehouse.longitude || '',
@@ -223,9 +223,9 @@ export default function WarehouseEditPage() {
                       value={formik.values.status}
                       onChange={formik.handleChange}
                     >
-                      <MenuItem value="active">Hoạt động</MenuItem>
-                      <MenuItem value="close">Đóng cửa</MenuItem>
-                      <MenuItem value="full">Đầy</MenuItem>
+                      <MenuItem value="Hoạt động">Hoạt động</MenuItem>
+                      <MenuItem value="Đóng cửa">Đóng cửa</MenuItem>
+                      <MenuItem value="Đầy kho">Đầy</MenuItem>
                     </Select>
                   }
                 />
