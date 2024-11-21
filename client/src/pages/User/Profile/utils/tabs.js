@@ -73,3 +73,34 @@ export const getStatusName = (statusKey) => {
   const tab = tabs.find((tab) => tab.key === statusKey);
   return tab ? tab.name : 'Không xác định';
 };
+
+export const returnStatus = [
+  {
+    status: 'pending',
+    name: 'Chờ xác nhận',
+  },
+  {
+    status: 'approved',
+    name: 'Xác nhận trả hàng',
+  },
+  {
+    status: 'rejected',
+    name: 'Yêu cầu bị huỷ bỏ',
+  },
+];
+
+export const reasonsForCancel = [
+  'Thay đổi ý định',
+  'Đặt nhầm sản phẩm',
+  'Thời gian giao hàng quá lâu',
+  'Tìm thấy giá tốt hơn',
+  'Lý do khác',
+];
+
+export const reasonsForReturn = [
+  'Sản phẩm bị lỗi hoặc hỏng',
+  'Sản phẩm không đúng mô tả',
+  'Sản phẩm giao sai',
+  'Không hài lòng với sản phẩm',
+  'Lý do khác',
+];

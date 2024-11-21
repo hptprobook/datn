@@ -1,24 +1,36 @@
 import { useQuery } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Link, NavLink } from 'react-router-dom';
+import { getAllWarehouses } from '~/APIs';
 import {
   getAllProvinces,
+  getCoordinatesFromAddress,
   getDistrictsByProvinceId,
   getWardsByDistrictId,
 } from '~/APIs/address';
 import { getShippingFee } from '~/APIs/Shipping';
+import MainLoading from '~/components/common/Loading/MainLoading';
 import SearchableSelect from '~/components/common/Select/SearchableSelect';
 import Input from '~/components/common/TextField/Input';
 import { useCheckoutContext } from '~/context/CheckoutContext';
 import { useSwal } from '~/customHooks/useSwal';
-import { formatCurrencyVND } from '~/utils/formatters';
+import { handleToast } from '~/customHooks/useToast';
+import { calculateDistance, formatCurrencyVND } from '~/utils/formatters';
 
 const DeliveryDetail = ({ selectedProducts, setShippingFee }) => {
   const { formik } = useCheckoutContext();
+  const nearestWarehouse = useRef(null);
+  const DEFAULT_FROM_DISTRICT_ID = 1552;
 
   const { data: provinces } = useQuery({
     queryKey: ['provinces'],
     queryFn: () => getAllProvinces(),
+  });
+
+  const { data: warehouses, isLoading: isLoadingWarehouses } = useQuery({
+    queryKey: ['warehouses'],
+    queryFn: getAllWarehouses,
+    keepPreviousData: true,
   });
 
   const provinceOptions = provinces
@@ -60,48 +72,95 @@ const DeliveryDetail = ({ selectedProducts, setShippingFee }) => {
     return total + product.weight * product.quantity;
   }, 0);
 
+  const fetchShippingFee = async () => {
+    if (
+      formik.values.district_id &&
+      formik.values.ward_id &&
+      nearestWarehouse.current
+    ) {
+      let data = {
+        service_type_id: 2,
+        from_district_id: +nearestWarehouse.current.district_id,
+        to_district_id: formik.values.district_id,
+        to_ward_code: formik.values.ward_id,
+        weight: totalWeight || 1,
+        items: selectedProducts.map((product) => ({
+          name: product.name,
+          quantity: product.quantity,
+          weight: product.weight,
+        })),
+      };
+
+      try {
+        let response = await getShippingFee(data);
+
+        if (response?.data?.total <= 0) {
+          data.service_type_id = 5;
+          response = await getShippingFee(data);
+        }
+
+        setShippingFee(response?.data?.total);
+      } catch (error) {
+        useSwal.fire(
+          'Lỗi!',
+          'Lỗi khi lấy phí vận chuyển, vui lòng chọn một địa chỉ khác',
+          'error'
+        );
+      }
+    }
+  };
+
+  // query lấy tất cả kho
   useEffect(() => {
-    const fetchShippingFee = async () => {
-      if (formik.values.district_id && formik.values.ward_id) {
-        let data = {
-          service_type_id: 2, // Mặc định là 2
-          from_district_id: 1552,
-          to_district_id: formik.values.district_id,
-          to_ward_code: formik.values.ward_id,
-          weight: totalWeight || 1,
-          items: selectedProducts.map((product) => ({
-            name: product.name,
-            quantity: product.quantity,
-            weight: product.weight,
-          })),
-        };
-
+    const fetchWarehouses = async () => {
+      if (warehouses && formik.values.district_id && formik.values.ward_id) {
         try {
-          let response = await getShippingFee(data);
+          // Lấy tọa độ từ địa chỉ người dùng
+          const userCoordinates = await getCoordinatesFromAddress(
+            `${formik.values.address}, ${formik.values.ward_name}, ${formik.values.district_name}, ${formik.values.province_name}`
+          );
 
-          if (response?.data?.total <= 0) {
-            data.service_type_id = 5;
-            response = await getShippingFee(data);
-          }
+          const [userLongitude, userLatitude] = userCoordinates;
 
-          setShippingFee(response?.data?.total);
+          let minDistance = Infinity;
+          warehouses.forEach((warehouse) => {
+            const distance = calculateDistance(
+              userLatitude,
+              userLongitude,
+              warehouse.latitude,
+              warehouse.longitude
+            );
+
+            if (distance < minDistance) {
+              minDistance = distance;
+              nearestWarehouse.current = warehouse;
+            }
+          });
+
+          fetchShippingFee();
         } catch (error) {
-          useSwal.fire(
-            'Lỗi!',
-            'Lỗi khi lấy phí vận chuyển, vui lòng chọn một địa chỉ khác',
-            'error'
+          nearestWarehouse.current = {
+            district_id: DEFAULT_FROM_DISTRICT_ID,
+          };
+          fetchShippingFee();
+          handleToast(
+            'warning',
+            'Không thể xác định tọa độ từ địa chỉ của bạn. Sử dụng kho mặc định để tính phí vận chuyển.'
           );
         }
       }
     };
 
+    fetchWarehouses();
+  }, [formik.values.ward_id, warehouses]);
+
+  useEffect(() => {
     fetchShippingFee();
-  }, [
-    formik.values.district_id,
-    formik.values.ward_id,
-    totalWeight,
-    selectedProducts,
-  ]);
+  }, [formik.values.ward_id, nearestWarehouse]);
+
+  if (isLoadingWarehouses) {
+    return <MainLoading />;
+  }
 
   return (
     <div className="min-w-0 flex-1 space-y-8 text-gray-800">

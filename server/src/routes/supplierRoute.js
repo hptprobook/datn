@@ -32,7 +32,14 @@ Router.post(
   isAdmin,
   supplierController.deleteManySupplier
 );
+Router.post(
+  '/creates',
+  verifyToken,
+  isAdmin,
+  supplierController.createManySuppliers
+);
 
 Router.put('/:id', verifyToken, isAdmin, supplierController.updateSupplier);
+
 
 export const suppliersApi = Router;

@@ -1,4 +1,4 @@
-import { get, del, post } from "src/utils/request";
+import { get, del, put, post } from "src/utils/request";
 
 const DashboardService = {
     create: async (path, c) => {
@@ -20,6 +20,14 @@ const DashboardService = {
     delete: async (path) => {
         try {
             return await del(path);
+        } catch (err) {
+            console.error("Error: ", err);
+            throw err;
+        }
+    },
+    update: async (path, c) => {
+        try {
+            return await put(path, c);
         } catch (err) {
             console.error("Error: ", err);
             throw err;
