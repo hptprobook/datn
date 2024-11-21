@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-boolean-value */
 import React, { useState, useEffect, useCallback } from 'react';
 import * as Yup from 'yup';
 import Stack from '@mui/material/Stack';
@@ -95,22 +94,28 @@ const CreateCategoryView = () => {
       data.seoOption.title = data.seoOption.title || data.name;
       data.seoOption.description = data.seoOption.description || data.description;
       data.seoOption.alias = data.seoOption.alias || data.slug;
-      
+      if (data.status) {
+        data.status = 'Hiện';
+      } else {
+        data.status = 'Ẩn';
+      }
       dispatch(createCategory({ file: uploadedImageUrl, data }));
     },
   });
 
   useEffect(() => {
     if (statusCreate === 'successful') {
-    dispatch(setStatus({ key: 'statusCreate', value: 'idle' }));
+      dispatch(setStatus({ key: 'statusCreate', value: 'idle' }));
       handleToast('success', 'Tạo Danh mục thành công');
+      formik.resetForm();
       setUploadedImageUrl(null);
     } else if (statusCreate === 'failed') {
+      dispatch(setStatus({ key: 'statusCreate', value: 'idle' }));
       dispatch(setStatus({ key: 'error', value: null }));
       handleToast('error', error?.message || 'Có lỗi xảy ra khi tạo Danh mục');
     }
+    // eslint-disable-next-line
   }, [statusCreate, dispatch, error, formik]);
-console.log(statusCreate);
   useEffect(() => {
     if (statusGetCategories === 'idle') {
       dispatch(fetchAllCategories(true));

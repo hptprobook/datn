@@ -25,7 +25,7 @@ const getWarehousesAll = async () => {
     const db = await GET_DB().collection('warehouses');
     const result = await db
         .find()
-        // .project({ _id: 0, age:1 })
+        .sort({ createdAt: -1 })
         .toArray();
     return result;
 };

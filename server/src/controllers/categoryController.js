@@ -171,6 +171,9 @@ const update = async (req, res) => {
     const { id } = req.params;
 
     const data = req.body;
+    if (typeof data.seoOption === 'string') {
+      data.seoOption = JSON.parse(data.seoOption);
+    }
     if (!req.file) {
       const category = await categoryModel.getCategoryById(id);
 
@@ -278,7 +281,91 @@ const deleteManyCategory = async (req, res) => {
       .json({ message: error.message });
   }
 };
+const creates = async (req, res) => {
+  try {
+    const data = req.body;
+    const errors = [];
+    const successful = [];
+    for (const w of data) {
+      try {
+        if (w._id) {
+          const existed = await categoryModel.getCategoryById(
+            w._id
+          );
+          if (!existed) {
+            errors.push({
+              message: `Danh mục với id: ${w._id} không tồn tại`,
+            });
+            continue;
+          }
+          const id = w._id;
+          delete w._id;
+          const existedSlug = await categoryModel.getCategoryBySlug(w.slug);
+          if (existedSlug && existedSlug._id.toString() !== id) {
+            errors.push({
+              message: `Slug: ${w.slug} đã tồn tại`,
+            });
+            continue;
+          }
+          w.seoOption = existed.seoOption;
+          await categoryModel.update(
+            id,
+            w
+          );
+          successful.push({
+            message: 'Cập nhật thành công danh mục: ' + w.name + ' với id: ' + id,
+          });
+          if (w.imageURL && existed.imageURL !== w.imageURL) {
+            await uploadModel.deleteImg(existed.imageURL);
+          }
+        }
+        else {
+          const existedSlug = await categoryModel.getCategoryBySlug(w.slug);
+          if (existedSlug) {
+            errors.push({
+              message: `Slug: ${w.slug} đã tồn tại`,
+            });
+            continue;
+          }
+          w.seoOption = {
+            title: w.name,
+            description: w.name,
+            alias: w.slug,
+          }
+          await categoryModel.createCategory(w);
+          successful.push({
+            message: 'Tạo mới thành công danh mục: ' + w.name,
+          });
+        }
 
+      } catch (error) {
+        errors.push({
+          message: error.details
+            ? (w.name + ': ' + error.details[0].message)
+            : (error.message || 'Có lỗi xảy ra khi thêm danh mục'),
+        });
+      }
+    }
+
+    // Trả về kết quả
+    if (errors.length) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: 'Một số danh mục không thể thêm được',
+        errors,
+        successful,
+      });
+    }
+
+    return res.status(StatusCodes.OK).json({
+      message: 'Tất cả đã được thêm thành công',
+      successful,
+    });
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: 'Có lỗi xảy ra, xin thử lại sau',
+    });
+  }
+};
 export const categoryController = {
   getMenuCategories,
   createCategory,
@@ -290,4 +377,5 @@ export const categoryController = {
   getAllCategories,
   getCategoryBySlug,
   deleteManyCategory,
+  creates,
 };

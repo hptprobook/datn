@@ -42,5 +42,6 @@ Router.put(
 );
 Router.delete('/:id', verifyStaff, categoryController.deleteCategory);
 Router.post('/many', verifyStaff, categoryController.deleteManyCategory);
+Router.post('/creates', verifyStaff, categoryController.creates);
 
 export const categoriesApi = Router;
