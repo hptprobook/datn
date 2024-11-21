@@ -47,7 +47,7 @@ export default function WarehouseCreatePage() {
       latitude: '',
       capacity: 0,
       currentQuantity: 0,
-      status: 'active',
+      status: 'Hoạt động',
       province_id: '',
       district_id: '',
       ward_id: '',
@@ -207,8 +207,8 @@ export default function WarehouseCreatePage() {
                       value={formik.values.status}
                       onChange={formik.handleChange}
                     >
-                      <MenuItem value="active">Hoạt động</MenuItem>
-                      <MenuItem value="close">Đóng cửa</MenuItem>
+                      <MenuItem value="Hoạt động">Hoạt động</MenuItem>
+                      <MenuItem value="Đóng cửa">Đóng cửa</MenuItem>
                     </Select>
                   }
                 />
