@@ -69,7 +69,7 @@ const getCategoriesAll = async (parent = null) => {
     return result;
   }
   const db = await GET_DB().collection('categories');
-  const result = await db.find().sort({ createdAt: 1 }).toArray();
+  const result = await db.find().sort({ createdAt: -1 }).toArray();
   if (!result) {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
@@ -87,7 +87,6 @@ const getCategoriesByParentId = async (category_id) => {
 
 const getCategoryById = async (category_id) => {
   const db = await GET_DB().collection('categories');
-
   const category = await db.findOne({ _id: new ObjectId(category_id) });
   return category;
 };
@@ -143,9 +142,6 @@ const update = async (id, data) => {
     },
     { returnDocument: 'after' }
   );
-  if (!result) {
-    throw new Error('Có lỗi xảy ra, xin thử lại sau');
-  }
   return result;
 };
 
@@ -169,10 +165,10 @@ const deleteAllChildCategories = async (parentId) => {
 const deleteCategory = async (id) => {
   const db = GET_DB().collection('categories');
   const category = await db.findOne({ _id: new ObjectId(id) });
-  await db.deleteOne({ _id: new ObjectId(id) });
   if (!category) {
-    throw new Error('Có lỗi xảy ra, xin thử lại sau');
+    throw new Error('Không tìm thấy danh mục');
   }
+  await db.deleteOne({ _id: new ObjectId(id) });
   return category;
 };
 
