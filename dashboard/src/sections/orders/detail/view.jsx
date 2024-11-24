@@ -34,9 +34,9 @@ import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
 import PropTypes from 'prop-types';
+import { renderUrl } from 'src/utils/check';
 import { statusConfig, handleStatusConfig } from '../utils';
 import OrderTimeline from '../app-order-timeline';
-import { renderUrl } from 'src/utils/check';
 
 const backEndUrl = import.meta.env.VITE_BACKEND_APP_URL;
 
@@ -139,7 +139,8 @@ export default function DetailOrderPage() {
       const dataUpdate = {
         status: {
           status: 'cancelled',
-          note: values.note,
+          note: 'Chủ cửa hàng hủy đơn hàng',
+          reason: values.note,
         },
       };
       setOpen(false);
@@ -255,7 +256,7 @@ export default function DetailOrderPage() {
           direction="row"
           alignItems="center"
           justifyContent="space-between"
-          mb={5}
+          mb={2}
           spacing={2}
         >
           {renderCancel()}
@@ -281,13 +282,12 @@ export default function DetailOrderPage() {
                   direction="row"
                   alignItems="center"
                   justifyContent="space-between"
-                  mb={5}
+                  mb={3}
                   pl={2}
                 >
                   <Typography variant="h5">Thông tin cơ bản</Typography>
                   {renderStatusLabel()}
                 </Stack>
-                <Divider />
                 <Typography sx={{ padding: '12px 0', fontWeight: 400 }} variant="h6">
                   Thông tin khách hàng
                 </Typography>
@@ -295,7 +295,7 @@ export default function DetailOrderPage() {
                   direction="row"
                   alignItems="center"
                   justifyContent="space-between"
-                  mb={5}
+                  mb={2}
                   pl={2}
                 >
                   <Typography sx={{ width: '33%', flexShrink: 0, fontSize: 14 }}>
@@ -309,7 +309,7 @@ export default function DetailOrderPage() {
                   direction="row"
                   alignItems="center"
                   justifyContent="space-between"
-                  mb={5}
+                  mb={2}
                   pl={2}
                 >
                   <Typography sx={{ width: '33%', flexShrink: 0, fontSize: 14 }}>
@@ -323,7 +323,7 @@ export default function DetailOrderPage() {
                   direction="row"
                   alignItems="center"
                   justifyContent="space-between"
-                  mb={5}
+                  mb={2}
                   pl={2}
                 >
                   <Typography sx={{ width: '33%', flexShrink: 0, fontSize: 14 }}>Email:</Typography>
@@ -335,7 +335,7 @@ export default function DetailOrderPage() {
                   direction="row"
                   alignItems="center"
                   justifyContent="space-between"
-                  mb={5}
+                  mb={2}
                   pl={2}
                 >
                   <Typography sx={{ width: '33%', flexShrink: 0, fontSize: 14 }}>
@@ -345,75 +345,6 @@ export default function DetailOrderPage() {
                     {renderAddress(order.shippingInfo)}
                   </Typography>
                 </Stack>
-                <Divider />
-                <Accordion>
-                  <AccordionSummary
-                    expandIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
-                    aria-controls="price-order-content"
-                    id="price-order-header"
-                    sx={{ padding: '12px 0' }}
-                  >
-                    Giá trị đơn hàng
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <Stack
-                      direction="row"
-                      alignItems="center"
-                      justifyContent="space-between"
-                      mb={5}
-                      pl={2}
-                    >
-                      <Typography sx={{ width: '33%', flexShrink: 0, fontSize: 14 }}>
-                        Tổng giá vốn:
-                      </Typography>
-                      <Typography sx={{ color: 'text.secondary', fontSize: 14 }}>
-                        {order?.totalCapitalPrice ? formatCurrency(order.totalCapitalPrice) : '0'}
-                      </Typography>
-                    </Stack>
-                    <Stack
-                      direction="row"
-                      alignItems="center"
-                      justifyContent="space-between"
-                      mb={5}
-                      pl={2}
-                    >
-                      <Typography sx={{ width: '33%', flexShrink: 0, fontSize: 14 }}>
-                        Giá giảm giá:
-                      </Typography>
-                      <Typography sx={{ color: 'text.secondary', fontSize: 14 }}>
-                        {order?.discountPrice ? formatCurrency(order.discountPrice) : '0'}
-                      </Typography>
-                    </Stack>
-                    <Stack
-                      direction="row"
-                      alignItems="center"
-                      justifyContent="space-between"
-                      mb={5}
-                      pl={2}
-                    >
-                      <Typography sx={{ width: '33%', flexShrink: 0, fontSize: 14 }}>
-                        Tổng giá trị đơn hàng:
-                      </Typography>
-                      <Typography sx={{ color: 'text.secondary', fontSize: 14 }}>
-                        {order?.totalPrice ? formatCurrency(order.totalPrice) : '0'}
-                      </Typography>
-                    </Stack>
-                    <Stack
-                      direction="row"
-                      alignItems="center"
-                      justifyContent="space-between"
-                      mb={5}
-                      pl={2}
-                    >
-                      <Typography sx={{ width: '33%', flexShrink: 0, fontSize: 14 }}>
-                        Lợi nhuận:
-                      </Typography>
-                      <Typography sx={{ color: 'text.secondary', fontSize: 14 }}>
-                        {order?.totalProfit ? formatCurrency(order.totalProfit) : '0'}
-                      </Typography>
-                    </Stack>
-                  </AccordionDetails>
-                </Accordion>
                 <Divider />
                 <Accordion>
                   <AccordionSummary
@@ -429,102 +360,59 @@ export default function DetailOrderPage() {
                       direction="row"
                       alignItems="center"
                       justifyContent="space-between"
-                      mb={5}
+                      mb={2}
                       pl={2}
                     >
                       <Typography sx={{ width: '33%', flexShrink: 0, fontSize: 14 }}>
                         Đơn vị giao hàng:
                       </Typography>
                       <Typography sx={{ color: 'text.secondary', fontSize: 14 }}>
-                        {order.shipping?.deliveryUnit}
+                        {data?.deliveryUnit}
                       </Typography>
                     </Stack>
                     <Stack
                       direction="row"
                       alignItems="center"
                       justifyContent="space-between"
-                      mb={5}
+                      mb={2}
                       pl={2}
                     >
                       <Typography sx={{ width: '33%', flexShrink: 0, fontSize: 14 }}>
-                        Địa chỉ giao hàng:
+                        Phí giao hàng:
                       </Typography>
                       <Typography sx={{ color: 'text.secondary', fontSize: 14 }}>
-                        {order.shipping?.detailAddress}
+                        {data?.fee ? formatCurrency(data?.fee) : 'Miễn phí'}
                       </Typography>
                     </Stack>
                     <Stack
                       direction="row"
                       alignItems="center"
                       justifyContent="space-between"
-                      mb={5}
+                      mb={2}
                       pl={2}
                     >
                       <Typography sx={{ width: '33%', flexShrink: 0, fontSize: 14 }}>
                         Thời gian giao hàng dự kiến:
                       </Typography>
                       <Typography sx={{ color: 'text.secondary', fontSize: 14 }}>
-                        {order.shipping?.estimatedDeliveryDate
-                          ? formatDateTime(order.shipping?.estimatedDeliveryDate)
+                        {data?.estimatedDeliveryDate
+                          ? formatDateTime(data?.estimatedDeliveryDate)
                           : ''}
                       </Typography>
                     </Stack>
+
                     <Stack
                       direction="row"
                       alignItems="center"
                       justifyContent="space-between"
-                      mb={5}
-                      pl={2}
-                    >
-                      <Typography sx={{ width: '33%', flexShrink: 0, fontSize: 14 }}>
-                        Phí giao hàng:
-                      </Typography>
-                      <Typography sx={{ color: 'text.secondary', fontSize: 14 }}>
-                        {order.shipping?.fee ? formatCurrency(order.shipping.fee) : 'Miễn phí'}
-                      </Typography>
-                    </Stack>
-                    <Stack
-                      direction="row"
-                      alignItems="center"
-                      justifyContent="space-between"
-                      mb={5}
-                      pl={2}
-                    >
-                      <Typography sx={{ width: '33%', flexShrink: 0, fontSize: 14 }}>
-                        Phí giao hàng:
-                      </Typography>
-                      <Typography sx={{ color: 'text.secondary', fontSize: 14 }}>
-                        {order.shipping?.fee ? formatCurrency(order.shipping.fee) : 'Miễn phí'}
-                      </Typography>
-                    </Stack>
-                    <Stack
-                      direction="row"
-                      alignItems="center"
-                      justifyContent="space-between"
-                      mb={5}
-                      pl={2}
-                    >
-                      <Typography sx={{ width: '33%', flexShrink: 0, fontSize: 14 }}>
-                        Trạng thái:
-                      </Typography>
-                      <Typography sx={{ color: 'text.secondary', fontSize: 14 }}>
-                        {order.shipping?.status ? order.shipping?.status : 'Không rõ trạng thái'}
-                      </Typography>
-                    </Stack>
-                    <Stack
-                      direction="row"
-                      alignItems="center"
-                      justifyContent="space-between"
-                      mb={5}
+                      mb={2}
                       pl={2}
                     >
                       <Typography sx={{ width: '33%', flexShrink: 0, fontSize: 14 }}>
                         Kiểu giao hàng:
                       </Typography>
                       <Typography sx={{ color: 'text.secondary', fontSize: 14 }}>
-                        {order.shipping?.shippingType
-                          ? order.shipping?.shippingType
-                          : 'Không rõ kiểu giao hàng'}
+                        {data?.shippingType ? data?.shippingType : 'Không rõ kiểu giao hàng'}
                       </Typography>
                     </Stack>
                   </AccordionDetails>
@@ -532,35 +420,125 @@ export default function DetailOrderPage() {
                 <Accordion>
                   <AccordionSummary
                     expandIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
+                    aria-controls="price-order-content"
+                    id="price-order-header"
+                    sx={{ padding: '12px 0' }}
+                  >
+                    Thông tin đơn hàng
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      mb={2}
+                      pl={2}
+                    >
+                      <Typography sx={{ width: '33%', flexShrink: 0, fontSize: 14 }}>
+                        Tổng giá:
+                      </Typography>
+                      <Typography sx={{ color: 'text.secondary', fontSize: 14 }}>
+                        {order?.totalPrice ? formatCurrency(order.totalPrice) : '0'}
+                      </Typography>
+                    </Stack>
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      mb={2}
+                      pl={2}
+                    >
+                      <Typography sx={{ width: '33%', flexShrink: 0, fontSize: 14 }}>
+                        Giảm giá:
+                      </Typography>
+                      <Typography sx={{ color: 'text.secondary', fontSize: 14 }}>
+                        {order?.discountPrice ? formatCurrency(order.discountPrice) : '0'}
+                      </Typography>
+                    </Stack>
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      mb={2}
+                      pl={2}
+                    >
+                      <Typography sx={{ width: '33%', flexShrink: 0, fontSize: 14 }}>
+                        Kiểu thanh toán:
+                      </Typography>
+                      <Typography sx={{ color: 'text.secondary', fontSize: 14 }}>
+                        {order?.paymentMethod || '0'}
+                      </Typography>
+                    </Stack>
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      mb={2}
+                      pl={2}
+                    >
+                      <Typography sx={{ width: '33%', flexShrink: 0, fontSize: 14 }}>
+                        Số tiền phải trả:
+                      </Typography>
+                      <Typography sx={{ color: 'text.secondary', fontSize: 14 }}>
+                        {order?.totalPayment ? formatCurrency(order.totalPayment) : '0'}
+                      </Typography>
+                    </Stack>
+                  </AccordionDetails>
+                </Accordion>
+                <Divider />
+
+                <Accordion>
+                  <AccordionSummary
+                    expandIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
                     aria-controls="status-order-content"
                     id="status-order-header"
                     sx={{ padding: '12px 0' }}
                   >
-                    Trạng thái đơn hàng
+                    Thông tin khác
                   </AccordionSummary>
                   <AccordionDetails>
-                    {order.status
-                      ? order.status?.map((item) => (
-                          <Stack
-                            key={item.createdAt}
-                            direction="row"
-                            alignItems="center"
-                            justifyContent="space-between"
-                            mb={5}
-                            pl={2}
-                          >
-                            <Typography sx={{ width: '33%', flexShrink: 0, fontSize: 14 }}>
-                              Trạng thái:
-                              <Label sx={{ ml: 2 }} color={statusConfig[item.status]?.color}>
-                                {statusConfig[item.status]?.label}
-                              </Label>
-                            </Typography>
-                            <Typography sx={{ color: 'text.secondary', fontSize: 14 }}>
-                              {item.createdAt ? formatDateTime(item.createdAt) : ''}
-                            </Typography>
-                          </Stack>
-                        ))
-                      : ''}
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      mb={2}
+                      pl={2}
+                    >
+                      <Typography sx={{ width: '33%', flexShrink: 0, fontSize: 14 }}>
+                        Trạng thái đánh giá:
+                      </Typography>
+                      <Typography sx={{ color: 'text.secondary', fontSize: 14 }}>
+                        {order?.isComment ? 'Đã đánh giá' : 'Chưa đánh giá'}
+                      </Typography>
+                    </Stack>
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      mb={2}
+                      pl={2}
+                    >
+                      <Typography sx={{ width: '33%', flexShrink: 0, fontSize: 14 }}>
+                        Ngày tạo đơn:
+                      </Typography>
+                      <Typography sx={{ color: 'text.secondary', fontSize: 14 }}>
+                        {order?.createdAt ? formatDateTime(order.createdAt) : ''}
+                      </Typography>
+                    </Stack>
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      mb={2}
+                      pl={2}
+                    >
+                      <Typography sx={{ width: '33%', flexShrink: 0, fontSize: 14 }}>
+                        Ngày cập nhật:
+                      </Typography>
+                      <Typography sx={{ color: 'text.secondary', fontSize: 14 }}>
+                        {order?.updatedAt ? formatDateTime(order.updatedAt) : ''}
+                      </Typography>
+                    </Stack>
                   </AccordionDetails>
                 </Accordion>
               </Card>

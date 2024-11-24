@@ -77,7 +77,9 @@ export const statusDeliverConfig = {
   shipped: { value: 'Shipped', label: 'Đã vận chuyển', color: 'success' },
   returned: { value: 'Returned', label: 'Đã trả lại', color: 'warning' },
   refunded: { value: 'Refunded', label: 'Đã hoàn tiền', color: 'warning' },
-  onHold: { value: 'On Hold', label: 'Đang giữ', color: 'error' }
+  onHold: { value: 'On Hold', label: 'Đang giữ', color: 'error' },
+  completed: { value: 'Completed', label: 'Hoàn thành', color: 'success' },
+  paymentPending: { value: 'Payment Pending', label: 'Chờ thanh toán', color: 'warning' },
 };
 
 export const paymentConfig = {
@@ -90,7 +92,8 @@ export const paymentConfig = {
 export const handleStatusConfig = {
   paymentPending: { value: 'pending', label: 'Chờ xác nhận', icon: 'eva:clock-outline' },
   pending: { value: 'confirmed', label: 'Xác nhận đơn hàng', icon: 'eva:checkmark-outline' },
-  confirmed: { value: 'shipping', label: 'Giao hàng', icon: 'eva:car-outline' },
+  confirmed: { value: 'shipped', label: 'Đã giao cho đơn vị vận chuyển', icon: 'eva:car-outline' },
+  shipped: { value: 'shipping', label: 'Đang vận chuyển', icon: 'eva:truck-outline' },
   shipping: { value: 'delivered', label: 'Đã giao hàng', icon: 'eva:clipboard-outline' },
   delivered: { value: 'completed', label: 'Hoàn thành', icon: 'eva:checkmark-square-outline' },
   returned: { value: 'cancelled', label: 'Đã huỷ', icon: 'eva:close-outline' },
