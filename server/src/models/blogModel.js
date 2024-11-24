@@ -22,6 +22,75 @@ const getAllBlogs = async (page, limit) => {
   return result;
 };
 
+const getTagsFromBlogs = async () => {
+  const db = await GET_DB().collection('blogs');
+
+  const tags = await db
+    .aggregate([
+      { $match: { status: 'public' } }, // Chỉ lấy các blog có trạng thái 'public'
+      { $unwind: '$tags' }, // Tách mảng tags thành các phần tử riêng lẻ
+      { $group: { _id: '$tags', count: { $sum: 1 } } }, // Gom nhóm các tags và đếm số lần xuất hiện
+      { $sort: { _id: 1 } }, // Sắp xếp tags theo thứ tự chữ cái
+      { $project: { _id: 0, tag: '$_id', count: 1 } }, // Chỉ trả về tag và số lần xuất hiện
+    ])
+    .toArray();
+
+  return tags;
+};
+
+const getAllBlogsForClient = async ({
+  page = 1,
+  limit = 12,
+  sort = 'newest',
+  tags = '',
+  search = '',
+}) => {
+  page = parseInt(page);
+  limit = parseInt(limit);
+
+  const db = await GET_DB().collection('blogs');
+
+  // Tạo query cơ bản
+  const query = {
+    status: 'public', // Chỉ trả về các blog có trạng thái 'public'
+  };
+
+  // Lọc theo tags nếu được cung cấp
+  if (tags.trim()) {
+    query.tags = { $regex: tags, $options: 'i' };
+  }
+
+  // Tìm kiếm nếu có search
+  if (search.trim()) {
+    query.title = { $regex: search, $options: 'i' };
+  }
+
+  // Sắp xếp
+  let sortQuery = {};
+  switch (sort) {
+    case 'newest':
+      sortQuery = { createdAt: -1 }; // Sắp xếp bài viết mới nhất
+      break;
+    case 'oldest':
+      sortQuery = { createdAt: 1 }; // Sắp xếp bài viết cũ nhất
+      break;
+    case 'mostViews':
+      sortQuery = { views: -1 }; // Sắp xếp bài viết có nhiều lượt xem nhất
+      break;
+    default:
+      sortQuery = { createdAt: -1 }; // Mặc định là mới nhất
+  }
+
+  const result = await db
+    .find(query)
+    .sort(sortQuery)
+    .skip((page - 1) * limit)
+    .limit(limit)
+    .toArray();
+
+  return result;
+};
+
 const getTopViewBlogs = async () => {
   const db = await GET_DB().collection('blogs');
   const result = await db.find().sort({ views: -1 }).limit(6).toArray();
@@ -151,6 +220,8 @@ const deleteBlog = async (id) => {
 
 export const blogModel = {
   getAllBlogs,
+  getTagsFromBlogs,
+  getAllBlogsForClient,
   getTopViewBlogs,
   createBlog,
   updateBlog,

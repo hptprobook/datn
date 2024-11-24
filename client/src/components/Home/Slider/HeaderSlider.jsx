@@ -3,17 +3,20 @@ import { Autoplay, Pagination, Navigation } from 'swiper/modules';
 import { NavLink } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getAllWebBanner } from '~/APIs';
-import { env } from '~/utils/constants';
+import { resolveUrl } from '~/utils/formatters';
 
 const HeaderSlider = () => {
-  const { data, isLoading } = useQuery({
+  // Mutate lấy web banner
+  const { data: webBanner, isLoading } = useQuery({
     queryKey: ['websiteBanner'],
     queryFn: getAllWebBanner,
   });
 
+  if (!webBanner) return null;
+
   if (isLoading) return null;
 
-  const slider = data || [];
+  const slider = webBanner || [];
 
   return (
     <div className="w-full h-slider z-0">
@@ -31,11 +34,11 @@ const HeaderSlider = () => {
         className="mySwiper z-0"
       >
         {slider.map((item) => (
-          <SwiperSlide key={item._id} className="z-0">
-            <NavLink to={item.url}>
+          <SwiperSlide key={item?._id} className="z-0">
+            <NavLink to={item?.url}>
               <img
-                src={`${env.SERVER_URL}/${item.image}`}
-                alt={item.title}
+                src={resolveUrl(item?.image)}
+                alt={item?.title}
                 className="w-full h-full object-cover"
               />
             </NavLink>

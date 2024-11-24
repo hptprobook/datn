@@ -1,16 +1,62 @@
+import { Icon } from '@iconify/react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
-import { getAllBlogAPI, getTopViewBlogAPI } from '~/APIs';
+import { Link, NavLink, useSearchParams } from 'react-router-dom';
+import { getAllBlogAPI, getTags, getTopViewBlogAPI } from '~/APIs';
 import { formatDateToDDMMYYYY } from '~/utils/formatters';
 
 const PostPage = () => {
   const [limit, setLimit] = useState(12);
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false); // Modal State
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchInput, setSearchInput] = useState(''); // Input trong modal
+
+  // Đọc các giá trị từ URL params
+  const sort = searchParams.get('sort') || 'newest';
+  const tags = searchParams.get('tags') || '';
+  const search = searchParams.get('search') || '';
+
+  // Mở modal tìm kiếm
+  const openSearchModal = () => {
+    setSearchInput(search); // Gán giá trị hiện tại vào input
+    setIsSearchModalOpen(true);
+  };
+
+  // Đóng modal tìm kiếm
+  const closeSearchModal = () => {
+    setIsSearchModalOpen(false);
+  };
+
+  // Xử lý nút Tìm kiếm
+  const handleSearchSubmit = () => {
+    // Chỉ thêm `search` vào URL params, xóa tất cả các params khác
+    const params = new URLSearchParams();
+    if (searchInput.trim()) {
+      params.set('search', searchInput.trim());
+    }
+    setSearchParams(params); // Cập nhật params
+    closeSearchModal(); // Đóng modal
+  };
+
+  // Gọi API lấy bài viết
   const { data: posts } = useQuery({
-    queryKey: ['getAllBlogs', limit],
-    queryFn: () => getAllBlogAPI({ limit }),
+    queryKey: ['getAllBlogs', limit, sort, tags, search],
+    queryFn: () =>
+      getAllBlogAPI({
+        limit,
+        sort,
+        tags,
+        search,
+      }),
   });
 
+  // Gọi API lấy tags
+  const { data: tagsData } = useQuery({
+    queryKey: ['getAllTags'],
+    queryFn: getTags,
+  });
+
+  // Gọi API lấy bài viết xem nhiều nhất
   const { data: topViewPosts } = useQuery({
     queryKey: ['getTopViewBlog'],
     queryFn: getTopViewBlogAPI,
@@ -20,13 +66,51 @@ const PostPage = () => {
     setLimit((prevLimit) => prevLimit + 12);
   };
 
+  const handleSortChange = (e) => {
+    const selectedSort = e.target.value;
+    setSearchParams((prevParams) => {
+      const params = new URLSearchParams(prevParams);
+      params.set('sort', selectedSort);
+      return params;
+    });
+  };
+
+  const handleTagClick = (tag) => {
+    setSearchParams((prevParams) => {
+      const params = new URLSearchParams(prevParams);
+      params.set('tags', tag);
+      return params;
+    });
+  };
+
   return (
     <div className="max-w-container mx-auto">
       <div className="flex flex-wrap -mx-4">
+        {/* Danh sách bài viết */}
         <div className="w-full lg:w-9/12 px-4">
-          <h2 className="text-xl font-bold mb-8 text-gray-900 uppercase">
-            Tin hot nhất
-          </h2>
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-bold mb-8 text-gray-900 uppercase">
+              Tin hot nhất
+            </h2>
+            <div className="flex gap-3 items-center">
+              <select
+                className="select select-primary w-52"
+                value={sort}
+                onChange={handleSortChange}
+              >
+                <option value="newest">Mới nhất</option>
+                <option value="oldest">Cũ nhất</option>
+                <option value="mostViews">Xem nhiều nhất</option>
+              </select>
+              <Icon
+                className="cursor-pointer"
+                icon="line-md:search"
+                width={24}
+                height={24}
+                onClick={openSearchModal} // Mở modal khi bấm vào icon search
+              />
+            </div>
+          </div>
           <div className="hotNewsSwiper grid grid-cols-1 md:grid-cols-2 gap-4">
             {posts?.map((post) => (
               <div
@@ -84,6 +168,7 @@ const PostPage = () => {
           </div>
         </div>
 
+        {/* Sidebar */}
         <div className="w-full lg:w-3/12 px-4 mt-4 lg:mt-0">
           <h2 className="text-xl font-bold mb-8 text-gray-900 uppercase">
             Đáng xem
@@ -114,12 +199,52 @@ const PostPage = () => {
               </Link>
             </div>
           ))}
+          <h2 className="text-xl font-bold mb-8 text-gray-900 uppercase">
+            Tags
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {tagsData?.map((tag) => (
+              <div
+                key={tag.tag}
+                onClick={() => handleTagClick(tag.tag)}
+                className="badge badge-secondary px-3 py-1 cursor-pointer"
+              >
+                {tag.tag}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
+
+      {/* Modal Search Fullscreen */}
+      {isSearchModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-white w-full max-w-2xl p-8 rounded-lg relative">
+            <button
+              className="absolute top-4 right-4 text-gray-600 hover:text-black"
+              onClick={closeSearchModal}
+            >
+              <Icon icon="line-md:close" width={24} height={24} />
+            </button>
+            <h2 className="text-2xl font-bold mb-4">Tìm kiếm bài viết</h2>
+            <input
+              type="text"
+              placeholder="Nhập từ khóa tìm kiếm..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)} // Cập nhật state
+              className="w-full border p-3 rounded-md"
+            />
+            <button
+              onClick={handleSearchSubmit}
+              className="btn bg-blue-600 text-white mt-4 hover:bg-blue-700 rounded-md"
+            >
+              Tìm kiếm
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
-
-PostPage.propTypes = {};
 
 export default PostPage;
