@@ -78,6 +78,15 @@ const CategoryService = {
       throw err;
     }
   },
+  creates: async (data) => {
+    try {
+      const res = await post('categories/creates', data);
+      return res;
+    } catch (err) {
+      console.error('Error: ', err);
+      throw err;
+    }
+  },
 };
 
 export default CategoryService;

@@ -18,7 +18,12 @@ import {
   FormControlLabel,
 } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { setStatus, updateCategory, updateWithImage, fetchAllCategories } from 'src/redux/slices/categorySlices';
+import {
+  setStatus,
+  updateCategory,
+  updateWithImage,
+  fetchAllCategories,
+} from 'src/redux/slices/categorySlices';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { useFormik } from 'formik';
 import { handleToast } from 'src/hooks/toast';
@@ -74,7 +79,7 @@ const DetailCategoryView = () => {
       name: category?.name || '',
       slug: category?.slug || '',
       parentId: category?.parentId || '',
-      status: category?.status || true,
+      status: category?.status === 'Hiện',
       description: category?.description || '',
       seoOption: {
         title: category?.seoOption?.title || '',
@@ -86,7 +91,7 @@ const DetailCategoryView = () => {
     validationSchema,
     onSubmit: async (values) => {
       const data = JSON.parse(JSON.stringify(values));
-   if (data.parentId === '') {
+      if (data.parentId === '') {
         data.parentId = 'ROOT';
         data.order = 0;
       } else {
@@ -103,6 +108,11 @@ const DetailCategoryView = () => {
       if (data.description === '') {
         handleToast('error', 'Mô tả không được để trống');
         return;
+      }
+      if (data.status) {
+        data.status = 'Hiện';
+      } else {
+        data.status = 'Ẩn';
       }
       if (!uploadedImageUrl) {
         dispatch(updateCategory({ id, data }));
@@ -283,7 +293,11 @@ const DetailCategoryView = () => {
                 <Typography variant="h6">Hình ảnh</Typography>
               </Grid2>
               <Grid2 xs={12}>
-                <ImageDropZone singleFile handleUpload={handleChangeUploadImg} defaultImg={category?.imageURL} />
+                <ImageDropZone
+                  singleFile
+                  handleUpload={handleChangeUploadImg}
+                  defaultImg={category?.imageURL}
+                />
               </Grid2>
             </Grid2>
           </Grid2>

@@ -26,6 +26,7 @@ const getSuppliersAll = async () => {
   const db = await GET_DB().collection('suppliers');
   const result = await db
     .find()
+    .sort({ createdAt: -1 })
     .toArray();
   if (!result) {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
