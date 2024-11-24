@@ -1,21 +1,36 @@
 import { Icon } from '@iconify/react';
-import { useQuery } from '@tanstack/react-query';
-import { Link, NavLink, useParams } from 'react-router-dom';
-import { getBlogBySlugAPI, getTopViewBlogAPI } from '~/APIs';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { useEffect } from 'react';
+import { Link, NavLink, useNavigate, useParams } from 'react-router-dom';
+import { getBlogBySlugAPI, getTopViewBlogAPI, updateViewBlog } from '~/APIs';
 import { convertHTMLToText, formatDateToDDMMYYYY } from '~/utils/formatters';
 
 const PostDetail = () => {
   const { slug } = useParams();
-
+  const navigate = useNavigate();
   const { data: topViewPosts } = useQuery({
     queryKey: ['getTopViewBlog'],
     queryFn: getTopViewBlogAPI,
+  });
+
+  const increaseView = useMutation({
+    mutationFn: updateViewBlog,
   });
 
   const { data: blogDetail } = useQuery({
     queryKey: ['getBlogBySLug', slug],
     queryFn: () => getBlogBySlugAPI({ slug }),
   });
+
+  useEffect(() => {
+    if (!blogDetail?._id) return;
+
+    const viewTimeout = setTimeout(() => {
+      increaseView.mutate({ id: blogDetail._id });
+    }, 3000);
+
+    return () => clearTimeout(viewTimeout);
+  }, [slug, blogDetail?._id]);
 
   return (
     <div className="max-w-container mx-auto p-4 ">
@@ -69,6 +84,20 @@ const PostDetail = () => {
               </Link>
             </div>
           ))}
+          <h2 className="text-xl font-bold mb-8 text-gray-900 uppercase">
+            Tags
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {blogDetail?.tags?.map((tag) => (
+              <div
+                key={tag.tag}
+                onClick={() => navigate(`/tin-tuc?tags=${tag}`)}
+                className="badge badge-secondary px-3 py-1 cursor-pointer"
+              >
+                {tag}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

@@ -38,6 +38,33 @@ const getAllOrders = async (page, limit) => {
     .toArray();
   return { count, result };
 };
+
+const searchCurrentOrder = async (userId, keyword, page, limit) => {
+  page = parseInt(page) || 1;
+  limit = parseInt(limit) || 12;
+
+  const db = await GET_DB().collection('orders');
+
+  // Xây dựng query tìm kiếm
+  const query = {
+    userId: new ObjectId(userId),
+    $or: [
+      { orderCode: { $regex: keyword, $options: 'i' } }, // Tìm theo orderCode
+      { 'productsList.name': { $regex: keyword, $options: 'i' } }, // Tìm theo tên sản phẩm
+    ],
+  };
+
+  const total = await db.countDocuments(query);
+  const result = await db
+    .find(query)
+    .sort({ createdAt: -1 })
+    .skip((page - 1) * limit)
+    .limit(limit)
+    .toArray();
+
+  return { total, result };
+};
+
 const getOrderById = async (id) => {
   const db = await GET_DB().collection('orders');
   const result = await db.findOne({
@@ -315,6 +342,7 @@ const updateCompletedStock = async (data) => {
 export const orderModel = {
   getAllOrders,
   addOrder,
+  searchCurrentOrder,
   updateOrder,
   deleteOrder,
   getCurrentOrder,

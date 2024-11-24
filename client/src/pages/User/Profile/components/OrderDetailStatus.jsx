@@ -45,6 +45,11 @@ const STATUS_INFO = {
     icon: 'fluent:comment-48-filled',
     color: 'text-yellow-500',
   },
+  paymentPending: {
+    label: 'Chờ thanh toán',
+    icon: 'mdi:currency-usd-off',
+    color: 'text-blue-500',
+  },
 };
 
 const OrderDetailStatus = ({ status }) => {
