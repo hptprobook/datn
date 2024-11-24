@@ -1,8 +1,7 @@
 import PropTypes from 'prop-types';
 
-import Stack from '@mui/material/Stack';
 import TableRow from '@mui/material/TableRow';
-import Checkbox from '@mui/material/Checkbox';
+// import Checkbox from '@mui/material/Checkbox';
 import TableCell from '@mui/material/TableCell';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
@@ -19,24 +18,27 @@ export default function OrderTableRow({
   name,
   totalAmount,
   userId,
+  orderCode,
   paymentMethod,
   status,
   handleClick,
 }) {
   const newStatus = status[status.length - 1].status;
-const router = useRouter();
+  const router = useRouter();
   return (
     <TableRow hover tabIndex={-1} role="checkbox" selected={selected}>
-      <TableCell padding="checkbox">
+      {/* <TableCell padding="checkbox">
         <Checkbox disableRipple checked={selected} onChange={handleClick} />
+      </TableCell> */}
+      <TableCell component="th" scope="row">
+        <Typography variant="subtitle2" noWrap>
+          {orderCode}
+        </Typography>
       </TableCell>
-
-      <TableCell component="th" scope="row" padding="none">
-        <Stack direction="row" alignItems="center" spacing={2}>
-          <Typography variant="subtitle2" noWrap>
-            {name}
-          </Typography>
-        </Stack>
+      <TableCell component="th" scope="row">
+        <Typography variant="subtitle2" noWrap>
+          {name}
+        </Typography>
       </TableCell>
 
       <TableCell>{userId}</TableCell>
@@ -68,5 +70,6 @@ OrderTableRow.propTypes = {
   name: PropTypes.any,
   userId: PropTypes.any,
   selected: PropTypes.any,
+  orderCode: PropTypes.any,
   status: PropTypes.array,
 };

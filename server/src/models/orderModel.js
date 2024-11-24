@@ -19,17 +19,12 @@ const validateBeforeUpdate = async (data) => {
   return await UPDATE_ORDER.validateAsync(data, { abortEarly: false });
 };
 
-// const countUserAll = async () => {
-//   const db = await GET_DB().collection('carts');
-//   const totail = await db.countDocuments();
-//   return totail;
-// };
 
 const getAllOrders = async (page, limit) => {
   page = parseInt(page) || 1;
   limit = parseInt(limit) || 12;
   const db = await GET_DB().collection('orders');
-  const total = await db.countDocuments();
+  const count = await db.countDocuments();
   const result = await db
     .find()
     .sort({ createdAt: -1 })
@@ -41,7 +36,7 @@ const getAllOrders = async (page, limit) => {
     })
     // .project({ _id: 0, age:1 })
     .toArray();
-  return { total, result };
+  return { count, result };
 };
 
 const searchCurrentOrder = async (userId, keyword, page, limit) => {
