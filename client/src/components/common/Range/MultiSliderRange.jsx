@@ -128,9 +128,9 @@ const MultiRangeSlider = ({ min, max, onPriceRangeChange }) => {
 };
 
 MultiRangeSlider.propTypes = {
-  min: PropTypes.number.isRequired,
-  max: PropTypes.number.isRequired,
-  onPriceRangeChange: PropTypes.func.isRequired,
+  min: PropTypes.number,
+  max: PropTypes.number,
+  onPriceRangeChange: PropTypes.func,
 };
 
 export default MultiRangeSlider;
