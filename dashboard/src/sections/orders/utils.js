@@ -88,8 +88,11 @@ export const paymentConfig = {
 };
 
 export const handleStatusConfig = {
+  paymentPending: { value: 'pending', label: 'Chờ xác nhận', icon: 'eva:clock-outline' },
   pending: { value: 'confirmed', label: 'Xác nhận đơn hàng', icon: 'eva:checkmark-outline' },
   confirmed: { value: 'shipping', label: 'Giao hàng', icon: 'eva:car-outline' },
-  shipped: { value: 'confirmed', label: 'Hoàn thành', icon: 'eva:checkmark-square-outline' },
-  shipping: { value: 'shipped', label: 'Đã giao', icon: 'eva:clipboard-outline' },
+  shipping: { value: 'delivered', label: 'Đã giao hàng', icon: 'eva:clipboard-outline' },
+  delivered: { value: 'completed', label: 'Hoàn thành', icon: 'eva:checkmark-square-outline' },
+  returned: { value: 'cancelled', label: 'Đã huỷ', icon: 'eva:close-outline' },
+  // cancelled: { value: 'paymentPending', label: 'Tạo lại đơn hàng', icon: 'eva:refresh-outline' },
 };
