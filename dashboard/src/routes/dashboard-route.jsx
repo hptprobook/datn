@@ -25,7 +25,11 @@ export const NavUpdatePage = lazy(() => import('src/pages/settings/update-nav'))
 export const WebConfigPage = lazy(() => import('src/pages/settings/config/web-config'));
 export const SeoConfigPage = lazy(() => import('src/pages/settings/config/seo-config'));
 // profile page
-export const ProfilePage = lazy(() => import('src/pages/profile/profile'));  // profile page
+export const ProfilePage = lazy(() => import('src/pages/profile/profile')); // profile page
+// user page
+export const UserPage = lazy(() => import('src/pages/users'));
+export const CreateUserPage = lazy(() => import('src/pages/users/create'));
+export const DetailUserPage = lazy(() => import('src/pages/users/detail'));
 
 export const dashboardRoute = [
   { element: <IndexPage />, index: true },
@@ -37,6 +41,18 @@ export const dashboardRoute = [
   { path: 'coupons/create', element: <CreateCouponPage /> },
   { path: 'coupons/:id', element: <CouponDetailPage /> },
   { path: 'webBanners', element: <WebBannerPage /> },
+  {
+    path: 'users',
+    element: <UserPage />,
+  },
+  {
+    path: 'users/create',
+    element: <CreateUserPage />,
+  },
+  {
+    path: 'users/:id',
+    element: <DetailUserPage />,
+  },
   { path: 'webBanners/create', element: <CreateWebBannerPage /> },
   { path: 'webBanners/:id', element: <DetailWebBannerPage /> },
   { path: 'customerGroups', element: <CustomerGroupPage /> },

@@ -1,5 +1,3 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-shadow */
 import { useState, useEffect } from 'react';
 
 import Card from '@mui/material/Card';
@@ -34,6 +32,8 @@ import { useParams } from 'react-router-dom';
 import { isValidObjectId } from 'src/utils/check';
 import { useRouter } from 'src/routes/hooks';
 import Iconify from 'src/components/iconify';
+import { cloneDeep } from 'lodash';
+import CountrySelect from '../select-address';
 
 // ----------------------------------------------------------------------
 const userSchema = Yup.object().shape({
@@ -63,6 +63,8 @@ export default function DetailUserPage() {
   const [selectedDistrict, setSelectedDistrict] = useState(''); // Initialize with ''
   const [selectedWard, setSelectedWard] = useState(''); // Initialize with ''
   const [address, setAddress] = useState('Vui lòng chọn địa chỉ');
+  const [isAddAddress, setIsAddAddress] = useState(false);
+
   const status = useSelector((state) => state.users.statusUpdate);
   const error = useSelector((state) => state.users.error);
   useEffect(() => {
@@ -102,6 +104,7 @@ export default function DetailUserPage() {
         delete data.password;
       }
       delete data.email;
+      data.addresses = addresses;
       dispatch(updateUserById({ id, data }));
     },
   });
@@ -115,40 +118,69 @@ export default function DetailUserPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusGet, user, error]);
 
-  const handleChangeProvince = (province) => {
+  const handleChangeProvince = (p) => {
     setWard([]);
     setDistrict([]);
     setSelectedDistrict(''); // Reset district
     setSelectedWard(''); // Reset ward
-    setSelectedProvince(province);
-    if (province) {
-      AddressService.getDistrict(province.ProvinceID).then((res) => {
+    setSelectedProvince(p);
+    if (p) {
+      AddressService.getDistrict(p.ProvinceID).then((res) => {
         setDistrict(res);
       });
     }
   };
 
-  const handleChangeDistrict = (district) => {
+  const handleChangeDistrict = (d) => {
     setWard([]);
     setSelectedWard('');
-    setSelectedDistrict(district);
-    if (district) {
-      AddressService.getWard(district.DistrictID).then((res) => {
+    setSelectedDistrict(d);
+    if (d) {
+      AddressService.getWard(d.DistrictID).then((res) => {
         setWard(res);
       });
     }
   };
 
-  const handleChangeWard = (ward) => {
-    setSelectedWard(ward);
-    const addressStr = `${ward.WardName}, ${selectedDistrict.DistrictName}, ${selectedProvince.ProvinceName}`;
-    setAddress(addressStr);
+  const handleChangeWard = (w) => {
+    setSelectedWard(w);
   };
+  const handleChangeAddress = (e) => {
+    setAddress(e.target.value);
+  };
+  const handleAddAddress = () => {
+    setIsAddAddress(true);
+    if (!selectedProvince || !selectedDistrict || !selectedWard || !address) {
+      handleToast('error', 'Vui lòng chọn đầy đủ thông tin địa chỉ');
+      return;
+    }
+    const d = cloneDeep(addresses);
+    d.push({
+      province_id: selectedProvince.ProvinceID,
+      district_id: selectedDistrict.DistrictID,
+      ward_id: selectedWard.WardCode,
+      address,
+      ward_name: selectedWard.WardName,
+      district_name: selectedDistrict.DistrictName,
+      province_name: selectedProvince.ProvinceName,
+      phone: formik.values.phone,
+      name: formik.values.name,
+      fullAddress: `${address},${selectedWard.WardName}, ${selectedDistrict.DistrictName}, ${selectedProvince.ProvinceName}`,
+      isDefault: false,
+    });
+    setAddresses([...d]);
+  };
+
   useEffect(() => {
     if (status === 'successful') {
-      handleToast('success', 'Tạo người dùng thành công');
+      handleToast('success', 'Cập nhật người dùng thành công');
       dispatch(setStatus({ key: 'statusUpdate', value: '' }));
-      dispatch(fetchAllUsers());
+      dispatch(
+        fetchAllUsers({
+          page: 1,
+          limit: 5,
+        })
+      );
       dispatch(setStatus({ key: 'error', value: 'idle' }));
     }
     if (status === 'failed') {
@@ -219,19 +251,17 @@ export default function DetailUserPage() {
             </Grid2>
             <Grid2 xs={12} md={4}>
               <FormControl fullWidth>
-                <InputLabel id="role-select-label">Vai trò</InputLabel>
+                <InputLabel id="role-select-label">Trạng thái</InputLabel>
                 <Select
                   labelId="role-select-label"
                   id="role-select"
                   value={formik.values.role}
                   name="role"
-                  label="Vai trò"
+                  label="Trạng thái"
                   onChange={formik.handleChange}
                 >
-                  <MenuItem value="user">Người dùng</MenuItem>
-                  <MenuItem value="staff">Nhân viên</MenuItem>
-                  <MenuItem value="admin">Quản trị</MenuItem>
-                  <MenuItem value="root">Quản lý</MenuItem>
+                  <MenuItem value="user">Hoạt động</MenuItem>
+                  <MenuItem value="ban">Khóa tài khoản</MenuItem>
                 </Select>
               </FormControl>
             </Grid2>
@@ -242,26 +272,77 @@ export default function DetailUserPage() {
                     <AccordionSummary
                       expandIcon={<Iconify icon="eva:arrow-ios-downward-outline" />}
                       aria-controls="panel1-content"
-                      id="panel1-header"
+                      id={`panel1a-header-${index}`}
                     >
                       Địa chỉ {index + 1} {item.isDefault && ' - Mặc định'}
                     </AccordionSummary>
-                    <AccordionDetails>
-                      {item.note} - {item.address}
-                    </AccordionDetails>
+                    <AccordionDetails>{item.fullAddress}</AccordionDetails>
                   </Accordion>
                 ))}
             </Grid2>
+            {isAddAddress && (
+              <>
+                <Grid2 xs={12} md={4}>
+                  <CountrySelect
+                    data={province}
+                    query="ProvinceName"
+                    label="Tỉnh"
+                    onSelect={handleChangeProvince}
+                  />
+                </Grid2>
+                <Grid2 xs={12} md={4}>
+                  <CountrySelect
+                    data={district}
+                    query="DistrictName"
+                    label="Huyện"
+                    onSelect={handleChangeDistrict}
+                  />
+                </Grid2>
+                <Grid2 xs={12} md={4}>
+                  <CountrySelect
+                    data={ward}
+                    query="WardName"
+                    label="Xã"
+                    onSelect={handleChangeWard}
+                  />
+                </Grid2>
+                <Grid2 xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Địa chỉ chi tiết"
+                    value={address}
+                    onChange={handleChangeAddress}
+                  />
+                </Grid2>
+                <Grid2 xs={6}>
+                  <LoadingButton
+                    variant="contained"
+                    color="inherit"
+                    onClick={() => handleAddAddress()}
+                  >
+                    Lưu địa chỉ
+                  </LoadingButton>
+                  <LoadingButton
+                    sx={{ ml: 2 }}
+                    color="error"
+                    onClick={() => setIsAddAddress(false)}
+                  >
+                    Hủy
+                  </LoadingButton>
+                </Grid2>
+              </>
+            )}
             <Grid2 xs={12} md={12}>
               <Stack direction="row" gap={2} alignItems="center" justifyContent="flex-end">
                 <LoadingButton
                   variant="contained"
                   color="inherit"
-                  onClick={() => handleToast('info', 'Chức năng này đang được phát triển')}
+                  type="button"
+                  onClick={() => setIsAddAddress(true)}
                 >
                   Thêm địa chỉ
                 </LoadingButton>
-                <LoadingButton color="inherit" onClick={() => route.push('/user')}>
+                <LoadingButton color="inherit" onClick={() => route.push('/users')}>
                   Quay lại
                 </LoadingButton>
                 <LoadingButton

@@ -54,7 +54,7 @@ const blogSchema = Yup.object().shape({
     .max(10000, 'Nội dung  không được quá 10000 ký tự'),
   authID: Yup.string().required('Tác giả là bắt buộc'),
   metaDescription: Yup.string().max(255, 'Meta Description không được quá 255 ký tự'),
-  metaKeywords: Yup.string().max(255, 'Meta Keywords không được quá 255 ký tự'),
+  metaKeywords: Yup.max(255, 'Meta Keywords không được quá 255 ký tự'),
 });
 const backendUrl = import.meta.env.VITE_BACKEND_APP_URL;
 
@@ -332,7 +332,7 @@ export default function DetailBlogView() {
                     error={formik.touched.content && Boolean(formik.errors.content)}
                     initialValue={blog?.content}
                     onChange={(content) => formik.setFieldValue('content', content)}
-                    height={200}
+                    height={700}
                   />
                   <FormHelperText sx={{ color: 'red' }}>
                     {formik.touched.content && formik.errors.content ? formik.errors.content : ''}

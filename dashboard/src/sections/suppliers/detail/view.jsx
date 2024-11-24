@@ -19,7 +19,6 @@ import { ProductSupplierSelect } from '../product-select';
 
 // ----------------------------------------------------------------------
 export default function SupplierDetailPage() {
-
   const { id } = useParams();
   const statusGet = useSelector((state) => state.suppliers.statusGet);
   const statusUpdate = useSelector((state) => state.suppliers.statusUpdate);
@@ -77,7 +76,6 @@ export default function SupplierDetailPage() {
     if (statusUpdate === 'successful') {
       handleToast('success', 'Cập nhật thành công');
       dispatch(setStatus({ key: 'statusUpdate', value: 'idle' }));
-      route.push('/suppliers');
     }
     if (statusUpdate === 'failed') {
       handleToast('error', err.message);
@@ -89,7 +87,10 @@ export default function SupplierDetailPage() {
     enableReinitialize: true,
     initialValues,
     onSubmit: async (values) => {
-      dispatch(update({ id, data: values }));
+      const t = Object.fromEntries(
+        Object.entries(values).map(([key, value]) => [key, value === '' ? null : value])
+      );
+      dispatch(update({ id, data: t }));
     },
   });
 
@@ -224,7 +225,7 @@ export default function SupplierDetailPage() {
               />
             </Grid2>
             <Grid2 xs={12}>
-              <Button type="submit" variant="contained">
+              <Button type="submit" variant="contained" color="inherit">
                 Lưu
               </Button>
             </Grid2>

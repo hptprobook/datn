@@ -12,4 +12,6 @@ Router.get('/products/all', warehouseController.getProducts);
 
 Router.put('/:id', warehouseController.updateWareHouse);
 Router.delete('/:id', warehouseController.deleteWareHouse);
+Router.post('/creates', warehouseController.creates);
+Router.post('/deletes', warehouseController.deletes);
 export const warehousesApi = Router;

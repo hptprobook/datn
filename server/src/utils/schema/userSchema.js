@@ -59,7 +59,7 @@ export const SAVE_USER_SCHEMA = Joi.object({
       'string.max': 'Số điện thoại không được vượt quá 15 ký tự',
     }),
   role: Joi.string()
-    .valid('root', 'admin', 'staff', 'user', 'ban')
+    .valid('user', 'ban')
     .default('user')
     .messages({
       'any.only': 'Vai trò không hợp lệ',
@@ -71,7 +71,7 @@ export const SAVE_USER_SCHEMA = Joi.object({
   'object.unknown': 'Trường không xác định',
 });
 
-export const INFOR_USER = Joi.object({
+export const INFO_USER = Joi.object({
   avatar: Joi.string().trim().messages({
     'string.empty': 'Avatar không được để trống',
   }),
@@ -165,7 +165,7 @@ export const UPDATE_USER = Joi.object({
       'string.min': 'Số điện thoại phải có ít nhất 10 ký tự',
       'string.max': 'Số điện thoại không được vượt quá 15 ký tự',
     }),
-  role: Joi.string().valid('root', 'admin', 'staff', 'user', 'ban').messages({
+  role: Joi.string().valid('user', 'ban').messages({
     'any.only': 'Vai trò không hợp lệ',
   }),
   allowNotifies: Joi.boolean(),

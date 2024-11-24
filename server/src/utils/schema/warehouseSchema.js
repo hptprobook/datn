@@ -9,17 +9,17 @@ export const SAVE_WAREHOUSES = Joi.object({
         'string.empty': 'Địa chỉ không được để trống',
         'any.required': 'Địa chỉ là bắt buộc',
     }),
-    lat: Joi.number().default(null),
-    long: Joi.number().default(null),
+    longitude: Joi.number().default(null),
+    latitude: Joi.number().default(null),
     province_id: Joi.number().integer(),
     district_id: Joi.number().integer(),
-    ward_id: Joi.string(),
+    ward_id: Joi.number().integer(),
     status: Joi.string()
-        .valid('active', 'close', 'full')
-        .default('active')
+        .valid('Hoạt động', 'Đóng cửa', 'Đầy kho')
+        .default('Hoạt động')
+        .trim()
         .messages({
-            'any.base':
-                'Trạng thái của kho gồm "Hoạt động", "Đóng cửa", "Đầy kho"',
+            'any.only': 'Trạng thái của kho gồm "Hoạt động", "Đóng cửa", "Đầy kho"',
         }),
     capacity: Joi.number().integer().default(10000),
     currentQuantity: Joi.number().integer().default(0),
@@ -34,17 +34,17 @@ export const UPDATE_WAREHOUSES = Joi.object({
     location: Joi.string().trim().messages({
         'string.empty': 'Địa chỉ không được để trống',
     }),
-    lat: Joi.number(),
-    long: Joi.number(),
+    longitude: Joi.number().default(null),
+    latitude: Joi.number().default(null),
     province_id: Joi.number().integer(),
     district_id: Joi.number().integer(),
-    ward_id: Joi.string(),
+    ward_id: Joi.number().integer(),
     status: Joi.string()
-        .valid('active', 'close', 'full')
-        .default('active')
+        .valid('Hoạt động', 'Đóng cửa', 'Đầy kho')
+        .default('Hoạt động')
+        .trim()
         .messages({
-            'any.base':
-                'Trạng thái của kho gồm "Hoạt động", "Đóng cửa", "Đầy kho"',
+            'any.only': 'Trạng thái của kho gồm "Hoạt động", "Đóng cửa", "Đầy kho"',
         }),
     capacity: Joi.number().integer(),
     currentQuantity: Joi.number().integer(),

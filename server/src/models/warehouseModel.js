@@ -25,7 +25,7 @@ const getWarehousesAll = async () => {
     const db = await GET_DB().collection('warehouses');
     const result = await db
         .find()
-        // .project({ _id: 0, age:1 })
+        .sort({ createdAt: -1 })
         .toArray();
     return result;
 };
@@ -98,7 +98,29 @@ const deleteWarehouse = async (id) => {
     const result = await db.deleteOne({ _id: new ObjectId(id) });
     return result;
 };
-
+const getWardByName = async (name, id) => {
+    const db = await GET_DB().collection('wards');
+    const ward = await db.findOne({
+        WardName: { $regex: new RegExp(name, 'i') },
+        DistrictID: id
+    });
+    return ward.WardID;
+}
+const getDistrictByName = async (name, provinceId) => {
+    const db = await GET_DB().collection('districts');
+    const district = await db.findOne({
+        DistrictName: { $regex: new RegExp(name, 'i') },
+        ProvinceID: provinceId
+    });
+    return district.DistrictID;
+}
+const getProvinceByName = async (name) => {
+    const db = await GET_DB().collection('provinces');
+    const province = await db.findOne({
+        ProvinceName: { $regex: new RegExp(name, 'i') },
+    });
+    return province.ProvinceID;
+}
 export const warehouseModel = {
     getWarehousesAll,
     createWarehouse,
@@ -106,4 +128,7 @@ export const warehouseModel = {
     getWarehouseById,
     getAllProductsByWareHouse,
     deleteWarehouse,
+    getWardByName,
+    getProvinceByName,
+    getDistrictByName
 };

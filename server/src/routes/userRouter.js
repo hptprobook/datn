@@ -32,9 +32,6 @@ Router.get('/me', verifyToken, (req, res) => {
   // #swagger.summary = 'Get my data...'
   usersController.getCurrentUser(req, res);
 });
-Router.get('/admin', verifyToken, verifyAdmin, (req, res) => {
-  usersController.getCurrentAdmin(req, res);
-});
 
 Router.get('/:id', usersController.getUserById);
 //notifies

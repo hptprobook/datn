@@ -6,16 +6,20 @@ const validateBeforeCreate = async (data) => {
   return await CREATE_COUPONS.validateAsync(data, { abortEarly: false });
 };
 
-const getCoupons = async () => {
-  // page = parseInt(page) || 1;
-  // limit = parseInt(limit) || 12;
+const getCoupons = async ({ page, limit }) => {
+  page = parseInt(page) || 1;
+  limit = parseInt(limit) || 12;
   const db = await GET_DB().collection('coupons');
+  const count = await db.countDocuments();
   const result = await db
     .find()
-    // .skip((page - 1) * limit)
-    // .limit(limit)
+    .skip((page - 1) * limit)
+    .limit(limit)
     .toArray();
-  return result;
+  return {
+    data: result,
+    count,
+  };
 };
 const getCouponsById = async (id) => {
   const db = await GET_DB().collection('coupons');
@@ -52,20 +56,6 @@ const updateCoupon = async (id, dataCoupon) => {
   const validData = await validateBeforeUpdate(dataCoupon);
   const db = await GET_DB();
   const collection = db.collection('coupons');
-  if (validData.applicableProducts) {
-    const data = {
-      ...validData,
-      applicableProducts: validData.applicableProducts.map((item) => {
-        return new ObjectId(item.applicableProducts);
-      }),
-    };
-    const result = await collection.findOneAndUpdate(
-      { _id: new ObjectId(id) },
-      { $set: data },
-      { returnDocument: 'after' }
-    );
-    return result;
-  }
   const result = await collection.findOneAndUpdate(
     { _id: new ObjectId(id) },
     { $set: validData },

@@ -44,8 +44,7 @@ const createBrand = async (req, res) => {
 
 const getAllBrands = async (req, res) => {
   try {
-    let { pages, limit } = req.query;
-    const brands = await brandModel.getBrandsAll(pages, limit);
+    const brands = await brandModel.getBrandsAll();
     return res.status(StatusCodes.OK).json(brands);
   } catch (error) {
     return res
@@ -97,14 +96,8 @@ const update = async (req, res) => {
   try {
     const { id } = req.params;
     const data = req.body;
-    if (!req.file) {
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .json({ message: 'Ảnh không được để trống' });
-    }
-    const file = req.file;
-    const fileName = file.filename;
-    const filePath = path.join('uploads/brands', fileName);
+    const file = req?.file;
+
 
     const brand = await brandModel.getBrandById(id);
     if (!brand) {
@@ -112,10 +105,19 @@ const update = async (req, res) => {
         message: 'Thương hiệu không tồn tại',
       });
     }
-
+    if (file) {
+      const fileName = file.filename;
+      const filePath = path.join('uploads/brands', fileName);
+      data.image = filePath
+    }
+    else {
+      data.image = brand.image;
+    }
     if (data.slug && data.slug !== brand.slug) {
       const existingBrand = await brandModel.getBrandBySlug(data.slug);
       if (existingBrand) {
+        const fileName = file?.filename;
+        const filePath = path.join('uploads/brands', fileName);
         uploadModel.deleteImg(filePath);
         return res.status(StatusCodes.BAD_REQUEST).json({
           message: 'Thương hiệu đã tồn tại',
@@ -124,8 +126,9 @@ const update = async (req, res) => {
     }
 
     const dataBrand = await brandModel.update(id, data);
-    uploadModel.deleteImg(brand.image);
-
+    if (file && brand.image) {
+      uploadModel.deleteImg(brand.image);
+    }
     return res.status(StatusCodes.OK).json(dataBrand.data);
   } catch (error) {
     if (req.file) {
@@ -194,7 +197,82 @@ const deleteManyBrand = async (req, res) => {
       .json({ message: error.message });
   }
 };
+const createManyBrands = async (req, res) => {
+  try {
+    const data = req.body;
+    const errors = [];
+    const successful = [];
+    for (const w of data) {
+      try {
+        if (w._id) {
+          const existed = await brandModel.getBrandById(
+            w._id
+          );
+          if (!existed) {
+            errors.push({
+              message: `Nhãn hàng với id: ${w._id} không tồn tại`,
+            });
+            continue;
+          }
+          else if (existed.slug == w.slug && w._id != existed._id) {
+            errors.push({
+              message: `Slug ${w.slug} đã tồn tại`,
+            });
+            continue;
+          }
+          const id = w._id;
+          delete w._id;
+          await brandModel.update(
+            id,
+            w
+          );
+          successful.push({
+            message: 'Cập nhật thành công nhãn hàng: ' + w.name + ' với id: ' + id,
+          });
+        }
+        else {
+          const existed = await brandModel.getBrandBySlug(w.slug);
+          if (existed) {
+            errors.push({
+              message: `Slug ${w.slug} đã tồn tại`,
+            });
+            continue;
+          }
+          const result = await brandModel.create(w);
+          successful.push({
+            message: 'Tạo mới thành công nhãn hàng: ' + result.name,
+          });
+        }
 
+      } catch (error) {
+        errors.push({
+          name: w.name,
+          message: error.details
+            ? error.details[0].message
+            : (error.message || 'Có lỗi xảy ra khi thêm nhãn hàng'),
+        });
+      }
+    }
+
+    // Trả về kết quả
+    if (errors.length) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: 'Một số nhãn hàng không thể thêm được',
+        errors,
+        successful,
+      });
+    }
+
+    return res.status(StatusCodes.OK).json({
+      message: 'Tất cả đã được thêm thành công',
+      successful,
+    });
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: 'Có lỗi xảy ra, xin thử lại sau',
+    });
+  }
+};
 export const brandController = {
   getAllBrands,
   createBrand,
@@ -204,4 +282,5 @@ export const brandController = {
   getBrandBySlug,
   deleteAllBrand,
   deleteManyBrand,
+  createManyBrands
 };
