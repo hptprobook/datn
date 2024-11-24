@@ -28,9 +28,9 @@ export const settingConfig = [
     path: '/admin/settings/notifications',
     icon: 'eva:bell-fill',
   },
-  {
-    title: 'Nhật ký hoạt động',
-    path: '/admin/settings/history',
-    icon: 'mdi:history',
-  },
+  // {
+  //   title: 'Nhật ký hoạt động',
+  //   path: '/admin/settings/history',
+  //   icon: 'mdi:history',
+  // },
 ];
