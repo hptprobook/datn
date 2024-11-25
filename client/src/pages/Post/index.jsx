@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Link, NavLink, useSearchParams } from 'react-router-dom';
 import { getAllBlogAPI, getTags, getTopViewBlogAPI } from '~/APIs';
+import MainLoading from '~/components/common/Loading/MainLoading';
 import { formatDateToDDMMYYYY } from '~/utils/formatters';
 
 const PostPage = () => {
@@ -39,7 +40,7 @@ const PostPage = () => {
   };
 
   // Gọi API lấy bài viết
-  const { data: posts } = useQuery({
+  const { data: posts, isLoading: isPostsLoading } = useQuery({
     queryKey: ['getAllBlogs', limit, sort, tags, search],
     queryFn: () =>
       getAllBlogAPI({
@@ -51,16 +52,18 @@ const PostPage = () => {
   });
 
   // Gọi API lấy tags
-  const { data: tagsData } = useQuery({
+  const { data: tagsData, isLoading: isTagsLoading } = useQuery({
     queryKey: ['getAllTags'],
     queryFn: getTags,
   });
 
   // Gọi API lấy bài viết xem nhiều nhất
-  const { data: topViewPosts } = useQuery({
+  const { data: topViewPosts, isLoading: isTopViewPostsLoading } = useQuery({
     queryKey: ['getTopViewBlog'],
     queryFn: getTopViewBlogAPI,
   });
+
+  if (!topViewPosts || !posts || !tagsData) return null;
 
   const handleLoadMore = () => {
     setLimit((prevLimit) => prevLimit + 12);
@@ -76,12 +79,14 @@ const PostPage = () => {
   };
 
   const handleTagClick = (tag) => {
-    setSearchParams((prevParams) => {
-      const params = new URLSearchParams(prevParams);
-      params.set('tags', tag);
-      return params;
-    });
+    const params = new URLSearchParams();
+    params.set('tags', tag); // Chỉ giữ param 'tags'
+    setSearchParams(params); // Cập nhật URL params
   };
+
+  if (isPostsLoading || isTagsLoading || isTopViewPostsLoading) {
+    return <MainLoading />;
+  }
 
   return (
     <div className="max-w-container mx-auto">
