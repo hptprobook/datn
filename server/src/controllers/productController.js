@@ -2,7 +2,6 @@
 /* eslint-disable semi */
 import { productModel } from '~/models/productModel';
 import { StatusCodes } from 'http-status-codes';
-import { ERROR_MESSAGES } from '~/utils/errorMessage';
 import { uploadModel } from '~/models/uploadModel';
 import path from 'path';
 import { hotSearchModel } from '~/models/hotSearchModel';
@@ -12,9 +11,7 @@ const getAllProducts = async (req, res) => {
   try {
     let { pages, limit } = req.query;
     const products = await productModel.getProductsAll(pages, limit);
-    return res.status(StatusCodes.OK).json({
-      products,
-    });
+    return res.status(StatusCodes.OK).json(products);
   } catch (error) {
     return res
       .status(StatusCodes.BAD_REQUEST)
@@ -494,8 +491,6 @@ const updateProduct = async (req, res) => {
       return res.status(StatusCodes.OK).json(result);
     }
   } catch (error) {
-    console.log(error);
-
     if (req.files) {
       const thumbnailPath = req.files['thumbnail']?.[0]?.filename;
 
@@ -1180,36 +1175,36 @@ const getProductByArrayId = async (req, res) => {
 };
 
 export const productController = {
-        createProduct,
-        getAllProducts,
-        getProductsByView,
-        increaseView,
-        getProductById,
-        updateProduct,
-        ratingProduct,
-        deleteProduct,
-        updateRatingProduct,
-        deleteRating,
-        getProductBySlug,
-        getProductByCategory,
-        getProductByCategoryId,
-        getProductByBrandId,
-        getProductByBrand,
-        getProductByAlphabetAZ,
-        getProductByAlphabetZA,
-        getProductByPriceAsc,
-        getProductByPriceDesc,
-        getProductByNewest,
-        getProductByOldest,
-        getProductBySearch,
-        getAllProductsSpecial,
-        getProductByCategoryFilter,
-        getProductByEvent,
-        getProductsBySlugAndPriceRange,
-        getProductsBySearchAndFilter,
-        getMinMaxPrices,
-        ratingShopProduct,
-        ratingManyProduct,
-        searchInDashboard,
-        getProductByArrayId
-      };
+  createProduct,
+  getAllProducts,
+  getProductsByView,
+  increaseView,
+  getProductById,
+  updateProduct,
+  ratingProduct,
+  deleteProduct,
+  updateRatingProduct,
+  deleteRating,
+  getProductBySlug,
+  getProductByCategory,
+  getProductByCategoryId,
+  getProductByBrandId,
+  getProductByBrand,
+  getProductByAlphabetAZ,
+  getProductByAlphabetZA,
+  getProductByPriceAsc,
+  getProductByPriceDesc,
+  getProductByNewest,
+  getProductByOldest,
+  getProductBySearch,
+  getAllProductsSpecial,
+  getProductByCategoryFilter,
+  getProductByEvent,
+  getProductsBySlugAndPriceRange,
+  getProductsBySearchAndFilter,
+  getMinMaxPrices,
+  ratingShopProduct,
+  ratingManyProduct,
+  searchInDashboard,
+  getProductByArrayId
+};

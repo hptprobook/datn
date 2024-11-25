@@ -23,9 +23,8 @@ import { handleToast } from 'src/hooks/toast';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 
-import TableEmptyRows from 'src/components/table/table-empty-rows';
 import TableNoData from 'src/components/table/table-no-data';
-import { emptyRows, applyFilter, getComparator } from 'src/components/table/utils';
+import { applyFilter, getComparator } from 'src/components/table/utils';
 import ConfirmDelete from 'src/components/modal/confirm-delete';
 import LoadingFull from 'src/components/loading/loading-full';
 import { Drawer, IconButton } from '@mui/material';
@@ -59,13 +58,20 @@ export default function ProductsPage() {
   const [productsList, setProductsList] = React.useState([]);
 
   // const errorPro = useSelector((state) => state.products.error);
+  const getProducts = (p = 1, limit = 5) => {
+    dispatch(
+      fetchAllProducts({
+        page: p,
+        limit,
+      })
+    );
+  };
 
   const toggleDrawer = (value) => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
       return;
     }
     if (value) {
-      console.log(value);
       dispatch(fetchProductById({ id: value }));
     } else {
       dispatch(setStatus({ key: 'statusGet', value: '' }));
@@ -74,29 +80,29 @@ export default function ProductsPage() {
     setOpen(!open);
   };
   useEffect(() => {
-    dispatch(fetchAllProducts());
-  }, [dispatch]);
+    getProducts();
+    // eslint-disable-next-line
+  }, []);
   useEffect(() => {
     if (statusDelete === 'successful') {
       handleToast('success', 'Xóa sản phẩm thành công!');
-      dispatch(fetchAllProducts());
+      getProducts(page + 1, rowsPerPage);
     }
     if (statusDelete === 'failed') {
       handleToast('error', error?.message || 'Có lỗi xảy ra vui lòng thử lại!');
     }
     dispatch(setStatus({ key: 'statusDelete', value: '' }));
-  }, [statusDelete, dispatch, error]);
+    // eslint-disable-next-line
+  }, [statusDelete, dispatch, error, page, rowsPerPage]);
 
   useEffect(() => {
     if (status === 'failed') {
       handleToast('error', 'Có lỗi xảy ra vui lòng thử lại!');
     } else if (status === 'successful') {
-      setProductsList(products);
+      setProductsList(products.products);
       dispatch(fetchAll());
     }
   }, [products, status, dispatch]);
-
-  // console.log(productsList);
 
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === 'asc';
@@ -108,7 +114,7 @@ export default function ProductsPage() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = productsList.map((n) => n.name);
+      const newSelecteds = productsList.map((n) => n._id);
       setSelected(newSelecteds);
       return;
     }
@@ -134,12 +140,14 @@ export default function ProductsPage() {
   };
 
   const handleChangePage = (event, newPage) => {
+    getProducts(newPage + 1, rowsPerPage);
     setPage(newPage);
   };
 
   const handleChangeRowsPerPage = (event) => {
     setPage(0);
     setRowsPerPage(parseInt(event.target.value, 10));
+    getProducts(1, parseInt(event.target.value, 10));
   };
 
   const handleFilterByName = (event) => {
@@ -192,7 +200,7 @@ export default function ProductsPage() {
             aria-label="load"
             variant="contained"
             color="inherit"
-            onClick={() => dispatch(fetchAllProducts())}
+            onClick={() => getProducts()}
           >
             <Iconify icon="mdi:reload" />
           </IconButton>
@@ -235,32 +243,24 @@ export default function ProductsPage() {
                 ]}
               />
               <TableBody>
-                {dataFiltered
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((row) => (
-                    <ProductTableRow
-                      onClick={toggleDrawer(row._id)}
-                      key={row._id}
-                      _id={row._id}
-                      name={row.name}
-                      imgURLs={row.thumbnail}
-                      price={row.price}
-                      brand={renderBrand(row.brand, brands)}
-                      slug={row.slug}
-                      averageRating={row.averageRating}
-                      statusStock={row.statusStock}
-                      selected={selected.indexOf(row._id) !== -1}
-                      handleClick={(event) => handleClick(event, row._id)}
-                      onDelete={() => setConfirm(row._id)}
-                      handleNavigate={() => navigate(row._id)}
-                    />
-                  ))}
-
-                <TableEmptyRows
-                  col={5}
-                  height={77}
-                  emptyRows={emptyRows(page, rowsPerPage, productsList.length)}
-                />
+                {dataFiltered.map((row) => (
+                  <ProductTableRow
+                    onClick={toggleDrawer(row._id)}
+                    key={row._id}
+                    _id={row._id}
+                    name={row.name}
+                    imgURLs={row.thumbnail}
+                    price={row.price}
+                    brand={renderBrand(row.brand, brands)}
+                    slug={row.slug}
+                    averageRating={row.averageRating}
+                    statusStock={row.statusStock}
+                    selected={selected.indexOf(row._id) !== -1}
+                    handleClick={(event) => handleClick(event, row._id)}
+                    onDelete={() => setConfirm(row._id)}
+                    handleNavigate={() => navigate(row._id)}
+                  />
+                ))}
 
                 {notFound && <TableNoData query={filterName} />}
               </TableBody>
@@ -272,10 +272,10 @@ export default function ProductsPage() {
           page={page}
           component="div"
           labelRowsPerPage="Số hàng trên trang"
-          count={productsList.length}
+          count={products.count || 0}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}
-          rowsPerPageOptions={[5, 10, 25]}
+          rowsPerPageOptions={[5, 10, 25, 50]}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Card>
