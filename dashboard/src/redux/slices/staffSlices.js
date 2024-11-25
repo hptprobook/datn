@@ -57,6 +57,30 @@ export const updateStaffById = createAsyncThunk(
         }
     }
 );
+export const updateMe = createAsyncThunk(
+    "staffs/updateMe",
+    async (data, { rejectWithValue }) => {
+        try {
+            const response = await StaffsService.updateMe(data);
+            return response;
+        } catch (err) {
+            return rejectWithValue(err.response.data);
+        }
+    }
+);
+export const uploadMe = createAsyncThunk(
+    "staffs/uploadMe",
+    async (file, { rejectWithValue }) => {
+      try {
+        console.log(file);
+        const response = await StaffsService.uploadMe(file);
+        return response;
+      } catch (err) {
+        return rejectWithValue(err.response.data);
+      }
+    }
+  );
+  
 const initialState = {
     staffs: [],
     staff: null,
@@ -66,6 +90,7 @@ const initialState = {
     statusUpdate: "idle",
     statusCreate: "idle",
     statusGet: "idle",
+    statusUpdateMe: "idle",
     error: null,
 };
 
@@ -131,6 +156,28 @@ const staffSlices = createSlice({
                 state.statusUpdate = "failed";
                 state.error = action.payload;
             })
+            .addCase(updateMe.pending, (state) => {
+                state.statusUpdateMe = "loading";
+            })
+            .addCase(updateMe.fulfilled, (state, action) => {
+                state.statusUpdateMe = "successful";
+                state.updateMe = action.payload;
+            })
+            .addCase(updateMe.rejected, (state, action) => {
+                state.statusUpdateMe = "failed";
+                state.error = action.payload;
+            })
+            .addCase(uploadMe.pending, (state) => {
+                state.statusUpdateMe = 'loading';
+              })
+              .addCase(uploadMe.fulfilled, (state, action) => {
+                state.statusUpdateMe = 'successful';
+                state.staff.avatar = action.payload.avatar; // Update the avatar in the staff object
+              })
+              .addCase(uploadMe.rejected, (state, action) => {
+                state.statusUpdateMe = 'failed';
+                state.error = action.payload;
+              })
             .addCase(setStatus, (state, action) => {
                 const { key, value } = action.payload; // Destructure key and value from payload
                 if (state[key] !== undefined) {

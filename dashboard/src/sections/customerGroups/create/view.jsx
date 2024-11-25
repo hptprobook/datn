@@ -27,7 +27,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import Iconify from 'src/components/iconify/iconify';
 import { handleToast } from 'src/hooks/toast';
-import { setStatus, createCustomerGroup } from 'src/redux/slices/CustomerGroupSlice';
+import { setStatus, createCustomerGroup } from 'src/redux/slices/customerGroupSlice';
 import LoadingFull from 'src/components/loading/loading-full';
 // import { AutoSelect } from '../auto-select';
 import { customerGroupSchema } from '../utils';

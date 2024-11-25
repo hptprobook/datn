@@ -59,7 +59,7 @@ export const SAVE_USER_SCHEMA = Joi.object({
       'string.max': 'Số điện thoại không được vượt quá 15 ký tự',
     }),
   role: Joi.string()
-    .valid('root', 'admin', 'staff', 'user', 'ban')
+    .valid('user', 'ban')
     .default('user')
     .messages({
       'any.only': 'Vai trò không hợp lệ',
@@ -71,7 +71,7 @@ export const SAVE_USER_SCHEMA = Joi.object({
   'object.unknown': 'Trường không xác định',
 });
 
-export const INFOR_USER = Joi.object({
+export const INFO_USER = Joi.object({
   avatar: Joi.string().trim().messages({
     'string.empty': 'Avatar không được để trống',
   }),
@@ -112,18 +112,18 @@ const OrderStatus = {
   shipping: 'shipping',
 };
 
-export const SEND_NOTIFIES = Joi.array().items(
-  Joi.object({
-    status: Joi.string()
-      .trim()
-      .min(1)
-      .valid(...Object.values(OrderStatus))
-      .default(OrderStatus.pending),
-    note: Joi.string().trim().min(1),
-    createdAt: Joi.date().timestamp('javascript').default(Date.now),
-    updatedAt: Joi.date().timestamp('javascript').default(Date.now),
-  })
-);
+export const SEND_NOTIFIES = Joi.object({
+  userId: Joi.object(),
+  title: Joi.string().trim().min(1),
+  description: Joi.string().trim().min(1),
+  type: Joi.string().trim().min(1),
+  orderId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
+  orderCode: Joi.string().trim().min(1),
+  isReaded: Joi.boolean().default(false),
+  createdAt: Joi.date().timestamp('javascript').default(Date.now),
+  updatedAt: Joi.date().timestamp('javascript').default(Date.now),
+});
+
 export const UPDATE_USER = Joi.object({
   name: Joi.string().trim().min(1).max(30).messages({
     'string.empty': 'Tên không được để trống',
@@ -165,30 +165,31 @@ export const UPDATE_USER = Joi.object({
       'string.min': 'Số điện thoại phải có ít nhất 10 ký tự',
       'string.max': 'Số điện thoại không được vượt quá 15 ký tự',
     }),
-  role: Joi.string().valid('root', 'admin', 'staff', 'user', 'ban').messages({
+  role: Joi.string().valid('user', 'ban').messages({
     'any.only': 'Vai trò không hợp lệ',
   }),
   allowNotifies: Joi.boolean(),
   updatedAt: Joi.date().timestamp('javascript').default(Date.now),
   favorites: Joi.array().items({
     _id: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
-    productId: Joi.string()
-      .pattern(OBJECT_ID_RULE)
-      .message(OBJECT_ID_RULE_MESSAGE),
-    image: Joi.string().trim().min(1),
+    thumbnail: Joi.string().trim().min(1),
+    slug: Joi.string().trim().min(1),
     name: Joi.string().trim().min(1),
     price: Joi.number(),
-    reviews: Joi.array(),
+    // reviews: Joi.array(),
+    totalComment: Joi.number(),
+    averageRating: Joi.number(),
   }),
+  notifies: Joi.array(),
   views: Joi.array().items({
     _id: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
-    productId: Joi.string()
-      .pattern(OBJECT_ID_RULE)
-      .message(OBJECT_ID_RULE_MESSAGE),
-    image: Joi.string().trim().min(1),
+    thumbnail: Joi.string().trim().min(1),
+    slug: Joi.string().trim().min(1),
     name: Joi.string().trim().min(1),
     price: Joi.number(),
-    reviews: Joi.array(),
+    // reviews: Joi.array(),
+    totalComment: Joi.number(),
+    averageRating: Joi.number(),
   }),
 }).messages({
   'object.unknown': 'Trường không xác định',

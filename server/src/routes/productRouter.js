@@ -23,6 +23,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 //admin
+Router.get('/getByViews', productController.getProductsByView);
 Router.get('/price-range', productController.getMinMaxPrices);
 Router.get('/search/keyword', productController.getProductsBySearchAndFilter);
 Router.get('/search', productController.getProductBySearch);
@@ -31,6 +32,7 @@ Router.get('/event/:slug', productController.getProductByEvent);
 Router.get('/special', productController.getAllProductsSpecial);
 Router.get('/:id', productController.getProductById);
 Router.get('/slug/:slug', productController.getProductBySlug);
+Router.get('/:slug/views', productController.increaseView);
 //Category
 Router.get('/category/:id', productController.getProductByCategoryId);
 Router.get('/category/slug/:slug', productController.getProductByCategory);
@@ -61,7 +63,14 @@ Router.post(
   ]),
   productController.createProduct
 );
-Router.post('/rating', upload.none(), productController.ratingProduct);
+Router.post('/rating', upload.array('images'), productController.ratingProduct);
+Router.post('/ratingMany', productController.ratingManyProduct);
+Router.post(
+  '/ratingShop/:id',
+
+  upload.none(),
+  productController.ratingShopProduct
+);
 Router.put(
   '/:id',
   verifyStaff,
@@ -73,8 +82,19 @@ Router.put(
   ]),
   productController.updateProduct
 );
-Router.put('/rating/:id', upload.none(), productController.updateRatingProduct);
+Router.put(
+  '/rating/:id',
+  upload.array('images'),
+  productController.updateRatingProduct
+);
 Router.delete('/:id', verifyStaff, isAdmin, productController.deleteProduct);
-Router.delete('/rating/:id', productController.deleteRating);
+Router.delete(
+  '/rating/:id',
+  verifyStaff,
+  isAdmin,
+  productController.deleteRating
+);
+Router.get('/search/dashboard', productController.searchInDashboard);
+Router.post('/getByIds', productController.getProductByArrayId);
 
 export const productsApi = Router;

@@ -3,12 +3,28 @@ import { ObjectId } from 'mongodb';
 import {
   SAVE_USER_SCHEMA,
   UPDATE_USER,
-  INFOR_USER,
+  INFO_USER,
   SEND_NOTIFIES,
 } from '~/utils/schema/userSchema';
 
+const OrderStatus = {
+  pending: 'chờ xác nhận',
+  confirmed: 'đã xác nhận',
+  shipped: 'đã giao cho ĐVVC',
+  shipping: 'shipper đang trên đường tới',
+  delivered: 'đã nhận hàng',
+  returned: 'trả hàng',
+  cancelled: 'huỷ',
+  completed: 'hoàn thành',
+};
+
+const generateDescription = (title, orderCode, status) => {
+  const statusText = OrderStatus[status];
+  return `${title} ${orderCode} ${statusText}`;
+};
+
 const validateBeforeUpdateInfor = async (data) => {
-  return await INFOR_USER.validateAsync(data, { abortEarly: false });
+  return await INFO_USER.validateAsync(data, { abortEarly: false });
 };
 
 const validateBeforeSendNotifies = async (data) => {
@@ -25,16 +41,33 @@ const countUserAll = async () => {
   return totail;
 };
 
-const getUserAll = async (page, limit, user_id) => {
-  page = parseInt(page) || 1;
-  limit = parseInt(limit) || 2;
+const getUserAll = async ({
+  userId,
+  page,
+  limit,
+  start
+}) => {
+  page = Number(page) || 1;
+  limit = parseInt(limit);
   const db = await GET_DB().collection('users');
+  const skip = parseInt(start) ? parseInt(start) : (page - 1) * limit;
+  const count = await db.countDocuments();
   const result = await db
-    .find({ _id: { $ne: new ObjectId(user_id) } })
-    .skip((page - 1) * limit)
+    .find({ _id: { $ne: new ObjectId(userId) } })
+    .project({
+      password: 0,
+      carts: 0,
+      notifies: 0,
+      favorites: 0,
+      addresses: 0,
+    })
+    .skip(skip)
     .limit(limit)
     .toArray();
-  return result;
+  return {
+    count,
+    result,
+  };
 };
 
 const register = async (dataUser) => {
@@ -57,6 +90,16 @@ const getUserID = async (user_id) => {
   const user = await db.findOne({ _id: new ObjectId(user_id) });
   return user;
 };
+const getNotifiesUserID = async (user_id) => {
+  const db = await GET_DB().collection('users');
+  const user = await db.findOne({ _id: new ObjectId(user_id) });
+  if (user && user.notifies) {
+    user.notifies.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  }
+
+  return user;
+};
+
 const validateBeforeUpdate = async (data) => {
   return await UPDATE_USER.validateAsync(data, { abortEarly: false });
 };
@@ -122,11 +165,34 @@ const favoriteProduct = async (id, userId) => {
 
   const product = await dbProducts.findOne(
     { _id: new ObjectId(id) },
-    { projection: { _id: 1, name: 1, thumbnail: 1, price: 1, reviews: 1 } }
+    {
+      projection: {
+        _id: 1,
+        name: 1,
+        thumbnail: 1,
+        price: 1,
+        reviews: 1,
+        slug: 1,
+      },
+    }
   );
 
   if (!product) {
     throw new Error('Sản phẩm không tồn tại');
+  }
+
+  if (product.reviews && product.reviews.length > 0) {
+    const total = product.reviews.reduce(
+      (acc, review) => acc + review.rating,
+      0
+    );
+    product.averageRating = parseFloat(
+      (total / product.reviews.length).toFixed(1)
+    );
+    product.totalComment = product.reviews.length;
+  } else {
+    product.averageRating = 0;
+    product.totalComment = 0;
   }
 
   const result = await dbUsers.findOneAndUpdate(
@@ -136,9 +202,12 @@ const favoriteProduct = async (id, userId) => {
         favorites: {
           _id: product._id,
           name: product.name,
-          image: product.thumbnail,
+          slug: product.slug,
+          thumbnail: product.thumbnail,
           price: product.price,
           reviews: product.reviews,
+          totalComment: product.totalComment,
+          averageRating: product.averageRating,
         },
       },
     },
@@ -158,11 +227,34 @@ const viewProduct = async (id, userId) => {
 
   const product = await dbProducts.findOne(
     { _id: new ObjectId(id) },
-    { projection: { _id: 1, name: 1, thumbnail: 1, price: 1, reviews: 1 } }
+    {
+      projection: {
+        _id: 1,
+        name: 1,
+        thumbnail: 1,
+        price: 1,
+        reviews: 1,
+        slug: 1,
+      },
+    }
   );
 
   if (!product) {
     throw new Error('Sản phẩm không tồn tại');
+  }
+
+  if (product.reviews && product.reviews.length > 0) {
+    const total = product.reviews.reduce(
+      (acc, review) => acc + review.rating,
+      0
+    );
+    product.averageRating = parseFloat(
+      (total / product.reviews.length).toFixed(1)
+    );
+    product.totalComment = product.reviews.length;
+  } else {
+    product.averageRating = 0;
+    product.totalComment = 0;
   }
 
   const result = await db.findOneAndUpdate(
@@ -172,9 +264,12 @@ const viewProduct = async (id, userId) => {
         views: {
           _id: product._id,
           name: product.name,
-          image: product.thumbnail,
+          slug: product.slug,
+          thumbnail: product.thumbnail,
           price: product.price,
           reviews: product.reviews,
+          totalComment: product.totalComment,
+          averageRating: product.averageRating,
         },
       },
     },
@@ -256,11 +351,19 @@ const updateInfor = async (id, data) => {
 };
 
 const sendNotifies = async (data) => {
-  const { userId, ...otherData } = data;
+  //   const { userId, ...otherData } = data;
+  //   console.log(data);
 
-  const status = otherData.status[otherData.status.length - 1];
+  //   const status = otherData.status[otherData.status.length - 1];
+  //   const dataValidate = await validateBeforeSendNotifies([status]);
+  const { userId, title, description, type } = data;
+  const dataValidate = await validateBeforeSendNotifies(data);
 
-  const dataValidate = await validateBeforeSendNotifies([status]);
+  // const description = generateDescription(
+  //   otherData.title,
+  //   otherData.orderCode,
+  //   dataValidate[0].status
+  // );
 
   const result = await GET_DB()
     .collection('users')
@@ -269,19 +372,81 @@ const sendNotifies = async (data) => {
       {
         $push: {
           notifies: {
-            _id: otherData._id,
-            status: dataValidate[0].status,
-            type: otherData.type,
-            note: dataValidate[0].note,
-            createdAt: dataValidate[0].createdAt,
-            updatedAt: dataValidate[0].updatedAt,
+            _id: new ObjectId(),
+            //             status: dataValidate[0].status,
+            //             type: otherData.type,
+            //             title: otherData.title,
+            //             orderCode: otherData.orderCode,
+            //             description: description,
+
+            title: title,
+            description: description,
+            type: type,
+
+            isReaded: false,
+            createdAt: dataValidate.createdAt,
+            updatedAt: dataValidate.updatedAt,
           },
         },
       },
       { returnDocument: 'after' }
     );
+
   delete result.password;
   return result;
+};
+
+const readNotify = async (id, data) => {
+  const result = await GET_DB()
+    .collection('users')
+    .updateOne(
+      { 'notifies._id': new ObjectId(id) },
+      {
+        $set: {
+          'notifies.$.isReaded': data.isReaded,
+          'notifies.$.updatedAt': new Date(),
+        },
+      }
+    );
+
+  return result;
+};
+
+const findUsers = async ({
+  search,
+  page = 1,
+  limit = 10,
+}) => {
+  const db = await GET_DB().collection('users');
+  const count = await db.countDocuments({
+    $or: [
+      { email: { $regex: search, $options: 'i' } },
+      { phone: { $regex: search, $options: 'i' } },
+      { name: { $regex: search, $options: 'i' } },
+    ],
+  });
+  const result = await db
+    .find({
+      $or: [
+        { email: { $regex: search, $options: 'i' } },
+        { phone: { $regex: search, $options: 'i' } },
+        { name: { $regex: search, $options: 'i' } },
+      ],
+    })
+    .project({
+      password: 0,
+      carts: 0,
+      notifies: 0,
+      favorites: 0,
+      addresses: 0,
+    })
+    .skip((page - 1) * limit)
+    .limit(Number(limit))
+    .toArray();
+  return {
+    count,
+    result,
+  };
 };
 
 export const userModel = {
@@ -301,4 +466,7 @@ export const userModel = {
   viewProduct,
   updateInfor,
   sendNotifies,
+  findUsers,
+  readNotify,
+  getNotifiesUserID,
 };

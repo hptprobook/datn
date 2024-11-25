@@ -22,14 +22,11 @@ const countSupplierAll = async () => {
   }
 };
 
-const getSuppliersAll = async (page, limit) => {
-  page = parseInt(page) || 1;
-  limit = parseInt(limit) || 20;
+const getSuppliersAll = async () => {
   const db = await GET_DB().collection('suppliers');
   const result = await db
     .find()
-    .skip((page - 1) * limit)
-    .limit(limit)
+    .sort({ createdAt: -1 })
     .toArray();
   if (!result) {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
@@ -37,11 +34,21 @@ const getSuppliersAll = async (page, limit) => {
   return result;
 };
 
-const getSupplierById = async (supplier_id) => {
+const getSupplierById = async (id) => {
   const db = await GET_DB().collection('suppliers');
-  const supplier = await db.findOne({ _id: new ObjectId(supplier_id) });
+  const supplier = await db.findOne({ _id: new ObjectId(id) });
   return supplier;
 };
+const getOneBy = async (query, type) => {
+  if (query === '_id')
+    query = new ObjectId(query);
+  const db = await GET_DB().collection('suppliers');
+  const supplier = await db.findOne({
+    [type]: query
+  });
+  return supplier;
+};
+
 
 const createSupplier = async (dataSupplier) => {
   const validData = await validateBeforeCreate(dataSupplier);
@@ -114,4 +121,5 @@ export const supplierModel = {
   update,
   deleteAllSuppliers,
   deleteManySuppliers,
+  getOneBy
 };

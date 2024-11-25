@@ -2,6 +2,7 @@
 import { GET_DB } from '~/config/mongodb';
 import { ObjectId } from 'mongodb';
 import {
+  RATING_SHOP,
   REVIEW_PRODUCT,
   SAVE_PRODUCT_SCHEMA,
   UPDATE_PRODUCT,
@@ -11,6 +12,10 @@ import { removeTones } from './removeTones';
 
 const validateRatingBeforeCreate = async (data) => {
   return await REVIEW_PRODUCT.validateAsync(data, { abortEarly: false });
+};
+
+const validateRatingShopBeforeCreate = async (data) => {
+  return await RATING_SHOP.validateAsync(data, { abortEarly: false });
 };
 
 const validateRatingBeforeUpdate = async (data) => {
@@ -40,7 +45,7 @@ const getProductsAll = async (page, limit) => {
   const db = await GET_DB().collection('products');
   const result = await db
     .find()
-    .sort({ createdAt: 1 })
+    .sort({ createdAt: -1 })
     .project({
       _id: 1,
       name: 1,
@@ -78,6 +83,45 @@ const getProductsAll = async (page, limit) => {
     delete product.reviews;
   });
   return result;
+};
+
+const getProductsByView = async () => {
+  const db = await GET_DB().collection('products');
+
+  const result = await db
+    .find()
+    .sort({ views: -1 })
+    .limit(10)
+    .project({
+      _id: 1,
+      name: 1,
+      tags: 1,
+      reviews: 1,
+      price: 1,
+      thumbnail: 1,
+      status: 1,
+      statusStock: 1,
+      slug: 1,
+      productType: 1,
+    })
+    .toArray();
+
+  if (!result) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
+  }
+  return result;
+};
+
+const increaseViewBySlug = async (slug) => {
+  const db = await GET_DB().collection('products');
+
+  await db.findOneAndUpdate(
+    { slug },
+    { $inc: { views: 1 } },
+    { returnDocument: 'after' }
+  );
+
+  return;
 };
 
 const getProductsAllSpecial = async () => {
@@ -205,13 +249,13 @@ const getProductsByCategoryId = async (id, page, limit) => {
       _id: 1,
       name: 1,
       tags: 1,
-      variants: 1,
       reviews: 1,
       price: 1,
       thumbnail: 1,
       status: 1,
       statusStock: 1,
       slug: 1,
+      productType: 1,
     })
     .skip((page - 1) * limit)
     .limit(limit)
@@ -408,6 +452,16 @@ const deleteProduct = async (id) => {
 const ratingProduct = async (data) => {
   const validData = await validateRatingBeforeCreate(data);
   const db = GET_DB().collection('products');
+  const users = GET_DB().collection('users');
+
+  const user = await users.findOne(
+    { _id: new ObjectId(validData.userId) },
+    { projection: { name: 1, avatar: 1 } }
+  );
+
+  if (!user) {
+    throw new Error('User không tồn tại');
+  }
 
   const reviewId = new ObjectId();
 
@@ -418,9 +472,14 @@ const ratingProduct = async (data) => {
         reviews: {
           _id: reviewId,
           userId: new ObjectId(validData.userId),
+          username: user.name,
+          avatar: user.avatar || null,
           orderId: new ObjectId(validData.orderId),
           productId: new ObjectId(validData.productId),
           content: validData.content,
+          variantColor: validData.variantColor,
+          variantSize: validData.variantSize,
+          images: validData.images,
           rating: validData.rating,
           createdAt: new Date().getTime(),
           updatedAt: new Date().getTime(),
@@ -429,6 +488,7 @@ const ratingProduct = async (data) => {
     },
     { returnDocument: 'after' }
   );
+
   if (!result) {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
@@ -438,6 +498,16 @@ const ratingProduct = async (data) => {
 const updateRatingProduct = async (reviewId, data) => {
   const validData = await validateRatingBeforeUpdate(data);
   const db = GET_DB().collection('products');
+  const users = GET_DB().collection('users');
+
+  const user = await users.findOne(
+    { _id: new ObjectId(validData.userId) },
+    { projection: { name: 1, avatar: 1 } }
+  );
+
+  if (!user) {
+    throw new Error('User không tồn tại');
+  }
 
   const result = await db.findOneAndUpdate(
     {
@@ -446,33 +516,68 @@ const updateRatingProduct = async (reviewId, data) => {
     {
       $set: {
         'reviews.$.userId': new ObjectId(validData.userId),
+        'reviews.$.username': user.name,
+        'reviews.$.avatar': user.avatar || null,
         'reviews.$.content': validData.content,
         'reviews.$.orderId': new ObjectId(validData.orderId),
         'reviews.$.productId': new ObjectId(validData.productId),
         'reviews.$.rating': validData.rating,
+        'reviews.$.variantColor': validData.variantColor,
+        'reviews.$.variantSize': validData.variantSize,
+        'reviews.$.images': validData.images,
         'reviews.$.updatedAt': new Date().getTime(),
       },
     },
     { returnDocument: 'after' }
   );
+
   if (!result) {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
   return result;
 };
+
 const deleteRating = async (id) => {
-  const result = await GET_DB()
-    .collection('products')
-    .updateOne(
-      {
-        'reviews._id': new ObjectId(id),
+  const db = GET_DB().collection('products');
+  const product = await db.findOne(
+    { 'reviews._id': new ObjectId(id) },
+    { projection: { 'reviews.$': 1 } }
+  );
+  const images = product.reviews[0].images;
+  const result = await db.updateOne(
+    {
+      'reviews._id': new ObjectId(id),
+    },
+    {
+      $pull: {
+        reviews: { _id: new ObjectId(id) },
       },
-      {
-        $pull: {
-          reviews: { _id: new ObjectId(id) },
+    }
+  );
+  if (!result) {
+    throw new Error('Có lỗi xảy ra, xin thử lại sau');
+  }
+  return { result, images };
+};
+
+const ratingShopResponse = async (reviewId, data) => {
+  const db = GET_DB().collection('products');
+
+  const result = await db.findOneAndUpdate(
+    { 'reviews._id': new ObjectId(reviewId) },
+    {
+      $set: {
+        'reviews.$.shopResponse': {
+          userId: new ObjectId(data.user_id),
+          content: data.content,
+          createdAt: new Date().getTime(),
+          updatedAt: new Date().getTime(),
         },
-      }
-    );
+      },
+    },
+    { returnDocument: 'after' }
+  );
+
   if (!result) {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
@@ -904,6 +1009,7 @@ const getProductsByEvent = async (slug, pages, limit) => {
   const products = await db
     .collection('products')
     .find({ cat_id: { $in: categoryIds } })
+    .sort({ createdAt: -1 })
     .project({
       _id: 1,
       name: 1,
@@ -971,7 +1077,9 @@ const getProductsBySlugAndPriceRange = async (
   limit,
   sortCriteria,
   colors,
-  sizes
+  sizes,
+  type,
+  tags
 ) => {
   const db = await GET_DB();
 
@@ -1017,6 +1125,14 @@ const getProductsBySlugAndPriceRange = async (
     query['variants.sizes.size'] = { $in: sizes };
   }
 
+  if (type) {
+    query['productType'] = type; // Thêm điều kiện lọc cho type
+  }
+
+  if (tags && tags.length > 0) {
+    query['tags'] = { $in: tags }; // Thêm điều kiện lọc cho tags
+  }
+
   const products = await db
     .collection('products')
     .find(query)
@@ -1030,6 +1146,7 @@ const getProductsBySlugAndPriceRange = async (
       status: 1,
       statusStock: 1,
       slug: 1,
+      productType: 1,
     })
     .collation({ locale: 'en', strength: 2 })
     .sort(sortOption)
@@ -1169,9 +1286,66 @@ const getMinMaxProductPrices = async () => {
   };
 };
 
+const isComment = async (
+  userId,
+  productId,
+  orderId,
+  variantColor,
+  variantSize
+) => {
+  const db = GET_DB().collection('products');
+
+  const product = await db.findOne({
+    _id: new ObjectId(productId),
+    'reviews.userId': new ObjectId(userId),
+    'reviews.variantColor': variantColor,
+    'reviews.variantSize': variantSize,
+    'reviews.orderId': new ObjectId(orderId),
+  });
+
+  return !!product;
+};
+const searchInDashboard = async (keyword) => {
+  const db = await GET_DB();
+  const result = await db
+    .collection('products')
+    .find({
+      $or: [
+        { name: { $regex: keyword, $options: 'i' } },
+        { sku: { $regex: keyword, $options: 'i' } },
+        {
+          variants: { $elemMatch: { sku: { $regex: keyword, $options: 'i' } } },
+        },
+      ],
+    })
+    .project({ name: 1, _id: 1, variants: 1, thumbnail: 1, price: 1 })
+    .limit(10)
+    .toArray();
+  return result;
+};
+const getProductByArrayId = async (ids) => {
+  const db = await GET_DB();
+  if (!Array.isArray(ids) || ids.length === 0) {
+    return [];
+  }
+  const objectIds = ids.map((id) => new ObjectId(id));
+  const result = await db
+    .collection('products')
+    .find({ _id: { $in: objectIds } })
+    .project({
+      _id: 1,
+      name: 1,
+      thumbnail: 1,
+    })
+    .toArray();
+  return result;
+}
+
 export const productModel = {
   countProductAll,
   getProductsAll,
+  getProductsByView,
+  increaseViewBySlug,
   createProduct,
   deleteProduct,
   update,
@@ -1197,4 +1371,8 @@ export const productModel = {
   getProductsBySlugAndPriceRange,
   getProductsBySearchAndFilter,
   getMinMaxProductPrices,
+  ratingShopResponse,
+  isComment,
+  searchInDashboard,
+  getProductByArrayId
 };

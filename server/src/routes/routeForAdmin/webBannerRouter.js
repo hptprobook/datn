@@ -33,5 +33,6 @@ Router.put(
 );
 
 Router.delete('/:webBannerID', webBannerController.deleteWebBanner);
+Router.post('/creates', webBannerController.createManyBanner);
 
 export const webBannerApi = Router;

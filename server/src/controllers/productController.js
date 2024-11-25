@@ -6,6 +6,7 @@ import { ERROR_MESSAGES } from '~/utils/errorMessage';
 import { uploadModel } from '~/models/uploadModel';
 import path from 'path';
 import { hotSearchModel } from '~/models/hotSearchModel';
+import { ObjectId } from 'mongodb';
 
 const getAllProducts = async (req, res) => {
   try {
@@ -14,6 +15,18 @@ const getAllProducts = async (req, res) => {
     return res.status(StatusCodes.OK).json({
       products,
     });
+  } catch (error) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json('Có lỗi xảy ra xin thử lại sau');
+  }
+};
+
+const increaseView = async (req, res) => {
+  try {
+    let { slug } = req.params;
+    await productModel.increaseViewBySlug(slug);
+    return res.status(StatusCodes.OK).json({ message: 'Thành công' });
   } catch (error) {
     return res
       .status(StatusCodes.BAD_REQUEST)
@@ -79,6 +92,21 @@ const getProductByCategory = async (req, res) => {
         .json({ message: 'Không tìm thấy sản phẩm!' });
     }
     return res.status(StatusCodes.OK).json(product);
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
+  }
+};
+
+const getProductsByView = async (req, res) => {
+  try {
+    const products = await productModel.getProductsByView();
+
+    if (!products) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: 'Không tìm thấy sản phẩm!' });
+    }
+    return res.status(StatusCodes.OK).json(products);
   } catch (error) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
   }
@@ -303,6 +331,7 @@ const updateProduct = async (req, res) => {
 
     let thumbnail;
     let imagesProduct = [];
+    let imageVariantsC = [];
 
     if (req.files['thumbnail']) {
       thumbnail = path.join(
@@ -320,14 +349,10 @@ const updateProduct = async (req, res) => {
         }
       });
     }
-
-    const imageVariantsC =
-      req.files['imageVariants'] &&
+    req.files['imageVariants'] &&
       req.files['imageVariants'].map((file) => {
         if (file && file.filename) {
-          return path.join('uploads/products', file.filename);
-        } else {
-          throw new Error('File image không hợp lệ');
+          imageVariantsC.push(path.join('uploads/products', file.filename));
         }
       });
 
@@ -344,15 +369,17 @@ const updateProduct = async (req, res) => {
     const imageDelete = oldImageVariants.filter(
       (v) => !imageNoDelete.includes(v)
     );
-    for (const variant of parsedVariants) {
-      if (variant.imageAdd) {
-        variant.image = imageVariantsC[0];
-        imageVariantsC.shift();
-        delete variant.imageAdd;
-      }
+    if (parsedVariants.length > 0) {
+      for (const variant of parsedVariants) {
+        if (variant.imageAdd) {
+          variant.image = imageVariantsC[0];
+          imageVariantsC.shift();
+          delete variant.imageAdd;
+        }
 
-      if (imageVariantsC.length === 0) {
-        break;
+        if (imageVariantsC.length === 0) {
+          break;
+        }
       }
     }
     // let parsedVariants = [];
@@ -467,6 +494,8 @@ const updateProduct = async (req, res) => {
       return res.status(StatusCodes.OK).json(result);
     }
   } catch (error) {
+    console.log(error);
+
     if (req.files) {
       const thumbnailPath = req.files['thumbnail']?.[0]?.filename;
 
@@ -594,13 +623,15 @@ const deleteProduct = async (req, res) => {
 
 const ratingProduct = async (req, res) => {
   try {
-    const { userId, content, orderId, productId, rating } = req.body;
-
-    if (!userId || !content || !orderId || !productId || !rating) {
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        message: ERROR_MESSAGES.REQUIRED,
-      });
-    }
+    const {
+      userId,
+      content,
+      orderId,
+      productId,
+      rating,
+      variantColor,
+      variantSize,
+    } = req.body;
 
     const data = {
       userId,
@@ -608,15 +639,175 @@ const ratingProduct = async (req, res) => {
       orderId,
       productId,
       rating,
+      variantColor,
+      variantSize,
     };
 
+    /*     const data = {
+      userId: '672332bb3eb63a6c62287dc6',
+      content: '123',
+      orderId: '672510f996adbc5a3addec0e',
+      productId: '671f8472af7fc5c9ad0485a9',
+      rating: 5,
+      variantColor: 'Xám',
+      variantSize: 'S',
+    }; */
+
+    let images = [];
+
+    if (req.files) {
+      images = req.files.map((file) =>
+        path.join('uploads/products', file.filename)
+      );
+      data.images = images;
+    }
+
+    const isComment = await productModel.isComment(
+      data.userId,
+      data.productId,
+      data.orderId,
+      data.variantColor,
+      data.variantSize
+    );
+
+    if (isComment) {
+      if (req.files) {
+        uploadModel.deleteImgs(images);
+      }
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Đã đánh giá sản phẩm này' });
+    }
+
     const dataProduct = await productModel.ratingProduct(data);
-    if (dataProduct.error) {
+    if (!dataProduct) {
+      if (req.files) {
+        uploadModel.deleteImgs(images);
+      }
       return res.status(StatusCodes.BAD_REQUEST).json(dataProduct.detail);
     }
     return res
       .status(StatusCodes.OK)
       .json({ dataProduct, message: 'Đánh giá thành công' });
+  } catch (error) {
+    if (req.files) {
+      req.files.map((file) => {
+        uploadModel.deleteImg(file.path);
+      });
+    }
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
+  }
+};
+
+const ratingManyProduct = async (req, res) => {
+  try {
+    const { userId, orderId, productList } = req.body;
+    /*  const data = {
+      userId: '672332bb3eb63a6c62287dc6',
+      orderId: '672326529e88fc77313144d1',
+      productList: [
+        {
+          content: '123',
+          rating: 5,
+          productId: '671f8472af7fc5c9ad0485a9',
+          name: '123123',
+          variantColor: 'Xám',
+          variantSize: 'S',
+        },
+        {
+          content: '1234',
+          rating: 5,
+          productId: '6717bd72e87fcbd1937bbef2',
+          name: 'Áo Sơ Mi Kiểu 10609955',
+          variantColor: 'Tím',
+          variantSize: 'S',
+        },
+        {
+          content: '12345',
+          rating: 5,
+          productId: '6717bd71e87fcbd1937bbef1',
+          name: 'Áo Sơ Mi Croptop 10610046',
+          variantColor: 'Xám',
+          variantSize: 'S',
+        },
+      ],
+    }; */
+
+    const successfulProducts = [];
+    const failedProducts = [];
+
+    for (const product of productList) {
+      const { productId, content, rating, variantColor, variantSize, name } =
+        product;
+
+      const isComment = await productModel.isComment(userId, productId);
+
+      if (isComment) {
+        failedProducts.push({ name, reason: 'Đã đánh giá sản phẩm này' });
+        continue;
+      }
+
+      try {
+        const reviewData = {
+          userId: userId,
+          orderId: orderId,
+          productId,
+          content,
+          rating,
+          variantColor,
+          variantSize,
+        };
+
+        await productModel.ratingProduct(reviewData);
+        successfulProducts.push({ name });
+      } catch (error) {
+        failedProducts.push({ name, reason: error.message });
+      }
+    }
+
+    if (failedProducts.length > 0) {
+      return res.status(StatusCodes.OK).json({
+        message: 'Quá trình đánh giá hoàn tất với một số sản phẩm bị lỗi.',
+        successfulProducts,
+        failedProducts,
+      });
+    }
+
+    return res.status(StatusCodes.OK).json({
+      message: 'Đánh giá thành công tất cả sản phẩm',
+      successfulProducts,
+    });
+  } catch (error) {
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
+  }
+};
+
+const ratingShopProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { user_id } = req.user;
+
+    const { content } = req.body;
+
+    /*    const data = {
+      content: '123',
+      user_id: '672332bb3eb63a6c62287dc6',
+    }; */
+
+    const data = {
+      content,
+      user_id,
+    };
+
+    const dataProduct = await productModel.ratingShopResponse(id, data);
+    if (!dataProduct) {
+      return res.status(StatusCodes.BAD_REQUEST).json(dataProduct.detail);
+    }
+    return res.status(StatusCodes.OK).json({ message: 'Đánh giá thành công' });
   } catch (error) {
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
@@ -627,13 +818,16 @@ const ratingProduct = async (req, res) => {
 const updateRatingProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { userId, content, orderId, productId, rating } = req.body;
-
-    if (!userId || !content || !orderId || !productId || !rating) {
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        message: ERROR_MESSAGES.REQUIRED,
-      });
-    }
+    const {
+      userId,
+      content,
+      orderId,
+      productId,
+      rating,
+      imagesDelete,
+      variantColor,
+      variantSize,
+    } = req.body;
 
     const data = {
       userId,
@@ -641,17 +835,58 @@ const updateRatingProduct = async (req, res) => {
       orderId,
       productId,
       rating,
+      variantColor,
+      variantSize,
     };
+    let images = [];
 
+    if (req.files) {
+      images = req.files.map((file) =>
+        path.join('uploads/products', file.filename)
+      );
+    }
+    const product = await productModel.getProductById(productId);
+
+    if (!product) {
+      if (req.files) {
+        uploadModel.deleteImgs(images);
+      }
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Sản phẩm không tồn tại' });
+    }
+    const review = product.reviews.find((review) =>
+      review._id.equals(new ObjectId(id))
+    );
+
+    const combinedImages = [...review.images, ...images];
+
+    data.images = combinedImages;
     const dataProduct = await productModel.updateRatingProduct(id, data);
 
-    if (dataProduct.error) {
+    if (!dataProduct) {
+      if (req.files) {
+        uploadModel.deleteImgs(images);
+      }
       return res.status(StatusCodes.BAD_REQUEST).json(dataProduct.detail);
     }
+    if (imagesDelete && imagesDelete.length > 0) {
+      if (Array.isArray(imagesDelete)) {
+        uploadModel.deleteImgs(imagesDelete);
+      } else {
+        uploadModel.deleteImg(imagesDelete);
+      }
+    }
+
     return res
       .status(StatusCodes.OK)
       .json({ dataProduct, message: 'Cập nhật đánh giá thành công' });
   } catch (error) {
+    if (req.files) {
+      req.files.map((file) => {
+        uploadModel.deleteImg(file.path);
+      });
+    }
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ message: error.message });
@@ -666,7 +901,15 @@ const deleteRating = async (req, res) => {
         .status(StatusCodes.BAD_REQUEST)
         .json({ message: 'Thiếu thông tin' });
     }
-    await productModel.deleteRating(id);
+    const result = await productModel.deleteRating(id);
+    if (!result) {
+      return res
+        .status(StatusCodes.OK)
+        .json({ message: 'Xóa đánh giá không thành công' });
+    }
+    if (result.images && result.images.length > 0) {
+      uploadModel.deleteImgs(result.images);
+    }
     return res
       .status(StatusCodes.OK)
       .json({ message: 'Xóa đánh giá thành công' });
@@ -822,11 +1065,21 @@ const getProductByEvent = async (req, res) => {
 const getProductsBySlugAndPriceRange = async (req, res) => {
   try {
     const { slug } = req.params;
-    const { minPrice, maxPrice, pages, limit, colors, sizes, ...sortCriteria } =
-      req.query;
+    const {
+      minPrice,
+      maxPrice,
+      pages,
+      limit,
+      colors,
+      sizes,
+      type,
+      tags,
+      ...sortCriteria
+    } = req.query;
 
     const parsedColors = colors ? colors.split(',') : [];
     const parsedSizes = sizes ? sizes.split(',') : [];
+    const parsedTags = tags ? tags.split(',') : [];
 
     const products = await productModel.getProductsBySlugAndPriceRange(
       slug,
@@ -836,14 +1089,10 @@ const getProductsBySlugAndPriceRange = async (req, res) => {
       parseInt(limit) || 20,
       sortCriteria,
       parsedColors,
-      parsedSizes
+      parsedSizes,
+      type, // Truyền type
+      parsedTags // Truyền tags
     );
-
-    // if (!products || products.length === 0) {
-    //   return res
-    //     .status(StatusCodes.NOT_FOUND)
-    //     .json({ message: 'Không tìm thấy sản phẩm!' });
-    // }
 
     return res.status(StatusCodes.OK).json(products);
   } catch (error) {
@@ -907,32 +1156,60 @@ const getMinMaxPrices = async (req, res) => {
     });
   }
 };
+const searchInDashboard = async (req, res) => {
+  try {
+    const { keyword } = req.query;
+    const products = await productModel.searchInDashboard(keyword);
+    return res.status(StatusCodes.OK).json(products);
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: 'Có lỗi xảy ra khi tìm kiếm',
+      error: error.message,
+    });
+  }
+};
+const getProductByArrayId = async (req, res) => {
+  try {
+    const { ids } = req.body;
+    const product = await productModel.getProductByArrayId(ids);
+    return res.status(StatusCodes.OK).json(product);
+  }
+  catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
+  }
+};
 
 export const productController = {
-  createProduct,
-  getAllProducts,
-  getProductById,
-  updateProduct,
-  ratingProduct,
-  deleteProduct,
-  updateRatingProduct,
-  deleteRating,
-  getProductBySlug,
-  getProductByCategory,
-  getProductByCategoryId,
-  getProductByBrandId,
-  getProductByBrand,
-  getProductByAlphabetAZ,
-  getProductByAlphabetZA,
-  getProductByPriceAsc,
-  getProductByPriceDesc,
-  getProductByNewest,
-  getProductByOldest,
-  getProductBySearch,
-  getAllProductsSpecial,
-  getProductByCategoryFilter,
-  getProductByEvent,
-  getProductsBySlugAndPriceRange,
-  getProductsBySearchAndFilter,
-  getMinMaxPrices,
-};
+        createProduct,
+        getAllProducts,
+        getProductsByView,
+        increaseView,
+        getProductById,
+        updateProduct,
+        ratingProduct,
+        deleteProduct,
+        updateRatingProduct,
+        deleteRating,
+        getProductBySlug,
+        getProductByCategory,
+        getProductByCategoryId,
+        getProductByBrandId,
+        getProductByBrand,
+        getProductByAlphabetAZ,
+        getProductByAlphabetZA,
+        getProductByPriceAsc,
+        getProductByPriceDesc,
+        getProductByNewest,
+        getProductByOldest,
+        getProductBySearch,
+        getAllProductsSpecial,
+        getProductByCategoryFilter,
+        getProductByEvent,
+        getProductsBySlugAndPriceRange,
+        getProductsBySearchAndFilter,
+        getMinMaxPrices,
+        ratingShopProduct,
+        ratingManyProduct,
+        searchInDashboard,
+        getProductByArrayId
+      };

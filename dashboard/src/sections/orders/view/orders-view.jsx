@@ -13,12 +13,14 @@ import Scrollbar from 'src/components/scrollbar';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAll } from 'src/redux/slices/orderSlices';
-import TableNoData from '../table-no-data';
+import { applyFilter, getComparator } from 'src/components/table/utils';
+import TableNoData from 'src/components/table/table-no-data';
+import LoadingFull from 'src/components/loading/loading-full';
+import { IconButton } from '@mui/material';
+import { IconRefresh } from 'src/components/iconify/icon';
 import OrderTableRow from '../order-table-row';
 import OrderTableHead from '../order-table-head';
-import TableEmptyRows from '../table-empty-rows';
 import OrderTableToolbar from '../order-table-toolbar';
-import { emptyRows, applyFilter, getComparator } from '../utils';
 
 // ----------------------------------------------------------------------
 
@@ -41,14 +43,22 @@ export default function OrdersPage() {
   const status = useSelector((state) => state.orders.status);
 
   const [data, setData] = useState([]);
-
+  const getOrders = ({ p = 1, limit = rowsPerPage }) => {
+    dispatch(
+      fetchAll({
+        page: p,
+        limit,
+      })
+    );
+  };
   useEffect(() => {
-    dispatch(fetchAll());
-  }, [dispatch]);
+    getOrders({ p: 1, limit: 5 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (status === 'successful') {
-      setData(dataOrder);
+      setData(dataOrder.result);
     }
   }, [status, dataOrder]);
 
@@ -60,14 +70,14 @@ export default function OrdersPage() {
     }
   };
 
-  const handleSelectAllClick = (event) => {
-    if (event.target.checked) {
-      const newSelecteds = data.map((n) => n._id);
-      setSelected(newSelecteds);
-      return;
-    }
-    setSelected([]);
-  };
+  // const handleSelectAllClick = (event) => {
+  //   if (event.target.checked) {
+  //     const newSelecteds = data.map((n) => n._id);
+  //     setSelected(newSelecteds);
+  //     return;
+  //   }
+  //   setSelected([]);
+  // };
 
   const handleClick = (event, name) => {
     const selectedIndex = selected.indexOf(name);
@@ -89,11 +99,19 @@ export default function OrdersPage() {
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
+    getOrders({
+      p: newPage + 1,
+      limit: rowsPerPage,
+    });
   };
 
   const handleChangeRowsPerPage = (event) => {
     setPage(0);
     setRowsPerPage(parseInt(event.target.value, 10));
+    getOrders({
+      p: 1,
+      limit: parseInt(event.target.value, 10),
+    });
   };
 
   const handleFilterByName = (event) => {
@@ -105,16 +123,21 @@ export default function OrdersPage() {
     inputData: data,
     comparator: getComparator(order, orderBy),
     filterName,
+    fillerQuery: 'orderCode',
   });
 
   const notFound = !dataFiltered.length && !!filterName;
 
   return (
     <Container>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
+      <Stack direction="row" alignItems="center" mb={2}>
         <Typography variant="h4">Đơn hàng</Typography>
+        <IconButton onClick={() => getOrders({ p: 1, limit: rowsPerPage })}>
+          <IconRefresh />
+        </IconButton>
       </Stack>
 
+      {status === 'loading' && <LoadingFull />}
       <Card>
         <OrderTableToolbar
           numSelected={selected.length}
@@ -131,8 +154,9 @@ export default function OrdersPage() {
                 rowCount={data.length}
                 numSelected={selected.length}
                 onRequestSort={handleSort}
-                onSelectAllClick={handleSelectAllClick}
+                // onSelectAllClick={handleSelectAllClick}
                 headLabel={[
+                  { id: 'orderCode', label: 'Mã đơn hàng' },
                   { id: 'name', label: 'Tên khách hàng' },
                   { id: 'userId', label: 'Mã khách hàng' },
                   { id: 'paymentMethod', label: 'Phương thức thanh toán' },
@@ -142,25 +166,21 @@ export default function OrdersPage() {
                 ]}
               />
               <TableBody>
-                {dataFiltered
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((row) => (
-                    <OrderTableRow
-                      key={row._id}
-                      name={row.shipping.name}
-                      userId={row.userId}
-                      status={row.status}
-                      id={row._id}
-                      paymentMethod={row.paymentMethod}
-                      avatarUrl={row.avatarUrl}
-                      totalAmount={row.totalPrice}
-                      selected={selected.indexOf(row._id) !== -1}
-                      handleClick={(event) => handleClick(event, row._id)}
-                    />
-                  ))}
-
-                <TableEmptyRows height={77} emptyRows={emptyRows(page, rowsPerPage, data.length)} />
-
+                {dataFiltered.map((row) => (
+                  <OrderTableRow
+                    key={row._id}
+                    name={row.shippingInfo.name}
+                    userId={row.userId}
+                    status={row.status}
+                    orderCode={row.orderCode}
+                    id={row._id}
+                    paymentMethod={row.paymentMethod}
+                    avatarUrl={row.avatarUrl}
+                    totalAmount={row.totalPrice}
+                    selected={selected.indexOf(row._id) !== -1}
+                    handleClick={(event) => handleClick(event, row._id)}
+                  />
+                ))}
                 {notFound && <TableNoData query={filterName} />}
               </TableBody>
             </Table>
@@ -171,7 +191,7 @@ export default function OrdersPage() {
           page={page}
           component="div"
           labelRowsPerPage="Số hàng trên trang"
-          count={data.length}
+          count={dataOrder.count || 0}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}
           rowsPerPageOptions={[5, 10, 25]}

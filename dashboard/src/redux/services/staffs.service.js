@@ -1,4 +1,4 @@
-import { del, get, put, post } from "src/utils/request";
+import { del, get, put, post , upload } from "src/utils/request";
 
 const StaffsService = {
     all: async () => {
@@ -37,6 +37,26 @@ const StaffsService = {
     update: async (id, data) => {
         try {
             return await put(`staffs/${id}`, data);
+        } catch (err) {
+            console.error("Error: ", err);
+            throw err;
+        }
+    },
+    updateMe: async (data) => {
+        try {
+            return await post("staffs/auth/me", data);
+        } catch (err) {
+            console.error("Error: ", err);
+            throw err;
+        }
+    },
+    uploadMe: async (file) => {
+        try {
+            return await upload({
+                path: "staffs/auth/me",
+                file,
+                type: "post",
+            } );
         } catch (err) {
             console.error("Error: ", err);
             throw err;

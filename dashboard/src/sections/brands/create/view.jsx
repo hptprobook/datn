@@ -196,7 +196,7 @@ export default function BrandCreatePage() {
               </Grid2>
             </Grid2>
             <Grid2 xs={12}>
-              <Button type="submit" variant="contained">
+              <Button type="submit" variant="contained" color="inherit">
                 Lưu
               </Button>
             </Grid2>

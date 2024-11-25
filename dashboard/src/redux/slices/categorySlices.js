@@ -34,6 +34,16 @@ export const createCategory = createAsyncThunk(
     try {
       return await CategoryService.createCategory({ file, additionalData: data });
     } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+export const createsCategory = createAsyncThunk(
+  'categories/createsCategory',
+  async (data, { rejectWithValue }) => {
+    try {
+      return await CategoryService.creates(data);
+    } catch (err) {
       return rejectWithValue(err.response.data);
     }
   }
@@ -45,7 +55,7 @@ export const deleteCategory = createAsyncThunk(
       const response = await CategoryService.deleteCategory(id);
       return response;
     } catch (err) {
-      return rejectWithValue(err.response.data.errors);
+      return rejectWithValue(err.response.data);
     }
   }
 );
@@ -56,7 +66,7 @@ export const deleteManyCategory = createAsyncThunk(
       const response = await CategoryService.deleteMany(data);
       return response;
     } catch (err) {
-      return rejectWithValue(err.response.data.errors);
+      return rejectWithValue(err.response.data);
     }
   }
 );
@@ -67,7 +77,7 @@ export const updateCategory = createAsyncThunk(
       const response = await CategoryService.updateCategory(id, data);
       return response;
     } catch (err) {
-      return rejectWithValue(err.response.data.errors);
+      return rejectWithValue(err.response.data);
     }
   }
 );
@@ -78,7 +88,7 @@ export const updateWithImage = createAsyncThunk(
       const response = await CategoryService.updateWithImage({ file, data, id });
       return response;
     } catch (err) {
-      return rejectWithValue(err.response.data.errors);
+      return rejectWithValue(err.response.data);
     }
   }
 );
@@ -91,6 +101,7 @@ const initialState = {
   update: {},
   delete: null,
   status: 'idle',
+  dataCreates: null,
   statusDelete: 'idle',
   statusUpdate: 'idle',
   statusCreate: 'idle',
@@ -136,7 +147,18 @@ const categorySlices = createSlice({
       })
       .addCase(createCategory.rejected, (state, action) => {
         state.statusCreate = 'failed';
-        state.error = action.error.message;
+        state.error = action.payload;
+      })
+      .addCase(createsCategory.pending, (state) => {
+        state.statusCreate = 'loading';
+      })
+      .addCase(createsCategory.fulfilled, (state, action) => {
+        state.statusCreate = 'successful';
+        state.dataCreates = action.payload; // Update based on the actual structure
+      })
+      .addCase(createsCategory.rejected, (state, action) => {
+        state.statusCreate = 'failed';
+        state.dataCreates = action.payload;
       })
       .addCase(deleteCategory.pending, (state) => {
         state.statusDelete = 'loading delete';

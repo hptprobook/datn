@@ -3,7 +3,7 @@ import { useFormik } from 'formik';
 import { Helmet } from 'react-helmet-async';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useCart } from 'react-use-cart';
-import { loginAuth, updateCurrentUser } from '~/APIs';
+import { loginAuth, loginGoogleAPI, updateCurrentUser } from '~/APIs';
 import AuthBanner from '~/components/Auth/AuthBanner';
 import AuthButton from '~/components/common/Button/AuthButton';
 import BackToHome from '~/components/common/Route/BackToHome';
@@ -12,6 +12,10 @@ import { handleApiError } from '~/config/helpers';
 import useCheckAuth from '~/customHooks/useCheckAuth';
 import { handleToast } from '~/customHooks/useToast';
 import { loginSchema } from '~/utils/schema';
+import ObjectID from 'bson-objectid';
+import { getAuth, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+// import { io } from 'socket.io-client';
+// import { useSocketContext } from '~/context/SocketContext';
 
 const LoginPage = () => {
   return (
@@ -28,10 +32,55 @@ const LoginPageUI = () => {
   const navigate = useNavigate();
   const { login } = useCheckAuth();
   const { items, emptyCart } = useCart();
-
+  const auth = getAuth();
+  const googleProvider = new GoogleAuthProvider();
+  // const { socket, onlineUser, setOnlineUser, setSocket } = useSocketContext();
   const initialValues = {
     email: '',
     password: '',
+  };
+
+  const loginGoogle = useMutation({
+    mutationFn: loginGoogleAPI,
+    onSuccess: (data) => {
+      handleToast('success', 'Đăng nhập thành công!');
+      login(data.token);
+
+      handleCartAfterLogin(data);
+
+      setTimeout(() => {
+        const referrer = document.referrer;
+        if (
+          referrer &&
+          !referrer.includes('/tai-khoan/dang-nhap') &&
+          !referrer.includes('/tai-khoan/dang-ky') &&
+          !referrer.includes('/gio-hang') &&
+          !referrer.includes('/thanh-toan') &&
+          !referrer.includes('/thanh-toan/xac-nhan')
+        ) {
+          navigate(-1);
+        } else {
+          navigate('/');
+        }
+      }, 1000);
+    },
+    onError: (error) => {
+      handleApiError(error);
+    },
+  });
+
+  const handleLoginGoogle = () => {
+    signInWithPopup(auth, googleProvider)
+      .then((result) => {
+        const user = result.user;
+        loginGoogle.mutate({
+          email: user.email,
+          name: user.displayName,
+        });
+      })
+      .catch(() => {
+        handleToast('error', 'Có lỗi xảy ra, vui lòng thử lại');
+      });
   };
 
   const handleCartAfterLogin = async (data) => {
@@ -48,7 +97,11 @@ const LoginPageUI = () => {
         data.carts[existingItemIndex].itemTotal +=
           cartItem.price * cartItem.quantity;
       } else {
-        data.carts.push(cartItem);
+        const { id, ...rest } = cartItem;
+        data.carts.push({
+          _id: ObjectID(id).toString(),
+          ...rest,
+        });
       }
     });
 
@@ -102,7 +155,7 @@ const LoginPageUI = () => {
   return (
     <section className="bg-white">
       <div className="lg:grid lg:min-h-screen lg:grid-cols-12">
-        <AuthBanner />
+        <AuthBanner type={'login'} />
 
         <main className="flex items-center justify-center px-8 py-8 sm:px-12 lg:col-span-7 lg:px-16 lg:py-12 xl:col-span-6">
           <div className="max-w-xl w-full">
@@ -155,7 +208,7 @@ const LoginPageUI = () => {
               <div className="col-span-6 flex items-center justify-center">
                 <p className="text-center">hoặc</p>
               </div>
-              <div className="col-span-6">
+              <div className="col-span-6" onClick={handleLoginGoogle}>
                 <div className="flex items-center justify-center">
                   <button
                     type="button"
@@ -170,6 +223,19 @@ const LoginPageUI = () => {
                     <span>Đăng nhập với Google</span>
                   </button>
                 </div>
+              </div>
+
+              <div className="col-span-6 sm:flex sm:items-center sm:gap-4">
+                <p className="mt-4 text-sm text-gray-500 sm:mt-0">
+                  Quên mật khẩu ?{' '}
+                  <NavLink
+                    to={'/tai-khoan/quen-mat-khau'}
+                    className="text-gray-700 underline hover:text-red-500"
+                  >
+                    Lấy lại mật khẩu
+                  </NavLink>
+                  .
+                </p>
               </div>
             </form>
           </div>

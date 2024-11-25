@@ -98,10 +98,35 @@ export const getProductsByEventSlug = async (slug, limit = 20) => {
     );
     return response.data;
   } catch (error) {
-    console.error(
-      'Xảy ra lỗi khi lọc tất cả sản phẩm bằng slug su.awtextra:',
-      error
-    );
+    console.error('Xảy ra lỗi khi lọc tất cả sản phẩm bằng slug', error);
     throw error;
+  }
+};
+
+export const ratingProduct = async (data) => {
+  const formData = new FormData();
+
+  Object.keys(data).forEach((key) => {
+    if (key === 'images') {
+      // Thêm từng ảnh với tên field là 'images'
+      data.images.forEach((image) => {
+        formData.append('images', image);
+      });
+    } else {
+      formData.append(key, data[key]);
+    }
+  });
+
+  console.log(formData);
+  try {
+    const response = await request.post('/products/rating', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Lỗi khi thêm bình luận', error);
+    throw error.response.data;
   }
 };

@@ -1,12 +1,36 @@
 import { createSlice, createAction, createAsyncThunk } from "@reduxjs/toolkit";
 import UserService from "../services/user.service";
+import DashboardService from "../services/dashboard.service";
 
 export const fetchAllUsers = createAsyncThunk(
     "users/fetchAll",
-    async (_, { rejectWithValue }) => {
+    async ({
+        limit = 5,
+        page = 0,
+        search,
+        start
+    }, { rejectWithValue }) => {
         try {
-            const response = await UserService.getAllUsers();
-            return response;
+            if (search) {
+                return await DashboardService.gets(`users?limit=${limit}&page=${page}&search=${search}`);
+            }
+            if (start) {
+                return await DashboardService.gets(`users?limit=${limit}&start=${start}`);
+            }
+            return await DashboardService.gets(`users?limit=${limit}&page=${page}`);
+        } catch (err) {
+            return rejectWithValue(err.response.data);
+        }
+    }
+);
+export const getUsersExport = createAsyncThunk(
+    "users/getUsersExport",
+    async ({
+        limit = 5,
+        start
+    }, { rejectWithValue }) => {
+        try {
+            return await DashboardService.gets(`users?limit=${limit}&start=${start}`);
         } catch (err) {
             return rejectWithValue(err.response.data);
         }
@@ -83,6 +107,16 @@ const userSlice = createSlice({
                 state.users = action.payload;
             })
             .addCase(fetchAllUsers.rejected, (state, action) => {
+                state.status = "failed";
+                state.error = action.payload;
+            })
+            .addCase(getUsersExport.pending, (state) => {
+                state.status = "loading";
+            })
+            .addCase(getUsersExport.fulfilled, (state, action) => {
+                state.status = "successful";
+            })
+            .addCase(getUsersExport.rejected, (state, action) => {
                 state.status = "failed";
                 state.error = action.payload;
             })

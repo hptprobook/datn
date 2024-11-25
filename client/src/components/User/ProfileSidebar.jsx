@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { IoBagCheckOutline } from 'react-icons/io5';
-import { CiStar, CiUser } from 'react-icons/ci';
+import { CiUser } from 'react-icons/ci';
 import { MdDiscount } from 'react-icons/md';
 import { FaRegEye } from 'react-icons/fa';
 import { NavLink } from 'react-router-dom';
@@ -30,23 +30,28 @@ const ProfileSidebar = () => {
   };
 
   return (
-    <div className="relative h-full">
+    <div className="relative h-[50px] md:h-full z-30">
+      <button
+        className="md:hidden mt-2 ml-4 left-4 py-2 px-6 text-white bg-red-600 rounded-full z-30"
+        onClick={toggleSidebar}
+      >
+        Thanh công cụ
+      </button>
       {/* Header */}
 
       {/* Sidebar */}
       <aside
-        className={`fixed md:relative top-0 left-0 h-full md:h-auto w-full md:w-auto bg-white rounded-sm z-10 p-4 md:p-0 transform transition-transform ${
+        className={`fixed md:relative top-0 left-0 h-full md:h-auto w-full md:w-auto bg-white rounded-sm z-50 p-4 md:p-0 transform transition-transform ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } md:translate-x-0`}
       >
         {/* Close Button for Mobile */}
         <button
-          className="md:hidden absolute top-4 right-4 p-2 bg-gray-200 rounded-full z-10"
+          className="md:hidden fixed top-20 right-8 p-2 bg-red-600 text-white rounded-full z-[10000]"
           onClick={toggleSidebar}
         >
           <GrClose className="text-xl" />
         </button>
-
         <section className="sidebar-title items-center p-4 md:p-6 hidden md:flex text-black">
           <div className="flex gap-5 items-center">
             <div className="avatar avatar-xl">
@@ -168,20 +173,6 @@ const ProfileSidebar = () => {
                   <li className="flex gap-2 items-center">
                     <MdDiscount className="text-xl" />
                     <span className="font-semibold">Kho voucher</span>
-                  </li>
-                </NavLink>
-                <NavLink
-                  to={'/nguoi-dung/danh-gia-cua-toi'}
-                  className={({ isActive }) =>
-                    isActive
-                      ? 'menu-item menu-active bg-red-500 text-white'
-                      : 'menu-item bg-white text-black hover:bg-red-500 hover:text-white'
-                  }
-                  onClick={handleMenuItemClick}
-                >
-                  <li className="flex gap-2 items-center">
-                    <CiStar className="text-xl" />
-                    <span className="font-semibold">Đánh giá của tôi</span>
                   </li>
                 </NavLink>
                 <NavLink

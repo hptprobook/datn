@@ -27,6 +27,10 @@ const UserRoutes = {
       element: <MyOrder />,
     },
     {
+      path: ':tab',
+      element: <MyOrder />,
+    },
+    {
       path: 'don-hang/:orderCode',
       element: <OrderDetail />,
     },

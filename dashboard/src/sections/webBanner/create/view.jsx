@@ -140,6 +140,8 @@ export default function CreateWebBannerPage() {
                     label="Mô tả "
                     variant="outlined"
                     name="description"
+                    multiline
+                    rows={4}
                     value={formik.values.description}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}

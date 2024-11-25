@@ -5,30 +5,34 @@ import MainLoading from '~/components/common/Loading/MainLoading';
 import ProductItem from '~/components/common/Product/ProductItem';
 
 const FilterCategories = ({ slug }) => {
+  let filteredProducts = [];
   const [activeTab, setActiveTab] = useState(0);
-  const { data, isLoading } = useQuery({
+
+  // Mutate lấy danh sách sản phẩm theo danh mục và type
+  const { data: bestCategoryProducts, isLoading } = useQuery({
     queryKey: ['getBestCategoriesProduct', slug],
     queryFn: () => getProductsByEventSlug(slug),
   });
 
+  if (!bestCategoryProducts) return null;
+
   const tabs = ['Nam', 'Nữ', 'Trẻ em'];
 
-  if (isLoading) return <MainLoading />;
+  // Render các sản phẩm theo type tab
+  if (activeTab === 0) filteredProducts = bestCategoryProducts.nam || [];
+  if (activeTab === 1) filteredProducts = bestCategoryProducts.nu || [];
+  if (activeTab === 2) filteredProducts = bestCategoryProducts.treEm || [];
 
-  // Depending on the active tab, select the appropriate product category
-  let filteredProducts = [];
-  if (activeTab === 0) filteredProducts = data.nam || [];
-  if (activeTab === 1) filteredProducts = data.nu || [];
-  if (activeTab === 2) filteredProducts = data.treEm || [];
+  if (isLoading) return <MainLoading />;
 
   return (
     <div className="mt-12">
       <h2 className="text-2xl text-center font-bold text-red-600 uppercase">
-        {slug}
+        {bestCategoryProducts?.title}
       </h2>
       <div className="flex justify-center mt-6">
         <div className="flex space-x-6">
-          {tabs.map((tab, index) => (
+          {tabs?.map((tab, index) => (
             <div
               key={index}
               className={`uppercase font-semibold cursor-pointer pb-2 ${
@@ -44,8 +48,8 @@ const FilterCategories = ({ slug }) => {
         </div>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-2 lg:gap-6 mt-6">
-        {filteredProducts.map((product) => (
-          <ProductItem key={product._id} product={product} height={true} />
+        {filteredProducts?.map((product) => (
+          <ProductItem key={product?._id} product={product} height={true} />
         ))}
       </div>
     </div>

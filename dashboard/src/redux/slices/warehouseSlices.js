@@ -1,5 +1,6 @@
 import { createSlice, createAction, createAsyncThunk } from '@reduxjs/toolkit';
 import WarehouseServices from '../services/warehouse.service';
+import DashboardService from '../services/dashboard.service';
 /* eslint-disable */
 
 export const fetchAll = createAsyncThunk(
@@ -34,13 +35,35 @@ export const createWarehouse = createAsyncThunk(
     }
   }
 );
+export const createWarehouses = createAsyncThunk(
+  'warehouses/creates',
+  async (data, { rejectWithValue }) => {
+    try {
+      const res = await DashboardService.create('warehouses/creates', data);
+      return res;
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
+export const deleteWarehouses = createAsyncThunk(
+  'warehouses/deletes',
+  async (data, { rejectWithValue }) => {
+    try {
+      const res = await DashboardService.create('warehouses/deletes', data);
+      return res;
+    } catch (err) {
+      return rejectWithValue(err.response);
+    }
+  }
+);
 export const fetchById = createAsyncThunk(
   'warehouses/fetchById',
   async (id, { rejectWithValue }) => {
     try {
       return await WarehouseServices.getById(id);
     } catch (err) {
-      return rejectWithValue(err.response);
+      return rejectWithValue(err.response.data);
     }
   }
 );
@@ -50,7 +73,7 @@ export const update = createAsyncThunk(
     try {
       return await WarehouseServices.update({ data, id });
     } catch (err) {
-      return rejectWithValue(err.response);
+      return rejectWithValue(err.response.data);
     }
   }
 );
@@ -64,11 +87,13 @@ const initialState = {
   statusDelete: 'idle',
   statusCreate: 'idle',
   statusGet: 'idle',
+  dataCreates: null,
+  dataDeletes: null,
   error: null,
 };
 
 const warehouseSlices = createSlice({
-  name: 'brands',
+  name: 'warehouses',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
@@ -104,7 +129,30 @@ const warehouseSlices = createSlice({
       .addCase(createWarehouse.rejected, (state, action) => {
         state.statusCreate = 'failed';
         state.error = action.payload;
-      }).addCase(update.pending, (state) => {
+      })
+      .addCase(createWarehouses.pending, (state) => {
+        state.statusCreate = 'loading';
+      })
+      .addCase(createWarehouses.fulfilled, (state, action) => {
+        state.statusCreate = 'successful';
+        state.dataCreates = action.payload;
+      })
+      .addCase(createWarehouses.rejected, (state, action) => {
+        state.statusCreate = 'failed';
+        state.dataCreates = action.payload;
+      })
+      .addCase(deleteWarehouses.pending, (state) => {
+        state.statusDelete = 'loading';
+      })
+      .addCase(deleteWarehouses.fulfilled, (state, action) => {
+        state.statusDelete = 'successful';
+        state.dataDeletes = action.payload;
+      })
+      .addCase(deleteWarehouses.rejected, (state, action) => {
+        state.statusDelete = 'failed';
+        state.dataDeletes = action.payload;
+      })
+      .addCase(update.pending, (state) => {
         state.statusUpdate = 'loading';
       })
       .addCase(update.fulfilled, (state, action) => {

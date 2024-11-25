@@ -9,6 +9,7 @@ import { ERROR_MESSAGES } from '~/utils/errorMessage';
 import { ObjectId } from 'mongodb';
 import path from 'path';
 import { uploadModel } from '~/models/uploadModel';
+
 const getCurrentUser = async (req, res) => {
   try {
     const { user_id } = req.user;
@@ -27,6 +28,7 @@ const getCurrentUser = async (req, res) => {
     });
   }
 };
+
 const createUser = async (req, res) => {
   try {
     const data = req.body;
@@ -54,11 +56,11 @@ const createUser = async (req, res) => {
   }
 };
 
-const getCurrentAdmin = async (req, res) => {
+
+const getUserById = async (req, res) => {
   try {
-    const { user_id } = req.user;
-    const user = await userModel.getUserID(user_id);
-    delete user.password;
+    const { id } = req.params;
+    const user = await userModel.getUserID(id);
     if (user) {
       return res.status(StatusCodes.OK).json(user);
     }
@@ -73,11 +75,10 @@ const getCurrentAdmin = async (req, res) => {
   }
 };
 
-const getUserById = async (req, res) => {
+const getNotifiesUserById = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await userModel.getUserID(id);
-    console.log(user);
+    const user = await userModel.getNotifiesUserID(id);
     if (user) {
       return res.status(StatusCodes.OK).json(user);
     }
@@ -165,6 +166,14 @@ const updateCurrentUser = async (req, res) => {
         .status(StatusCodes.BAD_REQUEST)
         .json({ message: 'Lỗi bảo mật' });
     }
+
+    if (data.carts && Array.isArray(data.carts)) {
+      data.carts = data.carts.map((item) => ({
+        ...item,
+        _id: new ObjectId(item._id),
+      }));
+    }
+
     const dataUser = await userModel.update(user_id, data);
     if (dataUser.error) {
       return res
@@ -272,18 +281,29 @@ const removeCartToCurrent = async (req, res) => {
 
 const getAllUsers = async (req, res) => {
   try {
-    let { pages, limit } = req.query;
+    let { page, limit, search, start } = req.query;
     const { user_id } = req.user;
-    const users = await userModel.getUserAll(pages, limit, user_id);
-    const countUsers = await userModel.countUserAll();
-    return res.status(StatusCodes.OK).json({
-      users,
-      countUsers,
+    if (search) {
+      search = search.trim();
+      const u = await userModel.findUsers({
+        search,
+        page,
+        limit,
+      });
+      return res.status(StatusCodes.OK).json(u);
+    }
+    const users = await userModel.getUserAll({
+      page,
+      limit,
+      start,
+      userId: user_id,
     });
+    return res.status(StatusCodes.OK).json(users);
   } catch (error) {
+    console.log(error);
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       message: 'Có lỗi xảy ra xin thử lại sau',
-      error: error,
+      error
     });
   }
 };
@@ -461,10 +481,69 @@ const updateInfor = async (req, res) => {
   }
 };
 
+const readNotify = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: ERROR_MESSAGES.REQUIRED,
+      });
+    }
+
+    const readed = await userModel.readNotify(id, req.body);
+
+    if (!readed) {
+      return res.status(StatusCodes.BAD_REQUEST).json(readed.detail);
+    }
+
+    return res.status(StatusCodes.OK).json({
+      readed,
+    });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
+  }
+};
+
+const readAllNotifies = async (req, res) => {
+  console.log('vào');
+  try {
+    const userId = req.user.user_id;
+
+    if (!userId) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: 'Lỗi bảo mật',
+      });
+    }
+
+    const user = await userModel.getUserID(userId);
+
+    const updateNotifies = {
+      notifies: user.notifies.map((notify) => ({
+        ...notify,
+        isReaded: true,
+      })),
+    };
+
+    await userModel.update(userId, updateNotifies);
+
+    return res.status(StatusCodes.OK).json({
+      message: 'Đọc toàn bộ thông báo thành công.',
+    });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
+  }
+};
+
 export const usersController = {
   getUserById,
   getCurrentUser,
-  getCurrentAdmin,
   getUserByEmail,
   updateCurrentUser,
   updateUser,
@@ -477,4 +556,7 @@ export const usersController = {
   createUser,
   viewProduct,
   updateInfor,
+  readNotify,
+  readAllNotifies,
+  getNotifiesUserById,
 };

@@ -2,10 +2,13 @@
 /* eslint-disable semi */
 import { couponModel } from '~/models/couponModel';
 import { StatusCodes } from 'http-status-codes';
+import { couponHistoryModel } from '~/models/couponHistoryModel';
+
 // import { ERROR_MESSAGES } from '~/utils/errorMessage';
 const getCoupons = async (req, res) => {
   try {
-    const coupons = await couponModel.getCoupons();
+    const { limit, page } = req.query;
+    const coupons = await couponModel.getCoupons({ page, limit });
     return res.status(StatusCodes.OK).json(coupons);
   } catch (error) {
     return res
@@ -13,6 +16,76 @@ const getCoupons = async (req, res) => {
       .json('Có lỗi xảy ra xin thử lại sau');
   }
 };
+
+const getCouponsForOrder = async (req, res) => {
+  try {
+    let coupons = await couponModel.getCoupons();
+    const currentDate = new Date();
+
+    coupons = await Promise.all(
+      coupons.map(async (coupon) => {
+        // Kiểm tra trạng thái của mã giảm giá
+        if (coupon.status !== 'active') {
+          return null;
+        }
+
+        // Kiểm tra thời hạn sử dụng của mã giảm giá
+        const startDate = new Date(coupon.dateStart);
+        const endDate = new Date(coupon.dateEnd);
+        if (currentDate < startDate || currentDate > endDate) {
+          return null;
+        }
+
+        // Kiểm tra giới hạn sử dụng chung của coupon
+        const usageCount = await couponHistoryModel.countCouponHistory({
+          couponId: coupon._id,
+        });
+        if (usageCount >= coupon.usageLimit) {
+          return null;
+        }
+
+        // Kiểm tra giới hạn sử dụng cho từng người dùng nếu có
+        if (coupon.limitOnUser) {
+          const userUsageHistory =
+            await couponHistoryModel.getCouponHistoryByParams({
+              userId: req.user.user_id,
+              couponId: coupon._id,
+            });
+
+          if (userUsageHistory.length > 0) {
+            return null; // Người dùng đã sử dụng mã giảm giá này trước đó
+          }
+        }
+
+        return coupon;
+      })
+    );
+
+    // Lọc các mã giảm giá hợp lệ
+    coupons = coupons.filter((coupon) => coupon !== null);
+
+    // Phân loại mã giảm giá
+    const categorizedCoupons = {
+      shipping: [],
+      order: [],
+    };
+
+    coupons.forEach((coupon) => {
+      if (coupon.type === 'percent' || coupon.type === 'price') {
+        categorizedCoupons.order.push(coupon);
+      } else if (coupon.type === 'shipping') {
+        categorizedCoupons.shipping.push(coupon);
+      }
+    });
+
+    return res.status(StatusCodes.OK).json(categorizedCoupons);
+  } catch (error) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ message: 'Có lỗi xảy ra, xin thử lại sau' });
+  }
+};
+
 const getCouponsById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -23,7 +96,7 @@ const getCouponsById = async (req, res) => {
       .status(StatusCodes.BAD_REQUEST)
       .json('Có lỗi xảy ra xin thử lại sau');
   }
-}
+};
 const findOneCoupons = async (req, res) => {
   try {
     const { code } = req.body;
@@ -119,7 +192,7 @@ const deleteManyCoupon = async (req, res) => {
   }
 };
 
-export const getCouponsByType = async (req, res) => {
+const getCouponsByType = async (req, res) => {
   try {
     const { type } = req.query; // Extract type from query parameters
     if (!type) {
@@ -130,18 +203,126 @@ export const getCouponsByType = async (req, res) => {
     return res.status(StatusCodes.OK).json(coupons);
   } catch (error) {
     return res
-    .status(StatusCodes.BAD_REQUEST)
-    .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
   }
 };
 
+const checkCouponApplicability = async (req, res) => {
+  const { code, purchaseAmount } = req.body;
+  const userId = req.user.user_id;
+
+  try {
+    const { user, coupon } = await couponModel.getCouponAndUser(userId, code);
+
+    if (!user || !coupon) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: 'Không tìm thấy phiếu giảm giá, vui lòng thử lại',
+      });
+    }
+
+    const couponHistory = await couponHistoryModel.getCouponHistoryByParams({
+      userId: userId,
+      couponId: coupon._id.toString(),
+    });
+
+    if (couponHistory.length > 0) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: 'Phiếu giảm giá này đã được sử dụng bởi người dùng.',
+      });
+    }
+
+    const eligibleUsers = coupon.eligibleUsers || [];
+
+    const isUserEligible =
+      eligibleUsers.length === 0 || eligibleUsers.includes(userId);
+
+    if (coupon.status !== 'active') {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: 'Phiếu giảm giá không hoạt động',
+        coupon,
+      });
+    }
+
+    // Check coupon validity period
+    const currentDate = new Date();
+    if (
+      currentDate < new Date(coupon.dateStart) ||
+      currentDate > new Date(coupon.dateEnd)
+    ) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: 'Phiếu giảm giá đã hết hạn hoặc chưa có hiệu lực',
+        coupon,
+      });
+    }
+
+    // Check usage limit
+    if (coupon.usageLimit && coupon.usageCount >= coupon.usageLimit) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: 'Phiếu giảm giá đã sử dụng hết số lần cho phép',
+        coupon,
+      });
+    }
+
+    // Check if the user is eligible for the coupon
+    if (coupon.limitOnUser && !isUserEligible) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: 'Người dùng không đủ điều kiện để sử dụng phiếu giảm giá này',
+        coupon,
+      });
+    }
+
+    // Check purchase amount
+    if (
+      purchaseAmount < coupon.minPurchasePrice ||
+      purchaseAmount > coupon.maxPurchasePrice
+    ) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: `Số tiền mua hàng phải nằm trong khoảng từ ${coupon.minPurchasePrice} đến ${coupon.maxPurchasePrice}`,
+        coupon,
+      });
+    }
+
+    // // Record the coupon usage
+    // if (coupon.usageLimit) {
+    //   await couponModel.updateCouponUsage(code, userId);
+    // }
+    // if (userId && code) {
+    //   await couponHistoryModel.addCouponHistory({
+    //     userId: userId,
+    //     code: code,
+    //     discountAmount: coupon.discountValue,
+    //   });
+    // }
+
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Phiếu giảm giá có thể sử dụng',
+      coupon,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Có lỗi xảy ra khi kiểm tra tính khả dụng của phiếu giảm giá',
+    });
+  }
+};
 export const couponController = {
   createCoupon,
   getCoupons,
+  getCouponsForOrder,
   updateCoupon,
   findOneCoupons,
   deleteCoupon,
   deleteManyCoupon,
   getCouponsById,
-  getCouponsByType
+  getCouponsByType,
+  checkCouponApplicability,
 };

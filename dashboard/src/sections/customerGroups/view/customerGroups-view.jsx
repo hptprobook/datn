@@ -16,7 +16,7 @@ import {
   setStatus,
   fetchAllCustomerGroup,
   deleteOneCustomerGroup
-} from 'src/redux/slices/CustomerGroupSlice';
+} from 'src/redux/slices/customerGroupSlice';
 import { handleToast } from 'src/hooks/toast';
 
 import Iconify from 'src/components/iconify';

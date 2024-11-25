@@ -9,31 +9,40 @@ import ProductListFilter from '~/components/Products/ProductListFilter';
 import { Helmet } from 'react-helmet-async';
 
 const SearchPage = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
   const keyword = searchParams.get('keyword') || '';
   const sort = searchParams.get('sort') || '';
-  const colors = searchParams.get('colors')
-    ? searchParams.get('colors').split(',')
-    : [];
-  const sizes = searchParams.get('sizes')
-    ? searchParams.get('sizes').split(',')
-    : [];
-  const minPrice = searchParams.get('minPrice')
-    ? Number(searchParams.get('minPrice'))
-    : null;
-  const maxPrice = searchParams.get('maxPrice')
-    ? Number(searchParams.get('maxPrice'))
-    : null;
 
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [sortOption, setSortOption] = useState(sort);
+  const [limit, setLimit] = useState(20);
+  const [noMatchingProducts, setNoMatchingProducts] = useState(false);
   const [filters, setFilters] = useState({
     colors,
     sizes,
     priceRange: { min: minPrice, max: maxPrice },
   });
-  const [sortOption, setSortOption] = useState(sort);
-  const [limit, setLimit] = useState(20);
-  const [noMatchingProducts, setNoMatchingProducts] = useState(false);
 
+  // filter màu sắc
+  const colors = searchParams.get('colors')
+    ? searchParams.get('colors').split(',')
+    : [];
+
+  // filter kích thước
+  const sizes = searchParams.get('sizes')
+    ? searchParams.get('sizes').split(',')
+    : [];
+
+  // giá nhỏ nhất
+  const minPrice = searchParams.get('minPrice')
+    ? Number(searchParams.get('minPrice'))
+    : null;
+
+  // giá lớn nhất
+  const maxPrice = searchParams.get('maxPrice')
+    ? Number(searchParams.get('maxPrice'))
+    : null;
+
+  // Query lấy giới hạn giá tiền sản phẩm
   const { data: priceRangeData } = useQuery({
     queryKey: ['price-range'],
     queryFn: getMinMaxPrices,
@@ -42,15 +51,7 @@ const SearchPage = () => {
     cacheTime: 1000 * 60 * 60,
   });
 
-  const hasActiveFilters = useCallback(() => {
-    return (
-      filters.colors.length > 0 ||
-      filters.sizes.length > 0 ||
-      filters.priceRange.min !== null ||
-      filters.priceRange.max !== null
-    );
-  }, [filters]);
-
+  // Query lấy kết quả lọc
   const { data: filteredProductsData, isLoading: isFilteredDataLoading } =
     useQuery({
       queryKey: ['filtered-products', keyword, filters, sortOption, limit],
@@ -85,6 +86,77 @@ const SearchPage = () => {
       keepPreviousData: true,
     });
 
+  // Những filter đang hoạt động
+  const hasActiveFilters = useCallback(() => {
+    return (
+      filters.colors.length > 0 ||
+      filters.sizes.length > 0 ||
+      filters.priceRange.min !== null ||
+      filters.priceRange.max !== null
+    );
+  }, [filters]);
+
+  // Xử lý thay đổi bộ lọc
+  const handleFilterChange = useCallback(
+    (newFilters) => {
+      setFilters((prevFilters) => {
+        const updatedFilters = {
+          ...prevFilters,
+          ...newFilters,
+        };
+
+        if (JSON.stringify(prevFilters) !== JSON.stringify(updatedFilters)) {
+          updateSearchParams(updatedFilters);
+        }
+
+        return updatedFilters;
+      });
+      setNoMatchingProducts(false);
+    },
+    [sortOption, searchParams]
+  );
+
+  // Xử lý thay đổi giới hạn tiền
+  const handlePriceRangeChange = useCallback(
+    (newPriceRange) => {
+      if (
+        filters.priceRange.min !== newPriceRange.min ||
+        filters.priceRange.max !== newPriceRange.max
+      ) {
+        const updatedFilters = {
+          ...filters,
+          priceRange: newPriceRange,
+        };
+        setFilters(updatedFilters);
+        updateSearchParams(updatedFilters);
+      }
+    },
+    [filters]
+  );
+
+  useEffect(() => {
+    updateSearchParams(filters);
+  }, [filters]);
+
+  // Xử lý thay đổi sắp xếp
+  const handleSortChange = useCallback(
+    (newSortOption) => {
+      setSortOption(newSortOption);
+      const params = new URLSearchParams(searchParams);
+      params.set('sort', newSortOption);
+      setSearchParams(params);
+    },
+    [searchParams, setSearchParams]
+  );
+
+  // Xử lý thay đổi limit
+  const handleLoadMore = useCallback(() => {
+    setLimit((prevLimit) => prevLimit + 20);
+  }, []);
+
+  if (!priceRangeData || !filteredProductsData) return null;
+
+  // Thay đổi bộ lọc theo URL
   const updateSearchParams = (newFilters) => {
     const params = new URLSearchParams(searchParams);
 
@@ -109,60 +181,6 @@ const SearchPage = () => {
 
     setSearchParams(params);
   };
-
-  const handleFilterChange = useCallback(
-    (newFilters) => {
-      setFilters((prevFilters) => {
-        const updatedFilters = {
-          ...prevFilters,
-          ...newFilters,
-        };
-
-        if (JSON.stringify(prevFilters) !== JSON.stringify(updatedFilters)) {
-          updateSearchParams(updatedFilters);
-        }
-
-        return updatedFilters;
-      });
-      setNoMatchingProducts(false);
-    },
-    [sortOption, searchParams]
-  );
-
-  const handlePriceRangeChange = useCallback(
-    (newPriceRange) => {
-      if (
-        filters.priceRange.min !== newPriceRange.min ||
-        filters.priceRange.max !== newPriceRange.max
-      ) {
-        const updatedFilters = {
-          ...filters,
-          priceRange: newPriceRange,
-        };
-        setFilters(updatedFilters);
-        updateSearchParams(updatedFilters);
-      }
-    },
-    [filters]
-  );
-
-  useEffect(() => {
-    updateSearchParams(filters);
-  }, [filters]);
-
-  const handleSortChange = useCallback(
-    (newSortOption) => {
-      setSortOption(newSortOption);
-      const params = new URLSearchParams(searchParams);
-      params.set('sort', newSortOption);
-      setSearchParams(params);
-    },
-    [searchParams, setSearchParams]
-  );
-
-  const handleLoadMore = useCallback(() => {
-    setLimit((prevLimit) => prevLimit + 20);
-  }, []);
 
   return (
     <section className="max-w-container mx-auto mt-16">

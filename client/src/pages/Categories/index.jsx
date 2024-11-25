@@ -1,17 +1,17 @@
 import { useParams, useSearchParams } from 'react-router-dom';
 import HeaderBC from '~/components/common/Breadcrumb/HeaderBC';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import {
   filterProductsWithPriceRange,
   getCategoryBySlug,
   getMinMaxPrices,
+  increaseCategoryView,
 } from '~/APIs';
 import { useState, useCallback, useEffect } from 'react';
 import { Icon } from '@iconify/react';
 import ProductListWithSort from '~/components/Products/ProductListWithSort';
 import ProductListFilter from '~/components/Products/ProductListFilter';
 import { Helmet } from 'react-helmet-async';
-import MainLoading from '~/components/common/Loading/MainLoading';
 
 const CategoryPage = () => {
   const { slug } = useParams();
@@ -29,10 +29,16 @@ const CategoryPage = () => {
   const maxPrice = searchParams.get('maxPrice')
     ? Number(searchParams.get('maxPrice'))
     : null;
+  const type = searchParams.get('type') || '';
+  const tags = searchParams.get('tags')
+    ? searchParams.get('tags').split(',')
+    : [];
 
   const [filters, setFilters] = useState({
     colors,
     sizes,
+    type,
+    tags,
     priceRange: { min: minPrice, max: maxPrice },
   });
   const [sortOption, setSortOption] = useState(sort);
@@ -42,10 +48,21 @@ const CategoryPage = () => {
   const { data: priceRangeData } = useQuery({
     queryKey: ['price-range'],
     queryFn: getMinMaxPrices,
-    initialData: { minPrice: 1000, maxPrice: 2000000 },
     staleTime: 1000 * 60 * 30,
     cacheTime: 1000 * 60 * 60,
   });
+
+  const increaseView = useMutation({
+    mutationFn: increaseCategoryView,
+  });
+
+  useEffect(() => {
+    const viewTimeout = setTimeout(() => {
+      increaseView.mutate({ slug });
+    }, 3000);
+
+    return () => clearTimeout(viewTimeout);
+  }, [slug]);
 
   const hasActiveFilters = useCallback(() => {
     return (
@@ -61,7 +78,12 @@ const CategoryPage = () => {
       queryKey: [
         'filtered-products-category',
         slug,
-        filters,
+        filters.colors,
+        filters.sizes,
+        filters.type,
+        filters.tags,
+        filters.priceRange.min,
+        filters.priceRange.max,
         sortOption,
         limit,
       ],
@@ -73,6 +95,8 @@ const CategoryPage = () => {
             maxPrice: filters.priceRange.max,
             colors: filters.colors,
             sizes: filters.sizes,
+            type: filters.type,
+            tags: filters.tags,
             sortOption,
             limit,
           });
@@ -99,40 +123,64 @@ const CategoryPage = () => {
   const updateSearchParams = (newFilters) => {
     const params = new URLSearchParams(searchParams);
 
-    if (newFilters.colors.length > 0)
-      params.set('colors', newFilters.colors.join(','));
-    else params.delete('colors');
+    if (newFilters.colors.join(',') !== params.get('colors')) {
+      if (newFilters.colors.length > 0)
+        params.set('colors', newFilters.colors.join(','));
+      else params.delete('colors');
+    }
 
-    if (newFilters.sizes.length > 0)
-      params.set('sizes', newFilters.sizes.join(','));
-    else params.delete('sizes');
+    if (newFilters.sizes.join(',') !== params.get('sizes')) {
+      if (newFilters.sizes.length > 0)
+        params.set('sizes', newFilters.sizes.join(','));
+      else params.delete('sizes');
+    }
 
-    if (newFilters.priceRange.min !== null)
+    if (newFilters.tags.join(',') !== params.get('tags')) {
+      if (newFilters.tags.length > 0)
+        params.set('tags', newFilters.tags.join(','));
+      else params.delete('tags');
+    }
+
+    if (newFilters.type !== params.get('type')) {
+      if (newFilters.type) params.set('type', newFilters.type);
+      else params.delete('type');
+    }
+
+    if (
+      newFilters.priceRange.min !== null &&
+      newFilters.priceRange.min !== Number(params.get('minPrice'))
+    ) {
       params.set('minPrice', newFilters.priceRange.min);
-    else params.delete('minPrice');
+    } else if (newFilters.priceRange.min === null) {
+      params.delete('minPrice');
+    }
 
-    if (newFilters.priceRange.max !== null)
+    if (
+      newFilters.priceRange.max !== null &&
+      newFilters.priceRange.max !== Number(params.get('maxPrice'))
+    ) {
       params.set('maxPrice', newFilters.priceRange.max);
-    else params.delete('maxPrice');
+    } else if (newFilters.priceRange.max === null) {
+      params.delete('maxPrice');
+    }
 
-    if (sortOption) params.set('sort', sortOption);
-    else params.delete('sort');
+    if (sortOption !== params.get('sort')) {
+      if (sortOption) params.set('sort', sortOption);
+      else params.delete('sort');
+    }
 
-    setSearchParams(params);
+    if (params.toString() !== searchParams.toString()) {
+      setSearchParams(params);
+    }
   };
 
   const handleFilterChange = useCallback(
     (newFilters) => {
       setFilters((prevFilters) => {
-        const updatedFilters = {
-          ...prevFilters,
-          ...newFilters,
-        };
-
+        const updatedFilters = { ...prevFilters, ...newFilters };
         if (JSON.stringify(prevFilters) !== JSON.stringify(updatedFilters)) {
           updateSearchParams(updatedFilters);
         }
-
         return updatedFilters;
       });
       setNoMatchingProducts(false);
@@ -183,19 +231,19 @@ const CategoryPage = () => {
     cacheTime: 1000 * 60 * 10,
   });
 
-  if (isFilteredDataLoading) {
-    return <MainLoading />;
-  }
+  // if (isFilteredDataLoading) {
+  //   return <MainLoading />;
+  // }
 
   return (
-    <section className="max-w-container mx-auto mt-16">
+    <section className="max-w-container mx-auto max-lg:mt-0 mt-16 max-lg:px-4 max-lg:relative">
       <Helmet>
         <title>BMT Life | {categoryData?.name || 'Danh mục sản phẩm'}</title>
       </Helmet>
       <HeaderBC title={'Danh mục sản phẩm'} name={categoryData?.name} />
       <div className="divider"></div>
-      <div className="grid grid-cols-5 gap-6 mt-8">
-        <div className="col-span-1">
+      <div className="grid max-lg:grid-cols-1 grid-cols-5 gap-6 mt-8">
+        <div className="max-lg:col-span-1 col-span-1">
           <ProductListFilter
             onFilterChange={handleFilterChange}
             onPriceRangeChange={handlePriceRangeChange}
@@ -203,7 +251,7 @@ const CategoryPage = () => {
             initialFilters={filters}
           />
         </div>
-        <div className="col-span-4">
+        <div className="max-lg:col-span-1 col-span-4">
           {noMatchingProducts || filteredProductsData?.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-64 text-gray-600">
               <Icon icon="tabler:news-off" className="text-6xl mb-4" />

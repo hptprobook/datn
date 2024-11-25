@@ -2,51 +2,51 @@
 import { NavLink } from 'react-router-dom';
 import CatSuggest from '~/components/Home/Container/CatSuggest/CatSuggest';
 import HeaderSlider from '~/components/Home/Slider/HeaderSlider';
-import Logo from '~/assets/logo2.png';
 import FilterCategories from './FilterCategories';
+import { useWebConfig } from '~/context/WebsiteConfig';
+import Post from '~/components/Home/Container/Post/Post';
+import { env } from '~/utils/constants';
 
 const HomePage = () => {
   const eventCategories = ['ao-polo', 'ao-somi', 'quan-short'];
+  const { config } = useWebConfig();
+
   return (
     <>
       <main className="z-0 max-w-container mx-auto px-2 lg:px-0 text-black">
         <HeaderSlider />
         <CatSuggest />
-        {eventCategories.map((item, i) => (
+        {eventCategories?.map((item, i) => (
           <FilterCategories key={i} slug={item} />
         ))}
+        <Post />
         <div className="banner mt-24 w-full h-slider">
-          <NavLink to="#">
+          <NavLink to={config?.eventUrl}>
             <img
-              src="https://swiperjs.com/demos/images/nature-1.jpg"
+              src={`${env.SERVER_URL}/${config?.eventBanner}`}
               className="w-full h-full object-cover"
               alt=""
             />
           </NavLink>
         </div>
       </main>
-      <div className="hidden md:flex h-productItem bg-red-800 mt-12 w-full flex-col items-center">
+      <div className="hidden md:flex h-productItem bg-red-800 mt-12 w-full flex-col items-center justify-center">
         <div>
-          <img src={Logo} alt="" />
+          <img
+            src={`${env.SERVER_URL}/${config?.logo}`}
+            className="h-48 object-cover"
+            alt=""
+          />
         </div>
         <div className="2xl:px-102 xl:px-80 lg:px-40 md:px-10 sm:px-3 text-white text-center italic">
           <p className="text-xl font-bold">
-            "Cảm ơn quý khách hàng đã tin tưởng và ủng hộ cho w0wStore"
+            "Cảm ơn quý khách hàng đã tin tưởng và ủng hộ cho{' '}
+            {config?.nameCompany}"
           </p>
-          <p className="mt-2 font-light">
-            W0wStore là một cửa hàng thời trang nổi bật, mang đến cho khách hàng
-            những trải nghiệm mua sắm độc đáo và phong cách. Được thành lập với
-            mục tiêu phục vụ nhu cầu thời trang đa dạng, W0wStore tự hào cung
-            cấp một bộ sưu tập phong phú, từ trang phục hàng ngày đến các bộ sưu
-            tập thời trang cao cấp. Mỗi sản phẩm tại W0wStore đều được chọn lọc
-            kỹ càng, đảm bảo chất lượng và xu hướng thời trang mới nhất. Cửa
-            hàng bày bán nhiều loại trang phục cho cả nam và nữ, từ áo quần, váy
-            đầm, đến giày dép và phụ kiện. Với phương châm "Phong cách của bạn,
-            cá tính của bạn", W0wStore luôn nỗ lực mang đến cho khách hàng những
-            thiết kế hiện đại, hợp mốt và đầy sáng tạo. Đội ngũ nhân viên tận
-            tâm và am hiểu về thời trang luôn sẵn sàng tư vấn, giúp khách hàng
-            tìm được những sản phẩm phù hợp nhất.
-          </p>
+          <div
+            className="text-white mt-2 font-light"
+            dangerouslySetInnerHTML={{ __html: config?.footerThanks }}
+          />
         </div>
       </div>
     </>

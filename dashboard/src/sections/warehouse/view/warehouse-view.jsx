@@ -2,46 +2,35 @@ import { useState, useEffect } from 'react';
 
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
-import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
-import TableBody from '@mui/material/TableBody';
 import Typography from '@mui/material/Typography';
-import TableContainer from '@mui/material/TableContainer';
-import TablePagination from '@mui/material/TablePagination';
 
 import Iconify from 'src/components/iconify';
-import Scrollbar from 'src/components/scrollbar';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'src/routes/hooks';
 import ConfirmDelete from 'src/components/modal/confirm-delete';
 import { handleToast } from 'src/hooks/toast';
-import LoadingFull from 'src/components/loading/loading-full';
-import TableEmptyRows from 'src/components/table/table-empty-rows';
-import TableNoData from 'src/components/table/table-no-data';
-import { emptyRows, applyFilter, getComparator } from 'src/components/table/utils';
 import { IconButton } from '@mui/material';
-import { fetchAll, setStatus, deleteWarehouse } from 'src/redux/slices/warehouseSlices';
-import BrandTableToolbar from '../warehouse-table-toolbar';
-import WarehouseTableHead from '../warehouse-table-head';
-import WarehouseTableRow from '../warehouse-table-row';
+import {
+  fetchAll,
+  setStatus,
+  deleteWarehouse,
+  createWarehouses,
+  deleteWarehouses,
+} from 'src/redux/slices/warehouseSlices';
+import { handleExport } from 'src/utils/excel';
+import { IconEdit, IconExcel, IconDelete } from 'src/components/iconify/icon';
+import ImportExcelModal from 'src/components/modal/import-modal';
+import { DataGrid, GridToolbar, GridActionsCellItem } from '@mui/x-data-grid';
 
 // ----------------------------------------------------------------------
 
 export default function WareHousePage() {
-  const [page, setPage] = useState(0);
-
-  const [order, setOrder] = useState('asc');
-
-  const [selected, setSelected] = useState([]);
-
-  const [orderBy, setOrderBy] = useState('name');
-
-  const [filterName, setFilterName] = useState('');
-
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowSelectionModel, setRowSelectionModel] = useState([]);
   const [confirm, setConfirm] = useState(false);
+  const [confirms, setConfirms] = useState(false);
 
   const [warehouses, setWarehouses] = useState([]);
 
@@ -52,6 +41,9 @@ export default function WareHousePage() {
   const status = useSelector((state) => state.warehouses.status);
   const error = useSelector((state) => state.warehouses.error);
   const statusDelete = useSelector((state) => state.warehouses.statusDelete);
+  const statusCreate = useSelector((state) => state.warehouses.statusCreate);
+  const dataCreates = useSelector((state) => state.warehouses.dataCreates);
+  const dateDeletes = useSelector((state) => state.warehouses.dataDeletes);
 
   useEffect(() => {
     dispatch(fetchAll());
@@ -67,88 +59,117 @@ export default function WareHousePage() {
       handleToast('success', 'Xóa kho thành công!');
       dispatch(setStatus({ key: 'statusDelete', value: 'idle' }));
       dispatch(fetchAll());
+      dateDeletes?.successful.forEach((item) => {
+        handleToast('success', item.message);
+      });
     }
     if (statusDelete === 'failed') {
       handleToast('error', error.messages);
       dispatch(setStatus({ key: 'statusDelete', value: 'idle' }));
+      dateDeletes?.errors.forEach((item) => {
+        handleToast('error', item.message);
+      });
+      dateDeletes?.successful.forEach((item) => {
+        handleToast('success', item.message);
+      });
     }
-  }, [statusDelete, dispatch, error]);
-
-  const handleSort = (event, id) => {
-    const isAsc = orderBy === id && order === 'asc';
-    if (id !== '') {
-      setOrder(isAsc ? 'desc' : 'asc');
-      setOrderBy(id);
-    }
-  };
-
-  const handleSelectAllClick = (event) => {
-    if (event.target.checked) {
-      const newSelected = warehouses.map((n) => n.name);
-      setSelected(newSelected);
-      return;
-    }
-    setSelected([]);
-  };
-
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
-    let newSelected = [];
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
+  }, [statusDelete, dispatch, error, dateDeletes]);
+  useEffect(() => {
+    if (statusCreate === 'successful') {
+      dispatch(fetchAll());
+      dataCreates.successful.forEach((item) => {
+        handleToast('success', item.message);
+      });
+      dispatch(
+        setStatus({
+          key: 'statusCreate',
+          value: 'idle',
+        })
       );
     }
-    setSelected(newSelected);
-  };
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setPage(0);
-    setRowsPerPage(parseInt(event.target.value, 10));
-  };
-
-  const handleFilterByName = (event) => {
-    setPage(0);
-    setFilterName(event.target.value);
-  };
-
-  const dataFiltered = applyFilter({
-    inputData: warehouses,
-    comparator: getComparator(order, orderBy),
-    filterName,
-    fillerQuery: 'name',
-  });
-  const handleNavigate = (id) => {
-    route.push(id);
-  };
-  const handleDelete = (id) => {
-    setConfirm(id);
-  };
+    if (statusCreate === 'failed') {
+      dispatch(fetchAll());
+      handleToast('error', dataCreates.message || 'Thêm biến thể thất bại');
+      dataCreates.errors.forEach((item) => {
+        handleToast('error', item.message);
+      });
+      dataCreates.successful.forEach((item) => {
+        handleToast('success', item.message);
+      });
+      dispatch(
+        setStatus({
+          key: 'statusCreate',
+          value: 'idle',
+        })
+      );
+    }
+  }, [statusCreate, dataCreates, dispatch]);
   const dispatchDelete = () => {
     dispatch(deleteWarehouse(confirm));
   };
-
-  const notFound = !dataFiltered.length && !!filterName;
-
+  const handleSave = (d) => {
+    dispatch(createWarehouses(d));
+  };
+  const handleEditClick = (id) => () => {
+    route.push(id);
+  };
+  const handleDeleteMany = () => {
+    dispatch(
+      deleteWarehouses({
+        ids: rowSelectionModel,
+      })
+    );
+    setConfirms(false);
+  };
+  const columns = [
+    {
+      field: 'actions',
+      type: 'actions',
+      headerName: 'Hành động',
+      width: 100,
+      cellClassName: 'actions',
+      getActions: ({ id }) => [
+        <GridActionsCellItem
+          icon={<IconEdit />}
+          label="Sửa"
+          className="textPrimary"
+          onClick={handleEditClick(id)}
+          color="inherit"
+        />,
+        <GridActionsCellItem
+          icon={<IconDelete />}
+          label="Xóa"
+          onClick={() => setConfirm(id)}
+          color="inherit"
+        />,
+      ],
+    },
+    { field: 'name', headerName: 'Tên nhãn hàng', width: 200 },
+    { field: 'capacity', headerName: 'Sức chứa', width: 100 },
+    { field: 'currentQuantity', headerName: 'Hiện tại', width: 100 },
+    { field: 'status', headerName: 'Trạng thái', width: 200 },
+    { field: 'location', headerName: 'Địa chỉ', width: 200 },
+    { field: 'ward_id', headerName: 'Mã xã', width: 100 },
+    { field: 'district_id', headerName: 'Mã huyện', width: 100 },
+    { field: 'province_id', headerName: 'Mã tỉnh', width: 100 },
+    { field: 'longitude', headerName: 'Kinh tuyến', width: 100 },
+    { field: 'latitude', headerName: 'Vĩ tuyến', width: 100 },
+    { field: 'createdAt', headerName: 'Ngày tạo', width: 200 },
+    { field: 'updatedAt', headerName: 'Ngày nhập', width: 200 },
+  ];
   return (
     <Container>
-      {status === 'loading' && <LoadingFull />}
       <ConfirmDelete
         openConfirm={!!confirm}
         onAgree={dispatchDelete}
         onClose={() => setConfirm(false)}
-        label='kho đã chọn'
+        label="kho đã chọn"
+      />
+      <ConfirmDelete
+        openConfirm={confirms}
+        onAgree={handleDeleteMany}
+        label="các kho đã chọn"
+        onClose={() => setConfirms(false)}
       />
 
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
@@ -164,86 +185,108 @@ export default function WareHousePage() {
             <Iconify icon="mdi:reload" />
           </IconButton>
         </Stack>
-        <Button
-          variant="contained"
-          onClick={() => route.push('create')}
-          color="inherit"
-          startIcon={<Iconify icon="eva:plus-fill" />}
-        >
-          Kho mới
-        </Button>
+        <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
+          {rowSelectionModel.length > 0 && (
+            <Button variant="text" color="error" onClick={() => setConfirms(true)}>
+              Xóa nhiều
+            </Button>
+          )}
+          <Button
+            variant="contained"
+            onClick={() => handleExport(warehouses, 'Danh sách kho', 'warehouses')}
+            color="inherit"
+            startIcon={<IconExcel />}
+          >
+            Xuất Excel
+          </Button>
+          <ImportExcelModal
+            validateKey={[
+              '_id',
+              'name',
+              'location',
+              'longitude',
+              'latitude',
+              'province_id',
+              'district_id',
+              'ward_id',
+              'status',
+              'capacity',
+              'currentQuantity',
+            ]}
+            columns={columns
+              .filter(
+                (col) =>
+                  col.field !== 'createdAt' && col.field !== 'updatedAt' && col.field !== 'actions'
+              )
+              .map((col) => col)}
+            onSave={handleSave}
+            loading={statusCreate === 'loading'}
+          />
+          <Button
+            variant="contained"
+            onClick={() => route.push('create')}
+            color="inherit"
+            startIcon={<Iconify icon="eva:plus-fill" />}
+          >
+            Kho mới
+          </Button>
+        </Stack>
       </Stack>
 
       <Card>
-        <BrandTableToolbar
-          numSelected={selected.length}
-          filterName={filterName}
-          onFilterName={handleFilterByName}
-        />
-
-        <Scrollbar>
-          <TableContainer sx={{ overflow: 'unset' }}>
-            <Table sx={{ minWidth: 800 }}>
-              <WarehouseTableHead
-                order={order}
-                orderBy={orderBy}
-                rowCount={warehouses.length}
-                numSelected={selected.length}
-                onRequestSort={handleSort}
-                onSelectAllClick={handleSelectAllClick}
-                headLabel={[
-                  { id: 'name', label: 'Tên' },
-                  { id: 'capacity', label: 'Sức chứa' },
-                  { id: 'currentInventory', label: 'Hàng hiện tại' },
-                  { id: 'status', label: 'Trạng thái' },
-                  { id: 'location', label: 'Vị trí' },
-                  { id: 'createdAt', label: 'Ngày tạo' },
-                  { id: 'updatedAt', label: 'Ngày nhập' },
-                  { id: '' },
-                ]}
-              />
-              <TableBody>
-                {dataFiltered
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((row) => (
-                    <WarehouseTableRow
-                      key={row._id}
-                      name={row.name}
-                      status={row.status}
-                      createdAt={row.createdAt}
-                      location={row.location}
-                      updatedAt={row.updatedAt}
-                      currentInventory={row.currentInventory}
-                      capacity={row.capacity}
-                      selected={selected.indexOf(row.name) !== -1} // Assuming the company name is used for selection
-                      handleClick={(event) => handleClick(event, row._id)}
-                      handleNavigate={() => handleNavigate(row._id)}
-                      onDelete={() => handleDelete(row._id)}
-                    />
-                  ))}
-
-                <TableEmptyRows
-                  height={77}
-                  emptyRows={emptyRows(page, rowsPerPage, warehouses.length)}
-                  col={6}
-                />
-
-                {notFound && <TableNoData query={filterName} />}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Scrollbar>
-
-        <TablePagination
-          page={page}
-          component="div"
-          labelRowsPerPage="Số hàng trên trang"
-          count={warehouses.length}
-          rowsPerPage={rowsPerPage}
-          onPageChange={handleChangePage}
-          rowsPerPageOptions={[5, 10, 25]}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
+        <div style={{ width: '100%', overflow: 'auto' }}>
+          <DataGrid
+            initialState={{
+              columns: {
+                columnVisibilityModel: {
+                  status: false,
+                  createdAt: false,
+                  updatedAt: false,
+                  longitude: false,
+                  latitude: false,
+                },
+              },
+              pagination: {
+                paginationModel: {
+                  pageSize: 5,
+                },
+              },
+            }}
+            loading={status === 'loading'}
+            slotProps={{
+              loadingOverlay: {
+                variant: 'linear-progress',
+                noRowsVariant: 'linear-progress',
+              },
+            }}
+            columns={columns}
+            rows={warehouses}
+            pageSizeOptions={[5, 10]}
+            getRowId={(row) => row._id}
+            slots={{ toolbar: GridToolbar }}
+            localeText={{
+              noRowsLabel: 'Không có dữ liệu',
+              MuiTablePagination: {
+                labelRowsPerPage: 'Số dòng mỗi trang',
+              },
+              toolbarColumns: 'Cột',
+              toolbarFilters: 'Lọc',
+              toolbarExport: 'Xuất',
+              toolbarExportCSV: 'Xuất CSV',
+              toolbarExportPrint: 'In',
+              toolbarExportExcel: 'Xuất Excel',
+              toolbarDensity: 'Mật độ',
+              toolbarDensityCompact: 'Nhỏ',
+              toolbarDensityStandard: 'Bình thường',
+              toolbarDensityComfortable: 'Lớn',
+            }}
+            checkboxSelection
+            onRowSelectionModelChange={(newRowSelectionModel) => {
+              setRowSelectionModel(newRowSelectionModel);
+            }}
+            selectionModel={rowSelectionModel}
+          />
+        </div>
       </Card>
     </Container>
   );

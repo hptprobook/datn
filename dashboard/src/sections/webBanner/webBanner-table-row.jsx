@@ -27,50 +27,49 @@ export default function WebBannerTableRow({
 }) {
   const handleDelete = (idDelete) => {
     onDelete(idDelete);
-  }
+  };
   return (
-    <TableRow hover
-        onClick={onClick}
-        sx={{ cursor: 'pointer' }}
-        tabIndex={-1}
-        role="checkbox"
-        selected={selected}>
-       <TableCell padding="checkbox">
-          <Checkbox
-            disableRipple
-            checked={selected}
-            onClick={(event) => event.stopPropagation()}
-            onChange={handleClick}
-          />
-        </TableCell>
+    <TableRow
+      hover
+      onClick={onClick}
+      sx={{ cursor: 'pointer' }}
+      tabIndex={-1}
+      role="checkbox"
+      selected={selected}
+    >
+      <TableCell padding="checkbox">
+        <Checkbox
+          disableRipple
+          checked={selected}
+          onClick={(event) => event.stopPropagation()}
+          onChange={handleClick}
+        />
+      </TableCell>
 
-        <TableCell component="th" scope="row" padding="none">
-          <Stack direction="row" alignItems="center" spacing={2}>
-            <Avatar alt={title} src={renderUrl(image, backendUrl)} />
-            <Typography variant="subtitle2" noWrap>
-              {title}
-            </Typography>
-          </Stack>
-        </TableCell>
+      <TableCell component="th" scope="row" padding="none">
+        <Stack direction="row" alignItems="center" spacing={2}>
+          <Avatar alt={title} src={renderUrl(image, backendUrl)} />
+          <Typography variant="subtitle2" noWrap>
+            {title.length > 50 ? `${title.substring(0, 50)}...` : title}
+          </Typography>
+        </Stack>
+      </TableCell>
 
-        <TableCell>
-          {description}
+      <TableCell>
+        {description.length > 50 ? `${description.substring(0, 50)}...` : description}
+      </TableCell>
 
-        </TableCell>
+      <TableCell> {url.length > 50 ? `${url.substring(0, 30)}...` : url}</TableCell>
 
-        <TableCell>{url}</TableCell>
-
-
-        <TableCell align="right">
+      <TableCell align="right">
         <IconButton onClick={handleNavigate}>
           <Iconify icon="eva:eye-fill" />
         </IconButton>
         <IconButton onClick={handleDelete}>
-          <Iconify icon="eva:trash-2-outline" />
+          <Iconify icon="mdi:trash" />
         </IconButton>
-        </TableCell>
-        
-      </TableRow>
+      </TableCell>
+    </TableRow>
   );
 }
 

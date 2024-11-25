@@ -1,16 +1,16 @@
 const navConfig = [
   {
-    title: 'dashboard',
+    title: 'Dashboard',
     path: '/admin/',
     icon: 'ion:home',
     child: undefined,
   },
-  {
-    title: 'Khách hàng',
-    path: '/admin/users',
-    icon: 'ion:person',
-    child: undefined,
-  },
+  // {
+  //   title: 'Lịch làm việc',
+  //   path: '/admin/timetables',
+  //   icon: 'mdi:table',
+  //   child: undefined,
+  // },
   {
     title: 'Đơn hàng',
     path: '/admin/orders',
@@ -21,22 +21,32 @@ const navConfig = [
     title: 'Sản phẩm',
     path: '/admin/products',
     icon: 'ion:shirt',
-    child: [
-      {
-        title: 'Danh sách sản phẩm',
-        path: '/admin/products',
-      },
-      {
-        title: 'Danh mục',
-        path: '/admin/categories',
-      },
-      {
-        title: 'Biến thể',
-        path: '/admin/variants',
-      },
-    ],
+    child: undefined,
   },
-
+  {
+    title: 'Biến thể',
+    path: '/admin/variants',
+    icon: 'mdi:order-bool-ascending-variant',
+    child: undefined,
+  },
+  {
+    title: 'Danh mục',
+    path: '/admin/categories',
+    icon: 'tabler:category-filled',
+    child: undefined,
+  },
+  {
+    title: 'Nhà cung cấp',
+    path: '/admin/suppliers',
+    icon: 'fluent:person-tag-20-regular',
+    child: undefined,
+  },
+  {
+    title: 'Nhãn hàng',
+    path: '/admin/brands',
+    icon: 'mdi:tag',
+    child: undefined,
+  },
   {
     title: 'Kho',
     path: '/admin/warehouse',
@@ -47,16 +57,15 @@ const navConfig = [
         path: '/admin/warehouse',
       },
       {
-        title: 'Nhà cung cấp',
-        path: '/admin/suppliers',
+        title: 'Nhập kho',
+        path: '/admin/warehouse/receipts',
       },
       {
-        title: 'Nhãn hàng',
-        path: '/admin/brands',
+        title: 'Tạo hóa đơn kho',
+        path: '/admin/warehouse/receipts/create',
       },
     ],
   },
-  
 ];
 
 export default navConfig;

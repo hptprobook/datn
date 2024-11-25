@@ -12,6 +12,7 @@ import IconButton from '@mui/material/IconButton';
 import { useAuth } from 'src/hooks/useAuth';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout as dangXuat } from 'src/redux/slices/authSlice';
+import { useNavigate } from 'react-router-dom';
 
 // ----------------------------------------------------------------------
 
@@ -19,14 +20,17 @@ const MENU_OPTIONS = [
   {
     label: 'Trang chủ',
     icon: 'eva:home-fill',
+    navigator: '/',
   },
   {
     label: 'Thông tin',
     icon: 'eva:person-fill',
+    navigator: '/profile',
   },
   {
     label: 'Cài đặt',
     icon: 'eva:settings-2-fill',
+    navigator: '/settings',
   },
 ];
 
@@ -57,6 +61,16 @@ export default function AccountPopover() {
       logout();
     });
   };
+
+  const navigate = useNavigate();
+
+  const handleMenuItemClick = (option) => {
+    handleClose();
+    if (option.navigator) {
+      navigate(option.navigator);
+    }
+  };
+
   return (
     <>
       <IconButton
@@ -113,7 +127,7 @@ export default function AccountPopover() {
         <Divider sx={{ borderStyle: 'dashed' }} />
 
         {MENU_OPTIONS.map((option) => (
-          <MenuItem key={option.label} onClick={handleClose}>
+          <MenuItem key={option.label} onClick={() => handleMenuItemClick(option)}>
             {option.label}
           </MenuItem>
         ))}

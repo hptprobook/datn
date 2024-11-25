@@ -44,11 +44,22 @@ export const fetchById = createAsyncThunk(
     }
   }
 );
+export const createManyBanner = createAsyncThunk(
+  'webBanners/createMany',
+  async ({ data }, { rejectWithValue }) => {
+    try {
+      const res = await WebBannerService.createMany(data);
+      return res;
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
+
 export const update = createAsyncThunk(
   'webBanners/update',
   async ({ id, data }, { rejectWithValue }) => {
     try {
-      console.log('data', data);
       const res = await WebBannerService.update({ id, data });
       return res; // Ensure that the response data is returned correctly
     } catch (err) {
@@ -67,6 +78,7 @@ const webBannerSlice = createSlice({
     delete: null,
     status: 'idle',
     statusUpdate: 'idle',
+    dataCreateMany: null,
     error: null
   },
   reducers: {},
@@ -102,6 +114,17 @@ const webBannerSlice = createSlice({
         state.dataCreate = action.payload;
       })
       .addCase(createWebBanner.rejected, (state, action) => {
+        state.statusCreate = 'failed';
+        state.error = action.payload;
+      })
+      .addCase(createManyBanner.pending, (state) => {
+        state.statusCreate = 'loading';
+      })
+      .addCase(createManyBanner.fulfilled, (state, action) => {
+        state.statusCreate = 'successful';
+        state.dataCreateMany = action.payload;
+      })
+      .addCase(createManyBanner.rejected, (state, action) => {
         state.statusCreate = 'failed';
         state.error = action.payload;
       })

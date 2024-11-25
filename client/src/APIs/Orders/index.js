@@ -11,9 +11,21 @@ export const checkStockProducts = async (data) => {
   }
 };
 
-export const getCurrentOrders = async () => {
+export const getCurrentOrders = async ({ limit = 10 }) => {
   try {
-    const response = await request.get('/orders/me/current');
+    const response = await request.get('/orders/me/current?limit=' + limit);
+    return response.data;
+  } catch (error) {
+    console.log('Lỗi khi lấy danh sách đơn hàng người dùng', error);
+    throw error;
+  }
+};
+
+export const getCurrentOrderWithStatus = async ({ limit = 10, status }) => {
+  try {
+    const response = await request.get(
+      `/orders/me/status/?status=${status}&limit=${limit}`
+    );
     return response.data;
   } catch (error) {
     console.log('Lỗi khi lấy danh sách đơn hàng người dùng', error);
@@ -23,7 +35,18 @@ export const getCurrentOrders = async () => {
 
 export const getOrderByCodeAPI = async (code) => {
   try {
-    const response = await request.get(`/orders/me/${code}`);
+    const response = await request.get(`/orders/me/code/${code}`);
+    return response.data;
+  } catch (error) {
+    console.log('Lỗi khi tìm kiếm đơn hàng bằng code', error);
+    throw error.response.data;
+  }
+};
+
+export const getVnpayUrlAPI = async (data) => {
+  console.log(data);
+  try {
+    const response = await request.post('/pays/vnpay', data);
     return response.data;
   } catch (error) {
     console.log('Lỗi khi tìm kiếm đơn hàng bằng code', error);

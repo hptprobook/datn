@@ -15,25 +15,35 @@ import staffsReducer from "./slices/staffSlices";
 import webBannerReducer from "./slices/webBannerSlice";
 import staticPageReducer from "./slices/staticPageSlices";
 import variantsReducer from "./slices/variantSlices";
-import customerGroupReducer from "./slices/CustomerGroupSlice";
+import timetableReducer from "./slices/timetableSlices";
+import customerGroupReducer from "./slices/customerGroupSlice";
+import posReducer from "./slices/posSlices";
+import receiptReducer from "./slices/receiptSlices";
+import receiptWarehouseReducer from "./slices/receiptWarehouseSlices";
+import dashboardReducer from "./slices/dashboardSlices";
 
 export const store = configureStore({
-    reducer: {
-        users: userReducer,
-        auth: authReducer,
-        products: productsReducer,
-        categories: categoriesReducer,
-        orders: ordersReducer,
-        settings: settingsReducer,
-        coupons: couponsReducer,
-        suppliers: suppliersReducer,
-        brands: brandsReducer,
-        warehouses: warehousesReducer,
-        blogs: blogsReducer,
-        webBanners : webBannerReducer,
-        staffs: staffsReducer,
-        staticPages: staticPageReducer,
-        variants: variantsReducer,
-        customerGroups: customerGroupReducer,
-    },
+        reducer: {
+                users: userReducer,
+                auth: authReducer,
+                products: productsReducer,
+                categories: categoriesReducer,
+                orders: ordersReducer,
+                settings: settingsReducer,
+                coupons: couponsReducer,
+                suppliers: suppliersReducer,
+                brands: brandsReducer,
+                warehouses: warehousesReducer,
+                blogs: blogsReducer,
+                webBanners: webBannerReducer,
+                staffs: staffsReducer,
+                staticPages: staticPageReducer,
+                variants: variantsReducer,
+                timetables: timetableReducer,
+                customerGroups: customerGroupReducer,
+                pos: posReducer,
+                receipts: receiptReducer,
+                receiptsWarehouse: receiptWarehouseReducer,
+                dashboard: dashboardReducer,
+        },
 });

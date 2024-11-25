@@ -10,24 +10,11 @@ const validateBeforeUpdate = async (data) => {
   return await UPDATE_BRAND.validateAsync(data, { abortEarly: false });
 };
 
-const countBrandsAll = async () => {
-  const db = await GET_DB().collection('brands');
-  const total = await db.countDocuments();
-  if (!total) {
-    throw new Error('Có lỗi xảy ra, xin thử lại sau');
-  }
-  return total;
-};
-
-const getBrandsAll = async (page, limit) => {
-  page = parseInt(page) || 1;
-  limit = parseInt(limit) || 20;
+const getBrandsAll = async () => {
   const db = await GET_DB().collection('brands');
   const result = await db
     .find()
-    .sort({ createdAt: 1 })
-    .skip((page - 1) * limit)
-    .limit(limit)
+    .sort({ createdAt: -1 })
     .toArray();
   if (!result) {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
@@ -38,9 +25,6 @@ const getBrandsAll = async (page, limit) => {
 const getBrandById = async (id) => {
   const db = await GET_DB().collection('brands');
   const brand = await db.findOne({ _id: new ObjectId(id) });
-  if (!brand) {
-    throw new Error('Có lỗi xảy ra, xin thử lại sau');
-  }
   return brand;
 };
 
@@ -145,7 +129,6 @@ const deleteManyBrands = async (ids) => {
 
 export const brandModel = {
   getBrandsAll,
-  countBrandsAll,
   create,
   update,
   deleteBrand,

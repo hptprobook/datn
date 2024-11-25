@@ -6,14 +6,14 @@ import Stack from '@mui/material/Stack';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import { Select, MenuItem, TextField, InputLabel, FormControl } from '@mui/material';
+import { TextField } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
 import AddressService from 'src/redux/services/address.service';
 import { handleToast } from 'src/hooks/toast';
 import { useDispatch, useSelector } from 'react-redux';
-import { setStatus, createUser, fetchAllUsers } from 'src/redux/slices/userSlice';
+import { setStatus, createUser } from 'src/redux/slices/userSlice';
 import LoadingFull from 'src/components/loading/loading-full';
 import CountrySelect from '../select-address';
 
@@ -28,14 +28,13 @@ const userSchema = Yup.object().shape({
     .required('Tên là bắt buộc')
     .min(2, 'Tên phải có ít nhất 2 ký tự')
     .max(50, 'Tên không được quá 50 ký tự'),
-  role: Yup.string().required('Vai trò là bắt buộc'),
   phone: Yup.string()
     .required('Số điện thoại là bắt buộc')
     .min(10, 'Số điện thoại phải có ít nhất 10 ký tự')
     .max(10, 'Số điện thoại không được quá 10 ký tự'),
   noteAddress: Yup.string()
     .required('Địa chỉ là bắt buộc')
-    .min(10, 'Địa chỉ phải có ít nhất 10 ký tự')
+    .min(4, 'Địa chỉ phải có ít nhất 4 ký tự')
     .max(255, 'Địa chỉ không được quá 255 ký tự'),
 });
 
@@ -44,9 +43,9 @@ export default function CreateUserPage() {
   const [district, setDistrict] = useState([]);
   const dispatch = useDispatch();
   const [ward, setWard] = useState([]);
-  const [selectedProvince, setSelectedProvince] = useState(''); // Initialize with ''
-  const [selectedDistrict, setSelectedDistrict] = useState(''); // Initialize with ''
-  const [selectedWard, setSelectedWard] = useState(''); // Initialize with ''
+  const [selectedProvince, setSelectedProvince] = useState(''); 
+  const [selectedDistrict, setSelectedDistrict] = useState(''); 
+  const [selectedWard, setSelectedWard] = useState(''); 
   const [address, setAddress] = useState('Vui lòng chọn địa chỉ');
   const status = useSelector((state) => state.users.statusCreate);
   const error = useSelector((state) => state.users.error);
@@ -122,7 +121,6 @@ export default function CreateUserPage() {
     if (status === 'successful') {
       handleToast('success', 'Tạo người dùng thành công');
       dispatch(setStatus({ key: 'statusCreate', value: '' }));
-      dispatch(fetchAllUsers());
       dispatch(setStatus({ key: 'error', value: 'idle' }));
     }
     if (status === 'failed') {
@@ -145,7 +143,7 @@ export default function CreateUserPage() {
         </Typography>
         <form onSubmit={formik.handleSubmit}>
           <Grid2 container spacing={3}>
-            <Grid2 xs={12} md={6}>
+            <Grid2 xs={12} md={4}>
               <TextField
                 fullWidth
                 label="Tên"
@@ -158,7 +156,7 @@ export default function CreateUserPage() {
               />
             </Grid2>
 
-            <Grid2 xs={12} md={6}>
+            <Grid2 xs={12} md={4}>
               <TextField
                 type="password"
                 fullWidth
@@ -183,7 +181,7 @@ export default function CreateUserPage() {
                 onBlur={formik.handleBlur}
               />
             </Grid2>
-            <Grid2 xs={12} md={4}>
+            <Grid2 xs={12} md={3}>
               <TextField
                 fullWidth
                 label="Email"
@@ -195,32 +193,13 @@ export default function CreateUserPage() {
                 onBlur={formik.handleBlur}
               />
             </Grid2>
-            <Grid2 xs={12} md={4}>
-              <FormControl fullWidth>
-                <InputLabel id="role-select-label">Vai trò</InputLabel>
-                <Select
-                  labelId="role-select-label"
-                  id="role-select"
-                  value={formik.values.role}
-                  name="role"
-                  label="Vai trò"
-                  onChange={formik.handleChange}
-                >
-                  <MenuItem value="user">Người dùng</MenuItem>
-                  <MenuItem value="staff">Nhân viên</MenuItem>
-                  <MenuItem value="admin">Quản trị</MenuItem>
-                  <MenuItem value="root">Quản lý</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid2>
-
-            <Grid2 xs={12} md={4}>
+            <Grid2 xs={12} md={3}>
               <CountrySelect data={province} query="ProvinceName" onSelect={handleChangeProvince} />
             </Grid2>
-            <Grid2 xs={12} md={4}>
+            <Grid2 xs={12} md={3}>
               <CountrySelect data={district} query="DistrictName" onSelect={handleChangeDistrict} />
             </Grid2>
-            <Grid2 xs={12} md={4}>
+            <Grid2 xs={12} md={3}>
               <CountrySelect data={ward} query="WardName" onSelect={handleChangeWard} />
             </Grid2>
             <Grid2 xs={12} md={6}>

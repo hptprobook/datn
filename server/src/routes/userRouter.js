@@ -32,11 +32,10 @@ Router.get('/me', verifyToken, (req, res) => {
   // #swagger.summary = 'Get my data...'
   usersController.getCurrentUser(req, res);
 });
-Router.get('/admin', verifyToken, verifyAdmin, (req, res) => {
-  usersController.getCurrentAdmin(req, res);
-});
 
 Router.get('/:id', usersController.getUserById);
+//notifies
+// Router.get('/notifies/:id', usersController.getNotifiesUserById);
 Router.get('/email/:email', usersController.getUserByEmail);
 
 Router.put('/me', verifyToken, usersController.updateCurrentUser);
@@ -55,6 +54,10 @@ Router.post('/', verifyStaff, usersController.createUser);
 // cart
 Router.put('/me/addCart', verifyToken, usersController.addCartToCurrent);
 Router.put('/me/removeCart', verifyToken, usersController.removeCartToCurrent);
+
+//read
+Router.get('/notifies/readAll', verifyToken, usersController.readAllNotifies);
+Router.post('/notify/:id', usersController.readNotify);
 
 //favorite
 Router.post('/favorite/:id', usersController.favoriteProduct);

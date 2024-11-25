@@ -25,6 +25,8 @@ const upload = multer({ storage });
 Router.get('/', categoryController.getAllCategories);
 Router.get('/menu', categoryController.getMenuCategories);
 Router.get('/slug/:slug', categoryController.getCategoryBySlug);
+Router.get('/:slug/views', categoryController.increaseViews);
+Router.get('/getByView', categoryController.getCategoryByViews);
 Router.get('/:id', categoryController.getCategoryById);
 Router.post(
   '/',
@@ -38,15 +40,8 @@ Router.put(
   upload.single('image'),
   categoryController.update
 );
-Router.delete(
-  '/:id',
-  verifyStaff,
-  categoryController.deleteCategory
-);
-Router.post(
-  '/many',
-  verifyStaff,
-  categoryController.deleteManyCategory
-);
+Router.delete('/:id', verifyStaff, categoryController.deleteCategory);
+Router.post('/many', verifyStaff, categoryController.deleteManyCategory);
+Router.post('/creates', verifyStaff, categoryController.creates);
 
 export const categoriesApi = Router;

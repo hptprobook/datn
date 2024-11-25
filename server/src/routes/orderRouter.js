@@ -7,23 +7,27 @@ import { verifyToken as verifyStaff } from '~/middlewares/verifyRole';
 const Router = express.Router();
 
 // Orders
-Router.get('/', verifyStaff, orderController.getAllOrder);
+Router.get('/', orderController.getAllOrder);
+Router.get('/all/status', verifyToken, orderController.getOrderByStatus);
+// Router.get('/', verifyToken, orderController.getAllOrder);
 Router.get('/:id', orderController.getOrderById);
 Router.get('/me/current', verifyToken, orderController.getCurrentOrder);
-Router.get('/me/:orderCode', verifyToken, orderController.getOrderByCode);
+Router.get('/me/code/:orderCode', verifyToken, orderController.getOrderByCode);
+Router.get('/me/status', verifyToken, orderController.getCurrentOrderByStatus);
+Router.get('/me/search', verifyToken, orderController.searchCurrentOrder);
 
 // Carts
-Router.get('/', verifyStaff, orderController.getAllOrder);
-
 Router.post('/', verifyToken, orderController.addOrder);
-Router.put('/:id', verifyToken, orderController.updateOrder);
+
+Router.put('/:id', verifyStaff, orderController.updateOrder);
+Router.put('/me/:id', verifyToken, orderController.updateOrder);
 Router.delete('/:idOrder', verifyToken, orderController.removeOrder);
 Router.post('/check_stock', orderController.checkStockProducts);
 Router.post('/update_stock', verifyToken, orderController.updateStockProducts);
 // not login
-Router.get('/not/:orderCode', orderController.findOrderByCode);
 Router.post('/not', orderController.addOrderNot);
+Router.get('/not/:orderCode', orderController.findOrderByCode);
 Router.put('/not/:id', orderController.updateOrderNotLogin);
 Router.delete('/not/:idOrder', orderController.removeOrder);
-
+// at store
 export const ordersApi = Router;

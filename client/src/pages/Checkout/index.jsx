@@ -9,13 +9,13 @@ import {
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { useSwal } from '~/customHooks/useSwal';
+import { useSwal, useSwalWithConfirm } from '~/customHooks/useSwal';
 import { v4 as uuidv4 } from 'uuid';
 import MainLoading from '~/components/common/Loading/MainLoading';
 import { useCart } from 'react-use-cart';
 import LoggedOrder from './components/LoggedOrder';
 import { Helmet } from 'react-helmet-async';
-import { orderNotLoginApi } from '~/APIs';
+import { getVnpayUrlAPI, orderNotLoginApi } from '~/APIs';
 
 const CheckoutPage = () => {
   return (
@@ -50,15 +50,22 @@ const CheckoutUI = () => {
   } = useMutation({
     mutationFn: orderNotLoginApi,
     onSuccess: (data) => {
-      useSwal.fire(
-        'Thành công!',
-        'Đơn hàng của bạn đã được đặt thành công',
-        'success'
-      );
-      selectedProducts.forEach((product) => {
-        removeItem(product.id);
-      });
-      navigate('/thanh-toan/xac-nhan', { state: { orderData: data } });
+      if (data?.data?.paymentMethod !== 'VNPAY') {
+        useSwal
+          .fire(
+            'Thành công!',
+            'Đơn hàng của bạn đã được đặt thành công',
+            'success'
+          )
+          .then(() => {
+            selectedProducts.forEach((product) => {
+              removeItem(product.id);
+            });
+            navigate('/thanh-toan/xac-nhan', {
+              state: { orderCode: data?.data?.orderCode },
+            });
+          });
+      }
     },
     onError: () => {
       useSwal.fire(
@@ -69,59 +76,97 @@ const CheckoutUI = () => {
     },
   });
 
+  // mutate lấy url vnpay
+  const { mutate: getVnpayUrl, isLoading: isLoadingVnpayUrl } = useMutation({
+    mutationFn: getVnpayUrlAPI,
+    onSuccess: (data) => {
+      window.location.href = data.url;
+    },
+    onError: () => {
+      useSwal.fire({
+        title: 'Lỗi!',
+        text: 'Có lỗi xảy ra với phương thức thanh toán bằng VNPAY, vui lòng thử lại sau!',
+        icon: 'error',
+        confirmButtonText: 'Xác nhận',
+      });
+    },
+  });
+
   const handleConfirmCheckout = () => {
-    formik.handleSubmit();
+    useSwalWithConfirm
+      .fire({
+        icon: 'question',
+        title: 'Xác nhân đặt hàng',
+        text: 'Xác nhận đặt đơn hàng này? Hành động này sẽ không thể hoàn tác!',
+        confirmButtonText: 'Xác nhân',
+        cancelButtonText: 'Hủy bỏ',
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          formik.handleSubmit();
 
-    if (formik.isValid && formik.dirty) {
-      const productsList = selectedProducts.map((product) => ({
-        _id: product.productId,
-        quantity: product.quantity,
-        image: product.image,
-        name: product.name,
-        slug: product.slug,
-        price: product.price,
-        variantColor: product.variantColor,
-        variantSize: product.variantSize,
-        itemTotal: product.price * product.quantity,
-      }));
+          if (formik.isValid && formik.dirty) {
+            const productsList = selectedProducts.map((product) => ({
+              _id: product.productId || product._id,
+              quantity: product.quantity,
+              image: product.image,
+              name: product.name,
+              slug: product.slug,
+              sku: product.sku,
+              price: product.price,
+              weight: product.weight,
+              variantColor: product.variantColor,
+              variantSize: product.variantSize,
+              itemTotal: product.price * product.quantity,
+            }));
 
-      const shippingInfo = {
-        provinceName: formik.values.province_name,
-        districtName: formik.values.district_name,
-        districtCode: formik.values.district_id,
-        wardName: formik.values.ward_name,
-        wardCode: formik.values.ward_id,
-        detailAddress: formik.values.address,
-        phone: formik.values.phone,
-        name: formik.values.name,
-        note: formik.values.note || '',
-      };
+            const shippingInfo = {
+              provinceName: formik.values.province_name,
+              districtName: formik.values.district_name,
+              districtCode: formik.values.district_id,
+              wardName: formik.values.ward_name,
+              wardCode: formik.values.ward_id,
+              detailAddress: formik.values.address,
+              phone: formik.values.phone,
+              name: formik.values.name,
+              note: formik.values.note || '',
+              fullAddress: `${formik.values.address}, ${formik.values.ward_name}, ${formik.values.district_name}, ${formik.values.province_name}`,
+            };
 
-      const orderData = {
-        orderCode: uuidv4().slice(0, 6).toUpperCase(),
-        productsList: productsList,
-        shippingInfo: shippingInfo,
-        email: formik.values.email,
-        totalPrice:
-          productsList.reduce(
-            (total, product) => total + product.totalPrice,
-            0
-          ) + shippingFee,
-        shipping: {
-          name: formik.values.name,
-          shippingType: formik.values.payment,
-          fee: shippingFee,
-          detailAddress: `${formik.values.address}, ${formik.values.ward_name}, ${formik.values.district_name}, ${formik.values.province_name}`,
-          estimatedDeliveryDate: new Date().getTime() + 7 * 24 * 60 * 60 * 1000,
-          phone: formik.values.phone,
-        },
-      };
+            const orderData = {
+              orderCode: uuidv4().slice(0, 6).toUpperCase(),
+              productsList: productsList,
+              shippingInfo: shippingInfo,
+              email: formik.values.email,
+              totalPrice: productsList.reduce(
+                (total, product) => total + product.itemTotal,
+                0
+              ),
+              totalPayment:
+                productsList.reduce(
+                  (total, product) => total + product.itemTotal,
+                  0
+                ) + shippingFee,
+              shippingType: 'cod',
+              fee: shippingFee,
+              paymentMethod: formik.values.paymentMethod,
+            };
 
-      submitOrder(orderData);
-    }
+            if (orderData.paymentMethod === 'VNPAY') {
+              submitOrder(orderData);
+              getVnpayUrl({
+                orderId: orderData.orderCode,
+                amount: orderData.totalPayment,
+              });
+            } else {
+              submitOrder(orderData);
+            }
+          }
+        }
+      });
   };
 
-  if (isPending) {
+  if (isPending || isLoadingVnpayUrl) {
     return <MainLoading />;
   }
 

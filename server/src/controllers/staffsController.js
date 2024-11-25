@@ -4,6 +4,9 @@ import { staffsModel } from '../models/staffsModel';
 import { StatusCodes } from 'http-status-codes';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import path from 'path';
+import { timetableModel } from '~/models/timetableModel';
+import { uploadModel } from '~/models/uploadModel';
 
 const createStaff = async (req, res) => {
     try {
@@ -124,7 +127,7 @@ const getMe = async (req, res) => {
                 message: 'Phiên đăng nhập hết hạn',
             });
         }
-        if (((exp - Date.now()) / 1000) > 60 * 60 * 24) {
+        if ((exp - (Date.now()/1000)) < 0) {
             const decodedToken = jwt.verify(refreshToken, process.env.SECRET_STAFF);
             if (!decodedToken) {
                 return res.status(401).json({
@@ -142,6 +145,7 @@ const getMe = async (req, res) => {
             delete staff.refreshToken;
             return res.status(200).json(staff);
         }
+
         const staff = await staffsModel.getStaffBy('_id', user_id);
         if (!staff) {
             return res.status(401).json({
@@ -158,6 +162,50 @@ const getMe = async (req, res) => {
             return res.status(401).json({
                 message: 'Phiên đăng nhập hết hạn',
             });
+        }
+        res.status(StatusCodes.BAD_REQUEST).json({
+            message: error.message,
+        });
+    }
+}
+const updateMe = async (req, res) => {
+    try {
+        const { user_id } = req.user;
+        const data = req.body;
+        const existStaff = await staffsModel.getStaffBy('_id', user_id);
+        if (!existStaff) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: 'Nhân viên không tồn tại',
+            });
+        }
+        if (data.phone) {
+            const existPhone = await staffsModel.getStaffBy('phone', data.phone);
+            if (existPhone && existPhone._id.toString() !== user_id) {
+                return res.status(StatusCodes.BAD_REQUEST).json({
+                    message: 'Số điện thoại đã tồn tại',
+                });
+            }
+        }
+        if (req.file) {
+            const file = req.file;
+            const fileName = file.filename;
+            const filePath = path.join('uploads/staffs', fileName);
+            data.avatar = filePath;
+        }
+
+        if (data.password) {
+            const hash = await bcrypt.hash(data.password, 8);
+            data.password = hash;
+        }
+        const result = await staffsModel.updateMe(user_id, data);
+        if (result.avatar && req.file) {
+            await uploadModel.deleteImg(existStaff.avatar);
+        }
+        res.status(StatusCodes.CREATED).json(result);
+    }
+    catch (error) {
+        if (req.file) {
+            await uploadModel.deleteImg(req.file.path);
         }
         res.status(StatusCodes.BAD_REQUEST).json({
             message: error.message,
@@ -232,6 +280,18 @@ const logoutStaff = async (req, res) => {
         });
     }
 }
+const getTimetables = async (req, res) => {
+    try {
+        const { user_id } = req.user;
+        const timetables = await timetableModel.findsBy({ value: user_id });
+        res.status(StatusCodes.OK).json(timetables);
+    }
+    catch (error) {
+        res.status(StatusCodes.BAD_REQUEST).json({
+            message: error.message,
+        });
+    }
+}
 export const staffsController = {
     createStaff,
     getStaffBy,
@@ -240,5 +300,7 @@ export const staffsController = {
     getMe,
     logoutStaff,
     updateStaff,
-    deleteStaff
+    deleteStaff,
+    getTimetables,
+    updateMe
 }

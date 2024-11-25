@@ -36,7 +36,7 @@ import {
   getOneCustomerGroup,
   updateCustomerGroup,
   removeCustomerFromGroup
-} from 'src/redux/slices/CustomerGroupSlice';
+} from 'src/redux/slices/customerGroupSlice';
 import LoadingFull from 'src/components/loading/loading-full';
 // import { AutoSelect } from '../auto-select';
 import { useParams } from 'react-router-dom';

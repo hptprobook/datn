@@ -27,9 +27,13 @@ export const SAVE_CATEGORY_SCHEMA = Joi.object({
     'string.empty': 'Danh mục không được để trống',
     'any.required': 'Danh mục là bắt buộc',
   }),
-  status: Joi.boolean().required().messages({
-    'any.required': 'Trạng thái danh mục là bắt buộc',
-  }),
+  status: Joi.string()
+    .valid('Ẩn', 'Hiện')
+    .required()
+    .messages({
+      'any.required': 'Trạng thái danh mục là bắt buộc',
+      'any.only': 'Trạng thái danh mục chỉ có thể là "Ẩn" hoặc "Hiện"',
+    }),
   seoOption: Joi.object({
     title: Joi.string().trim().min(1).max(70).required().messages({
       'string.empty': 'Tiêu đề không được để trống',
@@ -53,6 +57,7 @@ export const SAVE_CATEGORY_SCHEMA = Joi.object({
     .messages({
       'any.required': 'SEO là bắt buộc',
     }),
+  views: Joi.number().integer().default(0),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(Date.now),
 });
@@ -78,7 +83,10 @@ export const UPDATE_CATEGORY = Joi.object({
     'number.integer': 'Thứ tự phải là số nguyên',
     'any.only': 'Thứ tự không hợp lệ',
   }),
-  status: Joi.boolean(),
+  views: Joi.number().integer(),
+  status: Joi.string().valid('Ẩn', 'Hiện').messages({
+    'any.only': 'Trạng thái danh mục chỉ có thể là "Ẩn" hoặc "Hiện"',
+  }),
   seoOption: Joi.object({
     title: Joi.string().trim().min(1).max(70).messages({
       'string.empty': 'Tiêu đề không được để trống',

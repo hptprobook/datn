@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import Footer from '~/components/Home/Footer/Footer';
 import Header from '~/components/Home/Header/Header';
 import NavBar from '~/components/Home/NavBar/NavBar';
+// import { SocketProvider } from '~/context/SocketContext';
 
 export default function MainLayout() {
   const location = useLocation();
@@ -27,7 +28,11 @@ export default function MainLayout() {
       const currentPosition = window.scrollY;
       setScrollPosition(currentPosition);
 
-      if (currentPosition === 0) {
+      const isMobile = window.innerWidth <= 768;
+
+      if (isMobile) {
+        setIsHeaderVisible(true);
+      } else if (currentPosition === 0) {
         setIsHeaderVisible(true);
       } else if (currentPosition > 0 && isHeaderVisible) {
         setIsHeaderVisible(false);
@@ -53,7 +58,7 @@ export default function MainLayout() {
     <main className="bg-white">
       <div
         className={`top-0 z-[1000] transition-transform duration-300 ${
-          !isPreviewOpen && !isSpecialRoute ? 'sticky' : ''
+          !isPreviewOpen && !isSpecialRoute ? 'sticky' : 'relative'
         } ${
           isHeaderVisible || isSpecialRoute
             ? 'translate-y-0'
@@ -63,7 +68,7 @@ export default function MainLayout() {
         <Header />
         <NavBar />
       </div>
-      {!isSpecialRoute && scrollPosition > 0 && (
+      {!isSpecialRoute && scrollPosition > 0 && window.innerWidth > 768 && (
         <div className="fixed top-4 right-12 z-[1001]">
           <button
             onClick={toggleHeaderVisibility}
@@ -91,7 +96,7 @@ export default function MainLayout() {
       <div className="mt-8">
         <Outlet />
       </div>
-      <Footer />
+      {!isSpecialRoute && <Footer />}
     </main>
   );
 }

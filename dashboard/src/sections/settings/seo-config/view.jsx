@@ -4,80 +4,100 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import { Box, Tab, Tabs, Button, IconButton } from '@mui/material';
+import { Button } from '@mui/material';
 import { useRef, useState, useEffect } from 'react';
 import { PropTypes } from 'prop-types';
 import * as Yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
-import { setStatus, getConfigSeo, updateConfigSeo } from 'src/redux/slices/settingSlices';
+import {
+  setStatus,
+  getConfigWebsite,
+  updateConfigWebsite,
+} from 'src/redux/slices/settingSlices';
 import { useFormik } from 'formik';
 import { handleToast } from 'src/hooks/toast';
-import Iconify from 'src/components/iconify';
+import LoadingFull from 'src/components/loading/loading-full';
+import LoadingHeader from 'src/components/loading/loading-header';
+import TitlePage from 'src/components/page/title';
 import EditableField from '../edit-field';
 // ----------------------------------------------------------------------
 const configSchema = Yup.object().shape({
-  metaTitle: Yup.string().required('Tiêu đề không được để trống'),
-  metaDescription: Yup.string().required('Mô tả không được để trống'),
-  metaKeywords: Yup.string().required('Từ khóa không được để trống'),
-  metaRobots: Yup.string().required('Thẻ không được để trống'),
+  FanpageFb: Yup.string().url('URL không hợp lệ'),
+  ZaloWeb: Yup.string().url('URL không hợp lệ'),
+  Instagram: Yup.string().url('URL không hợp lệ'),
+  Youtube: Yup.string().url('URL không hợp lệ'),
+  Tiktok: Yup.string().url('URL không hợp lệ'),
+  LinkWebConnect: Yup.string().url('URL không hợp lệ'),
+  ggSearchConsole: Yup.string().typeError('Google Search Console phải là một chuỗi văn bản.'),
+
+  metaTitle: Yup.string()
+    .trim()
+    .min(1, 'Tiêu đề meta phải có ít nhất 1 ký tự.')
+    .typeError('Tiêu đề meta phải là một chuỗi văn bản.'),
+
+  metaDescription: Yup.string()
+    .trim()
+    .typeError('Mô tả meta phải là một chuỗi văn bản.')
+    .min(1, 'Mô tả meta phải có ít nhất 1 ký tự.'),
+
+  metaKeywords: Yup.string().typeError('Từ khóa meta phải là một chuỗi văn bản.'),
+
+  metaRobots: Yup.string()
+    .oneOf(
+      ['index', 'noindex', 'follow', 'nofollow'],
+      'Meta robots phải là một trong các giá trị sau: index, noindex, follow, nofollow.'
+    )
+    .default('index')
+    .trim()
+    .required('Meta robots không được để trống.')
+    .typeError('Meta robots phải là một chuỗi văn bản.'),
+
+  metaOGImg: Yup.string()
+    .trim()
+    .min(1, 'Hình ảnh OG meta phải có ít nhất 1 ký tự.')
+    .typeError('Hình ảnh OG meta phải là một chuỗi văn bản.'),
 });
-function TabPanel(props) {
-  const { children, value, index, ...other } = props;
 
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`vertical-tabpanel-${index}`}
-      aria-labelledby={`vertical-tab-${index}`}
-      style={{ width: '100%' }}
-      {...other}
-    >
-      {value === index && <Box sx={{ pl: 3, width: '100%' }}>{children}</Box>}
-    </div>
-  );
-}
-
-TabPanel.propTypes = {
-  children: PropTypes.node,
-  index: PropTypes.number.isRequired,
-  value: PropTypes.number.isRequired,
-};
-
-function a11yProps(index) {
-  return {
-    id: `vertical-tab-${index}`,
-    'aria-controls': `vertical-tabpanel-${index}`,
-  };
-}
-export default function SeoConfigPage() {
-  const [value, setValue] = useState(0);
+export default function SeoPage() {
   const [config, setConfig] = useState({});
   const dispatch = useDispatch();
-  // const [uploadedImageUrl, setUploadedImageUrl] = useState(null);
-
-  const data = useSelector((state) => state.settings.seo);
-  const status = useSelector((state) => state.settings.statusSeo);
-  const statusUpdate = useSelector((state) => state.settings.statusUpdateSeo);
+  const data = useSelector((state) => state.settings.web);
+  const status = useSelector((state) => state.settings.statusWeb);
+  const statusUpdate = useSelector((state) => state.settings.statusUpdateWeb);
   const error = useSelector((state) => state.settings.error);
-  // const handleChangeUploadImg = useCallback((files) => {
-  //   if (files) {
-  //     setUploadedImageUrl({
-  //       file: files,
-  //       name: 'logo',
-  //     });
-  //   }
-  // }, []); // Ensure it only triggers when files change
-
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      ...data,
+      nameCompany: config.nameCompany || '',
+      website: config.website || '',
+      address: config.address || '',
+      email: config.email || '',
+      phone: config.phone || '',
+      eventUrl: config.eventUrl || '',
+      hotline: config.hotline || '',
+      zalo: config.zalo || '',
+      nameBank: config.nameBank || '',
+      numberBank: config.numberBank || '',
+      nameholderBank: config.nameholderBank || '',
+      logo: config.logo || '',
+      FanpageFb: config.FanpageFb || '',
+      metaTitle: config.metaTitle || '',
+      metaDescription: config.metaDescription || '',
+      metaKeywords: config.metaKeywords || '',
+      metaRobots: config.metaRobots || '',
+      metaOGImg: config.metaOGImg || '',
+      ggSearchConsole: config.ggSearchConsole || '',
+      ZaloWeb: config.ZaloWeb || '',
+      Instagram: config.Instagram || '',
+      Youtube: config.Youtube || '',
+      Tiktok: config.Tiktok || '',
+      LinkWebConnect: config.LinkWebConnect || '',
+      footerThanks: config.footerThanks || '',
     },
     validationSchema: configSchema,
   });
   useEffect(() => {
-    dispatch(getConfigSeo());
+    dispatch(getConfigWebsite());
   }, [dispatch]);
   const formikRef = useRef(formik);
 
@@ -91,15 +111,12 @@ export default function SeoConfigPage() {
     if (statusUpdate === 'successful' && data) {
       handleToast('success', 'Cập nhật thành công');
       setInputSelect('');
-      dispatch(setStatus({ key: 'statusUpdateSeo', value: 'idle' }));
+      dispatch(setStatus({ key: 'statusUpdateWeb', value: 'idle' }));
     }
     if (statusUpdate === 'failed') {
       handleToast('error', error);
     }
   }, [statusUpdate, data, error, dispatch]);
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
-  };
   const handleSubmit = () => {
     if (formik.errors && Object.keys(formik.errors).length > 0) {
       Object.keys(formik.errors).forEach((key) => {
@@ -107,9 +124,10 @@ export default function SeoConfigPage() {
       });
       return;
     }
+
     const newValues = { ...formik.values }; // Create a shallow copy of formik.values
     delete newValues._id; // Delete the '_id' property
-    dispatch(updateConfigSeo({ values: newValues }));
+    dispatch(updateConfigWebsite({ values: newValues }));
   };
   const handleCancel = () => {
     formik.resetForm();
@@ -127,7 +145,7 @@ export default function SeoConfigPage() {
     const values = {
       [name]: formik.values[name],
     };
-    dispatch(updateConfigSeo({ values }));
+    dispatch(updateConfigWebsite({ values }));
   };
   // const handleUpload = () => {
   //   if (uploadedImageUrl) {
@@ -140,43 +158,30 @@ export default function SeoConfigPage() {
   const [inputSelect, setInputSelect] = useState('');
   return (
     <Container>
-      <Stack direction="row" alignItems="center" mb={5} spacing={1}>
-        <Typography variant="h4">Thông tin Seo</Typography>
-        <IconButton onClick={() => dispatch(getConfigSeo())}>
-          <Iconify icon="mdi:reload" />
-        </IconButton>
-      </Stack>
-      {status === 'successful' && formik.initialValues && (
-        <form onSubmit={formik.handleSubmit}>
-          <Card sx={{ p: 3 }}>
-            <Box
-              sx={{
-                display: 'flex',
-              }}
-            >
-              <Tabs
-                orientation="vertical"
-                variant="standard"
-                value={value}
-                onChange={handleChange}
-                aria-label="Thông tin trang web"
-                sx={{ borderRight: 1, borderColor: 'divider' }}
-              >
-                <Tab label="Cơ bản" {...a11yProps(0)} />
-                <Tab label="Nâng cao" {...a11yProps(1)} />
-              </Tabs>
-              <TabPanel value={value} index={0}>
-                <Typography variant="h6" mb={3}>
-                  Thông tin cơ bản
-                </Typography>
+      {status === 'loading' && <LoadingFull />}
+      {statusUpdate === 'loading' && <LoadingHeader />}
+      <Stack direction="column" justifyContent="flex-start" spacing={2}>
+        <TitlePage title="Cài đặt SEO" onClick={() => dispatch(getConfigWebsite())} />
+        {status === 'successful' && formik.initialValues && (
+          <form onSubmit={formik.handleSubmit}>
+            <Stack direction="column" spacing={2}>
+              <Card sx={{ p: 3 }}>
+                <TitleStoreCard
+                  handleSubmit={handleSubmit}
+                  setInputSelect={setInputSelect}
+                  label="Thông tin SEO"
+                  inputSelect={inputSelect}
+                  selectLabel="seo"
+                />
                 <Grid2 container spacing={2}>
-                  <Grid2 xs={12}>
+                  <Grid2 xs={12} md={4}>
                     <EditableField
                       name="metaTitle"
-                      label="Meta Title"
+                      label="Tiêu đề meta"
                       value={formik.values.metaTitle}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
+                      selectLabel="seo"
                       error={formik.touched.metaTitle && Boolean(formik.errors.metaTitle)}
                       helperText={formik.touched.metaTitle && formik.errors.metaTitle}
                       inputSelect={inputSelect}
@@ -185,13 +190,14 @@ export default function SeoConfigPage() {
                       handleCancel={handleCancel}
                     />
                   </Grid2>
-                  <Grid2 xs={12}>
+                  <Grid2 xs={12} md={4}>
                     <EditableField
                       name="metaDescription"
-                      label="Meta Description"
+                      label="Mô tả meta"
                       value={formik.values.metaDescription}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
+                      selectLabel="seo"
                       error={
                         formik.touched.metaDescription && Boolean(formik.errors.metaDescription)
                       }
@@ -202,13 +208,14 @@ export default function SeoConfigPage() {
                       handleCancel={handleCancel}
                     />
                   </Grid2>
-                  <Grid2 xs={12}>
+                  <Grid2 xs={12} md={4}>
                     <EditableField
                       name="metaKeywords"
-                      label="Meta Keywords"
+                      label="Từ khóa meta"
                       value={formik.values.metaKeywords}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
+                      selectLabel="seo"
                       error={formik.touched.metaKeywords && Boolean(formik.errors.metaKeywords)}
                       helperText={formik.touched.metaKeywords && formik.errors.metaKeywords}
                       inputSelect={inputSelect}
@@ -217,13 +224,14 @@ export default function SeoConfigPage() {
                       handleCancel={handleCancel}
                     />
                   </Grid2>
-                  <Grid2 xs={12}>
+                  <Grid2 xs={12} md={4}>
                     <EditableField
                       name="metaRobots"
                       label="Meta Robots"
                       value={formik.values.metaRobots}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
+                      selectLabel="seo"
                       error={formik.touched.metaRobots && Boolean(formik.errors.metaRobots)}
                       helperText={formik.touched.metaRobots && formik.errors.metaRobots}
                       inputSelect={inputSelect}
@@ -232,49 +240,212 @@ export default function SeoConfigPage() {
                       handleCancel={handleCancel}
                     />
                   </Grid2>
+
+                  <Grid2 xs={12} md={4}>
+                    <EditableField
+                      name="metaOGImg"
+                      label="Hình ảnh OG meta"
+                      value={formik.values.metaOGImg}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      selectLabel="seo"
+                      error={formik.touched.metaOGImg && Boolean(formik.errors.metaOGImg)}
+                      helperText={formik.touched.metaOGImg && formik.errors.metaOGImg}
+                      inputSelect={inputSelect}
+                      setInputSelect={setInputSelect}
+                      handleUpdate={handleUpdate}
+                      handleCancel={handleCancel}
+                    />
+                  </Grid2>
+                  <Grid2 xs={4}>
+                    <EditableField
+                      name="ggSearchConsole"
+                      label="Google Search Console"
+                      value={formik.values.ggSearchConsole}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      selectLabel="seo"
+                      error={
+                        formik.touched.ggSearchConsole && Boolean(formik.errors.ggSearchConsole)
+                      }
+                      helperText={formik.touched.ggSearchConsole && formik.errors.ggSearchConsole}
+                      inputSelect={inputSelect}
+                      setInputSelect={setInputSelect}
+                      handleUpdate={handleUpdate}
+                      handleCancel={handleCancel}
+                    />
+                  </Grid2>
                 </Grid2>
-              </TabPanel>
-              {/* Thông tin thanh toán */}
-              <TabPanel value={value} index={1}>
-                <Typography variant="h6" mb={3}>
-                  Thông tin nâng cao
-                </Typography>
-              </TabPanel>
-            </Box>
-            <Stack
-              sx={{
-                display: inputSelect === 'all' ? 'none' : 'flex',
-              }}
-              direction="row"
-              alignItems="center"
-              justifyContent="flex-end"
-              mt={2}
-              spacing={2}
-            >
-              <Button variant="contained" color="inherit" onClick={() => setInputSelect('all')}>
-                Chỉnh sửa
-              </Button>
+              </Card>
+              <Card sx={{ p: 3 }}>
+                <TitleStoreCard
+                  handleSubmit={handleSubmit}
+                  setInputSelect={setInputSelect}
+                  label="Social"
+                  inputSelect={inputSelect}
+                  selectLabel="social"
+                />
+                <Grid2 container spacing={2}>
+                  <Grid2 xs={12} md={4}>
+                    <EditableField
+                      name="FanpageFb"
+                      label="Fanpage Facebook"
+                      value={formik.values.FanpageFb}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      selectLabel="social"
+                      error={formik.touched.FanpageFb && Boolean(formik.errors.FanpageFb)}
+                      helperText={formik.touched.FanpageFb && formik.errors.FanpageFb}
+                      inputSelect={inputSelect}
+                      setInputSelect={setInputSelect}
+                      handleUpdate={handleUpdate}
+                      handleCancel={handleCancel}
+                    />
+                  </Grid2>
+                  <Grid2 xs={12} md={4}>
+                    <EditableField
+                      name="Instagram"
+                      label="Instagram"
+                      value={formik.values.Instagram}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      selectLabel="social"
+                      error={formik.touched.Instagram && Boolean(formik.errors.Instagram)}
+                      helperText={formik.touched.Instagram && formik.errors.Instagram}
+                      inputSelect={inputSelect}
+                      setInputSelect={setInputSelect}
+                      handleUpdate={handleUpdate}
+                      handleCancel={handleCancel}
+                    />
+                  </Grid2>
+                  <Grid2 xs={12} md={4}>
+                    <EditableField
+                      name="Youtube"
+                      label="Youtube"
+                      value={formik.values.Youtube}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      selectLabel="social"
+                      error={formik.touched.Youtube && Boolean(formik.errors.Youtube)}
+                      helperText={formik.touched.Youtube && formik.errors.Youtube}
+                      inputSelect={inputSelect}
+                      setInputSelect={setInputSelect}
+                      handleUpdate={handleUpdate}
+                      handleCancel={handleCancel}
+                    />
+                  </Grid2>
+                  <Grid2 xs={12} md={4}>
+                    <EditableField
+                      name="ZaloWeb"
+                      label="ZaloWeb"
+                      value={formik.values.ZaloWeb}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      selectLabel="social"
+                      error={formik.touched.ZaloWeb && Boolean(formik.errors.ZaloWeb)}
+                      helperText={formik.touched.ZaloWeb && formik.errors.ZaloWeb}
+                      inputSelect={inputSelect}
+                      setInputSelect={setInputSelect}
+                      handleUpdate={handleUpdate}
+                      handleCancel={handleCancel}
+                    />
+                  </Grid2>
+                  <Grid2 xs={12} md={4}>
+                    <EditableField
+                      name="Tiktok"
+                      label="Tiktok"
+                      value={formik.values.Tiktok}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      selectLabel="social"
+                      error={formik.touched.Tiktok && Boolean(formik.errors.Tiktok)}
+                      helperText={formik.touched.Tiktok && formik.errors.Tiktok}
+                      inputSelect={inputSelect}
+                      setInputSelect={setInputSelect}
+                      handleUpdate={handleUpdate}
+                      handleCancel={handleCancel}
+                    />
+                  </Grid2>
+                  <Grid2 xs={12} md={4}>
+                    <EditableField
+                      name="zalo"
+                      label="Zalo"
+                      value={formik.values.zalo}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      selectLabel="social"
+                      error={formik.touched.zalo && Boolean(formik.errors.zalo)}
+                      helperText={formik.touched.zalo && formik.errors.zalo}
+                      inputSelect={inputSelect}
+                      setInputSelect={setInputSelect}
+                      handleUpdate={handleUpdate}
+                      handleCancel={handleCancel}
+                    />
+                  </Grid2>
+                  <Grid2 xs={12} md={4}>
+                    <EditableField
+                      name="LinkWebConnect"
+                      label="Liên kết website"
+                      value={formik.values.LinkWebConnect}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      selectLabel="social"
+                      error={formik.touched.LinkWebConnect && Boolean(formik.errors.LinkWebConnect)}
+                      helperText={formik.touched.LinkWebConnect && formik.errors.LinkWebConnect}
+                      inputSelect={inputSelect}
+                      setInputSelect={setInputSelect}
+                      handleUpdate={handleUpdate}
+                      handleCancel={handleCancel}
+                    />
+                  </Grid2>
+                </Grid2>
+              </Card>
             </Stack>
-            <Stack
-              sx={{
-                display: inputSelect === 'all' ? 'flex' : 'none',
-              }}
-              direction="row"
-              alignItems="center"
-              justifyContent="flex-end"
-              mt={2}
-              spacing={2}
-            >
-              <Button variant="outlined" color="inherit" onClick={() => setInputSelect('')}>
-                Hủy
-              </Button>
-              <Button variant="contained" color="inherit" onClick={handleSubmit}>
-                Lưu
-              </Button>
-            </Stack>
-          </Card>
-        </form>
-      )}
+          </form>
+        )}
+      </Stack>
     </Container>
   );
 }
+const TitleStoreCard = ({ handleSubmit, setInputSelect, inputSelect, selectLabel, label }) => (
+  <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+    <Typography variant="h6">{label}</Typography>
+
+    {/* Button to enable edit mode */}
+    <Button
+      variant="contained"
+      color="inherit"
+      sx={{
+        display: inputSelect === selectLabel ? 'none' : 'flex',
+      }}
+      onClick={() => setInputSelect(selectLabel)}
+    >
+      Chỉnh sửa
+    </Button>
+
+    {/* Stack for save/cancel buttons in edit mode */}
+    <Stack
+      sx={{
+        display: inputSelect === selectLabel ? 'flex' : 'none',
+      }}
+      direction="row"
+      alignItems="center"
+      justifyContent="flex-end"
+      spacing={2}
+    >
+      <Button color="error" onClick={() => setInputSelect('')}>
+        Hủy
+      </Button>
+      <Button variant="contained" color="inherit" onClick={handleSubmit}>
+        Lưu
+      </Button>
+    </Stack>
+  </Stack>
+);
+TitleStoreCard.propTypes = {
+  handleSubmit: PropTypes.func.isRequired,
+  setInputSelect: PropTypes.func.isRequired,
+  inputSelect: PropTypes.string.isRequired,
+  selectLabel: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
+};
