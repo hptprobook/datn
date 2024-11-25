@@ -17,13 +17,13 @@ export default function TableNoData({ query }) {
           }}
         >
           <Typography variant="h6" paragraph>
-            Not found
+            Không tìm thấy nhóm khách hàng
           </Typography>
 
           <Typography variant="body2">
-            No results found for &nbsp;
+            Không tìm kiếm từ &nbsp;
             <strong>&quot;{query}&quot;</strong>.
-            <br /> Try checking for typos or using complete words.
+            <br /> Hãy thử kiểm tra lỗi đánh máy hoặc sử dụng từ đầy đủ.
           </Typography>
         </Paper>
       </TableCell>

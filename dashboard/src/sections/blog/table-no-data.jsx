@@ -17,13 +17,14 @@ export default function TableNoData({ query }) {
           }}
         >
           <Typography variant="h6" paragraph>
-            Not found
+            Không tìm thấy bài viết
           </Typography>
 
           <Typography variant="body2">
-            No results found for &nbsp;
+          Không tìm thấy 
+             &nbsp;
             <strong>&quot;{query}&quot;</strong>.
-            <br /> Try checking for typos or using complete words.
+            <br /> Hãy thử kiểm tra lỗi đánh máy hoặc sử dụng từ đầy đủ.
           </Typography>
         </Paper>
       </TableCell>
