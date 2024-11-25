@@ -203,7 +203,7 @@ export default function BlogView() {
             aria-label="load"
             variant="contained"
             color="inherit"
-            onClick={() => getBlogs()}
+            onClick={() => getBlogs({ p: page, limit: rowsPerPage })}
           >
             <IconRefresh />
           </IconButton>
