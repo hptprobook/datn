@@ -99,6 +99,29 @@ const getOrderByCode = async (req, res) => {
   }
 };
 
+const searchCurrentOrder = async (req, res) => {
+  try {
+    const { keyword, page, limit } = req.query;
+    const { user_id } = req.user;
+
+    // Gọi model để tìm kiếm
+    const currentOrder = await orderModel.searchCurrentOrder(
+      user_id,
+      keyword,
+      page,
+      limit
+    );
+
+    return res.status(StatusCodes.OK).json(currentOrder);
+  } catch (error) {
+    console.log(error);
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      message: ERROR_MESSAGES.ERR_AGAIN,
+      error,
+    });
+  }
+};
+
 const addOrder = async (req, res) => {
   try {
     const { user_id } = req.user;
@@ -690,6 +713,7 @@ const updateStockProducts = async (req, res) => {
 export const orderController = {
   checkStockProducts,
   addOrder,
+  searchCurrentOrder,
   addOrderNot,
   getCurrentOrder,
   getOrderByCode,

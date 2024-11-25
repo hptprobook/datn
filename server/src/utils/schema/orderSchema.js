@@ -45,6 +45,11 @@ export const SAVE_ORDER = Joi.object({
           .min(1)
           .valid(...Object.values(OrderStatus)), // Trạng thái đơn hàng
         note: Joi.string().trim().min(1).default('Không có ghi chú'), // Ghi chú trạng thái
+        reason: Joi.string().trim().min(1).allow('', null).default(null),
+        returnStatus: Joi.string()
+          .trim()
+          .valid('pending', 'approved', 'rejected', null) // Trạng thái trả hàng hợp lệ
+          .default(null),
         createdAt: Joi.date().timestamp('javascript').default(Date.now), // Thời gian tạo trạng thái
       })
     )
@@ -119,6 +124,11 @@ export const SAVE_ORDER_NOT_LOGIN = Joi.object({
           .min(1)
           .valid(...Object.values(OrderStatus)),
         note: Joi.string().trim().min(1).default('Đơn hàng chờ xác nhận'),
+        reason: Joi.string().trim().min(1).allow('', null).default(null),
+        returnStatus: Joi.string()
+          .trim()
+          .valid('pending', 'approved', 'rejected', null) // Trạng thái trả hàng hợp lệ
+          .default(null),
         createdAt: Joi.date().timestamp('javascript').default(Date.now),
       })
     )

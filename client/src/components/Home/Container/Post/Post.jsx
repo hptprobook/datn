@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link, NavLink } from 'react-router-dom';
 import { getAllBlogAPI } from '~/APIs';
 import MainLoading from '~/components/common/Loading/MainLoading';
+import { resolveUrl } from '~/utils/formatters';
 
 export default function Post() {
   const { data: blogData, isLoading } = useQuery({
@@ -9,9 +10,7 @@ export default function Post() {
     queryFn: getAllBlogAPI,
   });
 
-  const serverUrl = import.meta.env.VITE_SERVER_URL;
-
-  if (isLoading) return <MainLoading />;
+  if (!blogData) return null;
 
   const firstPost = blogData?.reduce(
     (max, post) => (post?.view > max?.view ? post : max),
@@ -21,13 +20,6 @@ export default function Post() {
   const otherPosts = blogData
     ?.filter((post) => post !== firstPost)
     ?.slice(0, 4);
-
-  // Xây dựng URL cho thumbnail của firstPost
-  const firstPostThumbnailUrl =
-    firstPost?.thumbnail?.startsWith('http://') ||
-    firstPost?.thumbnail?.startsWith('https://')
-      ? firstPost?.thumbnail
-      : `${serverUrl}/${firstPost?.thumbnail}`;
 
   if (isLoading) return <MainLoading />;
 
@@ -39,7 +31,7 @@ export default function Post() {
           <div className="w-full h-96">
             <NavLink to={`/tin-tuc/${firstPost?.slug}`}>
               <img
-                src={firstPostThumbnailUrl}
+                src={resolveUrl(firstPost?.thumbnail)}
                 alt={firstPost?.title}
                 className="w-full h-full object-cover"
               />
@@ -55,13 +47,7 @@ export default function Post() {
           </p>
         </div>
         <div className="h-full lg:overflow-hidden">
-          {otherPosts.map((post) => {
-            const postImgUrl =
-              post?.thumbnail?.startsWith('http://') ||
-              post?.thumbnail?.startsWith('https://')
-                ? post?.thumbnail
-                : `${serverUrl}/${post?.thumbnail}`; // URL đầy đủ cho img
-
+          {otherPosts?.map((post) => {
             return (
               <div
                 key={post?._id}
@@ -70,7 +56,7 @@ export default function Post() {
                 <div className="w-44 flex-shrink-0">
                   <NavLink to={`/tin-tuc/${post?.slug}`}>
                     <img
-                      src={postImgUrl} // URL đầy đủ cho img của post
+                      src={resolveUrl(post?.thumbnail)}
                       alt={post?.title}
                       className="w-full h-full object-cover"
                     />

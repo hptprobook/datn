@@ -5,6 +5,7 @@ import HeaderSlider from '~/components/Home/Slider/HeaderSlider';
 import FilterCategories from './FilterCategories';
 import { useWebConfig } from '~/context/WebsiteConfig';
 import Post from '~/components/Home/Container/Post/Post';
+import { env } from '~/utils/constants';
 
 const HomePage = () => {
   const eventCategories = ['ao-polo', 'ao-somi', 'quan-short'];
@@ -15,14 +16,14 @@ const HomePage = () => {
       <main className="z-0 max-w-container mx-auto px-2 lg:px-0 text-black">
         <HeaderSlider />
         <CatSuggest />
-        {eventCategories.map((item, i) => (
+        {eventCategories?.map((item, i) => (
           <FilterCategories key={i} slug={item} />
         ))}
         <Post />
         <div className="banner mt-24 w-full h-slider">
           <NavLink to={config?.eventUrl}>
             <img
-              src={`${import.meta.env.VITE_SERVER_URL}/${config?.eventBanner}`}
+              src={`${env.SERVER_URL}/${config?.eventBanner}`}
               className="w-full h-full object-cover"
               alt=""
             />
@@ -32,7 +33,7 @@ const HomePage = () => {
       <div className="hidden md:flex h-productItem bg-red-800 mt-12 w-full flex-col items-center justify-center">
         <div>
           <img
-            src={`${import.meta.env.VITE_SERVER_URL}/${config?.logo}`}
+            src={`${env.SERVER_URL}/${config?.logo}`}
             className="h-48 object-cover"
             alt=""
           />
