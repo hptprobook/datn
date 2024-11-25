@@ -92,8 +92,8 @@ export default function AppView() {
 
         <Grid xs={12} md={6}>
           <AppWebsiteVisits
-            title="Truy cập trang web"
-            subheader="(+43%) so với năm ngoái"
+            title="Website Visits"
+            subheader="(+43%) than last year"
             chart={{
               labels: get7Day?.daysArray || [],
               series: [
