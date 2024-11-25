@@ -5,6 +5,8 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   getCurrentOrders,
   getCurrentOrderWithStatus,
+  getVnpayUrlAPI,
+  searchOrderAPI,
   updateOrderAPI,
 } from '~/APIs';
 import MainLoading from '~/components/common/Loading/MainLoading';
@@ -21,6 +23,7 @@ import { useSwal, useSwalWithConfirm } from '~/customHooks/useSwal';
 import OrderLoading from '~/components/common/Loading/OrderLoading';
 import ReviewModal from './ReviewModal';
 import Swal from 'sweetalert2';
+import useDebounce from '~/customHooks/useDebounce';
 
 const MyOrder = () => {
   const { tab } = useParams();
@@ -31,6 +34,8 @@ const MyOrder = () => {
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewOrderId, setReviewOrderId] = useState(null);
   const [reviewProducts, setReviewProducts] = useState([]);
+  const [keyword, setKeyword] = useState('');
+  const debouncedKeyword = useDebounce(keyword, 1000);
 
   useEffect(() => {
     setSelectedTab(tab || 'all');
@@ -43,8 +48,10 @@ const MyOrder = () => {
   };
 
   const fetchOrders = ({ queryKey }) => {
-    const [, limit, status] = queryKey;
-    return status === 'all'
+    const [, limit, status, searchKeyword] = queryKey;
+    return searchKeyword
+      ? searchOrderAPI({ limit, keyword: searchKeyword })
+      : status === 'all'
       ? getCurrentOrders({ limit })
       : getCurrentOrderWithStatus({ limit, status });
   };
@@ -54,14 +61,35 @@ const MyOrder = () => {
     refetch: refetchOrderData,
     isLoading,
   } = useQuery({
-    queryKey: ['orders', limitOrder, selectedTab],
+    queryKey: ['orders', limitOrder, selectedTab, debouncedKeyword],
     queryFn: fetchOrders,
     staleTime: 0,
     cacheTime: 0,
   });
 
+  const handleSearchInput = (e) => {
+    setKeyword(e.target.value);
+  };
+
+  // Mutate lấy VNPAY URL
+  const { mutate: getVnpayUrl } = useMutation({
+    mutationFn: getVnpayUrlAPI,
+    onSuccess: (data) => {
+      window.location.href = data.url;
+    },
+    onError: () => {
+      useSwal.fire({
+        title: 'Lỗi!',
+        text: 'Có lỗi xảy ra với phương thức thanh toán bằng VNPAY, vui lòng thử lại sau!',
+        icon: 'error',
+        confirmButtonText: 'Xác nhận',
+      });
+    },
+  });
+
   const orderData = data?.result || [];
 
+  // Mutate huỷ đơn hàng
   const { mutate: cancelOrder, isLoading: cancelOrderLoading } = useMutation({
     mutationFn: updateOrderAPI,
     onSuccess: () => {
@@ -83,6 +111,7 @@ const MyOrder = () => {
     },
   });
 
+  // Lọc order theo tab
   const filteredOrders =
     selectedTab === 'all'
       ? orderData
@@ -99,6 +128,7 @@ const MyOrder = () => {
     tabsRef.current.scrollBy({ left: 150, behavior: 'smooth' });
   };
 
+  // Hàm xử lý mua lại đơn
   const handleReOrder = (order) => {
     useSwalWithConfirm
       .fire({
@@ -119,6 +149,7 @@ const MyOrder = () => {
       });
   };
 
+  // Hàm xử lý xem thêm đơn
   const handleLoadMore = () => {
     setLimitOrder((prev) => prev + 10);
   };
@@ -129,6 +160,7 @@ const MyOrder = () => {
     setShowReviewModal(true);
   };
 
+  // Hàm xử lý huỷ đơn
   const handleCancelOrder = (orderId) => {
     Swal.fire({
       title: 'Lý do hủy đơn hàng',
@@ -154,6 +186,7 @@ const MyOrder = () => {
 
         return selectedReason === 'Lý do khác' ? customReason : selectedReason;
       },
+      scrollbarPadding: false,
       showCancelButton: true,
       confirmButtonText: 'Xác nhận',
       cancelButtonText: 'Hủy',
@@ -185,6 +218,7 @@ const MyOrder = () => {
     });
   };
 
+  // Hàm xử lý trả đơn
   const handleReturnOrder = (orderId) => {
     Swal.fire({
       title: 'Lý do trả hàng',
@@ -242,6 +276,26 @@ const MyOrder = () => {
     });
   };
 
+  // Hàm xử lý thanh toán lại
+  const handleRePaymentVNPAY = (orderCode, totalPayment) => {
+    useSwalWithConfirm
+      .fire({
+        icon: 'warning',
+        title: 'Cảnh báo!',
+        text: 'Xác nhận thanh toán lại cho đơn hàng này?',
+        confirmButtonText: 'Xác nhận',
+        cancelButtonText: 'Không',
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          getVnpayUrl({
+            orderId: orderCode,
+            amount: totalPayment,
+          });
+        }
+      });
+  };
+
   if (cancelOrderLoading) return <MainLoading />;
 
   return (
@@ -278,6 +332,16 @@ const MyOrder = () => {
         >
           <Icon className="text-2xl" icon="mingcute:right-fill" />
         </button>
+      </div>
+
+      <div className="mt-4 w-full">
+        <input
+          type="text"
+          value={keyword}
+          onChange={handleSearchInput}
+          placeholder="Bạn có thể tìm kiếm theo Mã đơn hàng hoặc tên sản phẩm"
+          className="w-full rounded-md outline-none px-6 py-4 bg-gray-300 text-gray-500 placeholder:text-gray-500"
+        />
       </div>
 
       <div className="mt-4">
@@ -411,6 +475,19 @@ const MyOrder = () => {
                     className="bg-red-500 text-white px-4 py-2 rounded-md"
                   >
                     Yêu cầu hoàn trả
+                  </button>
+                )}
+                {order?.status.at(-1)?.status === 'paymentPending' && (
+                  <button
+                    onClick={() =>
+                      handleRePaymentVNPAY(
+                        order?.orderCode,
+                        order?.totalPayment
+                      )
+                    }
+                    className="bg-red-500 text-white px-4 py-2 rounded-md"
+                  >
+                    Thanh toán lại
                   </button>
                 )}
               </div>

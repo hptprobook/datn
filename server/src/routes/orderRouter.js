@@ -14,6 +14,7 @@ Router.get('/:id', orderController.getOrderById);
 Router.get('/me/current', verifyToken, orderController.getCurrentOrder);
 Router.get('/me/code/:orderCode', verifyToken, orderController.getOrderByCode);
 Router.get('/me/status', verifyToken, orderController.getCurrentOrderByStatus);
+Router.get('/me/search', verifyToken, orderController.searchCurrentOrder);
 
 // Carts
 Router.post('/', verifyToken, orderController.addOrder);

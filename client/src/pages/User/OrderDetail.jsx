@@ -1,7 +1,7 @@
 import { Icon } from '@iconify/react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getOrderByCodeAPI, updateOrderAPI } from '~/APIs';
+import { getOrderByCodeAPI, getVnpayUrlAPI, updateOrderAPI } from '~/APIs';
 import MainLoading from '~/components/common/Loading/MainLoading';
 import { useSwal, useSwalWithConfirm } from '~/customHooks/useSwal';
 import OrderDetailStatus from './Profile/components/OrderDetailStatus';
@@ -68,33 +68,20 @@ const OrderDetail = () => {
       });
   }
 
-  // const handleCancelOrder = () => {
-  //   useSwalWithConfirm
-  //     .fire({
-  //       icon: 'warning',
-  //       title: 'Xác nhận hủy đơn hàng?',
-  //       text: 'Bạn có chắc muốn hủy đơn hàng này không? Hành động này không thể hoàn tác.',
-  //       confirmButtonText: 'Xác nhận hủy',
-  //       cancelButtonText: 'Không',
-  //     })
-  //     .then((result) => {
-  //       if (result.isConfirmed) {
-  //         cancelOrder({
-  //           id: data?._id,
-  //           data: {
-  //             // status: {
-  //             //   status: 'cancelled',
-  //             //   note: 'Khách hàng huỷ đơn!',
-  //             // },
-  //             status: {
-  //               status: 'delivered',
-  //               note: 'Đã nhận hàng!',
-  //             },
-  //           },
-  //         });
-  //       }
-  //     });
-  // };
+  const { mutate: getVnpayUrl } = useMutation({
+    mutationFn: getVnpayUrlAPI,
+    onSuccess: (data) => {
+      window.location.href = data.url;
+    },
+    onError: () => {
+      useSwal.fire({
+        title: 'Lỗi!',
+        text: 'Có lỗi xảy ra với phương thức thanh toán bằng VNPAY, vui lòng thử lại sau!',
+        icon: 'error',
+        confirmButtonText: 'Xác nhận',
+      });
+    },
+  });
 
   const handleReOrder = () => {
     useSwalWithConfirm
@@ -144,6 +131,7 @@ const OrderDetail = () => {
 
         return selectedReason === 'Lý do khác' ? customReason : selectedReason;
       },
+      scrollbarPadding: false,
       showCancelButton: true,
       confirmButtonText: 'Xác nhận',
       cancelButtonText: 'Hủy',
@@ -186,29 +174,24 @@ const OrderDetail = () => {
   const handleCancelOrder = () => handleOpenReasonModal('cancel');
   const handleReturnOrder = () => handleOpenReasonModal('return');
 
-  // const handleReturnOrder = () => {
-  //   useSwalWithConfirm
-  //     .fire({
-  //       icon: 'question',
-  //       title: 'Yêu cầu trả hàng',
-  //       text: 'Bạn muốn trả lại đơn hàng này?',
-  //       confirmButtonText: 'Xác nhận',
-  //       cancelButtonText: 'Không',
-  //     })
-  //     .then((result) => {
-  //       if (result.isConfirmed) {
-  //         cancelOrder({
-  //           id: data?._id,
-  //           data: {
-  //             status: {
-  //               status: 'delivered',
-  //               note: 'Đã nhận hàng!',
-  //             },
-  //           },
-  //         });
-  //       }
-  //     });
-  // };
+  const handleRePaymentVNPAY = () => {
+    useSwalWithConfirm
+      .fire({
+        icon: 'warning',
+        title: 'Cảnh báo!',
+        text: 'Xác nhận thanh toán lại cho đơn hàng này?',
+        confirmButtonText: 'Xác nhận',
+        cancelButtonText: 'Không',
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          getVnpayUrl({
+            orderId: data?.orderCode,
+            amount: data?.totalPayment,
+          });
+        }
+      });
+  };
 
   if (isLoading || cancelOrderLoading) return <MainLoading />;
 
@@ -278,6 +261,15 @@ const OrderDetail = () => {
               className="btn bg-red-500 rounded-md hover:bg-red-600 hover:shadow-md text-white w-full md:w-48"
             >
               Yêu cầu trả hàng
+            </button>
+          )}
+
+          {currentStatus === 'paymentPending' && (
+            <button
+              onClick={handleRePaymentVNPAY}
+              className="btn bg-red-500 rounded-md hover:bg-red-600 hover:shadow-md text-white w-full md:w-48"
+            >
+              Thanh toán lại
             </button>
           )}
         </div>

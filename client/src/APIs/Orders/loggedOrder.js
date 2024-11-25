@@ -11,6 +11,22 @@ export const createOrderAPI = async (data) => {
   }
 };
 
+export const searchOrderAPI = async (data) => {
+  try {
+    const response = await request.get('/orders/me/search', { params: data });
+    return response.data;
+  } catch (error) {
+    console.error('Lỗi khi tìm kiếm đơn hàng:', error);
+
+    // Trả về lỗi một cách an toàn
+    throw (
+      error.response?.data || {
+        message: 'Đã xảy ra lỗi khi tìm kiếm đơn hàng. Vui lòng thử lại sau.',
+      }
+    );
+  }
+};
+
 export const updateOrderAPI = async (data) => {
   try {
     const response = await request.put(`/orders/me/${data.id}`, data.data);

@@ -1,8 +1,36 @@
 import { formatDistanceToNow } from 'date-fns';
+import { env } from './constants';
 
 export const capitalizeFirstLetter = (val) => {
   if (!val) return '';
   return `${val.charAt(0).toUpperCase()}${val.slice(1)}`;
+};
+
+const checkImageExists = async (imageUrl) => {
+  try {
+    const response = await fetch(imageUrl, { method: 'HEAD' });
+    return response.ok;
+  } catch (error) {
+    return false;
+  }
+};
+
+export const resolveImageWithFallback = async (imageUrl) => {
+  const exists = await checkImageExists(imageUrl);
+  return exists
+    ? imageUrl
+    : 'https://www.vietnamworks.com/hrinsider/wp-content/uploads/2023/12/hinh-nen-thien-nhien-3d-001.jpg';
+};
+
+export const resolveUrl = (url) => {
+  if (
+    url?.startsWith('https://') ||
+    url?.startsWith('http://') ||
+    url?.startsWith('//')
+  ) {
+    return url;
+  }
+  return `${env?.SERVER_URL}/${url}`;
 };
 
 export const convertHTMLToText = (htmlString) => {

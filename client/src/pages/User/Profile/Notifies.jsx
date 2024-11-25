@@ -11,9 +11,9 @@ import { useSwal, useSwalWithConfirm } from '~/customHooks/useSwal';
 const Notifies = () => {
   const [selectedNotify, setSelectedNotify] = useState(null);
   const [isModalOpen, setModalOpen] = useState(false);
-  const [visibleCount, setVisibleCount] = useState(10); // Số lượng thông báo hiển thị
+  const [visibleCount, setVisibleCount] = useState(10);
+  const [filterValue, setFilterValue] = useState(''); // Quản lý giá trị filter
   const { user, refetchUser } = useUser();
-
 
   const { mutate: markAsRead, isLoading } = useMutation({
     mutationFn: (notify) => {
@@ -54,11 +54,9 @@ const Notifies = () => {
     setModalOpen(false);
   };
 
-  // Hàm xử lý khi bấm "Xem thêm"
   const handleLoadMore = () => {
     setVisibleCount((prevCount) => prevCount + 10);
   };
-
 
   const handleReadAll = () => {
     useSwalWithConfirm
@@ -76,8 +74,49 @@ const Notifies = () => {
       });
   };
 
-  if (!user || isLoading) return <MainLoading />;
+  const handleFilterChange = (e) => {
+    setFilterValue(e.target.value);
+  };
 
+  const filterNotifies = () => {
+    if (!filterValue) return user?.notifies;
+
+    const now = new Date();
+    const oneDayInMs = 24 * 60 * 60 * 1000;
+
+    const filterOptions = {
+      '1 tuần trước': (date) => {
+        const differenceInDays = Math.floor(
+          (now - new Date(date)) / oneDayInMs
+        );
+        return differenceInDays === 7;
+      },
+      '1 tháng trước': (date) => {
+        const differenceInDays = Math.floor(
+          (now - new Date(date)) / oneDayInMs
+        );
+        return differenceInDays >= 30 && differenceInDays < 60;
+      },
+      'Cũ nhất': () => true,
+    };
+
+    let filtered = user?.notifies?.filter((notify) =>
+      filterOptions[filterValue](notify.createdAt)
+    );
+
+    // Nếu chọn "Cũ nhất", sắp xếp theo thời gian tăng dần
+    if (filterValue === 'Cũ nhất') {
+      filtered = filtered?.sort(
+        (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+      );
+    }
+
+    return filtered;
+  };
+
+  const filteredNotifies = filterNotifies();
+
+  if (!user || isLoading) return <MainLoading />;
 
   return (
     <div className="text-black bg-white rounded-sm p-10">
@@ -86,15 +125,26 @@ const Notifies = () => {
           <h3 className="font-bold text-xl sm:text-2xl text-gray-900">
             Thông báo
           </h3>
+
+          <select
+            className="select select-success rounded-md w-52"
+            value={filterValue}
+            onChange={handleFilterChange}
+          >
+            <option value="">Tất cả</option>
+            <option value="1 tuần trước">1 tuần trước</option>
+            <option value="1 tháng trước">1 tháng trước</option>
+            <option value="Cũ nhất">Cũ nhất</option>
+          </select>
         </div>
 
-        {user?.notifies?.length === 0 && (
+        {filteredNotifies?.length === 0 && (
           <div className="text-center text-gray-600 mt-8">
             <p className="text-lg">Không có thông báo nào</p>
           </div>
         )}
 
-        {user?.notifies?.slice(0, visibleCount).map((notify) => (
+        {filteredNotifies?.slice(0, visibleCount).map((notify) => (
           <div
             key={notify?._id}
             className={`mt-2 px-6 py-4 cursor-pointer rounded-lg shadow w-full border hover:scale-101 transition-transform duration-300 border-gray-200
@@ -120,7 +170,7 @@ const Notifies = () => {
         ))}
 
         <div className="text-center">
-          {visibleCount < user?.notifies?.length && (
+          {visibleCount < filteredNotifies?.length && (
             <button
               onClick={handleLoadMore}
               className="btn rounded-md btn-primary mt-4"
