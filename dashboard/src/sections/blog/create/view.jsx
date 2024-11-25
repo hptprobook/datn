@@ -237,7 +237,7 @@ export default function CreateBlogPage() {
                     error={formik.touched.content && Boolean(formik.errors.content)}
                     initialValue="Đây là Nội dung của bài viết"
                     onChange={(content) => formik.setFieldValue('content', content)}
-                    height={200}
+                    height={800}
                   />
                   <FormHelperText sx={{ color: 'red' }}>
                     {formik.touched.content && formik.errors.content ? formik.errors.content : ''}
