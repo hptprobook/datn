@@ -13,6 +13,7 @@ import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import { Box } from '@mui/material';
 import { renderUrl } from 'src/utils/check';
+import { IconDelete } from 'src/components/iconify/icon';
 
 const backendUrl = import.meta.env.VITE_BACKEND_APP_URL;
 
@@ -134,12 +135,12 @@ export default function BlogTableRow({
         }}
       >
         <MenuItem onClick={handleNavigate}>
-          <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
+          <Iconify icon="eva:edit-fill" sx={{ mr: 1 }} />
           Chỉnh sửa
         </MenuItem>
 
         <MenuItem onClick={() => handleDelete(id)} sx={{ color: 'error.main' }}>
-          <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
+          <IconDelete sx={{ mr: 1 }} />
           Xóa
         </MenuItem>
       </Popover>
