@@ -17,6 +17,26 @@ const getAllBlogs = async (req, res) => {
   }
 };
 
+const getAllBlogsForClient = async (req, res) => {
+  try {
+    const { page, limit, sort, tags, search } = req.query;
+
+    const blogs = await blogModel.getAllBlogsForClient({
+      page,
+      limit,
+      sort,
+      tags,
+      search,
+    });
+
+    return res.status(StatusCodes.OK).json(blogs);
+  } catch (error) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json('Có lỗi xảy ra xin thử lại sau');
+  }
+};
+
 const getTopViewBlogs = async (req, res) => {
   try {
     const blogs = await blogModel.getTopViewBlogs();
@@ -91,6 +111,17 @@ const findBlogByTitle = async (req, res) => {
     return res
       .status(StatusCodes.BAD_REQUEST)
       .json('Có lỗi xảy ra xin thử lại sau');
+  }
+};
+
+const getTagsFromBlogs = async (req, res) => {
+  try {
+    const tags = await blogModel.getTagsFromBlogs();
+    return res.status(200).json(tags);
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ error: 'Có lỗi xảy ra, vui lòng thử lại sau.' });
   }
 };
 
@@ -237,6 +268,8 @@ const deleteBlog = async (req, res) => {
 export const blogController = {
   deleteBlog,
   createBlog,
+  getAllBlogsForClient,
+  getTagsFromBlogs,
   getAllBlogs,
   getTopViewBlogs,
   findBlogByID,

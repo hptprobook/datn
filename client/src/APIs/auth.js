@@ -13,6 +13,18 @@ export const loginAuth = async (data) => {
   }
 };
 
+export const loginGoogleAPI = async (data) => {
+  try {
+    const response = await request.post('/auth/loginSocial', data, {
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Xảy ra lỗi khi đăng nhập:', error);
+    throw error;
+  }
+};
+
 export const register = async (data) => {
   try {
     const response = await request.post('/auth/register', data);

@@ -50,6 +50,13 @@ export const tabs = [
   },
   {
     step: 0,
+    name: 'Đã hoàn thành',
+    icon: 'mdi:check-circle',
+    key: 'completed',
+    color: 'text-indigo-500',
+  },
+  {
+    step: 0,
     name: 'Đã hủy',
     key: 'cancelled',
     icon: 'mdi:cancel',
@@ -57,10 +64,10 @@ export const tabs = [
   },
   {
     step: 0,
-    name: 'Đã hoàn thành',
+    name: 'Chưa thanh toán',
     icon: 'mdi:check-circle',
-    key: 'completed',
-    color: 'text-indigo-500',
+    key: 'paymentPending',
+    color: 'text-blue-500',
   },
 ];
 

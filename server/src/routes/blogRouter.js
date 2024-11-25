@@ -26,6 +26,10 @@ const upload = multer({
 //admin
 Router.get('/', blogController.getAllBlogs);
 
+Router.get('/getAll', blogController.getAllBlogsForClient);
+
+Router.get('/getTags', blogController.getTagsFromBlogs);
+
 Router.get('/topViews', blogController.getTopViewBlogs);
 
 Router.get('/:blogID', blogController.findBlogByID);

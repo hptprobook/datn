@@ -3,7 +3,7 @@ import { useFormik } from 'formik';
 import { Helmet } from 'react-helmet-async';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useCart } from 'react-use-cart';
-import { loginAuth, updateCurrentUser } from '~/APIs';
+import { loginAuth, loginGoogleAPI, updateCurrentUser } from '~/APIs';
 import AuthBanner from '~/components/Auth/AuthBanner';
 import AuthButton from '~/components/common/Button/AuthButton';
 import BackToHome from '~/components/common/Route/BackToHome';
@@ -13,6 +13,7 @@ import useCheckAuth from '~/customHooks/useCheckAuth';
 import { handleToast } from '~/customHooks/useToast';
 import { loginSchema } from '~/utils/schema';
 import ObjectID from 'bson-objectid';
+import { getAuth, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 // import { io } from 'socket.io-client';
 // import { useSocketContext } from '~/context/SocketContext';
 
@@ -31,10 +32,55 @@ const LoginPageUI = () => {
   const navigate = useNavigate();
   const { login } = useCheckAuth();
   const { items, emptyCart } = useCart();
+  const auth = getAuth();
+  const googleProvider = new GoogleAuthProvider();
   // const { socket, onlineUser, setOnlineUser, setSocket } = useSocketContext();
   const initialValues = {
     email: '',
     password: '',
+  };
+
+  const loginGoogle = useMutation({
+    mutationFn: loginGoogleAPI,
+    onSuccess: (data) => {
+      handleToast('success', 'Đăng nhập thành công!');
+      login(data.token);
+
+      handleCartAfterLogin(data);
+
+      setTimeout(() => {
+        const referrer = document.referrer;
+        if (
+          referrer &&
+          !referrer.includes('/tai-khoan/dang-nhap') &&
+          !referrer.includes('/tai-khoan/dang-ky') &&
+          !referrer.includes('/gio-hang') &&
+          !referrer.includes('/thanh-toan') &&
+          !referrer.includes('/thanh-toan/xac-nhan')
+        ) {
+          navigate(-1);
+        } else {
+          navigate('/');
+        }
+      }, 1000);
+    },
+    onError: (error) => {
+      handleApiError(error);
+    },
+  });
+
+  const handleLoginGoogle = () => {
+    signInWithPopup(auth, googleProvider)
+      .then((result) => {
+        const user = result.user;
+        loginGoogle.mutate({
+          email: user.email,
+          name: user.displayName,
+        });
+      })
+      .catch(() => {
+        handleToast('error', 'Có lỗi xảy ra, vui lòng thử lại');
+      });
   };
 
   const handleCartAfterLogin = async (data) => {
@@ -67,22 +113,6 @@ const LoginPageUI = () => {
     mutationFn: loginAuth,
     onSuccess: (data) => {
       handleToast('success', 'Đăng nhập thành công!');
-      // if (data) {
-      //   const socket = io(import.meta.env.VITE_SERVER_URL, {
-      //     query: {
-      //       userId: data._id,
-      //     },
-      //   });
-      //   // console.log(socket);
-      //   // setSocket(socket);
-      //   // socket.on('getOnlineUser', (user) => {
-      //   //   setOnlineUser(user);
-      //   // });
-      // } else if (socket) {
-      //   socket.close();
-      //   setSocket(null);
-      // }
-
       login(data.token);
 
       handleCartAfterLogin(data);
@@ -175,10 +205,10 @@ const LoginPageUI = () => {
                 </p>
               </div>
 
-              {/* <div className="col-span-6 flex items-center justify-center">
+              <div className="col-span-6 flex items-center justify-center">
                 <p className="text-center">hoặc</p>
               </div>
-              <div className="col-span-6">
+              <div className="col-span-6" onClick={handleLoginGoogle}>
                 <div className="flex items-center justify-center">
                   <button
                     type="button"
@@ -193,7 +223,7 @@ const LoginPageUI = () => {
                     <span>Đăng nhập với Google</span>
                   </button>
                 </div>
-              </div> */}
+              </div>
 
               <div className="col-span-6 sm:flex sm:items-center sm:gap-4">
                 <p className="mt-4 text-sm text-gray-500 sm:mt-0">
