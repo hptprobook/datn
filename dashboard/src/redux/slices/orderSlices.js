@@ -1,16 +1,20 @@
 import { createSlice, createAction, createAsyncThunk } from '@reduxjs/toolkit';
 import OrderServices from '../services/orders.service';
+import DashboardService from '../services/dashboard.service';
 /* eslint-disable */
 
 export const fetchAll = createAsyncThunk(
   'orders/fetchAll',
-  async (_, rejectWithValue) => {
+  async ({
+    page,
+    limit,
+  }, rejectWithValue) => {
     try {
-      const res = await OrderServices.getAll();
-      return res;
+      const res = await DashboardService.gets(`orders?page=${page}&limit=${limit}`);
+return res;
     } catch (err) {
-      return rejectWithValue(err.response.data);
-    }
+  return rejectWithValue(err.response.data);
+}
   }
 );
 export const fetchById = createAsyncThunk(

@@ -20,12 +20,12 @@ import {
 } from 'src/redux/slices/blogSlice';
 import { handleToast } from 'src/hooks/toast';
 
-import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 
 import ConfirmDelete from 'src/components/modal/confirm-delete';
 import LoadingFull from 'src/components/loading/loading-full';
 import { Drawer, IconButton } from '@mui/material';
+import { IconAdd, IconRefresh } from 'src/components/iconify/icon';
 import TableNoData from '../table-no-data';
 import BlogTableRow from '../blog-table-row';
 import BlogTableHead from '../blog-table-head';
@@ -205,7 +205,7 @@ export default function BlogView() {
             color="inherit"
             onClick={() => getBlogs()}
           >
-            <Iconify icon="mdi:reload" />
+            <IconRefresh />
           </IconButton>
         </Stack>
 
@@ -213,7 +213,7 @@ export default function BlogView() {
           onClick={handleNewBlogClick}
           variant="contained"
           color="inherit"
-          startIcon={<Iconify icon="eva:plus-fill" />}
+          startIcon={<IconAdd />}
         >
           Tạo bài viết
         </Button>
