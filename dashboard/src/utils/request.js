@@ -108,7 +108,7 @@ export const updateProduct = async ({ id, data }) => {
         formData.append('variantsDelete', item);
       });
     } else if (key === 'variants') {
-      data[key].forEach((variant, i) => {
+      data.variants.forEach((variant, i) => {
         formData.append('variants', JSON.stringify(variant));
         // if (variant.image instanceof File) {
         //   formData.append('imageVariants', variant.imageAdd);
