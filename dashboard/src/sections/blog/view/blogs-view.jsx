@@ -26,14 +26,13 @@ import ConfirmDelete from 'src/components/modal/confirm-delete';
 import LoadingFull from 'src/components/loading/loading-full';
 import { Drawer, IconButton } from '@mui/material';
 import { IconAdd, IconRefresh } from 'src/components/iconify/icon';
-import TableNoData from '../table-no-data';
+import TableNoData from 'src/components/table/table-no-data';
 import BlogTableRow from '../blog-table-row';
 import BlogTableHead from '../blog-table-head';
-import TableEmptyRows from '../table-empty-rows';
 import BlogTableToolbar from '../blog-table-toolbar';
 import BlogCard from '../blog-card';
 
-import { emptyRows, applyFilter, getComparator } from '../utils';
+import { applyFilter, getComparator } from '../utils';
 
 // ----------------------------------------------------------------------
 
@@ -83,11 +82,16 @@ export default function BlogView() {
   useEffect(() => {
     if (statusDelete === 'successful') {
       handleToast('success', 'Xóa bài viết thành công!');
+      getBlogs({
+        p: page,
+        limit: rowsPerPage,
+      });
     }
     if (statusDelete === 'failed') {
       handleToast('error', error?.message || 'Có lỗi xảy ra vui lòng thử lại!');
     }
     dispatch(setStatus({ key: 'statusDelete', value: '' }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusDelete, dispatch, error]);
 
   useEffect(() => {
@@ -136,7 +140,7 @@ export default function BlogView() {
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
     getBlogs({
-      p: newPage,
+      p: newPage + 1,
       limit: rowsPerPage,
     });
   };
@@ -145,7 +149,7 @@ export default function BlogView() {
     setPage(0);
     setRowsPerPage(parseInt(event.target.value, 10));
     getBlogs({
-      p: 0,
+      p: 1,
       limit: parseInt(event.target.value, 10),
     });
   };
@@ -203,7 +207,7 @@ export default function BlogView() {
             aria-label="load"
             variant="contained"
             color="inherit"
-            onClick={() => getBlogs()}
+            onClick={() => getBlogs({ p: page, limit: rowsPerPage })}
           >
             <IconRefresh />
           </IconButton>
@@ -233,7 +237,7 @@ export default function BlogView() {
               <BlogTableHead
                 order={order}
                 orderBy={orderBy}
-                rowCount={blogsList.length}
+                rowCount={blogsList?.length}
                 numSelected={selected.length}
                 onRequestSort={handleSort}
                 onSelectAllClick={handleSelectAllClick}
@@ -263,7 +267,6 @@ export default function BlogView() {
                   />
                 ))}
 
-                <TableEmptyRows height={77} emptyRows={emptyRows(page, rowsPerPage, blogs.count)} />
 
                 {notFound && <TableNoData query={filterName} />}
               </TableBody>

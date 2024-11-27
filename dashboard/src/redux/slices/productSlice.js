@@ -1,11 +1,15 @@
 import { createSlice, createAction, createAsyncThunk } from '@reduxjs/toolkit';
 import ProductsService from '../services/product.service';
+import DashboardService from '../services/dashboard.service';
 
 export const fetchAllProducts = createAsyncThunk(
   'products/fetchProducts',
-  async (_, { rejectWithValue }) => {
+  async ({
+    page,
+    limit,
+  }, { rejectWithValue }) => {
     try {
-      const response = await ProductsService.getAllProducts();
+      const response = await DashboardService.gets(`/products?pages=${page}&limit=${limit}`);
       return response;
     } catch (err) {
       return rejectWithValue(err.response.data);
@@ -78,7 +82,7 @@ const productsSlice = createSlice({
       })
       .addCase(fetchAllProducts.fulfilled, (state, action) => {
         state.status = 'successful';
-        state.products = action.payload.products;
+        state.products = action.payload;
       })
       .addCase(fetchAllProducts.rejected, (state, action) => {
         state.status = 'failed';
