@@ -40,9 +40,11 @@ const countProductAll = async () => {
 };
 
 const getProductsAll = async (page, limit) => {
+  console.log('getProductsAll', page, limit);
   page = parseInt(page) || 1;
   limit = parseInt(limit) || 20;
   const db = await GET_DB().collection('products');
+  const count = await db.countDocuments();
   const result = await db
     .find()
     .sort({ createdAt: -1 })
@@ -62,10 +64,6 @@ const getProductsAll = async (page, limit) => {
     .skip((page - 1) * limit)
     .limit(limit)
     .toArray();
-
-  if (!result) {
-    throw new Error('Có lỗi xảy ra, xin thử lại sau');
-  }
   result.forEach((product) => {
     if (product.reviews && product.reviews.length > 0) {
       const total = product.reviews.reduce(
@@ -82,7 +80,10 @@ const getProductsAll = async (page, limit) => {
     }
     delete product.reviews;
   });
-  return result;
+  return {
+    products: result,
+    count,
+  };
 };
 
 const getProductsByView = async () => {

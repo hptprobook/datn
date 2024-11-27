@@ -16,6 +16,7 @@ const getAllBlogs = async (page, limit) => {
   const count = await db.countDocuments();
   const result = await db
     .find()
+    .sort({ createdAt: -1 })
     .skip((page - 1) * limit)
     .limit(limit)
     // .project({ _id: 0, age:1 })
