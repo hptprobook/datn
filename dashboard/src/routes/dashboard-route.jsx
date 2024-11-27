@@ -30,6 +30,8 @@ export const ProfilePage = lazy(() => import('src/pages/profile/profile')); // p
 export const UserPage = lazy(() => import('src/pages/users'));
 export const CreateUserPage = lazy(() => import('src/pages/users/create'));
 export const DetailUserPage = lazy(() => import('src/pages/users/detail'));
+// file manager page
+export const FileManagerPage = lazy(() => import('src/pages/settings/file-manager'));
 
 export const dashboardRoute = [
   { element: <IndexPage />, index: true },
@@ -61,4 +63,5 @@ export const dashboardRoute = [
   { path: 'settings', element: <WebConfigPage /> },
   { path: 'settings/seo-config', element: <SeoConfigPage /> },
   { path: 'profile', element: <ProfilePage /> },
+  { path: 'file-manager', element: <FileManagerPage /> },
 ];
