@@ -126,7 +126,15 @@ const ImageDropZone = React.memo(
           {(singleFile || url !== '') && upload}
           {url && !upload && (
             <Box sx={{ position: 'relative', borderRadius: '12px' }}>
-              <img src={url} alt="Preview" />
+              <img
+                style={{
+                  width: '100%',
+                  maxHeight: '200px',
+                  objectFit: 'cover',
+                }}
+                src={url}
+                alt="Preview"
+              />
               <IconButton
                 sx={{ position: 'absolute', top: 8, right: 8, backgroundColor: 'white' }}
                 color="inherit"

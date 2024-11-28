@@ -21,6 +21,7 @@ import posReducer from "./slices/posSlices";
 import receiptReducer from "./slices/receiptSlices";
 import receiptWarehouseReducer from "./slices/receiptWarehouseSlices";
 import dashboardReducer from "./slices/dashboardSlices";
+import fileManagerReducer from "./slices/fileManagerSlices";
 
 export const store = configureStore({
         reducer: {
@@ -45,5 +46,6 @@ export const store = configureStore({
                 receipts: receiptReducer,
                 receiptsWarehouse: receiptWarehouseReducer,
                 dashboard: dashboardReducer,
+                files: fileManagerReducer,
         },
 });
