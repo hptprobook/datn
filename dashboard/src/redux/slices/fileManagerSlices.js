@@ -12,6 +12,17 @@ export const getFolder = createAsyncThunk(
     }
   }
 );
+export const deleteFile = createAsyncThunk(
+  'files/deleteFile',
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await FileManagerService.delete(data);
+      return response;
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
 export const getFiles = createAsyncThunk(
   'files/getFiles',
   async ({
@@ -29,6 +40,24 @@ export const getFiles = createAsyncThunk(
     }
   }
 );
+export const uploadFile = createAsyncThunk(
+  'files/uploadFile',
+  async ({
+    file,
+    data
+  }, { rejectWithValue }) => {
+    try {
+      const response = await FileManagerService.upload({
+        file,
+        data
+      });
+      return response;
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
+
 
 
 export const setStatus = createAction('files/setStatus');
@@ -38,6 +67,7 @@ const fileManagerSlices = createSlice({
     folders: [],
     files: [],
     statusFiles: 'idle',
+    statusDelete: 'idle',
     status: 'idle',
     error: null
   },
@@ -55,14 +85,34 @@ const fileManagerSlices = createSlice({
         state.error = action.payload;
       })
       .addCase(getFiles.pending, (state) => {
-        state.status = 'loading';
+        state.statusFiles = 'loading';
       })
       .addCase(getFiles.fulfilled, (state, action) => {
-        state.status = 'successful';
+        state.statusFiles = 'successful';
         state.files = action.payload;
       })
       .addCase(getFiles.rejected, (state, action) => {
-        state.status = 'failed';
+        state.statusFiles = 'failed';
+        state.error = action.payload;
+      })
+      .addCase(deleteFile.pending, (state) => {
+        state.statusDelete = 'loading';
+      })
+      .addCase(deleteFile.fulfilled, (state, action) => {
+        state.statusDelete = 'successful';
+      })
+      .addCase(deleteFile.rejected, (state, action) => {
+        state.statusDelete = 'failed';
+        state.error = action.payload;
+      })
+      .addCase(uploadFile.pending, (state) => {
+        state.statusUpload = 'loading';
+      })
+      .addCase(uploadFile.fulfilled, (state, action) => {
+        state.statusUpload = 'successful';
+      })
+      .addCase(uploadFile.rejected, (state, action) => {
+        state.statusUpload = 'failed';
         state.error = action.payload;
       })
       .addCase(setStatus, (state, action) => {

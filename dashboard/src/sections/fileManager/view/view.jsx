@@ -3,19 +3,23 @@ import Stack from '@mui/material/Stack';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 
-import { Box, IconButton, Modal, Skeleton } from '@mui/material';
+import { Box, Modal, Button, Skeleton, IconButton } from '@mui/material';
 import {
+  IconCopy,
+  IconNext,
+  IconPrev,
   IconClose,
   IconFolder,
   IconFolderOpen,
-  IconNext,
-  IconPrev,
 } from 'src/components/iconify/icon';
-import { getFiles, getFolder } from 'src/redux/slices/fileManagerSlices';
+import { getFiles, getFolder, deleteFile, uploadFile } from 'src/redux/slices/fileManagerSlices';
 import { useDispatch, useSelector } from 'react-redux';
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { renderUrl } from 'src/utils/check';
+import { handleToast } from 'src/hooks/toast';
+import LoadingFull from 'src/components/loading/loading-full';
+import MiniDropZone from 'src/components/drop-zone-upload/mini-dropzone';
 
 // ----------------------------------------------------------------------
 const backendUrl = import.meta.env.VITE_BACKEND_APP_URL;
@@ -49,17 +53,20 @@ export default function FileManager() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectFolder, setSelectFolder] = useState('');
   const dispatch = useDispatch();
+  const [limit, setLimit] = useState(2);
   const [iShow, setIShow] = useState(false);
   useEffect(() => {
     dispatch(getFolder());
   }, [dispatch]);
-  const handleGetFiles = (folder, limit = 10) => {
-    dispatch(getFiles({ folder, limit }));
+  const handleGetFiles = (folder, l = 10) => {
+    dispatch(getFiles({ folder, limit: l }));
   };
   const folders = useSelector((state) => state.files.folders);
   const status = useSelector((state) => state.files.status);
   const files = useSelector((state) => state.files.files);
   const statusFiles = useSelector((state) => state.files.statusFiles);
+  const statusDelete = useSelector((state) => state.files.statusDelete);
+  const statusUpload = useSelector((state) => state.files.statusUpload);
 
   useEffect(() => {
     if (searchParams.has('folder') && status === 'successful') {
@@ -72,11 +79,29 @@ export default function FileManager() {
     }
   }, [searchParams, status, folders, setSearchParams]);
   useEffect(() => {
+    if (statusDelete === 'successful') {
+      handleToast('success', 'Xóa tệp thành công');
+      handleGetFiles(selectFolder, limit);
+    }
+    // eslint-disable-next-line
+  }, [statusDelete]);
+  useEffect(() => {
+    if (statusUpload === 'successful') {
+      handleToast('success', 'Tải tệp lên thành công');
+      handleGetFiles(selectFolder, limit);
+    }
+    // eslint-disable-next-line
+  }, [statusUpload]);
+
+  useEffect(() => {
     if (selectFolder) {
-      handleGetFiles(selectFolder);
+      handleGetFiles(selectFolder, limit);
     }
     // eslint-disable-next-line
   }, [selectFolder]);
+  const handleDeleteFile = (name) => {
+    dispatch(deleteFile({ name }));
+  };
   const handleSelectFolder = (folder) => {
     setSelectFolder(folder);
     searchParams.set('folder', folder);
@@ -98,8 +123,32 @@ export default function FileManager() {
       }
     }
   };
+  const copyToClipboard = async (t) => {
+    try {
+      await navigator.clipboard.writeText(t);
+      handleToast('success', 'Sao chép thành công');
+    } catch (error) {
+      handleToast('error', 'Sao chép thất bại');
+    }
+  };
+  const handleUpload = (file) => {
+    if (file) {
+      dispatch(
+        uploadFile({
+          file: {
+            name: 'file',
+            file,
+          },
+          data: {
+            folder: selectFolder,
+          },
+        })
+      );
+    }
+  };
   return (
     <Container>
+      {statusDelete === 'loading' && <LoadingFull />}
       <Modal
         open={iShow !== false}
         onClose={() => setIShow(false)}
@@ -194,12 +243,17 @@ export default function FileManager() {
           {status === 'loading' && <LoadingFolder />}
         </Stack>
         <Stack direction="row" alignItems="center" flexWrap="wrap" gap={2}>
+          <MiniDropZone
+            handleUpload={handleUpload}
+            // error={error}
+          />
           {files?.map((f, i) => (
             <Box
               key={i}
               sx={{
                 display: 'flex',
                 alignItems: 'center',
+                flexDirection: 'column',
                 gap: 1,
                 p: 1,
                 overflow: 'hidden',
@@ -207,7 +261,10 @@ export default function FileManager() {
                 borderRadius: 1,
                 bgcolor: selectFolder === f ? '#f0f0f0' : 'transparent',
               }}
-              onClick={() => setIShow(i)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIShow(i);
+              }}
             >
               <img
                 style={{
@@ -218,8 +275,42 @@ export default function FileManager() {
                 src={renderUrl(f, backendUrl)}
                 alt={f}
               />
+              <Box
+                sx={{
+                  display: 'flex',
+                  gap: 1,
+                }}
+              >
+                <IconButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    copyToClipboard(f);
+                  }}
+                >
+                  <IconCopy />
+                </IconButton>
+                <IconButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteFile(f);
+                  }}
+                >
+                  <IconClose />
+                </IconButton>
+              </Box>
             </Box>
           ))}
+          {files?.length === limit && (
+            <Button
+              variant="contained"
+              onClick={() => {
+                setLimit(limit + 10);
+                handleGetFiles(selectFolder, limit + 10);
+              }}
+            >
+              Xem thêm
+            </Button>
+          )}
           {statusFiles === 'loading' && <LoadingFile />}
         </Stack>
       </Card>

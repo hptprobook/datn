@@ -1,6 +1,7 @@
 import fs from 'fs';
-import path from 'path';
+import path, { join } from 'path';
 import { StatusCodes } from 'http-status-codes';
+import { uploadModel } from '~/models/uploadModel';
 
 
 const handleGetFiles = (directoryPath, limit = 10, folder) => {
@@ -62,7 +63,38 @@ const getFiles = (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+const deleteFile = async (req, res) => {
+    try {
+        const { name } = req.body;
+        await uploadModel.deleteImg(name);
+        res.status(StatusCodes.OK).json({ message: 'Xóa file thành công' });
+    }
+    catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+const uploadFile = async (req, res) => {
+    try {
+        const file = req.file;
+        const { folder } = req.body;
+        const destinationFolder = path.join(process.cwd(), 'uploads', folder);
+
+        await uploadModel.ensureDirExists(destinationFolder);
+        const newFilePath = path.join(destinationFolder, file.filename);
+
+        await uploadModel.moveFile(file.path, newFilePath);
+
+        res.json({
+            message: 'Upload file thành công',
+            file: newFilePath
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
 export const fileManagerController = {
     getFolder,
     getFiles,
+    deleteFile,
+    uploadFile
 };
