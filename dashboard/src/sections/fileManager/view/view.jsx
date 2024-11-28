@@ -53,7 +53,7 @@ export default function FileManager() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectFolder, setSelectFolder] = useState('');
   const dispatch = useDispatch();
-  const [limit, setLimit] = useState(2);
+  const [limit, setLimit] = useState(20);
   const [iShow, setIShow] = useState(false);
   useEffect(() => {
     dispatch(getFolder());
