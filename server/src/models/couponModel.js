@@ -7,6 +7,7 @@ const validateBeforeCreate = async (data) => {
 };
 
 const getCoupons = async ({ page, limit }) => {
+  console.log('alive');
   page = parseInt(page) || 1;
   limit = parseInt(limit) || 12;
   const db = await GET_DB().collection('coupons');
@@ -16,10 +17,17 @@ const getCoupons = async ({ page, limit }) => {
     .skip((page - 1) * limit)
     .limit(limit)
     .toArray();
+
   return {
     data: result,
     count,
   };
+};
+const getCouponsForOrder = async () => {
+  const db = await GET_DB().collection('coupons');
+  const result = await db.find().toArray();
+
+  return result;
 };
 const getCouponsById = async (id) => {
   const db = await GET_DB().collection('coupons');
@@ -120,6 +128,7 @@ const updateCouponUsage = async (code, userId) => {
 export const couponModel = {
   createCoupon,
   getCoupons,
+  getCouponsForOrder,
   updateCoupon,
   findOneCoupons,
   deleteCoupon,
