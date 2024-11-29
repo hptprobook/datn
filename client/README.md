@@ -13,4 +13,5 @@
 tat ca san pham khi truy cap /danh-muc-san-pham
 tinh cac loai tien cho order
 xu ly secret key cho don hang khong dang nhap
+Validate cac truong
 test website, toi uu va training chatbot
