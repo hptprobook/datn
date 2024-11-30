@@ -40,7 +40,6 @@ const countProductAll = async () => {
 };
 
 const getProductsAll = async (page, limit) => {
-  console.log('getProductsAll', page, limit);
   page = parseInt(page) || 1;
   limit = parseInt(limit) || 20;
   const db = await GET_DB().collection('products');

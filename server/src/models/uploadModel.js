@@ -90,6 +90,13 @@ const uploadImg = (file) => {
     });
     return fileName;
 };
+const moveFile = (oldPath, newPath) => {
+    fs.rename(oldPath, newPath, (err) => {
+        if (err) {
+            return err;
+        }
+    });
+};
 
 export const uploadModel = {
     uploadImgs,
@@ -97,4 +104,5 @@ export const uploadModel = {
     deleteImgs,
     uploadImg,
     ensureDirExists,
+    moveFile
 };

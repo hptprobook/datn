@@ -19,7 +19,7 @@ const getCoupons = async (req, res) => {
 
 const getCouponsForOrder = async (req, res) => {
   try {
-    let coupons = await couponModel.getCoupons();
+    let coupons = await couponModel.getCouponsForOrder();
     const currentDate = new Date();
 
     coupons = await Promise.all(
@@ -36,7 +36,6 @@ const getCouponsForOrder = async (req, res) => {
           return null;
         }
 
-        // Kiểm tra giới hạn sử dụng chung của coupon
         const usageCount = await couponHistoryModel.countCouponHistory({
           couponId: coupon._id,
         });
@@ -53,7 +52,7 @@ const getCouponsForOrder = async (req, res) => {
             });
 
           if (userUsageHistory.length > 0) {
-            return null; // Người dùng đã sử dụng mã giảm giá này trước đó
+            return null;
           }
         }
 
@@ -82,7 +81,7 @@ const getCouponsForOrder = async (req, res) => {
   } catch (error) {
     return res
       .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Có lỗi xảy ra, xin thử lại sau' });
+      .json({ message: 'Có lỗi xảy ra, xin thử lại sau', error: error });
   }
 };
 

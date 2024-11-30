@@ -355,7 +355,12 @@ const updateProduct = async (req, res) => {
 
     const product = await productModel.getProductById(id);
     const oldVariants = product.variants;
-    const parsedVariants = variants.map((variant) => JSON.parse(variant));
+    let parsedVariants = [];
+    if (!Array.isArray(variants)) {
+      parsedVariants = [JSON.parse(variants)];
+    } else {
+      parsedVariants = variants.map((variant) => JSON.parse(variant));
+    }
     // ảnh cũ
     const oldImageVariants = oldVariants.map((v) => v.image);
     // những ảnh k cần xóa
@@ -491,6 +496,7 @@ const updateProduct = async (req, res) => {
       return res.status(StatusCodes.OK).json(result);
     }
   } catch (error) {
+    console.log('error', error);
     if (req.files) {
       const thumbnailPath = req.files['thumbnail']?.[0]?.filename;
 
