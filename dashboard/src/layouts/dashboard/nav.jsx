@@ -13,7 +13,6 @@ import { usePathname } from 'src/routes/hooks';
 
 import { useResponsive } from 'src/hooks/use-responsive';
 
-
 import Logo from 'src/components/logo';
 import Scrollbar from 'src/components/scrollbar';
 
@@ -24,9 +23,11 @@ import Collapse from '@mui/material/Collapse';
 import Iconify from 'src/components/iconify/iconify';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { renderUrl } from 'src/utils/check';
 import { NAV } from './config-layout';
 import navConfig from './config-navigation';
 
+const backendUrl = import.meta.env.VITE_BACKEND_APP_URL;
 export default function Nav({ openNav, onCloseNav }) {
   const pathname = usePathname();
   const navigate = useNavigate();
@@ -54,7 +55,7 @@ export default function Nav({ openNav, onCloseNav }) {
         bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
       }}
     >
-      <Avatar src={staff?.avatar} alt="photoURL" />
+      <Avatar src={renderUrl(staff?.avatar, backendUrl)} alt="photoURL" />
 
       <Box sx={{ ml: 2 }}>
         <Typography variant="subtitle2">{staff?.name}</Typography>
@@ -63,7 +64,6 @@ export default function Nav({ openNav, onCloseNav }) {
           {staff?.role}
         </Typography>
       </Box>
-  
     </Box>
   );
 
@@ -89,7 +89,7 @@ export default function Nav({ openNav, onCloseNav }) {
         },
       }}
     >
-      <Logo sx={{ mt: 3,}} />
+      <Logo sx={{ mt: 3 }} />
 
       {renderAccount}
 

@@ -59,6 +59,13 @@ const navConfig = [
       },
     ],
   },
+  {
+    title: 'Tệp',
+    path: '/file-manager',
+    icon: 'ion:folder',
+    child: undefined,
+  },
+  
 ];
 
 export default navConfig;
