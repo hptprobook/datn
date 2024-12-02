@@ -38,6 +38,7 @@
     "rippleui": "^1.12.1",
     "socket.io-client": "^4.8.1",
     "swiper": "^11.1.4",
+    "uuid": "^11.0.3",
     "vite-plugin-svgr": "^4.2.0",
     "yup": "^1.4.0"
   },
