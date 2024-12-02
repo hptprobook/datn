@@ -42,6 +42,7 @@ import { navDashboardApi } from './routeForAdmin/navDashboardRoute';
 import { webApi } from './routeForAdmin/webRouter';
 import { timetableApi } from './routeForAdmin/timetableRouter';
 import { dashboardApi } from './routeForAdmin/dashboardRoute';
+import { fileManagerApi } from './routeForAdmin/fileManagerRoute';
 
 
 const Router = express.Router();
@@ -80,6 +81,7 @@ Router.use('/customer-group', customerGroupApi);
 Router.use('/timetables', timetableApi);
 Router.use('/blogs', blogApi);
 Router.use('/dashboard', dashboardApi);
+Router.use('/files-manager', fileManagerApi);
 
 Router.use('/coupon-history', couponHistoryApi);
 Router.use('/receipts', receiptsApi);

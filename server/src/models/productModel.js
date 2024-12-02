@@ -43,6 +43,7 @@ const getProductsAll = async (page, limit) => {
   page = parseInt(page) || 1;
   limit = parseInt(limit) || 20;
   const db = await GET_DB().collection('products');
+  const count = await db.countDocuments();
   const result = await db
     .find()
     .sort({ createdAt: -1 })
@@ -62,10 +63,6 @@ const getProductsAll = async (page, limit) => {
     .skip((page - 1) * limit)
     .limit(limit)
     .toArray();
-
-  if (!result) {
-    throw new Error('Có lỗi xảy ra, xin thử lại sau');
-  }
   result.forEach((product) => {
     if (product.reviews && product.reviews.length > 0) {
       const total = product.reviews.reduce(
@@ -82,7 +79,10 @@ const getProductsAll = async (page, limit) => {
     }
     delete product.reviews;
   });
-  return result;
+  return {
+    products: result,
+    count,
+  };
 };
 
 const getProductsByView = async () => {
@@ -1083,14 +1083,21 @@ const getProductsBySlugAndPriceRange = async (
 ) => {
   const db = await GET_DB();
 
-  const category = await db.collection('categories').findOne({ slug: slug });
-  if (!category) {
-    throw new Error('Danh mục không tồn tại');
-  }
+  let query = {
+    price: { $gte: minPrice, $lte: maxPrice },
+  };
 
-  const cat_id = category._id;
-  const subCategoryIds = await getAllSubCategories(cat_id);
-  const categoryIds = [cat_id, ...subCategoryIds];
+  if (slug !== 'tat-ca-san-pham') {
+    const category = await db.collection('categories').findOne({ slug: slug });
+    if (!category) {
+      throw new Error('Danh mục không tồn tại');
+    }
+
+    const cat_id = category._id;
+    const subCategoryIds = await getAllSubCategories(cat_id);
+    const categoryIds = [cat_id, ...subCategoryIds];
+    query.cat_id = { $in: categoryIds };
+  }
 
   let sortOption = {};
 
@@ -1112,11 +1119,6 @@ const getProductsBySlugAndPriceRange = async (
     }
   }
 
-  let query = {
-    cat_id: { $in: categoryIds },
-    price: { $gte: minPrice, $lte: maxPrice },
-  };
-
   if (colors && colors.length > 0) {
     query['variants.color'] = { $in: colors };
   }
@@ -1126,11 +1128,11 @@ const getProductsBySlugAndPriceRange = async (
   }
 
   if (type) {
-    query['productType'] = type; // Thêm điều kiện lọc cho type
+    query['productType'] = type;
   }
 
   if (tags && tags.length > 0) {
-    query['tags'] = { $in: tags }; // Thêm điều kiện lọc cho tags
+    query['tags'] = { $in: tags };
   }
 
   const products = await db
@@ -1339,7 +1341,7 @@ const getProductByArrayId = async (ids) => {
     })
     .toArray();
   return result;
-}
+};
 
 export const productModel = {
   countProductAll,
@@ -1374,5 +1376,5 @@ export const productModel = {
   ratingShopResponse,
   isComment,
   searchInDashboard,
-  getProductByArrayId
+  getProductByArrayId,
 };

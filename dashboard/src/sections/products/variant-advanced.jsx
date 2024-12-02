@@ -27,7 +27,6 @@ import {
   style,
   Accordion,
   sizeSchema,
-  clothingSizes,
   variantSchema,
   AccordionDetails,
   AccordionSummary,
@@ -148,6 +147,8 @@ export default function AdvancedVariant({
         size: values.size,
         stock: values.stock,
         price: values.price,
+        sale: values.sale,
+        trading: values.trading,
         sku: newVariant[openSize].sku + values.size,
       });
       const newStock = newSize.reduce((acc, cur) => Number(acc) + Number(cur.stock), 0);
@@ -678,9 +679,9 @@ export default function AdvancedVariant({
                   name="size"
                   onChange={formikSize.handleChange}
                 >
-                  {clothingSizes.map((size, index) => (
-                    <MenuItem key={index} value={size}>
-                      {size}
+                  {sizes.map((size, index) => (
+                    <MenuItem key={index} value={size.name}>
+                      {size.name}
                     </MenuItem>
                   ))}
                 </Select>

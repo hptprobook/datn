@@ -10,7 +10,8 @@
 <!-- tim kiem bai viet -->
 <!-- xu ly lai tracking order -->
 <!-- bo loc thong bao nguoi dung -->
+<!-- tinh cac loai tien cho order -->
 tat ca san pham khi truy cap /danh-muc-san-pham
-tinh cac loai tien cho order
 xu ly secret key cho don hang khong dang nhap
+Validate cac truong
 test website, toi uu va training chatbot
