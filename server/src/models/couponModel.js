@@ -7,7 +7,6 @@ const validateBeforeCreate = async (data) => {
 };
 
 const getCoupons = async ({ page, limit }) => {
-  console.log('alive');
   page = parseInt(page) || 1;
   limit = parseInt(limit) || 12;
   const db = await GET_DB().collection('coupons');
