@@ -14,9 +14,12 @@ export const createReceipt = createAsyncThunk(
 );
 export const fetchAllReceipts = createAsyncThunk(
     'receipts/fetchAllReceipts',
-    async (_, { rejectWithValue }) => {
+    async ({
+        page,
+        limit
+    }, { rejectWithValue }) => {
         try {
-            const response = await DashboardService.gets('/receipts?page=1&limit=1000');
+            const response = await DashboardService.gets(`/receipts?page=${page}&limit=${limit}`);
             return response;
         } catch (err) {
             return rejectWithValue(err.response);

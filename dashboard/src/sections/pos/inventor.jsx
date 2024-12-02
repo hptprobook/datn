@@ -10,19 +10,15 @@ import {
   Box,
   List,
   Avatar,
-  Select,
   ListItem,
-  MenuItem,
   TextField,
-  InputLabel,
-  FormControl,
   ListItemText,
   ListItemAvatar,
 } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2';
 import { useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { searchProduct } from 'src/redux/slices/posSlices';
+import { searchProducts } from 'src/redux/slices/posSlices';
 import { formatCurrency } from 'src/utils/format-number';
 import Label from 'src/components/label';
 import { renderUrl } from 'src/utils/check';
@@ -33,8 +29,6 @@ const backendUrl = import.meta.env.VITE_BACKEND_APP_URL;
 const websiteUrl = import.meta.env.VITE_REACT_CLIENT_URL;
 export default function TrackingInventorPage() {
   const route = useRouter();
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchTimeout, setSearchTimeout] = useState(null);
   const [colors, setColors] = useState([]);
   const [sizes, setSizes] = useState([]);
@@ -53,16 +47,16 @@ export default function TrackingInventorPage() {
         if (searchTimeout) clearTimeout(searchTimeout);
 
         const timeout = setTimeout(() => {
-          dispatch(searchProduct({ keyword, page, limit: rowsPerPage }));
+          dispatch(searchProducts(keyword));
         }, 500);
 
         setSearchTimeout(timeout);
       }
     },
-    [dispatch, status, searchTimeout, page, rowsPerPage]
+    [dispatch, status, searchTimeout]
   );
   const handleSelectProduct = (id) => {
-    const product = products.products.find((p) => p._id === id);
+    const product = products.find((p) => p._id === id);
     setSelectedColor(0);
     setColors(product.variants);
     setSizes(product.variants[0].sizes);
@@ -91,37 +85,6 @@ export default function TrackingInventorPage() {
                 <Iconify icon="mdi:search" width={24} height={24} mr={2} />
                 <TextField fullWidth label="Tìm kiếm sản phẩm" onChange={handleSearch} />
               </Box>
-              <Stack direction="row" spacing={2}>
-                <FormControl fullWidth>
-                  <InputLabel id="page-select-label">Trang</InputLabel>
-                  <Select
-                    labelId="page-select-label"
-                    id="page-select"
-                    value={page}
-                    label="Trang"
-                    onChange={(e) => setPage(e.target.value)}
-                  >
-                    <MenuItem value={1}>1</MenuItem>
-                    <MenuItem value={2}>2</MenuItem>
-                    <MenuItem value={3}>3</MenuItem>
-                  </Select>
-                </FormControl>
-                <FormControl fullWidth>
-                  <InputLabel id="limit-select-label">Giới hạn</InputLabel>
-                  <Select
-                    labelId="limit-select-label"
-                    id="limit-select"
-                    value={rowsPerPage}
-                    label="Giới hạn"
-                    onChange={(e) => setRowsPerPage(e.target.value)}
-                  >
-                    <MenuItem value={1}>1</MenuItem>
-                    <MenuItem value={10}>10</MenuItem>
-                    <MenuItem value={20}>20</MenuItem>
-                    <MenuItem value={30}>30</MenuItem>
-                  </Select>
-                </FormControl>
-              </Stack>
               <List
                 sx={{
                   width: '100%',
@@ -145,7 +108,7 @@ export default function TrackingInventorPage() {
                 }}
               >
                 {products ? (
-                  products?.products?.map((product) => (
+                  products?.map((product) => (
                     <ListItem
                       key={product._id}
                       sx={{
@@ -288,7 +251,7 @@ export default function TrackingInventorPage() {
                       startIcon={<Iconify icon="mdi:cart-plus" />}
                       variant="contained"
                       color="inherit"
-                      onClick={() => handleToast('info', 'Chức năng đang phát triển')}
+                      onClick={() => route.push(`/admin/warehouse/receipts/create`)}
                     >
                       Nhập hàng
                     </Button>
