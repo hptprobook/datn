@@ -15,7 +15,7 @@ const PosService = {
         limit,
     }) => {
         try {
-            return await get(`/products/search?search=${keyword}&page=${page}&limit=${limit}`);
+            return await get(`/products/search/dashboard?keyword=${keyword}`);
         } catch (err) {
             console.error("Error: ", err);
             throw err;

@@ -227,28 +227,27 @@ export default function CouponsPage() {
                 ]}
               />
               <TableBody>
-                {dataFiltered
-                  .map((row) => (
-                    <CouponTableRow
-                      id={row._id}
-                      key={row._id}
-                      code={row.code}
-                      type={row.type}
-                      applicableProducts={row.applicableProducts}
-                      usageLimit={row.usageLimit}
-                      minPurchasePrice={formatCurrency(row.minPurchasePrice)}
-                      maxPurchasePrice={formatCurrency(row.maxPurchasePrice)}
-                      usageCount={row.usageCount}
-                      status={row.status}
-                      limitOnUser={row.limitOnUser}
-                      dateStart={row.dateStart}
-                      dateEnd={row.dateEnd}
-                      selected={selected.indexOf(row._id) !== -1}
-                      handleClick={(event) => handleClick(event, row._id)}
-                      onDelete={handleDelete}
-                      handleNavigate={() => handleNavigate(row._id)}
-                    />
-                  ))}
+                {dataFiltered.map((row) => (
+                  <CouponTableRow
+                    id={row._id}
+                    key={row._id}
+                    code={row.code}
+                    type={row.type}
+                    applicableProducts={row.applicableProducts}
+                    usageLimit={row.usageLimit}
+                    minPurchasePrice={formatCurrency(row.minPurchasePrice)}
+                    maxPurchasePrice={formatCurrency(row.maxPurchasePrice)}
+                    usageCount={row.usageCount}
+                    status={row.status}
+                    limitOnUser={row.limitOnUser}
+                    dateStart={row.dateStart}
+                    dateEnd={row.dateEnd}
+                    selected={selected.indexOf(row._id) !== -1}
+                    handleClick={(event) => handleClick(event, row._id)}
+                    onDelete={handleDelete}
+                    handleNavigate={() => handleNavigate(row._id)}
+                  />
+                ))}
                 {notFound && <TableNoData query={filterName} col={12} />}
               </TableBody>
             </Table>
