@@ -38,9 +38,7 @@ export const VariantsImportPage = lazy(() => import('src/pages/variants/creates'
 export const SuppliersPage = lazy(() => import('src/pages/suppliers/suppliers'));
 export const SupplierCreatePage = lazy(() => import('src/pages/suppliers/create'));
 export const SupplierDetailPage = lazy(() => import('src/pages/suppliers/detail'));
-// orders page
-export const OrdersPage = lazy(() => import('src/pages/orders/orders'));
-export const OrderDetailPage = lazy(() => import('src/pages/orders/detail'));
+
 // brand page
 export const BrandsPage = lazy(() => import('src/pages/brands/brands'));
 export const BrandCreatePage = lazy(() => import('src/pages/brands/create'));
@@ -95,14 +93,7 @@ export const adminRoute = [
     path: 'warehouse/:id',
     element: <WarehouseEditPage />,
   },
-  {
-    path: 'orders',
-    element: <OrdersPage />,
-  },
-  {
-    path: 'orders/:id',
-    element: <OrderDetailPage />,
-  },
+
   {
     path: 'suppliers',
     element: <SuppliersPage />,
