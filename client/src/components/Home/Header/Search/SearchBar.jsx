@@ -14,7 +14,7 @@ const SearchBar = () => {
   const [keyword, setKeyword] = useState('');
   const inputRef = useRef(null);
   const navigate = useNavigate();
-  const { minMaxPrice } = useWebConfig();
+  const { minMaxPrice = { minPrice: 0, maxPrice: 0 } } = useWebConfig();
   // eslint-disable-next-line no-unused-vars
   const [limit, setLimit] = useState(5);
 
@@ -32,13 +32,13 @@ const SearchBar = () => {
 
   const debouncedSearch = useCallback(
     debounce((value) => {
-      setKeyword(value);
+      setKeyword(value?.trim() || '');
     }, 1000),
     []
   );
 
   const handleInputChange = (e) => {
-    const value = e.target.value;
+    const value = e.target?.value || '';
     setSearchValue(value);
     debouncedSearch(value);
   };
@@ -57,13 +57,20 @@ const SearchBar = () => {
     e.stopPropagation();
   };
 
+  const getSearchUrl = () => {
+    const params = new URLSearchParams({
+      keyword: searchValue?.trim() || '',
+      minPrice: minMaxPrice?.minPrice || 0,
+      maxPrice: minMaxPrice?.maxPrice || 0
+    });
+    return `/tim-kiem?${params.toString()}`;
+  };
+
   const handleSearchKeyUp = (e) => {
     if (e.key === 'Enter') {
-      navigate(
-        `/tim-kiem?keyword=${searchValue}&minPrice=${minMaxPrice?.minPrice}&maxPrice=${minMaxPrice?.maxPrice}`
-      );
+      navigate(getSearchUrl());
       handleOverlayClick();
-      inputRef.current.blur();
+      inputRef.current?.blur();
     }
   };
 
@@ -74,11 +81,9 @@ const SearchBar = () => {
   };
 
   const handleSearchButtonClick = () => {
-    navigate(
-      `/tim-kiem?keyword=${searchValue}&minPrice=${minMaxPrice?.minPrice}&maxPrice=${minMaxPrice?.maxPrice}`
-    );
+    navigate(getSearchUrl());
     handleOverlayClick();
-    inputRef.current.blur();
+    inputRef.current?.blur();
   };
 
   return (
@@ -114,7 +119,7 @@ const SearchBar = () => {
           >
             <IoMdCloseCircleOutline />
           </div>
-          {searchValue === '' ? (
+          {!searchValue ? (
             <SearchPopular
               handleModelClick={handleModelClick}
               isOpen={isFocused}
@@ -123,7 +128,7 @@ const SearchBar = () => {
           ) : (
             <SearchResult
               handleModelClick={handleModelClick}
-              searchResults={searchResults?.products}
+              searchResults={searchResults?.products || []}
               searchLoading={searchLoading}
               isOpen={isFocused}
               keyword={keyword}

@@ -8,8 +8,7 @@ export const searchProducts = async ({ keyword, limit = 5 } = {}) => {
     );
     return response.data;
   } catch (error) {
-    console.log(error);
-    throw error;
+    throw error.response.data;
   }
 };
 
@@ -18,7 +17,6 @@ export const getHotSearch = async () => {
     const response = await request.get('/hotSearch');
     return response.data;
   } catch (error) {
-    console.log(error);
-    throw error;
+    throw error.response.data;
   }
 };

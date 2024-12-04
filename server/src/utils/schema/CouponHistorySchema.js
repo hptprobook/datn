@@ -15,11 +15,6 @@ export const CREATE_COUPON_USAGE_HISTORY = Joi.object({
     'string.base': 'ID đơn hàng phải là một chuỗi văn bản.',
     'string.empty': 'ID đơn hàng không được để trống.',
   }),
-  code: Joi.string().trim().required().messages({
-    'string.base': 'Mã giảm giá phải là một chuỗi văn bản.',
-    'string.empty': 'Mã giảm giá không được là trống.',
-    'any.required': 'Mã giảm giá là bắt buộc.',
-  }),
   usageDate: Joi.date().timestamp('javascript').default(Date.now).messages({
     'date.base': 'Ngày sử dụng phải là một ngày hợp lệ.',
   }),
