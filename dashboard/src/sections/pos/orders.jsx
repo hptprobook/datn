@@ -5,7 +5,6 @@ import Container from '@mui/material/Container';
 
 import Iconify from 'src/components/iconify';
 import { useRouter } from 'src/routes/hooks';
-import { handleToast } from 'src/hooks/toast';
 import InputAdornment from '@mui/material/InputAdornment';
 import {
   List,

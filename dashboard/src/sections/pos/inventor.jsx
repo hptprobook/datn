@@ -22,7 +22,6 @@ import { searchProducts } from 'src/redux/slices/posSlices';
 import { formatCurrency } from 'src/utils/format-number';
 import Label from 'src/components/label';
 import { renderUrl } from 'src/utils/check';
-import { handleToast } from 'src/hooks/toast';
 
 // ----------------------------------------------------------------------
 const backendUrl = import.meta.env.VITE_BACKEND_APP_URL;
