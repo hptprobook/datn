@@ -4,11 +4,13 @@ export const RegisterSchema = Yup.object().shape({
   first_name: Yup.string()
     .required('Họ là bắt buộc')
     .min(2, 'Họ phải có ít nhất 2 ký tự')
-    .max(15, 'Họ không được vượt quá 15 ký tự'),
+    .max(15, 'Họ không được vượt quá 15 ký tự')
+    .matches(/^[a-zA-ZÀ-ỹ\s]+$/, 'Họ không được chứa ký tự đặc biệt hoặc số'),
   last_name: Yup.string()
     .required('Tên là bắt buộc')
     .min(2, 'Tên phải có ít nhất 2 ký tự')
-    .max(15, 'Tên không vượt quá 15 ký tự'),
+    .max(15, 'Tên không vượt quá 15 ký tự')
+    .matches(/^[a-zA-ZÀ-ỹ\s]+$/, 'Tên không được chứa ký tự đặc biệt hoặc số'),
   email: Yup.string()
     .email('Định dạng email không hợp lệ')
     .required('Email là bắt buộc'),

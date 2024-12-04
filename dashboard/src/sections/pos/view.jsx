@@ -30,7 +30,7 @@ import {
   TableContainer,
   FormControlLabel,
 } from '@mui/material';
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setStatus, searchUser, searchProduct } from 'src/redux/slices/posSlices';
 import { renderUrl } from 'src/utils/check';
@@ -41,6 +41,8 @@ import { handleToast } from 'src/hooks/toast';
 import Grid2 from '@mui/material/Unstable_Grid2';
 import { useFormik } from 'formik';
 import { createReceipt, setStatus as setStatusCreate } from 'src/redux/slices/receiptSlices';
+import { IconSave, IconDelete } from 'src/components/iconify/icon';
+import { PropTypes } from 'prop-types';
 import { productSchema } from './common/util';
 
 // ----------------------------------------------------------------------
@@ -75,6 +77,25 @@ const styleOverFlow = {
     borderRadius: '4px', // Rounded edges
   },
 };
+const FormField = React.memo(({ label, name, value, touched, error, handleChange }) => (
+  <TextField
+    label={label}
+    name={name}
+    value={value}
+    onChange={handleChange}
+    error={touched && Boolean(error)}
+    helperText={touched && error}
+  />
+));
+FormField.propTypes = {
+  label: PropTypes.string,
+  name: PropTypes.string,
+  value: PropTypes.string,
+  touched: PropTypes.bool,
+  error: PropTypes.string,
+  handleChange: PropTypes.func,
+};
+
 export default function PosPage() {
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -142,9 +163,8 @@ export default function PosPage() {
       setValue(0);
       setReceipt(receipts[0]);
     }
-
     if (statusCreate === 'failed') {
-      handleToast('error', error);
+      handleToast('error', error || 'Tạo hóa đơn thất bại');
     }
   }, [statusCreate, error, dispatch, receipts, value]);
 
@@ -155,10 +175,11 @@ export default function PosPage() {
       quantity: '',
       variantColor: 'Không',
       variantSize: 'Không',
-      productId: null,
-      image: 'https://letsenhance.io/static/8f5e523ee6b2479e26ecc91b9c25261e/1015f/MainAfter.jpg',
-      sku: '',
-      weight: 0,
+      _id: null,
+      image:
+        'data:image/png;base64,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',
+      sku: null,
+      weight: 1,
     },
     validationSchema: productSchema,
     onSubmit: async (values) => {
@@ -263,7 +284,7 @@ export default function PosPage() {
     }
   };
   const handleSelectProduct = (id) => {
-    const product = products.products.find((p) => p._id === id);
+    const product = products.find((p) => p._id === id);
     setSelectedColor(0);
     setColors(product.variants);
     setSizes(product.variants[0].sizes);
@@ -308,7 +329,7 @@ export default function PosPage() {
     setQuantity(1);
   };
   const handleSelectUser = (id) => {
-    const user = users.find((u) => u._id === id);
+    const user = users.result.find((u) => u._id === id);
     setAnchorEl(null);
     setSelectedUser(user);
   };
@@ -336,11 +357,11 @@ export default function PosPage() {
   const openSearch = Boolean(anchorEl);
   const id = openSearch ? 'simple-popper' : undefined;
   const handleCalculate = (t, d) => t - d;
-  const handleChangePaymentMethod = (p) => {
-    const r = receipts[value];
-    r.paymentMethod = p;
-    setReceipts([...receipts]);
-  };
+  // const handleChangePaymentMethod = (p) => {
+  //   const r = receipts[value];
+  //   r.paymentMethod = p;
+  //   setReceipts([...receipts]);
+  // };
   const roundingUnits = [10000, 20000, 50000, 100000, 200000, 500000];
 
   const handleChangeAmountPaidBy = (e) => {
@@ -421,7 +442,7 @@ export default function PosPage() {
                 }}
               >
                 {products ? (
-                  products?.products?.map((product) => (
+                  products?.map((product) => (
                     <ListItem
                       key={product._id}
                       sx={{
@@ -678,60 +699,58 @@ export default function PosPage() {
                     {addCustom && (
                       <TableRow>
                         <TableCell>
-                          <TextField
+                          <FormField
                             label="Tên sản phẩm"
                             name="name"
                             value={formik.values.name}
-                            onChange={formik.handleChange}
-                            error={formik.touched.name && Boolean(formik.errors.name)}
-                            helperText={formik.touched.name && formik.errors.name}
+                            touched={formik.touched.name}
+                            error={formik.errors.name}
+                            handleChange={formik.handleChange}
                           />
                         </TableCell>
                         <TableCell align="right">
-                          <TextField
+                          <FormField
                             label="Giá"
                             name="price"
                             value={formik.values.price}
-                            onChange={formik.handleChange}
-                            error={formik.touched.price && Boolean(formik.errors.price)}
-                            helperText={formik.touched.price && formik.errors.price}
+                            touched={formik.touched.price}
+                            error={formik.errors.price}
+                            handleChange={formik.handleChange}
                           />
                         </TableCell>
                         <TableCell align="right">
-                          <TextField
+                          <FormField
                             label="Số lượng"
                             name="quantity"
                             value={formik.values.quantity}
-                            onChange={formik.handleChange}
-                            error={formik.touched.quantity && Boolean(formik.errors.quantity)}
-                            helperText={formik.touched.quantity && formik.errors.quantity}
+                            touched={formik.touched.quantity}
+                            error={formik.errors.quantity}
+                            handleChange={formik.handleChange}
                           />
                         </TableCell>
                         <TableCell align="right">
-                          <TextField
+                          <FormField
                             label="Màu"
                             name="variantColor"
                             value={formik.values.variantColor}
-                            onChange={formik.handleChange}
-                            error={
-                              formik.touched.variantColor && Boolean(formik.errors.variantColor)
-                            }
-                            helperText={formik.touched.variantColor && formik.errors.variantColor}
+                            touched={formik.touched.variantColor}
+                            error={formik.errors.variantColor}
+                            handleChange={formik.handleChange}
                           />
                         </TableCell>
                         <TableCell align="right">
-                          <TextField
+                          <FormField
                             label="Kích thước"
                             name="variantSize"
                             value={formik.values.variantSize}
-                            onChange={formik.handleChange}
-                            error={formik.touched.variantSize && Boolean(formik.errors.variantSize)}
-                            helperText={formik.touched.variantSize && formik.errors.variantSize}
+                            touched={formik.touched.variantSize}
+                            error={formik.errors.variantSize}
+                            handleChange={formik.handleChange}
                           />
                         </TableCell>
                         <TableCell align="right">
                           <IconButton onClick={formik.handleSubmit}>
-                            <Iconify icon="eva:save-fill" />
+                            <IconSave />
                           </IconButton>
                         </TableCell>
                       </TableRow>
@@ -773,7 +792,7 @@ export default function PosPage() {
                           <TableCell align="right">{row.variantSize}</TableCell>
                           <TableCell align="right">
                             <IconButton onClick={() => handleRemoveProduct(i)}>
-                              <Iconify icon="eva:trash-2-fill" />
+                              <IconDelete />
                             </IconButton>
                           </TableCell>
                         </TableRow>
@@ -864,7 +883,7 @@ export default function PosPage() {
                       }}
                     >
                       {statusSearchUser === 'successful' &&
-                        users.map((user) => (
+                        users?.result.map((user) => (
                           <ListItem
                             key={user._id}
                             onClick={() => handleSelectUser(user._id)}
@@ -923,9 +942,9 @@ export default function PosPage() {
               </Stack>
               <Stack direction="row" flexWrap="wrap" gap={2}>
                 <Typography sx={{ width: '100%' }} variant="body1">
-                  Phương thức thanh toán
+                  Phương thức thanh toán: Tiền mặt
                 </Typography>
-                <Button
+                {/* <Button
                   variant={receipt?.paymentMethod === 'Tiền mặt' ? 'contained' : 'outlined'}
                   color="inherit"
                   onClick={() => handleChangePaymentMethod('Tiền mặt')}
@@ -948,7 +967,7 @@ export default function PosPage() {
                   endIcon={<Iconify icon="solar:card-bold" />}
                 >
                   Thẻ
-                </Button>
+                </Button> */}
               </Stack>
               <Stack direction="row" flexWrap="wrap" gap={2}>
                 <Typography sx={{ width: '100%' }} variant="body1">

@@ -78,9 +78,9 @@ const NotifyModal = ({ notify, isOpen, onClose }) => {
 };
 
 NotifyModal.propTypes = {
-  notify: PropTypes.object.isRequired,
-  isOpen: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired,
+  notify: PropTypes.object,
+  isOpen: PropTypes.bool,
+  onClose: PropTypes.func,
 };
 
 export default NotifyModal;

@@ -51,7 +51,7 @@ const SideNavMenu = ({
   const currentMenu =
     menuPath.length === 0 ? menu : menuPath[menuPath.length - 1].list || [];
 
-  if (isLoading) return <MainLoading />;
+  if (isLoading) return null;
 
   return (
     <div className="z-20">
