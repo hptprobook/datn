@@ -39,7 +39,6 @@ const HomePage: React.FunctionComponent = () => {
   const handleInputSearch = useCallback((text: string) => {
     setSearchProduct(text);
   }, []);
-  console.log(cart);
   const searchBar = useMemo(
     () => (
       <Input.Search
