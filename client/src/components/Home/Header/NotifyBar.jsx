@@ -1,5 +1,5 @@
 import { Icon } from '@iconify/react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { iconForNotify } from '~/pages/User/Profile/utils/iconForNotify';
 
 const NotifyBar = ({ notifies }) => {
