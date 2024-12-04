@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import request from '~/config/axiosConfig';
 
 export const checkStockProducts = async (data) => {
@@ -6,8 +5,7 @@ export const checkStockProducts = async (data) => {
     const response = await request.post('/orders/check_stock', data);
     return response.data;
   } catch (error) {
-    console.log('Lỗi khi kiểm tra số lượng tồn kho của sản phẩm', error);
-    throw error;
+    throw error.response.data;
   }
 };
 
@@ -16,8 +14,7 @@ export const getCurrentOrders = async ({ limit = 10 }) => {
     const response = await request.get('/orders/me/current?limit=' + limit);
     return response.data;
   } catch (error) {
-    console.log('Lỗi khi lấy danh sách đơn hàng người dùng', error);
-    throw error;
+    throw error.response.data;
   }
 };
 
@@ -28,8 +25,7 @@ export const getCurrentOrderWithStatus = async ({ limit = 10, status }) => {
     );
     return response.data;
   } catch (error) {
-    console.log('Lỗi khi lấy danh sách đơn hàng người dùng', error);
-    throw error;
+    throw error.response.data;
   }
 };
 
@@ -38,18 +34,15 @@ export const getOrderByCodeAPI = async (code) => {
     const response = await request.get(`/orders/me/code/${code}`);
     return response.data;
   } catch (error) {
-    console.log('Lỗi khi tìm kiếm đơn hàng bằng code', error);
     throw error.response.data;
   }
 };
 
 export const getVnpayUrlAPI = async (data) => {
-  console.log(data);
   try {
     const response = await request.post('/pays/vnpay', data);
     return response.data;
   } catch (error) {
-    console.log('Lỗi khi tìm kiếm đơn hàng bằng code', error);
     throw error.response.data;
   }
 };

@@ -1,11 +1,13 @@
 import { formatDistanceToNow } from 'date-fns';
 import { env } from './constants';
 
+// Viết hoa chữ cái đầu tiên của chuỗi
 export const capitalizeFirstLetter = (val) => {
   if (!val) return '';
   return `${val.charAt(0).toUpperCase()}${val.slice(1)}`;
 };
 
+// Kiểm tra xem một hình ảnh có tồn tại tại URL đã cho hay không
 const checkImageExists = async (imageUrl) => {
   try {
     const response = await fetch(imageUrl, { method: 'HEAD' });
@@ -15,6 +17,7 @@ const checkImageExists = async (imageUrl) => {
   }
 };
 
+// Trả về URL hình ảnh, sử dụng hình ảnh mặc định nếu URL gốc không tồn tại
 export const resolveImageWithFallback = async (imageUrl) => {
   const exists = await checkImageExists(imageUrl);
   return exists
@@ -22,6 +25,7 @@ export const resolveImageWithFallback = async (imageUrl) => {
     : 'https://www.vietnamworks.com/hrinsider/wp-content/uploads/2023/12/hinh-nen-thien-nhien-3d-001.jpg';
 };
 
+// Xử lý URL, thêm tiền tố server URL nếu cần thiết
 export const resolveUrl = (url) => {
   if (
     url?.startsWith('https://') ||
@@ -33,16 +37,19 @@ export const resolveUrl = (url) => {
   return `${env?.SERVER_URL}/${url}`;
 };
 
+// Chuyển đổi nội dung HTML thành văn bản thuần túy
 export const convertHTMLToText = (htmlString) => {
   const parser = new DOMParser();
   const doc = parser.parseFromString(htmlString, 'text/html');
   return doc.body.textContent || '';
 };
 
+// Định dạng thời gian theo kiểu "... time ago"
 export const formatTimestamp = (timestamp) => {
   return formatDistanceToNow(new Date(timestamp), { addSuffix: true });
 };
 
+// Tính khoảng cách giữa hai điểm địa lý theo công thức Haversine
 export const calculateDistance = (lat1, lon1, lat2, lon2) => {
   const R = 6371; // Bán kính trái đất tính theo km
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
@@ -57,6 +64,7 @@ export const calculateDistance = (lat1, lon1, lat2, lon2) => {
   return R * c;
 };
 
+// Cắt ngắn chuỗi và thêm dấu ... nếu độ dài vượt quá giới hạn
 export const truncateString = (str, num) => {
   if (str.length <= num) {
     return str;
@@ -64,24 +72,27 @@ export const truncateString = (str, num) => {
   return str.slice(0, num) + '...';
 };
 
+// Định dạng số tiền theo định dạng tiền tệ VND
 export const formatCurrencyVND = (amount) => {
   return amount
     ? amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
     : 0;
 };
 
+// Tạo MongoDB ObjectId giả lập
 export const generateMongoObjectId = () => {
-  const timestamp = ((new Date().getTime() / 1000) | 0).toString(16); // 4 bytes timestamp
+  const timestamp = ((new Date().getTime() / 1000) | 0).toString(16); // 4 bytes cho timestamp
   const random = 'xxxxxxxxxx'.replace(/[x]/g, () =>
     ((Math.random() * 16) | 0).toString(16)
-  ); // 5 bytes random
+  ); // 5 bytes ngẫu nhiên
   const counter = 'xxx'.replace(/[x]/g, () =>
     ((Math.random() * 16) | 0).toString(16)
-  ); // 3 bytes counter
+  ); // 3 bytes cho bộ đếm
 
-  return timestamp + random + counter; // MongoDB ObjectId format
+  return timestamp + random + counter; // Định dạng MongoDB ObjectId
 };
 
+// Chuyển đổi ngày tháng sang định dạng DD/MM/YYYY
 export const formatDateToDDMMYYYY = (dateString) => {
   if (!dateString) return '';
 
@@ -93,18 +104,21 @@ export const formatDateToDDMMYYYY = (dateString) => {
   return `${day}/${month}/${year}`;
 };
 
+// Chuyển đổi URL thành đối tượng File
 export const urlToFile = async (url, filename, mimeType) => {
   const res = await fetch(url);
   const blob = await res.blob();
   return new File([blob], filename, { type: mimeType });
 };
 
+// Chuyển đổi ngày tháng từ DD/MM/YYYY sang YYYY-MM-DD
 export const formatDateToYYYYMMDD = (dateString) => {
   if (!dateString) return '';
   const [day, month, year] = dateString.split('/');
   return `${year}-${month}-${day}`;
 };
 
+// Tính và hiển thị khoảng thời gian đã trôi qua bằng tiếng Việt
 export const getTimeDifference = (createdAt) => {
   const now = Date.now();
   const diff = now - createdAt;
@@ -138,7 +152,7 @@ export const getTimeDifference = (createdAt) => {
   }
 };
 
-// Hàm định dạng số điện thoại Việt Nam
+// Định dạng số điện thoại Việt Nam theo chuẩn hiển thị
 export const formatVietnamesePhoneNumber = (phoneNumber) => {
   const cleaned = phoneNumber.replace(/\D/g, '');
 

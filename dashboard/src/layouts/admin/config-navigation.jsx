@@ -11,11 +11,6 @@ const navConfig = [
   //   icon: 'mdi:table',
   //   child: undefined,
   // },
-  {
-    title: 'Đơn hàng',
-    path: '/admin/orders',
-    icon: 'ion:cart',
-  },
 
   {
     title: 'Sản phẩm',

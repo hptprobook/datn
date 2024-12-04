@@ -6,8 +6,7 @@ export const getAllCategory = async () => {
     const response = await request.get('/categories');
     return response.data;
   } catch (error) {
-    console.error('Xảy ra lỗi khi lấy tất cả danh mục:', error);
-    throw error;
+    throw error.response.data;
   }
 };
 
@@ -16,7 +15,6 @@ export const increaseCategoryView = async (data) => {
     const response = await request.get(`/categories/${data.slug}/views`);
     return response.data;
   } catch (error) {
-    console.error('Xảy ra lỗi khi tăng view cho sản phẩm:');
     throw error.response.data;
   }
 };
@@ -26,7 +24,6 @@ export const getBestViewCategory = async () => {
     const response = await request.get('/categories/getByView');
     return response.data;
   } catch (error) {
-    console.error('Xảy ra lỗi khi lấy sản phẩm top view:');
     throw error.response.data;
   }
 };
@@ -36,8 +33,7 @@ export const getMenu = async () => {
     const response = await request.get('/categories/menu');
     return response.data;
   } catch (error) {
-    console.error('Xảy ra lỗi khi lấy menu:', error);
-    throw error;
+    throw error.response.data;
   }
 };
 
@@ -46,8 +42,7 @@ export const getCategoryById = async (categoryId) => {
     const response = await request.get(`/categories/${categoryId}`);
     return response.data;
   } catch (error) {
-    console.error('Xảy ra lỗi khi lấy danh mục bằng id:', error);
-    throw error;
+    throw error.response.data;
   }
 };
 
@@ -56,7 +51,6 @@ export const getCategoryBySlug = async (slug) => {
     const response = await request.get(`/categories/slug/${slug}`);
     return response.data;
   } catch (error) {
-    console.error('Xảy ra lỗi khi lấy danh mục bằng slug:', error);
-    throw error;
+    throw error.response.data;
   }
 };

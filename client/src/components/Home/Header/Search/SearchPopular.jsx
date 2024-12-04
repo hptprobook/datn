@@ -10,13 +10,13 @@ import { capitalizeFirstLetter } from '~/utils/formatters';
 import { useWebConfig } from '~/context/WebsiteConfig';
 
 const SearchPopular = ({ handleModelClick, isOpen, handleOverlayClick }) => {
-  const { data, isLoading } = useQuery({
+  const { data = [], isLoading } = useQuery({
     queryKey: ['hotSearch'],
     queryFn: getHotSearch,
     staleTime: 1000 * 60 * 60 * 24,
     cacheTime: 1000 * 60 * 60 * 24,
   });
-  const { minMaxPrice } = useWebConfig();
+  const { minMaxPrice = { minPrice: 0, maxPrice: 0 } } = useWebConfig();
 
   useEffect(() => {
     if (isOpen) {
@@ -48,17 +48,17 @@ const SearchPopular = ({ handleModelClick, isOpen, handleOverlayClick }) => {
           <p className="font-bold">Tìm kiếm phổ biến nhất</p>
         </div>
         <div className="flex gap-3 items-center mt-3">
-          {data?.map((item) => (
+          {data.map((item) => (
             <Link
               key={item._id}
-              to={`/tim-kiem?keyword=${item?.keyword}&minPrice=${minMaxPrice?.minPrice}&maxPrice=${minMaxPrice?.maxPrice}`}
+              to={`/tim-kiem?keyword=${item?.keyword || ''}&minPrice=${minMaxPrice.minPrice}&maxPrice=${minMaxPrice.maxPrice}`}
             >
               <Badge
                 color="light"
                 className="cursor-pointer rounded-xs px-3"
                 onClick={handleOverlayClick}
               >
-                {capitalizeFirstLetter(item?.keyword)}
+                {capitalizeFirstLetter(item?.keyword || '')}
               </Badge>
             </Link>
           ))}
