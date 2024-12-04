@@ -1,17 +1,15 @@
 import { Helmet } from 'react-helmet-async';
-
-import {ProductsView}  from 'src/sections/products/view';
+import { FileManagerView } from 'src/sections/fileManager/view';
 
 // ----------------------------------------------------------------------
 
-export default function ProductsPage() {
+export default function FileManagerPage() {
   return (
     <>
       <Helmet>
-        <title> Sản phẩm</title>
+        <title> Quản lý ảnh </title>
       </Helmet>
-
-      <ProductsView />
+      <FileManagerView />
     </>
   );
 }

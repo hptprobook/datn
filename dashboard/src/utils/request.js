@@ -27,7 +27,7 @@ request.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       handleToast('error', 'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       setTimeout(() => {
-        // window.location.href = `login`;
+        window.location.href = `login`;
       }, 1000);
     }
     return Promise.reject(error);
@@ -108,7 +108,7 @@ export const updateProduct = async ({ id, data }) => {
         formData.append('variantsDelete', item);
       });
     } else if (key === 'variants') {
-      data[key].forEach((variant, i) => {
+      data.variants.forEach((variant, i) => {
         formData.append('variants', JSON.stringify(variant));
         // if (variant.image instanceof File) {
         //   formData.append('imageVariants', variant.imageAdd);
