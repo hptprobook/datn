@@ -102,81 +102,106 @@ const TrackingOrderPage = () => {
     const reasons =
       actionType === 'cancel' ? reasonsForCancel : reasonsForReturn;
 
+    // Add security key prompt first
     Swal.fire({
-      title: actionType === 'cancel' ? 'Lý do hủy đơn hàng' : 'Lý do trả hàng',
-      html: `
-        <div style="display: flex; flex-direction: column; justify-content: center; width: 100%; align-items: center;">
-          <select id="reason-select" class="select select-error">
-          ${reasons
-            .map((reason) => `<option value="${reason}">${reason}</option>`)
-            .join('')}
-        </select>
-        <textarea id="custom-reason" class="textarea w-full" placeholder="Nhập lý do khác..." style="display: none; margin-top: 10px;"></textarea>
-        </div>
-      `,
-      preConfirm: () => {
-        const selectedReason = document.getElementById('reason-select').value;
-        const customReason = document
-          .getElementById('custom-reason')
-          .value.trim();
-
-        if (selectedReason === 'Lý do khác' && !customReason) {
-          Swal.showValidationMessage('Vui lòng nhập lý do!');
-        }
-
-        return selectedReason === 'Lý do khác' ? customReason : selectedReason;
-      },
-      scrollbarPadding: false,
+      title: 'Nhập mã bảo mật',
+      input: 'password',
+      inputPlaceholder: 'Nhập mã bảo mật được gửi trong gmail',
       showCancelButton: true,
       confirmButtonText: 'Xác nhận',
       cancelButtonText: 'Hủy',
-      didOpen: () => {
-        const reasonSelect = document.getElementById('reason-select');
-        const customReasonInput = document.getElementById('custom-reason');
-
-        reasonSelect.addEventListener('change', () => {
-          if (reasonSelect.value === 'Lý do khác') {
-            customReasonInput.style.display = 'block';
-          } else {
-            customReasonInput.style.display = 'none';
-          }
-        });
+      inputValidator: (value) => {
+        if (!value) {
+          return 'Vui lòng nhập mã bảo mật!';
+        }
       },
     }).then((result) => {
       if (result.isConfirmed) {
-        const statusData =
-          actionType === 'cancel'
-            ? {
-                status: 'cancelled',
-                note: 'Khách hàng hủy đơn!',
-                reason: result.value,
-              }
-            : {
-                status: 'returned',
-                note: 'Khách hàng yêu cầu trả hàng!',
-                reason: result.value,
-                returnStatus: 'pending',
-              };
+        const secretKey = result.value;
 
-        cancelOrder({
-          id: orderId,
-          data: { status: statusData },
-        });
-
-        useSwal.fire({
-          icon: 'success',
+        // Original reason modal
+        Swal.fire({
           title:
-            actionType === 'cancel'
-              ? 'Hủy đơn hàng thành công!'
-              : 'Yêu cầu trả hàng đã được gửi!',
-          text:
-            actionType === 'cancel'
-              ? 'Đơn hàng của bạn đã được hủy thành công.'
-              : 'Chúng tôi đã nhận được yêu cầu trả hàng và sẽ xử lý sớm nhất.',
-          confirmButtonText: 'Xác nhận',
-        });
+            actionType === 'cancel' ? 'Lý do hủy đơn hàng' : 'Lý do trả hàng',
+          html: `
+            <div style="display: flex; flex-direction: column; justify-content: center; width: 100%; align-items: center;">
+              <select id="reason-select" class="select select-error">
+              ${reasons
+                .map((reason) => `<option value="${reason}">${reason}</option>`)
+                .join('')}
+            </select>
+            <textarea id="custom-reason" class="textarea w-full" placeholder="Nhập lý do khác..." style="display: none; margin-top: 10px;"></textarea>
+            </div>
+          `,
+          preConfirm: () => {
+            const selectedReason =
+              document.getElementById('reason-select').value;
+            const customReason = document
+              .getElementById('custom-reason')
+              .value.trim();
 
-        mutate(orderCode);
+            if (selectedReason === 'Lý do khác' && !customReason) {
+              Swal.showValidationMessage('Vui lòng nhập lý do!');
+            }
+
+            return selectedReason === 'Lý do khác'
+              ? customReason
+              : selectedReason;
+          },
+          scrollbarPadding: false,
+          showCancelButton: true,
+          confirmButtonText: 'Xác nhận',
+          cancelButtonText: 'Hủy',
+          didOpen: () => {
+            const reasonSelect = document.getElementById('reason-select');
+            const customReasonInput = document.getElementById('custom-reason');
+
+            reasonSelect.addEventListener('change', () => {
+              if (reasonSelect.value === 'Lý do khác') {
+                customReasonInput.style.display = 'block';
+              } else {
+                customReasonInput.style.display = 'none';
+              }
+            });
+          },
+        }).then((result) => {
+          if (result.isConfirmed) {
+            const statusData =
+              actionType === 'cancel'
+                ? {
+                    status: 'cancelled',
+                    note: 'Khách hàng hủy đơn!',
+                    reason: result.value,
+                  }
+                : {
+                    status: 'returned',
+                    note: 'Khách hàng yêu cầu trả hàng!',
+                    reason: result.value,
+                    returnStatus: 'pending',
+                  };
+
+            cancelOrder({
+              id: orderId,
+              data: { status: statusData },
+              secretKey,
+            });
+
+            useSwal.fire({
+              icon: 'success',
+              title:
+                actionType === 'cancel'
+                  ? 'Hủy đơn hàng thành công!'
+                  : 'Yêu cầu trả hàng đã được gửi!',
+              text:
+                actionType === 'cancel'
+                  ? 'Đơn hàng của bạn đã được hủy thành công.'
+                  : 'Chúng tôi đã nhận được yêu cầu trả hàng và sẽ xử lý sớm nhất.',
+              confirmButtonText: 'Xác nhận',
+            });
+
+            mutate(orderCode);
+          }
+        });
       }
     });
   };

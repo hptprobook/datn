@@ -23,7 +23,6 @@ export const getAllBlogAPI = async ({
     );
     return response.data;
   } catch (error) {
-    console.error('Xảy ra lỗi khi lấy tất cả bài viết:', error);
     throw error.response.data;
   }
 };
@@ -33,10 +32,6 @@ export const getTopViewBlogAPI = async () => {
     const response = await request.get('/blogs/topViews');
     return response.data;
   } catch (error) {
-    console.error(
-      'Xảy ra lỗi khi lấy tất cả bài viết có lượt xem cao nhất:',
-      error
-    );
     throw error.response.data;
   }
 };
@@ -46,7 +41,6 @@ export const getTags = async () => {
     const response = await request.get('/blogs/getTags');
     return response.data;
   } catch (error) {
-    console.error('Xảy ra lỗi khi lấy tất cả tags bài viết:', error);
     throw error.response.data;
   }
 };
@@ -56,7 +50,6 @@ export const getBlogBySlugAPI = async ({ slug }) => {
     const response = await request.get('/blogs/slug/' + slug);
     return response.data;
   } catch (error) {
-    console.error('Xảy ra lỗi khi lấy chi tiết bài viết: ', error);
     throw error.response.data;
   }
 };
@@ -66,7 +59,6 @@ export const updateViewBlog = async ({ id }) => {
     const response = await request.patch('/blogs/views/' + id);
     return response.data;
   } catch (error) {
-    console.error('Xảy ra lỗi khi update view bài viết: ', error);
     throw error.response.data;
   }
 };

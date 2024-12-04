@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 
 const RegisterBottom = ({ checked, onChange }) => {
   return (
@@ -25,19 +26,19 @@ const RegisterBottom = ({ checked, onChange }) => {
       <div className="col-span-6">
         <p className="text-sm text-gray-500">
           Bằng việc tạo một tài khoản, tôi đồng ý với{' '}
-          <a
-            href="#"
+          <Link
+            to={'/static/dieu-kien-dieu-khoan'}
             className="text-blue-700 underline hover:text-red-500 transition-colors duration-300"
           >
             các điều khoản - điều kiện
-          </a>{' '}
+          </Link>{' '}
           và{' '}
-          <a
-            href="#"
+          <Link
+            to={'/static/chinh-sach-bao-mat'}
             className="text-blue-700 underline hover:text-red-500 transition-colors duration-300"
           >
             chính sách bảo mật
-          </a>
+          </Link>
           .
         </p>
       </div>

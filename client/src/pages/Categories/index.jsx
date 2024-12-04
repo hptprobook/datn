@@ -231,10 +231,6 @@ const CategoryPage = () => {
     cacheTime: 1000 * 60 * 10,
   });
 
-  // if (isFilteredDataLoading) {
-  //   return <MainLoading />;
-  // }
-
   return (
     <section className="max-w-container mx-auto max-lg:mt-0 mt-16 max-lg:px-4 max-lg:relative">
       <Helmet>

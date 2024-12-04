@@ -5,6 +5,7 @@ import { getMenu } from '~/APIs';
 import { handleToast } from '~/customHooks/useToast';
 import './style.css';
 import { useWebConfig } from '~/context/WebsiteConfig';
+import MainLoading from '~/components/common/Loading/MainLoading';
 
 const NavBar = () => {
   const [hoveredMenu, setHoveredMenu] = useState(null);
@@ -20,7 +21,29 @@ const NavBar = () => {
     return null;
   }
 
-  const menuData = data?.menu || [];
+  if (isLoading || !data?.menu?.length) {
+    return null;
+  }
+
+  const menuData = data.menu;
+
+  const SimpleNavBar = ({ title }) => (
+    <div className="hidden lg:block bg-white text-red-600">
+      <div className="max-w-container mx-auto h-16 flex gap-6 items-center text-xl">
+        <span>BMT Life</span> <span>|</span> <span>{title}</span>
+      </div>
+    </div>
+  );
+
+  const specialRoutes = {
+    '/gio-hang': 'Giỏ hàng',
+    '/thanh-toan': 'Thanh toán',
+    '/thanh-toan/xac-nhan': 'Đặt hàng thành công',
+  };
+
+  if (specialRoutes[location.pathname]) {
+    return <SimpleNavBar title={specialRoutes[location.pathname]} />;
+  }
 
   if (location.pathname === '/gio-hang') {
     return (
