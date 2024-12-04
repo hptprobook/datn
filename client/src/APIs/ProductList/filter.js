@@ -45,8 +45,7 @@ export const filterProductsWithPriceRange = async ({
     );
     return response.data;
   } catch (error) {
-    console.error('Xảy ra lỗi khi lọc sản phẩm với slug danh mục:', slug);
-    throw error;
+    throw error.response.data;
   }
 };
 
@@ -84,8 +83,7 @@ export const filterProductsWithSearch = async ({
     );
     return response.data;
   } catch (error) {
-    console.error('Xảy ra lỗi khi lọc sản phẩm với từ khóa:', keyword);
-    throw error;
+    throw error.response.data;
   }
 };
 
@@ -94,7 +92,6 @@ export const getMinMaxPrices = async () => {
     const response = await request.get('/products/price-range');
     return response.data;
   } catch (error) {
-    console.error('Xảy ra lỗi khi lấy khoảng giá sản phẩm:', error);
-    throw error;
+    throw error.response.data;
   }
 };

@@ -9,18 +9,14 @@ import ProductListFilter from '~/components/Products/ProductListFilter';
 import { Helmet } from 'react-helmet-async';
 
 const SearchPage = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const keyword = searchParams.get('keyword') || '';
   const sort = searchParams.get('sort') || '';
 
-  const [searchParams, setSearchParams] = useSearchParams();
   const [sortOption, setSortOption] = useState(sort);
   const [limit, setLimit] = useState(20);
   const [noMatchingProducts, setNoMatchingProducts] = useState(false);
-  const [filters, setFilters] = useState({
-    colors,
-    sizes,
-    priceRange: { min: minPrice, max: maxPrice },
-  });
+  
 
   // filter màu sắc
   const colors = searchParams.get('colors')
@@ -41,6 +37,12 @@ const SearchPage = () => {
   const maxPrice = searchParams.get('maxPrice')
     ? Number(searchParams.get('maxPrice'))
     : null;
+
+    const [filters, setFilters] = useState({
+      colors,
+      sizes,
+      priceRange: { min: minPrice, max: maxPrice },
+    });
 
   // Query lấy giới hạn giá tiền sản phẩm
   const { data: priceRangeData } = useQuery({
@@ -134,28 +136,6 @@ const SearchPage = () => {
     [filters]
   );
 
-  useEffect(() => {
-    updateSearchParams(filters);
-  }, [filters]);
-
-  // Xử lý thay đổi sắp xếp
-  const handleSortChange = useCallback(
-    (newSortOption) => {
-      setSortOption(newSortOption);
-      const params = new URLSearchParams(searchParams);
-      params.set('sort', newSortOption);
-      setSearchParams(params);
-    },
-    [searchParams, setSearchParams]
-  );
-
-  // Xử lý thay đổi limit
-  const handleLoadMore = useCallback(() => {
-    setLimit((prevLimit) => prevLimit + 20);
-  }, []);
-
-  if (!priceRangeData || !filteredProductsData) return null;
-
   // Thay đổi bộ lọc theo URL
   const updateSearchParams = (newFilters) => {
     const params = new URLSearchParams(searchParams);
@@ -181,6 +161,30 @@ const SearchPage = () => {
 
     setSearchParams(params);
   };
+
+  useEffect(() => {
+    updateSearchParams(filters);
+  }, [filters]);
+
+  // Xử lý thay đổi sắp xếp
+  const handleSortChange = useCallback(
+    (newSortOption) => {
+      setSortOption(newSortOption);
+      const params = new URLSearchParams(searchParams);
+      params.set('sort', newSortOption);
+      setSearchParams(params);
+    },
+    [searchParams, setSearchParams]
+  );
+
+  // Xử lý thay đổi limit
+  const handleLoadMore = useCallback(() => {
+    setLimit((prevLimit) => prevLimit + 20);
+  }, []);
+
+  if (!priceRangeData || !filteredProductsData) return null;
+
+  
 
   return (
     <section className="max-w-container mx-auto mt-16">

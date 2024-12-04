@@ -13,7 +13,6 @@ export const sortProductsByCatSlug = async ({
     );
     return response.data;
   } catch (error) {
-    console.error('Xảy ra lỗi khi sắp xếp sản phẩm với slug danh mục:', slug);
-    throw error;
+    throw error.response.data;
   }
 };

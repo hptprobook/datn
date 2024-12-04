@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import request from '~/config/axiosConfig';
 
 export const getCurrentUser = async () => {
@@ -6,8 +5,7 @@ export const getCurrentUser = async () => {
     const response = await request.get('/users/me');
     return response.data;
   } catch (error) {
-    console.error('Xảy ra lỗi khi lấy thông tin người dùng hiện tại:', error);
-    throw error;
+    throw error.response.data;
   }
 };
 
@@ -16,8 +14,7 @@ export const updateCurrentUser = async (data) => {
     const response = await request.put('/users/me', data);
     return response.data;
   } catch (error) {
-    console.error('Xảy ra lỗi khi cập nhật thông tin người dùng:', error);
-    throw error;
+    throw error.response.data;
   }
 };
 
@@ -26,8 +23,7 @@ export const readAllNotifiesAPI = async () => {
     const response = await request.get('/users/notifies/readAll');
     return response.data;
   } catch (error) {
-    console.error('Xảy ra lỗi khi cập nhật thông tin người dùng:', error);
-    throw error;
+    throw error.response.data;
   }
 };
 
@@ -36,8 +32,7 @@ export const addCartToCurrent = async (data) => {
     const response = await request.put('/users/me/addCart', data);
     return response.data;
   } catch (error) {
-    console.error('Xảy ra lỗi khi thêm sản phẩm vào giỏ hàng:', error);
-    throw error;
+    throw error.response.data;
   }
 };
 
@@ -46,18 +41,15 @@ export const removeCartToCurrent = async (_id) => {
     const response = await request.put('/users/me/removeCart', _id);
     return response.data;
   } catch (error) {
-    console.error('Xảy ra lỗi khi xoá sản phẩm khỏi giỏ hàng:', error);
-    throw error;
+    throw error.response.data;
   }
 };
 
 export const changePassWord = async (data) => {
-  console.log(data);
   try {
     const response = await request.post('/auth/changePassword', data);
     return response.data;
   } catch (error) {
-    console.error('Xảy ra lỗi khi thay đổi mật khẩu:', error);
     throw error.response.data;
   }
 };
@@ -80,7 +72,6 @@ export const updateInfor = async (data) => {
     });
     return response.data;
   } catch (error) {
-    console.error('Xảy ra lỗi khi cập nhật thông tin người dùng:', error);
-    throw error;
+    throw error.response.data;
   }
 };

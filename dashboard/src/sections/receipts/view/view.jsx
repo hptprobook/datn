@@ -73,15 +73,23 @@ export default function ReceiptPage() {
   const status = useSelector((state) => state.receipts.status);
   const error = useSelector((state) => state.receipts.error);
   const statusDelete = useSelector((state) => state.receipts.statusDelete);
-
+  const getReceipts = (p = 1, limit = 10) => {
+    dispatch(
+      fetchAllReceipts({
+        page: p,
+        limit,
+      })
+    );
+  };
   const handleClose = () => setOpen(false);
   useEffect(() => {
-    dispatch(fetchAllReceipts());
-  }, [dispatch]);
+    getReceipts();
+    // eslint-disable-next-line
+  }, []);
 
   useEffect(() => {
     if (status === 'successful') {
-      setReceipts(data);
+      setReceipts(data.result);
     }
   }, [status, dispatch, data]);
   useEffect(() => {
@@ -133,11 +141,13 @@ export default function ReceiptPage() {
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
+    getReceipts(newPage + 1, rowsPerPage);
   };
 
   const handleChangeRowsPerPage = (event) => {
     setPage(0);
     setRowsPerPage(parseInt(event.target.value, 10));
+    getReceipts(1, parseInt(event.target.value, 10));
   };
 
   const handleFilterByName = (event) => {
@@ -149,7 +159,7 @@ export default function ReceiptPage() {
     inputData: receipts,
     comparator: getComparator(order, orderBy),
     filterName,
-    fillerQuery: 'name',
+    fillerQuery: 'receiptCode',
   });
   const handleNavigate = (id) => {
     route.push(id);
@@ -182,10 +192,16 @@ export default function ReceiptPage() {
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
-        <Box sx={style} >
-          <Stack ref={contentRef} direction="column" justifyContent="space-between" spacing={2} sx={{
-            padding: 2,
-          }}>
+        <Box sx={style}>
+          <Stack
+            ref={contentRef}
+            direction="column"
+            justifyContent="space-between"
+            spacing={2}
+            sx={{
+              padding: 2,
+            }}
+          >
             <Typography id="modal-modal-title" variant="h6" component="h2">
               Hóa đơn - {selectedReceipt && selectedReceipt.receiptCode}
             </Typography>
@@ -244,16 +260,16 @@ export default function ReceiptPage() {
             <Button variant="contained" color="error" onClick={handleClose}>
               Đóng
             </Button>
-            <Button variant="contained" color='inherit' onClick={reactToPrintFn}>
+            <Button variant="contained" color="inherit" onClick={reactToPrintFn}>
               In hóa đơn
             </Button>
-            <Button
+            {/* <Button
               variant="contained"
               color='inherit'
               onClick={() => handleToast('info', 'Tính năng đang phát triển!')}
             >
               Chỉnh sửa
-            </Button>
+            </Button> */}
           </Stack>
         </Box>
       </Modal>
@@ -309,32 +325,25 @@ export default function ReceiptPage() {
                 ]}
               />
               <TableBody>
-                {dataFiltered
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((row) => (
-                    <ReceiptTableRow
-                      key={row._id}
-                      name={row.name}
-                      total={row.total}
-                      createdAt={row.createdAt}
-                      receiptCode={row.receiptCode}
-                      updatedAt={row.updatedAt}
-                      quantity={row.productsList.length}
-                      paymentMethod={row.paymentMethod}
-                      selected={selected.indexOf(row._id) !== -1}
-                      handleClickRow={(event) => handleSelectedReceipt(row._id)}
-                      handleClick={(event) => handleClick(event, row._id)}
-                      handleNavigate={() => handleNavigate(row._id)}
-                      onDelete={() => handleDelete(row._id)}
-                    />
-                  ))}
+                {dataFiltered.map((row) => (
+                  <ReceiptTableRow
+                    key={row._id}
+                    name={row.name}
+                    total={row.total}
+                    createdAt={row.createdAt}
+                    receiptCode={row.receiptCode}
+                    updatedAt={row.updatedAt}
+                    quantity={row.productsList.length}
+                    paymentMethod={row.paymentMethod}
+                    selected={selected.indexOf(row._id) !== -1}
+                    handleClickRow={(event) => handleSelectedReceipt(row._id)}
+                    handleClick={(event) => handleClick(event, row._id)}
+                    handleNavigate={() => handleNavigate(row._id)}
+                    onDelete={() => handleDelete(row._id)}
+                  />
+                ))}
 
-                <TableEmptyRows
-                  height={77}
-                  emptyRows={emptyRows(page, rowsPerPage, receipts.length)}
-                  col={8}
-                />
-
+         
                 {notFound && <TableNoData query={filterName} />}
               </TableBody>
             </Table>
@@ -345,7 +354,7 @@ export default function ReceiptPage() {
           page={page}
           component="div"
           labelRowsPerPage="Số hàng trên trang"
-          count={receipts.length}
+          count={data?.count || 0}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}
           rowsPerPageOptions={[5, 10, 25]}

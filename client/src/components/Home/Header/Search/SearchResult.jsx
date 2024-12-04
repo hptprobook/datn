@@ -8,10 +8,10 @@ import { useEffect } from 'react';
 
 const SearchResult = ({
   handleModelClick,
-  searchResults,
-  searchLoading,
+  searchResults = [],
+  searchLoading = false,
   closeModal,
-  keyword,
+  keyword = '',
   isOpen,
 }) => {
   useEffect(() => {
@@ -26,7 +26,9 @@ const SearchResult = ({
     };
   }, [isOpen]);
 
-  if (searchLoading || !searchResults || searchResults.length === 0) {
+  const showLoader = searchLoading || !Array.isArray(searchResults) || searchResults.length === 0;
+
+  if (showLoader) {
     return (
       <div
         className="w-full h-[620px] bg-yellow-50 flex justify-center items-center"
@@ -45,19 +47,18 @@ const SearchResult = ({
           <p className="font-bold">Tìm kiếm gợi ý</p>
         </div>
         <div className="grid grid-cols-5 gap-6 pb-5">
-          {searchResults &&
-            searchResults.map((product) => (
-              <NavLink
-                to={`/san-pham/${product.slug}`}
-                key={product._id}
-                onClick={closeModal}
-              >
-                <ProductItem product={product} />
-              </NavLink>
-            ))}
+          {searchResults.map((product) => (
+            <NavLink
+              to={`/san-pham/${product?.slug || ''}`}
+              key={product?._id || crypto.randomUUID()}
+              onClick={closeModal}
+            >
+              <ProductItem product={product} />
+            </NavLink>
+          ))}
         </div>
         <NavLink
-          to={`/tim-kiem?keyword=${keyword}`}
+          to={`/tim-kiem?keyword=${encodeURIComponent(keyword)}`}
           className="flex justify-end items-center gap-2 text-red-500 pb-6 font-medium"
           onClick={closeModal}
         >
@@ -70,8 +71,11 @@ const SearchResult = ({
 
 SearchResult.propTypes = {
   handleModelClick: PropTypes.func,
-  searchResults: PropTypes.array.isRequired,
-  searchLoading: PropTypes.bool, // Đảm bảo thêm prop này
+  searchResults: PropTypes.array,
+  searchLoading: PropTypes.bool,
+  closeModal: PropTypes.func.isRequired,
+  keyword: PropTypes.string,
+  isOpen: PropTypes.bool,
 };
 
 export default SearchResult;

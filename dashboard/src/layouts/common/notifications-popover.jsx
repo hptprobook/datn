@@ -1,7 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import dayjs from 'dayjs';
-import { faker } from '@faker-js/faker';
 
 import Box from '@mui/material/Box';
 import List from '@mui/material/List';
@@ -21,58 +19,91 @@ import ListItemButton from '@mui/material/ListItemButton';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 
+import { getMe, addNotify } from 'src/redux/slices/authSlice';
+import { useDispatch } from 'react-redux';
+import socket from 'src/utils/socket';
+import { handleToast } from 'src/hooks/toast';
 // ----------------------------------------------------------------------
 
-const NOTIFICATIONS = [
-  {
-    id: faker.string.uuid(),
-    title: 'Your order is placed',
-    description: 'waiting for shipping',
-    avatar: null,
-    type: 'order_placed',
-    createdAt: dayjs().set('hour', 10).set('minute', 30).toDate(),
-    isUnRead: true,
-  },
-  {
-    id: faker.string.uuid(),
-    title: faker.person.fullName(),
-    description: 'answered to your comment on the Minimal',
-    avatar: '/assets/images/avatars/avatar_2.jpg',
-    type: 'friend_interactive',
-    createdAt: dayjs().subtract(3, 'hour').subtract(30, 'minute').toDate(),
-    isUnRead: true,
-  },
-  {
-    id: faker.string.uuid(),
-    title: 'You have new message',
-    description: '5 unread messages',
-    avatar: null,
-    type: 'chat_message',
-    createdAt: dayjs().subtract(1, 'day').subtract(3, 'hour').subtract(30, 'minute').toDate(),
-    isUnRead: false,
-  },
-  {
-    id: faker.string.uuid(),
-    title: 'You have new mail',
-    description: 'sent from Guido Padberg',
-    avatar: null,
-    type: 'mail',
-    createdAt: dayjs().subtract(2, 'day').subtract(3, 'hour').subtract(30, 'minute').toDate(),
-    isUnRead: false,
-  },
-  {
-    id: faker.string.uuid(),
-    title: 'Delivery processing',
-    description: 'Your order is being shipped',
-    avatar: null,
-    type: 'order_shipped',
-    createdAt: dayjs().subtract(3, 'day').subtract(3, 'hour').subtract(30, 'minute').toDate(),
-    isUnRead: false,
-  },
-];
-
 export default function NotificationsPopover() {
-  const [notifications, setNotifications] = useState(NOTIFICATIONS);
+  const [notifications, setNotifications] = useState([]);
+  const dispatch = useDispatch();
+  const [staff, setStaff] = useState(null);
+
+  useEffect(() => {
+    dispatch(getMe()).then((result) => {
+      if (result.type === 'auth/me/fulfilled') {
+        setStaff(result.payload);
+      }
+    });
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (staff?._id) {
+      socket.connect();
+      socket.emit('online', staff._id);
+
+      return () => {
+        socket.disconnect();
+      };
+    }
+    return () => {};
+  }, [staff]);
+
+  useEffect(() => {
+    if (staff?._id) {
+      const handleNewOrder = (notifyData) => {
+        handleToast('info', notifyData.message);
+
+        const newNotification = {
+          id: notifyData.order._id || Date.now().toString(),
+          title: notifyData.message,
+          description: `Đơn hàng mã ${notifyData.order.orderCode} vừa được thêm vào`,
+          avatar: null,
+          type: 'order',
+          createdAt: new Date(),
+          isUnRead: true,
+        };
+
+        setNotifications((prev) => [newNotification, ...prev]); // Thêm thông báo mới
+        dispatch(
+          addNotify({
+            staffId: staff._id,
+            title: notifyData.message,
+            description: newNotification.description,
+            type: 'order',
+            createdAt: Date.now(),
+            isUnRead: true,
+          })
+        ).then(() => {
+          dispatch(getMe());
+        });
+      };
+
+      socket.on('newOrder', handleNewOrder);
+
+      return () => {
+        socket.off('newOrder', handleNewOrder);
+      };
+    }
+    return () => {};
+  }, [staff, dispatch]);
+
+  useEffect(() => {
+    if (staff?.notifies) {
+      setNotifications(
+        staff.notifies.map((notify) => ({
+          id: notify._id || notify.staffId,
+          title: notify.title,
+          description: notify.description,
+          avatar: null,
+          type: notify.type,
+          createdAt: new Date(notify.createdAt),
+          isUnRead: notify.isUnRead,
+        }))
+      );
+    }
+  }, [staff?.notifies]);
 
   const totalUnRead = notifications.filter((item) => item.isUnRead === true).length;
 
@@ -119,14 +150,14 @@ export default function NotificationsPopover() {
       >
         <Box sx={{ display: 'flex', alignItems: 'center', py: 2, px: 2.5 }}>
           <Box sx={{ flexGrow: 1 }}>
-            <Typography variant="subtitle1">Notifications</Typography>
+            <Typography variant="subtitle1">Thông báo</Typography>
             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              You have {totalUnRead} unread messages
+              Bạn có {totalUnRead} thông báo chưa đọc
             </Typography>
           </Box>
 
           {totalUnRead > 0 && (
-            <Tooltip title="Mark all as read">
+            <Tooltip title="Đánh dấu tất cả là đã đọc">
               <IconButton color="primary" onClick={handleMarkAllAsRead}>
                 <Iconify icon="eva:done-all-fill" />
               </IconButton>
@@ -141,7 +172,7 @@ export default function NotificationsPopover() {
             disablePadding
             subheader={
               <ListSubheader disableSticky sx={{ py: 1, px: 2.5, typography: 'overline' }}>
-                New
+                Mới
               </ListSubheader>
             }
           >
@@ -154,7 +185,7 @@ export default function NotificationsPopover() {
             disablePadding
             subheader={
               <ListSubheader disableSticky sx={{ py: 1, px: 2.5, typography: 'overline' }}>
-                Before that
+                Trước đó
               </ListSubheader>
             }
           >
@@ -168,7 +199,7 @@ export default function NotificationsPopover() {
 
         <Box sx={{ p: 1 }}>
           <Button fullWidth disableRipple>
-            View All
+            Xem tất cả
           </Button>
         </Box>
       </Popover>
@@ -240,7 +271,7 @@ function renderContent(notification) {
     </Typography>
   );
 
-  if (notification.type === 'order_placed') {
+  if (notification.type === 'order') {
     return {
       avatar: <img alt={notification.title} src="/assets/icons/ic_notification_package.svg" />,
       title,
