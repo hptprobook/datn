@@ -31,6 +31,7 @@ const START_SERVER = () => {
     // Tham gia Room dựa trên userId
     socket.on('online', (userId) => {
       if (userId) {
+        console.log('User online:', userId);
         socket.join(userId);
       }
     });
