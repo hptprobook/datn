@@ -1320,7 +1320,7 @@ const searchInDashboard = async (keyword) => {
         },
       ],
     })
-    .project({ name: 1, _id: 1, variants: 1, thumbnail: 1, price: 1 })
+    .project({ name: 1, _id: 1, variants: 1, thumbnail: 1, price: 1, slug: 1 })
     .limit(10)
     .toArray();
   return result;
