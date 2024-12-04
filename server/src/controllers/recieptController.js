@@ -19,15 +19,16 @@ const addReceipt = async (req, res) => {
       result.insertedId.toString()
     );
     // trừ số lượng
-    const newData = ReceiptData.productsList.map((item) => {
-      return {
+    const newData = ReceiptData.productsList
+      .filter(item => item.sku !== null)
+      .map(item => ({
         productId: item._id.toString(),
         name: item.name,
         variantColor: item.variantColor,
         variantSize: item.variantSize,
         quantity: -item.quantity,
-      };
-    });
+      }));
+
     const results = await Promise.all(
       newData.map(async (item) => {
         const updateResult = await orderModel.updateSingleProductStock(item);

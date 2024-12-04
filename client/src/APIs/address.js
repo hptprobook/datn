@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import request from '~/config/axiosConfig';
 
 export const getCoordinatesFromAddress = async (address) => {
@@ -16,8 +15,7 @@ export const getAllProvinces = async () => {
     const response = await request.get('/address/tinh');
     return response.data;
   } catch (error) {
-    console.error('Xảy ra lỗi khi lấy tất cả tỉnh thành:', error);
-    throw error;
+    throw error.response.data;
   }
 };
 
@@ -26,8 +24,7 @@ export const getDistrictsByProvinceId = async (provinceId) => {
     const response = await request.get(`/address/huyen/${provinceId}`);
     return response.data;
   } catch (error) {
-    console.error('Xảy ra lỗi khi lấy tất cả quận huyện:', error);
-    throw error;
+    throw error.response.data;
   }
 };
 
@@ -36,7 +33,6 @@ export const getWardsByDistrictId = async (districtId) => {
     const response = await request.get(`/address/xa/${districtId}`);
     return response.data;
   } catch (error) {
-    console.error('Xảy ra lỗi khi lấy tất cả phường xã:', error);
-    throw error;
+    throw error.response.data;
   }
 };

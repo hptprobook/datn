@@ -18,37 +18,52 @@ import { removeCartToCurrent, updateCurrentUser } from '~/APIs';
 import { useSwal, useSwalWithConfirm } from '~/customHooks/useSwal';
 
 const CartFixed = ({ open, setOpen }) => {
+  const [isLoading, setIsLoading] = useState(false);
+
   const {
     items: guestItems,
     removeItem,
     emptyCart,
     cartTotal: guestCartTotal,
   } = useCart();
-  const [showTooltip, setShowTooltip] = useState(null);
   const { isAuthenticated } = useCheckAuth();
   const { user, refetchUser } = useUser();
   const [userCartItems, setUserCartItems] = useState([]);
   const [userCartTotal, setUserCartTotal] = useState(0);
+  const [showTooltip, setShowTooltip] = useState(null);
 
   useEffect(() => {
-    if (isAuthenticated && user) {
-      const updatedCartItems = user?.carts.map((item) => ({
+    if (isAuthenticated && user?.carts) {
+      const updatedCartItems = user.carts.map((item) => ({
         ...item,
-        id: item._id,
+        id: item?._id || '',
+        name: item?.name || 'Sản phẩm không xác định',
+        image: item?.image || '',
+        price: item?.price || 0,
+        itemTotal: item?.itemTotal || 0,
+        quantity: item?.quantity || 0,
+        slug: item?.slug || '',
+        variantColor: item?.variantColor || '',
+        variantSize: item?.variantSize || 'FREESIZE'
       }));
       setUserCartItems(updatedCartItems);
       setUserCartTotal(
-        user.carts.reduce((total, item) => total + item.itemTotal, 0)
+        user.carts.reduce((total, item) => total + (item?.itemTotal || 0), 0)
       );
     }
   }, [isAuthenticated, user]);
 
   const mutation = useMutation({
     mutationFn: removeCartToCurrent,
+    onMutate: () => {
+      setIsLoading(true);
+    },
     onSuccess: () => {
       refetchUser();
+      setIsLoading(false);
     },
     onError: () => {
+      setIsLoading(false);
       useSwal.fire({
         icon: 'error',
         title: 'Lỗi!',
@@ -138,7 +153,11 @@ const CartFixed = ({ open, setOpen }) => {
                   </div>
 
                   <div className="mt-8">
-                    {items.length === 0 ? (
+                    {isLoading ? (
+                      <div className="flex justify-center items-center h-40">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                      </div>
+                    ) : items.length === 0 ? (
                       <EmptyCart />
                     ) : (
                       <div className="flow-root">

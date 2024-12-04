@@ -1,5 +1,5 @@
 import { Icon } from '@iconify/react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { iconForNotify } from '~/pages/User/Profile/utils/iconForNotify';
 
 const NotifyBar = ({ notifies }) => {
@@ -52,9 +52,9 @@ const NotifyBar = ({ notifies }) => {
             </div>
           )}
         </div>
-        <NavLink to={'/nguoi-dung/tai-khoan/thong-bao'}>
-          <p className="text-gray-700 mt-4 py-2 px-4 text-center">Xem tất cả</p>
-        </NavLink>
+        <div className="text-gray-700 mt-4 py-2 px-4 text-center hover:text-red-600 cursor-pointer">
+          Xem tất cả
+        </div>
       </div>
     </Link>
   );

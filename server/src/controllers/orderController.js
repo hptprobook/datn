@@ -10,6 +10,7 @@ import { recieptModel } from '~/models/receiptModel';
 import { orderStatus } from '~/utils/format';
 import { ObjectId } from 'mongodb';
 import { couponHistoryModel } from '~/models/couponHistoryModel';
+import { staffsModel } from '~/models/staffsModel';
 const getAllOrder = async (req, res) => {
   try {
     const { page, limit } = req.query;
@@ -137,8 +138,6 @@ const addOrder = async (req, res) => {
       ];
     }
 
-    console.log(dataOrder);
-
     // Thêm đơn hàng vào cơ sở dữ liệu
     const result = await orderModel.addOrder(dataOrder);
     const orderData = await orderModel.getOrderById(result.insertedId);
@@ -153,10 +152,183 @@ const addOrder = async (req, res) => {
       orderCode: dataOrder.orderCode,
     };
 
-    // // Emit thông báo tới user
-    // req.io
-    //   .to(dataOrder.userId.toString())
-    //   .emit('orderNotification', notifyData);
+    const staffs = await staffsModel.getStaffs();
+    staffs.forEach((staff) => {
+      req.io.to(staff._id.toString()).emit('newOrder', {
+        message: 'Có đơn hàng mới cần xử lý',
+        order: orderData,
+      });
+    });
+
+    // Gửi email xác nhận đặt hàng
+    const email = req.user.email;
+    const subject = 'Cảm ơn bạn đã đặt hàng tại BMT Life';
+    const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                line-height: 1.6;
+                color: #333333;
+                margin: 0;
+                padding: 0;
+            }
+            .email-container {
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #ffffff;
+            }
+            .header {
+                background-color: #4CAF50;
+                color: white;
+                padding: 20px;
+                text-align: center;
+                border-radius: 5px 5px 0 0;
+            }
+            .content {
+                padding: 20px;
+                background-color: #f9f9f9;
+                border: 1px solid #dddddd;
+                border-radius: 0 0 5px 5px;
+            }
+            .order-details {
+                background-color: white;
+                padding: 15px;
+                margin: 20px 0;
+                border-radius: 5px;
+                border: 1px solid #eeeeee;
+            }
+            .order-code {
+                font-size: 24px;
+                color: #4CAF50;
+                font-weight: bold;
+                text-align: center;
+                margin: 15px 0;
+            }
+            .customer-info {
+                margin: 15px 0;
+            }
+            .info-item {
+                padding: 8px 0;
+                border-bottom: 1px solid #eeeeee;
+            }
+            .total-price {
+                font-size: 18px;
+                color: #e53935;
+                font-weight: bold;
+                text-align: right;
+                margin-top: 15px;
+            }
+            .footer {
+                text-align: center;
+                margin-top: 20px;
+                padding: 20px;
+                background-color: #f5f5f5;
+                border-radius: 5px;
+            }
+            .social-links {
+                margin: 15px 0;
+            }
+            .social-links a {
+                margin: 0 10px;
+                color: #4CAF50;
+                text-decoration: none;
+            }
+            .button {
+                display: inline-block;
+                padding: 10px 20px;
+                background-color: #4CAF50;
+                color: white;
+                text-decoration: none;
+                border-radius: 5px;
+                margin: 15px 0;
+            }
+            @media only screen and (max-width: 600px) {
+                .email-container {
+                    width: 100%;
+                    padding: 10px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="email-container">
+            <div class="header">
+                <h1>BMT Life</h1>
+                <p>Xác nhận đơn hàng của bạn</p>
+            </div>
+            
+            <div class="content">
+                <h2>Xin chào ${dataOrder.shippingInfo.name}!</h2>
+                <p>Cảm ơn bạn đã tin tưởng và đặt hàng tại <strong>BMT Life</strong>! 
+                   Đơn hàng của bạn đã được tiếp nhận và chúng tôi sẽ xử lý trong thời gian sớm nhất.</p>
+                
+                <div class="order-code">
+                    Mã đơn hàng: ${dataOrder.orderCode}
+                </div>
+                
+                <div class="order-details">
+                    <h3>Thông tin đơn hàng:</h3>
+                    <div class="customer-info">
+                        <div class="info-item">
+                            <strong>Tên khách hàng:</strong> ${
+                              dataOrder.shippingInfo.name
+                            }
+                        </div>
+                        <div class="info-item">
+                            <strong>Email:</strong> ${email}
+                        </div>
+                        <div class="info-item">
+                            <strong>Số điện thoại:</strong> ${
+                              dataOrder.shippingInfo.phone
+                            }
+                        </div>
+                        <div class="info-item">
+                            <strong>Địa chỉ giao hàng:</strong> ${
+                              dataOrder.shippingInfo.fullAddress
+                            }
+                        </div>
+                        <div class="total-price">
+                            Tổng tiền: ${new Intl.NumberFormat('vi-VN', {
+                              style: 'currency',
+                              currency: 'VND',
+                            }).format(dataOrder.totalPrice)}
+                        </div>
+                    </div>
+                </div>
+
+                <p>Bạn có thể theo dõi trạng thái đơn hàng bằng cách click vào nút bên dưới:</p>
+                <center>
+                    <a href="${process.env.CLIENT_URL}/nguoi-dung/don-hang/${
+      dataOrder.orderCode
+    }" class="button">
+                        Theo dõi đơn hàng
+                    </a>
+                </center>
+
+                <div class="footer">
+                    <p>Cảm ơn bạn đã lựa chọn BMT Life!</p>
+                    <div class="social-links">
+                        <a href="https://facebook.com/bmtlife">Facebook</a> |
+                        <a href="https://instagram.com/bmtlife">Instagram</a> |
+                        <a href="https://twitter.com/bmtlife">Twitter</a>
+                    </div>
+                    <p>
+                        <small>Nếu bạn cần hỗ trợ, vui lòng liên hệ với chúng tôi qua email bmtlife@gmail.com 
+                        hoặc số điện thoại 0322 741 249</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>
+    `;
+    await sendMail(email, subject, html);
 
     // Lưu lịch sử coupon nếu có
     if (dataOrder.couponId && dataOrder.couponId.length > 0) {
@@ -192,10 +364,24 @@ const addOrder = async (req, res) => {
   }
 };
 
+function generateSecretKey(length) {
+  let result = '';
+  const characters =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const charactersLength = characters.length;
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+}
+
 const addOrderNot = async (req, res) => {
   try {
     const dataOrder = req.body;
     const { orderCode, email, shippingInfo, totalPrice } = dataOrder;
+
+    const secretKey = generateSecretKey(16);
+    dataOrder.secretKey = secretKey;
 
     // Kiểm tra nếu mã đơn hàng đã tồn tại
     const currentOrder = await orderModel.findOrderByCode(orderCode);
@@ -223,20 +409,172 @@ const addOrderNot = async (req, res) => {
     // Gửi email xác nhận đặt hàng
     const subject = 'Cảm ơn bạn đã đặt hàng tại BMT Life';
     const html = `
-      <h2>Xin chào, bạn!</h2>
-      <p>Cảm ơn bạn đã tin tưởng và đặt hàng tại <strong>BMT Life</strong>! Đơn hàng của bạn đã được tiếp nhận và chúng tôi sẽ xử lý trong thời gian sớm nhất.</p>
-      <p>Mã đơn hàng của bạn là: <strong>${orderCode}</strong></p>
-      <p>Bạn có thể theo dõi trạng thái đơn hàng qua email này hoặc đăng nhập vào tài khoản của bạn tại website của chúng tôi.</p>
-      <h3>Thông tin đơn hàng:</h3>
-      <ul>
-          <li><strong>Tên khách hàng:</strong> ${shippingInfo.name}</li>
-          <li><strong>Email:</strong> ${email}</li>
-          <li><strong>Số điện thoại:</strong> ${shippingInfo.phone}</li>
-          <li><strong>Địa chỉ giao hàng:</strong> ${shippingInfo.detailAddress}</li>
-          <li><strong>Tổng tiền:</strong> ${totalPrice} VND</li>
-      </ul>
-      <p>Chúng tôi sẽ gửi thông báo khi đơn hàng được vận chuyển. Cảm ơn bạn đã lựa chọn BMT Life, và chúng tôi hy vọng bạn sẽ hài lòng với sản phẩm của mình!</p>
-      <p>Trân trọng,<br />Đội ngũ BMT Life</p>
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                line-height: 1.6;
+                color: #333333;
+                margin: 0;
+                padding: 0;
+            }
+            .email-container {
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #ffffff;
+            }
+            .header {
+                background-color: #4CAF50;
+                color: white;
+                padding: 20px;
+                text-align: center;
+                border-radius: 5px 5px 0 0;
+            }
+            .content {
+                padding: 20px;
+                background-color: #f9f9f9;
+                border: 1px solid #dddddd;
+                border-radius: 0 0 5px 5px;
+            }
+            .order-details {
+                background-color: white;
+                padding: 15px;
+                margin: 20px 0;
+                border-radius: 5px;
+                border: 1px solid #eeeeee;
+            }
+            .order-code {
+                font-size: 24px;
+                color: #4CAF50;
+                font-weight: bold;
+                text-align: center;
+                margin: 15px 0;
+            }
+            .customer-info {
+                margin: 15px 0;
+            }
+            .info-item {
+                padding: 8px 0;
+                border-bottom: 1px solid #eeeeee;
+            }
+            .total-price {
+                font-size: 18px;
+                color: #e53935;
+                font-weight: bold;
+                text-align: right;
+                margin-top: 15px;
+            }
+            .footer {
+                text-align: center;
+                margin-top: 20px;
+                padding: 20px;
+                background-color: #f5f5f5;
+                border-radius: 5px;
+            }
+            .social-links {
+                margin: 15px 0;
+            }
+            .social-links a {
+                margin: 0 10px;
+                color: #4CAF50;
+                text-decoration: none;
+            }
+            .button {
+                display: inline-block;
+                padding: 10px 20px;
+                background-color: #4CAF50;
+                color: white;
+                text-decoration: none;
+                border-radius: 5px;
+                margin: 15px 0;
+            }
+            @media only screen and (max-width: 600px) {
+                .email-container {
+                    width: 100%;
+                    padding: 10px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="email-container">
+            <div class="header">
+                <h1>BMT Life</h1>
+                <p>Xác nhận đơn hàng của bạn</p>
+            </div>
+            
+            <div class="content">
+                <h2>Xin chào ${shippingInfo.name}!</h2>
+                <p>Cảm ơn bạn đã tin tưởng và đặt hàng tại <strong>BMT Life</strong>! 
+                   Đơn hàng của bạn đã được tiếp nhận và chúng tôi sẽ xử lý trong thời gian sớm nhất.</p>
+                
+                <div class="order-code">
+                    Mã đơn hàng: ${orderCode}
+                </div>
+                
+                <div class="order-details">
+                    <h3>Thông tin đơn hàng:</h3>
+                    <div class="customer-info">
+                        <div class="info-item">
+                            <strong>Tên khách hàng:</strong> ${
+                              shippingInfo.name
+                            }
+                        </div>
+                        <div class="info-item">
+                            <strong>Email:</strong> ${email}
+                        </div>
+                        <div class="info-item">
+                            <strong>Số điện thoại:</strong> ${
+                              shippingInfo.phone
+                            }
+                        </div>
+                        <div class="info-item">
+                            <strong>Địa chỉ giao hàng:</strong> ${
+                              shippingInfo.fullAddress
+                            }
+                        </div>
+                        <div class="total-price">
+                            Tổng tiền: ${new Intl.NumberFormat('vi-VN', {
+                              style: 'currency',
+                              currency: 'VND',
+                            }).format(totalPrice)}
+                        </div>
+                        <div class="secret-key">
+                            Mã bảo mật: <strong>${secretKey}</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <p>Bạn có thể theo dõi trạng thái đơn hàng bằng cách click vào nút bên dưới:</p>
+                <center>
+                    <a href="${
+                      process.env.CLIENT_URL
+                    }/theo-doi-don-hang" class="button">
+                        Theo dõi đơn hàng
+                    </a>
+                </center>
+
+                <div class="footer">
+                    <p>Cảm ơn bạn đã lựa chọn BMT Life!</p>
+                    <div class="social-links">
+                        <a href="https://facebook.com/bmtlife">Facebook</a> |
+                        <a href="https://instagram.com/bmtlife">Instagram</a> |
+                        <a href="https://twitter.com/bmtlife">Twitter</a>
+                    </div>
+                    <p>
+                        <small>Nếu bạn cần hỗ trợ, vui lòng liên hệ với chúng tôi qua email bmtlife@gmail.com 
+                        hoặc số điện thoại 0322 741 249</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>
     `;
     await sendMail(email, subject, html);
 
@@ -447,6 +785,177 @@ const updateOrder = async (req, res) => {
           }),
         };
         await recieptModel.addReceipt(dataEnd);
+
+        // Gửi email khi đơn hàng hoàn thành
+        const email = req.user.email; // Assuming user's email is available in req.user
+        const subject = 'Đơn hàng của bạn đã hoàn thành';
+        const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    line-height: 1.6;
+                    color: #333333;
+                    margin: 0;
+                    padding: 0;
+                }
+                .email-container {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    padding: 20px;
+                    background-color: #ffffff;
+                }
+                .header {
+                    background-color: #4CAF50;
+                    color: white;
+                    padding: 20px;
+                    text-align: center;
+                    border-radius: 5px 5px 0 0;
+                }
+                .content {
+                    padding: 20px;
+                    background-color: #f9f9f9;
+                    border: 1px solid #dddddd;
+                    border-radius: 0 0 5px 5px;
+                }
+                .order-details {
+                    background-color: white;
+                    padding: 15px;
+                    margin: 20px 0;
+                    border-radius: 5px;
+                    border: 1px solid #eeeeee;
+                }
+                .order-code {
+                    font-size: 24px;
+                    color: #4CAF50;
+                    font-weight: bold;
+                    text-align: center;
+                    margin: 15px 0;
+                }
+                .customer-info {
+                    margin: 15px 0;
+                }
+                .info-item {
+                    padding: 8px 0;
+                    border-bottom: 1px solid #eeeeee;
+                }
+                .total-price {
+                    font-size: 18px;
+                    color: #e53935;
+                    font-weight: bold;
+                    text-align: right;
+                    margin-top: 15px;
+                }
+                .footer {
+                    text-align: center;
+                    margin-top: 20px;
+                    padding: 20px;
+                    background-color: #f5f5f5;
+                    border-radius: 5px;
+                }
+                .social-links {
+                    margin: 15px 0;
+                }
+                .social-links a {
+                    margin: 0 10px;
+                    color: #4CAF50;
+                    text-decoration: none;
+                }
+                .button {
+                    display: inline-block;
+                    padding: 10px 20px;
+                    background-color: #4CAF50;
+                    color: white;
+                    text-decoration: none;
+                    border-radius: 5px;
+                    margin: 15px 0;
+                }
+                @media only screen and (max-width: 600px) {
+                    .email-container {
+                        width: 100%;
+                        padding: 10px;
+                    }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="email-container">
+                <div class="header">
+                    <h1>BMT Life</h1>
+                    <p>Đơn hàng của bạn đã hoàn thành</p>
+                </div>
+                
+                <div class="content">
+                    <h2>Xin chào ${dataOrder.shippingInfo.name}!</h2>
+                    <p>Đơn hàng #${
+                      dataOrder.orderCode
+                    } của bạn đã được giao thành công. Cảm ơn bạn đã mua sắm tại <strong>BMT Life</strong>.</p>
+                    
+                    <div class="order-code">
+                        Mã đơn hàng: ${dataOrder.orderCode}
+                    </div>
+                    
+                    <div class="order-details">
+                        <h3>Thông tin đơn hàng:</h3>
+                        <div class="customer-info">
+                            <div class="info-item">
+                                <strong>Tên khách hàng:</strong> ${
+                                  dataOrder.shippingInfo.name
+                                }
+                            </div>
+                            <div class="info-item">
+                                <strong>Email:</strong> ${email}
+                            </div>
+                            <div class="info-item">
+                                <strong>Số điện thoại:</strong> ${
+                                  dataOrder.shippingInfo.phone
+                                }
+                            </div>
+                            <div class="info-item">
+                                <strong>Địa chỉ giao hàng:</strong> ${
+                                  dataOrder.shippingInfo.fullAddress
+                                }
+                            </div>
+                            <div class="total-price">
+                                Tổng tiền: ${new Intl.NumberFormat('vi-VN', {
+                                  style: 'currency',
+                                  currency: 'VND',
+                                }).format(dataOrder.totalPrice)}
+                            </div>
+                        </div>
+                    </div>
+
+                    <p>Bạn có thể theo dõi trạng thái đơn hàng bằng cách click vào nút bên dưới:</p>
+                    <center>
+                        <a href="${
+                          process.env.CLIENT_URL
+                        }/theo-doi-don-hang" class="button">
+                            Theo dõi đơn hàng
+                        </a>
+                    </center>
+
+                    <div class="footer">
+                        <p>Cảm ơn bạn đã lựa chọn BMT Life!</p>
+                        <div class="social-links">
+                            <a href="https://facebook.com/bmtlife">Facebook</a> |
+                            <a href="https://instagram.com/bmtlife">Instagram</a> |
+                            <a href="https://twitter.com/bmtlife">Twitter</a>
+                        </div>
+                        <p>
+                            <small>Nếu bạn cần hỗ trợ, vui lòng liên hệ với chúng tôi qua email bmtlife@gmail.com 
+                            hoặc số điện thoại 0322 741 249</small>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </body>
+        </html>
+        `;
+        await sendMail(email, subject, html);
       }
     }
 
@@ -466,6 +975,25 @@ const updateOrderNotLogin = async (req, res) => {
   try {
     const { id } = req.params;
     const data = req.body;
+
+    // Kiểm tra secretKey
+    const { secretKey } = data;
+    const order = await orderModel.getOrderById(id);
+
+    if (!order) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        message: 'Không tìm thấy đơn hàng',
+      });
+    }
+
+    if (!secretKey || order.secretKey !== secretKey) {
+      return res.status(StatusCodes.FORBIDDEN).json({
+        message: 'Mã bảo mật không hợp lệ',
+      });
+    }
+
+    delete data.secretKey;
+
     if (data.status) {
       const oldStatus = await orderModel.getStatusOrder(id);
       const check = oldStatus.some((i) => data.status.status === i.status);
@@ -570,6 +1098,177 @@ const updateOrderNotLogin = async (req, res) => {
           }),
         };
         await recieptModel.addReceipt(dataEnd);
+
+        // Gửi email khi đơn hàng hoàn thành
+        const email = order.email; // Assuming order's email is available
+        const subject = 'Đơn hàng của bạn đã hoàn thành';
+        const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    line-height: 1.6;
+                    color: #333333;
+                    margin: 0;
+                    padding: 0;
+                }
+                .email-container {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    padding: 20px;
+                    background-color: #ffffff;
+                }
+                .header {
+                    background-color: #4CAF50;
+                    color: white;
+                    padding: 20px;
+                    text-align: center;
+                    border-radius: 5px 5px 0 0;
+                }
+                .content {
+                    padding: 20px;
+                    background-color: #f9f9f9;
+                    border: 1px solid #dddddd;
+                    border-radius: 0 0 5px 5px;
+                }
+                .order-details {
+                    background-color: white;
+                    padding: 15px;
+                    margin: 20px 0;
+                    border-radius: 5px;
+                    border: 1px solid #eeeeee;
+                }
+                .order-code {
+                    font-size: 24px;
+                    color: #4CAF50;
+                    font-weight: bold;
+                    text-align: center;
+                    margin: 15px 0;
+                }
+                .customer-info {
+                    margin: 15px 0;
+                }
+                .info-item {
+                    padding: 8px 0;
+                    border-bottom: 1px solid #eeeeee;
+                }
+                .total-price {
+                    font-size: 18px;
+                    color: #e53935;
+                    font-weight: bold;
+                    text-align: right;
+                    margin-top: 15px;
+                }
+                .footer {
+                    text-align: center;
+                    margin-top: 20px;
+                    padding: 20px;
+                    background-color: #f5f5f5;
+                    border-radius: 5px;
+                }
+                .social-links {
+                    margin: 15px 0;
+                }
+                .social-links a {
+                    margin: 0 10px;
+                    color: #4CAF50;
+                    text-decoration: none;
+                }
+                .button {
+                    display: inline-block;
+                    padding: 10px 20px;
+                    background-color: #4CAF50;
+                    color: white;
+                    text-decoration: none;
+                    border-radius: 5px;
+                    margin: 15px 0;
+                }
+                @media only screen and (max-width: 600px) {
+                    .email-container {
+                        width: 100%;
+                        padding: 10px;
+                    }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="email-container">
+                <div class="header">
+                    <h1>BMT Life</h1>
+                    <p>Đơn hàng của bạn đã hoàn thành</p>
+                </div>
+                
+                <div class="content">
+                    <h2>Xin chào ${dataOrder.shippingInfo.name}!</h2>
+                    <p>Đơn hàng #${
+                      dataOrder.orderCode
+                    } của bạn đã được giao thành công. Cảm ơn bạn đã mua sắm tại <strong>BMT Life</strong>.</p>
+                    
+                    <div class="order-code">
+                        Mã đơn hàng: ${dataOrder.orderCode}
+                    </div>
+                    
+                    <div class="order-details">
+                        <h3>Thông tin đơn hàng:</h3>
+                        <div class="customer-info">
+                            <div class="info-item">
+                                <strong>Tên khách hàng:</strong> ${
+                                  dataOrder.shippingInfo.name
+                                }
+                            </div>
+                            <div class="info-item">
+                                <strong>Email:</strong> ${email}
+                            </div>
+                            <div class="info-item">
+                                <strong>Số điện thoại:</strong> ${
+                                  dataOrder.shippingInfo.phone
+                                }
+                            </div>
+                            <div class="info-item">
+                                <strong>Địa chỉ giao hàng:</strong> ${
+                                  dataOrder.shippingInfo.fullAddress
+                                }
+                            </div>
+                            <div class="total-price">
+                                Tổng tiền: ${new Intl.NumberFormat('vi-VN', {
+                                  style: 'currency',
+                                  currency: 'VND',
+                                }).format(dataOrder.totalPrice)}
+                            </div>
+                        </div>
+                    </div>
+
+                    <p>Bạn có thể theo dõi trạng thái đơn hàng bằng cách click vào nút bên dưới:</p>
+                    <center>
+                        <a href="${
+                          process.env.CLIENT_URL
+                        }/theo-doi-don-hang" class="button">
+                            Theo dõi đơn hàng
+                        </a>
+                    </center>
+
+                    <div class="footer">
+                        <p>Cảm ơn bạn đã lựa chọn BMT Life!</p>
+                        <div class="social-links">
+                            <a href="https://facebook.com/bmtlife">Facebook</a> |
+                            <a href="https://instagram.com/bmtlife">Instagram</a> |
+                            <a href="https://twitter.com/bmtlife">Twitter</a>
+                        </div>
+                        <p>
+                            <small>Nếu bạn cần hỗ trợ, vui lòng liên hệ với chúng tôi qua email bmtlife@gmail.com 
+                            hoặc số điện thoại 0322 741 249</small>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </body>
+        </html>
+        `;
+        await sendMail(email, subject, html);
       }
     }
     return res.status(StatusCodes.OK).json(dataOrder);
