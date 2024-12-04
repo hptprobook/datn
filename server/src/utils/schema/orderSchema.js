@@ -170,6 +170,7 @@ export const SAVE_ORDER_NOT_LOGIN = Joi.object({
   totalProfit: Joi.number().min(0),
   paymentMethod: Joi.valid('Tiền mặt', 'VNPAY'),
   type: Joi.string().trim().min(1).default('notLoginOrder'),
+  secretKey: Joi.string().trim().min(1),
   createdAt: Joi.date().timestamp('javascript').default(Date.now), // Thời gian tạo trạng thái
 });
 

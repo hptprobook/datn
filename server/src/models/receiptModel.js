@@ -16,6 +16,7 @@ const getAllReciept = async (page, limit) => {
   page = parseInt(page) || 1;
   limit = parseInt(limit) || 12;
   const db = await GET_DB().collection('receipt');
+  const count = await db.countDocuments();
   const result = await db
     .find()
     .sort({ createdAt: -1 })
@@ -26,7 +27,10 @@ const getAllReciept = async (page, limit) => {
     //   note: 0, // Loại bỏ trường "unnecessaryField2"
     // })
     .toArray();
-  return result;
+  return {
+    count,
+    result,
+  };
 };
 const getReceiptById = async (id) => {
   const db = await GET_DB().collection('receipt');

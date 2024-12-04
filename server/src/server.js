@@ -8,8 +8,6 @@ import { env } from '~/config/environment';
 import { errorHandlingMiddleware } from './middlewares/errorHandlingMiddleware';
 import cookieParser from 'cookie-parser';
 import { APIs } from './routes';
-import swaggerUi from 'swagger-ui-express';
-import swaggerFile from '../swagger_output.json';
 import path from 'path';
 import http from 'http';
 import { Server } from 'socket.io';
@@ -33,6 +31,7 @@ const START_SERVER = () => {
     // Tham gia Room dựa trên userId
     socket.on('online', (userId) => {
       if (userId) {
+        console.log('User online:', userId);
         socket.join(userId);
       }
     });
@@ -74,7 +73,6 @@ const START_SERVER = () => {
     res.send('Hello World!');
   });
 
-  app.use('/api/doc', swaggerUi.serve, swaggerUi.setup(swaggerFile));
   app.use('/api', APIs);
 
   server.listen(env.HOST_URL, () => {

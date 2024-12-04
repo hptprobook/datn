@@ -20,7 +20,11 @@ const validationSchema = Yup.object({
   name: Yup.string()
     .required('Họ tên không được để trống')
     .min(3, 'Họ tên phải có ít nhất 3 ký tự')
-    .max(50, 'Họ tên không được vượt quá 50 ký tự'),
+    .max(50, 'Họ tên không được vượt quá 50 ký tự')
+    .matches(
+      /^[a-zA-ZÀ-ỹ\s]+$/,
+      'Họ tên không được chứa số hoặc ký tự đặc biệt'
+    ),
   phone: Yup.string()
     .required('Số điện thoại không được để trống')
     .matches(/(84|0[3|5|7|8|9])+([0-9]{8})\b/g, 'Số điện thoại không hợp lệ'),
@@ -33,7 +37,11 @@ const validationSchema = Yup.object({
   address: Yup.string()
     .required('Địa chỉ không được để trống')
     .min(3, 'Địa chỉ phải có ít nhất 3 ký tự')
-    .max(100, 'Địa chỉ không được vượt quá 100 ký tự'),
+    .max(100, 'Địa chỉ không được vượt quá 100 ký tự')
+    .matches(
+      /^[a-zA-Z0-9À-ỹ\s,/-]+$/,
+      'Địa chỉ chỉ được chứa chữ, số và các ký tự , / -'
+    ),
 });
 
 const AddressModel = ({
