@@ -6,8 +6,7 @@ export const getAllProducts = async ({ limit = 20 } = {}) => {
     const response = await request.get(`/products?limit=${limit}`);
     return response.data;
   } catch (error) {
-    console.error('Xảy ra lỗi khi lấy tất cả sản phẩm:', error);
-    throw error;
+    throw error.response.data;
   }
 };
 
@@ -16,8 +15,7 @@ export const getProductById = async (id) => {
     const response = await request.get(`/products/${id}`);
     return response.data;
   } catch (error) {
-    console.error(`Xảy ra lỗi khi lấy sản phẩm bằng id: ${id}:`, error);
-    throw error;
+    throw error.response.data;
   }
 };
 
@@ -26,8 +24,7 @@ export const getProductBySlug = async (slug) => {
     const response = await request.get(`/products/slug/${slug}`);
     return response.data;
   } catch (error) {
-    console.error(`Xảy ra lỗi khi lấy sản phẩm bằng slug: ${slug}:`, error);
-    throw error;
+    throw error.response.data;
   }
 };
 
@@ -38,11 +35,7 @@ export const getProductsByCatId = async (catId, limit = 20) => {
     );
     return response.data;
   } catch (error) {
-    console.error(
-      'Xảy ra lỗi khi lấy tất cả sản phẩm bằng id danh mục:',
-      error
-    );
-    throw error;
+    throw error.response.data;
   }
 };
 
@@ -53,11 +46,7 @@ export const getProductsByCatSlug = async (slug, limit = 20) => {
     );
     return response.data;
   } catch (error) {
-    console.error(
-      'Xảy ra lỗi khi lấy tất cả sản phẩm bằng slug danh mục:',
-      error
-    );
-    throw error;
+    throw error.response.data;
   }
 };
 
@@ -68,11 +57,7 @@ export const getProductsByBrandId = async (brandId, limit = 20) => {
     );
     return response.data;
   } catch (error) {
-    console.error(
-      'Xảy ra lỗi khi lấy tất cả sản phẩm bằng id thương hiệu:',
-      error
-    );
-    throw error;
+    throw error.response.data;
   }
 };
 
@@ -83,11 +68,7 @@ export const getProductsByBrandSlug = async (slug, limit = 20) => {
     );
     return response.data;
   } catch (error) {
-    console.error(
-      'Xảy ra lỗi khi lấy tất cả sản phẩm bằng slug thương hiệu:',
-      error
-    );
-    throw error;
+    throw error.response.data;
   }
 };
 
@@ -98,8 +79,7 @@ export const getProductsByEventSlug = async (slug, limit = 20) => {
     );
     return response.data;
   } catch (error) {
-    console.error('Xảy ra lỗi khi lọc tất cả sản phẩm bằng slug', error);
-    throw error;
+    throw error.response.data;
   }
 };
 
@@ -126,7 +106,6 @@ export const ratingProduct = async (data) => {
     });
     return response.data;
   } catch (error) {
-    console.error('Lỗi khi thêm bình luận', error);
     throw error.response.data;
   }
 };

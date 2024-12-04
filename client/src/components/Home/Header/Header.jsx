@@ -22,8 +22,6 @@ import { useWebConfig } from '~/context/WebsiteConfig';
 import NotifyBar from './NotifyBar';
 import socket from '~/config/socket';
 import { useSwalWithConfirm } from '~/customHooks/useSwal';
-// import { useSocketContext } from '~/context/SocketContext';
-// import { io } from 'socket.io-client';
 
 const Header = () => {
   const { isAuthenticated } = useCheckAuth();

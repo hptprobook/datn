@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import shipRequest from '~/config/axiosShipConfig';
 
 const ShopId = import.meta.env.VITE_GHN_SHOP_ID;
@@ -8,8 +7,7 @@ export const getShippingFee = async (data) => {
     const response = await shipRequest.post('/shipping-order/fee', data);
     return response.data;
   } catch (error) {
-    console.error('Xảy ra lỗi khi lấy phí vận chuyển:', error);
-    throw error;
+    throw error.response.data;
   }
 };
 
@@ -21,8 +19,7 @@ export const getServiceId = async (data) => {
     );
     return response.data;
   } catch (error) {
-    console.error('Xảy ra lỗi khi lấy phí vận chuyển:', error);
-    throw error;
+    throw error.response.data;
   }
 };
 
@@ -31,7 +28,6 @@ export const getOrderDetail = async (data) => {
     const response = await shipRequest.post('/shipping-order/soc', data);
     return response.data;
   } catch (error) {
-    console.error('Xảy ra lỗi khi lấy phí vận chuyển:', error);
-    throw error;
+    throw error.response.data;
   }
 };
