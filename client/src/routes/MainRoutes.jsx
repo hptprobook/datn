@@ -28,6 +28,10 @@ const MainRoutes = {
       path: 'danh-muc-san-pham',
       children: [
         {
+          path: '',
+          element: <NotFoundPage />,
+        },
+        {
           path: ':slug',
           element: <CategoryPage />,
         },

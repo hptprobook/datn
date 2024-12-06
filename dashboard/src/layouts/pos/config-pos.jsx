@@ -16,12 +16,12 @@ const navConfig = [
     path: '/pos/orders',
     icon: 'ion:cart',
   },
-  {
-    title: 'Tra cứu đơn hàng',
-    path: '/pos/tracking-order',
-    icon: 'mdi:file-find',
-    child: undefined,
-  },
+  // {
+  //   title: 'Tra cứu đơn hàng',
+  //   path: '/pos/tracking-order',
+  //   icon: 'mdi:file-find',
+  //   child: undefined,
+  // },
   {
     title: 'Tra cứu tồn kho',
     path: '/pos/inventory',

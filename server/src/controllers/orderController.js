@@ -10,6 +10,7 @@ import { recieptModel } from '~/models/receiptModel';
 import { orderStatus } from '~/utils/format';
 import { ObjectId } from 'mongodb';
 import { couponHistoryModel } from '~/models/couponHistoryModel';
+import { staffsModel } from '~/models/staffsModel';
 const getAllOrder = async (req, res) => {
   try {
     const { page, limit } = req.query;
@@ -137,8 +138,6 @@ const addOrder = async (req, res) => {
       ];
     }
 
-    console.log(dataOrder);
-
     // Thêm đơn hàng vào cơ sở dữ liệu
     const result = await orderModel.addOrder(dataOrder);
     const orderData = await orderModel.getOrderById(result.insertedId);
@@ -152,6 +151,14 @@ const addOrder = async (req, res) => {
       orderId: result.insertedId.toString(),
       orderCode: dataOrder.orderCode,
     };
+
+    const staffs = await staffsModel.getStaffs();
+    staffs.forEach((staff) => {
+      req.io.to(staff._id.toString()).emit('newOrder', {
+        message: 'Có đơn hàng mới cần xử lý',
+        order: orderData,
+      });
+    });
 
     // Gửi email xác nhận đặt hàng
     const email = req.user.email;
