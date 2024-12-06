@@ -1,46 +1,127 @@
-## Minimal [(Free version)](https://minimal-kit-react.vercel.app/)
+# BMT Life - Dashboard
 
-![license](https://img.shields.io/badge/license-MIT-blue.svg)
+Website bán hàng BMT Life - Phần dashboard
 
-> Free React Admin Dashboard made with Material-UI components and React.
+## Yêu cầu hệ thống
 
-![preview](public/assets/preview.jpg)
+- Node.js 16.x trở lên
+- npm hoặc yarn
+- Git
 
-## Demo
+## Cài đặt
 
-- [Dashboard Page](https://minimal-kit-react.vercel.app/)
-- [Users Page](https://minimal-kit-react.vercel.app/user)
-- [Products Page](https://minimal-kit-react.vercel.app/products)
-- [Blog Page](https://minimal-kit-react.vercel.app/blog)
-- [Login Page](https://minimal-kit-react.vercel.app/login)
-- [Not Found Page](https://minimal-kit-react.vercel.app/404)
+1. Clone repository:
 
-## Quick start
+```bash
+git clone https://github.com/hptprobook/datn.git
+cd datn/dashboard
+```
 
-- [Download from Github](https://github.com/minimal-ui-kit/material-kit-react/archive/refs/heads/main.zip) or clone the repo : `git clone https://github.com/minimal-ui-kit/material-kit-react.git`
-- Recommended `Node.js v18.x`.
-- **Install:** `yarn install`
-- **Start:** `yarn dev`
-- **Build:** `yarn build`
+2. Cài đặt dependencies:
 
-## Upgrade to PRO Version
+```bash
+npm install
+```
 
-| Minimal Free     | [Minimal Pro](https://material-ui.com/store/items/minimal-dashboard/) |
-| :--------------- | :-------------------------------------------------------------------- |
-| **6** Demo Pages | **70+** Demo Pages                                                    |
-| -                | Authentication with **Amplify**, **Auth0**, **JWT** and **Firebase**  |
-| -                | [+More components](https://minimals.cc/components)                    |
-| -                | Dark & light mode                                                     |
-| -                | Next.js version                                                       |
-| -                | TypeScript version (Standard Plus and Extended license)               |
-| -                | Design Figma File (Standard Plus and Extended license)                |
-| -                | Complete Users Flows                                                  |
-| -                | Learn more: [Package & License](https://docs.minimals.cc/package)     |
+hoặc
 
-## License
+```bash
+yarn install
+```
 
-Distributed under the MIT License. See [LICENSE](https://github.com/minimal-ui-kit/minimal.free/blob/main/LICENSE.md) for more information.
+3. Chạy lệnh để tạo file `.env` từ file `.env.example`:
 
-## Contact us
+```bash
+cp .env.example .env
+```
 
-Email: support@minimals.cc
+File `.env` cần có các biến sau:
+
+```bash
+VITE_REACT_API_URL='http://localhost:3000/api'
+VITE_REACT_TOKEN_GHN='f2982490-d319-11ee-8bfa-8a2dda8ec551'
+VITE_REACT_API_GHN_URL='https://dev-online-gateway.ghn.vn/shiip/public-api/master-data'
+VITE_DOMAIN='http://localhost:3030/'
+VITE_BACKEND_APP_URL='http://localhost:3000/'
+VITE_TINYMCE_API_KEY='<your_tinymce_api_key>'
+```
+
+4. Chạy project:
+
+```bash
+npm run dev
+```
+
+hoặc  
+
+```bash
+yarn dev
+```
+
+Ứng dụng sẽ chạy trên `http://localhost:3030/`
+
+## Build và Deploy
+
+1. Build ứng dụng:
+
+```bash
+npm run build
+```
+
+hoặc
+
+```bash
+yarn build
+```
+
+2. Preview bản build:
+
+```bash
+npm run preview
+```
+
+hoặc
+
+```bash
+yarn preview
+```
+
+## Cấu trúc thư mục
+
+- `src/`: Chứa source code của ứng dụng
+  - `_mock/`: Chứa các file mock data
+  - `assets/`: Chứa các file tĩnh như hình ảnh, video, ...
+  - `components/`: Chứa các component dùng chung cho ứng dụng
+  - `pages/`: Chứa các trang của ứng dụng
+  - `utils/`: Chứa các hàm tiện ích dùng chung cho ứng dụng
+  - `config/`: Chứa cấu hình của ứng dụng
+  - `hooks/`: Chứa các hook dùng chung cho ứng dụng
+  - `redux/`: Chứa các redux slice
+  - `theme/`: Chứa các file theme của ứng dụng
+  - `sections/`: Chứa các section dùng chung cho ứng dụng
+  - `layouts/`: Chứa các layout dùng chung cho ứng dụng
+  - `routes/`: Chứa các route của ứng dụng
+  - `contexts/`: Chứa các context của ứng dụng
+  - `app.jsx`: File chính của ứng dụng
+  - `main.jsx`: File khởi tạo ứng dụng
+- `public/`: Chứa các file tĩnh như `robots.txt`, `favicon.ico`,...
+
+## Tính năng chính
+
+- Quản lý đơn hàng, sản phẩm, tin tức, bình luận, ...
+- Quản lý tài khoản, cửa hàng, người dùng
+- Quản lý coupon
+- Bán hàng
+- Quản lý kho, nhập hàng, đơn nhập hàng, nhà cung cấp
+- Quản lý website config, SEO config
+- Thống kê, báo cáo
+- Thông báo realtime
+
+## Công nghệ sử dụng
+
+- React + Vite
+- React Router Dom
+- MUI
+- Socket.IO
+- Redux Toolkit
+- Axios
