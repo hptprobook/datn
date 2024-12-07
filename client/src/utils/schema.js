@@ -48,4 +48,7 @@ export const resetPasswordSchema = Yup.object().shape({
     .trim()
     .min(6, 'Mật khẩu phải có ít nhất 6 ký tự')
     .required('Mật khẩu là bắt buộc'),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref('password'), null], 'Mật khẩu không khớp')
+    .required('Vui lòng xác nhận mật khẩu'),
 });

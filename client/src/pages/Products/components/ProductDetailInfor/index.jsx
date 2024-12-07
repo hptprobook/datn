@@ -16,6 +16,7 @@ import { useMutation } from '@tanstack/react-query';
 import { addCartToCurrent } from '~/APIs';
 import ObjectID from 'bson-objectid';
 import { useSwal } from '~/customHooks/useSwal';
+import MainLoading from '~/components/common/Loading/MainLoading';
 
 const ProductDetailInfor = ({
   product,
@@ -190,38 +191,42 @@ const ProductDetailInfor = ({
     });
   };
 
+  if (mutation.isPending || mutation.isLoading) {
+    return <MainLoading />;
+  }
+
   return (
-    <div className='flex justify-center items-center text-black'>
-      <div className='pro-detail w-full lg:pl-8 xl:pl-16 max-lg:mx-auto lg:mt-8 mt-32 max-sm:mt-16'>
-        <div className='flex items-center justify-between gap-6 mb-6'>
-          <div className='text'>
+    <div className="flex justify-center items-center text-black">
+      <div className="pro-detail w-full lg:pl-8 xl:pl-16 max-lg:mx-auto lg:mt-8 mt-32 max-sm:mt-16">
+        <div className="flex items-center justify-between gap-6 mb-6">
+          <div className="text">
             {!isQuickView ? (
-              <h2 className='font-manrope font-bold text-xl leading-10 text-gray-900 mb-2 text-clamp-3'>
+              <h2 className="font-manrope font-bold text-xl leading-10 text-gray-900 mb-2 text-clamp-3">
                 {product?.name}
               </h2>
             ) : (
               <NavLink to={`/san-pham/${product?.slug}`}>
-                <h2 className='font-manrope font-bold text-xl leading-10 text-gray-900 mb-2 text-clamp-3 hover:text-red-600'>
+                <h2 className="font-manrope font-bold text-xl leading-10 text-gray-900 mb-2 text-clamp-3 hover:text-red-600">
                   {product?.name}
                 </h2>
               </NavLink>
             )}
-            <p className='font-normal text-base text-gray-500 text-clamp-1'>
+            <p className="font-normal text-base text-gray-500 text-clamp-1">
               SKU: {selectedVariant?.sku || product?.variants[0].sku}
             </p>
           </div>
           {isAuthenticated && <AddToWhistListBtn product={product} />}
         </div>
-        <div className='flex gap-5 flex-col min-[400px]:flex-row min-[400px]:items-center mb-8 gap-y-3'>
-          <div className='flex items-center'>
-            <h5 className='font-manrope font-semibold text-2xl leading-9 text-gray-900 '>
+        <div className="flex gap-5 flex-col min-[400px]:flex-row min-[400px]:items-center mb-8 gap-y-3">
+          <div className="flex items-center">
+            <h5 className="font-manrope font-semibold text-2xl leading-9 text-gray-900 ">
               {formatCurrencyVND(totalPrice)}
             </h5>
           </div>
           <RateInforBtn rate={4.5} />
         </div>
 
-        <p className='font-medium text-lg text-gray-900 mb-2'>Màu sắc</p>
+        <p className="font-medium text-lg text-gray-900 mb-2">Màu sắc</p>
         <SelectColor
           variants={product.variants}
           onChange={handleColorChange}
@@ -230,7 +235,7 @@ const ProductDetailInfor = ({
 
         {!isFreeSize && sizes && sizes.length > 0 && (
           <>
-            <p className='font-medium text-lg text-gray-900 mb-2'>Kích thước</p>
+            <p className="font-medium text-lg text-gray-900 mb-2">Kích thước</p>
             <SelectSize
               sizes={sizes}
               onChange={handleSizeChange}
@@ -239,9 +244,9 @@ const ProductDetailInfor = ({
           </>
         )}
 
-        {error && <p className='text-red-600 mb-5'>{error}</p>}
+        {error && <p className="text-red-600 mb-5">{error}</p>}
 
-        <div className='flex items-center flex-col min-[400px]:flex-row gap-3 mb-3 min-[400px]:mb-8'>
+        <div className="flex items-center flex-col min-[400px]:flex-row gap-3 mb-3 min-[400px]:mb-8">
           <ChangeQuantity
             onChange={handleQuantityChange}
             quantity={quantity}
@@ -256,7 +261,7 @@ const ProductDetailInfor = ({
           />
         </div>
         <button
-          className='text-center w-full px-5 py-4 rounded-md bg-red-600 flex items-center justify-center font-semibold text-lg text-white shadow-sm shadow-transparent transition-all duration-500 hover:bg-red-700 hover:shadow-red-300'
+          className="text-center w-full px-5 py-4 rounded-md bg-red-600 flex items-center justify-center font-semibold text-lg text-white shadow-sm shadow-transparent transition-all duration-500 hover:bg-red-700 hover:shadow-red-300"
           onClick={handleBuyNow}
           disabled={
             !selectedColor ||

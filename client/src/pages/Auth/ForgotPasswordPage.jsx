@@ -100,7 +100,9 @@ const ForgotPasswordPageUI = () => {
     initialValues: { password: '', confirmPassword: '' },
     validationSchema: resetPasswordSchema,
     onSubmit: (values) => {
-      resetPasswordMutation.mutate({ email, password: values.password });
+      const { password } = values;
+
+      resetPasswordMutation.mutate({ email, password });
     },
   });
 

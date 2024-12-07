@@ -14,7 +14,7 @@ const AuthBanner = ({ type }) => {
       <div className="hidden lg:relative lg:block lg:p-12">
         <NavLink to={'/'} className="block text-white">
           <img
-            src={`${import.meta.env.VITE_SERVER_URL}/${config?.logo}`}
+            src={`${import.meta.env.VITE_SERVER_URL}/${config?.darkLogo}`}
             alt=""
           />
         </NavLink>
