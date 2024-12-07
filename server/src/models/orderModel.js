@@ -5,6 +5,7 @@ import {
   UPDATE_ORDER,
   SAVE_ORDER_NOT_LOGIN,
 } from '~/utils/schema/orderSchema';
+import { generateSlug } from '~/utils/format';
 
 const validateBeforeCreate = async (data) => {
   return await SAVE_ORDER.validateAsync(data, { abortEarly: false });
@@ -18,7 +19,6 @@ const validateBeforeCreateNot = async (data) => {
 const validateBeforeUpdate = async (data) => {
   return await UPDATE_ORDER.validateAsync(data, { abortEarly: false });
 };
-
 
 const getAllOrders = async (page, limit) => {
   page = parseInt(page) || 1;
@@ -39,25 +39,52 @@ const getAllOrders = async (page, limit) => {
   return { count, result };
 };
 
-const searchCurrentOrder = async (userId, keyword, page, limit) => {
+const searchCurrentOrder = async (
+  userId,
+  keyword,
+  page,
+  limit,
+  sort = 'newest'
+) => {
   page = parseInt(page) || 1;
   limit = parseInt(limit) || 12;
 
   const db = await GET_DB().collection('orders');
 
+  const slugKeyword = generateSlug(keyword);
+
   // Xây dựng query tìm kiếm
   const query = {
     userId: new ObjectId(userId),
     $or: [
-      { orderCode: { $regex: keyword, $options: 'i' } }, // Tìm theo orderCode
-      { 'productsList.name': { $regex: keyword, $options: 'i' } }, // Tìm theo tên sản phẩm
+      { orderCode: { $regex: keyword, $options: 'i' } },
+      { 'productsList.slug': { $regex: slugKeyword, $options: 'i' } },
     ],
   };
+
+  // Xác định cách sắp xếp
+  let sortOptions = {};
+  switch (sort) {
+    case 'newest':
+      sortOptions = { createdAt: -1 };
+      break;
+    case 'oldest':
+      sortOptions = { createdAt: 1 };
+      break;
+    case 'priceAsc':
+      sortOptions = { totalPrice: 1 };
+      break;
+    case 'priceDesc':
+      sortOptions = { totalPrice: -1 };
+      break;
+    default:
+      sortOptions = { createdAt: -1 };
+  }
 
   const total = await db.countDocuments(query);
   const result = await db
     .find(query)
-    .sort({ createdAt: -1 })
+    .sort(sortOptions)
     .skip((page - 1) * limit)
     .limit(limit)
     .toArray();
@@ -82,24 +109,70 @@ const getOrderByCode = async (orderCode, userId) => {
   return result;
 };
 
-const getCurrentOrder = async (user_id, page, limit) => {
+const getCurrentOrder = async (user_id, page, limit, sort = 'newest') => {
   page = parseInt(page) || 1;
   limit = parseInt(limit) || 12;
   const db = await GET_DB().collection('orders');
+
+  // Xác định cách sắp xếp
+  let sortOptions = {};
+  switch (sort) {
+    case 'newest':
+      sortOptions = { createdAt: -1 };
+      break;
+    case 'oldest':
+      sortOptions = { createdAt: 1 };
+      break;
+    case 'priceAsc':
+      sortOptions = { totalPrice: 1 };
+      break;
+    case 'priceDesc':
+      sortOptions = { totalPrice: -1 };
+      break;
+    default:
+      sortOptions = { createdAt: -1 };
+  }
+
   const total = await db.countDocuments({ userId: new ObjectId(user_id) });
   const result = await db
     .find({ userId: new ObjectId(user_id) })
-    .sort({ createdAt: -1 })
+    .sort(sortOptions)
     .skip((page - 1) * limit)
     .limit(limit)
     .toArray();
   return { total, result };
 };
 
-const getCurrentOrderByStatus = async (user_id, status, page, limit) => {
+const getCurrentOrderByStatus = async (
+  user_id,
+  status,
+  page,
+  limit,
+  sort = 'newest'
+) => {
   page = parseInt(page) || 1;
   limit = parseInt(limit) || 12;
   const db = await GET_DB().collection('orders');
+
+  // Xác định cách sắp xếp cho aggregation pipeline
+  let sortStage = {};
+  switch (sort) {
+    case 'newest':
+      sortStage = { createdAt: -1 };
+      break;
+    case 'oldest':
+      sortStage = { createdAt: 1 };
+      break;
+    case 'priceAsc':
+      sortStage = { totalPrice: 1 };
+      break;
+    case 'priceDesc':
+      sortStage = { totalPrice: -1 };
+      break;
+    default:
+      sortStage = { createdAt: -1 };
+  }
+
   const countResult = await db
     .aggregate([
       { $match: { userId: new ObjectId(user_id) } },
@@ -112,6 +185,7 @@ const getCurrentOrderByStatus = async (user_id, status, page, limit) => {
       { $count: 'total' },
     ])
     .toArray();
+
   const total = countResult.length > 0 ? countResult[0].total : 0;
   const result = await db
     .aggregate([
@@ -122,14 +196,16 @@ const getCurrentOrderByStatus = async (user_id, status, page, limit) => {
         },
       },
       { $match: { 'latestStatus.status': status } },
-      { $sort: { createdAt: -1 } },
+      { $sort: sortStage },
       { $skip: (page - 1) * limit },
       { $limit: limit },
     ])
     .project({ latestStatus: 0 })
     .toArray();
+
   return { total, result };
 };
+
 const getOrderByStatus = async (status, page, limit) => {
   page = parseInt(page) || 1;
   limit = parseInt(limit) || 12;

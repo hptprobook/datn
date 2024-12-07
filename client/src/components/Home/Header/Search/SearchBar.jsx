@@ -61,13 +61,13 @@ const SearchBar = () => {
     const params = new URLSearchParams({
       keyword: searchValue?.trim() || '',
       minPrice: minMaxPrice?.minPrice || 0,
-      maxPrice: minMaxPrice?.maxPrice || 0
+      maxPrice: minMaxPrice?.maxPrice || 0,
     });
     return `/tim-kiem?${params.toString()}`;
   };
 
   const handleSearchKeyUp = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && searchValue?.trim()) {
       navigate(getSearchUrl());
       handleOverlayClick();
       inputRef.current?.blur();
@@ -81,9 +81,11 @@ const SearchBar = () => {
   };
 
   const handleSearchButtonClick = () => {
-    navigate(getSearchUrl());
-    handleOverlayClick();
-    inputRef.current?.blur();
+    if (searchValue?.trim()) {
+      navigate(getSearchUrl());
+      handleOverlayClick();
+      inputRef.current?.blur();
+    }
   };
 
   return (
