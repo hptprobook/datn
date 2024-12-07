@@ -28,31 +28,35 @@ const getAllOrder = async (req, res) => {
 
 const getCurrentOrder = async (req, res) => {
   try {
-    const { page, limit } = req.query;
+    const { page, limit, sort } = req.query;
     const { user_id } = req.user;
-    const currentOrder = await orderModel.getCurrentOrder(user_id, page, limit);
+    const currentOrder = await orderModel.getCurrentOrder(
+      user_id,
+      page,
+      limit,
+      sort
+    );
     return res.status(StatusCodes.OK).json(currentOrder);
   } catch (error) {
     console.log(error);
-
     return res.status(StatusCodes.BAD_REQUEST).json(error);
   }
 };
 
 const getCurrentOrderByStatus = async (req, res) => {
   try {
-    const { status, page, limit } = req.query;
+    const { status, page, limit, sort } = req.query;
     const { user_id } = req.user;
     const currentOrder = await orderModel.getCurrentOrderByStatus(
       user_id,
       status,
       page,
-      limit
+      limit,
+      sort
     );
     return res.status(StatusCodes.OK).json(currentOrder);
   } catch (error) {
     console.log(error);
-
     return res.status(StatusCodes.BAD_REQUEST).json(error);
   }
 };
@@ -102,15 +106,15 @@ const getOrderByCode = async (req, res) => {
 
 const searchCurrentOrder = async (req, res) => {
   try {
-    const { keyword, page, limit } = req.query;
+    const { keyword, page, limit, sort } = req.query;
     const { user_id } = req.user;
 
-    // Gọi model để tìm kiếm
     const currentOrder = await orderModel.searchCurrentOrder(
       user_id,
       keyword,
       page,
-      limit
+      limit,
+      sort
     );
 
     return res.status(StatusCodes.OK).json(currentOrder);
@@ -304,7 +308,7 @@ const addOrder = async (req, res) => {
 
                 <p>Bạn có thể theo dõi trạng thái đơn hàng bằng cách click vào nút bên dưới:</p>
                 <center>
-                    <a href="${process.env.CLIENT_URL}/nguoi-dung/don-hang/${
+                    <a href="${process.env.CLIENT_URL}nguoi-dung/don-hang/${
       dataOrder.orderCode
     }" class="button">
                         Theo dõi đơn hàng
@@ -554,7 +558,7 @@ const addOrderNot = async (req, res) => {
                 <center>
                     <a href="${
                       process.env.CLIENT_URL
-                    }/theo-doi-don-hang" class="button">
+                    }theo-doi-don-hang" class="button">
                         Theo dõi đơn hàng
                     </a>
                 </center>
@@ -1323,7 +1327,7 @@ const checkStockProducts = async (req, res) => {
           };
         }
 
-        const quantityProduct = product[0].variants[0].sizes[0].stock;
+        const quantityProduct = product[0].variants[0].sizes[0].sale;
         if (quantityProduct < item.quantity) {
           return {
             id: item.id,

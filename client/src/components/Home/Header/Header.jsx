@@ -86,12 +86,15 @@ const Header = () => {
       />
       <header className="w-full h-20 bg-amber-600 hidden lg:block text-black">
         <div className="max-w-container h-full mx-auto flex justify-between items-center">
-          <NavLink to="/">
+          <NavLink
+            to="/"
+            className="h-full w-48 overflow-hidden flex items-center"
+          >
             <div>
               <img
                 src={`${import.meta.env.VITE_SERVER_URL}/${config?.logo}`}
                 alt="Logo"
-                className="h-full w-48"
+                className="h-full w-48 object-cover"
               />
             </div>
           </NavLink>

@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { useFormik } from 'formik';
 import { Helmet } from 'react-helmet-async';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useCart } from 'react-use-cart';
 import { loginAuth, loginGoogleAPI, updateCurrentUser } from '~/APIs';
 import AuthBanner from '~/components/Auth/AuthBanner';
@@ -30,8 +30,21 @@ const LoginPage = () => {
 
 const LoginPageUI = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useCheckAuth();
   const { items, emptyCart } = useCart();
+
+  const specialRoutes = [
+    '/tai-khoan',
+    '/tai-khoan/dang-nhap',
+    '/tai-khoan/dang-ky',
+    '/tai-khoan/quen-mat-khau',
+    '/thanh-toan',
+    '/thanh-toan/xac-nhan',
+  ];
+
+  const isSpecialRoute = specialRoutes.includes(location.pathname);
+
   const auth = getAuth();
   const googleProvider = new GoogleAuthProvider();
   // const { socket, onlineUser, setOnlineUser, setSocket } = useSocketContext();
@@ -40,29 +53,27 @@ const LoginPageUI = () => {
     password: '',
   };
 
+  const handleLoginSuccess = (data) => {
+    handleToast('success', 'Đăng nhập thành công!');
+    login(data.token);
+
+    handleCartAfterLogin(data);
+
+    setTimeout(() => {
+      if (!isSpecialRoute) {
+        navigate(-1); // Quay lại trang trước nếu không phải route đặc biệt
+      } else {
+        navigate('/'); // Điều hướng đến trang chính nếu đang ở route đặc biệt
+      }
+    }, 500);
+  };
+
   const loginGoogle = useMutation({
     mutationFn: loginGoogleAPI,
     onSuccess: (data) => {
-      handleToast('success', 'Đăng nhập thành công!');
-      login(data.token);
-
-      handleCartAfterLogin(data);
-
       setTimeout(() => {
-        const referrer = document.referrer;
-        if (
-          referrer &&
-          !referrer.includes('/tai-khoan/dang-nhap') &&
-          !referrer.includes('/tai-khoan/dang-ky') &&
-          !referrer.includes('/gio-hang') &&
-          !referrer.includes('/thanh-toan') &&
-          !referrer.includes('/thanh-toan/xac-nhan')
-        ) {
-          navigate(-1);
-        } else {
-          navigate('/');
-        }
-      }, 1000);
+        handleLoginSuccess(data);
+      }, 500);
     },
     onError: (error) => {
       handleApiError(error);
@@ -112,25 +123,8 @@ const LoginPageUI = () => {
   const mutation = useMutation({
     mutationFn: loginAuth,
     onSuccess: (data) => {
-      handleToast('success', 'Đăng nhập thành công!');
-      login(data.token);
-
-      handleCartAfterLogin(data);
-
       setTimeout(() => {
-        const referrer = document.referrer;
-        if (
-          referrer &&
-          !referrer.includes('/tai-khoan/dang-nhap') &&
-          !referrer.includes('/tai-khoan/dang-ky') &&
-          !referrer.includes('/gio-hang') &&
-          !referrer.includes('/thanh-toan') &&
-          !referrer.includes('/thanh-toan/xac-nhan')
-        ) {
-          navigate(-1);
-        } else {
-          navigate('/');
-        }
+        handleLoginSuccess(data);
       }, 1000);
     },
     onError: (error) => {

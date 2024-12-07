@@ -41,12 +41,7 @@ const countUserAll = async () => {
   return totail;
 };
 
-const getUserAll = async ({
-  userId,
-  page,
-  limit,
-  start
-}) => {
+const getUserAll = async ({ userId, page, limit, start }) => {
   page = Number(page) || 1;
   limit = parseInt(limit);
   const db = await GET_DB().collection('users');
@@ -88,13 +83,39 @@ const getUserEmail = async (email) => {
 const getUserID = async (user_id) => {
   const db = await GET_DB().collection('users');
   const user = await db.findOne({ _id: new ObjectId(user_id) });
+
+  if (user && user.notifies && user.notifies.length > 100) {
+    user.notifies.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const latestNotifies = user.notifies.slice(0, 100);
+
+    await db.updateOne(
+      { _id: new ObjectId(user_id) },
+      { $set: { notifies: latestNotifies } }
+    );
+
+    user.notifies = latestNotifies;
+  }
+
   return user;
 };
+
 const getNotifiesUserID = async (user_id) => {
   const db = await GET_DB().collection('users');
   const user = await db.findOne({ _id: new ObjectId(user_id) });
+
   if (user && user.notifies) {
     user.notifies.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    if (user.notifies.length > 100) {
+      const latestNotifies = user.notifies.slice(0, 100);
+
+      await db.updateOne(
+        { _id: new ObjectId(user_id) },
+        { $set: { notifies: latestNotifies } }
+      );
+
+      user.notifies = latestNotifies;
+    }
   }
 
   return user;
@@ -412,11 +433,7 @@ const readNotify = async (id, data) => {
   return result;
 };
 
-const findUsers = async ({
-  search,
-  page = 1,
-  limit = 10,
-}) => {
+const findUsers = async ({ search, page = 1, limit = 10 }) => {
   const db = await GET_DB().collection('users');
   const count = await db.countDocuments({
     $or: [
