@@ -88,11 +88,23 @@ const TrackingOrderPage = () => {
 
   const { mutate: cancelOrder, isLoading: cancelOrderLoading } = useMutation({
     mutationFn: updateOrderNotLoginAPI,
-    onError: () => {
+    onSuccess: () => {
+      useSwal
+        .fire({
+          icon: 'success',
+          title: 'Thành công!',
+          text: 'Yêu cầu của bạn đã được gửi thành công.',
+          confirmButtonText: 'Xác nhận',
+        })
+        .then(() => {
+          mutate(orderCode.trim());
+        });
+    },
+    onError: (error) => {
       useSwal.fire({
         icon: 'error',
         title: 'Thất bại!',
-        text: 'Có lỗi xảy ra, vui lòng thử lại sau.',
+        text: error?.message || 'Đã xảy ra lỗi, vui lòng thử lại.',
         confirmButtonText: 'Xác nhận',
       });
     },
@@ -184,19 +196,6 @@ const TrackingOrderPage = () => {
               id: orderId,
               data: { status: statusData },
               secretKey,
-            });
-
-            useSwal.fire({
-              icon: 'success',
-              title:
-                actionType === 'cancel'
-                  ? 'Hủy đơn hàng thành công!'
-                  : 'Yêu cầu trả hàng đã được gửi!',
-              text:
-                actionType === 'cancel'
-                  ? 'Đơn hàng của bạn đã được hủy thành công.'
-                  : 'Chúng tôi đã nhận được yêu cầu trả hàng và sẽ xử lý sớm nhất.',
-              confirmButtonText: 'Xác nhận',
             });
 
             mutate(orderCode);

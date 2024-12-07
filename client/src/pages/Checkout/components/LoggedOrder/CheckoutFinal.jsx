@@ -207,7 +207,11 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
   };
 
   // mutate đặt hàng
-  const { mutate: createOrder, isLoading } = useMutation({
+  const {
+    mutate: createOrder,
+    isLoading,
+    isPending,
+  } = useMutation({
     mutationFn: createOrderAPI,
     onSuccess: (data) => {
       removeProductsFromCart();
@@ -444,6 +448,7 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
 
   if (
     isLoading ||
+    isPending ||
     isRemovingCart ||
     isLoadingCoupons ||
     isLoadingVnpayUrl ||

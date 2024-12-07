@@ -85,33 +85,31 @@ const Notifies = () => {
     const oneDayInMs = 24 * 60 * 60 * 1000;
 
     const filterOptions = {
-      '1 tuần trước': (date) => {
-        const differenceInDays = Math.floor(
-          (now - new Date(date)) / oneDayInMs
+      'Hôm nay': (date) => {
+        const notifyDate = new Date(date);
+        return (
+          notifyDate.getDate() === now.getDate() &&
+          notifyDate.getMonth() === now.getMonth() &&
+          notifyDate.getFullYear() === now.getFullYear()
         );
-        return differenceInDays === 7;
       },
-      '1 tháng trước': (date) => {
-        const differenceInDays = Math.floor(
-          (now - new Date(date)) / oneDayInMs
-        );
-        return differenceInDays >= 30 && differenceInDays < 60;
+      '3 ngày qua': (date) => {
+        const differenceInMs = now - new Date(date);
+        return differenceInMs <= 3 * oneDayInMs;
       },
-      'Cũ nhất': () => true,
+      '1 tuần qua': (date) => {
+        const differenceInMs = now - new Date(date);
+        return differenceInMs <= 7 * oneDayInMs;
+      },
+      '1 tháng qua': (date) => {
+        const differenceInMs = now - new Date(date);
+        return differenceInMs <= 30 * oneDayInMs;
+      },
     };
 
-    let filtered = user?.notifies?.filter((notify) =>
+    return user?.notifies?.filter((notify) =>
       filterOptions[filterValue](notify.createdAt)
     );
-
-    // Nếu chọn "Cũ nhất", sắp xếp theo thời gian tăng dần
-    if (filterValue === 'Cũ nhất') {
-      filtered = filtered?.sort(
-        (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
-      );
-    }
-
-    return filtered;
   };
 
   const filteredNotifies = filterNotifies();
@@ -132,9 +130,10 @@ const Notifies = () => {
             onChange={handleFilterChange}
           >
             <option value="">Tất cả</option>
-            <option value="1 tuần trước">1 tuần trước</option>
-            <option value="1 tháng trước">1 tháng trước</option>
-            <option value="Cũ nhất">Cũ nhất</option>
+            <option value="Hôm nay">Hôm nay</option>
+            <option value="3 ngày qua">3 ngày qua</option>
+            <option value="1 tuần qua">1 tuần qua</option>
+            <option value="1 tháng qua">1 tháng qua</option>
           </select>
         </div>
 
