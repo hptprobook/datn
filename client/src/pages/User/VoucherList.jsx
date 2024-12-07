@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getCouponsForOrder } from '~/APIs';
 import { useSwal } from '~/customHooks/useSwal';
+import MainLoading from '~/components/common/Loading/MainLoading';
 
 const VoucherList = () => {
   const { data: coupons, isLoading: isLoadingCoupons } = useQuery({
@@ -32,7 +33,7 @@ const VoucherList = () => {
     }));
   };
 
-  if (isLoadingCoupons) return <p>Đang tải...</p>;
+  if (isLoadingCoupons) return <MainLoading />;
 
   return (
     <div className="text-black bg-white rounded-sm p-10">

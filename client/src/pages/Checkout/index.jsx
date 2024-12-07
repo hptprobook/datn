@@ -9,7 +9,7 @@ import {
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { useSwal, useSwalWithConfirm } from '~/customHooks/useSwal';
+import { useSwal } from '~/customHooks/useSwal';
 import { v4 as uuidv4 } from 'uuid';
 import MainLoading from '~/components/common/Loading/MainLoading';
 import { useCart } from 'react-use-cart';
@@ -43,11 +43,7 @@ const CheckoutUI = () => {
     }
   }, [selectedProducts, navigate]);
 
-  const {
-    mutate: submitOrder,
-    isLoading,
-    isPending,
-  } = useMutation({
+  const { mutate: submitOrder, isPending } = useMutation({
     mutationFn: orderNotLoginApi,
     onSuccess: (data) => {
       if (data?.data?.paymentMethod !== 'VNPAY') {
@@ -93,77 +89,65 @@ const CheckoutUI = () => {
   });
 
   const handleConfirmCheckout = () => {
-    useSwalWithConfirm
-      .fire({
-        icon: 'question',
-        title: 'Xác nhân đặt hàng',
-        text: 'Xác nhận đặt đơn hàng này? Hành động này sẽ không thể hoàn tác!',
-        confirmButtonText: 'Xác nhân',
-        cancelButtonText: 'Hủy bỏ',
-      })
-      .then((result) => {
-        if (result.isConfirmed) {
-          formik.handleSubmit();
+    formik.handleSubmit();
 
-          if (formik.isValid && formik.dirty) {
-            const productsList = selectedProducts.map((product) => ({
-              _id: product.productId || product._id,
-              quantity: product.quantity,
-              image: product.image,
-              name: product.name,
-              slug: product.slug,
-              sku: product.sku,
-              price: product.price,
-              weight: product.weight,
-              variantColor: product.variantColor,
-              variantSize: product.variantSize,
-              itemTotal: product.price * product.quantity,
-            }));
+    if (formik.isValid && formik.dirty) {
+      const productsList = selectedProducts.map((product) => ({
+        _id: product.productId || product._id,
+        quantity: product.quantity,
+        image: product.image,
+        name: product.name,
+        slug: product.slug,
+        sku: product.sku,
+        price: product.price,
+        weight: product.weight,
+        variantColor: product.variantColor,
+        variantSize: product.variantSize,
+        itemTotal: product.price * product.quantity,
+      }));
 
-            const shippingInfo = {
-              provinceName: formik.values.province_name,
-              districtName: formik.values.district_name,
-              districtCode: formik.values.district_id,
-              wardName: formik.values.ward_name,
-              wardCode: formik.values.ward_id,
-              detailAddress: formik.values.address,
-              phone: formik.values.phone,
-              name: formik.values.name,
-              note: formik.values.note || '',
-              fullAddress: `${formik.values.address}, ${formik.values.ward_name}, ${formik.values.district_name}, ${formik.values.province_name}`,
-            };
+      const shippingInfo = {
+        provinceName: formik.values.province_name,
+        districtName: formik.values.district_name,
+        districtCode: formik.values.district_id,
+        wardName: formik.values.ward_name,
+        wardCode: formik.values.ward_id,
+        detailAddress: formik.values.address,
+        phone: formik.values.phone,
+        name: formik.values.name,
+        note: formik.values.note || '',
+        fullAddress: `${formik.values.address}, ${formik.values.ward_name}, ${formik.values.district_name}, ${formik.values.province_name}`,
+      };
 
-            const orderData = {
-              orderCode: uuidv4().slice(0, 6).toUpperCase(),
-              productsList: productsList,
-              shippingInfo: shippingInfo,
-              email: formik.values.email,
-              totalPrice: productsList.reduce(
-                (total, product) => total + product.itemTotal,
-                0
-              ),
-              totalPayment:
-                productsList.reduce(
-                  (total, product) => total + product.itemTotal,
-                  0
-                ) + shippingFee,
-              shippingType: 'cod',
-              fee: shippingFee,
-              paymentMethod: formik.values.paymentMethod,
-            };
+      const orderData = {
+        orderCode: uuidv4().slice(0, 6).toUpperCase(),
+        productsList: productsList,
+        shippingInfo: shippingInfo,
+        email: formik.values.email,
+        totalPrice: productsList.reduce(
+          (total, product) => total + product.itemTotal,
+          0
+        ),
+        totalPayment:
+          productsList.reduce(
+            (total, product) => total + product.itemTotal,
+            0
+          ) + shippingFee,
+        shippingType: 'cod',
+        fee: shippingFee,
+        paymentMethod: formik.values.paymentMethod,
+      };
 
-            if (orderData.paymentMethod === 'VNPAY') {
-              submitOrder(orderData);
-              getVnpayUrl({
-                orderId: orderData.orderCode,
-                amount: orderData.totalPayment,
-              });
-            } else {
-              submitOrder(orderData);
-            }
-          }
-        }
-      });
+      if (orderData.paymentMethod === 'VNPAY') {
+        submitOrder(orderData);
+        getVnpayUrl({
+          orderId: orderData.orderCode,
+          amount: orderData.totalPayment,
+        });
+      } else {
+        submitOrder(orderData);
+      }
+    }
   };
 
   if (isPending || isLoadingVnpayUrl) {
@@ -187,7 +171,7 @@ const CheckoutUI = () => {
               selectedProducts={selectedProducts}
               shippingFee={shippingFee}
               handleConfirmCheckout={handleConfirmCheckout}
-              isLoading={isLoading}
+              isLoading={isPending}
             />
           </div>
         ) : (
