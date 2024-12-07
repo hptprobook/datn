@@ -30,7 +30,7 @@ import {
   TableContainer,
   FormControlLabel,
 } from '@mui/material';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setStatus, searchUser, searchProduct } from 'src/redux/slices/posSlices';
 import { renderUrl } from 'src/utils/check';
@@ -41,8 +41,10 @@ import { handleToast } from 'src/hooks/toast';
 import Grid2 from '@mui/material/Unstable_Grid2';
 import { useFormik } from 'formik';
 import { createReceipt, setStatus as setStatusCreate } from 'src/redux/slices/receiptSlices';
-import { IconSave, IconDelete } from 'src/components/iconify/icon';
+import { IconSave, IconDelete, IconCancel } from 'src/components/iconify/icon';
 import { PropTypes } from 'prop-types';
+import { formatDateTime } from 'src/utils/format-time';
+import { useReactToPrint } from 'react-to-print';
 import { productSchema } from './common/util';
 
 // ----------------------------------------------------------------------
@@ -114,6 +116,8 @@ export default function PosPage() {
   const [addCustom, setAddCustom] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showSuggest, setShowSuggest] = useState(false);
+  const [openPrint, setOpenPrint] = useState(false);
+  const [isPrint, setIsPrint] = useState(false);
 
   const dispatch = useDispatch();
   const status = useSelector((state) => state.pos.statusSearch);
@@ -124,6 +128,7 @@ export default function PosPage() {
   const warehouses = useSelector((state) => state.warehouses.warehouses);
   const statusCreate = useSelector((state) => state.receipts.statusCreate);
   const error = useSelector((state) => state.receipts.error);
+  const contentRef = useRef(null);
 
   useEffect(() => {
     if (receipts.length === 0) {
@@ -157,6 +162,9 @@ export default function PosPage() {
   useEffect(() => {
     if (statusCreate === 'successful') {
       handleToast('success', 'Tạo hóa đơn thành công');
+      if (isPrint) {
+        setOpenPrint(receipts[value]);
+      }
       const newArray = receipts.filter((_, index) => index !== value);
       setReceipts(newArray);
       dispatch(setStatusCreate({ key: 'statusCreate', value: 'idle' }));
@@ -166,7 +174,8 @@ export default function PosPage() {
     if (statusCreate === 'failed') {
       handleToast('error', error || 'Tạo hóa đơn thất bại');
     }
-  }, [statusCreate, error, dispatch, receipts, value]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [statusCreate, error, receipts, value]);
 
   const formik = useFormik({
     initialValues: {
@@ -404,8 +413,94 @@ export default function PosPage() {
     setValue(0);
     setReceipt(receipts[0]);
   };
+  const reactToPrintFn = useReactToPrint({ contentRef });
   return (
     <Box>
+      <Modal
+        open={openPrint}
+        onClose={() => setOpenPrint(false)}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          <Stack
+            ref={contentRef}
+            direction="column"
+            justifyContent="space-between"
+            spacing={2}
+            sx={{
+              padding: 2,
+            }}
+          >
+            <Typography id="modal-modal-title" variant="h6" component="h2">
+              Hóa đơn - {openPrint && openPrint.receiptCode}
+            </Typography>
+            <Stack direction="row" justifyContent="space-between">
+              <Typography variant="body1">Tên khách hàng:</Typography>
+              <Typography variant="body2">{openPrint && openPrint.name}</Typography>
+            </Stack>
+            <Stack direction="row" justifyContent="space-between">
+              <Typography variant="body1">Tổng tiền:</Typography>
+              <Typography variant="body2">
+                {openPrint && formatCurrency(openPrint.total)}
+              </Typography>
+            </Stack>
+            <Stack direction="row" justifyContent="space-between">
+              <Typography variant="body1">Kiểu thanh toán:</Typography>
+              <Typography variant="body2">{openPrint && openPrint.paymentMethod}</Typography>
+            </Stack>
+            <Stack direction="row" justifyContent="space-between">
+              <Typography variant="body1">Kiểu mua:</Typography>
+              <Typography variant="body2">{openPrint && openPrint.type}</Typography>
+            </Stack>
+            <Stack direction="column" spacing={2}>
+              <Typography variant="body1">Danh sách sản phẩm:</Typography>
+              <List
+                sx={{
+                  mt: 0,
+                }}
+              >
+                {openPrint &&
+                  openPrint.productsList.map((item, i) => (
+                    <ListItemText
+                      key={i}
+                      primary={`${item.name} - ${item.variantColor} - ${item.variantSize}`}
+                      secondary={`${item.quantity} - ${formatCurrency(item.price)}`}
+                    />
+                  ))}
+              </List>
+            </Stack>
+            <Stack direction="row" justifyContent="space-between">
+              <Typography variant="body1">Ngày tạo:</Typography>
+              <Typography variant="body2">
+                {openPrint && formatDateTime(openPrint.createdAt)}
+              </Typography>
+            </Stack>
+            <Stack direction="row" justifyContent="space-between">
+              <Typography variant="body1">Ngày cập nhật:</Typography>
+              <Typography variant="body2">
+                {openPrint && formatDateTime(openPrint.updatedAt)}
+              </Typography>
+            </Stack>
+          </Stack>
+
+          <Stack direction="row" justifyContent="space-between">
+            <Button variant="contained" color="error" onClick={() => setOpenPrint(false)}>
+              Đóng
+            </Button>
+            <Button variant="contained" color="inherit" onClick={reactToPrintFn}>
+              In hóa đơn
+            </Button>
+            {/* <Button
+              variant="contained"
+              color='inherit'
+              onClick={() => handleToast('info', 'Tính năng đang phát triển!')}
+            >
+              Chỉnh sửa
+            </Button> */}
+          </Stack>
+        </Box>
+      </Modal>
       <Modal
         open={open}
         onClose={handleClose}
@@ -749,9 +844,14 @@ export default function PosPage() {
                           />
                         </TableCell>
                         <TableCell align="right">
-                          <IconButton onClick={formik.handleSubmit}>
-                            <IconSave />
-                          </IconButton>
+                          <Stack direction="row">
+                            <IconButton onClick={() => setAddCustom(false)}>
+                              <IconCancel />
+                            </IconButton>
+                            <IconButton onClick={formik.handleSubmit}>
+                              <IconSave />
+                            </IconButton>
+                          </Stack>
                         </TableCell>
                       </TableRow>
                     )}
@@ -1011,14 +1111,23 @@ export default function PosPage() {
               alignItems="center"
               spacing={2}
             >
-              <FormControlLabel control={<Checkbox defaultChecked />} label="In hóa đơn" />
-              <Button
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    onChange={(e) => setIsPrint(e.target.value)}
+                    checked={isPrint}
+                    value={isPrint}
+                  />
+                }
+                label="In hóa đơn"
+              />
+              {/* <Button
                 variant="contained"
                 color="inherit"
                 onClick={() => handleToast('info', 'Tính năng đang phát triển!')}
               >
                 Mã giảm giá
-              </Button>
+              </Button> */}
               <Button variant="contained" color="inherit" onClick={handlePay}>
                 Thanh toán
               </Button>
