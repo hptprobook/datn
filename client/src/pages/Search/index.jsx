@@ -16,7 +16,6 @@ const SearchPage = () => {
   const [sortOption, setSortOption] = useState(sort);
   const [limit, setLimit] = useState(20);
   const [noMatchingProducts, setNoMatchingProducts] = useState(false);
-  
 
   // filter màu sắc
   const colors = searchParams.get('colors')
@@ -38,11 +37,11 @@ const SearchPage = () => {
     ? Number(searchParams.get('maxPrice'))
     : null;
 
-    const [filters, setFilters] = useState({
-      colors,
-      sizes,
-      priceRange: { min: minPrice, max: maxPrice },
-    });
+  const [filters, setFilters] = useState({
+    colors,
+    sizes,
+    priceRange: { min: minPrice, max: maxPrice },
+  });
 
   // Query lấy giới hạn giá tiền sản phẩm
   const { data: priceRangeData } = useQuery({
@@ -183,8 +182,6 @@ const SearchPage = () => {
   }, []);
 
   if (!priceRangeData || !filteredProductsData) return null;
-
-  
 
   return (
     <section className="max-w-container mx-auto mt-16">
