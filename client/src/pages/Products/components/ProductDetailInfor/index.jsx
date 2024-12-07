@@ -16,7 +16,6 @@ import { useMutation } from '@tanstack/react-query';
 import { addCartToCurrent } from '~/APIs';
 import ObjectID from 'bson-objectid';
 import { useSwal } from '~/customHooks/useSwal';
-import MainLoading from '~/components/common/Loading/MainLoading';
 
 const ProductDetailInfor = ({
   product,
@@ -191,10 +190,6 @@ const ProductDetailInfor = ({
     });
   };
 
-  if (mutation.isPending || mutation.isLoading) {
-    return <MainLoading />;
-  }
-
   return (
     <div className="flex justify-center items-center text-black">
       <div className="pro-detail w-full lg:pl-8 xl:pl-16 max-lg:mx-auto lg:mt-8 mt-32 max-sm:mt-16">
@@ -257,6 +252,7 @@ const ProductDetailInfor = ({
               !selectedColor ||
               (sizes?.length > 0 && !isFreeSize && !selectedSize)
             }
+            isPending={mutation.isPending}
             onClick={handleAddToCart}
           />
         </div>
