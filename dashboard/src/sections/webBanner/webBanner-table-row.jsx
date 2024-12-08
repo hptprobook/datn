@@ -65,7 +65,7 @@ export default function WebBannerTableRow({
         <IconButton onClick={handleNavigate}>
           <Iconify icon="eva:eye-fill" />
         </IconButton>
-        <IconButton onClick={handleDelete}>
+        <IconButton onClick={() => handleDelete(id)} sx={{ color: 'error.main' }}>
           <Iconify icon="mdi:trash" />
         </IconButton>
       </TableCell>

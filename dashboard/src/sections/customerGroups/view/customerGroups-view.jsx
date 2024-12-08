@@ -58,7 +58,7 @@ export default function CustomerGroupView() {
   useEffect(() => {
     if (statusDelete === 'successful') {
       dispatch(setStatus({ key: 'statusDelete', value: '' }));
-      handleToast('success', 'Xóa bài viết thành công!');
+      handleToast('success', 'Xóa nhóm khách hàng thành công!');
       dispatch(fetchAllCustomerGroup());
     }
     if (statusDelete === 'failed') {
