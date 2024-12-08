@@ -61,7 +61,7 @@ export default function WebBannerTableRow({
 
       <TableCell> {url.length > 50 ? `${url.substring(0, 30)}...` : url}</TableCell>
 
-      <TableCell align="right">
+      <TableCell align="right" onClick={(event) => event.stopPropagation()}      >
         <IconButton onClick={handleNavigate}>
           <Iconify icon="eva:eye-fill" />
         </IconButton>
