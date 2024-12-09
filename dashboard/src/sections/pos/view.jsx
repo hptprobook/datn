@@ -1014,9 +1014,9 @@ export default function PosPage() {
                   </Stack>
                 </Box>
               </Popper>
-              <IconButton>
+              {/* <IconButton>
                 <Iconify icon="mdi:plus" />
-              </IconButton>
+              </IconButton> */}
             </Stack>
             <Stack
               sx={{
