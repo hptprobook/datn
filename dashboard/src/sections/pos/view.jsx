@@ -156,9 +156,19 @@ export default function PosPage() {
   }, [receipts, dispatch, value]);
   useEffect(() => {
     if (staff) {
-      dispatch(fetchAll());
+      dispatch(fetchAll()).then((r) => {
+        console.log(r);
+        if (r.meta.requestStatus === 'fulfilled') {
+          if (staff.role === 'root') {
+            setWarehouse(warehouses[0]._id);
+          } else {
+            setWarehouse(staff.branchId);
+          }
+        }
+      });
     }
-  }, [dispatch, staff]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [staff]);
   useEffect(() => {
     if (statusCreate === 'successful') {
       handleToast('success', 'Tạo hóa đơn thành công');
@@ -229,12 +239,12 @@ export default function PosPage() {
     (e) => {
       const keyword = e.target.value;
 
-      if (status !== 'loading' && keyword.length > 1) {
+      if (status !== 'loading' && keyword.length > 0) {
         if (searchTimeout) clearTimeout(searchTimeout);
 
         const timeout = setTimeout(() => {
           dispatch(searchUser(keyword));
-        }, 500);
+        }, 200);
         setSearchTimeout(timeout);
       }
     },
@@ -414,6 +424,10 @@ export default function PosPage() {
     setReceipt(receipts[0]);
   };
   const reactToPrintFn = useReactToPrint({ contentRef });
+  const getBrachName = (i) => {
+    const branch = warehouses.find((w) => w._id === i);
+    return branch?.name;
+  };
   return (
     <Box>
       <Modal
@@ -714,31 +728,35 @@ export default function PosPage() {
         <IconButton onClick={handleAddReceipt} variant="contained" color="primary">
           <Iconify icon="eva:plus-fill" />
         </IconButton>
-        <FormControl
-          sx={{
-            width: 180,
-          }}
-        >
-          <InputLabel id="warehouse-select-label">Kho</InputLabel>
-          <Select
-            labelId="warehouse-select-label"
-            id="warehouse-select"
-            variant="filled"
-            value={warehouse}
-            label="Kho"
+        {staff?.role === 'root' ? (
+          <FormControl
             sx={{
-              height: '100%',
+              width: 180,
             }}
-            onChange={handleChangeWarehouse}
           >
-            {' '}
-            {warehouses?.map((w, index) => (
-              <MenuItem key={index} value={w._id}>
-                {w.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+            <InputLabel id="warehouse-select-label">Kho</InputLabel>
+            <Select
+              labelId="warehouse-select-label"
+              id="warehouse-select"
+              variant="filled"
+              value={warehouse}
+              label="Kho"
+              sx={{
+                height: '100%',
+              }}
+              onChange={handleChangeWarehouse}
+            >
+              {' '}
+              {warehouses?.map((w, index) => (
+                <MenuItem key={index} value={w._id}>
+                  {w.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        ) : (
+          <Typography variant="h6">Kho: {getBrachName(staff?.branchId)}</Typography>
+        )}
         <Box sx={{ flexGrow: 1, maxWidth: '60vw' }}>
           <Tabs
             value={value}
@@ -1014,9 +1032,9 @@ export default function PosPage() {
                   </Stack>
                 </Box>
               </Popper>
-              <IconButton>
+              {/* <IconButton>
                 <Iconify icon="mdi:plus" />
-              </IconButton>
+              </IconButton> */}
             </Stack>
             <Stack
               sx={{
