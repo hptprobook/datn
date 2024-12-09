@@ -1,12 +1,10 @@
-import React, { useRef, useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
-
-
 
 import { Avatar, IconButton } from '@mui/material';
 
@@ -18,35 +16,22 @@ import { updateMe, uploadMe, setStatus } from 'src/redux/slices/staffSlices';
 import { getMe } from 'src/redux/slices/authSlice';
 import Iconify from 'src/components/iconify';
 import ImageDropZone from 'src/components/drop-zone-upload/upload-img';
+import { renderUrl } from 'src/utils/check';
+import { formatDateTime } from 'src/utils/format-time';
 import EditableField from '../edit-field';
 import { profileSchema } from '../utils';
 
 // ----------------------------------------------------------------------
-
+const backendUrl = import.meta.env.VITE_BACKEND_APP_URL;
 export default function ProfileView() {
-
   const dispatch = useDispatch();
   const [uploadedImageUrl, setUploadedImageUrl] = useState(null);
-
   const data = useSelector((state) => state.auth.auth);
-  const status = useSelector((state) => state.staffs.status);
   const statusUpdate = useSelector((state) => state.staffs.statusUpdateMe);
   const error = useSelector((state) => state.staffs.error);
 
-
-
-  const [account, setAccount] = useState({});
-
-
-  useEffect(() => {
-    if (data) {
-      setAccount(data);
-    }
-  }, [data]);
-
   const handleChangeUploadImg = useCallback((files) => {
     if (files) {
-      console.log(files);
       setUploadedImageUrl({
         file: files,
         name: 'avatar',
@@ -54,27 +39,27 @@ export default function ProfileView() {
     }
   }, []);
   const formik = useFormik({
-    enableReinitialize: true,
     initialValues: {
-      name: account.name || '',
-      address: account.address || '',
-      phone: account.phone || '',
-      cccd: account.cccd || '',
-      bankAccount: account.bankAccount || '',
-      avatar: account.avatar || '',
-      bankHolder: account.bankHolder || '',
-      bankName: account.bankName || '',
+      name: data?.name || '',
+      address: data?.address || '',
+      phone: data?.phone || '',
+      cccd: data?.cccd || '',
+      bankAccount: data?.bankAccount || '',
+      avatar: data?.avatar || '',
+      bankHolder: data?.bankHolder || '',
+      bankName: data?.bankName || '',
     },
+    enableReinitialize: true,
     validationSchema: profileSchema,
+    onSubmit: (values) => {
+      Object.keys(values).forEach((key) => {
+        if (values[key] === '') {
+          values[key] = null;
+        }
+      });
+      dispatch(updateMe(values));
+    },
   });
-  const formikRef = useRef(formik);
-
-  useEffect(() => {
-    if (status === 'successful' && data) {
-      setAccount(data);
-      formikRef.current.setValues(data);
-    }
-  }, [status, data]);
   useEffect(() => {
     if (statusUpdate === 'successful' && data) {
       handleToast('success', 'Cập nhật thành công');
@@ -82,30 +67,15 @@ export default function ProfileView() {
       dispatch(setStatus({ key: 'statusUpdateMe', value: 'idle' }));
     }
     if (statusUpdate === 'failed') {
-      handleToast('error', error);
+      handleToast('error', error?.message || 'Cập nhật thất bại');
     }
   }, [statusUpdate, data, error, dispatch]);
-
-  const handleSubmit = () => {
-    console.log(formik.errors);
-    if (formik.errors && Object.keys(formik.errors).length > 0) {
-      Object.keys(formik.errors).forEach((key) => {
-        handleToast('error', formik.errors[key]);
-      });
-      return;
-    }
-    const newValues = { ...formik.values }; // Create a shallow copy of formik.values
-    delete newValues.avatar; // Delete the 'avatar' property
-    delete newValues._id; // Delete the '_id' property
-    dispatch(updateMe(newValues));
-  };
   const handleCancel = () => {
     formik.resetForm();
     setInputSelect('');
   };
   const handleUpdate = (name) => {
-    console.log(formik.values[name]);
-    if (formik.values[name] === account[name]) {
+    if (formik.values[name] === data[name]) {
       handleCancel();
       return;
     }
@@ -140,11 +110,11 @@ export default function ProfileView() {
       <form onSubmit={formik.handleSubmit}>
         <Grid2 container spacing={3}>
           <Grid2 xs={12} md={4}>
-            <Card sx={{ padding: 3, textAlign: 'center' }}>
-              {account?.avatar ? (
+            <Card sx={{ padding: 3 }}>
+              {data?.avatar ? (
                 <Avatar
                   alt="Ảnh đại diện"
-                  src={account.avatar}
+                  src={renderUrl(data?.avatar, backendUrl)}
                   sx={{ width: 100, height: 100, margin: 'auto' }}
                 />
               ) : (
@@ -152,8 +122,9 @@ export default function ProfileView() {
                   <ImageDropZone
                     handleUpload={handleChangeUploadImg}
                     singleFile
-                    defaultImg={account?.avatar || ''} // Ensure defaultImg is a valid string
-                  /><Stack
+                    defaultImg={data?.avatar || ''} // Ensure defaultImg is a valid string
+                  />
+                  <Stack
                     direction="row"
                     alignItems="center"
                     justifyContent="flex-end"
@@ -167,7 +138,16 @@ export default function ProfileView() {
                 </>
               )}
               <Typography variant="h6" sx={{ mt: 2 }}>
-                {account?.name}
+                Tên: {data?.name}
+              </Typography>
+              <Typography variant="body2" sx={{ mt: 2 }}>
+                Email: {data?.email}
+              </Typography>
+              <Typography variant="body2" sx={{ mt: 2 }}>
+                Mã nhân viên: {data?.staffCode}
+              </Typography>
+              <Typography variant="body2" sx={{ mt: 2 }}>
+                Ngày tạo: {formatDateTime(data?.createdAt)}
               </Typography>
             </Card>
           </Grid2>
@@ -201,7 +181,7 @@ export default function ProfileView() {
                   <Button variant="outlined" color="inherit" onClick={() => setInputSelect('')}>
                     Hủy
                   </Button>
-                  <Button variant="contained" color="inherit" onClick={handleSubmit}>
+                  <Button variant="contained" color="inherit" type="submit">
                     Lưu
                   </Button>
                 </Stack>
