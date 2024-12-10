@@ -112,6 +112,10 @@ const findOneCoupons = async (req, res) => {
 const createCoupon = async (req, res) => {
   try {
     const dataCoupon = req.body;
+    if (dataCoupon.discountPercent) {
+      dataCoupon.discountValue = dataCoupon.discountPercent;
+      delete dataCoupon.discountPercent;
+    }
     if (dataCoupon.code) {
       const check = await couponModel.findOneCoupons(dataCoupon.code);
       if (check) {
@@ -141,7 +145,10 @@ const updateCoupon = async (req, res) => {
   try {
     const { id } = req.params;
     const dataCoupon = req.body;
-
+    if (dataCoupon.discountPercent) {
+      dataCoupon.discountValue = dataCoupon.discountPercent;
+      delete dataCoupon.discountPercent;
+    }
     const result = await couponModel.updateCoupon(id, dataCoupon);
     return res.status(StatusCodes.OK).json(result);
   } catch (error) {
