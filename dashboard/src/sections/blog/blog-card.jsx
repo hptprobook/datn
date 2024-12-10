@@ -1,7 +1,6 @@
 import {
   Box,
   Stack,
-  Button,
   CardMedia,
   Typography,
   CircularProgress,
