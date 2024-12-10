@@ -6,7 +6,7 @@ import {
   MenuItem,
   Container,
   TextField,
-  Typography,  
+  Typography,
   InputLabel,
   IconButton,
   FormControl,
@@ -20,6 +20,7 @@ import FormHelpTextError from 'src/components/errors/form-error';
 import Iconify from 'src/components/iconify';
 import { handleToast } from 'src/hooks/toast';
 import { setStatus, createStaff } from 'src/redux/slices/staffSlices';
+import { fetchAll } from 'src/redux/slices/warehouseSlices';
 import * as Yup from 'yup';
 
 const staffSchema = Yup.object().shape({
@@ -45,6 +46,7 @@ const CreateStaffPage = () => {
   const dispatch = useDispatch();
   const error = useSelector((state) => state.staffs.error);
   const status = useSelector((state) => state.staffs.statusCreate);
+  const warehouses = useSelector((state) => state.warehouses.warehouses);
   const navigate = useNavigate();
   const formik = useFormik({
     initialValues: {
@@ -66,6 +68,10 @@ const CreateStaffPage = () => {
     },
   });
   useEffect(() => {
+    dispatch(fetchAll());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
     if (status === 'successful') {
       handleToast('success', 'Tạo nhân viên thành công');
       formik.resetForm();
@@ -84,7 +90,7 @@ const CreateStaffPage = () => {
   return (
     <Container>
       <Stack direction="column" spacing={2}>
-        <Stack direction="row" justifyContent="flex-start" spacing={2} alignItems='center'>
+        <Stack direction="row" justifyContent="flex-start" spacing={2} alignItems="center">
           <IconButton onClick={() => navigate('/admin/settings/staffs')}>
             <Iconify icon="eva:arrow-back-fill" />
           </IconButton>
@@ -158,7 +164,7 @@ const CreateStaffPage = () => {
                   <Select
                     labelId="role-select-label"
                     id="role-select"
-                    name='role'
+                    name="role"
                     value={formik.values.role}
                     label="Vai trò"
                     onChange={formik.handleChange}
@@ -182,8 +188,11 @@ const CreateStaffPage = () => {
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                   >
-                    <MenuItem value="670a8c79f2f878ef31a0b506">Chi nhánh 1(Dữ liệu demo)</MenuItem>
-                    <MenuItem value="670a8c79f2f878ef31a0b504">Chi nhánh 2(Dữ liệu demo)</MenuItem>
+                    {warehouses?.map((warehouse) => (
+                      <MenuItem value={warehouse._id} key={warehouse._id}>
+                        {warehouse.name}
+                      </MenuItem>
+                    ))}
                   </Select>
                   <FormHelpTextError label={formik.touched.branchId && formik.errors.branchId} />
                 </FormControl>

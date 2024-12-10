@@ -13,6 +13,7 @@ import { useAuth } from 'src/hooks/useAuth';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout as dangXuat } from 'src/redux/slices/authSlice';
 import { useNavigate } from 'react-router-dom';
+import { renderUrl } from 'src/utils/check';
 
 // ----------------------------------------------------------------------
 
@@ -35,6 +36,7 @@ const MENU_OPTIONS = [
 ];
 
 // ----------------------------------------------------------------------
+const backendUrl = import.meta.env.VITE_BACKEND_APP_URL;
 
 export default function AccountPopover() {
   const { logout } = useAuth();
@@ -86,10 +88,8 @@ export default function AccountPopover() {
         }}
       >
         <Avatar
-
-          src="https://i.pinimg.com/originals/c6/e5/65/c6e56503cfdd87da299f72dc416023d4.jpg"
+          src={renderUrl(account?.avatar, backendUrl)}
           alt={account?.name}
-
           sx={{
             width: 36,
             height: 36,
