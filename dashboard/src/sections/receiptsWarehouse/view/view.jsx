@@ -18,9 +18,8 @@ import { useRouter } from 'src/routes/hooks';
 import ConfirmDelete from 'src/components/modal/confirm-delete';
 import { handleToast } from 'src/hooks/toast';
 import LoadingFull from 'src/components/loading/loading-full';
-import TableEmptyRows from 'src/components/table/table-empty-rows';
 import TableNoData from 'src/components/table/table-no-data';
-import { emptyRows, applyFilter, getComparator } from 'src/components/table/utils';
+import { applyFilter, getComparator } from 'src/components/table/utils';
 import { Box, List, Modal, IconButton, ListItemText } from '@mui/material';
 import { formatCurrency } from 'src/utils/format-number';
 import { formatDateTime } from 'src/utils/format-time';
@@ -83,14 +82,19 @@ export default function ReceiptWarehousePage() {
   const warehouses = useSelector((state) => state.warehouses.warehouses);
 
   const handleClose = () => setOpen(false);
+  const getRecipes = (p, r) => dispatch(allReceiptWarehouses({
+    page: p,
+    limit: r,
+  }));
   useEffect(() => {
-    dispatch(allReceiptWarehouses());
+    getRecipes(page, rowsPerPage);
     dispatch(fetchSupplier());
     dispatch(fetchWarehouses());
+    // eslint-disable-next-line
   }, [dispatch]);
   useEffect(() => {
     if (status === 'successful') {
-      setReceipts(data);
+      setReceipts(data.result);
     }
   }, [status, dispatch, data]);
   useEffect(() => {
@@ -98,7 +102,7 @@ export default function ReceiptWarehousePage() {
       handleToast('success', 'Xóa hóa đơn thành công!');
       setConfirm(false);
       dispatch(setStatus({ key: 'statusDelete', value: 'idle' }));
-      dispatch(allReceiptWarehouses());
+      getRecipes(page, rowsPerPage);
     }
     if (statusDelete === 'failed') {
       if (error && error.messages) {
@@ -110,7 +114,8 @@ export default function ReceiptWarehousePage() {
       }
       dispatch(setStatus({ key: 'statusDelete', value: 'idle' }));
     }
-  }, [statusDelete, dispatch, error]);
+    // eslint-disable-next-line
+  }, [statusDelete, error]);
 
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === 'asc';
@@ -149,11 +154,13 @@ export default function ReceiptWarehousePage() {
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
+    getRecipes(newPage, rowsPerPage);
   };
 
   const handleChangeRowsPerPage = (event) => {
     setPage(0);
     setRowsPerPage(parseInt(event.target.value, 10));
+    getRecipes(0, parseInt(event.target.value, 10));
   };
 
   const handleFilterByName = (event) => {
@@ -298,13 +305,13 @@ export default function ReceiptWarehousePage() {
             <Button variant="contained" color="inherit" onClick={reactToPrintFn}>
               In hóa đơn
             </Button>
-            <Button
+            {/* <Button
               variant="contained"
               color="inherit"
               onClick={() => handleToast('info', 'Tính năng đang phát triển!')}
             >
               Chỉnh sửa
-            </Button>
+            </Button> */}
           </Stack>
         </Box>
       </Modal>
@@ -316,7 +323,7 @@ export default function ReceiptWarehousePage() {
             aria-label="load"
             variant="contained"
             color="inherit"
-            onClick={() => dispatch(allReceiptWarehouses())}
+            onClick={() => getRecipes(page, rowsPerPage)}
           >
             <Iconify icon="mdi:reload" />
           </IconButton>
@@ -344,7 +351,7 @@ export default function ReceiptWarehousePage() {
               <ReceiptTableHead
                 order={order}
                 orderBy={orderBy}
-                rowCount={receipts.length}
+                rowCount={data.length}
                 numSelected={selected.length}
                 onRequestSort={handleSort}
                 onSelectAllClick={handleSelectAllClick}
@@ -362,7 +369,6 @@ export default function ReceiptWarehousePage() {
               />
               <TableBody>
                 {dataFiltered
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
                     <ReceiptTableRow
                       key={row._id}
@@ -382,11 +388,6 @@ export default function ReceiptWarehousePage() {
                     />
                   ))}
 
-                <TableEmptyRows
-                  height={77}
-                  emptyRows={emptyRows(page, rowsPerPage, receipts.length)}
-                  col={8}
-                />
 
                 {notFound && <TableNoData query={filterName} />}
               </TableBody>
@@ -398,7 +399,7 @@ export default function ReceiptWarehousePage() {
           page={page}
           component="div"
           labelRowsPerPage="Số hàng trên trang"
-          count={receipts.length}
+          count={data.count || 0}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}
           rowsPerPageOptions={[5, 10, 25]}

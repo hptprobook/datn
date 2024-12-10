@@ -96,6 +96,5 @@ export const handleStatusConfig = {
   shipped: { value: 'shipping', label: 'Đang vận chuyển', icon: 'eva:truck-outline' },
   shipping: { value: 'delivered', label: 'Đã giao hàng', icon: 'eva:clipboard-outline' },
   delivered: { value: 'completed', label: 'Hoàn thành', icon: 'eva:checkmark-square-outline' },
-  returned: { value: 'cancelled', label: 'Đã huỷ', icon: 'eva:close-outline' },
   // cancelled: { value: 'paymentPending', label: 'Tạo lại đơn hàng', icon: 'eva:refresh-outline' },
 };
