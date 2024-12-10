@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Link, NavLink, useSearchParams } from 'react-router-dom';
 import { getAllBlogAPI, getTags, getTopViewBlogAPI } from '~/APIs';
 import MainLoading from '~/components/common/Loading/MainLoading';
-import { formatDateToDDMMYYYY } from '~/utils/formatters';
+import { formatDateToDDMMYYYY, resolveUrl } from '~/utils/formatters';
 
 const PostPage = () => {
   const [limit, setLimit] = useState(12);
@@ -30,13 +30,20 @@ const PostPage = () => {
 
   // Xử lý nút Tìm kiếm
   const handleSearchSubmit = () => {
-    // Chỉ thêm `search` vào URL params, xóa tất cả các params khác
+    if (!searchInput.trim()) return; // Prevent empty search
     const params = new URLSearchParams();
-    if (searchInput.trim()) {
-      params.set('search', searchInput.trim());
+    params.set('search', searchInput.trim());
+    setSearchParams(params);
+    closeSearchModal();
+  };
+
+  // Thêm xử lý phím Enter và Esc
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && searchInput.trim()) {
+      handleSearchSubmit();
+    } else if (e.key === 'Escape') {
+      closeSearchModal();
     }
-    setSearchParams(params); // Cập nhật params
-    closeSearchModal(); // Đóng modal
   };
 
   // Gọi API lấy bài viết
@@ -84,6 +91,15 @@ const PostPage = () => {
     setSearchParams(params); // Cập nhật URL params
   };
 
+  // Thêm hàm xử lý xóa tìm kiếm
+  const handleClearSearch = () => {
+    setSearchParams((prevParams) => {
+      const params = new URLSearchParams(prevParams);
+      params.delete('search');
+      return params;
+    });
+  };
+
   if (isPostsLoading || isTagsLoading || isTopViewPostsLoading) {
     return <MainLoading />;
   }
@@ -107,6 +123,15 @@ const PostPage = () => {
                 <option value="oldest">Cũ nhất</option>
                 <option value="mostViews">Xem nhiều nhất</option>
               </select>
+              {search && ( // Hiển thị nút xóa tìm kiếm nếu có search param
+                <button
+                  onClick={handleClearSearch}
+                  className="flex items-center gap-1 text-gray-600 hover:text-red-600"
+                >
+                  <Icon icon="line-md:close-small" width={20} height={20} />
+                  <span className="text-sm">Xóa tìm kiếm</span>
+                </button>
+              )}
               <Icon
                 className="cursor-pointer"
                 icon="line-md:search"
@@ -124,7 +149,7 @@ const PostPage = () => {
               >
                 <NavLink to={`/tin-tuc/${post?.slug}`}>
                   <img
-                    src={post?.thumbnail}
+                    src={resolveUrl(post?.thumbnail)}
                     alt={post?.title}
                     className="w-full h-48 object-cover rounded"
                   />
@@ -145,12 +170,13 @@ const PostPage = () => {
                       {post?.title}
                     </h2>
                   </NavLink>
-                  <p className="h-18 text-clamp-3 text-gray-600">
-                    {post?.shortDesc}
-                  </p>
+                  <p
+                    className="h-18 line-clamp-3 text-gray-600"
+                    dangerouslySetInnerHTML={{ __html: post?.shortDesc }}
+                  />
                   <div className="text-sm text-gray-500 mt-4">
                     <p>Ngày đăng: {formatDateToDDMMYYYY(post?.createdAt)}</p>
-                    <p>Người đăng: {post?.author}</p>
+                    <p>Người đăng: {post?.authName}</p>
                     <p>Số lượt xem: {post?.views}</p>
                   </div>
                   <Link
@@ -195,7 +221,10 @@ const PostPage = () => {
                   {post?.title}
                 </h2>
               </NavLink>
-              <p className="text-gray-600 mb-2">{post?.shortDesc}</p>
+              <p
+                className="text-gray-600 mb-2 text-clamp-3"
+                dangerouslySetInnerHTML={{ __html: post?.shortDesc }}
+              />
               <Link
                 to={`/tin-tuc/${post?.slug}`}
                 className="mt-2 text-blue-500 hover:text-red-600"
@@ -236,12 +265,15 @@ const PostPage = () => {
               type="text"
               placeholder="Nhập từ khóa tìm kiếm..."
               value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)} // Cập nhật state
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              autoFocus
               className="w-full border p-3 rounded-md"
             />
             <button
               onClick={handleSearchSubmit}
-              className="btn bg-blue-600 text-white mt-4 hover:bg-blue-700 rounded-md"
+              disabled={!searchInput.trim()}
+              className="btn bg-blue-600 text-white mt-4 hover:bg-blue-700 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Tìm kiếm
             </button>

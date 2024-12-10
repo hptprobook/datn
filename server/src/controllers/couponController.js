@@ -20,6 +20,7 @@ const getCoupons = async (req, res) => {
 const getCouponsForOrder = async (req, res) => {
   try {
     const currentDate = new Date();
+    const orderTotal = req.orderTotal;
 
     // Lấy danh sách mã giảm giá
     let coupons = await couponModel.getCouponsForOrder();
@@ -55,6 +56,14 @@ const getCouponsForOrder = async (req, res) => {
       // Kiểm tra giới hạn sử dụng trên người dùng
       if (coupon.limitOnUser && usedCouponIds.has(coupon._id.toString()))
         return false;
+
+      // Kiểm tra điều kiện giá trị đơn hàng nếu có orderTotal
+      if (orderTotal !== undefined) {
+        if (coupon.minPurchasePrice && orderTotal < coupon.minPurchasePrice)
+          return false;
+        if (coupon.maxPurchasePrice && orderTotal > coupon.maxPurchasePrice)
+          return false;
+      }
 
       return true;
     });
