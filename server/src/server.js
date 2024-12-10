@@ -55,6 +55,7 @@ const START_SERVER = () => {
         'http://localhost:3001',
         'https://bmt-life.vercel.app',
         'https://dashboard-bmt-life.vercel.app',
+        'http://localhost:8000',
       ],
       credentials: true,
     })
