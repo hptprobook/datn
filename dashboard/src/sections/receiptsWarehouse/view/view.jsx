@@ -351,7 +351,7 @@ export default function ReceiptWarehousePage() {
               <ReceiptTableHead
                 order={order}
                 orderBy={orderBy}
-                rowCount={data.length}
+                rowCount={data?.count || 0}
                 numSelected={selected.length}
                 onRequestSort={handleSort}
                 onSelectAllClick={handleSelectAllClick}
@@ -399,7 +399,7 @@ export default function ReceiptWarehousePage() {
           page={page}
           component="div"
           labelRowsPerPage="Số hàng trên trang"
-          count={data.count || 0}
+          count={data?.count || 0}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}
           rowsPerPageOptions={[5, 10, 25]}

@@ -41,11 +41,12 @@ import { handleToast } from 'src/hooks/toast';
 import Grid2 from '@mui/material/Unstable_Grid2';
 import { useFormik } from 'formik';
 import { createReceipt, setStatus as setStatusCreate } from 'src/redux/slices/receiptSlices';
+import { createUser, setStatus as setStatusCreateUser } from 'src/redux/slices/userSlice';
 import { IconSave, IconDelete, IconCancel } from 'src/components/iconify/icon';
 import { PropTypes } from 'prop-types';
 import { formatDateTime } from 'src/utils/format-time';
 import { useReactToPrint } from 'react-to-print';
-import { productSchema } from './common/util';
+import { userSchema, productSchema } from './common/util';
 
 // ----------------------------------------------------------------------
 const backendUrl = import.meta.env.VITE_BACKEND_APP_URL;
@@ -117,6 +118,8 @@ export default function PosPage() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [showSuggest, setShowSuggest] = useState(false);
   const [openPrint, setOpenPrint] = useState(false);
+  const [openModalAdd, setOpenModalAdd] = useState(false);
+
   const [isPrint, setIsPrint] = useState(false);
 
   const dispatch = useDispatch();
@@ -128,6 +131,10 @@ export default function PosPage() {
   const warehouses = useSelector((state) => state.warehouses.warehouses);
   const statusCreate = useSelector((state) => state.receipts.statusCreate);
   const error = useSelector((state) => state.receipts.error);
+  const statusCreateUser = useSelector((state) => state.users.statusCreate);
+  const dataUser = useSelector((state) => state.users.user);
+  const errorCreateUser = useSelector((state) => state.users.error);
+
   const contentRef = useRef(null);
 
   useEffect(() => {
@@ -157,7 +164,6 @@ export default function PosPage() {
   useEffect(() => {
     if (staff) {
       dispatch(fetchAll()).then((r) => {
-        console.log(r);
         if (r.meta.requestStatus === 'fulfilled') {
           if (staff.role === 'root') {
             setWarehouse(warehouses[0]._id);
@@ -186,7 +192,21 @@ export default function PosPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusCreate, error, receipts, value]);
-
+  useEffect(() => {
+    if (statusCreateUser === 'successful') {
+      handleToast('success', 'Tạo người dùng thành công');
+      setSelectedUser(dataUser);
+      setStatusCreateUser({ key: 'statusCreate', value: 'idle' });
+      setStatusCreateUser({ key: 'error', value: null });
+      setOpenModalAdd(false);
+    }
+    if (statusCreateUser === 'failed') {
+      handleToast('error', errorCreateUser?.message || 'Tạo người dùng thất bại');
+      setStatusCreateUser({ key: 'statusCreate', value: 'idle' });
+      setStatusCreateUser({ key: 'error', value: null });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [statusCreateUser, errorCreateUser]);
   const formik = useFormik({
     initialValues: {
       name: '',
@@ -213,6 +233,19 @@ export default function PosPage() {
       setAddCustom(false);
     },
   });
+  const formikUser = useFormik({
+    initialValues: {
+      email: '',
+      password: '',
+      name: '',
+      phone: '',
+    },
+    validationSchema: userSchema,
+    onSubmit: async (values) => {
+      dispatch(createUser(values));
+    },
+  });
+
   const handleOpen = () => {
     setOpen(true);
   };
@@ -513,6 +546,57 @@ export default function PosPage() {
               Chỉnh sửa
             </Button> */}
           </Stack>
+        </Box>
+      </Modal>
+      <Modal
+        open={openModalAdd}
+        onClose={() => setOpenModalAdd(false)}
+        aria-labelledby="modal-add-title"
+        aria-describedby="modal-add-description"
+      >
+        <Box sx={style}>
+          <form onSubmit={formikUser.handleSubmit}>
+            <Stack spacing={2}>
+              <Typography id="modal-add-title" variant="h6" component="h2">
+                Thêm khách hàng
+              </Typography>
+              <FormField
+                label="Tên khách hàng"
+                name="name"
+                value={formikUser.values.name}
+                touched={formikUser.touched.name}
+                error={formikUser.errors.name}
+                handleChange={formikUser.handleChange}
+              />
+              <FormField
+                label="Email"
+                name="email"
+                value={formikUser.values.email}
+                touched={formikUser.touched.email}
+                error={formikUser.errors.email}
+                handleChange={formikUser.handleChange}
+              />
+              <FormField
+                label="Số điện thoại"
+                name="phone"
+                value={formikUser.values.phone}
+                touched={formikUser.touched.phone}
+                error={formikUser.errors.phone}
+                handleChange={formikUser.handleChange}
+              />
+              <FormField
+                label="Mật khẩu"
+                name="password"
+                value={formikUser.values.password}
+                touched={formikUser.touched.password}
+                error={formikUser.errors.password}
+                handleChange={formikUser.handleChange}
+              />
+              <Button variant="contained" color="inherit" type="submit">
+                Thêm
+              </Button>
+            </Stack>
+          </form>
         </Box>
       </Modal>
       <Modal
@@ -1032,9 +1116,9 @@ export default function PosPage() {
                   </Stack>
                 </Box>
               </Popper>
-              {/* <IconButton>
+              <IconButton onClick={() => setOpenModalAdd(true)}>
                 <Iconify icon="mdi:plus" />
-              </IconButton> */}
+              </IconButton>
             </Stack>
             <Stack
               sx={{
@@ -1048,10 +1132,10 @@ export default function PosPage() {
                 <Typography variant="body1">Tổng tiền</Typography>
                 <Typography variant="body1">{formatCurrency(receipt?.total)}</Typography>
               </Stack>
-              <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
+              {/* <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
                 <Typography variant="body1">Giảm giá</Typography>
                 <Typography variant="body1">{formatCurrency(receipt?.discount)}</Typography>
-              </Stack>
+              </Stack> */}
               <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
                 <Typography variant="body1">Khách phải trả</Typography>
                 <Typography variant="body1">

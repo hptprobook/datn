@@ -195,7 +195,7 @@ export default function DetailOrderPage() {
       return '';
     }
     const latestStatus = orderStatus[orderStatus.length - 1]?.status;
-    if (latestStatus === 'pending' || latestStatus === 'confirmed') {
+    if (latestStatus === 'pending' || latestStatus === 'confirmed' || latestStatus === 'returned') {
       return (
         <Button
           variant="contained"
@@ -214,7 +214,7 @@ export default function DetailOrderPage() {
       return '';
     }
     const latestStatus = orderStatus[orderStatus.length - 1];
-    if (latestStatus.status === 'returned' && latestStatus.statusReturn === 'pending') {
+    if (latestStatus.status === 'returned' && latestStatus.returnStatus === 'pending') {
       return (
         <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
           <Button
@@ -223,7 +223,7 @@ export default function DetailOrderPage() {
             startIcon={<Iconify icon="eva:close-fill" />}
             onClick={() => setOpen('rejected')}
           >
-            Từ chối hủy đơn
+            Từ chối trả hàng
           </Button>
           <Button
             variant="contained"
@@ -231,7 +231,7 @@ export default function DetailOrderPage() {
             startIcon={<Iconify icon="ic:outline-check" />}
             onClick={() => setOpen('approved')}
           >
-            Chấp nhận hủy đơn
+            Chấp nhận trả hàng
           </Button>
         </Stack>
       );
