@@ -172,7 +172,11 @@ const staffSlices = createSlice({
               })
               .addCase(uploadMe.fulfilled, (state, action) => {
                 state.statusUpdateMe = 'successful';
-                state.staff.avatar = action.payload.avatar; // Update the avatar in the staff object
+                if (state.staff) {
+                  state.staff.avatar = action.payload.avatar; // Update the avatar in the staff object
+                } else {
+                  state.staff = { avatar: action.payload.avatar }; // Initialize staff if null
+                }
               })
               .addCase(uploadMe.rejected, (state, action) => {
                 state.statusUpdateMe = 'failed';
