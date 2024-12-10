@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { Link, NavLink, useNavigate, useParams } from 'react-router-dom';
 import { getBlogBySlugAPI, getTopViewBlogAPI, updateViewBlog } from '~/APIs';
 import MainLoading from '~/components/common/Loading/MainLoading';
-import { convertHTMLToText, formatDateToDDMMYYYY } from '~/utils/formatters';
+import { formatDateToDDMMYYYY, resolveUrl } from '~/utils/formatters';
 
 const PostDetail = () => {
   const { slug } = useParams();
@@ -52,13 +52,19 @@ const PostDetail = () => {
               {formatDateToDDMMYYYY(blogDetail?.createdAt)}
             </span>
           </div>
+          <img
+            src={resolveUrl(blogDetail?.thumbnail)}
+            alt={blogDetail?.title}
+            className="w-full object-cover rounded mb-5"
+          />
           <div>
-            <p className="text-gray-600 italic my-5 text-xl">
-              {convertHTMLToText(blogDetail?.shortDesc)}
-            </p>
+            <p
+              className="text-gray-600 italic my-5 text-xl"
+              dangerouslySetInnerHTML={{ __html: blogDetail?.shortDesc }}
+            />
           </div>
           <div className="text-xl text-gray-700 leading-loose">
-            {convertHTMLToText(blogDetail?.content)}
+            <div dangerouslySetInnerHTML={{ __html: blogDetail?.content }} />
           </div>
           <h2 className="text-xl font-bold mb-8 mt-12 text-gray-900 uppercase">
             Tags

@@ -11,6 +11,7 @@ import { orderStatus } from '~/utils/format';
 import { ObjectId } from 'mongodb';
 import { couponHistoryModel } from '~/models/couponHistoryModel';
 import { staffsModel } from '~/models/staffsModel';
+import { couponModel } from '~/models/couponModel';
 const getAllOrder = async (req, res) => {
   try {
     const { page, limit } = req.query;
@@ -280,33 +281,37 @@ const addOrder = async (req, res) => {
                     <h3>Thông tin đơn hàng:</h3>
                     <div class="customer-info">
                         <div class="info-item">
-                            <strong>Tên khách hàng:</strong> ${dataOrder.shippingInfo.name
-      }
+                            <strong>Tên khách hàng:</strong> ${
+                              dataOrder.shippingInfo.name
+                            }
                         </div>
                         <div class="info-item">
                             <strong>Email:</strong> ${email}
                         </div>
                         <div class="info-item">
-                            <strong>Số điện thoại:</strong> ${dataOrder.shippingInfo.phone
-      }
+                            <strong>Số điện thoại:</strong> ${
+                              dataOrder.shippingInfo.phone
+                            }
                         </div>
                         <div class="info-item">
-                            <strong>Địa chỉ giao hàng:</strong> ${dataOrder.shippingInfo.fullAddress
-      }
+                            <strong>Địa chỉ giao hàng:</strong> ${
+                              dataOrder.shippingInfo.fullAddress
+                            }
                         </div>
                         <div class="total-price">
                             Tổng tiền: ${new Intl.NumberFormat('vi-VN', {
-        style: 'currency',
-        currency: 'VND',
-      }).format(dataOrder.totalPrice)}
+                              style: 'currency',
+                              currency: 'VND',
+                            }).format(dataOrder.totalPrice)}
                         </div>
                     </div>
                 </div>
 
                 <p>Bạn có thể theo dõi trạng thái đơn hàng bằng cách click vào nút bên dưới:</p>
                 <center>
-                    <a href="${process.env.CLIENT_URL}nguoi-dung/don-hang/${dataOrder.orderCode
-      }" class="button">
+                    <a href="${process.env.CLIENT_URL}nguoi-dung/don-hang/${
+      dataOrder.orderCode
+    }" class="button">
                         Theo dõi đơn hàng
                     </a>
                 </center>
@@ -333,14 +338,24 @@ const addOrder = async (req, res) => {
     // Lưu lịch sử coupon nếu có
     if (dataOrder.couponId && dataOrder.couponId.length > 0) {
       for (const couponId of dataOrder.couponId) {
-        const usageData = {
-          userId: dataOrder.userId,
-          couponId,
-          orderId: result.insertedId.toString(),
-          discountAmount: dataOrder.discountPrice || 0,
-          status: 'successful',
-        };
-        await couponHistoryModel.addCouponHistory(usageData);
+        const coupon = await couponModel.getCouponsById(couponId);
+        if (coupon && coupon.usageLimit > 0) {
+          const usageData = {
+            userId: dataOrder.userId,
+            couponId,
+            orderId: result.insertedId.toString(),
+            discountAmount: dataOrder.discountPrice || 0,
+            status: 'successful',
+          };
+          await couponHistoryModel.addCouponHistory(usageData);
+
+          // Decrease the usageLimit
+          await couponModel.updateCouponUsage(coupon.code, dataOrder.userId);
+        } else {
+          return res.status(StatusCodes.BAD_REQUEST).json({
+            message: 'Coupon không còn hiệu lực',
+          });
+        }
       }
     }
 
@@ -521,25 +536,28 @@ const addOrderNot = async (req, res) => {
                     <h3>Thông tin đơn hàng:</h3>
                     <div class="customer-info">
                         <div class="info-item">
-                            <strong>Tên khách hàng:</strong> ${shippingInfo.name
-      }
+                            <strong>Tên khách hàng:</strong> ${
+                              shippingInfo.name
+                            }
                         </div>
                         <div class="info-item">
                             <strong>Email:</strong> ${email}
                         </div>
                         <div class="info-item">
-                            <strong>Số điện thoại:</strong> ${shippingInfo.phone
-      }
+                            <strong>Số điện thoại:</strong> ${
+                              shippingInfo.phone
+                            }
                         </div>
                         <div class="info-item">
-                            <strong>Địa chỉ giao hàng:</strong> ${shippingInfo.fullAddress
-      }
+                            <strong>Địa chỉ giao hàng:</strong> ${
+                              shippingInfo.fullAddress
+                            }
                         </div>
                         <div class="total-price">
                             Tổng tiền: ${new Intl.NumberFormat('vi-VN', {
-        style: 'currency',
-        currency: 'VND',
-      }).format(totalPrice)}
+                              style: 'currency',
+                              currency: 'VND',
+                            }).format(totalPrice)}
                         </div>
                         <div class="secret-key">
                             Mã bảo mật: <strong>${secretKey}</strong>
@@ -549,8 +567,9 @@ const addOrderNot = async (req, res) => {
 
                 <p>Bạn có thể theo dõi trạng thái đơn hàng bằng cách click vào nút bên dưới:</p>
                 <center>
-                    <a href="${process.env.CLIENT_URL
-      }theo-doi-don-hang" class="button">
+                    <a href="${
+                      process.env.CLIENT_URL
+                    }theo-doi-don-hang" class="button">
                         Theo dõi đơn hàng
                     </a>
                 </center>
@@ -888,8 +907,9 @@ const updateOrder = async (req, res) => {
                 
                 <div class="content">
                     <h2>Xin chào ${dataOrder.shippingInfo.name}!</h2>
-                    <p>Đơn hàng #${dataOrder.orderCode
-          } của bạn đã được giao thành công. Cảm ơn bạn đã mua sắm tại <strong>BMT Life</strong>.</p>
+                    <p>Đơn hàng #${
+                      dataOrder.orderCode
+                    } của bạn đã được giao thành công. Cảm ơn bạn đã mua sắm tại <strong>BMT Life</strong>.</p>
                     
                     <div class="order-code">
                         Mã đơn hàng: ${dataOrder.orderCode}
@@ -899,33 +919,37 @@ const updateOrder = async (req, res) => {
                         <h3>Thông tin đơn hàng:</h3>
                         <div class="customer-info">
                             <div class="info-item">
-                                <strong>Tên khách hàng:</strong> ${dataOrder.shippingInfo.name
-          }
+                                <strong>Tên khách hàng:</strong> ${
+                                  dataOrder.shippingInfo.name
+                                }
                             </div>
                             <div class="info-item">
                                 <strong>Email:</strong> ${email}
                             </div>
                             <div class="info-item">
-                                <strong>Số điện thoại:</strong> ${dataOrder.shippingInfo.phone
-          }
+                                <strong>Số điện thoại:</strong> ${
+                                  dataOrder.shippingInfo.phone
+                                }
                             </div>
                             <div class="info-item">
-                                <strong>Địa chỉ giao hàng:</strong> ${dataOrder.shippingInfo.fullAddress
-          }
+                                <strong>Địa chỉ giao hàng:</strong> ${
+                                  dataOrder.shippingInfo.fullAddress
+                                }
                             </div>
                             <div class="total-price">
                                 Tổng tiền: ${new Intl.NumberFormat('vi-VN', {
-            style: 'currency',
-            currency: 'VND',
-          }).format(dataOrder.totalPrice)}
+                                  style: 'currency',
+                                  currency: 'VND',
+                                }).format(dataOrder.totalPrice)}
                             </div>
                         </div>
                     </div>
 
                     <p>Bạn có thể theo dõi trạng thái đơn hàng bằng cách click vào nút bên dưới:</p>
                     <center>
-                        <a href="${process.env.CLIENT_URL
-          }/theo-doi-don-hang" class="button">
+                        <a href="${
+                          process.env.CLIENT_URL
+                        }/theo-doi-don-hang" class="button">
                             Theo dõi đơn hàng
                         </a>
                     </center>
@@ -1196,8 +1220,9 @@ const updateOrderNotLogin = async (req, res) => {
                 
                 <div class="content">
                     <h2>Xin chào ${dataOrder.shippingInfo.name}!</h2>
-                    <p>Đơn hàng #${dataOrder.orderCode
-          } của bạn đã được giao thành công. Cảm ơn bạn đã mua sắm tại <strong>BMT Life</strong>.</p>
+                    <p>Đơn hàng #${
+                      dataOrder.orderCode
+                    } của bạn đã được giao thành công. Cảm ơn bạn đã mua sắm tại <strong>BMT Life</strong>.</p>
                     
                     <div class="order-code">
                         Mã đơn hàng: ${dataOrder.orderCode}
@@ -1207,33 +1232,37 @@ const updateOrderNotLogin = async (req, res) => {
                         <h3>Thông tin đơn hàng:</h3>
                         <div class="customer-info">
                             <div class="info-item">
-                                <strong>Tên khách hàng:</strong> ${dataOrder.shippingInfo.name
-          }
+                                <strong>Tên khách hàng:</strong> ${
+                                  dataOrder.shippingInfo.name
+                                }
                             </div>
                             <div class="info-item">
                                 <strong>Email:</strong> ${email}
                             </div>
                             <div class="info-item">
-                                <strong>Số điện thoại:</strong> ${dataOrder.shippingInfo.phone
-          }
+                                <strong>Số điện thoại:</strong> ${
+                                  dataOrder.shippingInfo.phone
+                                }
                             </div>
                             <div class="info-item">
-                                <strong>Địa chỉ giao hàng:</strong> ${dataOrder.shippingInfo.fullAddress
-          }
+                                <strong>Địa chỉ giao hàng:</strong> ${
+                                  dataOrder.shippingInfo.fullAddress
+                                }
                             </div>
                             <div class="total-price">
                                 Tổng tiền: ${new Intl.NumberFormat('vi-VN', {
-            style: 'currency',
-            currency: 'VND',
-          }).format(dataOrder.totalPrice)}
+                                  style: 'currency',
+                                  currency: 'VND',
+                                }).format(dataOrder.totalPrice)}
                             </div>
                         </div>
                     </div>
 
                     <p>Bạn có thể theo dõi trạng thái đơn hàng bằng cách click vào nút bên dưới:</p>
                     <center>
-                        <a href="${process.env.CLIENT_URL
-          }/theo-doi-don-hang" class="button">
+                        <a href="${
+                          process.env.CLIENT_URL
+                        }/theo-doi-don-hang" class="button">
                             Theo dõi đơn hàng
                         </a>
                     </center>

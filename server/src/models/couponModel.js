@@ -116,7 +116,15 @@ const getCouponAndUser = async (userId, code) => {
 const updateCouponUsage = async (code, userId) => {
   const db = await GET_DB().collection('coupons');
 
-  await db.findOneAndUpdate({ code: code }, { $inc: { usageCount: 1 } });
+  await db.findOneAndUpdate(
+    { code: code },
+    {
+      $inc: {
+        usageCount: 1,
+        usageLimit: -1,
+      },
+    }
+  );
 
   await db.findOneAndUpdate(
     { code: code },
