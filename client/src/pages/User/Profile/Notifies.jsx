@@ -125,7 +125,7 @@ const Notifies = () => {
           </h3>
 
           <select
-            className="select select-success rounded-md w-52"
+            className="select select-success rounded-md w-52 bg-white text-gray-900"
             value={filterValue}
             onChange={handleFilterChange}
           >

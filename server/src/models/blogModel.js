@@ -5,6 +5,7 @@ import {
   UPDATE_BLOG,
   UPDATE_COMMENT,
 } from '~/utils/schema/blogSchema';
+import { generateSlug } from '~/utils/format';
 const validateBeforeCreate = async (data) => {
   return await SAVE_BLOG.validateAsync(data, { abortEarly: false });
 };
@@ -23,7 +24,7 @@ const getAllBlogs = async (page, limit) => {
     .toArray();
   return {
     data: result,
-    count
+    count,
   };
 };
 
@@ -67,7 +68,8 @@ const getAllBlogsForClient = async ({
 
   // Tìm kiếm nếu có search
   if (search.trim()) {
-    query.title = { $regex: search, $options: 'i' };
+    const searchSlug = generateSlug(search);
+    query.slug = { $regex: searchSlug, $options: 'i' };
   }
 
   // Sắp xếp

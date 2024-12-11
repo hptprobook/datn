@@ -200,13 +200,13 @@ const LoginPageUI = () => {
               </div>
 
               <div className="col-span-6 flex items-center justify-center">
-                <p className="text-center">hoặc</p>
+                <p className="text-center text-gray-500">hoặc</p>
               </div>
               <div className="col-span-6" onClick={handleLoginGoogle}>
                 <div className="flex items-center justify-center">
                   <button
                     type="button"
-                    className="px-12 py-2 border flex gap-2 border-slate-200  rounded-lg text-slate-700 dark:text-slate-200  hover:text-slate-900  hover:shadow transition duration-150"
+                    className="px-12 py-2 border flex gap-2 border-slate-200  rounded-lg text-slate-700 hover:text-slate-900  hover:shadow transition duration-150"
                   >
                     <img
                       className="w-6 h-6"

@@ -7,3 +7,18 @@ export const productSchema = yup.object().shape({
     variantColor: yup.string().typeError('Màu sắc phải là chuỗi'),
     variantSize: yup.string().typeError('Kích thước phải là chuỗi'),
 })
+export const userSchema = yup.object().shape({
+    email: yup.string().email('Email phải là một địa chỉ email hợp lệ').required('Email là bắt buộc'),
+    password: yup.string()
+        .required('Mật khẩu là bắt buộc')
+        .min(6, 'Mật khẩu phải có ít nhất 6 ký tự')
+        .max(50, 'Mật khẩu không được quá 50 ký tự'),
+    name: yup.string()
+        .required('Tên là bắt buộc')
+        .min(2, 'Tên phải có ít nhất 2 ký tự')
+        .max(50, 'Tên không được quá 50 ký tự'),
+    phone: yup.string()
+        .required('Số điện thoại là bắt buộc')
+        .min(10, 'Số điện thoại phải có ít nhất 10 ký tự')
+        .max(10, 'Số điện thoại không được quá 10 ký tự'),
+});
