@@ -8,6 +8,7 @@ const CouponServices = {
   update: async (id, data) => await put(`coupons/${id}`, data),
   delete: async (id) => await del(`coupons/${id}`),
   deleteMany: async (ids) => await post('coupons/many', { ids }),
+  createMany: async (data) => await post('coupons/creates', data),
 };
 
 export default CouponServices;

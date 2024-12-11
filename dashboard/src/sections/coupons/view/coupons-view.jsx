@@ -16,13 +16,18 @@ import Scrollbar from 'src/components/scrollbar';
 import LoadingFull from 'src/components/loading/loading-full';
 import ConfirmDelete from 'src/components/modal/confirm-delete';
 import { handleToast } from 'src/hooks/toast';
+import { handleExport } from 'src/utils/excel';
+import { IconExcel } from 'src/components/iconify/icon';
+import ImportExcelModal from 'src/components/modal/import-modal';
 
 import { useDispatch, useSelector } from 'react-redux';
 import {
   fetchAll,
+  setStatus,
   resetDelete,
   deleteCoupon,
   deleteManyCoupon,
+  createManyCoupon
 } from 'src/redux/slices/couponSlice';
 import { useRouter } from 'src/routes/hooks';
 import { formatCurrency } from 'src/utils/format-number';
@@ -34,20 +39,29 @@ import { applyFilter, getComparator } from '../utils';
 import CouponTableHead from '../coupon-table-head';
 
 // ----------------------------------------------------------------------
-
+const columns = [
+  { field: '_id', headerName: 'ID', width: 90 },
+  { field: 'name', headerName: 'Tên', width: 150 },
+  { field: 'code', headerName: 'Mã', width: 150 },
+  { field: 'type', headerName: 'Loại', width: 150 },
+  { field: 'minPurchasePrice', headerName: 'Giá mua tối thiểu', width: 150 },
+  { field: 'maxPurchasePrice', headerName: 'Giá mua tối đa', width: 150 },
+  { field: 'usageLimit', headerName: 'Giới hạn sử dụng', width: 150 },
+  { field: 'usageCount', headerName: 'Số lần sử dụng', width: 150 },
+  { field: 'status', headerName: 'Trạng thái', width: 150 },
+  { field: 'limitOnUser', headerName: 'Giới hạn người dùng', width: 150 },
+  { field: 'dateStart', headerName: 'Ngày bắt đầu', width: 150 },
+  { field: 'dateEnd', headerName: 'Ngày kết thúc', width: 150 },
+  { field: 'applicableProducts', headerName: 'Sản phẩm áp dụng', width: 150 },
+  { field: 'eligibleUsers', headerName: 'Người dùng hợp lệ', width: 150 },
+];
 export default function CouponsPage() {
   const [page, setPage] = useState(0);
-
   const [order, setOrder] = useState('asc');
-
   const [selected, setSelected] = useState([]);
-
   const [orderBy, setOrderBy] = useState('name');
-
   const [filterName, setFilterName] = useState('');
-
   const [rowsPerPage, setRowsPerPage] = useState(5);
-
   const [coupons, setCoupons] = useState([]);
 
   const dispatch = useDispatch();
@@ -56,6 +70,9 @@ export default function CouponsPage() {
   const data = useSelector((state) => state.coupons.coupons);
   const status = useSelector((state) => state.coupons.status);
   const statusDelete = useSelector((state) => state.coupons.statusDelete);
+  const statusCreate = useSelector((state) => state.coupons.statusCreate);
+  const dataCreateMany = useSelector((state) => state.coupons.dataCreateMany);
+
   const getCoupons = (p = 1, limit = 2) =>
     dispatch(
       fetchAll({
@@ -152,6 +169,54 @@ export default function CouponsPage() {
     setSelected([]);
     dispatch(deleteManyCoupon(selected));
   };
+  const handleSave = (d) => {
+    
+    dispatch(
+      createManyCoupon({
+        data: d,
+      })
+    );
+  };
+  useEffect(() => {
+    if (statusCreate === 'successful') {
+      if (dataCreateMany?.successful) {
+        dataCreateMany.successful.forEach((item) => {
+          if (item?.message) {
+            handleToast('success', item.message);
+          }
+        });
+      }
+      dispatch(
+        setStatus({
+          key: 'statusCreate',
+          value: 'idle',
+        })
+      );
+    }
+    if (statusCreate === 'failed') {
+      handleToast('error', dataCreateMany?.message || 'Thêm mã giảm giá thất bại');
+      if (dataCreateMany?.errors) {
+        dataCreateMany.errors.forEach((item) => {
+          if (item?.message) {
+            handleToast('error', `${item.name}: ${item.message}`);
+          }
+        });
+      }
+      if (dataCreateMany?.successful) {
+        dataCreateMany.successful.forEach((item) => {
+          if (item?.message) {
+            handleToast('success', item.message);
+          }
+        });
+      }
+      dispatch(
+        setStatus({
+          key: 'statusCreate',
+          value: 'idle',
+        })
+      );
+    }
+  }, [statusCreate, dataCreateMany, dispatch]);
   const notFound = !dataFiltered.length && !!filterName;
 
   const [confirm, setConfirm] = useState(false);
@@ -174,7 +239,38 @@ export default function CouponsPage() {
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
           <Typography variant="h4">Mã giảm giá </Typography>
-
+          <Button
+            variant="contained"
+            onClick={() => handleExport(coupons, 'Danh sách Mã Giảm giá', 'coupons')}
+            color="inherit"
+            startIcon={<IconExcel />}
+          >
+            Xuất Excel
+          </Button>
+          <ImportExcelModal
+            validateKey={[
+              '_id',
+              'name',
+              'code',
+              'type',
+              'applicableProducts',
+              'minPurchasePrice',
+              'maxPurchasePrice',
+              'discountValue',
+              'description',
+              'usageLimit',
+              'discountPercent',
+              'status',
+              'dateStart',
+              'dateEnd',
+              'limitOnUser',
+              'usageCount',
+              'eligibleUsers',
+              ]}
+            columns={columns}
+            onSave={handleSave}
+            loading={statusCreate === 'loading'}
+          />
           <IconButton
             aria-label="load"
             variant="contained"
