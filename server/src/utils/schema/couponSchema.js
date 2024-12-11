@@ -141,11 +141,11 @@ export const UPDATE_COUPONS = Joi.object({
         'number.integer': 'Giới hạn sử dụng phải là một số nguyên.',
         'number.min': 'Giới hạn sử dụng phải lớn hơn hoặc bằng {#limit}.',
     }),
-    usageCount: Joi.number().integer().min(1).messages({
+    usageCount: Joi.number().integer().min(0).messages({
         'number.base': 'Số lần sử dụng phải là một số nguyên.',
         'number.integer': 'Số lần sử dụng phải là một số nguyên.',
         'number.min': 'Số lần sử dụng phải lớn hơn hoặc bằng {#limit}.',
-    }),
+      }),
     status: Joi.string()
         .trim()
         .valid('active', 'inactive', 'expired')
@@ -159,10 +159,16 @@ export const UPDATE_COUPONS = Joi.object({
         'boolean.base':
             'Giới hạn sử dụng cho mỗi người dùng phải là một giá trị boolean.',
     }),
-    dateStart: Joi.date().timestamp('javascript').messages({
+    dateStart: Joi.alternatives().try(
+        Joi.date().iso(),
+        Joi.date().timestamp('javascript')
+      ).messages({
         'date.base': 'Ngày bắt đầu phải là một ngày hợp lệ.',
-    }),
-    dateEnd: Joi.date().timestamp('javascript').messages({
+      }),
+      dateEnd: Joi.alternatives().try(
+        Joi.date().iso(),
+        Joi.date().timestamp('javascript')
+      ).messages({
         'date.base': 'Ngày kết thúc phải là một ngày hợp lệ.',
-    }),
+      }),
 });
