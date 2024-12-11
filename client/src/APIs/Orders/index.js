@@ -9,19 +9,25 @@ export const checkStockProducts = async (data) => {
   }
 };
 
-export const getCurrentOrders = async ({ limit = 10 }) => {
+export const getCurrentOrders = async ({ limit = 10, sort = 'newest' }) => {
   try {
-    const response = await request.get('/orders/me/current?limit=' + limit);
+    const response = await request.get(
+      `/orders/me/current?limit=${limit}&sort=${sort}`
+    );
     return response.data;
   } catch (error) {
     throw error.response.data;
   }
 };
 
-export const getCurrentOrderWithStatus = async ({ limit = 10, status }) => {
+export const getCurrentOrderWithStatus = async ({
+  limit = 10,
+  status,
+  sort = 'newest',
+}) => {
   try {
     const response = await request.get(
-      `/orders/me/status/?status=${status}&limit=${limit}`
+      `/orders/me/status/?status=${status}&limit=${limit}&sort=${sort}`
     );
     return response.data;
   } catch (error) {

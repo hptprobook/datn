@@ -77,9 +77,10 @@ export default function CouponsPage() {
   useEffect(() => {
     if (statusDelete === 'successful') {
       handleToast('success', 'Xóa Mã giảm giá thành công');
-      dispatch(fetchAll());
+      getCoupons(page + 1, rowsPerPage);
       dispatch(resetDelete());
     }
+    // eslint-disable-next-line
   }, [statusDelete, dispatch]);
 
   const handleSort = (event, id) => {

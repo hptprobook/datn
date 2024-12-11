@@ -11,6 +11,7 @@ import { orderStatus } from '~/utils/format';
 import { ObjectId } from 'mongodb';
 import { couponHistoryModel } from '~/models/couponHistoryModel';
 import { staffsModel } from '~/models/staffsModel';
+import { couponModel } from '~/models/couponModel';
 const getAllOrder = async (req, res) => {
   try {
     const { page, limit } = req.query;
@@ -28,31 +29,35 @@ const getAllOrder = async (req, res) => {
 
 const getCurrentOrder = async (req, res) => {
   try {
-    const { page, limit } = req.query;
+    const { page, limit, sort } = req.query;
     const { user_id } = req.user;
-    const currentOrder = await orderModel.getCurrentOrder(user_id, page, limit);
+    const currentOrder = await orderModel.getCurrentOrder(
+      user_id,
+      page,
+      limit,
+      sort
+    );
     return res.status(StatusCodes.OK).json(currentOrder);
   } catch (error) {
     console.log(error);
-
     return res.status(StatusCodes.BAD_REQUEST).json(error);
   }
 };
 
 const getCurrentOrderByStatus = async (req, res) => {
   try {
-    const { status, page, limit } = req.query;
+    const { status, page, limit, sort } = req.query;
     const { user_id } = req.user;
     const currentOrder = await orderModel.getCurrentOrderByStatus(
       user_id,
       status,
       page,
-      limit
+      limit,
+      sort
     );
     return res.status(StatusCodes.OK).json(currentOrder);
   } catch (error) {
     console.log(error);
-
     return res.status(StatusCodes.BAD_REQUEST).json(error);
   }
 };
@@ -102,15 +107,15 @@ const getOrderByCode = async (req, res) => {
 
 const searchCurrentOrder = async (req, res) => {
   try {
-    const { keyword, page, limit } = req.query;
+    const { keyword, page, limit, sort } = req.query;
     const { user_id } = req.user;
 
-    // Gọi model để tìm kiếm
     const currentOrder = await orderModel.searchCurrentOrder(
       user_id,
       keyword,
       page,
-      limit
+      limit,
+      sort
     );
 
     return res.status(StatusCodes.OK).json(currentOrder);
@@ -304,7 +309,7 @@ const addOrder = async (req, res) => {
 
                 <p>Bạn có thể theo dõi trạng thái đơn hàng bằng cách click vào nút bên dưới:</p>
                 <center>
-                    <a href="${process.env.CLIENT_URL}/nguoi-dung/don-hang/${
+                    <a href="${process.env.CLIENT_URL}nguoi-dung/don-hang/${
       dataOrder.orderCode
     }" class="button">
                         Theo dõi đơn hàng
@@ -333,14 +338,24 @@ const addOrder = async (req, res) => {
     // Lưu lịch sử coupon nếu có
     if (dataOrder.couponId && dataOrder.couponId.length > 0) {
       for (const couponId of dataOrder.couponId) {
-        const usageData = {
-          userId: dataOrder.userId,
-          couponId,
-          orderId: result.insertedId.toString(),
-          discountAmount: dataOrder.discountPrice || 0,
-          status: 'successful',
-        };
-        await couponHistoryModel.addCouponHistory(usageData);
+        const coupon = await couponModel.getCouponsById(couponId);
+        if (coupon && coupon.usageLimit > 0) {
+          const usageData = {
+            userId: dataOrder.userId,
+            couponId,
+            orderId: result.insertedId.toString(),
+            discountAmount: dataOrder.discountPrice || 0,
+            status: 'successful',
+          };
+          await couponHistoryModel.addCouponHistory(usageData);
+
+          // Decrease the usageLimit
+          await couponModel.updateCouponUsage(coupon.code, dataOrder.userId);
+        } else {
+          return res.status(StatusCodes.BAD_REQUEST).json({
+            message: 'Coupon không còn hiệu lực',
+          });
+        }
       }
     }
 
@@ -554,7 +569,7 @@ const addOrderNot = async (req, res) => {
                 <center>
                     <a href="${
                       process.env.CLIENT_URL
-                    }/theo-doi-don-hang" class="button">
+                    }theo-doi-don-hang" class="button">
                         Theo dõi đơn hàng
                     </a>
                 </center>
@@ -664,12 +679,13 @@ const updateOrder = async (req, res) => {
     const data = req.body;
     if (data.status) {
       const oldStatus = await orderModel.getStatusOrder(id);
-      const check = oldStatus.some((i) => data.status.status === i.status);
-      if (check) {
-        return res.status(StatusCodes.BAD_REQUEST).json({
-          message: 'Trạng thái đơn hàng bị trùng lặp vui lòng kiểm tra lại',
-        });
-      }
+      // const check = oldStatus.some((item) => item.status === data.status);
+      // const checkReturn = oldStatus.some((item) => item.status === 'returned' && item.returnStatus === data?.returnStatus);
+      // if (checkReturn) {
+      //   return res.status(StatusCodes.BAD_REQUEST).json({
+      //     message: 'Trạng thái đơn hàng bị trùng lặp vui lòng kiểm tra lại',
+      //   });
+      // }
       const newStatus = [...oldStatus, data.status];
       data.status = newStatus;
     }
@@ -1323,7 +1339,7 @@ const checkStockProducts = async (req, res) => {
           };
         }
 
-        const quantityProduct = product[0].variants[0].sizes[0].stock;
+        const quantityProduct = product[0].variants[0].sizes[0].sale;
         if (quantityProduct < item.quantity) {
           return {
             id: item.id,

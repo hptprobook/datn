@@ -19,49 +19,54 @@ const getCoupons = async (req, res) => {
 
 const getCouponsForOrder = async (req, res) => {
   try {
-    let coupons = await couponModel.getCouponsForOrder();
     const currentDate = new Date();
+    const orderTotal = req.orderTotal;
 
-    coupons = await Promise.all(
-      coupons.map(async (coupon) => {
-        // Kiểm tra trạng thái của mã giảm giá
-        if (coupon.status !== 'active') {
-          return null;
-        }
+    // Lấy danh sách mã giảm giá
+    let coupons = await couponModel.getCouponsForOrder();
 
-        // Kiểm tra thời hạn sử dụng của mã giảm giá
-        const startDate = new Date(coupon.dateStart);
-        const endDate = new Date(coupon.dateEnd);
-        if (currentDate < startDate || currentDate > endDate) {
-          return null;
-        }
-
-        const usageCount = await couponHistoryModel.countCouponHistory({
-          couponId: coupon._id,
-        });
-        if (usageCount >= coupon.usageLimit) {
-          return null;
-        }
-
-        // Kiểm tra giới hạn sử dụng cho từng người dùng nếu có
-        if (coupon.limitOnUser) {
-          const userUsageHistory =
-            await couponHistoryModel.getCouponHistoryByParams({
-              userId: req.user.user_id,
-              couponId: coupon._id,
-            });
-
-          if (userUsageHistory.length > 0) {
-            return null;
-          }
-        }
-
-        return coupon;
-      })
+    // Lấy lịch sử sử dụng mã giảm giá của người dùng hiện tại
+    const userCouponHistory = await couponHistoryModel.getCouponHistoryByParams(
+      {
+        userId: req.user.user_id,
+      }
     );
 
-    // Lọc các mã giảm giá hợp lệ
-    coupons = coupons.filter((coupon) => coupon !== null);
+    // Map couponId thành danh sách để kiểm tra nhanh
+    const usedCouponIds = new Set(
+      userCouponHistory.map((history) => history.couponId)
+    );
+
+    // Lọc mã giảm giá hợp lệ
+    coupons = coupons.filter((coupon) => {
+      // Kiểm tra trạng thái
+      if (coupon.status !== 'active') return false;
+
+      // Kiểm tra thời hạn sử dụng
+      const startDate = new Date(coupon.dateStart);
+      const endDate = new Date(coupon.dateEnd);
+      if (currentDate < startDate || currentDate > endDate) return false;
+
+      // Kiểm tra số lượng sử dụng
+      if (coupon.usageLimit) {
+        const usageCount = coupon.usageCount || 0; // Nếu có `usageCount` trong couponModel
+        if (usageCount >= coupon.usageLimit) return false;
+      }
+
+      // Kiểm tra giới hạn sử dụng trên người dùng
+      if (coupon.limitOnUser && usedCouponIds.has(coupon._id.toString()))
+        return false;
+
+      // Kiểm tra điều kiện giá trị đơn hàng nếu có orderTotal
+      if (orderTotal !== undefined) {
+        if (coupon.minPurchasePrice && orderTotal < coupon.minPurchasePrice)
+          return false;
+        if (coupon.maxPurchasePrice && orderTotal > coupon.maxPurchasePrice)
+          return false;
+      }
+
+      return true;
+    });
 
     // Phân loại mã giảm giá
     const categorizedCoupons = {
@@ -116,6 +121,10 @@ const findOneCoupons = async (req, res) => {
 const createCoupon = async (req, res) => {
   try {
     const dataCoupon = req.body;
+    if (dataCoupon.discountPercent) {
+      dataCoupon.discountValue = dataCoupon.discountPercent;
+      delete dataCoupon.discountPercent;
+    }
     if (dataCoupon.code) {
       const check = await couponModel.findOneCoupons(dataCoupon.code);
       if (check) {
@@ -145,7 +154,10 @@ const updateCoupon = async (req, res) => {
   try {
     const { id } = req.params;
     const dataCoupon = req.body;
-
+    if (dataCoupon.discountPercent) {
+      dataCoupon.discountValue = dataCoupon.discountPercent;
+      delete dataCoupon.discountPercent;
+    }
     const result = await couponModel.updateCoupon(id, dataCoupon);
     return res.status(StatusCodes.OK).json(result);
   } catch (error) {

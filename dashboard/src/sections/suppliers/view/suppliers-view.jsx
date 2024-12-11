@@ -164,10 +164,10 @@ export default function SuppliersPage() {
 
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
-          <Typography variant="h4">Nhãn hàng</Typography>
+          <Typography variant="h4">Nhà cung cấp</Typography>
           <Button
             variant="contained"
-            onClick={() => handleExport(suppliers, 'Danh sách nhà cung cấp', 'suppliers')}
+            onClick={() => handleExport(suppliers, 'Danh sách nhà cung cấp', 'suppliers', ['createdAt', 'updatedAt'])}
             color="inherit"
             startIcon={<IconExcel />}
           >

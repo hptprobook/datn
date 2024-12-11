@@ -49,14 +49,13 @@ const countCouponHistory = async ({ couponId, userId }) => {
 };
 
 // Hàm để lấy lịch sử sử dụng coupon của một người dùng
-const getCouponHistoryByParams = async ({ userId, orderId, couponId }) => {
+const getCouponHistoryByParams = async ({ userId, couponId }) => {
   const db = await GET_DB();
   const couponUsageCollection = db.collection('couponUsageHistory');
 
   const query = {};
-  if (userId) query.userId;
-  if (orderId) query.orderId;
-  if (couponId) query.couponId;
+  if (userId) query.userId = userId;
+  if (couponId) query.couponId = couponId;
 
   const history = await couponUsageCollection
     .find(query)

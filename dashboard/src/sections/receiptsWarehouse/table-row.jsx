@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 
 import TableRow from '@mui/material/TableRow';
-import Checkbox from '@mui/material/Checkbox';
 import TableCell from '@mui/material/TableCell';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
@@ -42,7 +41,7 @@ export default function ReceiptTableRow({
       selected={selected}
       onClick={handleClickRow}
     >
-      <TableCell padding="checkbox">
+      {/* <TableCell padding="checkbox">
         <Checkbox
           disableRipple
           checked={selected}
@@ -51,7 +50,7 @@ export default function ReceiptTableRow({
             handleClick(e);
           }}
         />
-      </TableCell>
+      </TableCell> */}
 
       <TableCell>
         <Typography variant="subtitle2" noWrap>

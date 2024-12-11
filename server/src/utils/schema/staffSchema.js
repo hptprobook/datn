@@ -191,6 +191,7 @@ export const UPDATE_ME_SCHEMA = Joi.object({
   cccd: Joi.string()
     .pattern(/^[0-9]+$/)
     .min(9)
+    .allow(null)
     .max(12)
     .messages({
       'string.pattern.base': 'CCCD chỉ được chứa số',
@@ -199,6 +200,7 @@ export const UPDATE_ME_SCHEMA = Joi.object({
     }),
   bankAccount: Joi.string()
     .pattern(/^[0-9]+$/)
+    .allow(null)
     .min(10)
     .max(20)
     .messages({
@@ -206,10 +208,10 @@ export const UPDATE_ME_SCHEMA = Joi.object({
       'string.min': 'Số tài khoản ngân hàng phải có ít nhất 10 ký tự',
       'string.max': 'Số tài khoản ngân hàng không được vượt quá 20 ký tự',
     }),
-  bankName: Joi.string().max(50).messages({
+  bankName: Joi.string().allow(null).max(50).messages({
     'string.max': 'Tên ngân hàng không được vượt quá 50 ký tự',
   }),
-  bankHolder: Joi.string().max(50).messages({
+  bankHolder: Joi.string().allow(null).max(50).messages({
     'string.max': 'Chủ tài khoản không được vượt quá 50 ký tự',
   }),
   address: Joi.string().max(255).messages({
@@ -221,7 +223,7 @@ export const UPDATE_ME_SCHEMA = Joi.object({
     .pattern(/^[0-9]+$/)
     .min(10)
     .max(15)
-    .default(null)
+    .allow(null)
     .messages({
       'string.pattern.base': 'Số điện thoại chỉ được chứa số',
       'string.min': 'Số điện thoại phải có ít nhất 10 ký tự',

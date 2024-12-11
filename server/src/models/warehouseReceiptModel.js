@@ -17,13 +17,17 @@ const getAllGoodsOrders = async (page, limit) => {
   page = parseInt(page) || 1;
   limit = parseInt(limit) || 12;
   const db = await GET_DB().collection('warehouseReceipt');
+  const count = await db.countDocuments();
   const result = await db
     .find()
     .sort({ createdAt: 1 })
     .skip((page - 1) * limit)
     .limit(limit)
     .toArray();
-  return result;
+  return {
+    result,
+    count
+  };
 };
 
 const getGoodsOrderById = async (id) => {

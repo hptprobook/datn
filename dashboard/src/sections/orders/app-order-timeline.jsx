@@ -13,6 +13,18 @@ import TimelineItem, { timelineItemClasses } from '@mui/lab/TimelineItem';
 import { fDateTime } from 'src/utils/format-time';
 
 // ----------------------------------------------------------------------
+const getStatusReturn = (status) => {
+  switch (status) {
+    case 'pending':
+      return 'Chờ xác nhận';
+    case 'approved':
+      return 'Chấp nhận';
+    case 'rejected':
+      return 'Từ chối';
+    default:
+      return '';
+  }
+};
 
 export default function OrderTimeline({ title, subheader, list, ...other }) {
   const newList = [...list].reverse();
@@ -48,7 +60,7 @@ OrderTimeline.propTypes = {
 // ----------------------------------------------------------------------
 
 function OrderItem({ item, lastTimeline }) {
-  const { status, note, createdAt } = item;
+  const { status, note, createdAt, returnStatus } = item;
   return (
     <TimelineItem>
       <TimelineSeparator>
@@ -70,7 +82,7 @@ function OrderItem({ item, lastTimeline }) {
 
       <TimelineContent>
         <Typography variant="subtitle2">{note}</Typography>
-
+        <Typography variant="subtitle2">{getStatusReturn(returnStatus)}</Typography>
         <Typography variant="caption" sx={{ color: 'text.disabled' }}>
           {fDateTime(createdAt)}
         </Typography>

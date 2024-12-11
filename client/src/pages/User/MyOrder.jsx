@@ -36,6 +36,7 @@ const MyOrder = () => {
   const [reviewProducts, setReviewProducts] = useState([]);
   const [keyword, setKeyword] = useState('');
   const debouncedKeyword = useDebounce(keyword, 1000);
+  const [sortOption, setSortOption] = useState('newest');
 
   useEffect(() => {
     setSelectedTab(tab || 'all');
@@ -47,13 +48,17 @@ const MyOrder = () => {
     navigate(`/nguoi-dung/${newTab}`);
   };
 
+  const handleSortChange = (e) => {
+    setSortOption(e.target.value);
+  };
+
   const fetchOrders = ({ queryKey }) => {
-    const [, limit, status, searchKeyword] = queryKey;
+    const [, limit, status, searchKeyword, sort] = queryKey;
     return searchKeyword
-      ? searchOrderAPI({ limit, keyword: searchKeyword })
+      ? searchOrderAPI({ limit, keyword: searchKeyword, sort })
       : status === 'all'
-      ? getCurrentOrders({ limit })
-      : getCurrentOrderWithStatus({ limit, status });
+      ? getCurrentOrders({ limit, sort })
+      : getCurrentOrderWithStatus({ limit, status, sort });
   };
 
   const {
@@ -61,7 +66,7 @@ const MyOrder = () => {
     refetch: refetchOrderData,
     isLoading,
   } = useQuery({
-    queryKey: ['orders', limitOrder, selectedTab, debouncedKeyword],
+    queryKey: ['orders', limitOrder, selectedTab, debouncedKeyword, sortOption], // Add sortOption to queryKey
     queryFn: fetchOrders,
     staleTime: 0,
     cacheTime: 0,
@@ -334,14 +339,24 @@ const MyOrder = () => {
         </button>
       </div>
 
-      <div className="mt-4 w-full">
+      <div className="mt-4 w-full flex gap-4">
         <input
           type="text"
           value={keyword}
           onChange={handleSearchInput}
           placeholder="Bạn có thể tìm kiếm theo Mã đơn hàng hoặc tên sản phẩm"
-          className="w-full rounded-md outline-none px-6 py-4 bg-gray-300 text-gray-500 placeholder:text-gray-500"
+          className="w-[70%] rounded-md outline-none px-6 py-4 bg-gray-300 text-gray-500 placeholder:text-gray-500"
         />
+        <select
+          value={sortOption}
+          onChange={handleSortChange}
+          className="w-[30%] rounded-md outline-none px-3 py-4 bg-gray-300 text-gray-500 placeholder:text-gray-500"
+        >
+          <option value="newest">Mới nhất</option>
+          <option value="oldest">Cũ nhất</option>
+          <option value="priceDesc">Tổng tiền cao nhất</option>
+          <option value="priceAsc">Tổng tiền thấp nhất</option>
+        </select>
       </div>
 
       <div className="mt-4">

@@ -1,7 +1,6 @@
 import {
   Box,
   Stack,
-  Button,
   CardMedia,
   Typography,
   CircularProgress,
@@ -77,7 +76,7 @@ const BlogCard = ({ status, blog, author }) => {
               </Typography>
             </Stack>
           </Box>
-          <Button
+          {/* <Button
             variant="contained"
             color="inherit"
             sx={{
@@ -87,7 +86,7 @@ const BlogCard = ({ status, blog, author }) => {
             onClick={() => window.open(blog?.url, '_blank')}
           >
             Xem bài viết trên trang web
-          </Button>
+          </Button> */}
         </Box>
       )}
     </>

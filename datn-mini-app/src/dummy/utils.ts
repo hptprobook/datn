@@ -22,7 +22,6 @@ declare const importMeta: {
 const getImgUrl = (filename: string) =>
   `https://stc-zmp.zadn.vn/zmp-ecommerce/img/${filename}.png`;
 
-
 export const createProductDummy = async ({ _id }: { _id: number }): Promise<Product[]> => {
   const randomPrice = listPrices[getRandomInt(listPrices.length) - 1];
   let apiData: Partial<Product>[] = [];
@@ -31,9 +30,9 @@ export const createProductDummy = async ({ _id }: { _id: number }): Promise<Prod
     const res = await axios.get(`${import.meta.env.VITE_APP_SERVER}/api/products`);
     const products = res.data.products; // Assuming res.data.products is the array of products
     if (products && products.length > 0) {
-      apiData = products; // Use the entire array of products
-      // apiData.forEach(product => console.log(product._id));
+      apiData = products.slice(0, 50); // Limit to 50 products
     }
+    console.log('Fetched products:', products);
   } catch (error) {
     console.error('Error fetching products:', error);
   }
@@ -52,7 +51,7 @@ export const createProductDummy = async ({ _id }: { _id: number }): Promise<Prod
 
 export const createDummyProductCategories = async () => {
   const dummyProducts: Product[] = [];
-  const num = 150;
+  const num = 50; // Limit to 50 products
   for (let x = 0; x < num; x += 1) {
     const products = await createProductDummy({ _id: dummyProducts.length });
     dummyProducts.push(...products);
