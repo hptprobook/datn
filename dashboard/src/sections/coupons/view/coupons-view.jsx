@@ -52,8 +52,6 @@ const columns = [
   { field: 'limitOnUser', headerName: 'Giới hạn người dùng', width: 150 },
   { field: 'dateStart', headerName: 'Ngày bắt đầu', width: 150 },
   { field: 'dateEnd', headerName: 'Ngày kết thúc', width: 150 },
-  { field: 'applicableProducts', headerName: 'Sản phẩm áp dụng', width: 150 },
-  { field: 'eligibleUsers', headerName: 'Người dùng hợp lệ', width: 150 },
 ];
 export default function CouponsPage() {
   const [page, setPage] = useState(0);
@@ -260,7 +258,6 @@ export default function CouponsPage() {
               'name',
               'code',
               'type',
-              'applicableProducts',
               'minPurchasePrice',
               'maxPurchasePrice',
               'discountValue',
@@ -272,7 +269,6 @@ export default function CouponsPage() {
               'dateEnd',
               'limitOnUser',
               'usageCount',
-              'eligibleUsers',
               ]}
             columns={columns}
             onSave={handleSave}
