@@ -92,8 +92,18 @@ export const CREATE_COUPONS = Joi.object({
         'boolean.base':
             'Giới hạn sử dụng cho mỗi người dùng phải là một giá trị boolean.',
     }),
-    dateStart: Joi.date().timestamp('javascript').default(Date.now),
-    dateEnd: Joi.date().timestamp('javascript').default(Date.now),
+    dateStart: Joi.alternatives().default(Date.now).try(
+        Joi.date().iso(),
+        Joi.date().timestamp('javascript')
+      ).messages({
+        'date.base': 'Ngày bắt đầu phải là một ngày hợp lệ.',
+      }),
+      dateEnd: Joi.alternatives().default(Date.now).try(
+        Joi.date().iso(),
+        Joi.date().timestamp('javascript')
+      ).messages({
+        'date.base': 'Ngày kết thúc phải là một ngày hợp lệ.',
+      }),
 });
 
 export const UPDATE_COUPONS = Joi.object({

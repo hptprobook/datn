@@ -170,10 +170,17 @@ export default function CouponsPage() {
     dispatch(deleteManyCoupon(selected));
   };
   const handleSave = (d) => {
-    
+    // Filter out invalid entries
+    const validData = d.filter(item => item._id !== null && item.name && item.code && item.type && item.dateStart && item.dateEnd);
+  
+    if (validData.length === 0) {
+      handleToast('error', 'Dữ liệu không hợp lệ.');
+      return;
+    }
+  
     dispatch(
       createManyCoupon({
-        data: d,
+        data: validData,
       })
     );
   };

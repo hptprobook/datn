@@ -192,9 +192,16 @@ export default function WebBannersPage() {
     // dispatch(deleteManyCoupon(selected));
   };
   const handleSave = (d) => {
+      // Filter out invalid entries
+      const validData = d.filter(item => item._id !== null && item.title && item.url && item.description && item.image);
+  
+      if (validData.length === 0) {
+        handleToast('error', 'Dữ liệu không hợp lệ.');
+        return;
+      }
     dispatch(
       createManyBanner({
-        data: d,
+        data: validData,
       })
     );
   };
@@ -215,7 +222,7 @@ export default function WebBannersPage() {
       );
     }
     if (statusCreate === 'failed') {
-      handleToast('error', dataCreateMany?.message || 'Thêm biến thể thất bại');
+      handleToast('error', dataCreateMany?.message || 'Thêm banner thất bại');
       if (dataCreateMany?.errors) {
         dataCreateMany.errors.forEach((item) => {
           if (item?.message) {
