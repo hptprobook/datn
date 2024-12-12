@@ -188,7 +188,8 @@ export default function PosPage() {
       setReceipt(receipts[0]);
     }
     if (statusCreate === 'failed') {
-      handleToast('error', error || 'Tạo hóa đơn thất bại');
+      handleToast('error', error?.message || 'Tạo hóa đơn thất bại');
+      dispatch(setStatusCreate({ key: 'statusCreate', value: 'idle' }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusCreate, error, receipts, value]);
@@ -196,14 +197,14 @@ export default function PosPage() {
     if (statusCreateUser === 'successful') {
       handleToast('success', 'Tạo người dùng thành công');
       setSelectedUser(dataUser);
-      setStatusCreateUser({ key: 'statusCreate', value: 'idle' });
-      setStatusCreateUser({ key: 'error', value: null });
+      dispatch(setStatusCreateUser({ key: 'statusCreate', value: 'idle' }));
+      dispatch(setStatusCreateUser({ key: 'error', value: null }));
       setOpenModalAdd(false);
     }
     if (statusCreateUser === 'failed') {
       handleToast('error', errorCreateUser?.message || 'Tạo người dùng thất bại');
-      setStatusCreateUser({ key: 'statusCreate', value: 'idle' });
-      setStatusCreateUser({ key: 'error', value: null });
+      dispatch(setStatusCreateUser({ key: 'statusCreate', value: 'idle' }));
+      dispatch(setStatusCreateUser({ key: 'error', value: null }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusCreateUser, errorCreateUser]);
@@ -242,6 +243,8 @@ export default function PosPage() {
     },
     validationSchema: userSchema,
     onSubmit: async (values) => {
+      values.password = values.phone;
+      values.email = `${values.phone}@gmail.com`;
       dispatch(createUser(values));
     },
   });
@@ -569,27 +572,11 @@ export default function PosPage() {
                 handleChange={formikUser.handleChange}
               />
               <FormField
-                label="Email"
-                name="email"
-                value={formikUser.values.email}
-                touched={formikUser.touched.email}
-                error={formikUser.errors.email}
-                handleChange={formikUser.handleChange}
-              />
-              <FormField
                 label="Số điện thoại"
                 name="phone"
                 value={formikUser.values.phone}
                 touched={formikUser.touched.phone}
                 error={formikUser.errors.phone}
-                handleChange={formikUser.handleChange}
-              />
-              <FormField
-                label="Mật khẩu"
-                name="password"
-                value={formikUser.values.password}
-                touched={formikUser.touched.password}
-                error={formikUser.errors.password}
                 handleChange={formikUser.handleChange}
               />
               <Button variant="contained" color="inherit" type="submit">

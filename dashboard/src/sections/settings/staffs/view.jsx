@@ -23,10 +23,12 @@ import { useNavigate } from 'react-router-dom';
 import ConfirmDelete from 'src/components/modal/confirm-delete';
 import { handleToast } from 'src/hooks/toast';
 import LoadingFull from 'src/components/loading/loading-full';
+import { renderUrl } from 'src/utils/check';
+import { fetchAll } from 'src/redux/slices/warehouseSlices';
 import StaffModal from '../staff-modal';
 import StaffTable from '../staff-table';
 // ----------------------------------------------------------------------
-
+const backendUrl = import.meta.env.VITE_BACKEND_APP_URL;
 export default function StaffsPage() {
   const [staffs, setStaffs] = useState([]);
   const [admins, setAdmins] = useState([]);
@@ -37,13 +39,16 @@ export default function StaffsPage() {
   const dispatch = useDispatch();
 
   const statusGet = useSelector((state) => state.staffs.status);
+  const getMe = useSelector((state) => state.auth.auth);
   // const statusCreate = useSelector((state) => state.staffs.statusCreate);
   // const statusUpdate = useSelector((state) => state.staffs.statusUpdate);
   const statusDelete = useSelector((state) => state.staffs.statusDelete);
   // const error = useSelector((state) => state.staffs.error);
+  const warehouses = useSelector((state) => state.warehouses.warehouses);
   const data = useSelector((state) => state.staffs.staffs);
   useEffect(() => {
     dispatch(fetchAllStaffs());
+    dispatch(fetchAll());
   }, [dispatch]);
   useEffect(() => {
     if (statusGet === 'successful') {
@@ -78,6 +83,10 @@ export default function StaffsPage() {
   };
   const handleDelete = () => {
     dispatch(deleteStaff(openConfirm));
+  };
+  const getWarehouseName = (id) => {
+    const d = warehouses.find((item) => item._id === id);
+    return d?.name;
   };
   return (
     <Container>
@@ -117,9 +126,13 @@ export default function StaffsPage() {
             {admins.map((item) => (
               <ListItem key={item._id}>
                 <ListItemAvatar>
-                  <Avatar>
-                    <Iconify icon="eva:person-fill" />
-                  </Avatar>
+                  <Avatar
+                    alt={item.name}
+                    src={
+                      renderUrl(item?.avatar, backendUrl) ||
+                      '/static/mock-images/avatars/avatar_default.jpg'
+                    }
+                  />
                 </ListItemAvatar>
                 <ListItemText
                   primary={item.name}
@@ -127,8 +140,8 @@ export default function StaffsPage() {
                 />
                 <Stack direction="row" spacing={1} alignItems="center">
                   <Label color="success">{item.role === 'root' ? 'Chủ cửa hàng' : 'Quản lý'}</Label>
-                  <Label color="success">{item.branchId}</Label>
-                  {item.role === 'admin' && (
+                  <Label color="success">{getWarehouseName(item.branchId)}</Label>
+                  {getMe?.role === 'root' && (
                     <>
                       <IconButton>
                         <Iconify icon="mdi:delete" />
@@ -155,7 +168,7 @@ export default function StaffsPage() {
               Thêm nhân viên
             </Button>
           </Stack>
-          <StaffTable data={staffs} onClickRow={handleClickRow} />
+          <StaffTable data={staffs} onClickRow={handleClickRow} warehouses={warehouses} />
         </Card>
       </Stack>
     </Container>

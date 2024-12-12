@@ -95,13 +95,14 @@ export default function ReceiptPage() {
     if (statusDelete === 'successful') {
       handleToast('success', 'Xóa hóa đơn thành công!');
       dispatch(setStatus({ key: 'statusDelete', value: 'idle' }));
-      dispatch(fetchAllReceipts());
+      getReceipts();
     }
     if (statusDelete === 'failed') {
       handleToast('error', error.messages);
       dispatch(setStatus({ key: 'statusDelete', value: 'idle' }));
     }
-  }, [statusDelete, dispatch, error]);
+    // eslint-disable-next-line
+  }, [statusDelete, error]);
 
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === 'asc';
@@ -247,12 +248,6 @@ export default function ReceiptPage() {
                 {selectedReceipt && formatDateTime(selectedReceipt.createdAt)}
               </Typography>
             </Stack>
-            <Stack direction="row" justifyContent="space-between">
-              <Typography variant="body1">Ngày cập nhật:</Typography>
-              <Typography variant="body2">
-                {selectedReceipt && formatDateTime(selectedReceipt.updatedAt)}
-              </Typography>
-            </Stack>
           </Stack>
 
           <Stack direction="row" justifyContent="space-between">
@@ -342,7 +337,6 @@ export default function ReceiptPage() {
                   />
                 ))}
 
-         
                 {notFound && <TableNoData query={filterName} />}
               </TableBody>
             </Table>
