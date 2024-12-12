@@ -148,7 +148,7 @@ const createManyBanner = async (req, res) => {
                     if (!existingVariant) {
                         errors.push({
                             name: w.title,
-                            message: 'Biến thể không tồn tại',
+                            message: 'Banner không tồn tại',
                         });
                         continue;
                     }
@@ -159,23 +159,24 @@ const createManyBanner = async (req, res) => {
                         w
                     );
                     successful.push({
-                        message: 'Cập nhật thành công khuyến mãi: ' + u.title,
+                        message: 'Cập nhật thành công Banner: ' + u.title,
                     });
                 }
                 else {
-                    const result = await webBannerModel.create(w);
+                    const result = await webBannerModel.createWebBanner(w);
                     successful.push({
-                        message: 'Tạo mới thành công biến thể: ' + result.title,
+                        message: 'Tạo mới thành công Banner: ' + w.title,
                     });
                 }
 
             } catch (error) {
                 // Lưu lại lỗi nếu có lỗi xảy ra với biến thể hiện tại
+                console.log(error);
                 errors.push({
                     name: w.title,
                     message: error.details
                         ? error.details[0].message
-                        : 'Có lỗi xảy ra khi thêm biến thể',
+                        : 'Có lỗi xảy ra khi thêm banner',
                 });
             }
         }

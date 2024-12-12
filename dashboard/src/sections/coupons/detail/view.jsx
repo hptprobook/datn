@@ -25,6 +25,8 @@ import {
 import { useFormik } from 'formik';
 import Iconify from 'src/components/iconify/iconify';
 
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
@@ -406,35 +408,41 @@ export default function DetailCouponPage() {
                     </Grid2>
                     <Grid2 xs={6}>
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DateTimePicker
-                          label="Ngày bắt đầu"
-                          value={dayjs(formik.values.dateStart)} // Ensure value is a dayjs object
-                          onError={(newError) => setErrorDate(newError)}
-                          slotProps={{
-                            textField: {
-                              helperText: errorMessage,
-                            },
-                          }}
-                          onChange={(date) => formik.setFieldValue('dateStart', date)}
-                        />
+                        <DemoContainer components={['DateTimePicker']}>
+                          <DateTimePicker
+                            label="Ngày bắt đầu"
+                            value={dayjs(formik.values.dateStart)} // Ensure value is a dayjs object
+                            onError={(newError) => setErrorDate(newError)}
+                            slotProps={{
+                              textField: {
+                                helperText: errorMessage,
+                              },
+                            }}
+                            onChange={(date) => formik.setFieldValue('dateStart', date)}
+                          />
+                        </DemoContainer>
+
                       </LocalizationProvider>
                     </Grid2>
                     <Grid2 xs={6}>
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DateTimePicker
-                          label="Ngày hết hạn"
-                          value={formik.values.dateEnd} // Ensure value is a dayjs object
-                          onError={(newError) => setErrorEnd(newError)}
-                          slotProps={{
-                            textField: {
-                              helperText: errorMessageEnd,
-                            },
-                          }}
-                          minDate={formik.values.dateStart} // Ensure minDate is a dayjs object
-                          onChange={(date) => formik.setFieldValue('dateEnd', date)}
-                        />
+                        <DemoContainer components={['DateTimePicker']}>
+                          <DateTimePicker
+                            label="Ngày hết hạn"
+                            value={formik.values.dateEnd} // Ensure value is a dayjs object
+                            onError={(newError) => setErrorEnd(newError)}
+                            slotProps={{
+                              textField: {
+                                helperText: errorMessageEnd,
+                              },
+                            }}
+                            minDate={formik.values.dateStart} // Ensure minDate is a dayjs object
+                            onChange={(date) => formik.setFieldValue('dateEnd', date)}
+                          />
+                        </DemoContainer>
+
                       </LocalizationProvider>
-                      {}
+                      { }
                     </Grid2>
                   </Grid2>
                   <Stack direction="row" justifyContent="flex-end" mt={3}>
