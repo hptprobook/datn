@@ -5,6 +5,7 @@ import { StatusCodes } from 'http-status-codes';
 import { ERROR_MESSAGES } from '~/utils/errorMessage';
 import { uploadModel } from '~/models/uploadModel';
 import path from 'path';
+import { redisUtils } from '~/utils/redis';
 
 const createCategory = async (req, res) => {
   try {
@@ -47,28 +48,80 @@ const createCategory = async (req, res) => {
 };
 
 const getCategoryHierarchy = async (parentId = 'ROOT', orderNumber = 0) => {
-  const categories = await categoryModel.getCategoriesByParentId(parentId);
-  let currentOrder = orderNumber;
-  const menu = await Promise.all(
-    categories.map(async (cat) => {
-      const subCategories = await getCategoryHierarchy(
-        cat._id.toString(),
-        currentOrder + 1
-      );
-      const category = {
-        id: cat._id,
-        title: cat.name,
-        slug: cat.slug,
-        orderNumber: currentOrder,
-      };
+  // Tạo cache key (loại bỏ orderNumber nếu không cần thiết)
+  const cacheKey = `category_hierarchy:${parentId}`;
 
-      if (subCategories.length > 0) {
-        category.list = subCategories;
-      }
-      return category;
-    })
-  );
-  return menu;
+  try {
+    // Kiểm tra cache
+    const cachedData = await redisUtils.getCache(cacheKey);
+    if (cachedData) {
+      return cachedData;
+    }
+
+    // Lấy danh sách category từ database
+    const categories = await categoryModel.getCategoriesByParentId(parentId);
+    let currentOrder = orderNumber;
+
+    // Đệ quy lấy các subcategories
+    const menu = await Promise.all(
+      categories.map(async (cat) => {
+        const subCategories = await getCategoryHierarchy(
+          cat._id.toString(),
+          currentOrder + 1
+        );
+
+        const category = {
+          id: cat._id,
+          title: cat.name,
+          slug: cat.slug,
+          orderNumber: currentOrder,
+        };
+
+        if (subCategories.length > 0) {
+          category.list = subCategories;
+        }
+
+        return category;
+      })
+    );
+
+    // Lưu kết quả vào cache với TTL (ví dụ 1 giờ)
+    await redisUtils.setCache(cacheKey, menu, 3600); // TTL 1 giờ
+
+    return menu;
+  } catch (error) {
+    // Fallback: nếu Redis hoặc database lỗi, trả về dữ liệu từ database
+    try {
+      const categories = await categoryModel.getCategoriesByParentId(parentId);
+      let currentOrder = orderNumber;
+
+      const menu = await Promise.all(
+        categories.map(async (cat) => {
+          const subCategories = await getCategoryHierarchy(
+            cat._id.toString(),
+            currentOrder + 1
+          );
+
+          const category = {
+            id: cat._id,
+            title: cat.name,
+            slug: cat.slug,
+            orderNumber: currentOrder,
+          };
+
+          if (subCategories.length > 0) {
+            category.list = subCategories;
+          }
+
+          return category;
+        })
+      );
+
+      return menu;
+    } catch (dbError) {
+      throw new Error('Unable to retrieve category hierarchy');
+    }
+  }
 };
 
 const getAllCategories = async (req, res) => {
@@ -117,13 +170,26 @@ const getMenuCategories = async (req, res) => {
 
 const getCategoryByViews = async (req, res) => {
   try {
+    const cacheKey = 'categories:byViews';
+
+    // Kiểm tra cache
+    const cachedData = await redisUtils.getCache(cacheKey);
+    if (cachedData) {
+      return res.status(StatusCodes.OK).json(cachedData);
+    }
+
+    // Truy vấn từ database
     const categories = await categoryModel.getCategoryByViews();
+
+    if (categories) {
+      await redisUtils.setCache(cacheKey, categories, 3600); // TTL 1 giờ
+    }
 
     return res.status(StatusCodes.OK).json(categories);
   } catch (error) {
     return res
       .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
+      .json({ message: 'Có lỗi xảy ra xin thử lại sau', error });
   }
 };
 
@@ -289,9 +355,7 @@ const creates = async (req, res) => {
     for (const w of data) {
       try {
         if (w._id) {
-          const existed = await categoryModel.getCategoryById(
-            w._id
-          );
+          const existed = await categoryModel.getCategoryById(w._id);
           if (!existed) {
             errors.push({
               message: `Danh mục với id: ${w._id} không tồn tại`,
@@ -308,18 +372,15 @@ const creates = async (req, res) => {
             continue;
           }
           w.seoOption = existed.seoOption;
-          await categoryModel.update(
-            id,
-            w
-          );
+          await categoryModel.update(id, w);
           successful.push({
-            message: 'Cập nhật thành công danh mục: ' + w.name + ' với id: ' + id,
+            message:
+              'Cập nhật thành công danh mục: ' + w.name + ' với id: ' + id,
           });
           if (w.imageURL && existed.imageURL !== w.imageURL) {
             await uploadModel.deleteImg(existed.imageURL);
           }
-        }
-        else {
+        } else {
           const existedSlug = await categoryModel.getCategoryBySlug(w.slug);
           if (existedSlug) {
             errors.push({
@@ -331,18 +392,17 @@ const creates = async (req, res) => {
             title: w.name,
             description: w.name,
             alias: w.slug,
-          }
+          };
           await categoryModel.createCategory(w);
           successful.push({
             message: 'Tạo mới thành công danh mục: ' + w.name,
           });
         }
-
       } catch (error) {
         errors.push({
           message: error.details
-            ? (w.name + ': ' + error.details[0].message)
-            : (error.message || 'Có lỗi xảy ra khi thêm danh mục'),
+            ? w.name + ': ' + error.details[0].message
+            : error.message || 'Có lỗi xảy ra khi thêm danh mục',
         });
       }
     }

@@ -4,6 +4,7 @@
 import { StatusCodes } from 'http-status-codes';
 import { ERROR_MESSAGES } from '~/utils/errorMessage';
 import { cartModel } from '~/models/cartModel';
+import { redisUtils } from '~/utils/redis';
 
 const getCurentCart = async (req, res) => {
   try {
@@ -30,6 +31,17 @@ const getCurentCart = async (req, res) => {
 
 const addCart = async (req, res) => {
   try {
+    // Thêm operation vào queue
+    await redisUtils.addToCartQueue({
+      type: 'ADD_CART',
+      userId: req.user.user_id,
+      data: req.body,
+    });
+
+    console.log(`Task added to queue: ${JSON.stringify(req.body)}`);
+
+    console.log('addCart');
+
     const { user_id } = req.user;
     const { id, variantColor, variantSize, quantity } = req.body;
     if (!id || !variantColor || !variantSize || !quantity) {
@@ -86,7 +98,7 @@ const addCart = async (req, res) => {
 const addMultipleCarts = async (req, res) => {
   try {
     const { user_id } = req.user;
-    const carts = req.body.carts; // Lấy mảng carts từ body của request
+    const carts = req.body.carts;
 
     console.log(carts);
 
