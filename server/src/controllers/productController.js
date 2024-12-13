@@ -6,6 +6,7 @@ import { uploadModel } from '~/models/uploadModel';
 import path from 'path';
 import { hotSearchModel } from '~/models/hotSearchModel';
 import { ObjectId } from 'mongodb';
+import { redisUtils } from '~/utils/redis';
 
 const getAllProducts = async (req, res) => {
   try {
@@ -1049,17 +1050,37 @@ const getProductByCategoryFilter = async (req, res) => {
 const getProductByEvent = async (req, res) => {
   try {
     const { slug } = req.params;
-
     let { pages, limit } = req.query;
+
+    // Xử lý giá trị mặc định cho `pages` và `limit` nếu không được truyền
+    pages = pages || 1;
+    limit = limit || 10;
+
+    // Tạo cache key
+    const cacheKey = `products:event:${slug}:pages:${pages}:limit:${limit}`;
+
+    // Kiểm tra cache
+    const cachedData = await redisUtils.getCache(cacheKey);
+    if (cachedData) {
+      return res.status(StatusCodes.OK).json(cachedData);
+    }
+
+    // Truy vấn từ database
     const product = await productModel.getProductsByEvent(slug, pages, limit);
     if (!product) {
       return res
         .status(StatusCodes.NOT_FOUND)
         .json({ message: 'Không tìm thấy sản phẩm!' });
     }
+
+    await redisUtils.setCache(cacheKey, product, 1800); // TTL 30 phút
+
     return res.status(StatusCodes.OK).json(product);
   } catch (error) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: 'Có lỗi xảy ra, xin thử lại sau',
+      error,
+    });
   }
 };
 
@@ -1174,8 +1195,7 @@ const getProductByArrayId = async (req, res) => {
     const { ids } = req.body;
     const product = await productModel.getProductByArrayId(ids);
     return res.status(StatusCodes.OK).json(product);
-  }
-  catch (error) {
+  } catch (error) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
   }
 };
@@ -1212,5 +1232,5 @@ export const productController = {
   ratingShopProduct,
   ratingManyProduct,
   searchInDashboard,
-  getProductByArrayId
+  getProductByArrayId,
 };

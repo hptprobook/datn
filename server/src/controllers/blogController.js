@@ -5,6 +5,7 @@ import { uploadModel } from '~/models/uploadModel';
 import { blogModel } from '~/models/blogModel';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
+import { redisUtils } from '~/utils/redis';
 const getAllBlogs = async (req, res) => {
   try {
     const { limit, page } = req.query;
@@ -19,8 +20,24 @@ const getAllBlogs = async (req, res) => {
 
 const getAllBlogsForClient = async (req, res) => {
   try {
-    const { page, limit, sort, tags, search } = req.query;
+    const {
+      page = 1,
+      limit = 10,
+      sort = 'createdAt',
+      tags = '',
+      search = '',
+    } = req.query;
 
+    // Tạo cache key duy nhất dựa trên query params
+    const cacheKey = `blogs:page:${page}:limit:${limit}:sort:${sort}:tags:${tags}:search:${search}`;
+
+    // Kiểm tra cache
+    const cachedData = await redisUtils.getCache(cacheKey);
+    if (cachedData) {
+      return res.status(StatusCodes.OK).json(cachedData);
+    }
+
+    // Truy vấn từ database
     const blogs = await blogModel.getAllBlogsForClient({
       page,
       limit,
@@ -29,11 +46,13 @@ const getAllBlogsForClient = async (req, res) => {
       search,
     });
 
+    await redisUtils.setCache(cacheKey, blogs, 1800); // TTL 30 phút
+
     return res.status(StatusCodes.OK).json(blogs);
   } catch (error) {
     return res
       .status(StatusCodes.BAD_REQUEST)
-      .json('Có lỗi xảy ra xin thử lại sau');
+      .json({ message: 'Có lỗi xảy ra xin thử lại sau', error });
   }
 };
 
