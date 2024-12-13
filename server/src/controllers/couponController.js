@@ -245,6 +245,8 @@ const createManyCoupon = async (req, res) => {
           });
         }
         else {
+          delete c._id;
+
           await couponModel.createCoupon(c);
           successful.push({
             message: 'Tạo mới thành công Mã giảm giá: ' + c.name,

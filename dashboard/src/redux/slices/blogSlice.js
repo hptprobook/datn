@@ -4,10 +4,7 @@ import DashboardService from '../services/dashboard.service';
 
 export const fetchAllBlogs = createAsyncThunk(
   'blogs/fetchBlogs',
-  async ({
-    limit = 10,
-    page = 1,
-  }, { rejectWithValue }) => {
+  async ({ limit = 10, page = 1 }, { rejectWithValue }) => {
     try {
       const response = await DashboardService.gets(`/blogs?limit=${limit}&page=${page}`);
       return response;
@@ -49,6 +46,17 @@ export const createBlog = createAsyncThunk(
     }
   }
 );
+export const createManyBlog = createAsyncThunk(
+  'blogs/createMany',
+  async ({ data }, { rejectWithValue }) => {
+    try {
+      const res = await BlogsService.createMany(data);
+      return res;
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
 export const updateBlog = createAsyncThunk(
   'blogs/updateBlog',
   async ({ id, data }, { rejectWithValue }) => {
@@ -71,7 +79,8 @@ const blogsSlice = createSlice({
     blog: {},
     status: 'idle',
     statusUpdate: 'idle',
-    error: null
+    error: null,
+    dataCreateMany: null,
   },
   extraReducers: (builder) => {
     builder
@@ -105,6 +114,17 @@ const blogsSlice = createSlice({
         state.dataCreate = action.payload;
       })
       .addCase(createBlog.rejected, (state, action) => {
+        state.statusCreate = 'failed';
+        state.error = action.payload;
+      })
+      .addCase(createManyBlog.pending, (state) => {
+        state.statusCreate = 'loading';
+      })
+      .addCase(createManyBlog.fulfilled, (state, action) => {
+        state.statusCreate = 'successful';
+        state.dataCreateMany = action.payload;
+      })
+      .addCase(createManyBlog.rejected, (state, action) => {
         state.statusCreate = 'failed';
         state.error = action.payload;
       })

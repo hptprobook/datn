@@ -224,6 +224,11 @@ const deleteBlog = async (id) => {
   const result = await db.deleteOne({ _id: new ObjectId(id) });
   return result;
 };
+const getBlogBySlug = async (slug) => {
+  const db = await GET_DB().collection('blogs');
+  const blog = await db.findOne({ slug: slug });
+  return blog;
+};
 
 export const blogModel = {
   getAllBlogs,
@@ -241,4 +246,5 @@ export const blogModel = {
   updateComment,
   delComment,
   findBlogByTitle,
+  getBlogBySlug,
 };

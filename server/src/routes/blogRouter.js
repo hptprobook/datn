@@ -49,6 +49,7 @@ Router.put('/:blogID', upload.single('thumbnail'), blogController.updateBlog);
 Router.patch('/views/:blogID', blogController.updateViews);
 
 Router.delete('/:blogID', blogController.deleteBlog);
+Router.post('/creates', blogController.creates);
 
 // comment
 Router.post('/comment/:blogID', verifyToken, blogController.updateComment);
