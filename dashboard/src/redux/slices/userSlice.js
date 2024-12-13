@@ -125,6 +125,7 @@ const userSlice = createSlice({
             })
             .addCase(createUser.fulfilled, (state, action) => {
                 state.statusCreate = "successful";
+                state.user = action.payload;
             })
             .addCase(createUser.rejected, (state, action) => {
                 state.statusCreate = "failed";

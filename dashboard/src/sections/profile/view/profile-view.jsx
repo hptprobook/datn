@@ -63,6 +63,7 @@ export default function ProfileView() {
   useEffect(() => {
     if (statusUpdate === 'successful' && data) {
       handleToast('success', 'Cập nhật thành công');
+      dispatch(getMe());
       setInputSelect('');
       dispatch(setStatus({ key: 'statusUpdateMe', value: 'idle' }));
     }
@@ -97,6 +98,14 @@ export default function ProfileView() {
     }
   };
   const [inputSelect, setInputSelect] = useState('');
+  const [isUploadMode, setIsUploadMode] = useState(false);
+  const handleSwitchToUploadMode = () => {
+    setIsUploadMode(true);
+  };
+  const handleSave = async () => {
+    handleUpload(); 
+    setIsUploadMode(false);
+  };
   return (
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
@@ -111,18 +120,43 @@ export default function ProfileView() {
         <Grid2 container spacing={3}>
           <Grid2 xs={12} md={4}>
             <Card sx={{ padding: 3 }}>
-              {data?.avatar ? (
-                <Avatar
-                  alt="Ảnh đại diện"
-                  src={renderUrl(data?.avatar, backendUrl)}
-                  sx={{ width: 100, height: 100, margin: 'auto' }}
-                />
+              {data?.avatar && !isUploadMode ? (
+                <Stack direction="row" spacing={2} alignItems="center">
+                  <div style={{ position: 'relative', display: 'inline-block' }}>
+                    <Avatar
+                      alt="Ảnh đại diện"
+                      src={renderUrl(data?.avatar, backendUrl)}
+                      sx={{ width: 100, height: 100 }}
+                    />
+                    <IconButton
+                      sx={{ position: 'absolute', top: 0, right: 0, backgroundColor: 'white', padding: 0.5 }}
+                      color="inherit"
+                      onClick={handleSwitchToUploadMode}
+                    >
+                      <Iconify icon="eva:close-fill" />
+                    </IconButton>
+                  </div>
+                  <div>
+                    <Typography variant="h6">
+                      Tên: {data?.name}
+                    </Typography>
+                    <Typography variant="body2">
+                      Email: {data?.email}
+                    </Typography>
+                    <Typography variant="body2">
+                      Mã nhân viên: {data?.staffCode}
+                    </Typography>
+                    <Typography variant="body2">
+                      Ngày tạo: {formatDateTime(data?.createdAt)}
+                    </Typography>
+                  </div>
+                </Stack>
               ) : (
                 <>
                   <ImageDropZone
                     handleUpload={handleChangeUploadImg}
                     singleFile
-                    defaultImg={data?.avatar || ''} // Ensure defaultImg is a valid string
+                    defaultImg={isUploadMode ? '' : data?.avatar || ''} // Ensure defaultImg is a valid string
                   />
                   <Stack
                     direction="row"
@@ -131,24 +165,24 @@ export default function ProfileView() {
                     mt={2}
                     spacing={2}
                   >
-                    <Button variant="contained" color="inherit" onClick={handleUpload}>
+                    <Button variant="contained" color="inherit" onClick={handleSave}>
                       Lưu
                     </Button>
                   </Stack>
+                  <Typography variant="h6" sx={{ mt: 2 }}>
+                    Tên: {data?.name}
+                  </Typography>
+                  <Typography variant="body2" sx={{ mt: 2 }}>
+                    Email: {data?.email}
+                  </Typography>
+                  <Typography variant="body2" sx={{ mt: 2 }}>
+                    Mã nhân viên: {data?.staffCode}
+                  </Typography>
+                  <Typography variant="body2" sx={{ mt: 2 }}>
+                    Ngày tạo: {formatDateTime(data?.createdAt)}
+                  </Typography>
                 </>
               )}
-              <Typography variant="h6" sx={{ mt: 2 }}>
-                Tên: {data?.name}
-              </Typography>
-              <Typography variant="body2" sx={{ mt: 2 }}>
-                Email: {data?.email}
-              </Typography>
-              <Typography variant="body2" sx={{ mt: 2 }}>
-                Mã nhân viên: {data?.staffCode}
-              </Typography>
-              <Typography variant="body2" sx={{ mt: 2 }}>
-                Ngày tạo: {formatDateTime(data?.createdAt)}
-              </Typography>
             </Card>
           </Grid2>
           <Grid2 xs={12} md={8}>

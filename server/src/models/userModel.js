@@ -37,8 +37,8 @@ const validateBeforeCreate = async (data) => {
 
 const countUserAll = async () => {
   const db = await GET_DB().collection('users');
-  const totail = await db.countDocuments();
-  return totail;
+  const d = await db.countDocuments();
+  return d;
 };
 
 const getUserAll = async ({ userId, page, limit, start }) => {
@@ -70,7 +70,8 @@ const register = async (dataUser) => {
   const db = await GET_DB();
   const collection = db.collection('users');
   const result = await collection.insertOne(validData);
-  return result;
+  const user = await collection.findOne({ _id: result.insertedId });
+  return user;
 };
 
 const getUserEmail = async (email) => {
