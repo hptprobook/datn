@@ -9,5 +9,7 @@ Router.get('/:value', staticPageController.getBy);
 Router.get('/', staticPageController.gets);
 Router.put('/:id', staticPageController.update);
 Router.delete('/:id', staticPageController.remove);
+Router.post('/creates', staticPageController.creates);
+Router.post('/deletes', staticPageController.deletes);
 
 export const staticPageApi = Router;
