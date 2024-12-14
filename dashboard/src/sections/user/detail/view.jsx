@@ -6,6 +6,8 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import {
+  Box,
+  Modal,
   Select,
   MenuItem,
   TextField,
@@ -14,6 +16,7 @@ import {
   FormControl,
   AccordionSummary,
   AccordionDetails,
+  Button,
 } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 import * as Yup from 'yup';
@@ -33,6 +36,8 @@ import { isValidObjectId } from 'src/utils/check';
 import { useRouter } from 'src/routes/hooks';
 import Iconify from 'src/components/iconify';
 import { cloneDeep } from 'lodash';
+import { fetchAll } from 'src/redux/slices/warehouseSlices';
+import { createStaff, setStatus as setStatusStaff } from 'src/redux/slices/staffSlices';
 import CountrySelect from '../select-address';
 
 // ----------------------------------------------------------------------
@@ -50,11 +55,31 @@ const userSchema = Yup.object().shape({
     .min(10, 'Số điện thoại phải có ít nhất 10 ký tự')
     .max(10, 'Số điện thoại không được quá 10 ký tự'),
 });
-
+const staffSchema = Yup.object().shape({
+  staffCode: Yup.string()
+    .required('Mã nhân viên không được để trống')
+    .max(18, 'Mã nhân viên không được vượt quá 18 ký tự')
+    .min(4, 'Mã nhân viên phải có ít nhất 4 ký tự')
+    .matches(/^[a-zA-Z0-9]*$/, 'Mã nhân viên không được chứa ký tự tiếng Việt hoặc ký tự đặc biệt'),
+  branchId: Yup.string().required('Chi nhánh là bắt buộc'),
+  role: Yup.string().required('Vai trò là bắt buộc'),
+});
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+};
 export default function DetailUserPage() {
   const [province, setProvince] = useState([]);
   const [district, setDistrict] = useState([]);
   const [addresses, setAddresses] = useState([]);
+  const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
   const { id } = useParams();
   const route = useRouter();
@@ -67,6 +92,7 @@ export default function DetailUserPage() {
 
   const status = useSelector((state) => state.users.statusUpdate);
   const error = useSelector((state) => state.users.error);
+  const warehouses = useSelector((state) => state.warehouses.warehouses);
   useEffect(() => {
     AddressService.getProvince().then((res) => {
       setProvince(res);
@@ -76,6 +102,7 @@ export default function DetailUserPage() {
     if (id) {
       if (isValidObjectId(id)) {
         dispatch(fetchUserById(id));
+        dispatch(fetchAll());
       } else {
         handleToast('error', 'Id không hợp lệ');
         route.push('/users');
@@ -85,7 +112,10 @@ export default function DetailUserPage() {
   }, [id]);
   const user = useSelector((state) => state.users.user);
   const statusGet = useSelector((state) => state.users.statusGet);
-
+  const statusCreate = useSelector((state) => state.staffs.statusCreate);
+  const errorStaff = useSelector((state) => state.staffs.error);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
   const formik = useFormik({
     initialValues: {
       name: user?.name || '',
@@ -170,7 +200,27 @@ export default function DetailUserPage() {
     });
     setAddresses([...d]);
   };
-
+  useEffect(() => {
+    if (statusCreate === 'successful') {
+      handleToast('success', 'Tạo nhân viên thành công');
+      dispatch(
+        setStatusStaff({
+          key: 'statusCreate',
+          value: 'idle',
+        })
+      );
+    }
+    if (statusCreate === 'failed') {
+      handleToast('error', errorStaff?.message || 'Tạo nhân viên thất bại');
+      dispatch(
+        setStatusStaff({
+          key: 'statusCreate',
+          value: 'idle',
+        })
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [statusCreate, errorStaff]);
   useEffect(() => {
     if (status === 'successful') {
       handleToast('success', 'Cập nhật người dùng thành công');
@@ -189,13 +239,89 @@ export default function DetailUserPage() {
       dispatch(setStatus({ key: 'error', value: 'idle' }));
     }
   }, [status, error, dispatch]);
-
+  const formikStaff = useFormik({
+    initialValues: {
+      name: '',
+      email: '',
+      staffCode: '',
+      password: '',
+      branchId: '',
+      role: '',
+    },
+    validationSchema: staffSchema,
+    onSubmit: (values) => {
+      values.name = formik.values.name;
+      values.email = formik.values.email;
+      values.password = values.staffCode;
+      dispatch(createStaff(values));
+    },
+  });
   return (
     <Container>
       {status === 'loading' && <LoadingFull />}
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Typography variant="h4">Thông tin người dùng</Typography>
       </Stack>
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          <form onSubmit={formikStaff.handleSubmit}>
+            <Stack gap={2}>
+              <Typography id="modal-modal-title" variant="h6" component="h2">
+                Nâng cấp nhân viên
+              </Typography>
+              <TextField
+                fullWidth
+                label="Mã nhân viên"
+                name="staffCode"
+                value={formikStaff.values.staffCode}
+                onChange={formikStaff.handleChange}
+                error={formikStaff.touched.staffCode && Boolean(formikStaff.errors.staffCode)}
+                helperText={formikStaff.touched.staffCode && formikStaff.errors.staffCode}
+                onBlur={formikStaff.handleBlur}
+              />
+              <FormControl fullWidth>
+                <InputLabel id="roleStaff-select-label">Vai trò</InputLabel>
+                <Select
+                  labelId="roleStaff-select-label"
+                  id="roleStaff-select"
+                  value={formikStaff.values.role}
+                  name="role"
+                  label="Vai trò"
+                  onChange={formikStaff.handleChange}
+                >
+                  <MenuItem value="admin">Quản lý</MenuItem>
+                  <MenuItem value="staff">Nhân viên</MenuItem>
+                </Select>
+              </FormControl>
+              <FormControl fullWidth>
+                <InputLabel id="warehouse-select-label">Chi nhánh</InputLabel>
+                <Select
+                  labelId="warehouse-select-label"
+                  id="warehouse-select"
+                  value={formikStaff.values.branchId}
+                  name="branchId"
+                  label="Chi nhánh"
+                  onChange={formikStaff.handleChange}
+                >
+                  {warehouses?.map((warehouse) => (
+                    <MenuItem key={warehouse._id} value={warehouse._id}>
+                      {warehouse.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <Button type="submit" variant="contained" color="inherit">
+                Nâng cấp
+              </Button>
+            </Stack>
+          </form>
+        </Box>
+      </Modal>
       <Card sx={{ p: 3 }}>
         <Typography variant="h6" typography="p" mb={3}>
           Thông tin người dùng
@@ -341,6 +467,15 @@ export default function DetailUserPage() {
                   onClick={() => setIsAddAddress(true)}
                 >
                   Thêm địa chỉ
+                </LoadingButton>
+                <LoadingButton
+                  type="button"
+                  variant="contained"
+                  color="inherit"
+                  onClick={handleOpen}
+                  loading={status === 'loading'}
+                >
+                  Nâng cấp lên nhân viên
                 </LoadingButton>
                 <LoadingButton color="inherit" onClick={() => route.push('/users')}>
                   Quay lại
