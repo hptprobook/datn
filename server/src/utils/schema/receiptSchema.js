@@ -13,7 +13,7 @@ export const SAVE_RECEIPT_SCHEMA = Joi.object({
   name: Joi.string().trim().min(1).default('Người mua hàng').messages({
     'string.empty': 'Tên không được để trống',
   }),
-  phone: Joi.string().trim().min(1),
+  phone: Joi.string().allow(null).trim().min(1),
   status: Joi.string().trim().valid('success', 'returned').default('success'),
   total: Joi.number().required().messages({
     'number.base': 'Tổng tiền bắt buộc phải là số',
