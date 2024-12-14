@@ -69,6 +69,17 @@ export const updateBlog = createAsyncThunk(
     }
   }
 );
+export const deleteManyBlog = createAsyncThunk(
+  'blogs/deleteManyBlog',
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await BlogsService.deleteMany(data);
+      return response;
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
 
 export const resetState = createAction('blogs/resetState');
 export const setStatus = createAction('blogs/setStatus');
@@ -79,8 +90,11 @@ const blogsSlice = createSlice({
     blog: {},
     status: 'idle',
     statusUpdate: 'idle',
+    statusDelete: 'idle',
+    statusCreate: 'idle',
     error: null,
     dataCreateMany: null,
+    delete: null,
   },
   extraReducers: (builder) => {
     builder
@@ -136,6 +150,17 @@ const blogsSlice = createSlice({
         state.deleteReturn = action.payload;
       })
       .addCase(deleteBlogtById.rejected, (state, action) => {
+        state.statusDelete = 'failed';
+        state.error = action.payload;
+      })
+      .addCase(deleteManyBlog.pending, (state) => {
+        state.statusDelete = 'loading delete';
+      })
+      .addCase(deleteManyBlog.fulfilled, (state, action) => {
+        state.statusDelete = 'successful';
+        state.delete = action.payload;
+      })
+      .addCase(deleteManyBlog.rejected, (state, action) => {
         state.statusDelete = 'failed';
         state.error = action.payload;
       })

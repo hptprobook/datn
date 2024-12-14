@@ -266,6 +266,26 @@ const deleteBlog = async (req, res) => {
       .json({ message: 'Có lỗi xảy ra xin thử lại sau', error });
   }
 };
+const deleteManyBlogs = async (req, res) => {
+  try {
+    const { ids } = req.body;
+
+    const { images, failedIds, deletedIds } =
+      await blogModel.deleteManyBlogs(ids);
+
+    uploadModel.deleteImgs(images);
+
+    return res.status(StatusCodes.OK).json({
+      message: 'Xóa thành công',
+      deletedIds,
+      failedIds,
+    });
+  } catch (error) {
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
+  }
+};
 const creates = async (req, res) => {
   try {
     const data = req.body;
@@ -397,5 +417,6 @@ export const blogController = {
   delComment,
   findBlogByTitle,
   creates,
-  getBlogBySlug
+  getBlogBySlug,
+  deleteManyBlogs
 };

@@ -16,6 +16,7 @@ import {
   setStatus,
   fetchAllBlogs,
   fetchBlogById,
+  deleteManyBlog,
   createManyBlog,
   deleteBlogtById
 } from 'src/redux/slices/blogSlice';
@@ -199,6 +200,8 @@ export default function BlogView() {
   };
   const handleMultiDelete = () => {
     console.log(selected);
+    dispatch(deleteManyBlog({ ids: selected }));
+    
   };
   const handleNewBlogClick = () => {
     navigate('/blog/create');

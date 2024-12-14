@@ -58,7 +58,15 @@ createMany: async (data) => {
       console.log(err);
       throw err;
     }
-  }
+  },
+  deleteMany: async (ids) => {
+    try {
+      const res = await post('blogs/many', ids);
+      return res;
+    } catch (err) {
+      throw err;
+    }
+  },
 };
 
 export default BlogsService;
