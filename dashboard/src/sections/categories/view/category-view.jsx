@@ -169,8 +169,7 @@ export default function CategoryPage() {
       />
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
-          <Typography variant="h4">Kho</Typography>
-
+          <Typography variant="h4">Danh mục</Typography>
           <IconButton
             aria-label="load"
             variant="contained"

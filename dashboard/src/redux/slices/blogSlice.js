@@ -4,10 +4,7 @@ import DashboardService from '../services/dashboard.service';
 
 export const fetchAllBlogs = createAsyncThunk(
   'blogs/fetchBlogs',
-  async ({
-    limit = 10,
-    page = 1,
-  }, { rejectWithValue }) => {
+  async ({ limit = 10, page = 1 }, { rejectWithValue }) => {
     try {
       const response = await DashboardService.gets(`/blogs?limit=${limit}&page=${page}`);
       return response;
@@ -49,12 +46,34 @@ export const createBlog = createAsyncThunk(
     }
   }
 );
+export const createManyBlog = createAsyncThunk(
+  'blogs/createMany',
+  async ({ data }, { rejectWithValue }) => {
+    try {
+      const res = await BlogsService.createMany(data);
+      return res;
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
 export const updateBlog = createAsyncThunk(
   'blogs/updateBlog',
   async ({ id, data }, { rejectWithValue }) => {
     try {
       console.log('data', data);
       const response = await BlogsService.updateBlog(id, data);
+      return response;
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
+export const deleteManyBlog = createAsyncThunk(
+  'blogs/deleteManyBlog',
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await BlogsService.deleteMany(data);
       return response;
     } catch (err) {
       return rejectWithValue(err.response.data);
@@ -71,7 +90,11 @@ const blogsSlice = createSlice({
     blog: {},
     status: 'idle',
     statusUpdate: 'idle',
-    error: null
+    statusDelete: 'idle',
+    statusCreate: 'idle',
+    error: null,
+    dataCreateMany: null,
+    delete: null,
   },
   extraReducers: (builder) => {
     builder
@@ -108,6 +131,17 @@ const blogsSlice = createSlice({
         state.statusCreate = 'failed';
         state.error = action.payload;
       })
+      .addCase(createManyBlog.pending, (state) => {
+        state.statusCreate = 'loading';
+      })
+      .addCase(createManyBlog.fulfilled, (state, action) => {
+        state.statusCreate = 'successful';
+        state.dataCreateMany = action.payload;
+      })
+      .addCase(createManyBlog.rejected, (state, action) => {
+        state.statusCreate = 'failed';
+        state.error = action.payload;
+      })
       .addCase(deleteBlogtById.pending, (state) => {
         state.statusDelete = 'loading';
       })
@@ -116,6 +150,17 @@ const blogsSlice = createSlice({
         state.deleteReturn = action.payload;
       })
       .addCase(deleteBlogtById.rejected, (state, action) => {
+        state.statusDelete = 'failed';
+        state.error = action.payload;
+      })
+      .addCase(deleteManyBlog.pending, (state) => {
+        state.statusDelete = 'loading delete';
+      })
+      .addCase(deleteManyBlog.fulfilled, (state, action) => {
+        state.statusDelete = 'successful';
+        state.delete = action.payload;
+      })
+      .addCase(deleteManyBlog.rejected, (state, action) => {
         state.statusDelete = 'failed';
         state.error = action.payload;
       })

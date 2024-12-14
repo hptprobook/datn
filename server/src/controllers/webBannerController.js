@@ -179,7 +179,8 @@ const createManyBanner = async (req, res) => {
                     });
                 }
                 else {
-                    const result = await webBannerModel.createWebBanner(w);
+                    delete w._id;
+                     await webBannerModel.createWebBanner(w);
                     successful.push({
                         message: 'Tạo mới thành công Banner: ' + w.title,
                     });

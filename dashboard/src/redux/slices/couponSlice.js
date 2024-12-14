@@ -85,7 +85,7 @@ export const deleteManyCoupon = createAsyncThunk(
   }
 );
 export const createManyCoupon = createAsyncThunk(
-  'webBanners/createMany',
+  'coupons/createMany',
   async ({ data }, { rejectWithValue }) => {
     try {
       console.log(data);

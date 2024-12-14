@@ -142,6 +142,7 @@ export default function StaticPagesTable({ data, onClickRow, onClickAction }) {
         numSelected={selected.length}
         onSearch={handleSearch}
         label="Trang tĩnh"
+        onDelete={() => onClickAction('deletes', selected)}
       />
       <TableContainer>
         <Table aria-labelledby="tableTitle" size="medium">

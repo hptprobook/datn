@@ -315,7 +315,7 @@ export const UPDATE_PRODUCT = Joi.object({
             }),
           })
         ),
-        image: Joi.string().trim().min(1).messages({
+        image: Joi.string().allow(null).trim().min(1).messages({
           'string.empty': 'Ảnh biến thể không được để trống',
         }),
       })
