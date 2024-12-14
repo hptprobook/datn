@@ -5,6 +5,7 @@ import { uploadModel } from '~/models/uploadModel';
 import { blogModel } from '~/models/blogModel';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
+import { ERROR_MESSAGES } from '~/utils/errorMessage';
 import { redisUtils } from '~/utils/redis';
 const getAllBlogs = async (req, res) => {
   try {
@@ -283,7 +284,140 @@ const deleteBlog = async (req, res) => {
       .json({ message: 'Có lỗi xảy ra xin thử lại sau', error });
   }
 };
+const deleteManyBlogs = async (req, res) => {
+  try {
+    const { ids } = req.body;
 
+    const { images, failedIds, deletedIds } =
+      await blogModel.deleteManyBlogs(ids);
+
+    uploadModel.deleteImgs(images);
+
+    return res.status(StatusCodes.OK).json({
+      message: 'Xóa thành công',
+      deletedIds,
+      failedIds,
+    });
+  } catch (error) {
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
+  }
+};
+const creates = async (req, res) => {
+  try {
+    const data = req.body;
+    const errors = [];
+    const successful = [];
+    for (const w of data) {
+      try {
+        if (w._id) {
+          const existed = await blogModel.findBlogByID(
+            w._id
+          );
+          if (!existed) {
+            errors.push({
+              message: `Bài viết với id: ${w._id} không tồn tại`,
+            });
+            continue;
+          }
+          const id = w._id;
+          delete w._id;
+          delete w.createdAt;
+          delete w.views;
+          delete w.shortDesc;
+          delete w.author;
+          const existedSlug = await blogModel.getBlogBySlug(w.slug);
+          if (existedSlug && existedSlug._id.toString() !== id) {
+            errors.push({
+              message: `Slug: ${w.slug} đã tồn tại`,
+            });
+            continue;
+          }
+          // w.seoOption = existed.seoOption;
+          await blogModel.updateBlog(
+            id,
+            w
+          );
+          successful.push({
+            message: 'Cập nhật thành công bài viết: ' + w.title + ' với id: ' + id,
+          });
+          if (w.thumbnail && existed.thumbnail !== w.thumbnail) {
+            await uploadModel.deleteImg(existed.thumbnail);
+          }
+        }
+        else {
+          const existedSlug = await blogModel.getBlogBySlug(w.slug);
+          if (existedSlug) {
+            errors.push({
+              message: `Slug: ${w.slug} đã tồn tại`,
+            });
+            continue;
+          }
+          // w.seoOption = {
+          //   title: w.name,
+          //   description: w.name,
+          //   alias: w.slug,
+          // }
+          delete w._id;
+          delete w.views;
+          delete w.shortDesc;
+          delete w.author;
+
+          await blogModel.createBlog(w);
+          successful.push({
+            message: 'Tạo mới thành công bài viết: ' + w.title,
+          });
+        }
+
+      } catch (error) {
+        errors.push({
+          message: error.details
+            ? (w.title + ': ' + error.details[0].message)
+            : (error.message || 'Có lỗi xảy ra khi thêm bài viết'),
+        });
+      }
+    }
+
+    // Trả về kết quả
+    if (errors.length) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: 'Một số bài viết không thể thêm được',
+        errors,
+        successful,
+      });
+    }
+
+    return res.status(StatusCodes.OK).json({
+      message: 'Tất cả đã được thêm thành công',
+      successful,
+    });
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: 'Có lỗi xảy ra, xin thử lại sau',
+    });
+  }
+};
+
+const getBlogBySlug = async (req, res) => {
+  try {
+    const { slug } = req.params;
+
+    const blog = await blogModel.getBlogBySlug(slug);
+
+    if (!blog) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: 'Không tìm thấy bài viết!' });
+    }
+    return res.status(StatusCodes.OK).json(blog);
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: ERROR_MESSAGES.ERR_AGAIN,
+      error: error,
+    });
+  }
+};
 export const blogController = {
   deleteBlog,
   createBlog,
@@ -300,4 +434,7 @@ export const blogController = {
   updateComment,
   delComment,
   findBlogByTitle,
+  creates,
+  getBlogBySlug,
+  deleteManyBlogs
 };

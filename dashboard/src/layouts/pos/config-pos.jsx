@@ -2,7 +2,7 @@ const navConfig = [
   {
     title: 'Bán hàng',
     path: '/pos',
-    icon: 'ion:cart',
+    icon: 'mdi:network-pos',
     child: undefined,
   },
   {
