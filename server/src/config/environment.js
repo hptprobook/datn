@@ -9,5 +9,5 @@ export const env = {
   PASSWORD_NODEMAILER: process.env.PASSWORD_NODEMAILER,
   EMAIL_NODEMAILER: process.env.EMAIL_NODEMAILER,
   CLIENT_URL: process.env.CLIENT_URL,
-  REDIS_URL: process.env.REDIS_URL,
+  REDIS_URL: process.env.REDIS_URI,
 };

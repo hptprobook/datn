@@ -15,7 +15,7 @@ import { createClient } from 'redis';
 
 // Redis client setup
 export const redisClient = createClient({
-  url: env.REDIS_URL || 'redis://localhost:6379',
+  url: env.REDIS_URL,
   socket: {
     reconnectStrategy: (retries) => {
       // Exponential backoff with max delay of 3s
