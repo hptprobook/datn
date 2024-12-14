@@ -9,6 +9,7 @@ import { ERROR_MESSAGES } from '~/utils/errorMessage';
 import { ObjectId } from 'mongodb';
 import path from 'path';
 import { uploadModel } from '~/models/uploadModel';
+import { redisUtils } from '~/utils/redis';
 
 const getCurrentUser = async (req, res) => {
   try {
@@ -55,7 +56,6 @@ const createUser = async (req, res) => {
     });
   }
 };
-
 
 const getUserById = async (req, res) => {
   try {
@@ -195,6 +195,13 @@ const updateCurrentUser = async (req, res) => {
 
 const addCartToCurrent = async (req, res) => {
   try {
+    // Thêm operation vào queue
+    await redisUtils.addToCartQueue({
+      type: 'ADD_CART',
+      userId: req.user.user_id,
+      data: req.body,
+    });
+
     const { user_id } = req.user;
     const { _id, productId, variantColor, variantSize, quantity, price } =
       req.body;
@@ -303,7 +310,7 @@ const getAllUsers = async (req, res) => {
     console.log(error);
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       message: 'Có lỗi xảy ra xin thử lại sau',
-      error
+      error,
     });
   }
 };
