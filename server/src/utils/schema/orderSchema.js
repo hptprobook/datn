@@ -151,7 +151,12 @@ export const SAVE_ORDER_NOT_LOGIN = Joi.object({
     note: Joi.string().trim().min(1).allow('', null),
     fullAddress: Joi.string().trim().min(1),
   }).required(),
-  email: Joi.string().trim().min(1).email().required(),
+  email: Joi.string().trim().min(1).email().required()
+  .messages({
+    'string.email': 'Email không hợp lệ',
+    'string.empty': 'Email không được để trống',
+    'any.required': 'Email là bắt buộc',
+  }),
   totalPrice: Joi.number().min(1).required(),
 
   shippingType: Joi.string()

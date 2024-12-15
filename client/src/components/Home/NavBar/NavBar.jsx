@@ -5,7 +5,6 @@ import { getMenu } from '~/APIs';
 import { handleToast } from '~/customHooks/useToast';
 import './style.css';
 import { useWebConfig } from '~/context/WebsiteConfig';
-import MainLoading from '~/components/common/Loading/MainLoading';
 
 const NavBar = () => {
   const [hoveredMenu, setHoveredMenu] = useState(null);
@@ -90,7 +89,9 @@ const NavBar = () => {
             onMouseLeave={() => setHoveredMenu(null)}
           >
             <NavLink
-              to={`/danh-muc-san-pham/${item.slug}?minPrice=${minMaxPrice.minPrice}&maxPrice=${minMaxPrice.maxPrice}`}
+              to={`/danh-muc-san-pham/${item.slug}?minPrice=${
+                minMaxPrice?.minPrice || 0
+              }&maxPrice=${minMaxPrice?.maxPrice || 5000000}`}
               end
             >
               <p className="cursor-pointer hover:text-red-500 font-semibold text-sm">
@@ -102,7 +103,9 @@ const NavBar = () => {
                 {item.list?.map((subItem) => (
                   <div key={subItem.id} className="mb-4">
                     <NavLink
-                      to={`/danh-muc-san-pham/${subItem.slug}?minPrice=${minMaxPrice.minPrice}&maxPrice=${minMaxPrice.maxPrice}`}
+                      to={`/danh-muc-san-pham/${subItem?.slug}?minPrice=${
+                        minMaxPrice?.minPrice || 0
+                      }&maxPrice=${minMaxPrice?.maxPrice || 5000000}`}
                       end
                     >
                       <p className="font-bold mb-4 text-sm hover:text-red-600">
@@ -113,7 +116,9 @@ const NavBar = () => {
                       {subItem.list?.map((childItem) => (
                         <NavLink
                           key={childItem.id}
-                          to={`/danh-muc-san-pham/${childItem.slug}?minPrice=${minMaxPrice.minPrice}&maxPrice=${minMaxPrice.maxPrice}`}
+                          to={`/danh-muc-san-pham/${childItem.slug}?minPrice=${
+                            minMaxPrice?.minPrice || 0
+                          }&maxPrice=${minMaxPrice?.maxPrice || 5000000}`}
                           end
                         >
                           <p className="mb-3 hover:text-red-500 cursor-pointer text-sm">

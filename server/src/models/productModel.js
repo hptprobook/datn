@@ -9,6 +9,7 @@ import {
   UPDATE_REVIEW_PRODUCT,
 } from '~/utils/schema/productSchema';
 import { removeTones } from './removeTones';
+import { elasticsearchService } from '../services/elasticsearchService';
 
 const validateRatingBeforeCreate = async (data) => {
   return await REVIEW_PRODUCT.validateAsync(data, { abortEarly: false });
@@ -83,6 +84,53 @@ const getProductsAll = async (page, limit) => {
     products: result,
     count,
   };
+};
+
+const searchByElasticsearch = async (keyword, filters, sort) => {
+  try {
+    // Kiểm tra kết nối Elasticsearch
+    const isConnected = await elasticsearchService.checkConnection();
+    if (!isConnected) {
+      throw new Error('Elasticsearch không khả dụng');
+    }
+
+    // Thực hiện tìm kiếm
+    const results = await elasticsearchService.searchProducts(keyword, {
+      minPrice: filters.minPrice,
+      maxPrice: filters.maxPrice,
+      colors: filters.colors,
+      sizes: filters.sizes,
+      page: filters.page,
+      limit: filters.limit,
+      sort: sort,
+    });
+
+    // Format kết quả
+    const formattedResults = {
+      products: results.products.map((product) => ({
+        _id: product._id,
+        name: product.name,
+        slug: product.slug,
+        price: product.price,
+        thumbnail: product.thumbnail,
+        tags: product.tags,
+        variants: product.variants || [], // Đảm bảo variants là mảng
+        averageRating: product.averageRating || 0,
+        totalComment: product.totalComment || 0,
+      })),
+      pagination: {
+        currentPage: filters.page,
+        totalPages: Math.ceil(results.total / filters.limit),
+        totalItems: results.total,
+        limit: filters.limit,
+      },
+    };
+
+    return formattedResults;
+  } catch (error) {
+    console.error('Elasticsearch search error:', error.message);
+    throw new Error(`Lỗi tìm kiếm: ${error.message}`);
+  }
 };
 
 const getProductsByView = async () => {
@@ -405,6 +453,9 @@ const createProduct = async (data) => {
   if (!result) {
     throw new Error('Có lỗi xảy ra, xin thử lại sau');
   }
+
+  await elasticsearchService.syncProductsToElasticsearch();
+
   return result;
 };
 
@@ -860,39 +911,12 @@ const getProductByOldest = async (page, limit) => {
 };
 
 const getProductBySearch = async (search, page, limit) => {
-  page = parseInt(page) || 1;
-  limit = parseInt(limit) || 20;
-
-  const searchQuery = removeTones(search).toLowerCase().replace(/\s+/g, '-');
-
-  const db = await GET_DB();
-
-  const results = await db
-    .collection('products')
-    .find({ slug: { $regex: searchQuery, $options: 'i' } })
-    .collation({ locale: 'en', strength: 2 })
-    .limit(limit)
-    .skip((page - 1) * limit)
-    .toArray();
-
-  results.forEach((product) => {
-    if (product.reviews && product.reviews.length > 0) {
-      const total = product.reviews.reduce(
-        (acc, review) => acc + review.rating,
-        0
-      );
-      product.averageRating = parseFloat(
-        (total / product.reviews.length).toFixed(1)
-      );
-      product.totalComment = product.reviews.length;
-    } else {
-      product.averageRating = 0;
-      product.totalComment = 0;
-    }
-    delete product.reviews;
+  const result = await elasticsearchService.searchProducts(search, {
+    page,
+    limit,
   });
 
-  return results;
+  return result.products;
 };
 
 const getProductByCategoryFilter = async (slug, pages, limit, filter) => {
@@ -1320,7 +1344,7 @@ const searchInDashboard = async (keyword) => {
         },
       ],
     })
-    .project({ name: 1, _id: 1, variants: 1, thumbnail: 1, price: 1, slug: 1 })
+    .project({ name: 1, _id: 1, variants: 1, thumbnail: 1, price: 1, slug: 1, weight: 1 })
     .limit(10)
     .toArray();
   return result;
@@ -1343,9 +1367,60 @@ const getProductByArrayId = async (ids) => {
   return result;
 };
 
+const testElasticsearch = async (query) => {
+  try {
+    // Test basic search
+    const basicResults = await elasticsearchService.searchProducts(query, {
+      page: 1,
+      limit: 5,
+    });
+
+    // Test search with filters
+    const filterResults = await elasticsearchService.searchProducts(query, {
+      minPrice: 100000,
+      maxPrice: 1000000,
+      colors: ['Đen', 'Trắng'],
+      sizes: ['M', 'L'],
+      page: 1,
+      limit: 5,
+    });
+
+    // Get MongoDB results for comparison
+    const db = await GET_DB();
+    const mongoResults = await db
+      .collection('products')
+      .find({
+        $or: [
+          { name: { $regex: query, $options: 'i' } },
+          { description: { $regex: query, $options: 'i' } },
+        ],
+      })
+      .limit(5)
+      .toArray();
+
+    return {
+      elasticsearchBasic: {
+        total: basicResults.total,
+        hits: basicResults.products,
+      },
+      elasticsearchWithFilters: {
+        total: filterResults.total,
+        hits: filterResults.products,
+      },
+      mongodb: {
+        total: mongoResults.length,
+        hits: mongoResults,
+      },
+    };
+  } catch (error) {
+    throw new Error(`Elasticsearch test failed: ${error.message}`);
+  }
+};
+
 export const productModel = {
   countProductAll,
   getProductsAll,
+  searchByElasticsearch,
   getProductsByView,
   increaseViewBySlug,
   createProduct,
@@ -1377,4 +1452,5 @@ export const productModel = {
   isComment,
   searchInDashboard,
   getProductByArrayId,
+  testElasticsearch,
 };

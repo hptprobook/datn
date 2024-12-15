@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { Icon } from '@iconify/react';
 import MultiRangeSlider from '../common/Range/MultiSliderRange';
 import { debounce } from 'lodash';
+import { useQuery } from '@tanstack/react-query';
+import { getAllVariants } from '~/APIs';
 
 const ProductListFilter = ({
   onFilterChange,
@@ -22,11 +24,14 @@ const ProductListFilter = ({
   const [isSizeOpen, setIsSizeOpen] = useState(false);
   const [isTypeOpen, setIsTypeOpen] = useState(false);
   const [isTagOpen, setIsTagOpen] = useState(false);
+  const [colors, setColors] = useState([]);
+  const [sizes, setSizes] = useState([]);
+  const [colorMap, setColorMap] = useState({});
 
   const debouncedFilterChange = useCallback(
     debounce((filters) => {
       onFilterChange(filters);
-    }, 1000),
+    }, 700),
     [onFilterChange]
   );
 
@@ -38,6 +43,10 @@ const ProductListFilter = ({
       tags: selectedTags,
     };
     debouncedFilterChange(filters);
+
+    return () => {
+      debouncedFilterChange.cancel();
+    };
   }, [
     selectedColors,
     selectedSizes,
@@ -47,37 +56,46 @@ const ProductListFilter = ({
   ]);
 
   const handlePriceRangeChange = useCallback(
-    (newPriceRange) => {
+    debounce((newPriceRange) => {
       if (
         JSON.stringify(newPriceRange) !==
         JSON.stringify(initialFilters.priceRange)
       ) {
         onPriceRangeChange(newPriceRange);
       }
-    },
+    }, 700),
     [onPriceRangeChange, initialFilters.priceRange]
   );
 
-  const colors = [
-    'Đỏ',
-    'Xanh lá cây',
-    'Xanh dương',
-    'Vàng',
-    'Cam',
-    'Tím',
-    'Hồng',
-    'Đen',
-    'Trắng',
-    'Xám',
-    'Nâu',
-    'Xanh lơ',
-    'Hồng cánh sen',
-    'Xanh lá nhạt',
-    'Xanh đậm',
-    'Tím nhạt',
-  ];
+  const { data: variants, isLoading: isLoadingVariants } = useQuery({
+    queryKey: ['variants'],
+    queryFn: getAllVariants,
+  });
 
-  const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+  useEffect(() => {
+    if (!isLoadingVariants && variants) {
+      setColors(
+        variants
+          .filter((variant) => variant.type === 'color')
+          .map((variant) => variant.name)
+      );
+
+      setSizes(
+        variants
+          .filter((variant) => variant.type === 'size')
+          .map((variant) => variant.name)
+      );
+
+      setColorMap(
+        variants
+          .filter((variant) => variant.type === 'color')
+          .reduce((acc, variant) => {
+            acc[variant.name] = variant.value;
+            return acc;
+          }, {})
+      );
+    }
+  }, [variants, isLoadingVariants]);
 
   const types = ['Nam', 'Nữ', 'Trẻ em'];
   const tags = ['Mới nhất', 'Bán chạy', 'Hot sale', 'Freeship'];
@@ -111,25 +129,10 @@ const ProductListFilter = ({
   };
 
   const getColorClass = (color) => {
-    const colorMap = {
-      Đỏ: 'bg-red-500',
-      'Xanh lá cây': 'bg-green-500',
-      'Xanh dương': 'bg-blue-500',
-      Vàng: 'bg-yellow-500',
-      Cam: 'bg-orange-500',
-      Tím: 'bg-purple-500',
-      Hồng: 'bg-pink-500',
-      Đen: 'bg-black',
-      Trắng: 'bg-white border border-gray-300',
-      Xám: 'bg-gray-500',
-      Nâu: 'bg-amber-800',
-      'Xanh lơ': 'bg-cyan-500',
-      'Hồng cánh sen': 'bg-pink-300',
-      'Xanh lá nhạt': 'bg-green-300',
-      'Xanh đậm': 'bg-blue-700',
-      'Tím nhạt': 'bg-purple-300',
-    };
-    return colorMap[color] || 'bg-gray-200';
+    const hexColor = colorMap[color];
+    return hexColor
+      ? { backgroundColor: hexColor }
+      : { backgroundColor: '#E5E7EB' };
   };
 
   const removeColor = (color) => {
@@ -160,6 +163,10 @@ const ProductListFilter = ({
       },
     });
   };
+
+  if (isLoadingVariants) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="sticky top-4 max-h-[80vh] overflow-y-auto hide-scrollbar px-[2px]">
@@ -280,9 +287,10 @@ const ProductListFilter = ({
                 <button
                   key={color}
                   onClick={() => handleColorChange(color)}
-                  className={`w-8 h-8 rounded-full flex justify-center items-center ${getColorClass(
-                    color
-                  )} relative`}
+                  style={getColorClass(color)}
+                  className={
+                    'w-8 h-8 rounded-full flex justify-center items-center relative'
+                  }
                   title={color}
                 >
                   {selectedColors.includes(color) && (

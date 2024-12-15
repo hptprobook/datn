@@ -38,42 +38,61 @@ const ProductListWithSort = ({
     return <MainLoading />;
 
   return (
-    <div className='text-black'>
+    <div className="text-black">
       {keyword && (
-        <h2 className='text-2xl font-bold mb-4'>
+        <h2 className="text-2xl font-bold mb-4">
           Kết quả tìm kiếm cho &quot;{keyword}&quot;
         </h2>
       )}
       {catData && (
-        <h2 className='text-2xl font-bold mb-4'>{catData.name} - BMT Life</h2>
+        <h2 className="text-2xl font-bold mb-4">{catData.name} - BMT Life</h2>
       )}
-      <div className='divider'></div>
+      <div className="divider"></div>
 
       {/* Sorting Form */}
-      <div className='mb-8 sticky top-0 bg-white z-20 py-4 shadow-sm max '>
-        <form className='flex space-x-4 items-center'>
-          <label htmlFor='sort' className='text-sm font-medium text-gray-700'>
+      <div className="mb-8 sticky top-0 bg-white z-20 py-4 shadow-sm max ">
+        <form className="flex space-x-4 items-center">
+          <label htmlFor="sort" className="text-sm font-medium text-gray-700">
             Sắp xếp theo:
           </label>
           <select
-            className='select select-bordered w-full max-w-xs select-sm bg-white text-black'
+            className="select select-bordered w-full max-w-xs select-sm bg-white text-black"
             onChange={handleSortChange}
             value={sortOption}
           >
-            <option value=''>Mặc định</option>
-            <option value='createdAt-newest'>Mới nhất</option>
-            <option value='createdAt-oldest'>Cũ nhất</option>
-            <option value='alphabet-az'>Tên (từ A - Z )</option>
-            <option value='alphabet-za'>Tên (từ Z - A )</option>
-            <option value='price-asc'>Giá (từ thấp - cao )</option>
-            <option value='price-desc'>Giá (từ cao - thấp )</option>
+            <option value="">Mặc định</option>
+            <option value="createdAt-newest">Mới nhất</option>
+            <option value="createdAt-oldest">Cũ nhất</option>
+            <option value="alphabet-az">Tên (từ A - Z )</option>
+            <option value="alphabet-za">Tên (từ Z - A )</option>
+            <option value="price-asc">Giá (từ thấp - cao )</option>
+            <option value="price-desc">Giá (từ cao - thấp )</option>
+            {keyword && (
+              <>
+                <option value="bestseller">Bán chạy nhất</option>
+                <option value="averageRating-desc">
+                  Đánh giá (từ cao - thấp )
+                </option>
+                <option value="averageRating-asc">
+                  Đánh giá (từ thấp - cao )
+                </option>
+              </>
+            )}
           </select>
         </form>
       </div>
 
+      <div>
+        <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-2 lg:gap-3 lg:px-0">
+          {isLoading ||
+            !filteredProductsData ||
+            (filteredProductsData?.length === 0 && <p>Loading...</p>)}
+        </div>
+      </div>
+
       {/* Products Grid */}
       <div>
-        <div className='mt-6 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-2 lg:gap-3 lg:px-0'>
+        <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-2 lg:gap-3 lg:px-0">
           {filteredProductsData?.map((product) => (
             <ProductItem key={product._id} product={product} />
           ))}
@@ -81,18 +100,18 @@ const ProductListWithSort = ({
       </div>
 
       {/* Load More Button */}
-      <div className='w-full flex justify-center mt-8'>
-        {hasMore && (
+      {hasMore && (
+        <div className="w-full flex justify-center mt-8">
           <button
-            className='btn btn-error bg-red-600'
+            className="btn btn-error bg-red-600"
             onClick={handleLoadMore}
             disabled={isLoading}
           >
             {isLoading ? 'Đang tải...' : 'Xem thêm'}
-            {!isLoading && <Icon icon='mdi:arrow-right' className='ml-2' />}
+            {!isLoading && <Icon icon="mdi:arrow-right" className="ml-2" />}
           </button>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
