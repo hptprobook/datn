@@ -37,6 +37,7 @@ import PropTypes from 'prop-types';
 import { renderUrl } from 'src/utils/check';
 import { statusConfig, handleStatusConfig } from '../utils';
 import OrderTimeline from '../app-order-timeline';
+import LoadingFull from 'src/components/loading/loading-full';
 
 const backEndUrl = import.meta.env.VITE_BACKEND_APP_URL;
 
@@ -259,6 +260,8 @@ export default function DetailOrderPage() {
   };
   return (
     <Container>
+      {status === 'loading' && <LoadingFull />}
+      {statusUpdate === 'loading' && <LoadingFull />}
       <Modal
         open={open}
         onClose={handleClose}
