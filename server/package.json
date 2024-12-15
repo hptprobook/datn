@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.22.10",
-    "@elastic/elasticsearch": "^8.16.2",
+    "@elastic/elasticsearch": "^8.17.0",
     "@google/generative-ai": "^0.13.0",
     "axios": "^1.7.2",
     "bcryptjs": "^2.4.3",
