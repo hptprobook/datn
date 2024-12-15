@@ -35,9 +35,9 @@ import * as Yup from 'yup';
 import { useFormik } from 'formik';
 import PropTypes from 'prop-types';
 import { renderUrl } from 'src/utils/check';
+import LoadingFull from 'src/components/loading/loading-full';
 import { statusConfig, handleStatusConfig } from '../utils';
 import OrderTimeline from '../app-order-timeline';
-import LoadingFull from 'src/components/loading/loading-full';
 
 const backEndUrl = import.meta.env.VITE_BACKEND_APP_URL;
 
