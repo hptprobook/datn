@@ -72,7 +72,9 @@ export default function MainLayout() {
         <div className="fixed top-4 right-12 z-[1001]">
           <button
             onClick={toggleHeaderVisibility}
-            className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center focus:outline-none"
+            className={`w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center focus:outline-none ${
+              isHeaderVisible ? 'hidden' : ''
+            }`}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -80,7 +82,7 @@ export default function MainLayout() {
               viewBox="0 0 24 24"
               stroke="currentColor"
               className={`w-5 h-5 text-white transition-transform duration-300 ${
-                isHeaderVisible ? 'rotate-180' : ''
+                isHeaderVisible ? 'hidden' : ''
               }`}
             >
               <path

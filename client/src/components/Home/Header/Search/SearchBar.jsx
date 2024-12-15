@@ -1,6 +1,6 @@
 import { IoIosSearch, IoMdCloseCircleOutline } from 'react-icons/io';
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { debounce } from 'lodash'; // Import debounce từ lodash
+import { debounce } from 'lodash';
 import SearchPopular from './SearchPopular';
 import SearchResult from './SearchResult';
 import { getSearchSuggest, searchProducts } from '~/APIs/ProductList/search';
@@ -21,9 +21,10 @@ const SearchBar = () => {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.ctrlKey && e.key === 'k') {
-        e.preventDefault(); // Ngăn hành vi mặc định (nếu có)
-        inputRef.current?.focus(); // Focus vào ô tìm kiếm
-        setIsFocused(true); // Kích hoạt trạng thái focus
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        inputRef.current?.focus();
+        setIsFocused(true);
       }
     };
 

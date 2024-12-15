@@ -8,7 +8,7 @@ import { GET_DB } from '~/config/mongodb';
 const client = new Client({
   node: env.ELASTICSEARCH_NODE,
   auth: {
-    apiKey: env.ELASTICSEARCH_API_KEY,
+    apiKey: env.ELASTICSEARCH_API_KEY || '',
   },
 });
 
@@ -16,7 +16,6 @@ const client = new Client({
 const checkConnection = async () => {
   try {
     const result = await client.ping();
-    console.log('Elasticsearch connected successfully');
     return result;
   } catch (error) {
     console.error('Elasticsearch connection failed:', error);
