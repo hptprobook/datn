@@ -93,7 +93,7 @@ const CheckoutFinal = ({ selectedProducts, userAddress }) => {
 
   const { data: coupons, isLoading: isLoadingCoupons } = useQuery({
     queryKey: ['coupons'],
-    queryFn: getCouponsForOrder,
+    queryFn: () => getCouponsForOrder(totalPrice),
   });
 
   const { data: warehouses, isLoading: isLoadingWarehouses } = useQuery({

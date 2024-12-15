@@ -10,4 +10,6 @@ export const env = {
   EMAIL_NODEMAILER: process.env.EMAIL_NODEMAILER,
   CLIENT_URL: process.env.CLIENT_URL,
   REDIS_URL: process.env.REDIS_URI,
+  ELASTICSEARCH_NODE: process.env.ELASTICSEARCH_NODE,
+  ELASTICSEARCH_API_KEY: process.env.ELASTICSEARCH_API_KEY,
 };

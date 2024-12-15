@@ -378,7 +378,7 @@ const sendNotifies = async (data) => {
 
   //   const status = otherData.status[otherData.status.length - 1];
   //   const dataValidate = await validateBeforeSendNotifies([status]);
-  const { userId, title, description, type } = data;
+  const { userId, title, description, type, orderId, orderCode } = data;
   const dataValidate = await validateBeforeSendNotifies(data);
 
   // const description = generateDescription(
@@ -395,16 +395,11 @@ const sendNotifies = async (data) => {
         $push: {
           notifies: {
             _id: new ObjectId(),
-            //             status: dataValidate[0].status,
-            //             type: otherData.type,
-            //             title: otherData.title,
-            //             orderCode: otherData.orderCode,
-            //             description: description,
-
             title: title,
             description: description,
             type: type,
-
+            orderId: orderId,
+            orderCode: orderCode,
             isReaded: false,
             createdAt: dataValidate.createdAt,
             updatedAt: dataValidate.updatedAt,
