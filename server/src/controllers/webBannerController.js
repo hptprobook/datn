@@ -4,30 +4,14 @@ import { webBannerModel } from '~/models/webBannerModel';
 import { StatusCodes } from 'http-status-codes';
 import { uploadModel } from '~/models/uploadModel';
 import path from 'path';
-import { redisUtils } from '~/utils/redis';
 const getwebBanner = async (req, res) => {
   try {
-    const cacheKey = 'web:banners';
-
-    // Kiểm tra cache
-    const cachedData = await redisUtils.getCache(cacheKey);
-    if (cachedData) {
-      return res.status(StatusCodes.OK).json(cachedData);
-    }
-
-    // Truy vấn từ database
     const banner = await webBannerModel.getWebBanner();
-
-    // Lưu kết quả vào cache với TTL (ví dụ 1 giờ)
-    if (banner) {
-      await redisUtils.setCache(cacheKey, banner, 3600); // TTL 1 giờ
-    }
-
     return res.status(StatusCodes.OK).json(banner);
   } catch (error) {
     return res
       .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Có lỗi xảy ra xin thử lại sau', error });
+      .json('Có lỗi xảy ra xin thử lại sau');
   }
 };
 
@@ -151,59 +135,18 @@ const getWebBannerById = async (req, res) => {
   }
 };
 const createManyBanner = async (req, res) => {
-    try {
-        const webs = req.body;
-        const errors = [];
-        const successful = [];
-        for (const w of webs) {
-            try {
-                if (w._id) {
-                    const existingVariant = await webBannerModel.findWebBannerByID(
-                        w._id
-                    );
-                    if (!existingVariant) {
-                        errors.push({
-                            name: w.title,
-                            message: 'Banner không tồn tại',
-                        });
-                        continue;
-                    }
-                    const id = w._id;
-                    delete w._id;
-                    const u = await webBannerModel.updateWebBanner(
-                        id,
-                        w
-                    );
-                    successful.push({
-                        message: 'Cập nhật thành công Banner: ' + u.title,
-                    });
-                }
-                else {
-                    delete w._id;
-                     await webBannerModel.createWebBanner(w);
-                    successful.push({
-                        message: 'Tạo mới thành công Banner: ' + w.title,
-                    });
-                }
-
-            } catch (error) {
-                // Lưu lại lỗi nếu có lỗi xảy ra với biến thể hiện tại
-                console.log(error);
-                errors.push({
-                    name: w.title,
-                    message: error.details
-                        ? error.details[0].message
-                        : 'Có lỗi xảy ra khi thêm banner',
-                });
-            }
-        }
-
-        // Trả về kết quả
-        if (errors.length) {
-            return res.status(StatusCodes.BAD_REQUEST).json({
-                message: 'Một số banner khuyến mãi không thể thêm được',
-                errors,
-                successful,
+  try {
+    const webs = req.body;
+    const errors = [];
+    const successful = [];
+    for (const w of webs) {
+      try {
+        if (w._id) {
+          const existingVariant = await webBannerModel.findWebBannerByID(w._id);
+          if (!existingVariant) {
+            errors.push({
+              name: w.title,
+              message: 'Banner không tồn tại',
             });
             continue;
           }
@@ -211,21 +154,23 @@ const createManyBanner = async (req, res) => {
           delete w._id;
           const u = await webBannerModel.updateWebBanner(id, w);
           successful.push({
-            message: 'Cập nhật thành công khuyến mãi: ' + u.title,
+            message: 'Cập nhật thành công Banner: ' + u.title,
           });
         } else {
-          const result = await webBannerModel.create(w);
+          delete w._id;
+          await webBannerModel.createWebBanner(w);
           successful.push({
-            message: 'Tạo mới thành công biến thể: ' + result.title,
+            message: 'Tạo mới thành công Banner: ' + w.title,
           });
         }
       } catch (error) {
         // Lưu lại lỗi nếu có lỗi xảy ra với biến thể hiện tại
+        console.log(error);
         errors.push({
           name: w.title,
           message: error.details
             ? error.details[0].message
-            : 'Có lỗi xảy ra khi thêm biến thể',
+            : 'Có lỗi xảy ra khi thêm banner',
         });
       }
     }

@@ -266,6 +266,7 @@ const CategoryPage = () => {
               onSortChange={handleSortChange}
               onLoadMore={handleLoadMore}
               isLoading={isFilteredDataLoading}
+              limit={limit}
             />
           )}
         </div>

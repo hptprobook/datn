@@ -12,10 +12,11 @@ import path from 'path';
 import http from 'http';
 import { Server } from 'socket.io';
 import { createClient } from 'redis';
+import { elasticsearchService } from './services/elasticsearchService';
 
 // Redis client setup
 export const redisClient = createClient({
-  url: env.REDIS_URL || 'redis://localhost:6379',
+  url: env.REDIS_URL,
   socket: {
     reconnectStrategy: (retries) => {
       // Exponential backoff with max delay of 3s
@@ -49,6 +50,12 @@ const START_SERVER = async () => {
     // Connect to MongoDB
     await CONNECT_DB();
     console.log('Connected to MongoDB Atlas successfully');
+
+    // Khởi tạo Elasticsearch index
+    await elasticsearchService.initializeProductIndex();
+
+    // Đồng bộ dữ liệu ban đầu
+    await elasticsearchService.syncProductsToElasticsearch();
 
     // Express app and server setup
     const app = express();

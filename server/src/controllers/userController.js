@@ -14,18 +14,20 @@ import { redisUtils } from '~/utils/redis';
 const getCurrentUser = async (req, res) => {
   try {
     const { user_id } = req.user;
+
     const user = await userModel.getUserID(user_id);
-    delete user.password;
-    if (user) {
-      return res.status(StatusCodes.OK).json(user);
+    if (!user) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Không tồn tại người dùng' });
     }
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Không tồn tại người dùng' });
+
+    return res.status(StatusCodes.OK).json(user);
   } catch (error) {
+    console.error('Lỗi không xác định:', error);
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       message: ERROR_MESSAGES.ERR_AGAIN,
-      error: error,
+      error,
     });
   }
 };
@@ -468,6 +470,7 @@ const updateInfor = async (req, res) => {
         .status(StatusCodes.OK)
         .json({ message: 'Cập nhật thông tin thành công', result });
     }
+
     return res
       .status(StatusCodes.BAD_REQUEST)
       .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
