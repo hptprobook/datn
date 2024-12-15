@@ -8,18 +8,18 @@ export const fetchAll = createAsyncThunk(
   async ({
     page,
     limit,
-  }, rejectWithValue) => {
+  }, { rejectWithValue }) => {
     try {
       const res = await DashboardService.gets(`orders?page=${page}&limit=${limit}`);
-return res;
+      return res;
     } catch (err) {
-  return rejectWithValue(err.response.data);
-}
+      return rejectWithValue(err.response.data);
+    }
   }
 );
 export const fetchById = createAsyncThunk(
   'orders/fetchById',
-  async (id, rejectWithValue) => {
+  async (id, { rejectWithValue }) => {
     try {
       const res = await OrderServices.getById(id);
       return res;
@@ -28,9 +28,20 @@ export const fetchById = createAsyncThunk(
     }
   }
 );
+export const createOrder = createAsyncThunk(
+  'orders/createOrder',
+  async (data, { rejectWithValue }) => {
+    try {
+      const res = await OrderServices.createOrder(data);
+      return res;
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
 export const updateOrder = createAsyncThunk(
   'orders/updateOrder',
-  async ({ id, data }, rejectWithValue) => {
+  async ({ id, data }, { rejectWithValue }) => {
     try {
       const res = await OrderServices.updateOrder(id, data);
       return res;
@@ -50,6 +61,7 @@ const initialState = {
   statusGet: 'idle',
   statusDelete: 'idle',
   statusUpdate: 'idle',
+  statusCreate: 'idle',
   error: null,
 };
 
@@ -81,7 +93,7 @@ const orderSlices = createSlice({
       })
       .addCase(fetchById.rejected, (state, action) => {
         state.statusGet = 'failed';
-        state.error = action.error;
+        state.error = action.payload;
       })
       .addCase(updateOrder.pending, (state) => {
         state.statusUpdate = 'loading';
@@ -92,7 +104,17 @@ const orderSlices = createSlice({
       })
       .addCase(updateOrder.rejected, (state, action) => {
         state.statusUpdate = 'failed';
-        state.error = action.error;
+        state.error = action.payload;
+      })
+      .addCase(createOrder.pending, (state) => {
+        state.statusCreate = 'loading';
+      })
+      .addCase(createOrder.fulfilled, (state, action) => {
+        state.statusCreate = 'successful';
+      })
+      .addCase(createOrder.rejected, (state, action) => {
+        state.statusCreate = 'failed';
+        state.error = action.payload;
       })
       .addCase(setStatus, (state, action) => {
         const { key, value } = action.payload; // Destructure key and value from payload
