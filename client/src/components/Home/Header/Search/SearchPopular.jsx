@@ -51,11 +51,13 @@ const SearchPopular = ({ handleModelClick, isOpen, handleOverlayClick }) => {
           {data.map((item) => (
             <Link
               key={item._id}
-              to={`/tim-kiem?keyword=${item?.keyword || ''}&minPrice=${minMaxPrice.minPrice}&maxPrice=${minMaxPrice.maxPrice}`}
+              to={`/tim-kiem?keyword=${item?.keyword || ''}&minPrice=${
+                minMaxPrice?.minPrice
+              }&maxPrice=${minMaxPrice?.maxPrice}`}
             >
               <Badge
                 color="light"
-                className="cursor-pointer rounded-xs px-3"
+                className="cursor-pointer rounded-xs px-3 max-w-[150px] truncate"
                 onClick={handleOverlayClick}
               >
                 {capitalizeFirstLetter(item?.keyword || '')}

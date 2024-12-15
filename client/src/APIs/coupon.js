@@ -1,8 +1,12 @@
 import request from '~/config/axiosConfig';
 
-export const getCouponsForOrder = async () => {
+export const getCouponsForOrder = async (totalPrice) => {
   try {
-    const response = await request.get('/coupons/getForOrder');
+    const response = await request.get('/coupons/getForOrder', {
+      params: {
+        totalPrice,
+      },
+    });
     return response.data;
   } catch (error) {
     throw error.response.data;

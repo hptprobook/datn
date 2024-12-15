@@ -20,7 +20,7 @@ const getCoupons = async (req, res) => {
 const getCouponsForOrder = async (req, res) => {
   try {
     const currentDate = new Date();
-    const orderTotal = req.orderTotal;
+    const orderTotal = req.query.totalPrice;
 
     // Lấy danh sách mã giảm giá
     let coupons = await couponModel.getCouponsForOrder();
@@ -225,9 +225,7 @@ const createManyCoupon = async (req, res) => {
     for (const c of data) {
       try {
         if (c._id) {
-          const existed = await couponModel.getCouponsById(
-            c._id
-          );
+          const existed = await couponModel.getCouponsById(c._id);
           if (!existed) {
             errors.push({
               message: `Mã giảm giá với id: ${c._id} không tồn tại`,
@@ -236,26 +234,22 @@ const createManyCoupon = async (req, res) => {
           }
           const id = c._id;
           delete c._id;
-          await couponModel.updateCoupon(
-            id,
-            c
-          );
+          await couponModel.updateCoupon(id, c);
           successful.push({
-            message: 'Cập nhật thành công mã giảm giá: ' + c.name + ' với id: ' + id,
+            message:
+              'Cập nhật thành công mã giảm giá: ' + c.name + ' với id: ' + id,
           });
-        }
-        else {
+        } else {
           await couponModel.createCoupon(c);
           successful.push({
             message: 'Tạo mới thành công Mã giảm giá: ' + c.name,
           });
         }
-
       } catch (error) {
         errors.push({
           message: error.details
-            ? (c.name + ': ' + error.details[0].message)
-            : (error.message || 'Có lỗi xảy ra khi thêm mã giảm giá'),
+            ? c.name + ': ' + error.details[0].message
+            : error.message || 'Có lỗi xảy ra khi thêm mã giảm giá',
         });
       }
     }

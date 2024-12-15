@@ -26,7 +26,10 @@ const SearchResult = ({
     };
   }, [isOpen]);
 
-  const showLoader = searchLoading || !Array.isArray(searchResults) || searchResults.length === 0;
+  const showLoader =
+    searchLoading ||
+    !Array.isArray(searchResults) ||
+    searchResults.length === 0;
 
   if (showLoader) {
     return (
@@ -50,7 +53,7 @@ const SearchResult = ({
           {searchResults.map((product) => (
             <NavLink
               to={`/san-pham/${product?.slug || ''}`}
-              key={product?._id || crypto.randomUUID()}
+              key={product?._id}
               onClick={closeModal}
             >
               <ProductItem product={product} />
