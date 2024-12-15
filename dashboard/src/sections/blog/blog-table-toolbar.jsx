@@ -11,7 +11,7 @@ import Iconify from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export default function BlogTableToolbar({ numSelected, filterName, onFilterName }) {
+export default function BlogTableToolbar({ numSelected, filterName, onFilterName, onMultiDelete }) {
   return (
     <Toolbar
       sx={{
@@ -47,8 +47,8 @@ export default function BlogTableToolbar({ numSelected, filterName, onFilterName
 
       {numSelected > 0 ? (
         <Tooltip title="Delete">
-          <IconButton>
-            <Iconify icon="eva:trash-2-fill" />
+          <IconButton onClick={onMultiDelete}>
+          <Iconify icon="eva:trash-2-fill" />
           </IconButton>
         </Tooltip>
       ) : (
@@ -66,4 +66,5 @@ BlogTableToolbar.propTypes = {
   numSelected: PropTypes.number,
   filterName: PropTypes.string,
   onFilterName: PropTypes.func,
+  onMultiDelete: PropTypes.func
 };

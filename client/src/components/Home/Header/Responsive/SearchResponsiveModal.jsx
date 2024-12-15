@@ -24,9 +24,9 @@ const SearchResponsiveModal = ({ openSearch, setOpenSearch }) => {
     const params = new URLSearchParams({
       keyword: searchValue?.trim() || '',
       minPrice: minMaxPrice?.minPrice ?? 0,
-      maxPrice: minMaxPrice?.maxPrice ?? 0
+      maxPrice: minMaxPrice?.maxPrice ?? 0,
     });
-    
+
     navigate(`/tim-kiem?${params.toString()}`);
   };
 

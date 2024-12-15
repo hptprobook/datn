@@ -25,6 +25,8 @@ import {
 import { useFormik } from 'formik';
 import Iconify from 'src/components/iconify/iconify';
 
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
@@ -37,12 +39,12 @@ import { useMemo, useState, useEffect } from 'react';
 import { handleToast } from 'src/hooks/toast';
 import LoadingFull from 'src/components/loading/loading-full';
 import PropTypes from 'prop-types';
-import { ProductList } from 'src/sections/receiptsWarehouse/product-list';
+// import { ProductList } from 'src/sections/receiptsWarehouse/product-list';
 import { getProductByArrayId } from 'src/redux/slices/posSlices';
 import { couponSchema } from '../utils';
 
 import HistoryUsedTable from '../history-table';
-import ProductSelectedList from '../product-select-list';
+// import ProductSelectedList from '../product-select-list';
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -204,16 +206,16 @@ export default function DetailCouponPage() {
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
-  const handleAddProduct = (product) => {
-    if (products.find((item) => item._id === product._id)) {
-      return;
-    }
-    setProducts([...products, product]);
-  };
-  const handleDelete = (i) => {
-    const newProducts = products.filter((product) => product._id !== i);
-    setProducts(newProducts);
-  };
+  // const handleAddProduct = (product) => {
+  //   if (products.find((item) => item._id === product._id)) {
+  //     return;
+  //   }
+  //   setProducts([...products, product]);
+  // };
+  // const handleDelete = (i) => {
+  //   const newProducts = products.filter((product) => product._id !== i);
+  //   setProducts(newProducts);
+  // };
 
   return (
     <Container>
@@ -242,7 +244,7 @@ export default function DetailCouponPage() {
         <CustomTabPanel value={value} index={0}>
           <form onSubmit={formik.handleSubmit}>
             <Grid2 container spacing={3}>
-              <Grid2 xs={8}>
+              <Grid2 xs={12}>
                 <Card sx={{ p: 3, width: '100%' }}>
                   <Grid2 container spacing={2}>
                     <Grid2 xs={12}>
@@ -406,35 +408,41 @@ export default function DetailCouponPage() {
                     </Grid2>
                     <Grid2 xs={6}>
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DateTimePicker
-                          label="Ngày bắt đầu"
-                          value={dayjs(formik.values.dateStart)} // Ensure value is a dayjs object
-                          onError={(newError) => setErrorDate(newError)}
-                          slotProps={{
-                            textField: {
-                              helperText: errorMessage,
-                            },
-                          }}
-                          onChange={(date) => formik.setFieldValue('dateStart', date)}
-                        />
+                        <DemoContainer components={['DateTimePicker']}>
+                          <DateTimePicker
+                            label="Ngày bắt đầu"
+                            value={dayjs(formik.values.dateStart)} // Ensure value is a dayjs object
+                            onError={(newError) => setErrorDate(newError)}
+                            slotProps={{
+                              textField: {
+                                helperText: errorMessage,
+                              },
+                            }}
+                            onChange={(date) => formik.setFieldValue('dateStart', date)}
+                          />
+                        </DemoContainer>
+
                       </LocalizationProvider>
                     </Grid2>
                     <Grid2 xs={6}>
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DateTimePicker
-                          label="Ngày hết hạn"
-                          value={formik.values.dateEnd} // Ensure value is a dayjs object
-                          onError={(newError) => setErrorEnd(newError)}
-                          slotProps={{
-                            textField: {
-                              helperText: errorMessageEnd,
-                            },
-                          }}
-                          minDate={formik.values.dateStart} // Ensure minDate is a dayjs object
-                          onChange={(date) => formik.setFieldValue('dateEnd', date)}
-                        />
+                        <DemoContainer components={['DateTimePicker']}>
+                          <DateTimePicker
+                            label="Ngày hết hạn"
+                            value={formik.values.dateEnd} // Ensure value is a dayjs object
+                            onError={(newError) => setErrorEnd(newError)}
+                            slotProps={{
+                              textField: {
+                                helperText: errorMessageEnd,
+                              },
+                            }}
+                            minDate={formik.values.dateStart} // Ensure minDate is a dayjs object
+                            onChange={(date) => formik.setFieldValue('dateEnd', date)}
+                          />
+                        </DemoContainer>
+
                       </LocalizationProvider>
-                      {}
+                      { }
                     </Grid2>
                   </Grid2>
                   <Stack direction="row" justifyContent="flex-end" mt={3}>
@@ -450,7 +458,7 @@ export default function DetailCouponPage() {
                 </Card>
               </Grid2>
 
-              <Grid2 xs={4}>
+              {/* <Grid2 xs={4}>
                 <Card sx={{ p: 3, width: '100%' }}>
                   <Grid2 xs={12}>
                     <Typography variant="h5">Sản phẩm áp dụng</Typography>
@@ -460,7 +468,7 @@ export default function DetailCouponPage() {
                     <ProductSelectedList products={products} onDelete={handleDelete} />
                   </Grid2>
                 </Card>
-              </Grid2>
+              </Grid2> */}
             </Grid2>
           </form>
         </CustomTabPanel>

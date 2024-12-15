@@ -1,12 +1,14 @@
 import { useSearchParams } from 'react-router-dom';
 import HeaderBC from '~/components/common/Breadcrumb/HeaderBC';
 import { useQuery } from '@tanstack/react-query';
-import { filterProductsWithSearch, getMinMaxPrices } from '~/APIs';
-import { useState, useCallback, useEffect } from 'react';
+import { getMinMaxPrices } from '~/APIs';
+import { useState, useCallback, useMemo } from 'react';
 import { Icon } from '@iconify/react';
 import ProductListWithSort from '~/components/Products/ProductListWithSort';
 import ProductListFilter from '~/components/Products/ProductListFilter';
 import { Helmet } from 'react-helmet-async';
+import { searchProducts } from '~/APIs/ProductList/search';
+import MainLoading from '~/components/common/Loading/MainLoading';
 
 const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -41,6 +43,8 @@ const SearchPage = () => {
     colors,
     sizes,
     priceRange: { min: minPrice, max: maxPrice },
+    tags: searchParams.get('tags') ? searchParams.get('tags').split(',') : [],
+    type: searchParams.get('type') || '',
   });
 
   // Query lấy giới hạn giá tiền sản phẩm
@@ -52,43 +56,8 @@ const SearchPage = () => {
     cacheTime: 1000 * 60 * 60,
   });
 
-  // Query lấy kết quả lọc
-  const { data: filteredProductsData, isLoading: isFilteredDataLoading } =
-    useQuery({
-      queryKey: ['filtered-products', keyword, filters, sortOption, limit],
-      queryFn: async () => {
-        try {
-          const result = await filterProductsWithSearch({
-            keyword,
-            minPrice: filters.priceRange.min,
-            maxPrice: filters.priceRange.max,
-            colors: filters.colors,
-            sizes: filters.sizes,
-            sortOption,
-            limit,
-          });
-          setNoMatchingProducts(false);
-          if (result.length === 0) {
-            setNoMatchingProducts(true);
-            return [];
-          }
-          return result;
-        } catch (error) {
-          if (error.response && error.response.status === 404) {
-            setNoMatchingProducts(true);
-            return [];
-          }
-          throw error;
-        }
-      },
-      enabled: !!keyword || hasActiveFilters(),
-      staleTime: 1000 * 60 * 10,
-      cacheTime: 1000 * 60 * 60,
-      keepPreviousData: true,
-    });
-
-  // Những filter đang hoạt động
-  const hasActiveFilters = useCallback(() => {
+  // 1. Memoize hasActiveFilters result
+  const activeFilters = useMemo(() => {
     return (
       filters.colors.length > 0 ||
       filters.sizes.length > 0 ||
@@ -97,25 +66,73 @@ const SearchPage = () => {
     );
   }, [filters]);
 
-  // Xử lý thay đổi bộ lọc
-  const handleFilterChange = useCallback(
-    (newFilters) => {
-      setFilters((prevFilters) => {
-        const updatedFilters = {
-          ...prevFilters,
-          ...newFilters,
-        };
-
-        if (JSON.stringify(prevFilters) !== JSON.stringify(updatedFilters)) {
-          updateSearchParams(updatedFilters);
-        }
-
-        return updatedFilters;
-      });
-      setNoMatchingProducts(false);
-    },
-    [sortOption, searchParams]
+  const queryKey = useMemo(
+    () => [
+      'searchProducts',
+      keyword,
+      JSON.stringify(filters),
+      sortOption,
+      limit,
+    ],
+    [keyword, filters, sortOption, limit]
   );
+
+  // Query lấy kết quả lọc
+  const { data: filteredProductsData, isLoading: isFilteredDataLoading } =
+    useQuery({
+      queryKey,
+      queryFn: async () => {
+        try {
+          const result = await searchProducts({
+            keyword,
+            limit,
+            minPrice: filters.priceRange.min,
+            maxPrice: filters.priceRange.max,
+            colors: filters.colors,
+            sizes: filters.sizes,
+            sort: sortOption,
+          });
+
+          if (!result?.data?.products?.length) {
+            setNoMatchingProducts(true);
+            return [];
+          }
+          return result.data.products;
+        } catch (error) {
+          if (error.response?.status === 404) {
+            setNoMatchingProducts(true);
+            return [];
+          }
+          throw error;
+        }
+      },
+      enabled: !!keyword || activeFilters,
+      staleTime: 1000 * 60 * 10,
+      cacheTime: 1000 * 60 * 60,
+      keepPreviousData: true,
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+    });
+
+  // Xử lý thay đổi bộ lọc
+  const handleFilterChange = useCallback((newFilters) => {
+    setFilters((prevFilters) => {
+      const updatedFilters = {
+        ...prevFilters,
+        ...newFilters,
+        tags: newFilters.tags || prevFilters.tags || [],
+        type: newFilters.type || prevFilters.type || '',
+      };
+
+      if (JSON.stringify(prevFilters) !== JSON.stringify(updatedFilters)) {
+        updateSearchParams(updatedFilters);
+      }
+
+      return updatedFilters;
+    });
+    setNoMatchingProducts(false);
+  }, []);
 
   // Xử lý thay đổi giới hạn tiền
   const handlePriceRangeChange = useCallback(
@@ -136,44 +153,51 @@ const SearchPage = () => {
   );
 
   // Thay đổi bộ lọc theo URL
-  const updateSearchParams = (newFilters) => {
-    const params = new URLSearchParams(searchParams);
+  const updateSearchParams = useCallback(
+    (newFilters) => {
+      const params = new URLSearchParams(searchParams);
 
-    if (newFilters.colors.length > 0)
-      params.set('colors', newFilters.colors.join(','));
-    else params.delete('colors');
+      if (newFilters.colors.length > 0)
+        params.set('colors', newFilters.colors.join(','));
+      else params.delete('colors');
 
-    if (newFilters.sizes.length > 0)
-      params.set('sizes', newFilters.sizes.join(','));
-    else params.delete('sizes');
+      if (newFilters.sizes.length > 0)
+        params.set('sizes', newFilters.sizes.join(','));
+      else params.delete('sizes');
 
-    if (newFilters.priceRange.min !== null)
-      params.set('minPrice', newFilters.priceRange.min);
-    else params.delete('minPrice');
+      if (newFilters.priceRange.min !== null)
+        params.set('minPrice', newFilters.priceRange.min);
+      else params.delete('minPrice');
 
-    if (newFilters.priceRange.max !== null)
-      params.set('maxPrice', newFilters.priceRange.max);
-    else params.delete('maxPrice');
+      if (newFilters.priceRange.max !== null)
+        params.set('maxPrice', newFilters.priceRange.max);
+      else params.delete('maxPrice');
 
-    if (sortOption) params.set('sort', sortOption);
-    else params.delete('sort');
+      if (sortOption) params.set('sort', sortOption);
+      else params.delete('sort');
 
-    setSearchParams(params);
-  };
+      if (newFilters.tags?.length > 0)
+        params.set('tags', newFilters.tags.join(','));
+      else params.delete('tags');
 
-  useEffect(() => {
-    updateSearchParams(filters);
-  }, [filters]);
+      if (newFilters.type) params.set('type', newFilters.type);
+      else params.delete('type');
+
+      setSearchParams(params);
+    },
+    [searchParams, setSearchParams, sortOption]
+  );
 
   // Xử lý thay đổi sắp xếp
   const handleSortChange = useCallback(
     (newSortOption) => {
+      if (newSortOption === sortOption) return;
       setSortOption(newSortOption);
       const params = new URLSearchParams(searchParams);
       params.set('sort', newSortOption);
       setSearchParams(params);
     },
-    [searchParams, setSearchParams]
+    [searchParams, setSearchParams, sortOption]
   );
 
   // Xử lý thay đổi limit
@@ -181,21 +205,17 @@ const SearchPage = () => {
     setLimit((prevLimit) => prevLimit + 20);
   }, []);
 
-  if (!priceRangeData || !filteredProductsData) return null;
+  if (!priceRangeData) return <MainLoading />;
 
   return (
-    <section className="max-w-container mx-auto mt-16">
+    <section className="max-w-container mx-auto max-lg:mt-0 mt-16 max-lg:px-4 max-lg:relative">
       <Helmet>
         <title>BMT Life | Kết quả tìm kiếm: {keyword || ''}</title>
       </Helmet>
-      <HeaderBC
-        title={'Kết quả tìm kiếm'}
-        name={keyword}
-        url={'/tim-kiem?keyword='}
-      />
+      <HeaderBC title={'Kết quả tìm kiếm'} name={keyword} />
       <div className="divider"></div>
-      <div className="grid grid-cols-5 gap-6 mt-8">
-        <div className="col-span-1">
+      <div className="grid max-lg:grid-cols-1 grid-cols-5 gap-6 mt-8">
+        <div className="max-lg:col-span-1 col-span-1">
           <ProductListFilter
             onFilterChange={handleFilterChange}
             onPriceRangeChange={handlePriceRangeChange}
@@ -203,7 +223,7 @@ const SearchPage = () => {
             initialFilters={filters}
           />
         </div>
-        <div className="col-span-4">
+        <div className="max-lg:col-span-1 col-span-4">
           {noMatchingProducts || filteredProductsData?.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-64 text-gray-600">
               <Icon icon="tabler:news-off" className="text-6xl mb-4" />
@@ -222,6 +242,7 @@ const SearchPage = () => {
               onSortChange={handleSortChange}
               onLoadMore={handleLoadMore}
               isLoading={isFilteredDataLoading}
+              limit={limit}
             />
           )}
         </div>

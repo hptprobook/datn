@@ -11,6 +11,8 @@ import { orderStatus } from '~/utils/format';
 import { ObjectId } from 'mongodb';
 import { couponHistoryModel } from '~/models/couponHistoryModel';
 import { staffsModel } from '~/models/staffsModel';
+import { couponModel } from '~/models/couponModel';
+import { redisUtils } from '~/utils/redis';
 const getAllOrder = async (req, res) => {
   try {
     const { page, limit } = req.query;
@@ -140,6 +142,14 @@ const addOrder = async (req, res) => {
           note: 'Chờ khách hàng thanh toán',
         },
       ];
+    }
+
+    // Thêm đơn hàng vào hàng đợi
+    const isQueued = await redisUtils.addToOrderQueue(dataOrder);
+    if (!isQueued) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        message: 'Không thể thêm đơn hàng vào hàng đợi. Vui lòng thử lại!',
+      });
     }
 
     // Thêm đơn hàng vào cơ sở dữ liệu
@@ -337,14 +347,24 @@ const addOrder = async (req, res) => {
     // Lưu lịch sử coupon nếu có
     if (dataOrder.couponId && dataOrder.couponId.length > 0) {
       for (const couponId of dataOrder.couponId) {
-        const usageData = {
-          userId: dataOrder.userId,
-          couponId,
-          orderId: result.insertedId.toString(),
-          discountAmount: dataOrder.discountPrice || 0,
-          status: 'successful',
-        };
-        await couponHistoryModel.addCouponHistory(usageData);
+        const coupon = await couponModel.getCouponsById(couponId);
+        if (coupon && coupon.usageLimit > 0) {
+          const usageData = {
+            userId: dataOrder.userId,
+            couponId,
+            orderId: result.insertedId.toString(),
+            discountAmount: dataOrder.discountPrice || 0,
+            status: 'successful',
+          };
+          await couponHistoryModel.addCouponHistory(usageData);
+
+          // Decrease the usageLimit
+          await couponModel.updateCouponUsage(coupon.code, dataOrder.userId);
+        } else {
+          return res.status(StatusCodes.BAD_REQUEST).json({
+            message: 'Coupon không còn hiệu lực',
+          });
+        }
       }
     }
 
@@ -405,7 +425,13 @@ const addOrderNot = async (req, res) => {
       ];
     }
 
-    console.log(dataOrder);
+    // Thêm đơn hàng vào hàng đợi
+    const isQueued = await redisUtils.addToOrderQueue(dataOrder);
+    if (!isQueued) {
+      return res.status(500).json({
+        message: 'Không thể thêm đơn hàng vào hàng đợi. Vui lòng thử lại!',
+      });
+    }
 
     // Thêm đơn hàng mới vào cơ sở dữ liệu
     const result = await orderModel.addOrderNotLogin(dataOrder);
@@ -668,12 +694,13 @@ const updateOrder = async (req, res) => {
     const data = req.body;
     if (data.status) {
       const oldStatus = await orderModel.getStatusOrder(id);
-      const check = oldStatus.some((i) => data.status.status === i.status);
-      if (check) {
-        return res.status(StatusCodes.BAD_REQUEST).json({
-          message: 'Trạng thái đơn hàng bị trùng lặp vui lòng kiểm tra lại',
-        });
-      }
+      // const check = oldStatus.some((item) => item.status === data.status);
+      // const checkReturn = oldStatus.some((item) => item.status === 'returned' && item.returnStatus === data?.returnStatus);
+      // if (checkReturn) {
+      //   return res.status(StatusCodes.BAD_REQUEST).json({
+      //     message: 'Trạng thái đơn hàng bị trùng lặp vui lòng kiểm tra lại',
+      //   });
+      // }
       const newStatus = [...oldStatus, data.status];
       data.status = newStatus;
     }
@@ -690,15 +717,18 @@ const updateOrder = async (req, res) => {
         status: endStatus,
       };
 
-      req.io
-        .to(dataOrder.userId.toString())
-        .emit('orderStatusUpdate', notifyData);
+      if (dataOrder.userId) {
+        req.io
+          .to(dataOrder.userId.toString())
+          .emit('orderStatusUpdate', notifyData);
+      }
 
       delete notifyData.status;
       delete notifyData.note;
 
-      await userModel.sendNotifies(notifyData);
-
+      if (dataOrder.userId) {
+        await userModel.sendNotifies(notifyData);
+      }
       //  trạng thái xác nhận trừ số lượng
       if (endStatus == 'confirmed') {
         const newProducts = dataOrder.productsList.map((item) => {
@@ -739,7 +769,7 @@ const updateOrder = async (req, res) => {
         // cập nhật số lượng kho
         const newProducts = dataOrder.productsList.map((item) => {
           return {
-            productId: item._id.toString(),
+            productId: item._id.toString() || item._id,
             name: item.name,
             variantColor: item.variantColor,
             variantSize: item.variantSize,
@@ -753,7 +783,7 @@ const updateOrder = async (req, res) => {
         );
 
         const dataReceipt = {
-          orderId: dataOrder._id.toString(),
+          orderId: dataOrder._id.toString() || dataOrder._id,
           receiptCode: code(6).toUpperCase(),
           name: dataOrder.shippingInfo.name,
           phone: dataOrder.shippingInfo.phone,
@@ -761,7 +791,7 @@ const updateOrder = async (req, res) => {
           total: dataOrder.totalPrice,
           productsList: dataOrder.productsList.map((item) => {
             return {
-              _id: item._id.toString(),
+              _id: item._id.toString() || item._id,
               quantity: item.quantity,
               image: item.image,
               name: item.name,
@@ -784,7 +814,7 @@ const updateOrder = async (req, res) => {
           productsList: dataReceipt.productsList.map((item) => {
             return {
               ...item,
-              _id: item._id.toString(),
+              _id: item._id.toString() || item._id,
             };
           }),
         };

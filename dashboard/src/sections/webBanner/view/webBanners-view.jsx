@@ -192,17 +192,28 @@ export default function WebBannersPage() {
     // dispatch(deleteManyCoupon(selected));
   };
   const handleSave = (d) => {
+      // Filter out invalid entries
+      const validData = d.filter(item => item._id !== null && item.title && item.url && item.description && item.image);
+  
+      if (validData.length === 0) {
+        handleToast('error', 'Dữ liệu không hợp lệ.');
+        return;
+      }
     dispatch(
       createManyBanner({
-        data: d,
+        data: validData,
       })
     );
   };
   useEffect(() => {
     if (statusCreate === 'successful') {
-      dataCreateMany.successful.forEach((item) => {
-        handleToast('success', item.message);
-      });
+      if (dataCreateMany?.successful) {
+        dataCreateMany.successful.forEach((item) => {
+          if (item?.message) {
+            handleToast('success', item.message);
+          }
+        });
+      }
       dispatch(
         setStatus({
           key: 'statusCreate',
@@ -211,13 +222,21 @@ export default function WebBannersPage() {
       );
     }
     if (statusCreate === 'failed') {
-      handleToast('error', dataCreateMany.message || 'Thêm biến thể thất bại');
-      dataCreateMany.errors.forEach((item) => {
-        handleToast('error', `${item.name}: ${item.message}`);
-      });
-      dataCreateMany.successful.forEach((item) => {
-        handleToast('success', item.message);
-      });
+      handleToast('error', dataCreateMany?.message || 'Thêm banner thất bại');
+      if (dataCreateMany?.errors) {
+        dataCreateMany.errors.forEach((item) => {
+          if (item?.message) {
+            handleToast('error', `${item.name}: ${item.message}`);
+          }
+        });
+      }
+      if (dataCreateMany?.successful) {
+        dataCreateMany.successful.forEach((item) => {
+          if (item?.message) {
+            handleToast('success', item.message);
+          }
+        });
+      }
       dispatch(
         setStatus({
           key: 'statusCreate',

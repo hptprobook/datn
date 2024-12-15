@@ -31,7 +31,7 @@ const Header = () => {
   const [openSearch, setOpenSearch] = useState(false);
   const [currentTitle, setCurrentTitle] = useState('Danh mục');
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
-  const { user } = useUser();
+  const { user, refetchUser } = useUser();
   const { config } = useWebConfig();
   const { items } = useCart();
   const navigate = useNavigate();
@@ -113,7 +113,10 @@ const Header = () => {
                   className="text-2xl text-gray-50 cursor-pointer relative hover:text-red-600"
                   title="Thông báo"
                 >
-                  <NotifyBar notifies={currentUserInfor?.notifies} />
+                  <NotifyBar
+                    notifies={currentUserInfor?.notifies}
+                    refetchUser={refetchUser}
+                  />
                   {currentUserInfor?.notifies.some(
                     (notify) => notify.isReaded === false
                   ) && (
@@ -159,7 +162,7 @@ const Header = () => {
           <img
             src={`${import.meta.env.VITE_SERVER_URL}/${config?.logo}`}
             alt="Logo"
-            className="h-16 w-20 mx-auto"
+            className="mx-auto object-cover overflow-hidden"
           />
         </NavLink>
         <div className="flex gap-4">
@@ -197,10 +200,14 @@ const Header = () => {
           >
             <PiShoppingCartBold />
             <div className="absolute -top-2 -right-3 bg-red-700 text-white rounded-md w-6 h-4 flex items-center justify-center text-xs">
-              {items.length}
+              {isAuthenticated ? user?.carts.length : items.length}
             </div>
           </div>
           <CartFixed open={openCart} setOpen={setOpenCart} />
+          <SearchResponsiveModal
+            openSearch={openSearch}
+            setOpenSearch={setOpenSearch}
+          />
         </div>
       </header>
 
@@ -213,10 +220,6 @@ const Header = () => {
       />
 
       {/* Search Drawer for Mobile & Tablet */}
-      <SearchResponsiveModal
-        openSearch={openSearch}
-        setOpenSearch={setOpenSearch}
-      />
     </div>
   );
 };

@@ -4,9 +4,21 @@ import { seoConfigModel } from '~/models/seoConfigModel';
 import { StatusCodes } from 'http-status-codes';
 // import { ERROR_MESSAGES } from '~/utils/errorMessage';
 import { uploadModal } from '~/models/uploadModel';
+import { redisUtils } from '~/utils/redis';
 const getSeoConfig = async (req, res) => {
   try {
+    const cacheKey = 'seo:config';
+
+    const cachedData = await redisUtils.getCache(cacheKey);
+    if (cachedData) {
+      return res.status(StatusCodes.OK).json(cachedData);
+    }
+
     const seo = await seoConfigModel.getSeoConfig();
+
+    if (seo) {
+      await redisUtils.setCache(cacheKey, seo, 3600); // TTL 1 giờ
+    }
     return res.status(StatusCodes.OK).json(seo);
   } catch (error) {
     return res

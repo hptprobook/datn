@@ -185,9 +185,14 @@ const ProductDetailInfor = ({
   };
 
   const handleBuyNow = () => {
-    handleAddProductToCart(() => {
-      navigate('/gio-hang');
-    });
+    if (!selectedColor || (sizes?.length > 0 && !isFreeSize && !selectedSize)) {
+      setError('Vui lòng chọn màu sắc - kích thước.');
+    } else {
+      setError('');
+      handleAddProductToCart(() => {
+        navigate('/gio-hang');
+      });
+    }
   };
 
   return (
@@ -259,10 +264,6 @@ const ProductDetailInfor = ({
         <button
           className="text-center w-full px-5 py-4 rounded-md bg-red-600 flex items-center justify-center font-semibold text-lg text-white shadow-sm shadow-transparent transition-all duration-500 hover:bg-red-700 hover:shadow-red-300"
           onClick={handleBuyNow}
-          disabled={
-            !selectedColor ||
-            (sizes?.length > 0 && !isFreeSize && !selectedSize)
-          }
         >
           Mua ngay
         </button>

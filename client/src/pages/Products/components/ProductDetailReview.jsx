@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { useState } from 'react';
 import { Star } from '~/components/common/Icon/Star';
 import ImageViewer from 'react-simple-image-viewer';
+import { resolveUrl } from '~/utils/formatters';
 
 const ProductDetailReview = ({ reviews }) => {
   const [selectedRating, setSelectedRating] = useState(null);
@@ -199,9 +200,7 @@ const ProductDetailReview = ({ reviews }) => {
                   <div className="flex items-center gap-3">
                     {review?.avatar ? (
                       <img
-                        src={`${import.meta.env.VITE_SERVER_URL}/${
-                          review?.avatar
-                        }`}
+                        src={resolveUrl(review?.avatar)}
                         alt={review?.username}
                         className="w-8 h-8 object-cover rounded-full"
                       />
@@ -247,13 +246,10 @@ const ProductDetailReview = ({ reviews }) => {
                       <img
                         key={index}
                         className="w-[70px] h-[70px] object-cover cursor-pointer"
-                        src={`${import.meta.env.VITE_SERVER_URL}/${image}`}
+                        src={resolveUrl(image)}
                         onClick={() =>
                           openImageViewer(
-                            review.images.map(
-                              (img) =>
-                                `${import.meta.env.VITE_SERVER_URL}/${img}`
-                            ),
+                            review.images.map((img) => resolveUrl(img)),
                             index
                           )
                         }

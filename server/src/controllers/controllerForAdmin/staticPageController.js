@@ -104,10 +104,142 @@ const remove = async (req, res) => {
         });
     }
 }
+const deletes = async (req, res) => {
+    try {
+        const { ids } = req.body;
+        const errors = [];
+        const successful = [];
+        for (const id of ids) {
+            try {
+                const check = preCheckId(id);
+                if (!check) {
+                    errors.push({
+
+                        message: `Id: ${id} không hợp lệ`,
+                    });
+                    continue;
+                }
+                const existed = await staticPagesModel.getBy('_id', id);
+                if (!existed) {
+                    errors.push({
+                        message: `Trang tĩnh với id: ${id} không tồn tại`,
+                    });
+                    continue;
+                }
+                await staticPagesModel.remove(id);
+                successful.push({
+                    message: 'Xóa thành công trang tĩnh với id: ' + id,
+                });
+            } catch (error) {
+                errors.push({
+                    message: error.message || 'Có lỗi xảy ra khi xóa trang tĩnh',
+                });
+            }
+        }
+        if (errors.length) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: 'Một số trang tĩnh không thể xóa được',
+                errors,
+                successful,
+            });
+        }
+        return res.status(StatusCodes.OK).json({
+            message: 'Tất cả đã được xóa thành công',
+            successful,
+        });
+    } catch (error) {
+
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            message: 'Có lỗi xảy ra, xin thử lại sau',
+        });
+    }
+};
+
+
+const creates = async (req, res) => {
+    try {
+        const data = req.body;
+        const errors = [];
+        const successful = [];
+        for (const w of data) {
+            try {
+                if (w._id) {
+                    const existed = await staticPagesModel.getBy(
+                        '_id',
+                        w._id
+                    );
+                    if (!existed) {
+                        errors.push({
+                            message: `Trang tĩnh với id: ${w._id} không tồn tại`,
+                        });
+                        continue;
+                    }
+                    const id = w._id;
+                    delete w._id;
+                    const existedSlug = await staticPagesModel.getBy('slug', w.slug);
+                    if (existedSlug && existedSlug._id.toString() !== id) {
+                        errors.push({
+                            message: `Slug: ${w.slug} đã tồn tại`,
+                        });
+                        continue;
+                    }
+                    await staticPagesModel.update(
+                        id,
+                        w
+                    );
+                    successful.push({
+                        message: 'Cập nhật thành công trang tĩnh: ' + w.title + ' với id: ' + id,
+                    });
+
+                }
+                else {
+                    const existedSlug = await staticPagesModel.getBy('slug', w.slug);
+                    if (existedSlug) {
+                        errors.push({
+                            message: `Slug: ${w.slug} đã tồn tại`,
+                        });
+                        continue;
+                    }
+                    await staticPagesModel.create(w);
+                    successful.push({
+                        message: 'Tạo mới thành công trang tĩnh: ' + w.title,
+                    });
+                }
+
+            } catch (error) {
+                errors.push({
+                    message: error.details
+                        ? (w.title + ': ' + error.details[0].message)
+                        : (error.message || 'Có lỗi xảy ra khi thêm trang tĩnh'),
+                });
+            }
+        }
+
+        // Trả về kết quả
+        if (errors.length) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: 'Một số trang tĩnh không thể thêm được',
+                errors,
+                successful,
+            });
+        }
+
+        return res.status(StatusCodes.OK).json({
+            message: 'Tất cả đã được thêm thành công',
+            successful,
+        });
+    } catch (error) {
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            message: 'Có lỗi xảy ra, xin thử lại sau',
+        });
+    }
+};
 export const staticPageController = {
     create,
     getBy,
     gets,
     update,
-    remove
+    remove,
+    creates,
+    deletes,
 }
