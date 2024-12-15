@@ -224,6 +224,52 @@ const deleteBlog = async (id) => {
   const result = await db.deleteOne({ _id: new ObjectId(id) });
   return result;
 };
+const deleteManyBlogs = async (ids) => {
+  if (!Array.isArray(ids)) {
+    throw new Error('Ids phải là một mảng');
+  }
+
+  const db = GET_DB().collection('blogs');
+
+  const blogs = await db
+    .find({ _id: { $in: ids.map((id) => new ObjectId(id)) } })
+    .toArray();
+
+  if (!blogs || blogs.length === 0) {
+    throw new Error('Không tìm thấy bài viết nào');
+  }
+
+  const result = await db.deleteMany({
+    _id: { $in: ids.map((id) => new ObjectId(id)) },
+  });
+
+  if (result.deletedCount === 0) {
+    throw new Error('Xóa không thành công');
+  }
+
+  const remainingBlogs = await db
+    .find({ _id: { $in: ids.map((id) => new ObjectId(id)) } })
+    .toArray();
+
+  const remainingIds = remainingBlogs.map((blog) => blog._id.toString());
+
+  const deletedIds = ids.filter((id) => !remainingIds.includes(id));
+
+  const images = blogs
+    .filter((blog) => deletedIds.includes(blog._id.toString()))
+    .map((blog) => blog.thumbnail);
+
+  return {
+    images,
+    deletedIds,
+    failedIds: remainingIds,
+  };
+};
+const getBlogBySlug = async (slug) => {
+  const db = await GET_DB().collection('blogs');
+  const blog = await db.findOne({ slug: slug });
+  return blog;
+};
 
 export const blogModel = {
   getAllBlogs,
@@ -241,4 +287,6 @@ export const blogModel = {
   updateComment,
   delComment,
   findBlogByTitle,
+  getBlogBySlug,
+  deleteManyBlogs
 };
