@@ -133,6 +133,19 @@ const searchByElasticsearch = async (keyword, filters, sort) => {
   }
 };
 
+const getProductSuggestions = async (keyword, limit) => {
+  try {
+    const suggestions = await elasticsearchService.getSuggestions(
+      keyword,
+      limit
+    );
+    return suggestions;
+  } catch (error) {
+    console.error('Error getting suggestions:', error);
+    throw error;
+  }
+};
+
 const getProductsByView = async () => {
   const db = await GET_DB().collection('products');
 
@@ -1421,6 +1434,7 @@ export const productModel = {
   countProductAll,
   getProductsAll,
   searchByElasticsearch,
+  getProductSuggestions,
   getProductsByView,
   increaseViewBySlug,
   createProduct,

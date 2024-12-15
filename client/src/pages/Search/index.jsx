@@ -208,14 +208,14 @@ const SearchPage = () => {
   if (!priceRangeData) return <MainLoading />;
 
   return (
-    <section className="max-w-container mx-auto mt-16">
+    <section className="max-w-container mx-auto max-lg:mt-0 mt-16 max-lg:px-4 max-lg:relative">
       <Helmet>
         <title>BMT Life | Kết quả tìm kiếm: {keyword || ''}</title>
       </Helmet>
       <HeaderBC title={'Kết quả tìm kiếm'} name={keyword} />
       <div className="divider"></div>
-      <div className="grid grid-cols-5 gap-6 mt-8">
-        <div className="col-span-1">
+      <div className="grid max-lg:grid-cols-1 grid-cols-5 gap-6 mt-8">
+        <div className="max-lg:col-span-1 col-span-1">
           <ProductListFilter
             onFilterChange={handleFilterChange}
             onPriceRangeChange={handlePriceRangeChange}
@@ -223,7 +223,7 @@ const SearchPage = () => {
             initialFilters={filters}
           />
         </div>
-        <div className="col-span-4">
+        <div className="max-lg:col-span-1 col-span-4">
           {noMatchingProducts || filteredProductsData?.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-64 text-gray-600">
               <Icon icon="tabler:news-off" className="text-6xl mb-4" />

@@ -66,6 +66,10 @@ const initializeProductIndex = async () => {
                     type: 'text',
                     analyzer: 'ngram_analyzer',
                   },
+                  suggest: {
+                    type: 'completion',
+                    analyzer: 'vietnamese_analyzer',
+                  },
                 },
               },
               slug: {
@@ -380,6 +384,59 @@ const searchProducts = async (keyword, options = {}) => {
   }
 };
 
+// Hàm tìm kiếm đề xuất
+const getSuggestions = async (keyword, limit = 5) => {
+  try {
+    const processedKeyword = keyword?.toLowerCase() || '';
+
+    const { hits } = await client.search({
+      index: 'products',
+      body: {
+        size: limit,
+        _source: ['name', 'slug'],
+        query: {
+          bool: {
+            should: [
+              {
+                prefix: {
+                  'name.keyword': {
+                    value: processedKeyword,
+                    boost: 4,
+                  },
+                },
+              },
+              {
+                match: {
+                  'name.ngram': {
+                    query: processedKeyword,
+                    boost: 2,
+                  },
+                },
+              },
+              {
+                match: {
+                  name: {
+                    query: processedKeyword,
+                    fuzziness: 'AUTO',
+                    boost: 1,
+                  },
+                },
+              },
+            ],
+            minimum_should_match: 1,
+          },
+        },
+      },
+    });
+
+    const suggestions = [...new Set(hits.hits.map((hit) => hit._source.name))];
+    return suggestions;
+  } catch (error) {
+    console.error('Suggestion error:', error);
+    throw error;
+  }
+};
+
 export const elasticsearchService = {
   client,
   checkConnection,
@@ -387,4 +444,5 @@ export const elasticsearchService = {
   syncProductsToElasticsearch,
   searchProducts,
   buildSortCriteria,
+  getSuggestions,
 };

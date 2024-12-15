@@ -47,3 +47,19 @@ export const getHotSearch = async () => {
     throw error.response.data;
   }
 };
+
+export const getSearchSuggest = async (keyword, limit = 5) => {
+  try {
+    const params = new URLSearchParams({
+      keyword: keyword || '',
+      limit: limit.toString(),
+    });
+
+    const response = await request.get(
+      `/products/search/suggestions?${params.toString()}`
+    );
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};

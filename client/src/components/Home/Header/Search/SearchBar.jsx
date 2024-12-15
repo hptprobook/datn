@@ -3,7 +3,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { debounce } from 'lodash'; // Import debounce từ lodash
 import SearchPopular from './SearchPopular';
 import SearchResult from './SearchResult';
-import { searchProducts } from '~/APIs/ProductList/search';
+import { getSearchSuggest, searchProducts } from '~/APIs/ProductList/search';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useWebConfig } from '~/context/WebsiteConfig';
@@ -17,6 +17,21 @@ const SearchBar = () => {
   const { minMaxPrice = { minPrice: 0, maxPrice: 0 } } = useWebConfig();
   // eslint-disable-next-line no-unused-vars
   const [limit, setLimit] = useState(5);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.ctrlKey && e.key === 'k') {
+        e.preventDefault(); // Ngăn hành vi mặc định (nếu có)
+        inputRef.current?.focus(); // Focus vào ô tìm kiếm
+        setIsFocused(true); // Kích hoạt trạng thái focus
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
   useEffect(() => {
     if (isFocused) {
@@ -40,7 +55,12 @@ const SearchBar = () => {
   const handleInputChange = (e) => {
     const value = e.target?.value || '';
     setSearchValue(value);
-    debouncedSearch(value);
+
+    if (value.endsWith(' ')) {
+      setKeyword(value.trim());
+    } else {
+      debouncedSearch(value);
+    }
   };
 
   const { data: searchResults, isLoading: searchLoading } = useQuery({
@@ -53,6 +73,12 @@ const SearchBar = () => {
         maxPrice: minMaxPrice?.maxPrice,
       }),
     enabled: keyword !== '',
+  });
+
+  const { data: suggestionsData } = useQuery({
+    queryKey: ['suggestions', keyword],
+    queryFn: () => getSearchSuggest(keyword, 5),
+    enabled: keyword.length > 0,
   });
 
   const handleOverlayClick = () => {
@@ -74,8 +100,7 @@ const SearchBar = () => {
 
   const handleSearchKeyUp = (e) => {
     if (e.key === 'Enter' && searchValue?.trim()) {
-      navigate(getSearchUrl());
-      handleOverlayClick();
+      navigate(`/tim-kiem?keyword=${encodeURIComponent(searchValue.trim())}`);
       inputRef.current?.blur();
     }
   };
@@ -96,11 +121,15 @@ const SearchBar = () => {
 
   return (
     <div>
-      <form className="flex" onSubmit={(e) => e.preventDefault()}>
+      <form className="flex relative" onSubmit={(e) => e.preventDefault()}>
         <input
           type="text"
           className="w-search h-10 rounded-l-md outline-none pl-3 text-sm bg-white"
-          placeholder="Tìm kiếm ..."
+          placeholder={
+            isFocused
+              ? 'Nhập từ khoá (Quần áo, giày dép, phụ kiện, ...)'
+              : 'Tổ hợp Ctrl + K để tìm kiếm sản phẩm'
+          }
           onFocus={() => setIsFocused(true)}
           onChange={handleInputChange}
           value={searchValue}
@@ -118,7 +147,7 @@ const SearchBar = () => {
       </form>
       {isFocused && (
         <div
-          className="mt-16 fixed w-fvw bg-slate-400 bg-opacity-60 h-fvh left-0 top-0 z-20"
+          className="mt-16 fixed w-fvw bg-slate-400 bg-opacity-60 h-fvh left-0 top-4 z-20"
           onClick={handleOverlayClick}
         >
           <div
@@ -141,6 +170,7 @@ const SearchBar = () => {
               isOpen={isFocused}
               keyword={keyword}
               closeModal={handleOverlayClick}
+              suggestions={suggestionsData?.suggestions || []}
             />
           )}
         </div>

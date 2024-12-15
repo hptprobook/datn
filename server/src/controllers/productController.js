@@ -83,6 +83,28 @@ const searchByElasticsearch = async (req, res) => {
   }
 };
 
+const getProductSuggestions = async (req, res) => {
+  try {
+    const { keyword, limit = 5 } = req.query;
+
+    const suggestions = await elasticsearchService.getSuggestions(
+      keyword,
+      parseInt(limit)
+    );
+
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      suggestions,
+    });
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Failed to get suggestions',
+      error: error.message,
+    });
+  }
+};
+
 const increaseView = async (req, res) => {
   try {
     let { slug } = req.params;
@@ -1310,6 +1332,7 @@ const testElasticsearchEndpoint = async (req, res) => {
 export const productController = {
   createProduct,
   searchByElasticsearch,
+  getProductSuggestions,
   getAllProducts,
   getProductsByView,
   increaseView,
