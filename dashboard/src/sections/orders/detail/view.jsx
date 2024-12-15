@@ -36,6 +36,7 @@ import { useFormik } from 'formik';
 import PropTypes from 'prop-types';
 import { renderUrl } from 'src/utils/check';
 import LoadingFull from 'src/components/loading/loading-full';
+import ConfirmNormal from 'src/components/modal/confirm';
 import { statusConfig, handleStatusConfig } from '../utils';
 import OrderTimeline from '../app-order-timeline';
 
@@ -108,6 +109,7 @@ export default function DetailOrderPage() {
   const [productList, setProductList] = useState([]);
   const [orderStatus, setOrderStatus] = useState([]);
   const [value, setValue] = useState(0);
+  const [openConfirm, setOpenConfirm] = useState(false);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -250,7 +252,7 @@ export default function DetailOrderPage() {
           variant="contained"
           color="inherit"
           startIcon={<Iconify icon={handleStatusConfig[latestStatus].icon} />}
-          onClick={() => handleUpdateOrder(handleStatusConfig[latestStatus])}
+          onClick={() => setOpenConfirm(handleStatusConfig[latestStatus])}
         >
           {handleStatusConfig[latestStatus].label}
         </Button>
@@ -262,6 +264,13 @@ export default function DetailOrderPage() {
     <Container>
       {status === 'loading' && <LoadingFull />}
       {statusUpdate === 'loading' && <LoadingFull />}
+      <ConfirmNormal
+        onAgree={() => handleUpdateOrder(openConfirm)}
+        openConfirm={openConfirm}
+        onClose={() => setOpenConfirm(false)}
+        label={`Xác nhận trạng thái là: ${openConfirm.label}`}
+        secondLabel="Các hành động này không thể hoàn tác, bạn có chắc chắn muốn xác nhận?"
+      />
       <Modal
         open={open}
         onClose={handleClose}
