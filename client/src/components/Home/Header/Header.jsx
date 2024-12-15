@@ -31,7 +31,7 @@ const Header = () => {
   const [openSearch, setOpenSearch] = useState(false);
   const [currentTitle, setCurrentTitle] = useState('Danh mục');
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
-  const { user } = useUser();
+  const { user, refetchUser } = useUser();
   const { config } = useWebConfig();
   const { items } = useCart();
   const navigate = useNavigate();
@@ -113,7 +113,10 @@ const Header = () => {
                   className="text-2xl text-gray-50 cursor-pointer relative hover:text-red-600"
                   title="Thông báo"
                 >
-                  <NotifyBar notifies={currentUserInfor?.notifies} />
+                  <NotifyBar
+                    notifies={currentUserInfor?.notifies}
+                    refetchUser={refetchUser}
+                  />
                   {currentUserInfor?.notifies.some(
                     (notify) => notify.isReaded === false
                   ) && (

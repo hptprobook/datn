@@ -12,6 +12,7 @@ import { ObjectId } from 'mongodb';
 import { couponHistoryModel } from '~/models/couponHistoryModel';
 import { staffsModel } from '~/models/staffsModel';
 import { couponModel } from '~/models/couponModel';
+import { redisUtils } from '~/utils/redis';
 const getAllOrder = async (req, res) => {
   try {
     const { page, limit } = req.query;
@@ -141,6 +142,14 @@ const addOrder = async (req, res) => {
           note: 'Chờ khách hàng thanh toán',
         },
       ];
+    }
+
+    // Thêm đơn hàng vào hàng đợi
+    const isQueued = await redisUtils.addToOrderQueue(dataOrder);
+    if (!isQueued) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        message: 'Không thể thêm đơn hàng vào hàng đợi. Vui lòng thử lại!',
+      });
     }
 
     // Thêm đơn hàng vào cơ sở dữ liệu
@@ -412,7 +421,13 @@ const addOrderNot = async (req, res) => {
       ];
     }
 
-    console.log(dataOrder);
+    // Thêm đơn hàng vào hàng đợi
+    const isQueued = await redisUtils.addToOrderQueue(dataOrder);
+    if (!isQueued) {
+      return res.status(500).json({
+        message: 'Không thể thêm đơn hàng vào hàng đợi. Vui lòng thử lại!',
+      });
+    }
 
     // Thêm đơn hàng mới vào cơ sở dữ liệu
     const result = await orderModel.addOrderNotLogin(dataOrder);

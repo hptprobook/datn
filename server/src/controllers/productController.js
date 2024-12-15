@@ -6,6 +6,8 @@ import { uploadModel } from '~/models/uploadModel';
 import path from 'path';
 import { hotSearchModel } from '~/models/hotSearchModel';
 import { ObjectId } from 'mongodb';
+import { redisUtils } from '~/utils/redis';
+import { elasticsearchService } from '~/services/elasticsearchService';
 
 const getAllProducts = async (req, res) => {
   try {
@@ -16,6 +18,68 @@ const getAllProducts = async (req, res) => {
     return res
       .status(StatusCodes.BAD_REQUEST)
       .json('Có lỗi xảy ra xin thử lại sau');
+  }
+};
+
+const searchByElasticsearch = async (req, res) => {
+  try {
+    const {
+      keyword,
+      minPrice,
+      maxPrice,
+      colors,
+      sizes,
+      page = 1,
+      limit = 20,
+      sort,
+    } = req.query;
+
+    // Validate input
+    if (!keyword || keyword.trim() === '') {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: 'Từ khóa tìm kiếm không được để trống',
+      });
+    }
+
+    // Parse filters
+    const filters = {
+      minPrice: minPrice ? parseFloat(minPrice) : undefined,
+      maxPrice: maxPrice ? parseFloat(maxPrice) : undefined,
+      colors: colors ? colors.split(',') : undefined,
+      sizes: sizes ? sizes.split(',') : undefined,
+      page: parseInt(page, 10) || 1,
+      limit: parseInt(limit, 10) || 20,
+    };
+
+    // Thực hiện tìm kiếm
+    const results = await productModel.searchByElasticsearch(
+      keyword.trim(),
+      filters,
+      sort
+    );
+
+    // Lưu từ khóa tìm kiếm vào hot search
+    let hotSearch = await hotSearchModel.findHotSearchByKeyword(keyword.trim());
+    if (hotSearch) {
+      hotSearch = await hotSearchModel.plusCountHotSearch(hotSearch._id);
+    } else {
+      hotSearch = await hotSearchModel.createHotSearch({
+        keyword: keyword.trim(),
+      });
+    }
+
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      data: results,
+    });
+  } catch (error) {
+    console.error('Search error:', error.message);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Có lỗi xảy ra trong quá trình tìm kiếm',
+      error: error.message,
+    });
   }
 };
 
@@ -1049,17 +1113,37 @@ const getProductByCategoryFilter = async (req, res) => {
 const getProductByEvent = async (req, res) => {
   try {
     const { slug } = req.params;
-
     let { pages, limit } = req.query;
+
+    // Xử lý giá trị mặc định cho `pages` và `limit` nếu không được truyền
+    pages = pages || 1;
+    limit = limit || 10;
+
+    // Tạo cache key
+    const cacheKey = `products:event:${slug}:pages:${pages}:limit:${limit}`;
+
+    // Kiểm tra cache
+    const cachedData = await redisUtils.getCache(cacheKey);
+    if (cachedData) {
+      return res.status(StatusCodes.OK).json(cachedData);
+    }
+
+    // Truy vấn từ database
     const product = await productModel.getProductsByEvent(slug, pages, limit);
     if (!product) {
       return res
         .status(StatusCodes.NOT_FOUND)
         .json({ message: 'Không tìm thấy sản phẩm!' });
     }
+
+    await redisUtils.setCache(cacheKey, product, 1800); // TTL 30 phút
+
     return res.status(StatusCodes.OK).json(product);
   } catch (error) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: 'Có lỗi xảy ra, xin thử lại sau',
+      error,
+    });
   }
 };
 
@@ -1174,14 +1258,58 @@ const getProductByArrayId = async (req, res) => {
     const { ids } = req.body;
     const product = await productModel.getProductByArrayId(ids);
     return res.status(StatusCodes.OK).json(product);
-  }
-  catch (error) {
+  } catch (error) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
+  }
+};
+
+const testElasticsearchEndpoint = async (req, res) => {
+  try {
+    const { query = '' } = req.query;
+
+    // Test kết nối
+    const testConnection = await elasticsearchService.client.ping();
+    if (!testConnection) {
+      return res.status(StatusCodes.SERVICE_UNAVAILABLE).json({
+        success: false,
+        message: 'Elasticsearch connection failed',
+      });
+    }
+
+    // Test search và so sánh kết quả
+    const results = await productModel.testElasticsearch(query);
+
+    // Phân tích kết quả
+    const analysis = {
+      elasticsearchConnected: true,
+      totalResults: {
+        elasticsearch: results.elasticsearchBasic.total,
+        elasticsearchFiltered: results.elasticsearchWithFilters.total,
+        mongodb: results.mongodb.total,
+      },
+      matchingIds: {
+        elasticsearch: results.elasticsearchBasic.hits.map((hit) => hit._id),
+        mongodb: results.mongodb.hits.map((doc) => doc._id.toString()),
+      },
+    };
+
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      analysis,
+      results,
+    });
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Test failed',
+      error: error.message,
+    });
   }
 };
 
 export const productController = {
   createProduct,
+  searchByElasticsearch,
   getAllProducts,
   getProductsByView,
   increaseView,
@@ -1212,5 +1340,6 @@ export const productController = {
   ratingShopProduct,
   ratingManyProduct,
   searchInDashboard,
-  getProductByArrayId
+  getProductByArrayId,
+  testElasticsearchEndpoint,
 };

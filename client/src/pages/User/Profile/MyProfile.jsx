@@ -77,13 +77,52 @@ const MyProfile = () => {
         .matches(/^(0|\+84)(3|5|7|8|9)\d{8}$/, 'Số điện thoại không hợp lệ'),
       avatar: Yup.mixed().test(
         'fileOrUrl',
-        'Ảnh không hợp lệ. Vui lòng chọn file hoặc đường dẫn URL hợp lệ',
-        (value) => {
+        'Ảnh không hợp lệ. Chỉ chấp nhận file JPG, JPEG, PNG hoặc đường dẫn URL hợp lệ',
+        async (value) => {
           if (!value) return true;
+
           if (typeof value === 'string') {
             return /^https?:\/\//.test(value);
-          } else if (value instanceof File) {
-            return value.size <= 1024 * 1024 * 10;
+          }
+
+          if (value instanceof File) {
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+
+            // Kiểm tra MIME type và kích thước
+            if (
+              !validTypes.includes(value.type) ||
+              value.size > 1024 * 1024 * 3
+            ) {
+              return false;
+            }
+
+            // Kiểm tra signature của file
+            try {
+              const arrayBuffer = await value.slice(0, 4).arrayBuffer();
+              const bytes = new Uint8Array(arrayBuffer);
+              const signatures = {
+                // PNG signature
+                png: [0x89, 0x50, 0x4e, 0x47],
+                // JPEG signatures
+                jpeg: [0xff, 0xd8, 0xff],
+              };
+
+              // Kiểm tra PNG
+              if (value.type === 'image/png') {
+                return bytes.every((byte, i) => byte === signatures.png[i]);
+              }
+
+              // Kiểm tra JPEG/JPG
+              if (value.type.includes('jpeg') || value.type.includes('jpg')) {
+                return (
+                  bytes[0] === signatures.jpeg[0] &&
+                  bytes[1] === signatures.jpeg[1] &&
+                  bytes[2] === signatures.jpeg[2]
+                );
+              }
+            } catch (error) {
+              return false;
+            }
           }
           return false;
         }
