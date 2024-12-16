@@ -11,6 +11,7 @@ const ProductListFilter = ({
   priceRangeData,
   onPriceRangeChange,
   initialFilters,
+  text,
 }) => {
   const [selectedColors, setSelectedColors] = useState(
     initialFilters.colors || []
@@ -55,6 +56,10 @@ const ProductListFilter = ({
     debouncedFilterChange,
   ]);
 
+  useEffect(() => {
+    handleResetFilters();
+  }, [text]);
+
   const handlePriceRangeChange = useCallback(
     debounce((newPriceRange) => {
       if (
@@ -71,6 +76,13 @@ const ProductListFilter = ({
     queryKey: ['variants'],
     queryFn: getAllVariants,
   });
+
+  useEffect(() => {
+    setSelectedColors(initialFilters.colors || []);
+    setSelectedSizes(initialFilters.sizes || []);
+    setSelectedType(initialFilters.type || '');
+    setSelectedTags(initialFilters.tags || []);
+  }, [initialFilters]);
 
   useEffect(() => {
     if (!isLoadingVariants && variants) {

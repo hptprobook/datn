@@ -103,6 +103,8 @@ const searchByElasticsearch = async (keyword, filters, sort) => {
       page: filters.page,
       limit: filters.limit,
       sort: sort,
+      tags: filters.tags,
+      productType: filters.productType,
     });
 
     // Format kết quả
@@ -115,6 +117,7 @@ const searchByElasticsearch = async (keyword, filters, sort) => {
         thumbnail: product.thumbnail,
         tags: product.tags,
         variants: product.variants || [], // Đảm bảo variants là mảng
+        statusStock: product.statusStock,
         averageRating: product.averageRating || 0,
         totalComment: product.totalComment || 0,
       })),
