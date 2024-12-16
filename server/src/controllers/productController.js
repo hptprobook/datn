@@ -386,6 +386,10 @@ const updateProduct = async (req, res) => {
       statusStock,
       variants,
       imagesDelete,
+      inventory,
+      minInventory,
+      maxInventory,
+      seoOption
       // indexVariants,
       // variantsDelete,
     } = req.body;
@@ -538,6 +542,10 @@ const updateProduct = async (req, res) => {
       weight,
       height,
       statusStock,
+      inventory,
+      minInventory,
+      maxInventory,
+      seoOption: JSON.parse(seoOption),
       productType: JSON.parse(productType),
     };
 

@@ -95,13 +95,14 @@ export const uploadProduct = async ({ path, data, type = 'post' }) => {
   return response.data;
 };
 export const updateProduct = async ({ id, data }) => {
+  console.log(data);
   const formData = new FormData();
   Object.keys(data).forEach((key) => {
     if (key === 'images') {
       data[key].forEach((file) => {
         formData.append(key, file);
       });
-    } else if (key === 'productType' || key === 'tags' || key === 'seoOption') {
+    } else if (key === 'productType' || key === 'tags') {
       formData.append(key, JSON.stringify(data[key]));
     } else if (key === 'variantsDelete') {
       data[key].forEach((item) => {
@@ -110,10 +111,6 @@ export const updateProduct = async ({ id, data }) => {
     } else if (key === 'variants') {
       data.variants.forEach((variant, i) => {
         formData.append('variants', JSON.stringify(variant));
-        // if (variant.image instanceof File) {
-        //   formData.append('imageVariants', variant.imageAdd);
-        //   formData.append('indexVariants', i);
-        // }
         formData.append('imageVariants', variant.imageAdd);
         formData.append('indexVariants', i);
         if (Array.isArray(variant.sizes)) {
