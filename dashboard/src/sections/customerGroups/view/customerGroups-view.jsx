@@ -15,8 +15,8 @@ import { useNavigate } from 'react-router-dom';
 import {
   setStatus,
   fetchAllCustomerGroup,
-  deleteOneCustomerGroup
-} from 'src/redux/slices/customerGroupSlice';
+  deleteOneCustomerGroup,
+} from 'src/redux/slices/CustomerGroupSlice';
 import { handleToast } from 'src/hooks/toast';
 
 import Iconify from 'src/components/iconify';
@@ -53,7 +53,6 @@ export default function CustomerGroupView() {
   useEffect(() => {
     dispatch(fetchAllCustomerGroup());
   }, [dispatch]);
-
 
   useEffect(() => {
     if (statusDelete === 'successful') {
@@ -132,7 +131,6 @@ export default function CustomerGroupView() {
   const notFound = !dataFiltered.length && !!filterName;
   const navigate = useNavigate();
 
-
   const handleDelete = (id) => {
     setConfirm(id);
   };
@@ -176,9 +174,11 @@ export default function CustomerGroupView() {
           </IconButton>
         </Stack>
 
-
-        <Button onClick={handleNewBlogClick} variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />}
-
+        <Button
+          onClick={handleNewBlogClick}
+          variant="contained"
+          color="inherit"
+          startIcon={<Iconify icon="eva:plus-fill" />}
         >
           Tạo Nhóm Khách Hàng
         </Button>
@@ -190,7 +190,6 @@ export default function CustomerGroupView() {
           filterName={filterName}
           onFilterName={handleFilterByName}
           onMultiDelete={() => setConfirmMulti(true)}
-
         />
 
         <Scrollbar>
