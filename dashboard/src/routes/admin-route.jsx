@@ -8,6 +8,7 @@ export const AppPage = lazy(() => import('src/pages/app'));
 export const ProductsPage = lazy(() => import('src/pages/products/products'));
 export const CreateProductPage = lazy(() => import('src/pages/products/create'));
 export const DetailProductPage = lazy(() => import('src/pages/products/detail'));
+export const ExportProductPage = lazy(() => import('src/pages/products/export'));
 // category page
 export const CategoryPage = lazy(() => import('src/pages/categories/category'));
 export const CreateCategoryPage = lazy(() => import('src/pages/categories/create'));
@@ -59,6 +60,10 @@ export const adminRoute = [
   {
     path: 'products/:id',
     element: <DetailProductPage />,
+  },
+  {
+    path: 'products/export',
+    element: <ExportProductPage />,
   },
 
   {

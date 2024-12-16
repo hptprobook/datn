@@ -1,9 +1,17 @@
-import { get, del, uploadProduct, updateProduct } from "src/utils/request";
+import { get, del, post, uploadProduct, updateProduct } from "src/utils/request";
 /* eslint-disable */
 const ProductsService = {
   getAllProducts: async () => {
     try {
       const res = await get('products');
+      return res;
+    } catch (err) {
+      throw err;
+    }
+  },
+  creates: async (data) => {
+    try {
+      const res = await post('products/creates', data);
       return res;
     } catch (err) {
       throw err;

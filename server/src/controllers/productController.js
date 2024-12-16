@@ -1306,6 +1306,91 @@ const testElasticsearchEndpoint = async (req, res) => {
     });
   }
 };
+const creates = async (req, res) => {
+  try {
+    const data = req.body;
+    const errors = [];
+    const successful = [];
+    for (const w of data) {
+      try {
+        if (w._id) {
+          const existed = await productModel.getProductById(w._id);
+          if (!existed) {
+            errors.push({
+              message: `Sản với id: ${w._id} không tồn tại`,
+            });
+            continue;
+          }
+          const id = w._id;
+          delete w._id;
+          const existedSlug = await productModel.getProductBySlug(w.slug);
+          if (existedSlug && existedSlug._id.toString() !== id) {
+            errors.push({
+              message: `Slug: ${w.slug} đã tồn tại`,
+            });
+            continue;
+          }
+          w.seoOption = existed.seoOption || {
+            title: w.name,
+            description: w.name,
+            alias: w.slug,
+          };
+          await productModel.update(id, w);
+          successful.push({
+            message:
+              'Cập nhật thành công sản phẩm: ' + w.name + ' với id: ' + id,
+          });
+          // if (w.imageURL && existed.imageURL !== w.imageURL) {
+          //   await uploadModel.deleteImg(existed.imageURL);
+          // }
+        } else {
+          const existedSlug = await productModel.getProductBySlug(w.slug);
+          if (existedSlug) {
+            errors.push({
+              message: `Slug: ${w.slug} đã tồn tại`,
+            });
+            continue;
+          }
+          w.seoOption = {
+            title: w.name,
+            description: w.name,
+            alias: w.slug,
+          };
+          w.images = [w.thumbnail];
+          await productModel.createProduct(w);
+          successful.push({
+            message: 'Tạo mới thành công sản phẩm: ' + w.name,
+          });
+        }
+      } catch (error) {
+        errors.push({
+          message: error.details
+            ? w.name + ': ' + error.details[0].message
+            : error.message || 'Có lỗi xảy ra khi thêm sản phẩm',
+        });
+      }
+    }
+
+    // Trả về kết quả
+    if (errors.length) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: 'Một số sản phẩm không thể thêm được',
+        errors,
+        successful,
+      });
+    }
+
+    return res.status(StatusCodes.OK).json({
+      message: 'Tất cả đã được thêm thành công',
+      successful,
+    });
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: 'Có lỗi xảy ra, xin thử lại sau',
+    });
+  }
+};
+
 
 export const productController = {
   createProduct,
@@ -1342,4 +1427,5 @@ export const productController = {
   searchInDashboard,
   getProductByArrayId,
   testElasticsearchEndpoint,
+  creates
 };

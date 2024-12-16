@@ -16,8 +16,9 @@ import { fetchAll } from 'src/redux/slices/orderSlices';
 import { applyFilter, getComparator } from 'src/components/table/utils';
 import TableNoData from 'src/components/table/table-no-data';
 import LoadingFull from 'src/components/loading/loading-full';
-import { IconButton } from '@mui/material';
+import { Button, IconButton } from '@mui/material';
 import { IconRefresh } from 'src/components/iconify/icon';
+import { useNavigate } from 'react-router-dom';
 import OrderTableRow from '../order-table-row';
 import OrderTableHead from '../order-table-head';
 import OrderTableToolbar from '../order-table-toolbar';
@@ -38,6 +39,7 @@ export default function OrdersPage() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const dataOrder = useSelector((state) => state.orders.orders);
   const status = useSelector((state) => state.orders.status);
@@ -69,15 +71,6 @@ export default function OrdersPage() {
       setOrderBy(id);
     }
   };
-
-  // const handleSelectAllClick = (event) => {
-  //   if (event.target.checked) {
-  //     const newSelecteds = data.map((n) => n._id);
-  //     setSelected(newSelecteds);
-  //     return;
-  //   }
-  //   setSelected([]);
-  // };
 
   const handleClick = (event, name) => {
     const selectedIndex = selected.indexOf(name);
@@ -130,11 +123,16 @@ export default function OrdersPage() {
 
   return (
     <Container>
-      <Stack direction="row" alignItems="center" mb={2}>
-        <Typography variant="h4">Đơn hàng</Typography>
-        <IconButton onClick={() => getOrders({ p: 1, limit: rowsPerPage })}>
-          <IconRefresh />
-        </IconButton>
+      <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2}>
+        <Stack direction="row" alignItems="center">
+          <Typography variant="h4">Đơn hàng</Typography>
+          <IconButton onClick={() => getOrders({ p: 1, limit: rowsPerPage })}>
+            <IconRefresh />
+          </IconButton>
+        </Stack>
+        <Button variant="contained" color="inherit" onClick={() => navigate('create')}>
+          Tạo đơn hàng
+        </Button>
       </Stack>
 
       {status === 'loading' && <LoadingFull />}

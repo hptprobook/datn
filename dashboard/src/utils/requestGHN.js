@@ -29,4 +29,8 @@ export const getWard = async (path, options = {}) => {
     const response = await requestGHN.post(path, options);
     return response.data;
 };
+export const getFee = async (path, options = {}) => {
+    const response = await requestGHN.post(path, options);
+    return response.data;
+};
 export default requestGHN;
