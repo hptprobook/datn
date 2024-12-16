@@ -348,8 +348,8 @@ const searchProducts = async (keyword, options = {}) => {
     // Bộ lọc productType
     if (productType) {
       must.push({
-        term: {
-          'productType.keyword': productType, // Tìm kiếm chính xác với keyword
+        terms: {
+          'productType.keyword': productType,
         },
       });
     }

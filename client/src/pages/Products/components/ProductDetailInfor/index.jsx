@@ -213,9 +213,14 @@ const ProductDetailInfor = ({
             )}
 
             {product?.statusStock === 'outStock' && (
-              <span className="badge badge-error my-3 text-xs rounded-md">
-                Hết hàng
-              </span>
+              <>
+                <span className="badge badge-error my-3 text-xs rounded-md">
+                  Hết hàng
+                </span>
+                <p className="text-xs text-gray-500 mb-3 text-red-600">
+                  Hãy liên hệ shop để đặt trước sản phẩm!
+                </p>
+              </>
             )}
 
             {product?.statusStock === 'preOrder' && (
@@ -224,7 +229,7 @@ const ProductDetailInfor = ({
                   Đang về hàng
                 </span>
                 <p className="text-xs text-gray-500 mb-3 text-red-600">
-                  Hãy liên hệ shop để đặt hàng đang về kho!
+                  Hãy liên hệ shop để đặt trước sản phẩm!
                 </p>
               </>
             )}

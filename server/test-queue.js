@@ -34,7 +34,7 @@ const requestBody = {
     name: 'Phan Hoa',
     fullAddress: '45 Nguyễn Viết Xuân, Xã Bản Bo, Huyện Tam Đường, Lai Châu',
   },
-  email: 'hptprobook@gmail.com',
+  email: 'hptprobook3232@gmail.com',
   totalPrice: 847124,
   totalPayment: 883125,
   shippingType: 'cod',
@@ -46,7 +46,7 @@ const requestBody = {
 
 const headers = {
   Authorization:
-    'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjZlNzhhNTM5MTMzYmIzNzIwNWI5OTk4IiwiZW1haWwiOiJocHRwcm9ib29rQGdtYWlsLmNvbSIsInJvbGUiOiJyb290IiwiaWF0IjoxNzM0MjM2OTEwLCJleHAiOjE3MzQyNTg1MTB9.ppygNxvqs_5IYGXAPTMwLzQSo8lUVA4D7Uq_8pkmVSE',
+    'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjZlNzhhNTM5MTMzYmIzNzIwNWI5OTk4IiwiZW1haWwiOiJocHRwcm9ib29rQGdtYWlsLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzM0MzYzMTI5LCJleHAiOjE3MzQzODQ3Mjl9.PaPw_FB25CVGpYCxlWw3UjXHveosy7R8zpN6s4Y7lm4',
   'Content-Type': 'application/json',
 };
 

@@ -1,8 +1,10 @@
+import { Icon } from '@iconify/react';
 import { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Footer from '~/components/Home/Footer/Footer';
 import Header from '~/components/Home/Header/Header';
 import NavBar from '~/components/Home/NavBar/NavBar';
+import { useWebConfig } from '~/context/WebsiteConfig';
 // import { SocketProvider } from '~/context/SocketContext';
 
 export default function MainLayout() {
@@ -10,6 +12,7 @@ export default function MainLayout() {
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [scrollPosition, setScrollPosition] = useState(0);
+  const { config } = useWebConfig();
 
   const isSpecialRoute = [
     '/gio-hang',
@@ -56,6 +59,28 @@ export default function MainLayout() {
 
   return (
     <main className="bg-white">
+      <a href={`tel:${config?.phone}`} className="text-white">
+        <div className="fixed bottom-8 left-14 w-16 h-16 bg-green-500 rounded-full flex items-center justify-center shadow-lg z-50 animate-blink hover:scale-110 transition-transform duration-200 cursor-pointer">
+          <Icon icon="mdi:phone" width="32" height="32" />
+        </div>
+      </a>
+
+      <a
+        href={`https://zalo.me/${config?.zalo}`}
+        className="text-white"
+        target="_blank"
+      >
+        <div className="fixed bottom-32 left-14 w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center shadow-lg z-50 animate-blink2 hover:scale-110 transition-transform duration-200 cursor-pointer">
+          <Icon icon="simple-icons:zalo" width="32" height="32" />
+        </div>
+      </a>
+
+      <a href={`${config?.FanpageFb}`} className="text-white" target="_blank">
+        <div className="fixed bottom-56 left-14 w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center shadow-lg z-50 animate-blink2 hover:scale-110 transition-transform duration-200 cursor-pointer">
+          <Icon icon="ic:baseline-facebook" width="32" height="32" />
+        </div>
+      </a>
+
       <div
         className={`top-0 z-[1000] transition-transform duration-300 ${
           !isPreviewOpen && !isSpecialRoute ? 'sticky' : 'relative'
