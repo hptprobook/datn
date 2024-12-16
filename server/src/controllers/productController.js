@@ -32,6 +32,8 @@ const searchByElasticsearch = async (req, res) => {
       page = 1,
       limit = 20,
       sort,
+      tags,
+      productType,
     } = req.query;
 
     // Validate input
@@ -48,6 +50,8 @@ const searchByElasticsearch = async (req, res) => {
       maxPrice: maxPrice ? parseFloat(maxPrice) : undefined,
       colors: colors ? colors.split(',') : undefined,
       sizes: sizes ? sizes.split(',') : undefined,
+      tags: tags ? tags.split(',') : undefined,
+      productType: productType ? productType.split(',') : undefined,
       page: parseInt(page, 10) || 1,
       limit: parseInt(limit, 10) || 20,
     };

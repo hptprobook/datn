@@ -148,6 +148,7 @@ const syncProductsToElasticsearch = async () => {
           productType: product.productType || '', // Giữ lại productType
           averageRating, // Tính toán từ reviews
           totalComment, // Tính toán từ reviews
+          statusStock: product.statusStock || '',
           variants: product.variants.map((variant) => ({
             ...variant,
             sizes: variant.sizes.map((size) => ({
@@ -339,7 +340,7 @@ const searchProducts = async (keyword, options = {}) => {
     if (tags?.length > 0) {
       must.push({
         terms: {
-          'tags.keyword': tags,
+          'tags.keyword': tags, // Tìm kiếm chính xác với keyword
         },
       });
     }
@@ -348,7 +349,7 @@ const searchProducts = async (keyword, options = {}) => {
     if (productType) {
       must.push({
         term: {
-          'productType.keyword': productType,
+          'productType.keyword': productType, // Tìm kiếm chính xác với keyword
         },
       });
     }

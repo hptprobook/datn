@@ -6,7 +6,8 @@ import SearchResult from './SearchResult';
 import { getSearchSuggest, searchProducts } from '~/APIs/ProductList/search';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { useWebConfig } from '~/context/WebsiteConfig';
+// import { useWebConfig } from '~/context/WebsiteConfig';
+import { useLocation } from 'react-router-dom';
 
 const SearchBar = () => {
   const [isFocused, setIsFocused] = useState(false);
@@ -14,9 +15,10 @@ const SearchBar = () => {
   const [keyword, setKeyword] = useState('');
   const inputRef = useRef(null);
   const navigate = useNavigate();
-  const { minMaxPrice = { minPrice: 0, maxPrice: 0 } } = useWebConfig();
+  // const { minMaxPrice = { minPrice: 0, maxPrice: 0 } } = useWebConfig();
   // eslint-disable-next-line no-unused-vars
   const [limit, setLimit] = useState(5);
+  const location = useLocation();
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -33,6 +35,12 @@ const SearchBar = () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
+
+  useEffect(() => {
+    setIsFocused(false);
+    setSearchValue('');
+    document.body.style.overflow = 'unset';
+  }, [location]);
 
   useEffect(() => {
     if (isFocused) {
@@ -70,8 +78,8 @@ const SearchBar = () => {
       searchProducts({
         keyword,
         limit,
-        minPrice: minMaxPrice?.minPrice,
-        maxPrice: minMaxPrice?.maxPrice,
+        // minPrice: minMaxPrice?.minPrice,
+        // maxPrice: minMaxPrice?.maxPrice,
       }),
     enabled: keyword !== '',
   });
@@ -93,8 +101,8 @@ const SearchBar = () => {
   const getSearchUrl = () => {
     const params = new URLSearchParams({
       keyword: searchValue?.trim() || '',
-      minPrice: minMaxPrice?.minPrice || 0,
-      maxPrice: minMaxPrice?.maxPrice || 0,
+      // minPrice: minMaxPrice?.minPrice || 0,
+      // maxPrice: minMaxPrice?.maxPrice || 0,
     });
     return `/tim-kiem?${params.toString()}`;
   };
@@ -103,6 +111,7 @@ const SearchBar = () => {
     if (e.key === 'Enter' && searchValue?.trim()) {
       navigate(`/tim-kiem?keyword=${encodeURIComponent(searchValue.trim())}`);
       inputRef.current?.blur();
+      setIsFocused(false);
     }
   };
 
@@ -117,6 +126,7 @@ const SearchBar = () => {
       navigate(getSearchUrl());
       handleOverlayClick();
       inputRef.current?.blur();
+      setIsFocused(false);
     }
   };
 
@@ -145,6 +155,9 @@ const SearchBar = () => {
         >
           <IoIosSearch className="text-gray-50" />
         </button>
+        <div className="absolute top-0 right-16 top-1/2 -translate-y-1/2 rounded-md badge badge-primary hidden md:block">
+          Ctrl + K
+        </div>
       </form>
       {isFocused && (
         <div

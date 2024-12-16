@@ -18,7 +18,7 @@ const SearchResult = ({
   isOpen,
   suggestions = [],
 }) => {
-  const { minMaxPrice = { minPrice: 0, maxPrice: 0 } } = useWebConfig();
+  // const { minMaxPrice = { minPrice: 0, maxPrice: 0 } } = useWebConfig();
 
   useEffect(() => {
     if (isOpen) {
@@ -48,9 +48,7 @@ const SearchResult = ({
           {suggestions.map((text) => (
             <Link
               key={text}
-              to={`/tim-kiem?keyword=${text || ''}&minPrice=${
-                minMaxPrice?.minPrice
-              }&maxPrice=${minMaxPrice?.maxPrice}`}
+              to={`/tim-kiem?keyword=${text || ''}`}
               onClick={closeModal}
             >
               <Badge color="light" className="cursor-pointer rounded-xs px-3">

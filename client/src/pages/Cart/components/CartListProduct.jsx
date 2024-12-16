@@ -243,7 +243,7 @@ const CartListProduct = () => {
 
                 <div className="space-y-4 md:flex md:items-center md:justify-between md:gap-6 md:space-y-0">
                   <a
-                    href="#"
+                    href={`/san-pham/${product.slug}`}
                     className="shrink-0 md:order-1"
                     onClick={(e) => e.stopPropagation()}
                   >
