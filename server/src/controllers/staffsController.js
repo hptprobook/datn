@@ -48,6 +48,10 @@ const updateStaff = async (req, res) => {
         message: 'Nhân viên không tồn tại',
       });
     }
+    if (data.password) {
+      const hash = await bcrypt.hash(data.password, 8);
+      data.password = hash;
+    }
     const existEmail = await staffsModel.getStaffBy('email', data.email);
     if (existEmail && existEmail._id.toString() !== id) {
       return res.status(StatusCodes.BAD_REQUEST).json({

@@ -89,7 +89,7 @@ export default function AppView() {
           />
         </Grid>
 
-        <Grid xs={12} md={6}>
+        <Grid xs={12}>
           <AppWebsiteVisits
             title="Thông kê doanh thu"
             subheader=""
@@ -127,7 +127,7 @@ export default function AppView() {
             }}
           />
         </Grid>
-        <Grid xs={12} md={6}>
+        {/* <Grid xs={12} md={6}>
           <AppCurrentVisits
             title="Hóa đơn"
             subheader="Doanh thu hóa đơn"
@@ -138,7 +138,7 @@ export default function AppView() {
               ],
             }}
           />
-        </Grid>
+        </Grid> */}
         <Grid xs={12} md={6}>
           <AppCurrentVisits
             title="Hóa đơn"
@@ -174,7 +174,12 @@ export default function AppView() {
           <AppOrderTimeline
             title="Lịch hoạt động"
             // subheader="Tính năng đang phát triển"
-            list={user?.notifies || []}
+            list={user?.notifies || [
+              {
+                _id: '1',
+                title: 'Bạn không có thông báo mới',
+              }
+            ]}
           />
         </Grid>
       </Grid>

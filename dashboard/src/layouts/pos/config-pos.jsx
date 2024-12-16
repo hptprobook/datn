@@ -6,6 +6,12 @@ const navConfig = [
     child: undefined,
   },
   {
+    title: 'Thống kê',
+    path: '/pos/chart',
+    icon: 'mdi:network-pos',
+    child: undefined,
+  },
+  {
     title: 'Hóa đơn',
     path: '/pos/receipts',
     icon: 'mdi:receipt-text',
