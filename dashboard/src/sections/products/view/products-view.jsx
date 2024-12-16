@@ -205,14 +205,24 @@ export default function ProductsPage() {
             <Iconify icon="mdi:reload" />
           </IconButton>
         </Stack>
-        <Button
-          variant="contained"
-          color="inherit"
-          startIcon={<Iconify icon="eva:plus-fill" />}
-          onClick={() => navigate('create')}
-        >
-          Tạo sản phẩm
-        </Button>
+        <Stack direction="row" alignItems="center" gap={2}>
+          <Button
+            variant="contained"
+            color="inherit"
+            startIcon={<Iconify icon="eva:plus-fill" />}
+            onClick={() => navigate('export')}
+          >
+            Export
+          </Button>
+          <Button
+            variant="contained"
+            color="inherit"
+            startIcon={<Iconify icon="eva:plus-fill" />}
+            onClick={() => navigate('create')}
+          >
+            Tạo sản phẩm
+          </Button>
+        </Stack>
       </Stack>
 
       <Card>
