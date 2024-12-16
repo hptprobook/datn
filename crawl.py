@@ -16,7 +16,7 @@ collection = db['products']
 maxPage = 65
 base_url = 'https://j-p.vn/collections/tat-ca-san-pham-1'
 tags_list = ["Bán chạy", "Freeship", "Hot sale"]
-statusStock = ['stock', 'outStock', 'preOrder']
+statusStock = ['stock', 'outStock', 'preOrder', 'stock', 'stock', 'stock', 'stock', 'stock']
 colors = ["Đỏ", "Xanh lá cây", "Xanh", "Xanh dương", "Vàng", "Cam", "Tím", "Hồng", "Đen", "Trắng", "Xám", "Nâu", "Xanh lơ", "Hồng cánh sen", "Xanh lá nhạt", "Xanh đậm", "Tím nhạt"]
 sizes = ["S", "M", "L", "XL", "XXL"]
 productUrl = 'https://picsum.photos/276/380'
@@ -137,7 +137,9 @@ headers = {
 def create_slug(product_name):
     slug = unidecode(product_name).lower().replace(' ', '-')
     slug = re.sub(r'[^a-z0-9-]', '', slug)
-    return slug
+    random_number = random.randint(1000, 9999)
+    return f"{slug}-{random_number}"
+
 
 def distribute_stock(total_stock, num_sizes):
     stock_distribution = [random.randint(1, total_stock // num_sizes) for _ in range(num_sizes - 1)]
@@ -245,7 +247,7 @@ def crawl_product_detail(product_url):
                     
                     sizeData = {
                         'size': size,
-                        'price': price + random.randint(5000, 20001, 5000),
+                        'price': price + random.randrange(10000, 100001, 10000),
                         'stock': sale_quantity,
                         'sale': sale_quantity,
                         'trading': 0,
@@ -276,75 +278,9 @@ def crawl_product_detail(product_url):
         minInventory = max(0, stock - random.randint(0, 20))
         maxInventory = stock + random.randint(10, 50)
 
-        productDescription = """
-                        <div>
-                            <h2>Sản phẩm thời trang cao cấp</h2>
-                            <p>
-                                Khám phá sự kết hợp hoàn hảo giữa phong cách và chất lượng với 
-                                <strong>sản phẩm thời trang cao cấp</strong> của chúng tôi. 
-                                Thiết kế tinh tế, chất liệu mềm mại, mang đến sự thoải mái và vẻ ngoài nổi bật.
-                            </p>
-                            <ul>
-                                <li>Chất liệu: Cotton 100%, thân thiện với làn da.</li>
-                                <li>Kiểu dáng: Hiện đại, phù hợp cho mọi dịp.</li>
-                                <li>Màu sắc: Đa dạng, dễ dàng phối đồ.</li>
-                            </ul>
-                            <p>
-                                Hãy sở hữu ngay hôm nay để trải nghiệm phong cách vượt trội!
-                            </p>
-                        </div> """
+        productDescription = """<div><h2>Sản phẩm thời trang cao cấp</h2><p>Khám phá sự kết hợp hoàn hảo giữa phong cách và chất lượng với<strong>sản phẩm thời trang cao cấp</strong> của chúng tôi. Thiết kế tinh tế, chất liệu mềm mại, mang đến sự thoải mái và vẻ ngoài nổi bật. </p><ul><li>Chất liệu: Cotton 100%, thân thiện với làn da.</li><li>Kiểu dáng: Hiện đại, phù hợp cho mọi dịp.</li><li>Màu sắc: Đa dạng, dễ dàng phối đồ.</li></ul><p>Hãy sở hữu ngay hôm nay để trải nghiệm phong cách vượt trội!</p></div>"""
         
-        productContent = """
-                            <div>
-                            <h2>Sản phẩm thời trang cao cấp - Định nghĩa mới về phong cách</h2>
-                            <p>
-                                Sản phẩm của chúng tôi không chỉ đơn thuần là một món đồ thời trang, 
-                                mà còn là biểu tượng của sự tinh tế và đẳng cấp. Với thiết kế hiện đại, 
-                                chất liệu cao cấp và sự chú trọng đến từng chi tiết nhỏ nhất, 
-                                chúng tôi tự hào mang đến cho bạn một sản phẩm xứng tầm phong cách sống.
-                            </p>
-                            <p>
-                                <strong>Đặc điểm nổi bật:</strong>
-                            </p>
-                            <ul>
-                                <li>
-                                <strong>Chất liệu cao cấp:</strong> Cotton tự nhiên 100% kết hợp với công nghệ dệt tiên tiến, 
-                                mang lại cảm giác mềm mại, thoáng mát và bền bỉ. Không gây kích ứng da, phù hợp cho cả làn da nhạy cảm.
-                                </li>
-                                <li>
-                                <strong>Thiết kế tinh tế:</strong> Được sáng tạo bởi các nhà thiết kế hàng đầu, sản phẩm 
-                                mang phong cách hiện đại nhưng không kém phần cổ điển, giúp bạn nổi bật trong mọi hoàn cảnh.
-                                </li>
-                                <li>
-                                <strong>Phù hợp với mọi dịp:</strong> Từ những buổi dạo phố, hẹn hò, đến các sự kiện quan trọng, 
-                                sản phẩm này đều đáp ứng mọi nhu cầu thời trang của bạn.
-                                </li>
-                                <li>
-                                <strong>Màu sắc đa dạng:</strong> Có nhiều tùy chọn màu sắc thời thượng, dễ dàng kết hợp với 
-                                các phụ kiện và trang phục khác trong tủ đồ của bạn.
-                                </li>
-                            </ul>
-                            <p>
-                                <strong>Lợi ích khi sử dụng:</strong>
-                                Mang lại sự tự tin và thoải mái cho người mặc, giúp bạn thể hiện phong cách cá nhân và 
-                                để lại ấn tượng mạnh mẽ trong mắt người đối diện. Sản phẩm không chỉ là món đồ thời trang, 
-                                mà còn là tuyên ngôn về gu thẩm mỹ và chất lượng cuộc sống.
-                            </p>
-                            <p>
-                                <strong>Hướng dẫn bảo quản:</strong>
-                            </p>
-                            <ul>
-                                <li>Giặt ở nhiệt độ dưới 30°C để bảo vệ sợi vải.</li>
-                                <li>Không sử dụng chất tẩy mạnh để tránh làm phai màu.</li>
-                                <li>Ủi ở nhiệt độ trung bình để giữ nếp vải luôn đẹp.</li>
-                                <li>Bảo quản ở nơi khô ráo, thoáng mát.</li>
-                            </ul>
-                            <p>
-                                Đừng chần chừ! Sở hữu ngay sản phẩm thời trang cao cấp này để khẳng định phong cách riêng của bạn.
-                                Hãy đặt hàng ngay hôm nay để nhận ưu đãi đặc biệt!
-                            </p>
-                            </div>
-                        """
+        productContent = """<div><h2>Sản phẩm thời trang cao cấp - Định nghĩa mới về phong cách</h2><p>Sản phẩm của chúng tôi không chỉ đơn thuần là một món đồ thời trang, mà còn là biểu tượng của sự tinh tế và đẳng cấp. Với thiết kế hiện đại, chất liệu cao cấp và sự chú trọng đến từng chi tiết nhỏ nhất, chúng tôi tự hào mang đến cho bạn một sản phẩm xứng tầm phong cách sống. </p><p><strong>Đặc điểm nổi bật:</strong></p><ul><li><strong>Chất liệu cao cấp:</strong> Cotton tự nhiên 100% kết hợp với công nghệ dệt tiên tiến, mang lại cảm giác mềm mại, thoáng mát và bền bỉ. Không gây kích ứng da, phù hợp cho cả làn da nhạy cảm. </li><li><strong>Thiết kế tinh tế:</strong> Được sáng tạo bởi các nhà thiết kế hàng đầu, sản phẩm mang phong cách hiện đại nhưng không kém phần cổ điển, giúp bạn nổi bật trong mọi hoàn cảnh. </li><li><strong>Phù hợp với mọi dịp:</strong> Từ những buổi dạo phố, hẹn hò, đến các sự kiện quan trọng, sản phẩm này đều đáp ứng mọi nhu cầu thời trang của bạn. </li><li><strong>Màu sắc đa dạng:</strong> Có nhiều tùy chọn màu sắc thời thượng, dễ dàng kết hợp với các phụ kiện và trang phục khác trong tủ đồ của bạn. </li></ul><p> <strong>Lợi ích khi sử dụng:</strong>Mang lại sự tự tin và thoải mái cho người mặc, giúp bạn thể hiện phong cách cá nhân và để lại ấn tượng mạnh mẽ trong mắt người đối diện. Sản phẩm không chỉ là món đồ thời trang, mà còn là tuyên ngôn về gu thẩm mỹ và chất lượng cuộc sống. </p><p><strong>Hướng dẫn bảo quản:</strong></p><ul><li>Giặt ở nhiệt độ dưới 30°C để bảo vệ sợi vải.</li><li>Không sử dụng chất tẩy mạnh để tránh làm phai màu.</li><li>Ủi ở nhiệt độ trung bình để giữ nếp vải luôn đẹp.</li><li>Bảo quản ở nơi khô ráo, thoáng mát.</li></ul> <p>Đừng chần chừ! Sở hữu ngay sản phẩm thời trang cao cấp này để khẳng định phong cách riêng của bạn. Hãy đặt hàng ngay hôm nay để nhận ưu đãi đặc biệt! </p></div>"""
 
         # SEO Options
         seoOptions = {
