@@ -29,6 +29,7 @@ import ConfirmDelete from 'src/components/modal/confirm-delete';
 import LoadingFull from 'src/components/loading/loading-full';
 import { Drawer, IconButton } from '@mui/material';
 import { fetchAll } from 'src/redux/slices/brandSlices';
+import { IconExcel } from 'src/components/iconify/icon';
 import ProductTableRow from '../product-table-row';
 import ProductTableHead from '../product-table-head';
 import ProductTableToolbar from '../product-table-toolbar';
@@ -56,6 +57,7 @@ export default function ProductsPage() {
   const statusDelete = useSelector((state) => state.products.statusDelete);
   const error = useSelector((state) => state.products.error);
   const [productsList, setProductsList] = React.useState([]);
+  
 
   // const errorPro = useSelector((state) => state.products.error);
   const getProducts = (p = 1, limit = 5) => {
@@ -209,7 +211,7 @@ export default function ProductsPage() {
           <Button
             variant="contained"
             color="inherit"
-            startIcon={<Iconify icon="eva:plus-fill" />}
+            startIcon={<IconExcel />}
             onClick={() => navigate('export')}
           >
             Export
@@ -282,7 +284,7 @@ export default function ProductsPage() {
           page={page}
           component="div"
           labelRowsPerPage="Số hàng trên trang"
-          count={products.count || 0}
+          count={products?.count || 0}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}
           rowsPerPageOptions={[5, 10, 25, 50]}

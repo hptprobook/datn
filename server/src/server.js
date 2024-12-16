@@ -113,7 +113,7 @@ const START_SERVER = async () => {
         credentials: true,
       })
     );
-    app.use(express.json());
+    app.use(express.json({ limit: '10mb' })); 
     app.use(errorHandlingMiddleware);
 
     // Middleware for Socket.io

@@ -176,7 +176,7 @@ export default function AppView() {
         <Grid xs={12} md={6} lg={4}>
           <AppOrderTimeline
             title="Lịch hoạt động"
-            subheader="Tính năng đang phát triển"
+            // subheader="Tính năng đang phát triển"
             list={user?.notifies || []}
           />
         </Grid>
