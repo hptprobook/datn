@@ -9,6 +9,8 @@ export const searchProducts = async ({
   colors,
   sizes,
   sort,
+  tags,
+  productType,
 }) => {
   try {
     const params = new URLSearchParams({
@@ -30,6 +32,14 @@ export const searchProducts = async ({
       params.append('sort', sort);
     }
 
+    if (tags?.length) {
+      params.append('tags', tags.join(','));
+    }
+
+    if (productType) {
+      params.append('productType', productType);
+    }
+
     const response = await request.get(
       `/products/search/elasticsearch?${params.toString()}`
     );
@@ -45,5 +55,21 @@ export const getHotSearch = async () => {
     return response.data;
   } catch (error) {
     throw error.response.data;
+  }
+};
+
+export const getSearchSuggest = async (keyword, limit = 5) => {
+  try {
+    const params = new URLSearchParams({
+      keyword: keyword || '',
+      limit: limit.toString(),
+    });
+
+    const response = await request.get(
+      `/products/search/suggestions?${params.toString()}`
+    );
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error;
   }
 };

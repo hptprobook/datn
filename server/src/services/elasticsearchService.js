@@ -8,7 +8,7 @@ import { GET_DB } from '~/config/mongodb';
 const client = new Client({
   node: env.ELASTICSEARCH_NODE,
   auth: {
-    apiKey: env.ELASTICSEARCH_API_KEY,
+    apiKey: env.ELASTICSEARCH_API_KEY || '',
   },
 });
 
@@ -16,7 +16,6 @@ const client = new Client({
 const checkConnection = async () => {
   try {
     const result = await client.ping();
-    console.log('Elasticsearch connected successfully');
     return result;
   } catch (error) {
     console.error('Elasticsearch connection failed:', error);
@@ -65,6 +64,10 @@ const initializeProductIndex = async () => {
                   ngram: {
                     type: 'text',
                     analyzer: 'ngram_analyzer',
+                  },
+                  suggest: {
+                    type: 'completion',
+                    analyzer: 'vietnamese_analyzer',
                   },
                 },
               },
@@ -145,6 +148,7 @@ const syncProductsToElasticsearch = async () => {
           productType: product.productType || '', // Giữ lại productType
           averageRating, // Tính toán từ reviews
           totalComment, // Tính toán từ reviews
+          statusStock: product.statusStock || '',
           variants: product.variants.map((variant) => ({
             ...variant,
             sizes: variant.sizes.map((size) => ({
@@ -336,7 +340,7 @@ const searchProducts = async (keyword, options = {}) => {
     if (tags?.length > 0) {
       must.push({
         terms: {
-          'tags.keyword': tags,
+          'tags.keyword': tags, // Tìm kiếm chính xác với keyword
         },
       });
     }
@@ -344,7 +348,7 @@ const searchProducts = async (keyword, options = {}) => {
     // Bộ lọc productType
     if (productType) {
       must.push({
-        term: {
+        terms: {
           'productType.keyword': productType,
         },
       });
@@ -380,6 +384,59 @@ const searchProducts = async (keyword, options = {}) => {
   }
 };
 
+// Hàm tìm kiếm đề xuất
+const getSuggestions = async (keyword, limit = 5) => {
+  try {
+    const processedKeyword = keyword?.toLowerCase() || '';
+
+    const { hits } = await client.search({
+      index: 'products',
+      body: {
+        size: limit,
+        _source: ['name', 'slug'],
+        query: {
+          bool: {
+            should: [
+              {
+                prefix: {
+                  'name.keyword': {
+                    value: processedKeyword,
+                    boost: 4,
+                  },
+                },
+              },
+              {
+                match: {
+                  'name.ngram': {
+                    query: processedKeyword,
+                    boost: 2,
+                  },
+                },
+              },
+              {
+                match: {
+                  name: {
+                    query: processedKeyword,
+                    fuzziness: 'AUTO',
+                    boost: 1,
+                  },
+                },
+              },
+            ],
+            minimum_should_match: 1,
+          },
+        },
+      },
+    });
+
+    const suggestions = [...new Set(hits.hits.map((hit) => hit._source.name))];
+    return suggestions;
+  } catch (error) {
+    console.error('Suggestion error:', error);
+    throw error;
+  }
+};
+
 export const elasticsearchService = {
   client,
   checkConnection,
@@ -387,4 +444,5 @@ export const elasticsearchService = {
   syncProductsToElasticsearch,
   searchProducts,
   buildSortCriteria,
+  getSuggestions,
 };

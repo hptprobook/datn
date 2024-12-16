@@ -185,9 +185,14 @@ const ProductDetailInfor = ({
   };
 
   const handleBuyNow = () => {
-    handleAddProductToCart(() => {
-      navigate('/gio-hang');
-    });
+    if (!selectedColor || (sizes?.length > 0 && !isFreeSize && !selectedSize)) {
+      setError('Vui lòng chọn màu sắc - kích thước.');
+    } else {
+      setError('');
+      handleAddProductToCart(() => {
+        navigate('/gio-hang');
+      });
+    }
   };
 
   return (
@@ -206,6 +211,29 @@ const ProductDetailInfor = ({
                 </h2>
               </NavLink>
             )}
+
+            {product?.statusStock === 'outStock' && (
+              <>
+                <span className="badge badge-error my-3 text-xs rounded-md">
+                  Hết hàng
+                </span>
+                <p className="text-xs text-gray-500 mb-3 text-red-600">
+                  Hãy liên hệ shop để đặt trước sản phẩm!
+                </p>
+              </>
+            )}
+
+            {product?.statusStock === 'preOrder' && (
+              <>
+                <span className="badge badge-warning my-3 text-xs rounded-md">
+                  Đang về hàng
+                </span>
+                <p className="text-xs text-gray-500 mb-3 text-red-600">
+                  Hãy liên hệ shop để đặt trước sản phẩm!
+                </p>
+              </>
+            )}
+
             <p className="font-normal text-base text-gray-500 text-clamp-1">
               SKU: {selectedVariant?.sku || product?.variants[0].sku}
             </p>
@@ -249,19 +277,19 @@ const ProductDetailInfor = ({
           />
           <AddToCartBtn
             disabled={
-              !selectedColor ||
-              (sizes?.length > 0 && !isFreeSize && !selectedSize)
+              product?.statusStock === 'outStock' ||
+              product?.statusStock === 'preOrder'
             }
             isPending={mutation.isPending}
             onClick={handleAddToCart}
           />
         </div>
         <button
-          className="text-center w-full px-5 py-4 rounded-md bg-red-600 flex items-center justify-center font-semibold text-lg text-white shadow-sm shadow-transparent transition-all duration-500 hover:bg-red-700 hover:shadow-red-300"
+          className="text-center w-full px-5 py-4 rounded-md bg-red-600 flex items-center justify-center font-semibold text-lg text-white shadow-sm shadow-transparent transition-all duration-500 hover:bg-red-700 hover:shadow-red-300 disabled:bg-gray-400 disabled:shadow-transparent disabled:cursor-not-allowed"
           onClick={handleBuyNow}
           disabled={
-            !selectedColor ||
-            (sizes?.length > 0 && !isFreeSize && !selectedSize)
+            product?.statusStock === 'outStock' ||
+            product?.statusStock === 'preOrder'
           }
         >
           Mua ngay

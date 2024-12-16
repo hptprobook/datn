@@ -1,10 +1,14 @@
 import PropTypes from 'prop-types';
 
-const AddToCartBtn = ({ onClick = () => {}, isPending = false }) => {
+const AddToCartBtn = ({
+  onClick = () => {},
+  isPending = false,
+  disabled = false,
+}) => {
   return (
     <button
       onClick={onClick}
-      disabled={isPending}
+      disabled={disabled || isPending}
       className="group py-3 px-5 rounded-md bg-amber-50 text-amber-600 font-semibold text-lg w-full flex items-center justify-center gap-2 shadow-sm shadow-transparent transition-all duration-500 hover:shadow-amber-300 hover:bg-amber-100 disabled:opacity-70"
     >
       {isPending ? (

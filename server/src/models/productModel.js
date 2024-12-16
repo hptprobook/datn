@@ -90,6 +90,8 @@ const searchByElasticsearch = async (keyword, filters, sort) => {
       page: filters.page,
       limit: filters.limit,
       sort: sort,
+      tags: filters.tags,
+      productType: filters.productType,
     });
 
     // Format kết quả
@@ -102,6 +104,7 @@ const searchByElasticsearch = async (keyword, filters, sort) => {
         thumbnail: product.thumbnail,
         tags: product.tags,
         variants: product.variants || [], // Đảm bảo variants là mảng
+        statusStock: product.statusStock,
         averageRating: product.averageRating || 0,
         totalComment: product.totalComment || 0,
       })),
@@ -117,6 +120,19 @@ const searchByElasticsearch = async (keyword, filters, sort) => {
   } catch (error) {
     console.error('Elasticsearch search error:', error.message);
     throw new Error(`Lỗi tìm kiếm: ${error.message}`);
+  }
+};
+
+const getProductSuggestions = async (keyword, limit) => {
+  try {
+    const suggestions = await elasticsearchService.getSuggestions(
+      keyword,
+      limit
+    );
+    return suggestions;
+  } catch (error) {
+    console.error('Error getting suggestions:', error);
+    throw error;
   }
 };
 
@@ -1405,6 +1421,7 @@ export const productModel = {
   countProductAll,
   getProductsAll,
   searchByElasticsearch,
+  getProductSuggestions,
   getProductsByView,
   increaseViewBySlug,
   createProduct,

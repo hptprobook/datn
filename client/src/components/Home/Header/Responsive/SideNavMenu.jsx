@@ -4,9 +4,9 @@ import { Link, NavLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
 import { getMenu } from '~/APIs';
-import MainLoading from '~/components/common/Loading/MainLoading';
 import { useUser } from '~/context/UserContext';
 import { useWebConfig } from '~/context/WebsiteConfig';
+import useCheckAuth from '~/customHooks/useCheckAuth';
 
 const SideNavMenu = ({
   openMenu,
@@ -14,10 +14,16 @@ const SideNavMenu = ({
   currentTitle,
   setCurrentTitle,
 }) => {
+  const { logout, isAuthenticated } = useCheckAuth();
   const [menuPath, setMenuPath] = useState([]);
   const [animateMenu, setAnimateMenu] = useState(false);
   const { user } = useUser();
   const { minMaxPrice } = useWebConfig();
+
+  const handleLogout = () => {
+    logout();
+    setOpenMenu(false);
+  };
 
   const { data, isLoading } = useQuery({
     queryKey: ['categories'],
@@ -157,6 +163,14 @@ const SideNavMenu = ({
                   />
                 </svg>
               </NavLink>
+              {isAuthenticated && (
+                <div
+                  className="text-red-500 cursor-pointer mt-6 text-center"
+                  onClick={handleLogout}
+                >
+                  Đăng xuất
+                </div>
+              )}
             </div>
           </div>
         </div>
