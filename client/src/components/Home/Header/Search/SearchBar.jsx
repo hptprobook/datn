@@ -45,7 +45,13 @@ const SearchBar = () => {
 
   const { data: searchResults, isLoading: searchLoading } = useQuery({
     queryKey: ['search', keyword, limit],
-    queryFn: () => searchProducts({ keyword, limit }),
+    queryFn: () =>
+      searchProducts({
+        keyword,
+        limit,
+        minPrice: minMaxPrice?.minPrice,
+        maxPrice: minMaxPrice?.maxPrice,
+      }),
     enabled: keyword !== '',
   });
 
@@ -130,7 +136,7 @@ const SearchBar = () => {
           ) : (
             <SearchResult
               handleModelClick={handleModelClick}
-              searchResults={searchResults?.products || []}
+              searchResults={searchResults?.data?.products || []}
               searchLoading={searchLoading}
               isOpen={isFocused}
               keyword={keyword}

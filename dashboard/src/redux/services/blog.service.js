@@ -1,5 +1,5 @@
 
-import { get, del, uploadOrUpdate } from "src/utils/request";
+import { get,del, post, uploadOrUpdate } from "src/utils/request";
 /* eslint-disable */
 const BlogsService = {
   getAllBlogs: async () => {
@@ -48,6 +48,22 @@ const BlogsService = {
       return res;
     } catch (err) {
       console.log(err);
+      throw err;
+    }
+  },
+createMany: async (data) => {
+    try {
+      return await post('blogs/creates', data);
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  },
+  deleteMany: async (ids) => {
+    try {
+      const res = await post('blogs/many', ids);
+      return res;
+    } catch (err) {
       throw err;
     }
   },

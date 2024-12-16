@@ -1,5 +1,6 @@
 import { createSlice, createAction, createAsyncThunk } from "@reduxjs/toolkit";
 import StaticPageService from "../services/staticPages.service";
+import DashboardService from "../services/dashboard.service";
 
 export const fetchAllPages = createAsyncThunk(
     "staticPages/fetchAll",
@@ -17,6 +18,26 @@ export const createStaticPage = createAsyncThunk(
     async (data, { rejectWithValue }) => {
         try {
             return await StaticPageService.create(data);
+        } catch (err) {
+            return rejectWithValue(err.response.data);
+        }
+    }
+);
+export const createsStaticPage = createAsyncThunk(
+    "staticPages/creates",
+    async (data, { rejectWithValue }) => {
+        try {
+            return await DashboardService.create('/static-pages/creates', data);
+        } catch (err) {
+            return rejectWithValue(err.response.data);
+        }
+    }
+);
+export const deletesStaticPage = createAsyncThunk(
+    "staticPages/deletes",
+    async (data, { rejectWithValue }) => {
+        try {
+            return await DashboardService.create('/static-pages/deletes', data);
         } catch (err) {
             return rejectWithValue(err.response.data);
         }
@@ -61,6 +82,8 @@ const initialState = {
     pages: [],
     page: null,
     delete: null,
+    deletes: null,
+    creates: null,
     status: "idle", // 'idle' | 'loading' | 'successful' | 'failed'
     statusDelete: "idle",
     statusUpdate: "idle",
@@ -98,6 +121,17 @@ const staticPageSlices = createSlice({
                 state.statusCreate = "failed";
                 state.error = action.payload;
             })
+            .addCase(createsStaticPage.pending, (state) => {
+                state.statusCreate = "loading";
+            })
+            .addCase(createsStaticPage.fulfilled, (state, action) => {
+                state.statusCreate = "successful";
+                state.creates = action.payload;
+            })
+            .addCase(createsStaticPage.rejected, (state, action) => {
+                state.statusCreate = "failed";
+                state.creates = action.payload;
+            })
             .addCase(getPageBy.pending, (state) => {
                 state.statusGet = "loading";
             })
@@ -119,6 +153,17 @@ const staticPageSlices = createSlice({
             .addCase(deleteStaticPage.rejected, (state, action) => {
                 state.statusDelete = "failed";
                 state.error = action.payload;
+            })
+            .addCase(deletesStaticPage.pending, (state) => {
+                state.statusDelete = "loading";
+            })
+            .addCase(deletesStaticPage.fulfilled, (state, action) => {
+                state.statusDelete = "successful";
+                state.deletes = action.payload;
+            })
+            .addCase(deletesStaticPage.rejected, (state, action) => {
+                state.statusDelete = "failed";
+                state.deletes = action.payload;
             })
             .addCase(updatePageById.pending, (state) => {
                 state.statusUpdate = "loading";

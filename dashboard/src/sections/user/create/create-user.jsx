@@ -221,7 +221,7 @@ export default function CreateUserPage() {
             <Grid2 xs={12} md={3}>
               <LoadingButton
                 fullWidth
-                size="large"
+                size="medium"
                 type="submit"
                 // disabled={submit}
                 variant="contained"

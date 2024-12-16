@@ -25,6 +25,14 @@ const AddressService = {
             throw err;
         }
     },
+    getFee: async (data) => {
+        try {
+            return await get(`/shipping-order/fee`, data);
+        } catch (err) {
+            console.error("Error: ", err);
+            throw err;
+        }
+    }
 };
 
 export default AddressService;

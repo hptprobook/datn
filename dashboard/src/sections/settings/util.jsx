@@ -112,7 +112,7 @@ EnhancedTableHead.propTypes = {
   rowCount: PropTypes.number.isRequired,
   headCells: PropTypes.array.isRequired,
 };
-export const EnhancedTableToolbar = ({ numSelected, onSearch, label }) => (
+export const EnhancedTableToolbar = ({ numSelected, onSearch, label, onDelete }) => (
   <Toolbar
     sx={[
       {
@@ -155,16 +155,10 @@ export const EnhancedTableToolbar = ({ numSelected, onSearch, label }) => (
       </Stack>
     )}
 
-    {numSelected > 0 ? (
+    {numSelected > 0 && (
       <Tooltip title="Xóa">
-        <IconButton>
+        <IconButton onClick={() => onDelete()}>
           <Iconify icon="eva:trash-fill" />
-        </IconButton>
-      </Tooltip>
-    ) : (
-      <Tooltip title="Lọc">
-        <IconButton>
-          <Iconify icon="eva:filter-fill" />
         </IconButton>
       </Tooltip>
     )}
@@ -175,6 +169,7 @@ EnhancedTableToolbar.propTypes = {
   numSelected: PropTypes.number.isRequired,
   onSearch: PropTypes.func,
   label: PropTypes.string,
+  onDelete: PropTypes.func,
 };
 export const staticPageType = {
   about: 'Giới thiệu',
@@ -188,5 +183,5 @@ export const staticPageType = {
   inspectionPolicy: 'Chính sách kiểm hàng',
   returnPolicy: 'Chính sách đổi trả',
   termsConditions: 'Điều kiện & Điều khoản',
-  privacyPolicy: 'Chính sách bảo mật'
+  privacyPolicy: 'Chính sách bảo mật',
 };

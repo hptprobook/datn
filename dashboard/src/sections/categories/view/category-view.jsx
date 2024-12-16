@@ -54,7 +54,6 @@ export default function CategoryPage() {
     }
   }, [statusDelete, dispatch]);
   useEffect(() => {
-    console.log('dataCreates', dataCreates);
     if (statusCreate === 'successful') {
       dispatch(fetchAllCategories());
       dataCreates.successful.forEach((item) => {
@@ -144,8 +143,8 @@ export default function CategoryPage() {
       valueFormatter: (params) => renderUrl(params, backEnd),
       renderCell: renderImage,
     },
-    { field: 'slug', headerName: 'Slug', width: 100 },
-    { field: 'parentId', headerName: 'Danh mục cha', width: 100 },
+    { field: 'slug', headerName: 'Slug', width: 200 },
+    { field: 'parentId', headerName: 'Danh mục cha', width: 200 },
     { field: 'status', headerName: 'Trạng thái', width: 200 },
     { field: 'order', headerName: 'Vị trí', width: 200 },
     { field: 'views', headerName: 'Lượt xem', width: 100 },
@@ -169,8 +168,7 @@ export default function CategoryPage() {
       />
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
-          <Typography variant="h4">Kho</Typography>
-
+          <Typography variant="h4">Danh mục</Typography>
           <IconButton
             aria-label="load"
             variant="contained"
@@ -241,6 +239,9 @@ export default function CategoryPage() {
                   status: false,
                   createdAt: false,
                   updatedAt: false,
+                  order: false,
+                  views: false,
+                  description: false,
                 },
               },
               pagination: {

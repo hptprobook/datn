@@ -84,6 +84,19 @@ export const deleteManyCoupon = createAsyncThunk(
     }
   }
 );
+export const createManyCoupon = createAsyncThunk(
+  'coupons/createMany',
+  async ({ data }, { rejectWithValue }) => {
+    try {
+      console.log(data);
+      const res = await CouponServices.createMany(data);
+      return res;
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
+
 
 
 export const setStatus = createAction('coupons/setStatus');
@@ -101,6 +114,8 @@ const couponSlice = createSlice({
     statusDelete: 'idle',
     statusCreate: 'idle',
     error: null,
+    dataCreateMany: null,
+
   },
   extraReducers: (builder) => {
     builder
@@ -144,6 +159,17 @@ const couponSlice = createSlice({
         state.statusCreate = 'successful';
       })
       .addCase(create.rejected, (state, action) => {
+        state.statusCreate = 'failed';
+        state.error = action.payload;
+      })
+      .addCase(createManyCoupon.pending, (state) => {
+        state.statusCreate = 'loading';
+      })
+      .addCase(createManyCoupon.fulfilled, (state, action) => {
+        state.statusCreate = 'successful';
+        state.dataCreateMany = action.payload;
+      })
+      .addCase(createManyCoupon.rejected, (state, action) => {
         state.statusCreate = 'failed';
         state.error = action.payload;
       })

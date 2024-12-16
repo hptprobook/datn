@@ -11,87 +11,142 @@ import { APIs } from './routes';
 import path from 'path';
 import http from 'http';
 import { Server } from 'socket.io';
+import { createClient } from 'redis';
+import { elasticsearchService } from './services/elasticsearchService';
 
-const START_SERVER = () => {
-  const app = express();
-  const server = http.createServer(app);
-  // Socket config
-  const io = new Server(server, {
-    cors: {
-      origin: '*',
-      methods: ['GET', 'POST', 'PUT', 'DELETE'],
-      allowedHeaders: ['Content-Type'],
-      credentials: true,
+// Redis client setup
+export const redisClient = createClient({
+  url: env.REDIS_URL,
+  socket: {
+    reconnectStrategy: (retries) => {
+      // Exponential backoff with max delay of 3s
+      const delay = Math.min(retries * 50, 3000);
+      return delay;
     },
-  });
+  },
+});
 
-  io.on('connection', (socket) => {
-    console.log(`A user connected: ${socket.id}`);
+redisClient.on('error', (err) => console.error('Redis Client Error:', err));
+redisClient.on('connect', () => console.log('Redis Client Connected'));
+redisClient.on('reconnecting', () =>
+  console.log('Redis Client Reconnecting...')
+);
 
-    // Tham gia Room dựa trên userId
-    socket.on('online', (userId) => {
-      if (userId) {
-        console.log('User online:', userId);
-        socket.join(userId);
-      }
+const START_SERVER = async () => {
+  try {
+    // Connect to Redis
+    await redisClient.connect().catch((err) => {
+      console.error('Redis connection failed:', err);
+      // Continue server startup even if Redis fails
     });
 
-    // Lắng nghe tin nhắn từ client
-    socket.on('sendMessage', (data) => {
-      io.to(data.room).emit('receiveMessage', data.message);
+    if (redisClient.isOpen) {
+      // Test Redis connection
+      await redisClient.set('test', 'Redis connection successful');
+      const testResult = await redisClient.get('test');
+      console.log('Redis Test:', testResult);
+    }
+
+    // Connect to MongoDB
+    await CONNECT_DB();
+    console.log('Connected to MongoDB Atlas successfully');
+
+    // Khởi tạo Elasticsearch index
+    await elasticsearchService.initializeProductIndex();
+
+    // Đồng bộ dữ liệu ban đầu
+    await elasticsearchService.syncProductsToElasticsearch();
+
+    // Express app and server setup
+    const app = express();
+    const server = http.createServer(app);
+
+    // Socket.io setup
+    const io = new Server(server, {
+      cors: {
+        origin: [
+          'http://localhost:5173',
+          'http://localhost:3030',
+          'http://localhost:3001',
+          'https://bmt-life.vercel.app',
+          'https://dashboard-bmt-life.vercel.app',
+          'http://localhost:8000',
+        ],
+        methods: ['GET', 'POST', 'PUT', 'DELETE'],
+        allowedHeaders: ['Content-Type'],
+        credentials: true,
+      },
     });
 
-    socket.on('disconnect', () => {
-      console.log(`A user disconnected: ${socket.id}`);
+    io.on('connection', (socket) => {
+      console.log(`A user connected: ${socket.id}`);
+
+      // Handle joining a room
+      socket.on('online', (userId) => {
+        if (userId) {
+          console.log('User online:', userId);
+          socket.join(userId);
+        }
+      });
+
+      // Handle sending and receiving messages
+      socket.on('sendMessage', (data) => {
+        io.to(data.room).emit('receiveMessage', data.message);
+      });
+
+      socket.on('disconnect', () => {
+        console.log(`A user disconnected: ${socket.id}`);
+      });
     });
-  });
 
-  app.use(cookieParser());
-  app.use(
-    cors({
-      origin: [
-        'http://localhost:5173',
-        'http://localhost:3030',
-        'http://localhost:3001',
-        'https://bmt-life.vercel.app',
-        'https://dashboard-bmt-life.vercel.app',
-        'http://localhost:8000',
-      ],
-      credentials: true,
-    })
-  );
-  app.use(express.json());
-  app.use(errorHandlingMiddleware);
+    app.use(cookieParser());
+    app.use(
+      cors({
+        origin: [
+          'http://localhost:5173',
+          'http://localhost:3030',
+          'http://localhost:3001',
+          'https://bmt-life.vercel.app',
+          'https://dashboard-bmt-life.vercel.app',
+          'http://localhost:8000',
+        ],
+        credentials: true,
+      })
+    );
+    app.use(express.json({ limit: '10mb' })); 
+    app.use(errorHandlingMiddleware);
 
-  app.use((req, res, next) => {
-    req.io = io;
-    next();
-  });
+    // Middleware for Socket.io
+    app.use((req, res, next) => {
+      req.io = io;
+      next();
+    });
 
-  // Serve static files from the 'src/public/imgs' directory
-  app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
-  app.get('/', (req, res) => {
-    res.send('Hello World!');
-  });
+    // Serve static files
+    app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+    app.get('/', (req, res) => {
+      res.send('Hello World from the Docker!');
+    });
 
-  app.use('/api', APIs);
+    // API routes
+    app.use('/api', APIs);
 
-  server.listen(env.HOST_URL, () => {
-    console.log(`Server is running at ${env.HOST_URL}`);
-  });
+    // Start server
+    server.listen(env.HOST_URL, () => {
+      console.log(`Server is running at ${env.HOST_URL}`);
+    });
 
-  exitHook(() => {
-    CLOSE_DB().then(() => console.log('Disconnected from MongoDB Atlas'));
-  });
+    // Graceful shutdown for MongoDB and Redis
+    exitHook(async () => {
+      await CLOSE_DB();
+      console.log('Disconnected from MongoDB Atlas');
+      await redisClient.quit();
+      console.log('Redis connection closed');
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
 };
 
-(async () => {
-  try {
-    await CONNECT_DB();
-    console.log('Connect to MongoDB Atlas successfully');
-    START_SERVER();
-  } catch (error) {
-    console.log(error);
-    process.exit(0);
-  }
-})();
+START_SERVER();

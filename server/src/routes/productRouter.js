@@ -22,6 +22,8 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+Router.get('/search/elasticsearch', productController.searchByElasticsearch);
+
 //admin
 Router.get('/getByViews', productController.getProductsByView);
 Router.get('/price-range', productController.getMinMaxPrices);
@@ -96,5 +98,8 @@ Router.delete(
 );
 Router.get('/search/dashboard', productController.searchInDashboard);
 Router.post('/getByIds', productController.getProductByArrayId);
+
+Router.get('/test/elasticsearch', productController.testElasticsearchEndpoint);
+Router.post('/creates', productController.creates);
 
 export const productsApi = Router;

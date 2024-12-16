@@ -1,0 +1,66 @@
+import {
+  Dialog,
+  Button,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  DialogContentText,
+} from '@mui/material';
+import React from 'react';
+import PropTypes from 'prop-types';
+
+const ConfirmNormal = ({
+  onAgree,
+  openConfirm,
+  onClose,
+  label,
+  secondLabel,
+  onSecondAgree,
+  secondAgree,
+}) => {
+  const handleAgree = () => {
+    onAgree();
+    onClose(); // Close the dialog after agreeing
+  };
+
+  return (
+    <Dialog
+      open={openConfirm}
+      onClose={onClose}
+      aria-labelledby="alert-dialog-title"
+      aria-describedby="alert-dialog-description"
+    >
+      <DialogTitle id="alert-dialog-title">{label}</DialogTitle>
+      <DialogContent>
+        <DialogContentText id="alert-dialog-description">
+          {secondLabel || 'Các hành động này không thể hoàn tác, bạn có chắc chắ?'}
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button color="error" onClick={onClose}>
+          Hủy
+        </Button>
+        <Button color="inherit" variant="contained" onClick={handleAgree} autoFocus>
+          Đồng ý
+        </Button>
+        {secondAgree && (
+          <Button color="inherit" variant="contained" onClick={onSecondAgree} autoFocus>
+            {secondAgree}
+          </Button>
+        )}
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+ConfirmNormal.propTypes = {
+  onAgree: PropTypes.func.isRequired,
+  openConfirm: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired, // Add onClose prop to control the closing of the dialog
+  label: PropTypes.string,
+  secondLabel: PropTypes.string,
+  onSecondAgree: PropTypes.func,
+  secondAgree: PropTypes.string,
+};
+
+export default ConfirmNormal;
