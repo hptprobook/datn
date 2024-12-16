@@ -9,6 +9,8 @@ export const searchProducts = async ({
   colors,
   sizes,
   sort,
+  tags,
+  productType,
 }) => {
   try {
     const params = new URLSearchParams({
@@ -28,6 +30,14 @@ export const searchProducts = async ({
 
     if (sort) {
       params.append('sort', sort);
+    }
+
+    if (tags?.length) {
+      params.append('tags', tags.join(','));
+    }
+
+    if (productType) {
+      params.append('productType', productType);
     }
 
     const response = await request.get(

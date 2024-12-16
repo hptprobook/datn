@@ -34,7 +34,7 @@ const CartPage = () => {
           <div className="bg-white antialiased">
             <div
               className={`mx-auto max-w-screen-xl px-4 2xl:px-0 ${
-                !user ? 'min-h-screen' : ''
+                !user ? 'min-h-[60vh]' : ''
               }`}
             >
               <div className="mt-6 sm:mt-8 lg:flex lg:gap-8">

@@ -245,6 +245,7 @@ const CategoryPage = () => {
             onPriceRangeChange={handlePriceRangeChange}
             priceRangeData={priceRangeData}
             initialFilters={filters}
+            text={slug}
           />
         </div>
         <div className="max-lg:col-span-1 col-span-4">
