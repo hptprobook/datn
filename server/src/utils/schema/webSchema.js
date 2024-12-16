@@ -45,9 +45,8 @@ const baseSchema = Joi.object({
     eventBanner: Joi.string().messages({
         'string.base': 'Banner sự kiện phải là một chuỗi văn bản.',
     }),
-    eventUrl: Joi.string().uri().messages({
+    eventUrl: Joi.string().messages({
         'string.base': 'Liên kết sự kiện phải là một chuỗi văn bản.',
-        'string.uri': 'Liên kết sự kiện phải là một địa chỉ web hợp lệ.',
     }),
     nameBank: Joi.string().messages({
         'string.base': 'Tên ngân hàng phải là một chuỗi văn bản.',

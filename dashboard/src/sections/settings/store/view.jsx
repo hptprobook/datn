@@ -51,7 +51,7 @@ const configSchema = Yup.object().shape({
     .min(2, 'Tên chủ tài khoản quá ngắn')
     .max(255, 'Tên chủ tài khoản quá dài'),
   logo: Yup.string().min(2, 'Logo quá ngắn').max(255, 'Logo quá dài'),
-  eventUrl: Yup.string().url('URL không hợp lệ'),
+  eventUrl: Yup.string().min(2, 'Đường dẫn sự kiện quá ngắn').max(255, 'Đường dẫn sự kiện quá dài'),
   footerThanks: Yup.string()
     .min(50, 'Lời cảm ơn quá ngắn')
     .max(1000, 'Lời cảm ơn quá dài')

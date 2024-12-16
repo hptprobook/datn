@@ -1,5 +1,3 @@
-import { faker } from '@faker-js/faker';
-
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
@@ -18,7 +16,6 @@ import AppCurrentVisits from '../app-current-visits';
 import AppWebsiteVisits from '../app-website-visits';
 import AppWidgetSummary from '../app-widget-summary';
 // import AppTrafficBySite from '../app-traffic-by-site';
-import AppCurrentSubject from '../app-current-subject';
 import AppConversionRates from '../app-conversion-rates';
 
 // ----------------------------------------------------------------------
@@ -130,7 +127,7 @@ export default function AppView() {
             }}
           />
         </Grid>
-        <Grid xs={12} md={6} lg={4}>
+        <Grid xs={12} md={6}>
           <AppCurrentVisits
             title="Hóa đơn"
             subheader="Doanh thu hóa đơn"
@@ -142,7 +139,7 @@ export default function AppView() {
             }}
           />
         </Grid>
-        <Grid xs={12} md={6} lg={4}>
+        <Grid xs={12} md={6}>
           <AppCurrentVisits
             title="Hóa đơn"
             subheader="Số lượng hóa đơn"
@@ -154,7 +151,7 @@ export default function AppView() {
             }}
           />
         </Grid>
-        <Grid xs={12} md={6} lg={4}>
+        {/* <Grid xs={12} md={6} lg={4}>
           <AppCurrentSubject
             title="Thống kê thói quen mua hàng"
             subheader='Tính năng đang phát triển'
@@ -167,7 +164,7 @@ export default function AppView() {
               ],
             }}
           />
-        </Grid>
+        </Grid> */}
 
         <Grid xs={12} md={6} lg={8}>
           <AppNewsUpdate title="Người dùng mới" list={users?.users || []} />
