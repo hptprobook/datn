@@ -32,6 +32,8 @@ export default function AppView() {
   const receipts = useSelector((state) => state.dashboard.receiptStatistics);
   const products = useSelector((state) => state.dashboard.productsStatistics);
   const get7Day = useSelector((state) => state.dashboard.get7DayData);
+  const user = useSelector((state) => state.auth.auth);
+
   useEffect(() => {
     dispatch(userStatistics());
     dispatch(receiptStatistics());
@@ -92,8 +94,8 @@ export default function AppView() {
 
         <Grid xs={12} md={6}>
           <AppWebsiteVisits
-            title="Website Visits"
-            subheader="(+43%) than last year"
+            title="Thông kê doanh thu"
+            subheader=""
             chart={{
               labels: get7Day?.daysArray || [],
               series: [
@@ -174,19 +176,8 @@ export default function AppView() {
         <Grid xs={12} md={6} lg={4}>
           <AppOrderTimeline
             title="Lịch hoạt động"
-            subheader="Tính năng đang phát triển"
-            list={[...Array(5)].map((_, index) => ({
-              id: faker.string.uuid(),
-              title: [
-                '1983, orders, $4220',
-                '12 Invoices have been paid',
-                'Order #37745 from September',
-                'New order placed #XF-2356',
-                'New order placed #XF-2346',
-              ][index],
-              type: `order${index + 1}`,
-              time: faker.date.past(),
-            }))}
+            // subheader="Tính năng đang phát triển"
+            list={user?.notifies || []}
           />
         </Grid>
       </Grid>

@@ -54,7 +54,6 @@ export default function CategoryPage() {
     }
   }, [statusDelete, dispatch]);
   useEffect(() => {
-    console.log('dataCreates', dataCreates);
     if (statusCreate === 'successful') {
       dispatch(fetchAllCategories());
       dataCreates.successful.forEach((item) => {

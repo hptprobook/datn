@@ -20,7 +20,9 @@ import { useNavigate } from 'react-router-dom';
 export default function AppNewsUpdate({ title, subheader, list, ...other }) {
   const navigate = useNavigate();
   return (
-    <Card {...other}>
+    <Card
+      {...other}
+    >
       <CardHeader title={title} subheader={subheader} />
 
       <Scrollbar>
@@ -56,11 +58,10 @@ AppNewsUpdate.propTypes = {
 // ----------------------------------------------------------------------
 
 function NewsItem({ news }) {
-  const {  name, email, createdAt } = news;
+  const { name, email, createdAt } = news;
 
   return (
     <Stack direction="row" alignItems="center" spacing={2}>
-
       <Box sx={{ minWidth: 240, flexGrow: 1 }}>
         <Link color="inherit" variant="subtitle2" underline="hover" noWrap>
           {name}

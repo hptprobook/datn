@@ -48,19 +48,6 @@ const getProductsAll = async (page, limit) => {
   const result = await db
     .find()
     .sort({ createdAt: -1 })
-    .project({
-      _id: 1,
-      name: 1,
-      tags: 1,
-      variants: 1,
-      reviews: 1,
-      price: 1,
-      thumbnail: 1,
-      status: 1,
-      statusStock: 1,
-      slug: 1,
-      brand: 1,
-    })
     .skip((page - 1) * limit)
     .limit(limit)
     .toArray();
@@ -201,9 +188,6 @@ const getProductById = async (product_id) => {
 const getProductBySlug = async (slug) => {
   const db = await GET_DB().collection('products');
   const product = await db.findOne({ slug: slug });
-  if (!product) {
-    throw new Error('Có lỗi xảy ra, xin thử lại sau');
-  }
   return product;
 };
 

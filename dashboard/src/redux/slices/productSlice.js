@@ -16,6 +16,16 @@ export const fetchAllProducts = createAsyncThunk(
     }
   }
 );
+export const createsProduct = createAsyncThunk(
+  'categories/createsProduct',
+  async (data, { rejectWithValue }) => {
+    try {
+      return await ProductsService.creates(data);
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
 export const fetchProductById = createAsyncThunk(
   'products/fetchById',
   async ({ id }, { rejectWithValue }) => {
@@ -71,12 +81,24 @@ const productsSlice = createSlice({
     status: 'idle',
     statusGet: 'idle',
     statusCreate: 'idle',
+    dataCreates: null,
     statusDelete: 'idle',
     statusUpdate: 'idle',
     error: null
   },
   extraReducers: (builder) => {
     builder
+      .addCase(createsProduct.pending, (state) => {
+        state.statusCreate = 'loading';
+      })
+      .addCase(createsProduct.fulfilled, (state, action) => {
+        state.statusCreate = 'successful';
+        state.dataCreates = action.payload; // Update based on the actual structure
+      })
+      .addCase(createsProduct.rejected, (state, action) => {
+        state.statusCreate = 'failed';
+        state.dataCreates = action.payload;
+      })
       .addCase(fetchAllProducts.pending, (state) => {
         state.status = 'loading';
       })
