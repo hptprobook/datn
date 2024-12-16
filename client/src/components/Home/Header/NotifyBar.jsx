@@ -29,7 +29,7 @@ const NotifyBar = ({ notifies, refetchUser }) => {
   return (
     <div
       className="relative text-2xl text-gray-50 cursor-pointer group z-10"
-      onClick={() => navigate('/nguoi-dung/tai-khoan/thong-bao')}
+      // onClick={() => navigate('/nguoi-dung/tai-khoan/thong-bao')}
     >
       <Icon icon="line-md:bell" />
       <div className="absolute w-[400px] top-14 right-0 bg-gray-100 text-black cursor-default py-4 text-xs shadow-md shadow-gray-200 hidden group-hover:block before:absolute before:w-60 before:h-8 before:-top-8 before:right-0 before:bg-transparent">
