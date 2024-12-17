@@ -6,13 +6,11 @@ import NavBar from '~/components/Home/NavBar/NavBar';
 export default function PostLayout({ children }) {
   return (
     <React.Fragment>
-      <div className="sticky top-0 z-20">
+      <div className="sticky top-0 z-50 block">
         <Header />
         <NavBar />
       </div>
-      <div className="mt-8">
-        {children}
-      </div>
+      <div className="mt-8">{children}</div>
       <Footer />
     </React.Fragment>
   );

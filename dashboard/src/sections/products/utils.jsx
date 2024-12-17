@@ -5,6 +5,8 @@ import { styled } from '@mui/material';
 import MuiAccordion from '@mui/material/Accordion';
 import MuiAccordionSummary from '@mui/material/AccordionSummary';
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
+import parse from 'html-react-parser';
+import React from 'react';
 
 export const formatNumber = (number) => {
   if (!number) return '';
@@ -195,3 +197,19 @@ export const renderBrand = (id, brands) => {
   const brand = brands.find((item) => item._id === id);
   return brand?.name || 'Không tồn tại';
 };
+
+export const parseContent = (content) =>
+  parse(content, {
+    replace: (domNode) => {
+      if (domNode.name === 'img') {
+        return React.createElement('img', {
+          src: domNode.attribs.src,
+          alt: domNode.attribs.alt || '',
+        });
+      }
+      if (domNode.type === 'text') {
+        return domNode.data;
+      }
+      return null;
+    },
+  });

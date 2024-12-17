@@ -9,10 +9,12 @@ import { useWebConfig } from '~/context/WebsiteConfig';
 const NavBar = () => {
   const [hoveredMenu, setHoveredMenu] = useState(null);
   const location = useLocation();
+
   const { data, error, isLoading } = useQuery({
     queryKey: ['categories'],
     queryFn: getMenu,
   });
+
   const { minMaxPrice } = useWebConfig();
 
   if (error) {
@@ -75,7 +77,9 @@ const NavBar = () => {
   }
 
   if (isLoading || menuData.length === 0) {
-    return null;
+    return (
+      <div className="menu-loader h-16 w-full bg-white flex items-center justify-center"></div>
+    );
   }
 
   return (

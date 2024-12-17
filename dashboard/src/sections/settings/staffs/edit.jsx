@@ -135,10 +135,11 @@ const EditStaffPage = () => {
       values.salary = Number(values.salary);
       delete values._id;
       Object.keys(values).forEach((key) => {
-        if (values[key] === null) {
+        if (values[key] === null || values[key] === undefined || values[key] === '') {
           delete values[key];
         }
       });
+      console.log(values);
       dispatch(
         updateStaffById({
           id,
@@ -232,7 +233,7 @@ const EditStaffPage = () => {
                   helperText={formik.touched.email && formik.errors.email}
                 />
               </Grid2>
-              <Grid2 xs={12} md={6}>
+              <Grid2 xs={12} md={4}>
                 <TextField
                   label="Số điện thoại"
                   fullWidth
@@ -243,7 +244,18 @@ const EditStaffPage = () => {
                   helperText={formik.touched.phone && formik.errors.phone}
                 />
               </Grid2>
-              <Grid2 xs={12} md={6}>
+              <Grid2 xs={12} md={4}>
+                <TextField
+                  label="Mật khẩu"
+                  fullWidth
+                  name="password"
+                  value={formik.values.password}
+                  onChange={formik.handleChange}
+                  error={formik.touched.password && Boolean(formik.errors.password)}
+                  helperText={formik.touched.password && formik.errors.password}
+                />
+              </Grid2>
+              <Grid2 xs={12} md={4}>
                 <TextField
                   label="CCCD/CMND"
                   fullWidth
@@ -294,7 +306,7 @@ const EditStaffPage = () => {
                     label="Chi nhánh"
                     onChange={formik.handleChange}
                   >
-                        {warehouses?.map((warehouse) => (
+                    {warehouses?.map((warehouse) => (
                       <MenuItem value={warehouse._id} key={warehouse._id}>
                         {warehouse.name}
                       </MenuItem>

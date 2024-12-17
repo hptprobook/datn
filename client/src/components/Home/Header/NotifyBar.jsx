@@ -27,7 +27,10 @@ const NotifyBar = ({ notifies, refetchUser }) => {
   });
 
   return (
-    <div className="relative text-2xl text-gray-50 cursor-pointer group z-10">
+    <div
+      className="relative text-2xl text-gray-50 cursor-pointer group z-10"
+      onClick={() => navigate('/nguoi-dung/tai-khoan/thong-bao')}
+    >
       <Icon icon="line-md:bell" />
       <div className="absolute w-[400px] top-14 right-0 bg-gray-100 text-black cursor-default py-4 text-xs shadow-md shadow-gray-200 hidden group-hover:block before:absolute before:w-60 before:h-8 before:-top-8 before:right-0 before:bg-transparent">
         <p className="text-gray-700 text-md font-bold py-2 px-4">
@@ -66,11 +69,6 @@ const NotifyBar = ({ notifies, refetchUser }) => {
                         </div>
                       </div>
                     </div>
-                    <div className="text-gray-700 mt-4 py-2 px-4 text-center hover:text-red-600 cursor-pointer">
-                      <Link to={'/nguoi-dung/tai-khoan/thong-bao'}>
-                        Xem tất cả
-                      </Link>
-                    </div>
                   </>
                 );
               })
@@ -79,6 +77,9 @@ const NotifyBar = ({ notifies, refetchUser }) => {
               <span className="text-wrap">Không có thông báo nào!</span>
             </div>
           )}
+        </div>
+        <div className="text-gray-700 mt-4 py-2 px-4 text-center hover:text-red-600 cursor-pointer">
+          <Link to={'/nguoi-dung/tai-khoan/thong-bao'}>Xem tất cả</Link>
         </div>
       </div>
     </div>

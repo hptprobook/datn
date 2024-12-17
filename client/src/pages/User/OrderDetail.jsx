@@ -38,7 +38,7 @@ const OrderDetail = () => {
       useSwal.fire({
         icon: 'success',
         title: 'Thành công!',
-        text: 'Đơn hàng đã được hủy thành công.',
+        text: 'Gửi yêu cầu thành công.',
         confirmButtonText: 'Xác nhận',
       });
       refetch();

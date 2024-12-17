@@ -12,7 +12,12 @@ import { removeCartToCurrent, updateCurrentUser } from '~/APIs';
 import EmptyCart from '~/components/Home/Header/EmptyCart';
 
 const CartListProduct = () => {
-  const { items, updateItemQuantity, removeItem } = useCart();
+  const {
+    items: guestItems,
+    updateItemQuantity,
+    removeItem,
+    emptyCart,
+  } = useCart();
   const {
     selectedItems,
     setSelectedItems,
@@ -27,7 +32,7 @@ const CartListProduct = () => {
 
   const cartItems = isAuthenticated
     ? user?.carts.map((item) => ({ ...item, id: item._id }))
-    : items;
+    : guestItems;
 
   const handleSelectAll = () => {
     if (selectAll) {
@@ -122,6 +127,20 @@ const CartListProduct = () => {
     },
   });
 
+  const { mutate: emptyCartMutation } = useMutation({
+    mutationFn: updateCurrentUser,
+    onSuccess: () => {
+      refetchUser();
+    },
+    onError: () => {
+      useSwal.fire({
+        icon: 'error',
+        title: 'Lỗi!',
+        text: 'Xảy ra lỗi khi xoá tất cả sản phẩm khỏi giỏ hàng, vui lòng thử lại!',
+      });
+    },
+  });
+
   const handleRemoveItem = (id) => {
     useSwalWithConfirm
       .fire({
@@ -144,6 +163,16 @@ const CartListProduct = () => {
         }
       });
   };
+
+  const handleClearCart = () => {
+    if (isAuthenticated) {
+      emptyCartMutation({ carts: [] });
+    } else {
+      emptyCart();
+    }
+  };
+
+  const items = isAuthenticated ? user?.carts : guestItems;
 
   return (
     <div className="mx-auto w-full flex-none lg:max-w-2xl xl:max-w-4xl cursor-pointer relative">
@@ -168,7 +197,7 @@ const CartListProduct = () => {
           </label>
         </div>
 
-        <h6 className="text-md font-semibold text-gray-900">
+        <h6 className="text-md font-semibold text-gray-900 hidden lg:block">
           Đã chọn: {selectedItems.length} sản phẩm
         </h6>
       </div>
@@ -214,7 +243,7 @@ const CartListProduct = () => {
 
                 <div className="space-y-4 md:flex md:items-center md:justify-between md:gap-6 md:space-y-0">
                   <a
-                    href="#"
+                    href={`/san-pham/${product.slug}`}
                     className="shrink-0 md:order-1"
                     onClick={(e) => e.stopPropagation()}
                   >
@@ -302,6 +331,35 @@ const CartListProduct = () => {
           <EmptyCart />
         )}
       </div>
+
+      {items?.length > 2 && (
+        <button
+          className="btn rounded-md bg-red-500 text-white hover:bg-red-600 mt-8"
+          onClick={() => {
+            useSwalWithConfirm
+              .fire({
+                title: 'Xóa tất cả',
+                text: 'Bắn có chắc muốn xóa tất cả sản phẩm khỏi giỏ hàng?',
+                icon: 'warning',
+                confirmButtonText: 'Xoá tất cả',
+                cancelButtonText: 'Hủy',
+              })
+              .then((result) => {
+                if (result.isConfirmed) {
+                  handleClearCart();
+                  useSwal.fire({
+                    icon: 'success',
+                    title: 'Thành công',
+                    text: 'Xóa tất cả sản phẩm thành công',
+                    timer: 1500,
+                  });
+                }
+              });
+          }}
+        >
+          Xóa tất cả
+        </button>
+      )}
     </div>
   );
 };

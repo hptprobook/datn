@@ -8,17 +8,14 @@ import {
   Card,
   Chip,
   Select,
-  Switch,
   Button,
   MenuItem,
   TextField,
-  FormLabel,
   SpeedDial,
   InputLabel,
   IconButton,
   FormControl,
   FormHelperText,
-  FormControlLabel,
 } from '@mui/material';
 import { Field, FastField, useFormik, FormikProvider } from 'formik';
 import * as Yup from 'yup';
@@ -177,7 +174,6 @@ export default function DetailProductPage() {
     setTags(tags.filter((tag) => tag !== tagToDelete));
   };
 
-
   useEffect(() => {
     if (categories.length > 0) {
       const newTags = categories
@@ -213,6 +209,9 @@ export default function DetailProductPage() {
       titleSeo: product?.seoOption?.title || '',
       descriptionSeo: product?.seoOption?.description || '',
       aliasSeo: product?.seoOption?.alias || '',
+      minInventory: product?.minInventory || 1,
+      maxInventory: product?.maxInventory || 1,
+      inventory: product?.inventory || 1,
     },
     enableReinitialize: true,
     validationSchema: productSchema,
@@ -261,12 +260,15 @@ export default function DetailProductPage() {
       if (variantsDelete.length > 0) {
         values.variantsDelete = variantsDelete;
       }
-      
-      values.seoOption = JSON.stringify({
+      const d = {
         title: values.titleSeo,
         description: values.descriptionSeo,
         alias: values.aliasSeo,
-      });
+      };
+      values.inventory = parseInt(values.inventory, 10);
+      values.minInventory = parseInt(values.minInventory, 10);
+      values.maxInventory = parseInt(values.maxInventory, 10);
+      values.seoOption = JSON.stringify(d);
       values.tags = tags;
       delete values.titleSeo;
       delete values.descriptionSeo;
@@ -306,13 +308,14 @@ export default function DetailProductPage() {
   useEffect(() => {
     if (status === 'successful') {
       handleToast('success', 'Cập nhật sản phẩm thành công');
+      dispatch(setStatus({ key: 'statusUpdate', value: 'idle' }));
+      dispatch(setStatus({ key: 'error', value: 'idle' }));
     }
     if (status === 'failed') {
       handleToast('error', error?.message || 'Có lỗi xảy ra');
+      dispatch(setStatus({ key: 'statusUpdate', value: 'idle' }));
+      dispatch(setStatus({ key: 'error', value: 'idle' }));
     }
-
-    dispatch(setStatus({ key: 'statusUpdate', value: 'idle' }));
-    dispatch(setStatus({ key: 'error', value: 'idle' }));
   }, [status, error, dispatch]);
   const categoryOptions = useMemo(
     () => categories.map((item) => ({ value: item._id, label: item.name })),
@@ -399,7 +402,7 @@ export default function DetailProductPage() {
                           )}
                         </FastField>
                       </Grid2>
-                      <Grid2 xs={4}>
+                      <Grid2 xs={6}>
                         <FastField name="price">
                           {({ field, meta }) => (
                             <TextField
@@ -413,7 +416,7 @@ export default function DetailProductPage() {
                           )}
                         </FastField>
                       </Grid2>
-                      <Grid2 xs={4}>
+                      <Grid2 xs={6}>
                         <FastField name="statusStock">
                           {({ field, form, meta }) => (
                             <FormControl
@@ -439,7 +442,7 @@ export default function DetailProductPage() {
                           )}
                         </FastField>
                       </Grid2>
-                      <Grid2 xs={4}>
+                      {/* <Grid2 xs={4}>
                         <FastField name="status">
                           {({ field, form, meta }) => (
                             <FormControl component="fieldset" variant="standard">
@@ -462,7 +465,7 @@ export default function DetailProductPage() {
                             </FormControl>
                           )}
                         </FastField>
-                      </Grid2>
+                      </Grid2> */}
                     </Grid2>
                   </Card>
                   <Card
@@ -532,6 +535,7 @@ export default function DetailProductPage() {
                             <TextField
                               {...field}
                               fullWidth
+                              type="number"
                               label="Số lượng trong kho"
                               variant="outlined"
                               error={meta.touched && Boolean(meta.error)}
@@ -547,6 +551,7 @@ export default function DetailProductPage() {
                             <TextField
                               {...field}
                               fullWidth
+                              type="number"
                               label="Tối thiểu"
                               variant="outlined"
                               error={meta.touched && Boolean(meta.error)}
@@ -564,6 +569,7 @@ export default function DetailProductPage() {
                               fullWidth
                               label="Tối đa"
                               variant="outlined"
+                              type="number"
                               error={meta.touched && Boolean(meta.error)}
                               helperText={meta.touched && meta.error}
                             />
@@ -642,7 +648,7 @@ export default function DetailProductPage() {
                       </Grid2>
                       <Grid2 xs={12}>
                         <Button type="submit" variant="contained" color="inherit">
-                          Tạo sản phẩm
+                          Lưu
                         </Button>
                       </Grid2>
                     </Grid2>
@@ -666,7 +672,11 @@ export default function DetailProductPage() {
                     <Typography variant="h6" sx={{ mb: 3 }}>
                       Hình ảnh sản phẩm
                     </Typography>
-                    <MultiImageDropZone error={errorImgs}  defaultImgs={product?.images} handleUpload={handleChangeUploadImgs} />
+                    <MultiImageDropZone
+                      error={errorImgs}
+                      defaultImgs={product?.images}
+                      handleUpload={handleChangeUploadImgs}
+                    />
                     <FastField name="cat_id">
                       {({ field, form, meta }) => (
                         <FormControl

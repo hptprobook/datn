@@ -51,7 +51,7 @@ const SearchPage = () => {
   const { data: priceRangeData } = useQuery({
     queryKey: ['price-range'],
     queryFn: getMinMaxPrices,
-    initialData: { minPrice: 1000, maxPrice: 2000000 },
+    // initialData: { minPrice: 1000, maxPrice: 2000000 },
     staleTime: 1000 * 60 * 30,
     cacheTime: 1000 * 60 * 60,
   });
@@ -90,6 +90,8 @@ const SearchPage = () => {
             maxPrice: filters.priceRange.max,
             colors: filters.colors,
             sizes: filters.sizes,
+            tags: filters.tags,
+            productType: filters.type,
             sort: sortOption,
           });
 
@@ -114,25 +116,6 @@ const SearchPage = () => {
       refetchOnMount: false,
       refetchOnReconnect: false,
     });
-
-  // Xử lý thay đổi bộ lọc
-  const handleFilterChange = useCallback((newFilters) => {
-    setFilters((prevFilters) => {
-      const updatedFilters = {
-        ...prevFilters,
-        ...newFilters,
-        tags: newFilters.tags || prevFilters.tags || [],
-        type: newFilters.type || prevFilters.type || '',
-      };
-
-      if (JSON.stringify(prevFilters) !== JSON.stringify(updatedFilters)) {
-        updateSearchParams(updatedFilters);
-      }
-
-      return updatedFilters;
-    });
-    setNoMatchingProducts(false);
-  }, []);
 
   // Xử lý thay đổi giới hạn tiền
   const handlePriceRangeChange = useCallback(
@@ -188,6 +171,30 @@ const SearchPage = () => {
     [searchParams, setSearchParams, sortOption]
   );
 
+  // Xử lý thay đổi bộ lọc
+  const handleFilterChange = useCallback(
+    (newFilters) => {
+      setFilters((prevFilters) => {
+        const updatedFilters = {
+          ...prevFilters,
+          ...newFilters,
+          tags: newFilters.tags || prevFilters.tags || [],
+          type: newFilters.type || prevFilters.type || '',
+        };
+
+        if (JSON.stringify(prevFilters) !== JSON.stringify(updatedFilters)) {
+          const params = new URLSearchParams(searchParams);
+          if (keyword) params.set('keyword', keyword); // Giữ keyword đồng bộ
+          updateSearchParams(updatedFilters);
+        }
+
+        return updatedFilters;
+      });
+      setNoMatchingProducts(false);
+    },
+    [keyword, searchParams, updateSearchParams]
+  );
+
   // Xử lý thay đổi sắp xếp
   const handleSortChange = useCallback(
     (newSortOption) => {
@@ -208,22 +215,23 @@ const SearchPage = () => {
   if (!priceRangeData) return <MainLoading />;
 
   return (
-    <section className="max-w-container mx-auto mt-16">
+    <section className="max-w-container mx-auto max-lg:mt-0 mt-16 max-lg:px-4 max-lg:relative">
       <Helmet>
         <title>BMT Life | Kết quả tìm kiếm: {keyword || ''}</title>
       </Helmet>
       <HeaderBC title={'Kết quả tìm kiếm'} name={keyword} />
       <div className="divider"></div>
-      <div className="grid grid-cols-5 gap-6 mt-8">
-        <div className="col-span-1">
+      <div className="grid max-lg:grid-cols-1 grid-cols-5 gap-6 mt-8">
+        <div className="max-lg:col-span-1 col-span-1">
           <ProductListFilter
             onFilterChange={handleFilterChange}
             onPriceRangeChange={handlePriceRangeChange}
             priceRangeData={priceRangeData}
             initialFilters={filters}
+            text={keyword}
           />
         </div>
-        <div className="col-span-4">
+        <div className="max-lg:col-span-1 col-span-4">
           {noMatchingProducts || filteredProductsData?.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-64 text-gray-600">
               <Icon icon="tabler:news-off" className="text-6xl mb-4" />

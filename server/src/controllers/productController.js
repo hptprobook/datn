@@ -32,6 +32,8 @@ const searchByElasticsearch = async (req, res) => {
       page = 1,
       limit = 20,
       sort,
+      tags,
+      productType,
     } = req.query;
 
     // Validate input
@@ -48,6 +50,8 @@ const searchByElasticsearch = async (req, res) => {
       maxPrice: maxPrice ? parseFloat(maxPrice) : undefined,
       colors: colors ? colors.split(',') : undefined,
       sizes: sizes ? sizes.split(',') : undefined,
+      tags: tags ? tags.split(',') : undefined,
+      productType: productType ? productType.split(',') : undefined,
       page: parseInt(page, 10) || 1,
       limit: parseInt(limit, 10) || 20,
     };
@@ -78,6 +82,28 @@ const searchByElasticsearch = async (req, res) => {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: 'Có lỗi xảy ra trong quá trình tìm kiếm',
+      error: error.message,
+    });
+  }
+};
+
+const getProductSuggestions = async (req, res) => {
+  try {
+    const { keyword, limit = 5 } = req.query;
+
+    const suggestions = await elasticsearchService.getSuggestions(
+      keyword,
+      parseInt(limit)
+    );
+
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      suggestions,
+    });
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Failed to get suggestions',
       error: error.message,
     });
   }
@@ -386,6 +412,10 @@ const updateProduct = async (req, res) => {
       statusStock,
       variants,
       imagesDelete,
+      inventory,
+      minInventory,
+      maxInventory,
+      seoOption
       // indexVariants,
       // variantsDelete,
     } = req.body;
@@ -538,6 +568,10 @@ const updateProduct = async (req, res) => {
       weight,
       height,
       statusStock,
+      inventory,
+      minInventory,
+      maxInventory,
+      seoOption: JSON.parse(seoOption),
       productType: JSON.parse(productType),
     };
 
@@ -1395,6 +1429,7 @@ const creates = async (req, res) => {
 export const productController = {
   createProduct,
   searchByElasticsearch,
+  getProductSuggestions,
   getAllProducts,
   getProductsByView,
   increaseView,

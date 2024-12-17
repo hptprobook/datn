@@ -27,16 +27,14 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import Iconify from 'src/components/iconify/iconify';
 import { handleToast } from 'src/hooks/toast';
-import { setStatus, createCustomerGroup } from 'src/redux/slices/customerGroupSlice';
+import { setStatus, createCustomerGroup } from 'src/redux/slices/CustomerGroupSlice';
 import LoadingFull from 'src/components/loading/loading-full';
 // import { AutoSelect } from '../auto-select';
 import { customerGroupSchema } from '../utils';
 
-
 // ----------------------------------------------------------------------
 
 export default function CreateCustomerGroupPage() {
-
   const dispatch = useDispatch();
 
   const status = useSelector((state) => state.customerGroups.statusCreate);
@@ -56,7 +54,7 @@ export default function CreateCustomerGroupPage() {
             field: '',
             query: '',
             status: '',
-          }
+          },
         ],
       }),
       listCustomer: [],
@@ -91,7 +89,6 @@ export default function CreateCustomerGroupPage() {
       dispatch(createCustomerGroup({ data: values }));
     },
   });
-
 
   useEffect(() => {
     if (status === 'failed') {
@@ -154,7 +151,7 @@ export default function CreateCustomerGroupPage() {
                   label="Ghi chú"
                   variant="outlined"
                   name="note"
-                  placeholder='VD: Nhóm khách hàng mua hàng thường xuyên'
+                  placeholder="VD: Nhóm khách hàng mua hàng thường xuyên"
                   value={formik.values.note}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
@@ -202,11 +199,21 @@ export default function CreateCustomerGroupPage() {
                         value={formik.values.satisfy}
                         onChange={formik.handleChange}
                       >
-                        <FormControlLabel value="all" control={<Radio />} label="Tất cả các điều kiện" />
-                        <FormControlLabel value="once" control={<Radio />} label="Một trong các điều kiện" />
+                        <FormControlLabel
+                          value="all"
+                          control={<Radio />}
+                          label="Tất cả các điều kiện"
+                        />
+                        <FormControlLabel
+                          value="once"
+                          control={<Radio />}
+                          label="Một trong các điều kiện"
+                        />
                       </RadioGroup>
                       <FormHelperText>
-                        {formik.touched.satisfy && formik.errors.satisfy ? formik.errors.satisfy : ''}
+                        {formik.touched.satisfy && formik.errors.satisfy
+                          ? formik.errors.satisfy
+                          : ''}
                       </FormHelperText>
                     </FormControl>
                   </Stack>
@@ -219,13 +226,23 @@ export default function CreateCustomerGroupPage() {
                         value={formik.values.auto?.[0]?.field || ''}
                         label="Field"
                         onChange={formik.handleChange}
-                        error={formik.touched.auto && formik.errors.auto && formik.errors.auto[0] && formik.errors.auto[0].field}
+                        error={
+                          formik.touched.auto &&
+                          formik.errors.auto &&
+                          formik.errors.auto[0] &&
+                          formik.errors.auto[0].field
+                        }
                       >
                         <MenuItem value="">Vui lòng chọn</MenuItem>
                         <MenuItem value="Trạng thái">Trạng thái</MenuItem>
                       </Select>
                       <FormHelperText>
-                        {formik.touched.auto && formik.errors.auto && formik.errors.auto[0] && formik.errors.auto[0].field ? formik.errors.auto[0].field : ''}
+                        {formik.touched.auto &&
+                        formik.errors.auto &&
+                        formik.errors.auto[0] &&
+                        formik.errors.auto[0].field
+                          ? formik.errors.auto[0].field
+                          : ''}
                       </FormHelperText>
                     </FormControl>
                     <FormControl fullWidth>
@@ -236,13 +253,23 @@ export default function CreateCustomerGroupPage() {
                         value={formik.values.auto?.[0]?.query || ''}
                         label="Query"
                         onChange={formik.handleChange}
-                        error={formik.touched.auto && formik.errors.auto && formik.errors.auto[0] && formik.errors.auto[0].query}
+                        error={
+                          formik.touched.auto &&
+                          formik.errors.auto &&
+                          formik.errors.auto[0] &&
+                          formik.errors.auto[0].query
+                        }
                       >
                         <MenuItem value="">Vui lòng chọn</MenuItem>
                         <MenuItem value="Là">Là</MenuItem>
                       </Select>
                       <FormHelperText>
-                        {formik.touched.auto && formik.errors.auto && formik.errors.auto[0] && formik.errors.auto[0].query ? formik.errors.auto[0].query : ''}
+                        {formik.touched.auto &&
+                        formik.errors.auto &&
+                        formik.errors.auto[0] &&
+                        formik.errors.auto[0].query
+                          ? formik.errors.auto[0].query
+                          : ''}
                       </FormHelperText>
                     </FormControl>
                     <FormControl fullWidth>
@@ -253,7 +280,12 @@ export default function CreateCustomerGroupPage() {
                         value={formik.values.auto?.[0]?.status || ''}
                         label="Status"
                         onChange={formik.handleChange}
-                        error={formik.touched.auto && formik.errors.auto && formik.errors.auto[0] && formik.errors.auto[0].status}
+                        error={
+                          formik.touched.auto &&
+                          formik.errors.auto &&
+                          formik.errors.auto[0] &&
+                          formik.errors.auto[0].status
+                        }
                       >
                         <MenuItem value="">Vui lòng chọn</MenuItem>
                         <MenuItem value="Có tài khoản">Có tài khoản</MenuItem>
@@ -261,7 +293,12 @@ export default function CreateCustomerGroupPage() {
                         <MenuItem value="Đã gửi lời mời đăng ký">Đã gửi lời mời đăng ký</MenuItem>
                       </Select>
                       <FormHelperText>
-                        {formik.touched.auto && formik.errors.auto && formik.errors.auto[0] && formik.errors.auto[0].status ? formik.errors.auto[0].status : ''}
+                        {formik.touched.auto &&
+                        formik.errors.auto &&
+                        formik.errors.auto[0] &&
+                        formik.errors.auto[0].status
+                          ? formik.errors.auto[0].status
+                          : ''}
                       </FormHelperText>
                     </FormControl>
                   </Stack>
@@ -271,7 +308,12 @@ export default function CreateCustomerGroupPage() {
           </Grid2>
           <Grid2 xs={12}>
             <Stack spacing={3} direction="row" mt={2} justifyContent="flex-end">
-              <Button type="button" onClick={() => formik.handleSubmit()} variant="contained" color="inherit">
+              <Button
+                type="button"
+                onClick={() => formik.handleSubmit()}
+                variant="contained"
+                color="inherit"
+              >
                 Tạo nhóm
               </Button>
             </Stack>
