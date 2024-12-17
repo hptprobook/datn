@@ -66,11 +66,38 @@ const receiptStatistics = async () => {
         count
     };
 }
+const receiptFilterStatistics = async (time) => {
+    const db = await GET_DB();
+    const collection = db.collection('receipt');
+    const receipts = await collection
+        .find(
+            {
+                type: 'store',
+                createdAt: {
+                    $gte: time,
+                },
+            }
+        )
+        .toArray();
+    return receipts;
+}
+const orderFilterStatistics = async (time) => {
+    const db = await GET_DB();
+    const collection = db.collection('orders');
+    const receipts = await collection
+        .find(
+            {
+                createdAt: {
+                    $gte: time,
+                },
+            }
+        )
+        .toArray();
+    return receipts;
+}
 const getOrders = async (fields, filter) => {
     const db = await GET_DB();
     const collection = db.collection('orders');
-
-
     const count = await collection.countDocuments(filter);
     const orders = await collection
         .find(filter)
@@ -106,5 +133,7 @@ export const dashboardModel = {
     receiptStatistics,
     productsStatistics,
     getOrders,
-    getReceipts
+    getReceipts,
+    receiptFilterStatistics,
+    orderFilterStatistics
 };

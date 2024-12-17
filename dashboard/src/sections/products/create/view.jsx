@@ -9,15 +9,12 @@ import {
   Card,
   Chip,
   Select,
-  Switch,
   Button,
   MenuItem,
   TextField,
-  FormLabel,
   InputLabel,
   FormControl,
   FormHelperText,
-  FormControlLabel,
 } from '@mui/material';
 import * as Yup from 'yup';
 import './styles.css';
@@ -29,12 +26,13 @@ import { fetchAllCategories } from 'src/redux/slices/categorySlices';
 import { fetchAll } from 'src/redux/slices/brandSlices';
 import { handleToast } from 'src/hooks/toast';
 import { setStatus, createProduct } from 'src/redux/slices/productSlice';
-import LoadingFull from 'src/components/loading/loading-full';
 import { fetchAllVariants } from 'src/redux/slices/variantSlices';
 import { fetchAll as fetchAllWareHouse } from 'src/redux/slices/warehouseSlices';
 
 import MultiImageDropZone from 'src/components/drop-zone-upload/upload-imgs';
 import { slugify } from 'src/utils/format-text';
+import LoadingHeader from 'src/components/loading/loading-header';
+import { useNavigate } from 'react-router-dom';
 import { AutoSelect } from '../auto-select';
 import CreateVariant from '../variant';
 
@@ -102,6 +100,7 @@ export default function CreateProductPage() {
   const [dataTags, setDataTags] = useState([]);
   const dispatch = useDispatch();
   const [variants, setVariants] = useState(null);
+  const navigate = useNavigate();
 
   const status = useSelector((state) => state.products.statusCreate);
   const error = useSelector((state) => state.products.error);
@@ -166,6 +165,7 @@ export default function CreateProductPage() {
       delete values.titleSeo;
       delete values.descriptionSeo;
       delete values.aliasSeo;
+      console.log(values);
       dispatch(createProduct({ data: values }));
     },
   });
@@ -235,18 +235,19 @@ export default function CreateProductPage() {
     }
   };
   useEffect(() => {
-    if (status === 'failed') {
-      handleToast('error', error.message);
-    }
     if (status === 'successful') {
       handleToast('success', 'Tạo sản phẩm thành công');
-      formik.resetForm();
       setTags([]);
       setImages([]);
       setThumbnail(null);
       setVariants(null);
+      dispatch(setStatus({ key: 'statusCreate', value: 'idle' }));
+      navigate('/admin/products');
     }
-    dispatch(setStatus({ key: 'statusCreate', value: 'idle' }));
+    if (status === 'failed') {
+      handleToast('error', error.message);
+      dispatch(setStatus({ key: 'statusCreate', value: 'idle' }));
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, error, dispatch]);
   const categoryOptions = useMemo(
@@ -260,7 +261,7 @@ export default function CreateProductPage() {
 
   return (
     <Container>
-      {status === 'loading' && <LoadingFull />}
+      {status === 'loading' && <LoadingHeader />}
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Typography variant="h4">Tạo một sản phẩm mới</Typography>
       </Stack>
@@ -291,7 +292,12 @@ export default function CreateProductPage() {
                       </FastField>
                     </Grid2>
                     <Grid2 xs={2}>
-                      <Button onClick={handleCreateSlug} variant="contained" color="inherit" disabled={formik.errors.name}>
+                      <Button
+                        onClick={handleCreateSlug}
+                        variant="contained"
+                        color="inherit"
+                        disabled={formik.errors.name}
+                      >
                         Tạo slug
                       </Button>
                     </Grid2>
@@ -309,7 +315,7 @@ export default function CreateProductPage() {
                         )}
                       </FastField>
                     </Grid2>
-                    <Grid2 xs={4}>
+                    <Grid2 xs={6}>
                       <FastField name="price">
                         {({ field, meta }) => (
                           <TextField
@@ -323,7 +329,7 @@ export default function CreateProductPage() {
                         )}
                       </FastField>
                     </Grid2>
-                    <Grid2 xs={4}>
+                    <Grid2 xs={6}>
                       <FastField name="statusStock">
                         {({ field, form, meta }) => (
                           <FormControl
@@ -349,7 +355,7 @@ export default function CreateProductPage() {
                         )}
                       </FastField>
                     </Grid2>
-                    <Grid2 xs={4}>
+                    {/* <Grid2 xs={4}>
                       <FastField name="status">
                         {({ field, form, meta }) => (
                           <FormControl component="fieldset" variant="standard">
@@ -372,7 +378,7 @@ export default function CreateProductPage() {
                           </FormControl>
                         )}
                       </FastField>
-                    </Grid2>
+                    </Grid2> */}
                   </Grid2>
                 </Card>
                 <Card

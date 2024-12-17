@@ -193,9 +193,10 @@ export default function CreateOrderPage() {
           fee,
           totalPayment: receipt.totalPrice + fee,
         };
-
-        // Cập nhật lại receipt
-        setReceipt(updatedReceipt);
+        const newReceipts = receipts.map((r, index) =>
+          index === value ? updatedReceipt : receipt
+        );
+        setReceipts(newReceipts);
       }
     });
   };
@@ -399,7 +400,6 @@ export default function CreateOrderPage() {
       handleToast('error', 'Vui lòng chọn kho hàng');
       return;
     }
-
     r.orderCode = `ODS${new Date().getTime()}`;
     r.shippingInfo = {
       detailAddress: address,
@@ -416,8 +416,9 @@ export default function CreateOrderPage() {
     delete r.name;
     delete r.phone;
     delete r.note;
-    dispatch(createOrder(r));
+    console.log(r);
     setReceipts([...receipts]);
+    dispatch(createOrder(r));
   };
   const handleCloseReceipt = () => {
     const newArray = receipts.filter((_, index) => index !== value);

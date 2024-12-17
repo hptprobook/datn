@@ -34,6 +34,17 @@ export const productsStatistics = createAsyncThunk(
         }
     }
 );
+export const receiptStatisticsPos = createAsyncThunk(
+    'dashboard/receiptStatisticsPos',
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await DashboardService.gets('/dashboard/receipts/filter');
+            return response;
+        } catch (err) {
+            return rejectWithValue(err.response.data);
+        }
+    }
+);
 export const get7DayData = createAsyncThunk(
     'dashboard/get7DayData',
     async (_, { rejectWithValue }) => {
@@ -53,6 +64,7 @@ const initialState = {
     receiptStatistics: null,
     get7DayData: null,
     status: "idle",
+    receiptStatisticsPos: null,
     statusDelete: "idle",
     error: null,
 };
@@ -108,6 +120,18 @@ const dashboardSlices = createSlice({
                 state.error = null;
             })
             .addCase(get7DayData.rejected, (state, action) => {
+                state.status = "failed";
+                state.error = action.payload;
+            })
+            .addCase(receiptStatisticsPos.pending, (state) => {
+                state.status = "loading";
+            })
+            .addCase(receiptStatisticsPos.fulfilled, (state, action) => {
+                state.status = "successful";
+                state.receiptStatisticsPos = action.payload;
+                state.error = null;
+            })
+            .addCase(receiptStatisticsPos.rejected, (state, action) => {
                 state.status = "failed";
                 state.error = action.payload;
             })
