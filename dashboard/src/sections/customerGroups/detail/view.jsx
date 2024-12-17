@@ -35,8 +35,8 @@ import {
   addCustomerToGroup,
   getOneCustomerGroup,
   updateCustomerGroup,
-  removeCustomerFromGroup
-} from 'src/redux/slices/customerGroupSlice';
+  removeCustomerFromGroup,
+} from 'src/redux/slices/CustomerGroupSlice';
 import LoadingFull from 'src/components/loading/loading-full';
 // import { AutoSelect } from '../auto-select';
 import { useParams } from 'react-router-dom';
@@ -51,7 +51,7 @@ import {
   FIELD_OPTIONS,
   customerGroupSchema,
   QUERY_OPTIONS_TRANG_THAI,
-  QUERY_OPTIONS_TONG_DON_HANG
+  QUERY_OPTIONS_TONG_DON_HANG,
 } from '../utils';
 import TableNoData from '../table-no-data';
 import TableEmptyRows from '../table-empty-rows';
@@ -104,7 +104,7 @@ export default function DetailCustomerGroupPage() {
           field: '',
           query: '',
           status: '',
-        }
+        },
       ],
     }),
     listCustomer: customerGroup.listCustomer || [],
@@ -125,7 +125,7 @@ export default function DetailCustomerGroupPage() {
     if (statusRemoveCustomer === 'failed') {
       handleToast('error', error.message);
     }
-  })
+  });
 
   useEffect(() => {
     if (customerGroup && customerGroup.manual !== undefined) {
@@ -284,7 +284,6 @@ export default function DetailCustomerGroupPage() {
             }
           }
 
-
           if (values.manual) {
             delete values.auto;
           }
@@ -331,7 +330,7 @@ export default function DetailCustomerGroupPage() {
                       label="Ghi chú"
                       variant="outlined"
                       name="note"
-                      placeholder='VD: Nhóm khách hàng mua hàng thường xuyên'
+                      placeholder="VD: Nhóm khách hàng mua hàng thường xuyên"
                       value={values.note}
                       onChange={handleChange}
                       onBlur={handleBlur}
@@ -360,8 +359,16 @@ export default function DetailCustomerGroupPage() {
                             value={values.satisfy}
                             onChange={handleChange}
                           >
-                            <FormControlLabel value="all" control={<Radio />} label="Tất cả các điều kiện" />
-                            <FormControlLabel value="once" control={<Radio />} label="Một trong các điều kiện" />
+                            <FormControlLabel
+                              value="all"
+                              control={<Radio />}
+                              label="Tất cả các điều kiện"
+                            />
+                            <FormControlLabel
+                              value="once"
+                              control={<Radio />}
+                              label="Một trong các điều kiện"
+                            />
                           </RadioGroup>
                           <FormHelperText>
                             {touched.satisfy && errors.satisfy ? errors.satisfy : ''}
@@ -372,129 +379,137 @@ export default function DetailCustomerGroupPage() {
                         name="auto"
                         render={(arrayHelpers) => (
                           <div>
-                            {values.auto && values.auto.length > 0 ? (
-                              values.auto.map((auto, index) => (
-                                <Stack direction="row" spacing={2} sx={{ mt: 3 }} key={index}>
-                                  <FormControl fullWidth>
-                                    <Select
-                                      labelId={`field-select-label-${index}`}
-                                      id={`field-select-${index}`}
-                                      name={`auto[${index}].field`}
-                                      value={values.auto[index].field || ''}
-                                      label="Field"
-                                      onChange={handleChange}
-                                      error={
-                                        touched.auto &&
-                                        errors.auto &&
-                                        errors.auto[index] &&
-                                        errors.auto[index].field
-                                      }
-                                    >
-                                      <MenuItem value="">Vui lòng chọn</MenuItem>
-                                      {FIELD_OPTIONS.map((option) => (
-                                        <MenuItem key={option.value} value={option.value}>
-                                          {option.label}
-                                        </MenuItem>
-                                      ))}
-                                    </Select>
-                                    <FormHelperText>
-                                      {touched.auto &&
-                                        errors.auto &&
-                                        errors.auto[index] &&
-                                        errors.auto[index].field
-                                        ? errors.auto[index].field
-                                        : ''}
-                                    </FormHelperText>
-                                  </FormControl>
-                                  <FormControl fullWidth>
-                                    <Select
-                                      labelId={`query-select-label-${index}`}
-                                      id={`query-select-${index}`}
-                                      name={`auto[${index}].query`}
-                                      value={values.auto[index].query || ''}
-                                      label="Query"
-                                      onChange={handleChange}
-                                      error={
-                                        touched.auto &&
-                                        errors.auto &&
-                                        errors.auto[index] &&
-                                        errors.auto[index].query
-                                      }
-                                    >
-                                      <MenuItem value="">Vui lòng chọn</MenuItem>
-                                      {(values.auto[index].field === 'Tổng đơn hàng' ? QUERY_OPTIONS_TONG_DON_HANG : QUERY_OPTIONS_TRANG_THAI).map((option) => (
-                                        <MenuItem key={option.value} value={option.value}>
-                                          {option.label}
-                                        </MenuItem>
-                                      ))}
-                                    </Select>
-                                    <FormHelperText>
-                                      {touched.auto &&
-                                        errors.auto &&
-                                        errors.auto[index] &&
-                                        errors.auto[index].query
-                                        ? errors.auto[index].query
-                                        : ''}
-                                    </FormHelperText>
-                                  </FormControl>
-                                  <FormControl fullWidth>
-                                    {values.auto[index].field === 'Tổng đơn hàng' ? (
-                                      <TextField
-                                        id={`status-input-${index}`}
-                                        name={`auto[${index}].status`}
-                                        value={values.auto[index].status || ''}
-                                        onChange={handleChange}
-                                        error={
-                                          touched.auto &&
-                                          errors.auto &&
-                                          errors.auto[index] &&
-                                          errors.auto[index].status
-                                        }
-
-                                      />
-                                    ) : (
+                            {values.auto && values.auto.length > 0
+                              ? values.auto.map((auto, index) => (
+                                  <Stack direction="row" spacing={2} sx={{ mt: 3 }} key={index}>
+                                    <FormControl fullWidth>
                                       <Select
-                                        labelId={`status-select-label-${index}`}
-                                        id={`status-select-${index}`}
-                                        name={`auto[${index}].status`}
-                                        value={values.auto[index].status || ''}
-                                        label="Status"
+                                        labelId={`field-select-label-${index}`}
+                                        id={`field-select-${index}`}
+                                        name={`auto[${index}].field`}
+                                        value={values.auto[index].field || ''}
+                                        label="Field"
                                         onChange={handleChange}
                                         error={
                                           touched.auto &&
                                           errors.auto &&
                                           errors.auto[index] &&
-                                          errors.auto[index].status
+                                          errors.auto[index].field
                                         }
                                       >
                                         <MenuItem value="">Vui lòng chọn</MenuItem>
-                                        <MenuItem value="Có tài khoản">Có tài khoản</MenuItem>
-                                        <MenuItem value="Chưa có tài khoản">Chưa có tài khoản</MenuItem>
-                                        <MenuItem value="Đã gửi lời mời đăng ký">Đã gửi lời mời đăng ký</MenuItem>
+                                        {FIELD_OPTIONS.map((option) => (
+                                          <MenuItem key={option.value} value={option.value}>
+                                            {option.label}
+                                          </MenuItem>
+                                        ))}
                                       </Select>
-                                    )}
-                                    <FormHelperText>
-                                      {touched.auto &&
+                                      <FormHelperText>
+                                        {touched.auto &&
+                                        errors.auto &&
+                                        errors.auto[index] &&
+                                        errors.auto[index].field
+                                          ? errors.auto[index].field
+                                          : ''}
+                                      </FormHelperText>
+                                    </FormControl>
+                                    <FormControl fullWidth>
+                                      <Select
+                                        labelId={`query-select-label-${index}`}
+                                        id={`query-select-${index}`}
+                                        name={`auto[${index}].query`}
+                                        value={values.auto[index].query || ''}
+                                        label="Query"
+                                        onChange={handleChange}
+                                        error={
+                                          touched.auto &&
+                                          errors.auto &&
+                                          errors.auto[index] &&
+                                          errors.auto[index].query
+                                        }
+                                      >
+                                        <MenuItem value="">Vui lòng chọn</MenuItem>
+                                        {(values.auto[index].field === 'Tổng đơn hàng'
+                                          ? QUERY_OPTIONS_TONG_DON_HANG
+                                          : QUERY_OPTIONS_TRANG_THAI
+                                        ).map((option) => (
+                                          <MenuItem key={option.value} value={option.value}>
+                                            {option.label}
+                                          </MenuItem>
+                                        ))}
+                                      </Select>
+                                      <FormHelperText>
+                                        {touched.auto &&
+                                        errors.auto &&
+                                        errors.auto[index] &&
+                                        errors.auto[index].query
+                                          ? errors.auto[index].query
+                                          : ''}
+                                      </FormHelperText>
+                                    </FormControl>
+                                    <FormControl fullWidth>
+                                      {values.auto[index].field === 'Tổng đơn hàng' ? (
+                                        <TextField
+                                          id={`status-input-${index}`}
+                                          name={`auto[${index}].status`}
+                                          value={values.auto[index].status || ''}
+                                          onChange={handleChange}
+                                          error={
+                                            touched.auto &&
+                                            errors.auto &&
+                                            errors.auto[index] &&
+                                            errors.auto[index].status
+                                          }
+                                        />
+                                      ) : (
+                                        <Select
+                                          labelId={`status-select-label-${index}`}
+                                          id={`status-select-${index}`}
+                                          name={`auto[${index}].status`}
+                                          value={values.auto[index].status || ''}
+                                          label="Status"
+                                          onChange={handleChange}
+                                          error={
+                                            touched.auto &&
+                                            errors.auto &&
+                                            errors.auto[index] &&
+                                            errors.auto[index].status
+                                          }
+                                        >
+                                          <MenuItem value="">Vui lòng chọn</MenuItem>
+                                          <MenuItem value="Có tài khoản">Có tài khoản</MenuItem>
+                                          <MenuItem value="Chưa có tài khoản">
+                                            Chưa có tài khoản
+                                          </MenuItem>
+                                          <MenuItem value="Đã gửi lời mời đăng ký">
+                                            Đã gửi lời mời đăng ký
+                                          </MenuItem>
+                                        </Select>
+                                      )}
+                                      <FormHelperText>
+                                        {touched.auto &&
                                         errors.auto &&
                                         errors.auto[index] &&
                                         errors.auto[index].status
-                                        ? errors.auto[index].status
-                                        : ''}
-                                    </FormHelperText>
-                                  </FormControl>
-                                  <IconButton
-                                    onClick={() => arrayHelpers.remove(index)}
-                                    color="error"
-                                    aria-label="remove"
-                                  >
-                                    <Iconify icon="eva:trash-2-outline" />
-                                  </IconButton>
-                                </Stack>
-                              ))
-                            ) : null}
+                                          ? errors.auto[index].status
+                                          : ''}
+                                      </FormHelperText>
+                                    </FormControl>
+                                    <IconButton
+                                      onClick={() => arrayHelpers.remove(index)}
+                                      color="error"
+                                      aria-label="remove"
+                                    >
+                                      <Iconify icon="eva:trash-2-outline" />
+                                    </IconButton>
+                                  </Stack>
+                                ))
+                              : null}
                             <Button
                               type="button"
-                              onClick={() => arrayHelpers.push({ field: '', query: '', status: '' })}
+                              onClick={() =>
+                                arrayHelpers.push({ field: '', query: '', status: '' })
+                              }
                               variant="contained"
                               color="primary"
                               sx={{ mt: 3 }}
@@ -505,8 +520,6 @@ export default function DetailCustomerGroupPage() {
                         )}
                       />
                     </Card>
-
-
                   </Grid2>
                 )}
                 <Card sx={{ padding: 3, mt: 3 }}>
@@ -560,7 +573,11 @@ export default function DetailCustomerGroupPage() {
 
                           <TableEmptyRows
                             height={77}
-                            emptyRows={emptyRows(page, rowsPerPage, customerGroup?.listCustomer?.length || 0)}
+                            emptyRows={emptyRows(
+                              page,
+                              rowsPerPage,
+                              customerGroup?.listCustomer?.length || 0
+                            )}
                           />
 
                           {notFound && <TableNoData query={filterName} />}

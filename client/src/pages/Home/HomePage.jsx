@@ -20,7 +20,7 @@ const HomePage = () => {
           <FilterCategories key={i} slug={item} />
         ))}
         <Post />
-        <div className="banner mt-24 w-full h-slider">
+        <div className="banner mt-24 w-full md:h-slider">
           <NavLink to={config?.eventUrl}>
             <img
               src={`${env.SERVER_URL}/${config?.eventBanner}`}

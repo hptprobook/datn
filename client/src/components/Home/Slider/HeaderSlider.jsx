@@ -19,7 +19,7 @@ const HeaderSlider = () => {
   const slider = webBanner || [];
 
   return (
-    <div className="w-full h-slider z-0">
+    <div className="w-full h-50 md:h-slider z-0">
       <Swiper
         autoplay={{
           delay: 7000,
