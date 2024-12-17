@@ -57,6 +57,9 @@ const RegisterPageUI = () => {
         }
       }, 1000);
     },
+    onError: (error) => {
+      handleToast('error', error.message);
+    },
   });
 
   const formik = useFormik({
