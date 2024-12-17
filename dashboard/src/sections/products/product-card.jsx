@@ -1,11 +1,4 @@
-import {
-  Box,
-  Stack,
-  Button,
-  CardMedia,
-  Typography,
-  CircularProgress,
-} from '@mui/material';
+import { Box, Stack, Button, CardMedia, Typography, CircularProgress } from '@mui/material';
 import PropTypes from 'prop-types';
 import React, { useEffect } from 'react';
 import { renderUrl } from 'src/utils/check';
@@ -14,9 +7,10 @@ import { formatCurrency } from 'src/utils/format-number';
 import Iconify from 'src/components/iconify';
 import { renderStatusStock, renderStatusStockColor } from 'src/utils/format-text';
 import Label from 'src/components/label';
-import { getHexColor } from './utils';
+import { getHexColor, parseContent } from './utils';
 
 const backendUrl = import.meta.env.VITE_BACKEND_APP_URL;
+const frontendUrl = import.meta.env.VITE_REACT_CLIENT_URL;
 const ProductCard = ({ status, product, brand }) => {
   const [color, setColor] = React.useState(null);
   const [sizes, setSizes] = React.useState([]);
@@ -26,7 +20,7 @@ const ProductCard = ({ status, product, brand }) => {
       setSizes(product.variants[0].sizes);
     }
   }, [product, status]);
-//   const [variantSize, setVariantSize] = React.useState({});
+  //   const [variantSize, setVariantSize] = React.useState({});
   const handleSelectColor = (c) => {
     setColor(c);
     setSizes(product.variants.find((variant) => variant.color === c).sizes);
@@ -108,7 +102,7 @@ const ProductCard = ({ status, product, brand }) => {
               <Typography gutterBottom variant="h5" component="div">
                 Giá: {formatCurrency(product?.price)}
               </Typography>
-              <Stack direction="row" flexWrap='wrap' spacing={1} mb={2}>
+              <Stack direction="row" flexWrap="wrap" spacing={1} mb={2}>
                 {product?.variants.map((variant, i) => (
                   <Box
                     key={i}
@@ -173,7 +167,7 @@ const ProductCard = ({ status, product, brand }) => {
                 >
                   Mô tả ngắn:{' '}
                 </span>{' '}
-                {product?.description}
+                {parseContent(product?.description)}
               </Typography>
               <Divider />
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
@@ -184,7 +178,7 @@ const ProductCard = ({ status, product, brand }) => {
                 >
                   Mô tả :{' '}
                 </span>
-                {product?.content}
+                {parseContent(product?.content)}
               </Typography>
             </Stack>
           </Box>
@@ -195,6 +189,7 @@ const ProductCard = ({ status, product, brand }) => {
               borderRadius: 0,
             }}
             fullWidth
+            onClick={() => window.open(`${frontendUrl}san-pham/${product?.slug}`, '_blank')}
           >
             Xem sản phẩm trên trang web
           </Button>

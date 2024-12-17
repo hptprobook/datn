@@ -1,5 +1,3 @@
-import { faker } from '@faker-js/faker';
-
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
@@ -18,7 +16,6 @@ import AppCurrentVisits from '../app-current-visits';
 import AppWebsiteVisits from '../app-website-visits';
 import AppWidgetSummary from '../app-widget-summary';
 // import AppTrafficBySite from '../app-traffic-by-site';
-import AppCurrentSubject from '../app-current-subject';
 import AppConversionRates from '../app-conversion-rates';
 
 // ----------------------------------------------------------------------
@@ -32,6 +29,8 @@ export default function AppView() {
   const receipts = useSelector((state) => state.dashboard.receiptStatistics);
   const products = useSelector((state) => state.dashboard.productsStatistics);
   const get7Day = useSelector((state) => state.dashboard.get7DayData);
+  const user = useSelector((state) => state.auth.auth);
+
   useEffect(() => {
     dispatch(userStatistics());
     dispatch(receiptStatistics());
@@ -92,8 +91,8 @@ export default function AppView() {
 
         <Grid xs={12} md={6}>
           <AppWebsiteVisits
-            title="Website Visits"
-            subheader="(+43%) than last year"
+            title="Thông kê doanh thu"
+            subheader=""
             chart={{
               labels: get7Day?.daysArray || [],
               series: [
@@ -128,7 +127,7 @@ export default function AppView() {
             }}
           />
         </Grid>
-        <Grid xs={12} md={6} lg={4}>
+        <Grid xs={12} md={6}>
           <AppCurrentVisits
             title="Hóa đơn"
             subheader="Doanh thu hóa đơn"
@@ -140,7 +139,7 @@ export default function AppView() {
             }}
           />
         </Grid>
-        <Grid xs={12} md={6} lg={4}>
+        <Grid xs={12} md={6}>
           <AppCurrentVisits
             title="Hóa đơn"
             subheader="Số lượng hóa đơn"
@@ -152,7 +151,7 @@ export default function AppView() {
             }}
           />
         </Grid>
-        <Grid xs={12} md={6} lg={4}>
+        {/* <Grid xs={12} md={6} lg={4}>
           <AppCurrentSubject
             title="Thống kê thói quen mua hàng"
             subheader='Tính năng đang phát triển'
@@ -165,7 +164,7 @@ export default function AppView() {
               ],
             }}
           />
-        </Grid>
+        </Grid> */}
 
         <Grid xs={12} md={6} lg={8}>
           <AppNewsUpdate title="Người dùng mới" list={users?.users || []} />
@@ -174,19 +173,8 @@ export default function AppView() {
         <Grid xs={12} md={6} lg={4}>
           <AppOrderTimeline
             title="Lịch hoạt động"
-            subheader="Tính năng đang phát triển"
-            list={[...Array(5)].map((_, index) => ({
-              id: faker.string.uuid(),
-              title: [
-                '1983, orders, $4220',
-                '12 Invoices have been paid',
-                'Order #37745 from September',
-                'New order placed #XF-2356',
-                'New order placed #XF-2346',
-              ][index],
-              type: `order${index + 1}`,
-              time: faker.date.past(),
-            }))}
+            // subheader="Tính năng đang phát triển"
+            list={user?.notifies || []}
           />
         </Grid>
       </Grid>

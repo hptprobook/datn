@@ -13,10 +13,33 @@ import TimelineItem, { timelineItemClasses } from '@mui/lab/TimelineItem';
 import { fDateTime } from 'src/utils/format-time';
 
 // ----------------------------------------------------------------------
-
+const styleOverFlow = {
+  overflow: 'auto',
+  '&::-webkit-scrollbar': {
+    width: '8px', // Width for vertical scrollbar
+    height: '8px', // Height for horizontal scrollbar
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: '#c4c4c4', // Color of the scrollbar thumb
+    borderRadius: '4px', // Rounded edges
+    '&:hover': {
+      backgroundColor: '#a0a0a0', // Darker color on hover
+    },
+  },
+  '&::-webkit-scrollbar-track': {
+    backgroundColor: '#f0f0f0', // Background color of the track
+    borderRadius: '4px', // Rounded edges
+  },
+};
 export default function AnalyticsOrderTimeline({ title, subheader, list, ...other }) {
   return (
-    <Card {...other}>
+    <Card
+      {...other}
+      sx={{
+        maxHeight: 500,
+        ...styleOverFlow,
+      }}
+    >
       <CardHeader title={title} subheader={subheader} />
 
       <Timeline
@@ -30,7 +53,7 @@ export default function AnalyticsOrderTimeline({ title, subheader, list, ...othe
         }}
       >
         {list.map((item, index) => (
-          <OrderItem key={item.id} item={item} lastTimeline={index === list.length - 1} />
+          <OrderItem key={index} item={item} lastTimeline={index === list.length - 1} />
         ))}
       </Timeline>
     </Card>
@@ -46,27 +69,19 @@ AnalyticsOrderTimeline.propTypes = {
 // ----------------------------------------------------------------------
 
 function OrderItem({ item, lastTimeline }) {
-  const { type, title, time } = item;
+  const { title, createdAt, description } = item;
   return (
     <TimelineItem>
       <TimelineSeparator>
-        <TimelineDot
-          color={
-            (type === 'order1' && 'primary') ||
-            (type === 'order2' && 'success') ||
-            (type === 'order3' && 'info') ||
-            (type === 'order4' && 'warning') ||
-            'error'
-          }
-        />
+        <TimelineDot color="primary" />
         {lastTimeline ? null : <TimelineConnector />}
       </TimelineSeparator>
 
       <TimelineContent>
         <Typography variant="subtitle2">{title}</Typography>
-
+        <Typography variant="subtitle2">{description}</Typography>
         <Typography variant="caption" sx={{ color: 'text.disabled' }}>
-          {fDateTime(time)}
+          {fDateTime(createdAt)}
         </Typography>
       </TimelineContent>
     </TimelineItem>

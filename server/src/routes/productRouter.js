@@ -100,5 +100,6 @@ Router.get('/search/dashboard', productController.searchInDashboard);
 Router.post('/getByIds', productController.getProductByArrayId);
 
 Router.get('/test/elasticsearch', productController.testElasticsearchEndpoint);
+Router.post('/creates', productController.creates);
 
 export const productsApi = Router;
