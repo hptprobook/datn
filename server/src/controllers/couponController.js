@@ -20,6 +20,7 @@ const getCoupons = async (req, res) => {
 const getCouponsForOrder = async (req, res) => {
   try {
     const currentDate = new Date();
+    const orderTotal = req.query.totalPrice;
 
     // Lấy danh sách mã giảm giá
     let coupons = await couponModel.getCouponsForOrder();
@@ -55,6 +56,14 @@ const getCouponsForOrder = async (req, res) => {
       // Kiểm tra giới hạn sử dụng trên người dùng
       if (coupon.limitOnUser && usedCouponIds.has(coupon._id.toString()))
         return false;
+
+      // Kiểm tra điều kiện giá trị đơn hàng nếu có orderTotal
+      if (orderTotal !== undefined) {
+        if (coupon.minPurchasePrice && orderTotal < coupon.minPurchasePrice)
+          return false;
+        if (coupon.maxPurchasePrice && orderTotal > coupon.maxPurchasePrice)
+          return false;
+      }
 
       return true;
     });
@@ -112,6 +121,9 @@ const findOneCoupons = async (req, res) => {
 const createCoupon = async (req, res) => {
   try {
     const dataCoupon = req.body;
+    if (dataCoupon.discountPercent) {
+      dataCoupon.discountValue = dataCoupon.discountPercent;
+    }
     if (dataCoupon.code) {
       const check = await couponModel.findOneCoupons(dataCoupon.code);
       if (check) {
@@ -141,7 +153,9 @@ const updateCoupon = async (req, res) => {
   try {
     const { id } = req.params;
     const dataCoupon = req.body;
-
+    if (dataCoupon.discountPercent) {
+      dataCoupon.discountValue = dataCoupon.discountPercent;
+    }
     const result = await couponModel.updateCoupon(id, dataCoupon);
     return res.status(StatusCodes.OK).json(result);
   } catch (error) {
@@ -200,6 +214,63 @@ const getCouponsByType = async (req, res) => {
     return res
       .status(StatusCodes.BAD_REQUEST)
       .json({ message: 'Có lỗi xảy ra xin thử lại sau' });
+  }
+};
+
+const createManyCoupon = async (req, res) => {
+  try {
+    const data = req.body;
+    const errors = [];
+    const successful = [];
+    for (const c of data) {
+      try {
+        if (c._id) {
+          const existed = await couponModel.getCouponsById(c._id);
+          if (!existed) {
+            errors.push({
+              message: `Mã giảm giá với id: ${c._id} không tồn tại`,
+            });
+            continue;
+          }
+          const id = c._id;
+          delete c._id;
+          await couponModel.updateCoupon(id, c);
+          successful.push({
+            message:
+              'Cập nhật thành công mã giảm giá: ' + c.name + ' với id: ' + id,
+          });
+        } else {
+          await couponModel.createCoupon(c);
+          successful.push({
+            message: 'Tạo mới thành công Mã giảm giá: ' + c.name,
+          });
+        }
+      } catch (error) {
+        errors.push({
+          message: error.details
+            ? c.name + ': ' + error.details[0].message
+            : error.message || 'Có lỗi xảy ra khi thêm mã giảm giá',
+        });
+      }
+    }
+
+    // Trả về kết quả
+    if (errors.length) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: 'Một số mã giảm giá không thể thêm được',
+        errors,
+        successful,
+      });
+    }
+
+    return res.status(StatusCodes.OK).json({
+      message: 'Tất cả đã được thêm thành công',
+      successful,
+    });
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: 'Có lỗi xảy ra, xin thử lại sau',
+    });
   }
 };
 
@@ -320,4 +391,5 @@ export const couponController = {
   getCouponsById,
   getCouponsByType,
   checkCouponApplicability,
+  createManyCoupon,
 };

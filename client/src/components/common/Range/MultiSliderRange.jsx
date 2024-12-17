@@ -7,10 +7,17 @@ const MultiRangeSlider = ({ min, max, onPriceRangeChange }) => {
   const [searchParams] = useSearchParams();
   const [minVal, setMinVal] = useState(min);
   const [maxVal, setMaxVal] = useState(max);
-  const minValRef = useRef(minVal);
-  const maxValRef = useRef(maxVal);
+  const minValRef = useRef(min);
+  const maxValRef = useRef(max);
   const range = useRef(null);
   const timeoutRef = useRef(null);
+
+  useEffect(() => {
+    setMinVal(min);
+    setMaxVal(max);
+    minValRef.current = min;
+    maxValRef.current = max;
+  }, [min, max]);
 
   useEffect(() => {
     const minPrice = parseInt(searchParams.get('minPrice'), 10);
@@ -31,16 +38,11 @@ const MultiRangeSlider = ({ min, max, onPriceRangeChange }) => {
       clearTimeout(timeoutRef.current);
     }
     timeoutRef.current = setTimeout(() => {
-      onPriceRangeChange({ min: minVal, max: maxVal });
-    }, 2000);
-  }, [minVal, maxVal, onPriceRangeChange]);
-
-  // useEffect(() => {
-  //   if (minVal === min && maxVal === max) {
-  //     setMinVal(min);
-  //     setMaxVal(max);
-  //   }
-  // }, [min, max]);
+      if (minVal !== min || maxVal !== max) {
+        onPriceRangeChange({ min: minVal, max: maxVal });
+      }
+    }, 500);
+  }, [minVal, maxVal, min, max, onPriceRangeChange]);
 
   useEffect(() => {
     debouncedPriceRangeChange();
@@ -58,13 +60,22 @@ const MultiRangeSlider = ({ min, max, onPriceRangeChange }) => {
 
   useEffect(() => {
     const minPercent = getPercent(minVal);
-    const maxPercent = getPercent(maxVal);
+    const maxPercent = getPercent(maxValRef.current);
 
     if (range.current) {
       range.current.style.left = `${minPercent}%`;
       range.current.style.width = `${maxPercent - minPercent}%`;
     }
-  }, [minVal, maxVal, getPercent]);
+  }, [minVal, getPercent]);
+
+  useEffect(() => {
+    const minPercent = getPercent(minValRef.current);
+    const maxPercent = getPercent(maxVal);
+
+    if (range.current) {
+      range.current.style.width = `${maxPercent - minPercent}%`;
+    }
+  }, [maxVal, getPercent]);
 
   return (
     <div className="text-black">
@@ -75,52 +86,38 @@ const MultiRangeSlider = ({ min, max, onPriceRangeChange }) => {
           min={min}
           max={max}
           value={minVal}
-          step={100}
+          step={1000}
           onChange={(event) => {
-            const value = Math.min(Number(event.target.value), maxVal - 1);
+            const value = Math.min(Number(event.target.value), maxVal - 10000);
             setMinVal(value);
             minValRef.current = value;
           }}
           className="thumb thumb--left"
-          style={{ zIndex: minVal > max - 100 && '5' }}
+          style={{ zIndex: minVal > max - 100 ? '5' : undefined }}
         />
         <input
           type="range"
           min={min}
           max={max}
           value={maxVal}
-          step={100}
+          step={1000}
           onChange={(event) => {
-            const value = Math.max(Number(event.target.value), minVal + 1);
+            const value = Math.max(Number(event.target.value), minVal + 10000);
             setMaxVal(value);
             maxValRef.current = value;
           }}
           className="thumb thumb--right"
         />
 
-        <div
-          className="slider"
-          onClick={(event) => {
-            const rect = event.target.getBoundingClientRect();
-            const clickX = event.clientX - rect.left;
-            const newValue = Math.round(
-              (clickX / rect.width) * (max - min) + min
-            );
-            const halfRange = (max - min) / 2;
-
-            if (newValue < minVal + halfRange) {
-              setMinVal(Math.min(newValue, maxVal - 1));
-              minValRef.current = Math.min(newValue, maxVal - 1);
-            } else {
-              setMaxVal(Math.max(newValue, minVal + 1));
-              maxValRef.current = Math.max(newValue, minVal + 1);
-            }
-          }}
-        >
+        <div className="slider">
           <div className="slider__track" />
           <div ref={range} className="slider__range" />
-          <div className="slider__left-value">{minVal}</div>
-          <div className="slider__right-value">{maxVal}</div>
+          <div className="slider__left-value">
+            {new Intl.NumberFormat('vi-VN').format(minVal)}đ
+          </div>
+          <div className="slider__right-value">
+            {new Intl.NumberFormat('vi-VN').format(maxVal)}đ
+          </div>
         </div>
       </div>
     </div>
@@ -128,9 +125,9 @@ const MultiRangeSlider = ({ min, max, onPriceRangeChange }) => {
 };
 
 MultiRangeSlider.propTypes = {
-  min: PropTypes.number,
-  max: PropTypes.number,
-  onPriceRangeChange: PropTypes.func,
+  min: PropTypes.number.isRequired,
+  max: PropTypes.number.isRequired,
+  onPriceRangeChange: PropTypes.func.isRequired,
 };
 
 export default MultiRangeSlider;

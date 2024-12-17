@@ -26,15 +26,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import { create, setStatus } from 'src/redux/slices/couponSlice';
 import { useMemo, useState, useEffect } from 'react';
 import { handleToast } from 'src/hooks/toast';
-import { ProductList } from 'src/sections/receiptsWarehouse/product-list';
+// import { ProductList } from 'src/sections/receiptsWarehouse/product-list';
 import { couponSchema } from '../utils';
-import ProductSelectedList from '../product-select-list';
+// import ProductSelectedList from '../product-select-list';
 // ----------------------------------------------------------------------
 const now = dayjs();
 export default function CreateCouponPage() {
   const [error, setError] = useState(null);
   const [errorEnd, setErrorEnd] = useState(null);
-  const [products, setProducts] = useState([]);
+  // const [products, setProducts] = useState([]);
 
   const status = useSelector((state) => state.coupons.statusCreate);
   const err = useSelector((state) => state.coupons.error);
@@ -87,7 +87,7 @@ export default function CreateCouponPage() {
       name: '',
       code: '',
       type: 'percent',
-      applicableProducts: [],
+      // applicableProducts: [],
       minPurchasePrice: '',
       maxPurchasePrice: '',
       discountValue: '',
@@ -121,21 +121,23 @@ export default function CreateCouponPage() {
       data.usageLimit = Number(values.usageLimit);
       data.dateStart = dayjs(values.dateStart).valueOf();
       data.dateEnd = dayjs(values.dateEnd).valueOf();
-      data.applicableProducts = products.map((product) => product._id);
+      // if (data.applicableProducts) {
+      // data.applicableProducts = products.map((product) => product._id);
+      // }
       dispatch(create(data));
     },
   });
 
-  const handleAddProduct = (product) => {
-    if (products.find((item) => item._id === product._id)) {
-      return;
-    }
-    setProducts([...products, product]);
-  };
-  const handleDelete = (id) => {
-    const newProducts = products.filter((product) => product._id !== id);
-    setProducts(newProducts);
-  };
+  // const handleAddProduct = (product) => {
+  //   if (products.find((item) => item._id === product._id)) {
+  //     return;
+  //   }
+  //   setProducts([...products, product]);
+  // };
+  // const handleDelete = (id) => {
+  //   const newProducts = products.filter((product) => product._id !== id);
+  //   setProducts(newProducts);
+  // };
 
   return (
     <Container>
@@ -144,7 +146,7 @@ export default function CreateCouponPage() {
       </Stack>
       <form onSubmit={formik.handleSubmit}>
         <Grid2 container spacing={3}>
-          <Grid2 xs={8}>
+          <Grid2 xs={12}>
             <Card sx={{ p: 3, width: '100%' }}>
               <Grid2 container spacing={2}>
                 <Grid2 xs={12}>
@@ -352,7 +354,7 @@ export default function CreateCouponPage() {
             </Card>
           </Grid2>
 
-          <Grid2 xs={4}>
+          {/* <Grid2 xs={4}>
             <Card sx={{ p: 3, width: '100%' }}>
               <Grid2 xs={12}>
                 <Typography variant="h5">Sản phẩm áp dụng</Typography>
@@ -360,7 +362,7 @@ export default function CreateCouponPage() {
               <ProductList onAddProduct={handleAddProduct} />
               <ProductSelectedList products={products} onDelete={handleDelete} />
             </Card>
-          </Grid2>
+          </Grid2> */}
         </Grid2>
       </form>
     </Container>

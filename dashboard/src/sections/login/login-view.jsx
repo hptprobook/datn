@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 
 import Box from '@mui/material/Box';
-import Link from '@mui/material/Link';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Divider from '@mui/material/Divider';
@@ -90,7 +89,7 @@ export default function LoginView() {
 
   const renderForm = (
     <form onSubmit={formik.handleSubmit}>
-      <Stack spacing={3}>
+      <Stack spacing={3} mb={2}>
         <TextField
           name="main"
           label="Tên đăng nhập/ Email/ Số điện thoại"
@@ -120,12 +119,12 @@ export default function LoginView() {
           }}
         />
       </Stack>
-
+      {/* 
       <Stack direction="row" alignItems="center" justifyContent="flex-end" sx={{ my: 3 }}>
         <Link variant="subtitle2" underline="hover">
           Quên mật khẩu?
         </Link>
-      </Stack>
+      </Stack> */}
 
       <LoadingButton
         fullWidth

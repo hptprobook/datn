@@ -34,7 +34,7 @@ const CartPage = () => {
           <div className="bg-white antialiased">
             <div
               className={`mx-auto max-w-screen-xl px-4 2xl:px-0 ${
-                !user ? 'min-h-screen' : ''
+                !user ? 'min-h-[60vh]' : ''
               }`}
             >
               <div className="mt-6 sm:mt-8 lg:flex lg:gap-8">
@@ -48,7 +48,7 @@ const CartPage = () => {
             </div>
           </div>
 
-          <div className="text-gray-900 mt-8 border-t border-gray-200 pt-8">
+          <div className="text-gray-900 mt-8 border-t border-gray-200 pt-8 px-4 lg:px-0">
             <h2 className="text-2xl font-bold uppercase">
               Sản phẩm được xem nhiều nhất
             </h2>
@@ -63,7 +63,7 @@ const CartPage = () => {
 
           {user && (
             <>
-              <div className="text-gray-900 mt-8 border-t border-gray-200 pt-8">
+              <div className="text-gray-900 mt-8 border-t border-gray-200 pt-8 px-4 lg:px-0">
                 <h2 className="text-2xl font-bold uppercase">
                   Sản phẩm đã xem
                 </h2>
@@ -75,7 +75,7 @@ const CartPage = () => {
                   ))}
                 </div>
               </div>
-              <div className="text-gray-900 mt-8 border-t border-gray-200 pt-8">
+              <div className="text-gray-900 mt-8 border-t border-gray-200 pt-8 px-4 lg:px-0">
                 <h2 className="text-2xl font-bold uppercase">
                   Sản phẩm yêu thích
                 </h2>

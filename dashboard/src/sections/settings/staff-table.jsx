@@ -181,7 +181,7 @@ EnhancedTableToolbar.propTypes = {
   onSearch: PropTypes.func,
 };
 
-export default function StaffTable({ data, onClickRow }) {
+export default function StaffTable({ data, onClickRow, warehouses }) {
   const [staffs, setStaffs] = React.useState([]);
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('calories');
@@ -192,7 +192,6 @@ export default function StaffTable({ data, onClickRow }) {
   React.useEffect(() => {
     setStaffs(data);
   }, [data]);
-
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -259,6 +258,10 @@ export default function StaffTable({ data, onClickRow }) {
   const handleClickRow = (id) => {
     onClickRow(id);
   };
+  const getWarehouseName = (id) => {
+    const d = warehouses.find((item) => item._id === id);
+    return d?.name;
+  };
   return (
     <Paper sx={{ width: '100%', mb: 2 }}>
       <EnhancedTableToolbar numSelected={selected.length} onSearch={handleSearch} />
@@ -301,7 +304,7 @@ export default function StaffTable({ data, onClickRow }) {
                   <TableCell component="th" id={labelId} scope="row" padding="none">
                     {row.name}
                   </TableCell>
-                  <TableCell align="right">{row.branchId}</TableCell>
+                  <TableCell align="right">{getWarehouseName(row.branchId)}</TableCell>
                   <TableCell align="right">
                     <Label color={row.role === 'ban' ? 'error' : 'success'}>
                       {row.role === 'ban' ? 'Cấm' : 'Hoạt động'}
@@ -347,4 +350,5 @@ export default function StaffTable({ data, onClickRow }) {
 StaffTable.propTypes = {
   data: PropTypes.array.isRequired,
   onClickRow: PropTypes.func,
+  warehouses: PropTypes.array,
 };

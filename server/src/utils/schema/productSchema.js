@@ -257,10 +257,10 @@ export const UPDATE_PRODUCT = Joi.object({
     'string.empty': 'Thương hiệu không được để trống',
   }),
   status: Joi.boolean(),
-  views: Joi.number().integer().default(0),
-  inventory: Joi.number().integer().default(0),
-  minInventory: Joi.number().integer().default(0),
-  maxInventory: Joi.number().integer().default(0),
+  views: Joi.number().integer(),
+  inventory: Joi.number().integer(),
+  minInventory: Joi.number().integer(),
+  maxInventory: Joi.number().integer(),
   variants: Joi.alternatives().try(
     Joi.object(),
     Joi.array().items(
@@ -315,7 +315,7 @@ export const UPDATE_PRODUCT = Joi.object({
             }),
           })
         ),
-        image: Joi.string().trim().min(1).messages({
+        image: Joi.string().allow(null).trim().min(1).messages({
           'string.empty': 'Ảnh biến thể không được để trống',
         }),
       })

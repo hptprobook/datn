@@ -1,12 +1,35 @@
 import { Icon } from '@iconify/react';
-import { Link } from 'react-router-dom';
+import { useMutation } from '@tanstack/react-query';
+import { Link, useNavigate } from 'react-router-dom';
+import { updateCurrentUser } from '~/APIs';
 import { iconForNotify } from '~/pages/User/Profile/utils/iconForNotify';
 
-const NotifyBar = ({ notifies }) => {
+const NotifyBar = ({ notifies, refetchUser }) => {
+  const navigate = useNavigate();
+
+  const handleNotifyClick = (notify) => {
+    markAsRead(notify);
+    if (notify.type === 'order') {
+      navigate(`/nguoi-dung/don-hang/${notify.orderCode}`);
+    }
+  };
+
+  const { mutate: markAsRead } = useMutation({
+    mutationFn: (notify) => {
+      const updateNotify = notifies.map((n) =>
+        n._id === notify._id ? { ...n, isReaded: true } : n
+      );
+      return updateCurrentUser({ notifies: updateNotify });
+    },
+    onSuccess: () => {
+      refetchUser();
+    },
+  });
+
   return (
-    <Link
-      to={'/nguoi-dung/tai-khoan/thong-bao'}
+    <div
       className="relative text-2xl text-gray-50 cursor-pointer group z-10"
+      onClick={() => navigate('/nguoi-dung/tai-khoan/thong-bao')}
     >
       <Icon icon="line-md:bell" />
       <div className="absolute w-[400px] top-14 right-0 bg-gray-100 text-black cursor-default py-4 text-xs shadow-md shadow-gray-200 hidden group-hover:block before:absolute before:w-60 before:h-8 before:-top-8 before:right-0 before:bg-transparent">
@@ -23,27 +46,30 @@ const NotifyBar = ({ notifies }) => {
                   (item) => item.type === notify.type
                 );
                 return (
-                  <div
-                    className={`cursor-pointer hover:bg-gray-200 hover:text-red-600 ${
-                      !notify.isReaded ? 'bg-red-100' : ''
-                    }`}
-                    key={notify._id}
-                  >
-                    <div className="flex items-center py-3 text-sm px-4">
-                      <Icon
-                        icon={notifyIcon ? notifyIcon.icon : 'line-md:bell'}
-                        className={`w-10 h-10 mr-4 ${
-                          notifyIcon ? notifyIcon.color : ''
-                        }`}
-                      />
-                      <div>
-                        <p className="font-bold text-md">{notify?.title}</p>
-                        <p className="text-gray-600 text-sm font-light">
-                          {notify?.description}
-                        </p>
+                  <>
+                    <div
+                      onClick={() => handleNotifyClick(notify)}
+                      className={`cursor-pointer hover:bg-gray-200 hover:text-red-600 ${
+                        !notify.isReaded ? 'bg-red-100' : ''
+                      }`}
+                      key={notify._id}
+                    >
+                      <div className="flex items-center py-3 text-sm px-4">
+                        <Icon
+                          icon={notifyIcon ? notifyIcon.icon : 'line-md:bell'}
+                          className={`w-10 h-10 mr-4 ${
+                            notifyIcon ? notifyIcon.color : ''
+                          }`}
+                        />
+                        <div>
+                          <p className="font-bold text-md">{notify?.title}</p>
+                          <p className="text-gray-600 text-sm font-light">
+                            {notify?.description}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  </>
                 );
               })
           ) : (
@@ -53,10 +79,10 @@ const NotifyBar = ({ notifies }) => {
           )}
         </div>
         <div className="text-gray-700 mt-4 py-2 px-4 text-center hover:text-red-600 cursor-pointer">
-          Xem tất cả
+          <Link to={'/nguoi-dung/tai-khoan/thong-bao'}>Xem tất cả</Link>
         </div>
       </div>
-    </Link>
+    </div>
   );
 };
 

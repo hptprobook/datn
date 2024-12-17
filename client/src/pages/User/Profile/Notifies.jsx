@@ -93,19 +93,31 @@ const Notifies = () => {
           notifyDate.getFullYear() === now.getFullYear()
         );
       },
-      '3 ngày qua': (date) => {
+      '3 ngày': (date) => {
         const differenceInMs = now - new Date(date);
         return differenceInMs <= 3 * oneDayInMs;
       },
-      '1 tuần qua': (date) => {
+      '1 tuần': (date) => {
         const differenceInMs = now - new Date(date);
         return differenceInMs <= 7 * oneDayInMs;
       },
-      '1 tháng qua': (date) => {
+      '1 tháng': (date) => {
         const differenceInMs = now - new Date(date);
         return differenceInMs <= 30 * oneDayInMs;
       },
+      'Cũ nhất': () => {
+        if (!user?.notifies || user.notifies.length === 0) {
+          return [];
+        }
+        return [...user.notifies].sort(
+          (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+        );
+      },
     };
+
+    if (filterValue === 'Cũ nhất') {
+      return filterOptions['Cũ nhất']();
+    }
 
     return user?.notifies?.filter((notify) =>
       filterOptions[filterValue](notify.createdAt)
@@ -125,15 +137,16 @@ const Notifies = () => {
           </h3>
 
           <select
-            className="select select-success rounded-md w-52"
+            className="select select-success rounded-md w-52 bg-white text-gray-900"
             value={filterValue}
             onChange={handleFilterChange}
           >
             <option value="">Tất cả</option>
+            <option value="Cũ nhất">Cũ nhất</option>
             <option value="Hôm nay">Hôm nay</option>
-            <option value="3 ngày qua">3 ngày qua</option>
-            <option value="1 tuần qua">1 tuần qua</option>
-            <option value="1 tháng qua">1 tháng qua</option>
+            <option value="3 ngày">3 ngày qua</option>
+            <option value="1 tuần">1 tuần qua</option>
+            <option value="1 tháng">1 tháng qua</option>
           </select>
         </div>
 

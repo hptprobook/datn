@@ -2,8 +2,13 @@ import { GET_DB } from '~/config/mongodb';
 import { ObjectId } from 'mongodb';
 
 const getHotSearch = async () => {
-  const db = await GET_DB().collection('hotSearch');
-  const result = await db.find().toArray();
+  const db = await GET_DB();
+  const result = await db
+    .collection('hotSearch')
+    .find()
+    .sort({ count: -1 })
+    .limit(10)
+    .toArray();
   return result;
 };
 

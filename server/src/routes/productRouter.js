@@ -47,6 +47,8 @@ Router.get('/filter/price/desc', productController.getProductByPriceDesc);
 Router.get('/filter/created/newest', productController.getProductByNewest);
 Router.get('/filter/created/oldest', productController.getProductByOldest);
 //search
+Router.get('/search/suggestions', productController.getProductSuggestions);
+Router.get('/search/elasticsearch', productController.searchByElasticsearch);
 //Sort category
 Router.get('/:slug/filter', productController.getProductByCategoryFilter);
 
@@ -96,5 +98,8 @@ Router.delete(
 );
 Router.get('/search/dashboard', productController.searchInDashboard);
 Router.post('/getByIds', productController.getProductByArrayId);
+
+Router.get('/test/elasticsearch', productController.testElasticsearchEndpoint);
+Router.post('/creates', productController.creates);
 
 export const productsApi = Router;

@@ -80,7 +80,7 @@ export const couponSchema = Yup.object().shape({
   minPurchasePrice: Yup.number()
     .min(0, 'Giá trị mua tối thiểu phải lớn hơn hoặc bằng 0.')
     .typeError('Giá trị mua tối thiểu phải là một số.')
-    .max(99999999, 'Giá trị mua tối thiểu không được vượt quá 99999999.'),
+    .max(1000, 'Giá trị mua tối thiểu không được vượt quá 1000.'),
   maxPurchasePrice: Yup.number()
     .min(Yup.ref('minPurchasePrice'), 'Giá trị mua tối đa phải lớn hơn hoặc bằng giá trị mua tối thiểu.')
     .max(99999999, 'Giá trị mua tối đa không được vượt quá 99999999.')
@@ -99,26 +99,20 @@ export const couponSchema = Yup.object().shape({
     .min(10, 'Mô tả khuyến mãi phải có ít nhất 10 ký tự.')
     .max(255, 'Mô tả khuyến mãi không được vượt quá 255 ký tự.'),
   usageLimit: Yup.number()
+  .default(10000)
     .required('Giới hạn sử dụng là bắt buộc.')
     .integer('Giới hạn sử dụng phải là một số nguyên.')
     .min(1, 'Giới hạn sử dụng phải lớn hơn hoặc bằng 1.')
-    .max(99999, 'Giới hạn sử dụng không được vượt quá 99999.'),
-
+    .max(10000, 'Giới hạn sử dụng không được vượt quá 10000.'),
   status: Yup.string()
     .trim()
     .oneOf(['active', 'inactive', 'expired'], 'Trạng thái phải là một trong các giá trị sau: active, inactive, expired.')
     .default('active'),
-
   limitOnUser: Yup.boolean()
     .default(false)
     .typeError('Giới hạn sử dụng cho mỗi người dùng phải là một giá trị boolean.'),
-
-  dateStart: Yup.date()
-    .typeError('Ngày bắt đầu không hợp lệ'),
-
-
-  dateEnd: Yup.date()
-    .typeError('Ngày kết thúc không hợp lệ')
+    dateStart: Yup.date().typeError('Ngày bắt đầu không hợp lệ'),
+    dateEnd: Yup.date().typeError('Ngày kết thúc không hợp lệ'),
 });
 export function createCode(str) {
   // Chuyển đổi các ký tự tiếng Việt sang dạng không dấu

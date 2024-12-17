@@ -182,7 +182,10 @@ export default function BrandsPage() {
           <Typography variant="h4">Nhãn hàng</Typography>
           <Button
             variant="contained"
-            onClick={() => handleExport(brands, 'Danh sách nhãn hàng', 'brands')}
+            onClick={() => handleExport(brands, 'Danh sách nhãn hàng', 'brands', [
+              'createdAt',
+              'updatedAt',
+            ])}
             color="inherit"
             startIcon={<IconExcel />}
           >

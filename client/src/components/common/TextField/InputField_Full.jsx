@@ -20,14 +20,14 @@ const InputField_Full = ({
   };
 
   return (
-    <div className='col-span-6 max-lg:col-span-4 md:col-span-6'>
+    <div className="col-span-6 max-lg:col-span-6 md:col-span-6">
       <label
         htmlFor={id}
-        className='block text-sm font-medium text-gray-700 mb-2'
+        className="block text-sm font-medium text-gray-700 mb-2"
       >
         {label}
       </label>
-      <div className='relative'>
+      <div className="relative">
         <input
           type={type === 'password' && showPassword ? 'text' : type}
           id={id}
@@ -42,19 +42,19 @@ const InputField_Full = ({
         />
         {type === 'password' && (
           <button
-            type='button'
+            type="button"
             onClick={togglePasswordVisibility}
-            className='absolute inset-y-0 right-0 flex items-center px-2'
+            className="absolute inset-y-0 right-0 flex items-center px-2"
           >
             {showPassword ? (
-              <Icon icon='mdi:eye-off' />
+              <Icon icon="mdi:eye-off" />
             ) : (
-              <Icon icon='mdi:eye' />
+              <Icon icon="mdi:eye" />
             )}
           </button>
         )}
       </div>
-      {error && <p className='text-red-500 text-xs mt-1'>{error}</p>}{' '}
+      {error && <p className="text-red-500 text-xs mt-1">{error}</p>}{' '}
       {/* Display error if exists */}
     </div>
   );

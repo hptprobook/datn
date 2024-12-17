@@ -15,8 +15,6 @@ const getAllVariants = async (req, res) => {
 const createVariant = async (req, res) => {
   try {
     const data = req.body;
-    const formattedName = data.name.toLowerCase().replace(/\s+/g, '_');
-    data.name = formattedName;
     const variant = await variantsModel.getVariantByName(data.name);
     if (variant) {
       return res.status(StatusCodes.BAD_REQUEST).json({
@@ -122,16 +120,14 @@ const createManyVariants = async (req, res) => {
 
     for (const variantData of variants) {
       try {
-        const formattedName = variantData.name
-          .toLowerCase()
-          .replace(/\s+/g, '_');
-        variantData.name = formattedName;
-
         const existingVariant = await variantsModel.getVariantByName(
           variantData.name
         );
         if (variantData._id) {
-          if (existingVariant && existingVariant._id.toString() !== variantData._id) {
+          if (
+            existingVariant &&
+            existingVariant._id.toString() !== variantData._id
+          ) {
             errors.push({
               name: variantData.name,
               message: 'Biến thể đã tồn tại',
@@ -140,16 +136,12 @@ const createManyVariants = async (req, res) => {
           }
           const id = variantData._id;
           delete variantData._id;
-          const updatedVariant = await variantsModel.update(
-            id,
-            variantData
-          );
+          const updatedVariant = await variantsModel.update(id, variantData);
           successfulVariants.push({
             message: 'Cập nhật thành công biến thể: ' + updatedVariant.name,
             data: updatedVariant,
           });
-        }
-        else {
+        } else {
           if (existingVariant) {
             errors.push({
               name: variantData.name,
@@ -165,7 +157,6 @@ const createManyVariants = async (req, res) => {
             data: result,
           }); // Lưu lại biến thể thành công
         }
-
       } catch (error) {
         // Lưu lại lỗi nếu có lỗi xảy ra với biến thể hiện tại
         errors.push({

@@ -35,6 +35,8 @@ import * as Yup from 'yup';
 import { useFormik } from 'formik';
 import PropTypes from 'prop-types';
 import { renderUrl } from 'src/utils/check';
+import LoadingFull from 'src/components/loading/loading-full';
+import ConfirmNormal from 'src/components/modal/confirm';
 import { statusConfig, handleStatusConfig } from '../utils';
 import OrderTimeline from '../app-order-timeline';
 
@@ -53,9 +55,9 @@ const style = {
 };
 const cancelSchema = Yup.object().shape({
   note: Yup.string()
-    .required('Lý do hủy đơn hàng không được để trống')
-    .min(10, 'Lý do hủy đơn hàng phải lớn hơn 10 ký tự')
-    .max(100, 'Lý do hủy đơn hàng phải nhỏ hơn 100 ký tự'),
+    .required('Lý do không được để trống')
+    .min(10, 'Lý do phải lớn hơn 10 ký tự')
+    .max(100, 'Lý do phải nhỏ hơn 100 ký tự'),
 });
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -85,6 +87,18 @@ function a11yProps(index) {
     'aria-controls': `simple-tabpanel-${index}`,
   };
 }
+const renderText = (t) => {
+  switch (t) {
+    case 'cancelled':
+      return 'Hủy đơn hàng';
+    case 'rejected':
+      return 'Từ chối trả hàng';
+    case 'approved':
+      return 'Chấp nhận trả hàng';
+    default:
+      return '';
+  }
+};
 
 // ----------------------------------------------------------------------
 export default function DetailOrderPage() {
@@ -95,6 +109,7 @@ export default function DetailOrderPage() {
   const [productList, setProductList] = useState([]);
   const [orderStatus, setOrderStatus] = useState([]);
   const [value, setValue] = useState(0);
+  const [openConfirm, setOpenConfirm] = useState(false);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -136,14 +151,19 @@ export default function DetailOrderPage() {
     },
     validationSchema: cancelSchema,
     onSubmit: (values) => {
+      const getNote = (s) => {
+        if (s === 'cancelled') return 'Chủ cửa hàng hủy đơn hàng';
+        if (s === 'rejected') return 'Từ chối trả hàng';
+        return 'Chấp nhận trả hàng';
+      };
       const dataUpdate = {
         status: {
-          status: 'cancelled',
-          note: 'Chủ cửa hàng hủy đơn hàng',
+          status: open === 'cancelled' ? 'cancelled' : 'returned',
+          note: getNote(open),
           reason: values.note,
+          returnStatus: open === 'cancelled' ? null : open,
         },
       };
-      setOpen(false);
       dispatch(updateOrder({ id, data: dataUpdate }));
     },
   });
@@ -178,16 +198,45 @@ export default function DetailOrderPage() {
       return '';
     }
     const latestStatus = orderStatus[orderStatus.length - 1]?.status;
-    if (latestStatus === 'pending' || latestStatus === 'confirmed') {
+    if (latestStatus === 'pending' || latestStatus === 'confirmed' || latestStatus === 'returned') {
       return (
         <Button
           variant="contained"
           color="error"
           startIcon={<Iconify icon="eva:close-fill" />}
-          onClick={() => setOpen(true)}
+          onClick={() => setOpen('cancelled')}
         >
           Hủy đơn hàng
         </Button>
+      );
+    }
+    return '';
+  };
+  const renderReturn = () => {
+    if (!Array.isArray(orderStatus) || orderStatus.length === 0) {
+      return '';
+    }
+    const latestStatus = orderStatus[orderStatus.length - 1];
+    if (latestStatus.status === 'returned' && latestStatus.returnStatus === 'pending') {
+      return (
+        <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
+          <Button
+            variant="contained"
+            color="error"
+            startIcon={<Iconify icon="eva:close-fill" />}
+            onClick={() => setOpen('rejected')}
+          >
+            Từ chối trả hàng
+          </Button>
+          <Button
+            variant="contained"
+            color="success"
+            startIcon={<Iconify icon="ic:outline-check" />}
+            onClick={() => setOpen('approved')}
+          >
+            Chấp nhận trả hàng
+          </Button>
+        </Stack>
       );
     }
     return '';
@@ -203,7 +252,7 @@ export default function DetailOrderPage() {
           variant="contained"
           color="inherit"
           startIcon={<Iconify icon={handleStatusConfig[latestStatus].icon} />}
-          onClick={() => handleUpdateOrder(handleStatusConfig[latestStatus])}
+          onClick={() => setOpenConfirm(handleStatusConfig[latestStatus])}
         >
           {handleStatusConfig[latestStatus].label}
         </Button>
@@ -213,6 +262,15 @@ export default function DetailOrderPage() {
   };
   return (
     <Container>
+      {status === 'loading' && <LoadingFull />}
+      {statusUpdate === 'loading' && <LoadingFull />}
+      <ConfirmNormal
+        onAgree={() => handleUpdateOrder(openConfirm)}
+        openConfirm={openConfirm}
+        onClose={() => setOpenConfirm(false)}
+        label={`Xác nhận trạng thái là: ${openConfirm.label}`}
+        secondLabel="Các hành động này không thể hoàn tác, bạn có chắc chắn muốn xác nhận?"
+      />
       <Modal
         open={open}
         onClose={handleClose}
@@ -221,7 +279,7 @@ export default function DetailOrderPage() {
       >
         <Box sx={style}>
           <Typography id="modal-modal-title" variant="h6" component="h2" mb={2}>
-            Lý do hủy đơn
+            Lý do
           </Typography>
           <form onSubmit={formik.handleSubmit}>
             <Stack spacing={3}>
@@ -241,8 +299,8 @@ export default function DetailOrderPage() {
                 <Button variant="contained" color="inherit" onClick={handleClose}>
                   Đóng
                 </Button>
-                <Button type="submit" variant="contained" color="error">
-                  Hủy đơn hàng
+                <Button type="submit" variant="contained" color="inherit">
+                  {renderText(open)}
                 </Button>
               </Stack>
             </Stack>
@@ -260,6 +318,7 @@ export default function DetailOrderPage() {
           spacing={2}
         >
           {renderCancel()}
+          {renderReturn()}
           {renderUpdateStatus()}
         </Stack>
       </Stack>

@@ -95,6 +95,31 @@ export default {
           '0%': { transform: 'scale(0.8)', opacity: '0.8' },
           '100%': { transform: 'scale(2)', opacity: '0' },
         },
+        blink: {
+          '0%, 100%': {
+            boxShadow:
+              '0 0 15px rgba(34, 197, 94, 0.7), 0 0 25px rgba(34, 197, 94, 0.5)',
+          },
+          '50%': {
+            boxShadow:
+              '0 0 30px rgba(34, 197, 94, 0.9), 0 0 40px rgba(34, 197, 94, 0.7)',
+          },
+        },
+        blink2: {
+          '0%, 100%': {
+            boxShadow:
+              '0 0 15px rgba(59, 130, 246, 0.7), 0 0 25px rgba(59, 130, 246, 0.5)',
+          },
+          '50%': {
+            boxShadow:
+              '0 0 30px rgba(59, 130, 246, 0.9), 0 0 40px rgba(59, 130, 246, 0.7)',
+          },
+        },
+        shake: {
+          '0%, 100%': { transform: 'translateX(0)' },
+          '25%': { transform: 'translateX(-5px)' },
+          '75%': { transform: 'translateX(5px)' },
+        },
       },
       animation: {
         slideIn: 'slideIn 0.3s ease-out forwards',
@@ -102,7 +127,10 @@ export default {
         slideDown: 'slideDown 0.3s ease-out forwards',
         slideUp: 'slideUp 0.3s ease-out forwards',
         twinkle: 'twinkle 0.3s ease-in-out',
+        blink: 'blink 1.5s infinite',
+        blink2: 'blink2 1.5s infinite',
         'twinkle-ring': 'twinkleRing 0.3s ease-out',
+        shake: 'shake 0.5s ease-in-out infinite',
       },
     },
   },

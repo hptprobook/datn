@@ -11,7 +11,8 @@ export default function Post() {
   });
 
   if (isLoading) return <MainLoading />;
-  if (!blogData || !Array.isArray(blogData) || blogData.length === 0) return null;
+  if (!blogData || !Array.isArray(blogData) || blogData.length === 0)
+    return null;
 
   const firstPost = blogData.reduce((max, post) => {
     if (!max || !post) return max || post;
@@ -42,9 +43,10 @@ export default function Post() {
                 {firstPost.title}
               </NavLink>
             </p>
-            <p className="text-slate-700 font-normal text-sm mt-1 text-clamp-3">
-              {firstPost.shortDesc}
-            </p>
+            <p
+              className="text-slate-700 font-normal text-sm mt-1 text-clamp-3"
+              dangerouslySetInnerHTML={{ __html: firstPost.shortDesc }}
+            />
           </div>
         )}
         <div className="h-full lg:overflow-hidden">
@@ -70,9 +72,10 @@ export default function Post() {
                       {post.title}
                     </NavLink>
                   </p>
-                  <p className="text-slate-700 font-normal text-sm mt-1 text-clamp-3">
-                    {post.content}
-                  </p>
+                  <p
+                    className="text-slate-700 font-normal text-sm mt-1 text-clamp-3"
+                    dangerouslySetInnerHTML={{ __html: post?.content }}
+                  />
                 </div>
               </div>
             );

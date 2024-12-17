@@ -23,6 +23,7 @@ import { setStatus, getStaffBy, updateStaffById } from 'src/redux/slices/staffSl
 import { isValidObjectId } from 'src/utils/check';
 import * as Yup from 'yup';
 import LoadingFull from 'src/components/loading/loading-full';
+import { fetchAll } from 'src/redux/slices/warehouseSlices';
 import { salaryType, renderSalaryType } from '../util';
 
 const staffSchema = Yup.object().shape({
@@ -41,9 +42,9 @@ const staffSchema = Yup.object().shape({
 
   email: Yup.string().email('Email không hợp lệ').required('Email không được để trống'),
 
-  // branchId: Yup.string()
-  //   .matches(/^[0-9a-fA-F]{24}$/, 'ID chi nhánh không hợp lệ')
-  //   .required('ID chi nhánh là bắt buộc'),
+  branchId: Yup.string()
+    .matches(/^[0-9a-fA-F]{24}$/, 'ID chi nhánh không hợp lệ')
+    .required('ID chi nhánh là bắt buộc'),
 
   cccd: Yup.string()
     .matches(/^[0-9]+$/, 'CCCD chỉ được chứa số')
@@ -93,6 +94,7 @@ const EditStaffPage = () => {
   const error = useSelector((state) => state.staffs.error);
   const statusGet = useSelector((state) => state.staffs.statusGet);
   const status = useSelector((state) => state.staffs.statusUpdate);
+  const warehouses = useSelector((state) => state.warehouses.warehouses);
   const navigate = useNavigate();
   const { id } = useParams();
   const data = useSelector((state) => state.staffs.staff);
@@ -133,10 +135,11 @@ const EditStaffPage = () => {
       values.salary = Number(values.salary);
       delete values._id;
       Object.keys(values).forEach((key) => {
-        if (values[key] === null) {
+        if (values[key] === null || values[key] === undefined || values[key] === '') {
           delete values[key];
         }
       });
+      console.log(values);
       dispatch(
         updateStaffById({
           id,
@@ -145,6 +148,10 @@ const EditStaffPage = () => {
       );
     },
   });
+  useEffect(() => {
+    dispatch(fetchAll());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   useEffect(() => {
     if (status === 'successful') {
       dispatch(
@@ -226,7 +233,7 @@ const EditStaffPage = () => {
                   helperText={formik.touched.email && formik.errors.email}
                 />
               </Grid2>
-              <Grid2 xs={12} md={6}>
+              <Grid2 xs={12} md={4}>
                 <TextField
                   label="Số điện thoại"
                   fullWidth
@@ -237,7 +244,18 @@ const EditStaffPage = () => {
                   helperText={formik.touched.phone && formik.errors.phone}
                 />
               </Grid2>
-              <Grid2 xs={12} md={6}>
+              <Grid2 xs={12} md={4}>
+                <TextField
+                  label="Mật khẩu"
+                  fullWidth
+                  name="password"
+                  value={formik.values.password}
+                  onChange={formik.handleChange}
+                  error={formik.touched.password && Boolean(formik.errors.password)}
+                  helperText={formik.touched.password && formik.errors.password}
+                />
+              </Grid2>
+              <Grid2 xs={12} md={4}>
                 <TextField
                   label="CCCD/CMND"
                   fullWidth
@@ -277,8 +295,7 @@ const EditStaffPage = () => {
                 </FormControl>
               </Grid2>
               <Grid2 xs={12} md={4}>
-                Chi nhánh đang phát triển
-                {/* <FormControl fullWidth>
+                <FormControl fullWidth>
                   <InputLabel id="branch-select-label">Chi nhánh</InputLabel>
                   <Select
                     labelId="branch-select-label"
@@ -289,11 +306,14 @@ const EditStaffPage = () => {
                     label="Chi nhánh"
                     onChange={formik.handleChange}
                   >
-                    <MenuItem value="670a8c79f2f878ef31a0b506">Chi nhánh 1(Dữ liệu demo)</MenuItem>
-                    <MenuItem value="670a8c79f2f878ef31a0b504">Chi nhánh 2(Dữ liệu demo)</MenuItem>
+                    {warehouses?.map((warehouse) => (
+                      <MenuItem value={warehouse._id} key={warehouse._id}>
+                        {warehouse.name}
+                      </MenuItem>
+                    ))}
                   </Select>
                   <FormHelpTextError label={formik.touched.branchId && formik.errors.branchId} />
-                </FormControl> */}
+                </FormControl>
               </Grid2>
               <Grid2 xs={12}>
                 <TextField
