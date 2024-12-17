@@ -59,7 +59,7 @@ export default function MainLayout() {
 
   return (
     <main className="bg-white">
-      <a href={`tel:${config?.phone}`} className="text-white">
+      <a href={`tel:${config?.phone}`} className="text-white hidden lg:block">
         <div className="fixed bottom-8 left-14 w-16 h-16 bg-green-500 rounded-full flex items-center justify-center shadow-lg z-50 animate-blink hover:scale-110 transition-transform duration-200 cursor-pointer">
           <Icon icon="mdi:phone" width="32" height="32" />
         </div>
@@ -67,7 +67,7 @@ export default function MainLayout() {
 
       <a
         href={`https://zalo.me/${config?.zalo}`}
-        className="text-white"
+        className="text-white hidden lg:block"
         target="_blank"
       >
         <div className="fixed bottom-32 left-14 w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center shadow-lg z-50 animate-blink2 hover:scale-110 transition-transform duration-200 cursor-pointer">
@@ -75,7 +75,11 @@ export default function MainLayout() {
         </div>
       </a>
 
-      <a href={`${config?.FanpageFb}`} className="text-white" target="_blank">
+      <a
+        href={`${config?.FanpageFb}`}
+        className="text-white hidden lg:block"
+        target="_blank"
+      >
         <div className="fixed bottom-56 left-14 w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center shadow-lg z-50 animate-blink2 hover:scale-110 transition-transform duration-200 cursor-pointer">
           <Icon icon="ic:baseline-facebook" width="32" height="32" />
         </div>
