@@ -8,17 +8,14 @@ import {
   Card,
   Chip,
   Select,
-  Switch,
   Button,
   MenuItem,
   TextField,
-  FormLabel,
   SpeedDial,
   InputLabel,
   IconButton,
   FormControl,
   FormHelperText,
-  FormControlLabel,
 } from '@mui/material';
 import { Field, FastField, useFormik, FormikProvider } from 'formik';
 import * as Yup from 'yup';
@@ -311,13 +308,14 @@ export default function DetailProductPage() {
   useEffect(() => {
     if (status === 'successful') {
       handleToast('success', 'Cập nhật sản phẩm thành công');
+      dispatch(setStatus({ key: 'statusUpdate', value: 'idle' }));
+      dispatch(setStatus({ key: 'error', value: 'idle' }));
     }
     if (status === 'failed') {
       handleToast('error', error?.message || 'Có lỗi xảy ra');
+      dispatch(setStatus({ key: 'statusUpdate', value: 'idle' }));
+      dispatch(setStatus({ key: 'error', value: 'idle' }));
     }
-
-    dispatch(setStatus({ key: 'statusUpdate', value: 'idle' }));
-    dispatch(setStatus({ key: 'error', value: 'idle' }));
   }, [status, error, dispatch]);
   const categoryOptions = useMemo(
     () => categories.map((item) => ({ value: item._id, label: item.name })),
@@ -404,7 +402,7 @@ export default function DetailProductPage() {
                           )}
                         </FastField>
                       </Grid2>
-                      <Grid2 xs={4}>
+                      <Grid2 xs={6}>
                         <FastField name="price">
                           {({ field, meta }) => (
                             <TextField
@@ -418,7 +416,7 @@ export default function DetailProductPage() {
                           )}
                         </FastField>
                       </Grid2>
-                      <Grid2 xs={4}>
+                      <Grid2 xs={6}>
                         <FastField name="statusStock">
                           {({ field, form, meta }) => (
                             <FormControl
@@ -444,7 +442,7 @@ export default function DetailProductPage() {
                           )}
                         </FastField>
                       </Grid2>
-                      <Grid2 xs={4}>
+                      {/* <Grid2 xs={4}>
                         <FastField name="status">
                           {({ field, form, meta }) => (
                             <FormControl component="fieldset" variant="standard">
@@ -467,7 +465,7 @@ export default function DetailProductPage() {
                             </FormControl>
                           )}
                         </FastField>
-                      </Grid2>
+                      </Grid2> */}
                     </Grid2>
                   </Card>
                   <Card

@@ -126,7 +126,6 @@ const productsSlice = createSlice({
       })
       .addCase(createProduct.fulfilled, (state, action) => {
         state.statusCreate = 'successful';
-        state.dataCreate = action.payload;
       })
       .addCase(createProduct.rejected, (state, action) => {
         state.statusCreate = 'failed';

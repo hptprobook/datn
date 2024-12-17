@@ -6,5 +6,6 @@ Router.get('/users', dashboardController.userStatistics);
 Router.get('/receipts', dashboardController.receiptStatistics);
 Router.get('/products', dashboardController.productsStatistics);
 Router.get('/orders/7day', dashboardController.orders7DayStatistics);
+Router.get('/receipts/filter', dashboardController.receiptFilterStatistics);
 
 export const dashboardApi = Router;
