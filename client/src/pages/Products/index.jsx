@@ -77,7 +77,7 @@ const ProductPage = () => {
     return () => clearTimeout(viewTimeout);
   }, [productInfo, user, updateViews]);
 
-  if (isLoading || !productInfo) return <MainLoading />;
+  if (isLoading) return <MainLoading />;
 
   const variantImages = productInfo.variants
     ?.map((variant) => variant.image)
@@ -102,6 +102,13 @@ const ProductPage = () => {
 
   return (
     <section className="max-w-container mx-auto mt-16">
+      {!productInfo && (
+        <div className="flex justify-center items-center h-screen">
+          <h1 className="text-2xl font-bold">
+            Sản phẩm không tồn tại, vui lòng quay lại sau
+          </h1>
+        </div>
+      )}
       <Helmet>
         <title>BMT Life | {productInfo.name || 'Chi tiết sản phẩm'}</title>
         <meta
